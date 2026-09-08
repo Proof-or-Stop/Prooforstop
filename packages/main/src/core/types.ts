@@ -2065,8 +2065,8 @@ export interface ReviewInventoryReceipt {
   waveCount: number;
   findingSetDigest: string;
   coverageDigest: string;
-  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS';
-  authority: 'inventory-completeness-only';
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS' | 'NOT_EVALUATED_FOR_REMEDIATION';
+  authority: 'inventory-completeness-only' | 'review-remediation-only';
   authorizesTest: false;
   issuedAt: string;
   consumedAt?: string;

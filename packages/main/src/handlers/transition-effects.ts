@@ -286,7 +286,7 @@ ${agentLines}
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
-→ Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize(${storyId}); only its signed receipt authorizes story_advance(${storyId}, DEV)
+→ Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize --storyId=${storyId} --remediation; a complete first wave is sufficient even with new findings, and this receipt cannot enter certification or TEST. Only its signed receipt authorizes story_advance(${storyId}, DEV)
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"proof-or-stop-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
       // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the

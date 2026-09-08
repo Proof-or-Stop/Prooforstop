@@ -732,6 +732,7 @@ Behavior:
   }},
   { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
+    remediation: z.boolean().optional().describe('Finalize a complete critic-certified wave for repair only, including new findings. This receipt never grants certification or TEST authority.'),
   }},
   { name: 'review_inventory_cancel', description: 'Cancel an OPEN epoch or invalidate an unconsumed FINALIZED receipt without granting transition authority', schema: {
     storyId: z.string().min(1).describe('Story ID.'),

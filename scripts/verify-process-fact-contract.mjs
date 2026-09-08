@@ -4509,7 +4509,7 @@ function assertReviewInventoryRemediationContract() {
   );
   assert(
     /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
-    `${inventoryHandlerPath}: a complete nonzero-new wave must expose the explicit wave-advance blocker and command`,
+    `${inventoryHandlerPath}: explicit saturation finalization must preserve the wave-advance blocker and command`,
   );
   assert(
     /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
@@ -8409,6 +8409,15 @@ function assertFilePatterns(entryName, relPath, patterns) {
 }
 
 const inventory = [
+  {
+    name: 'Production validation sharing and bounded repair authority',
+    files: [
+      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt']},
+      {relPath:'packages/main/src/core/review-inventory-epoch.ts',patterns:['review-remediation-only','remediation-only receipt cannot enter certification','rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount']},
+      {relPath:'packages/main/src/handlers/transition-effects.ts',patterns:['--remediation','cannot enter certification or TEST']},
+      {relPath:'docs/validation-performance.md',patterns:['exact-inputs','forbidden','--remediation','no Story-wide speedup']},
+    ],
+  },
   {
     name: 'Explicit Lab maintenance integration boundary',
     files: [

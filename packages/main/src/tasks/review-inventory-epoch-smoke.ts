@@ -636,7 +636,7 @@ assert.equal(verifyReviewInventoryReceipt(tamperedEarly as never),false);
 const missingCritic = earlyStore();
 const absentCriticData={...earlyData,criticReceipts:[]};
 missingCritic.writeReviewInventoryEpochs(storyId,absentCriticData);
-assert.throws(()=>consumeReviewInventoryReceipt(missingCritic as never,storyId,reviewRound,cutoff),/critic/);
+assert.throws(()=>consumeReviewInventoryReceipt(missingCritic as never,storyId,reviewRound,cutoff),/REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED/);
 const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
 assert.equal(reviewInventoryRemediationGate(mockStore as never, storyId, 'wrong-round').ok, false);

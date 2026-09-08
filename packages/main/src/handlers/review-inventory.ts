@@ -245,9 +245,6 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   if (epoch.state === 'OPEN' && live?.baselineMismatchIds.length) blockers.push('REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED');
   if (epoch.state === 'OPEN' && live && live.missingLanes.length === 0
     && live.duplicateIdentities.length === 0 && !projection.criticComplete) blockers.push('REVIEW_INVENTORY_CRITIC_INCOMPLETE');
-  if (epoch.state === 'OPEN' && projection.criticComplete && live?.newFamilies.length) {
-    blockers.push('REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE');
-  }
   let next: string;
   if (epoch.state === 'OPEN') {
     if (blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')) {
@@ -269,7 +266,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
         ? `proof-or-stop review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'proof-or-stop-review-topology-critic', findingDispositions: conservativeDispositions })}'`
         : `proof-or-stop dispatch '${JSON.stringify({ storyId: epoch.storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId })}'`;
     } else if (live?.newFamilies.length) {
-      next = `proof-or-stop review_inventory_wave_advance --storyId=${epoch.storyId}`;
+      next = `proof-or-stop review_inventory_finalize --storyId=${epoch.storyId} --remediation`;
     } else {
       next = `proof-or-stop review_inventory_finalize --storyId=${epoch.storyId}`;
     }
@@ -575,10 +572,11 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       });
     },
 
-    review_inventory_finalize(args: { storyId: string }): string {
+    review_inventory_finalize(args: { storyId: string; remediation?: boolean }): string {
       return inventoryLock(ctx, args.storyId, () => {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
         if (!epoch) {
+          if (args.remediation) throw new Error('REVIEW_INVENTORY_REMEDIATION_REQUIRES_COMPLETE_OPEN_WAVE');
           const story = ctx.store.readStory(args.storyId);
           const cutoff = capture(ctx, args.storyId);
           if (!cutoff.headHash || !cutoff.materialHash || !cutoff.storyFilesHash) {
@@ -624,7 +622,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const now = new Date().toISOString();
         const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
-        if (!wave.saturated) {
+        if (!wave.saturated && args.remediation !== true) {
           throw new Error(
             `REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE: ${evaluation.newFamilies.join(', ')}; ` +
             `Next: proof-or-stop review_inventory_wave_advance --storyId=${args.storyId}`,
@@ -644,8 +642,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           waveCount: epoch.waves.length + 1,
           findingSetDigest: reviewInventoryDigest(aggregateFamilies),
           coverageDigest: reviewInventoryDigest([...epoch.waves, wave].flatMap(row => row.lanes.map(lane => lane.coverageDigest))),
-          saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
-          authority: 'inventory-completeness-only',
+          saturationResult: args.remediation ? 'NOT_EVALUATED_FOR_REMEDIATION' : 'ZERO_NEW_VERIFIED_FINDINGS',
+          authority: args.remediation ? 'review-remediation-only' : 'inventory-completeness-only',
           authorizesTest: false,
           issuedAt: now,
         };

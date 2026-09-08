@@ -1,3 +1,4 @@
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS } from './runtime-fact-registry.js';
 /**
  * B-c55d CHK-001: story owner lease core (local session ownership).
  *
@@ -243,7 +244,8 @@ function nonEmptyString(value: unknown): string | null {
 
 function normalizedCwdForCompare(value: unknown): string | null {
   const cwd = nonEmptyString(value);
-  return cwd === null ? null : resolve(cwd);
+  if (cwd === null) return null;
+  try { return realpathSync(resolve(cwd)); } catch { return resolve(cwd); }
 }
 
 function ownerCwdMatchesCurrent(ownerCwd: unknown, currentCwd: unknown): boolean {
@@ -913,7 +915,7 @@ export async function withOwnerLeaseHeartbeat<T>(
   });
   beat();
   let failure: unknown;
-  const interval = options.intervalMs ?? 30000;
+  const interval = options.intervalMs ?? VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.ownerLeaseHeartbeatMs;
   if (!Number.isFinite(interval) || interval < 1 || interval >= STALE_LEASE_THRESHOLD_MS / 2) {
     throw new Error('invalid owner lease heartbeat interval');
   }

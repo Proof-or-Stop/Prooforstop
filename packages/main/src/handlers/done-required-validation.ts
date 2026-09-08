@@ -1,3 +1,4 @@
+import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -47,6 +48,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         requireGitIdentity: true,
         command: 'done_required_validate',
         ...declaredValidationCapacity(policy.commands, gitCwd),
+        sharedExecution: {storyId,receiptStore:ctx.store,probe:input=>probeValidationCausalPreflightFacts(ctx,storyId,input)},
         ownerLeaseDir: ctx.store.storyDirPath(storyId),
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,

@@ -62,6 +62,17 @@
     "commands": [
       {
         "command": "node",
+        "args": ["scripts/verify-performance-production.mjs"],
+        "timeoutMs": 180000,
+        "focus": ["fast"],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-production-performance-regressions"
+      },
+      {
+        "command": "node",
         "args": ["scripts/verify-lab-worktree.mjs"],
         "timeoutMs": 180000,
         "focus": ["fast"],

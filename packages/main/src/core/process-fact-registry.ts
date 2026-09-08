@@ -358,7 +358,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch including initialRunSequenceBoundary, complete acceptance scopeDigest, candidateSpecSetDigest, corpusDigest, requiredLanes, and baselineFindingIds; signReviewInventoryReceipt/verifyReviewInventoryReceipt',
     producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_wave_advance/review_inventory_finalize/review_inventory_cancel',
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate',
   },
   review_inventory_status: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
@@ -374,7 +374,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   review_inventory_wave_advance: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families; nextRunSequenceBoundary seals every lower/equal ReviewRun independent of timestamp equality', producerCommand: 'review_inventory_wave_advance',
-    consumerGate: 'review_inventory_finalize zero-new saturation gate and reviewer terminal admission boundary',
+    consumerGate: 'review_inventory_finalize authority-specific completeness gate and reviewer terminal admission boundary',
     reviewerLane: 'proof-or-stop-review-topology-critic',
   },
   review_inventory_finalize: {
@@ -383,7 +383,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt and signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt under withReviewInventoryMutationLock; authorizesTest=false inventory-completeness-only never authorizes PRE_CERT',
     producerCommand: 'review_inventory_finalize',
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate with live terminal/finding aggregate replay before consume; certification_window_begin',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate with live terminal/finding aggregate replay before consume; certification_window_begin',
   },
   review_inventory_cancel: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
@@ -1469,10 +1469,10 @@ export const PROCESS_FACT_ARTIFACTS = [
     level: 'L4',
     producer: 'handlers/review-inventory',
     producerSourceRefs: ['packages/main/src/core/review-inventory-epoch.ts', 'packages/main/src/handlers/review-inventory.ts'],
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate and certification_window_begin',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate and certification_window_begin',
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
-    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts prove only bounded zero-new verified-finding saturation, are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT.',
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts either prove bounded zero-new verified-finding saturation or explicitly grant review-remediation-only authority after a complete critic-certified wave; remediation-only receipts cannot enter certification. Both are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT.',
   },
   {
     name: 'artifact:findings.json',
@@ -1792,7 +1792,17 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
   rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
+export const PROCESS_FACT_VALIDATION_EXECUTION = [{
+  name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
+  level: 'L4', producer: 'core/shared-validation-execution',
+  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts'],
+  consumerGate: 'validate and done_required_validate retain their independent acceptance and build-proof predicates',
+  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  ...PROCESS_FACT_VALIDATION_EXECUTION,
   ...PROCESS_FACT_LAB_MAINTENANCE,
   ...COMMAND_PROCESS_FACTS,
   ...PROCESS_FACT_REVIEWER_LANES,

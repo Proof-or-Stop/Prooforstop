@@ -58,7 +58,7 @@ import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { CONFIG_FILENAMES, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
 import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
-import { createVerifierHandlers } from '../handlers/verifier.js';
+import { createVerifierHandlers as unownedcreateVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
@@ -1804,3 +1804,14 @@ void (async () => {
     process.exit(1);
   }
 })();
+
+import { acquireOwnerLease, readOwnerLease } from '../core/story-owner-lease.js';
+// Direct handler tests bypass the CLI ownership gate. Establish its prerequisite
+// only in these disposable fixtures; production heartbeat never acquires leases.
+function createVerifierHandlers(ctx: Parameters<typeof unownedcreateVerifierHandlers>[0]) {
+  for (const id of ctx.store.listStoryIds()) {
+    const directory = ctx.store.storyDirPath(id);
+    if (!readOwnerLease(directory)) acquireOwnerLease(directory, {command:'fixture-owner',cwd:ctx.root});
+  }
+  return unownedcreateVerifierHandlers(ctx);
+}

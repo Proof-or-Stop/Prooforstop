@@ -357,6 +357,11 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
     ...(providesBuildProof ? { providesBuildProof } : {}),
     ...(proof ? { proof } : {}),
     ...(resources ? { resources } : {}),
+    ...(raw.executionReuse === 'exact-inputs' ? {executionReuse:'exact-inputs' as const} : {}),
+    ...(Array.isArray(raw.executionInputs) ? {executionInputs:raw.executionInputs as string[]} : {}),
+    ...(typeof raw.fullBaselineReusePolicy === 'string' ? {fullBaselineReusePolicy:raw.fullBaselineReusePolicy as ValidationCommand['fullBaselineReusePolicy']} : {}),
+    ...(typeof raw.closurePolicy === 'string' ? {closurePolicy:raw.closurePolicy as ValidationCommand['closurePolicy']} : {}),
+    ...(typeof raw.riskTier === 'string' ? {riskTier:raw.riskTier as ValidationCommand['riskTier']} : {}),
   };
 }
 
@@ -919,8 +924,11 @@ export async function runDoneRequiredValidation(args: {
         durationMs: result.durationMs,
         outputDigest: sha256(result.output),
         outputTail: outputTail(result.output),
+        // These are this consumer's receipt boundaries. executionReceipt keeps
+        // the original child execution attribution when no child was launched.
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
+        ...(result.executionReceipt ? {executionReceipt:result.executionReceipt} : {}),
         ...(result.timedOut ? { timedOut: true } : {}),
         ...(commandIdentity
           ? {

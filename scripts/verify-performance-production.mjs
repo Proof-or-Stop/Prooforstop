@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Production regressions; fixtures are isolated and never modify real Story state.
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import {createHash} from 'node:crypto';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +13,7 @@ const locks = await import('../packages/main/dist/core/validation-execution-lock
 const owner = await import('../packages/main/dist/core/story-owner-lease.js');
 if (process.argv[2] === '--capacity-child') {
   const opts = JSON.parse(process.argv[3]);
+  if (process.send) await new Promise(resolve => { process.once('message',resolve); process.send('ready'); });
   await locks.withWorkspaceValidationCapacity(opts, async () => {
     console.log(JSON.stringify({ event: 'enter', at: Date.now() }));
     await new Promise(resolve => setTimeout(resolve, 180));
@@ -52,16 +54,25 @@ try {
       resources:[{class:'invalid',key:'x',access:'exclusive'}],maxConcurrent:2},()=>{called=true;}));
     assert.equal(called,false);
   });
-  for (const same of [false,true]) await check('cross-process capacity '+(same?'serializes conflicts':'admits independent resources'), async () => {
-    const run = key => new Promise((resolve,reject) => {
+  const repository=join(dir,'cross-worktree-repo');mkdirSync(repository);
+  const git=argv=>execFileSync('git',argv,{cwd:repository,stdio:['ignore','pipe','pipe']});
+  git(['init']);git(['config','user.name','Lab fixture']);git(['config','user.email','lab@example.invalid']);
+  writeFileSync(join(repository,'subject.txt'),'fixture\n');git(['add','.']);git(['commit','-m','fixture']);
+  const worktrees=[join(dir,'worktree-a'),join(dir,'worktree-b')];
+  for (const [i,path] of worktrees.entries()) git(['worktree','add','-b','fixture-'+i,path]);
+  for (const isolated of [false,true]) for (const same of [false,true]) await check('cross-process '+(isolated?'isolated worktrees ':'')+(same?'serialize conflicts':'admit independent resources'), async () => {
+    const children=[];let ready=0;
+    const run = (key,index) => new Promise((resolve,reject) => {
       const child=spawn(process.execPath,[fileURLToPath(import.meta.url),'--capacity-child',JSON.stringify({
-        root:dir,workspaceRoot:dir,command:'child',pollMs:10,maxConcurrent:2,
-        resources:[{class:'fixed-path',key,access:'exclusive'}],
-      })],{stdio:['ignore','pipe','pipe']});
+        root:isolated?worktrees[index]:dir,workspaceRoot:isolated?worktrees[index]:dir,command:'child',pollMs:10,maxConcurrent:2,
+        resources:[{class:same?'fixed-port':'fixed-path',key:same?'65431':key,access:'exclusive'}],
+      })],{stdio:['ignore','pipe','pipe','ipc']});
+      const deadline=setTimeout(()=>child.kill('SIGKILL'),30000);child.once('exit',()=>clearTimeout(deadline));
+      children.push(child);child.on('message',()=>{if(++ready===2)children.forEach(c=>c.send('start'));});
       let output='',error='';child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>error+=x);
       child.on('error',reject);child.on('exit',code=>code===0?resolve(output.trim().split('\n').map(JSON.parse)):reject(new Error(error)));
     });
-    const [a,b]=await Promise.all([run('first'),run(same?'first':'second')]);
+    const [a,b]=await Promise.all([run('first',0),run(same?'first':'second',1)]);
     const overlap=Math.min(a[1].at,b[1].at)-Math.max(a[0].at,b[0].at);
     assert.equal(overlap>0,!same,JSON.stringify({a,b,overlap}));
   });
@@ -101,6 +112,64 @@ try {
       assert.equal(owner.isLeaseStale(owner.readOwnerLease(storyDir),Date.parse(now())),false,
         'completed validation cannot publish because its owner lease expired');
     });
+  });
+  await check('real validation consumers share only permitted unchanged PASS executions', async () => {
+    const workspace=join(dir,'reuse-repo');mkdirSync(workspace);
+    const git=argv=>execFileSync('git',argv,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+    git(['init']);git(['config','user.name','Lab fixture']);git(['config','user.email','lab@example.invalid']);
+    writeFileSync(join(workspace,'.gitignore'),'.proof-or-stop/\n');
+    writeFileSync(join(workspace,'package.json'),JSON.stringify({name:'lab-reuse-fixture',version:'1.0.0'}));
+    writeFileSync(join(workspace,'witness.mjs'),"import {randomUUID} from 'node:crypto';console.log('WITNESS '+randomUUID());\n");
+    git(['add','.']);git(['commit','-m','fixture']);
+    const receipts=new Map();
+    const store={readCausalEvidenceReceipt:(_id,key)=>receipts.get(key)??null,
+      writeCausalEvidenceReceipt:(_id,receipt)=>{receipts.set(receipt.executionKey,structuredClone(receipt));}};
+    const digest=x=>createHash('sha256').update(x).digest('hex');
+    const probe=()=>({
+      cli:{available:true,path:process.execPath},worktree:{expected:workspace,actual:workspace},
+      gitIndex:{readable:true,path:join(workspace,'.git/index'),contentDigest:digest(readFileSync(join(workspace,'.git/index')))},
+      gitMaterial:{available:true,headHash:git(['rev-parse','HEAD']),materialHash:git(['rev-parse','HEAD^{tree}']),storyFilesHash:git(['rev-parse','HEAD^{tree}'])},
+      writerLease:{available:true,valid:true},providerCapability:{required:['validation-plan'],available:['validation-plan']},
+      resources:{required:{slots:1},available:{slots:1}},evidenceTarget:{writable:true,path:workspace},
+      sideChannel:{available:true,maxOutputChars:12000,maxProgressEvents:1},
+    });
+    const sharedExecution={storyId:'B-lab-reuse-fixture',receiptStore:store,probe};
+    const {runValidationCommand}=await import('../packages/main/dist/core/validation-executor.js');
+    const spec={label:'validate',command:process.execPath,args:['witness.mjs'],executionReuse:'exact-inputs',executionInputs:[]};
+    const run=extra=>runValidationCommand({...spec,...extra},workspace,10000,{sharedExecution});
+    const a=await run({}),b=await run({label:'done-required'});
+    assert.equal(a.code,0);assert.equal(b.code,0);assert.equal(a.output,b.output,'identical consumers launched the witness twice');
+    assert.equal(a.executionReceipt?.disposition,'executed');assert.equal(b.executionReceipt?.disposition,'reused');
+    const forbiddenA=await run({fullBaselineReusePolicy:'forbidden'}),forbiddenB=await run({fullBaselineReusePolicy:'forbidden'});
+    assert.notEqual(forbiddenA.output,forbiddenB.output,'forbidden policy must execute both consumers');
+    const undeclaredA=await run({executionInputs:undefined}),undeclaredB=await run({executionInputs:undefined});
+    assert.notEqual(undeclaredA.output,undeclaredB.output,'absent input declaration must not reuse');
+    const abort=new AbortController();abort.abort(new Error('fixture abort'));
+    await assert.rejects(runValidationCommand(spec,workspace,10000,{sharedExecution,abortSignal:abort.signal}),/fixture abort/);
+    await assert.rejects(runValidationCommand(spec,workspace,10000,{sharedExecution,deadlineAt:Date.now()-1}),/deadline/);
+    const invalidLease={...sharedExecution,probe:()=>({...probe(),writerLease:{available:true,valid:false}})};
+    await assert.rejects(runValidationCommand(spec,workspace,10000,{sharedExecution:invalidLease}),/preflight refused/);
+    const buildA=await run({providesBuildProof:'packages-main-build'}),buildB=await run({providesBuildProof:'packages-main-build'});
+    assert.notEqual(buildA.output,buildB.output,'build proof cannot be skipped through shared execution');
+    const beforeFailure=receipts.size;
+    const failureSpec={args:['-e',"console.log('FAIL '+Math.random());process.exitCode=1"]};
+    const failedA=await run(failureSpec),failedB=await run(failureSpec);
+    assert.equal(failedA.code,1);assert.equal(failedB.code,1);assert.notEqual(failedA.output,failedB.output);
+    assert.equal(receipts.size,beforeFailure,'failure results never populate shared PASS storage');
+    const externalInput=join(dir,'external-input.txt');writeFileSync(externalInput,'first');
+    const externalA=await run({executionInputs:[externalInput]});
+    writeFileSync(externalInput,'second');
+    const externalB=await run({executionInputs:[externalInput]});
+    assert.notEqual(externalA.output,externalB.output,'declared external input drift requires a new execution');
+    const changed=await run({env:{LAB_WITNESS_INPUT:'changed'}});
+    assert.notEqual(changed.output,a.output,'environment drift needs a new execution');
+    const first=receipts.get(a.executionReceipt.executionKey);
+    receipts.set(first.executionKey,{...first,outputProbe:'tampered'});
+    await assert.rejects(run({}),/tampered/);
+    receipts.set(first.executionKey,first);
+    writeFileSync(join(workspace,'witness.mjs'),"console.log('CHANGED');\n");
+    const dirty=await run({});assert.equal(dirty.output.trim(),'CHANGED');
+    assert.equal(dirty.executionReceipt,undefined,'dirty workspaces cannot reuse or publish shared receipts');
   });
   await check('complete signed review wave enables repair without certification authority', async () => {
     execFileSync(process.execPath,['packages/main/dist/tasks/review-inventory-epoch-smoke.js'],{cwd:root,stdio:'pipe'});

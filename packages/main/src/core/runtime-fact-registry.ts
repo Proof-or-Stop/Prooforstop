@@ -162,3 +162,12 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   execution: 'checkout-source',
   globalInstallationMutation: false,
 } as const;
+
+
+/** Conservative defaults consumed by official validation, independent of Lab. */
+export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
+  declaredInvocationCapacity: 2,
+  ownerLeaseHeartbeatMs: 30000,
+  unknownResources: 'exclusive',
+  receiptReusePolicy: 'exact-inputs',
+} as const;

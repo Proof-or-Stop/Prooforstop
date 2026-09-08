@@ -560,8 +560,8 @@ const critic = cli(first.root, 'review_inventory_critic_set', {
 }, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic' });
 assert.match(critic, /Completeness critic: complete/);
 const discoveryStatus = cli(first.root, 'review_inventory_status', { storyId });
-assert.match(discoveryStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
-assert.match(discoveryStatus, /Next: proof-or-stop review_inventory_wave_advance/);
+assert.match(discoveryStatus, /Blockers: none/);
+assert.match(discoveryStatus, /Next: proof-or-stop review_inventory_finalize .*--remediation/);
 assert.equal((discoveryStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.throws(
   () => cli(first.root, 'review_inventory_finalize', { storyId }),
@@ -569,6 +569,19 @@ assert.throws(
   'finalize cannot persist a non-saturated wave as an implicit checkpoint',
 );
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length, 0, 'rejected finalize is side-effect free');
+const beforeEarlyFinalize = reloaded.readReviewInventoryEpochs(storyId);
+const beforeEarlyFindings = reloaded.readFindings(storyId);
+const earlyFinalizeOutput = cli(first.root, 'review_inventory_finalize', {storyId,remediation:true});
+assert.match(earlyFinalizeOutput,/FINALIZED/);
+const earlyFinalized = reloaded.readReviewInventoryEpochs(storyId);
+assert.equal(earlyFinalized.receipts.at(-1)?.authority,'review-remediation-only');
+assert.equal(earlyFinalized.receipts.at(-1)?.authorizesTest,false);
+assert.equal(earlyFinalized.epochs[0].waves.length,1);
+assert.deepEqual(reloaded.readFindings(storyId),beforeEarlyFindings,'early remediation preserves findings');
+// This store belongs to a disposable test fixture; reset only this snapshot so
+// the existing explicit saturation and hostile-evidence controls run unchanged.
+reloaded.writeReviewInventoryEpochs(storyId,beforeEarlyFinalize);
+
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);

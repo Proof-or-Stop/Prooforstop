@@ -1,3 +1,5 @@
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS } from './runtime-fact-registry.js';
+import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -396,6 +398,7 @@ export interface ValidationCapacityLockOptions {
 }
 
 export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {
+  sharedExecution?: SharedValidationExecutionContext;
   ownerLeaseDir?: string;
   ownerLeaseHeartbeat?: OwnerLeaseHeartbeatOptions;
 }
@@ -749,7 +752,7 @@ export async function withOfficialValidationExecution<T>(
   options: OfficialValidationExecutionOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  const execute = () => withWorkspaceValidationCapacity(options, async () => {
+  const execute = () => withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity(options, async () => {
     const storyId = String(options.storyId ?? '').trim();
     if (!storyId) return await fn();
     return await withValidationExecutionLock({
@@ -759,7 +762,7 @@ export async function withOfficialValidationExecution<T>(
       command: options.command,
       staleMs: options.staleMs,
     }, fn);
-  });
+  }));
   return options.ownerLeaseDir
     ? withOwnerLeaseHeartbeat(options.ownerLeaseDir, { command: options.command, cwd: options.workspaceRoot, ...options.ownerLeaseHeartbeat }, execute)
     : execute();
@@ -838,5 +841,5 @@ export function declaredValidationCapacity(
       access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
     });
   }
-  return { resources, maxConcurrent: 2 };
+  return { resources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
 }
