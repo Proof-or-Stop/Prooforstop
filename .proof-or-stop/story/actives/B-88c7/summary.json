@@ -1,18 +1,18 @@
 {
   "storyId": "B-88c7",
-  "changes": "Inventory completeness dispatch no longer demands topology implementation provenance. Signed current OPEN inventory selects a registered completeness role contract in both dispatch and ReviewRun creation; integrity verification reconstructs the authenticated contract after finalization. Default topology requirements remain unchanged.",
-  "usage": "Dispatch proof-or-stop-review-topology-critic for the current REVIEW Story after required inventory lanes complete, then record the independent critic terminal and inventory receipt through the existing CLI commands.",
-  "expectedOutcome": "A valid OPEN inventory accepts an independent critic without an implementer-specific business commit and requires review-finding-or-pass plus review-inventory-critic-receipt.",
-  "actualTranscript": "The complete shared-executor handler witness returned review inventory real handler smoke: PASS; full-envelope assertions verified both producer output contracts, signed verification, tamper rejection and post-finalization validity. Process-fact contract verification passed.",
-  "outcomeDiff": "No difference for the tested inventory and topology boundary cases.",
+  "changes": "Inventory-only critic dispatch and both prompt modes use an authenticated completeness responsibility without topology implementation prerequisites. New runs reject stale epoch or wave dispatch before publication. Historical envelopes select their original authenticated dispatch. Canonical agent templates receive narrow manifest-semantic certification coverage.",
+  "usage": "Begin a current REVIEW inventory and dispatch proof-or-stop-review-topology-critic after required lanes finish; use the ordinary signed reviewer and inventory critic commands. Redispatch after an inventory epoch or wave changes.",
+  "expectedOutcome": "A valid OPEN inventory accepts an independent completeness critic without an implementer-specific business commit, while topology authority and stale-context refusal remain enforced.",
+  "actualTranscript": "The final current CLI dispatch exited 0 and emitted the inventory-completeness contract; the real A/B historical probe verified both old and replacement runs. All four tool-owned intent receipts and the registered acceptance rollout passed on source 41b0500b7e.",
+  "outcomeDiff": "No difference in the tested supported inventory and topology boundary cases.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "The optional proofstory-topology-critic smoke has an unchanged transition-output assertion failure reproduced on both baseline main and candidate; its paired logs are retained outside the repository. External Claude review is awaiting provider capacity and is not claimed complete.",
-  "pitfalls": "Native Codex review exposed F-001 after legacy-mode tests passed: the full envelope still required topology output. The registered responsibility contract now covers both producers and verifier. Isolated smoke fixtures also declare complete canonical host identity because the validation executor removes ambient host identity.",
+  "limitations": "Pre-field legacy records with intent-reference ordering or unscoped references that cannot reconstruct the exact historical launcher identity fail closed; stored history is not rewritten. An optional topology smoke has an unchanged baseline transition-output assertion failure, retained in paired logs. Actual dual-host assurance remains pending until native terminal reviews and canonical validation complete.",
+  "pitfalls": "Real independent review found full-envelope topology output leakage, stale dispatch reuse and historical latest-dispatch invalidation; scoped repairs now cover both producer modes and exact historical verification. PRE_CERT also exposed a missing canonical template path classification. Inventory completeness is not topology proof or TEST authority.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -23,19 +23,19 @@
       "durationMs": 43446
     },
     "PLAN": {
-      "count": 4,
-      "durationMs": 463172
+      "count": 6,
+      "durationMs": 692454
     },
     "DEV": {
-      "count": 5,
-      "durationMs": 3208188
+      "count": 9,
+      "durationMs": 6461558
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 846544
+      "count": 4,
+      "durationMs": 3102371
     }
   },
-  "totalDurationMs": 4647688,
+  "totalDurationMs": 10386167,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +48,5 @@
     "open": 0
   },
   "createdAt": "2026-09-08T08:09:09.697Z",
-  "updatedAt": "2026-09-08T08:09:09.697Z"
+  "updatedAt": "2026-09-08T09:44:48.176Z"
 }

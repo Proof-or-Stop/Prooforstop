@@ -965,6 +965,201 @@
       },
       "readDiagnostics": [],
       "_hash": "2f50ca8cde0764104a6ac31d487641b675c08bc7a0e02b1c69da50e9344d9630"
+    },
+    {
+      "id": "B-88c7:RP-033",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final integrated 15-file quality review: re-inspected 41b0500b7e historical binding changes against prior reviewed 93cab21288 scope. Optional digest is validated and included in envelope identity; historical lookup selects exact digest, verifies dispatch content and host/role/round binding, and pre-field fallback requires exact launcher digest reconstruction. Missing/tampered originals refuse rather than selecting latest. New-run live guards remain unchanged. Independently executed original real CLI historical A/B probe: oldVerification=true and newVerification=true, PASS. Reviewed missing/tampered original and identical-wave-prompt regression assertions. No actionable quality findings; all four recorded findings resolved; current rollout read PASS full-3x2. Large files reviewed by bounded changed regions/dependencies; full plan read recorded.",
+      "createdAt": "2026-09-08T09:43:49.057Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-037",
+      "envelopeId": "57bfe7cabe442be395c711a46b6635a7260a8f9f0e565ba6d04f8ecff2725c16",
+      "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7ad1685ad732db42da1a45656dbc9789337d3623ac9f8a3846035f3559358dc7"
+    },
+    {
+      "id": "B-88c7:RP-034",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed the integrated fifteen-file diff and CHK-001 receipts. No concept deletion is incomplete: topology proof remains a separate responsibility with strict provenance, while inventory completeness has registered producer and consumer contracts. New-run dispatch checks remain live/latest; authenticated historical envelopes select their exact original dispatch, with explicit fail-closed pre-field reconstruction limits. Canonical and both managed critic bodies agree; no undelivered new command promise found. The current rollout checker passes its registered fixture cohort; this lane does not claim completion of the separate real native-host assurance or TEST/DONE requirements. Source entries in triage list were inspected by changed hunks and relevant call-chain sections rather than read in full.",
+      "createdAt": "2026-09-08T09:45:08.486Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-039",
+      "envelopeId": "ff0a8514e328ba4a9e3b0de1759ecf5396108fbe0a2196f7ddb2185e248eb0b1",
+      "writerSessionId": "sess-5a0dd31a4926da8b12579a97d7a0da08",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "79c9a5a58aa48f53cbc861a66d6f6bf0e3379bbe4e307ede9fb2d238e068f541"
+    },
+    {
+      "id": "B-88c7:RP-035",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent coverage review: 4 executable intents, 0 must gaps, 0 waivers. Current tool-owned exit-zero selector receipts bind source 41b0500b7e and material 5debc8b. Reviewed aggregate scoped diffs and targeted runtime/test sections: ordinary-author success; signed OPEN selection and topology authority isolation; both prompt modes; cancelled/finalized/replaced/wave stale dispatch refusal with no publication; historical A/B exact binding, missing/tampered original rejection and reconstructible legacy launcher coverage. Narrow canonical-template blob/deletion and neighboring-namespace negatives covered. Full/incremental envelope and shared-executor logs PASS. Canonical rollout readers/check return current PASS; cohort fixture 3x2 is not actual host review completion. Topology/pre-review observe diagnostics remain inconclusive and do not certify production topology. Routine validation and actual dual-host delivery assurance remain separate pending gates. Files listed as triaged were examined through diff/targeted sections, not claimed fully read. No coverage blocker found.",
+      "createdAt": "2026-09-08T09:45:59.372Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-038",
+      "envelopeId": "b083f216b921e1c1e52f3ff96c55ab245f8e3083756f1ad34aa571d437c443d1",
+      "writerSessionId": "sess-07eafd11a96c16af4aff342332be7586",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "330051c40d5997ce9185f1f9c641ee826ee4e6ac0737cf75b8fd0c162d8e5b81"
+    },
+    {
+      "id": "B-88c7:RP-036",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Reviewed integrated committed 41b0500b7e docs/code changes for CHK-001. Extracted six changed exported symbols, with zero direct hits in bounded README, CLAUDE and relatedDoc; compared one module-level Wave 2A paragraph and three full canonical/host critic documents. RelatedDoc was triaged and only its relevant paragraph read, not claimed fully read. Current code matches inventory-only completion and early return, strict default topology authority, authenticated epoch/wave responsibility before new-run publication, exact historical dispatch identity and fail-closed unreconstructible pre-field launcher inputs. Process-fact contract verifier passed independently. Source diff and checklist intent/receipt sections inspected; no documentation promise left undelivered in this scope. No full lifecycle or genuine host quorum completion is asserted.",
+      "createdAt": "2026-09-08T09:47:01.400Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-040",
+      "envelopeId": "b36e8316ff9ff42306dfdaec6d2fd2288b90c34b36319927179a005541866f17",
+      "writerSessionId": "sess-07db9a2e820379359092e42a860aee5c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "0cf3b2c7db377b0c48d3c86cb56fc535ee2c137261ece8fc77e0b6ad7d16214a"
+    },
+    {
+      "id": "B-88c7:RP-037",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-005 independent completeness review inspected current RR-037 through RR-040 terminal passes and complete read manifests against the frozen fifteen-file scope. Concept covers producer/consumer responsibility, quality independently reran historical A/B probe, coverage covers four current receipts and negative binding cases, docs checks prompt and declared compatibility promises. All F-001 through F-004 retain original observations and strong fixed resolutions; no open or new raw finding remains. Independently inspected final historical resolver diff: authenticated exact dispatch identity replaces latest lookup, exact reconstructible pre-field fallback fails closed, while latest new-run checks remain separate. No additional inventory family found. Full findings artifact read, current epoch and pass projections inspected selectively. This receipt grants completeness only; actual host assurance and TEST/DONE remain separate.",
+      "createdAt": "2026-09-08T09:48:21.627Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-041",
+      "envelopeId": "5d2801cdfe3f0db5e8794fdd44563b84c91fc03554e2631d87b7fe0702da4bba",
+      "writerSessionId": "sess-c4c8dd2ceeb634009f66a1c99ba4b927",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fc8657e3c47aa8b24af91dfb2cbf99d78432f53141f3edd4dd750924ed27830e"
     }
   ]
 }

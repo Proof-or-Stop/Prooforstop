@@ -134,7 +134,7 @@
       "desc": "core/review-run.ts:808 historical verifyReviewRunPromptEnvelope still calls verifyCurrentReviewerDispatchBinding, whose reverse scan at line 643 chooses the latest dispatch for the lane/round. It reconstructs the already-issued envelope with that latest dispatchPrompt at lines 824/833. story-dispatch.ts:518 embeds the exact inventory epoch ID in prompt bytes. Therefore after cancel/rebegin and successful legitimate redispatch in the same round, the old authenticated envelope is rebuilt with the replacement epoch prompt and fails canonical assembly even though its own integrity and source/material are unchanged. Independently confirmed the producer-to-consumer source trace; external native Codex transcript additionally reports an in-memory probe with integrity=true, originalValid=true, replacementDispatchAccepted=true, historicalValid=false (not independently rerun here). This directly violates the scoped historical signed-run verification requirement. Resolve the original authenticated dispatch bound to each historical envelope/run, preserving latest-context epoch/wave/cutoff checks for new run creation; add successful replacement-epoch redispatch coverage. No stale admission or forged authority is claimed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-08T09:01:44.929Z",
@@ -165,7 +165,11 @@
       "signatureTag": "missing|ts|core-review-historical",
       "signatureTagSource": "auto",
       "recordId": "lr_mtsfxfmq_21og_8771d8c032534e4991c52c5efad46069",
-      "ledgerCommitReceiptId": "lrc_mtsfxfmq_21og_8b4060ab593b4aabaf02f472c42086e6"
+      "ledgerCommitReceiptId": "lrc_mtsfxfmq_21og_8b4060ab593b4aabaf02f472c42086e6",
+      "resolvedAt": "2026-09-08T09:42:11.968Z",
+      "resolvedReason": "Commit 41b0500b7e authenticates exact original dispatch identity in envelopes and verifies historical runs against that identity while retaining live latest-context checks for new runs. The real A/B epoch historical probe now passes both records; full and incremental envelope tests, shared-executor handler matrix and four current tool-owned intent receipts pass. Unreconstructible pre-field legacy ordering fails closed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
