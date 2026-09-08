@@ -738,6 +738,34 @@
         "scanEscalationReason": null
       },
       "_hash": "c0c5867fbe4d661af7f14770e87080d46b8db524a61821d9e8beed128cb2e893"
+    },
+    {
+      "id": "B-0208:RP-025",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final RI-005 independent concept review at material cutoff 0d3d56a/source 6c1bfc6bf2: the two-file F-002 repair completes the same executing-CLI identity concept for validate and changes the contract from one global-string check to per-producer parsed assertions for all five resolver consumers. The original four-file scope retains no target/cwd manifest lookup as runtime behavior; remaining manifest layouts occur only in negative smoke coverage. F-002 is resolved with strong structured evidence, and no distinct concept residue or undelivered promise was found.",
+      "createdAt": "2026-09-08T15:43:09.693Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-029",
+      "envelopeId": "f4dc2c1cc58372dade08da1f64968427aaa4ad8b2bf4beefffc0c08a52a95de5",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "930235dc9e3c3d113f3898e0e4e3fcca2458d0f4ff6a95db80e481d3089404a2"
     }
   ]
 }
