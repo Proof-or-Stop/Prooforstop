@@ -49,7 +49,7 @@
       "desc": "handlers/review-run.ts:292 selects responsibility from live OPEN inventory but line 314 reuses prior dispatchPrompt. core/review-run.ts:640 matches that dispatch by lane/round and validates prompt/host digests without epoch/responsibility freshness. Source-traced trigger: inventory dispatch then cancel then delayed review_run_start selects topology contract with Inventory completeness only instructions; cancel/rebegin retains old epoch instructions. This reintroduces conflicting output obligations for ordinary-author work. Require matching dispatch epoch/responsibility at new run creation and redispatch on change, preserving authenticated historical run verification. Verified by precise producer/consumer source tracing, not an end-to-end mutation reproduction.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-08T08:28:40.170Z",
@@ -81,14 +81,18 @@
       "signatureTag": "missing|ts|handlers-review-selects",
       "signatureTagSource": "auto",
       "recordId": "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0",
-      "ledgerCommitReceiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191"
+      "ledgerCommitReceiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191",
+      "resolvedAt": "2026-09-08T09:00:05.765Z",
+      "resolvedReason": "Commit93cab21288 digest-binds typed critic responsibility and current epoch/wave/material/storyFiles; both prompt modes refuse stale dispatch before publication. Exact pre-fix stale-dispatch probe now passes; final CLI tool-owned handler matrix passes including tamper/wave/metadata-only/historical-run cases.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-88c7:F-003",
       "desc": "handlers/certification-window.ts:151 CERTIFICATION_DOMAIN_PATH_RULES omits canonical role templates. Independently executed current built exports in real B-88c7: packages/main/templates/agents/proof-or-stop-review-topology-critic.md has matches=[] and deriveCertificationDomainInputHashes(cwd,HEAD,cwd) returns undefined. The required scoped template edit therefore aborts causal domain derivation at line 222 and prevents PRE_CERT completion (owner command reported pre_cert_causal_freshness_required). This is a direct acceptance blocker despite the classifier being pre-existing. Add a bounded disjoint rule for the canonical role-template family with hash/change/deletion and unknown-sibling regressions, not a broad templates namespace admission.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-08T08:28:45.370Z",
@@ -119,7 +123,49 @@
       "signatureTag": "missing|ts|handlers-certification-window",
       "signatureTagSource": "auto",
       "recordId": "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5",
-      "ledgerCommitReceiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8"
+      "ledgerCommitReceiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8",
+      "resolvedAt": "2026-09-08T09:00:08.008Z",
+      "resolvedReason": "Commit93cab21288 narrowly maps canonical agent Markdown templates to manifest-semantic, preserving unknown-neighbor refusal and exact blob/deletion hashing. Actual pre-fix B88 template probe now passes with all six hashes; certification-window smoke and current tool-owned process contract pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-004",
+      "desc": "core/review-run.ts:808 historical verifyReviewRunPromptEnvelope still calls verifyCurrentReviewerDispatchBinding, whose reverse scan at line 643 chooses the latest dispatch for the lane/round. It reconstructs the already-issued envelope with that latest dispatchPrompt at lines 824/833. story-dispatch.ts:518 embeds the exact inventory epoch ID in prompt bytes. Therefore after cancel/rebegin and successful legitimate redispatch in the same round, the old authenticated envelope is rebuilt with the replacement epoch prompt and fails canonical assembly even though its own integrity and source/material are unchanged. Independently confirmed the producer-to-consumer source trace; external native Codex transcript additionally reports an in-memory probe with integrity=true, originalValid=true, replacementDispatchAccepted=true, historicalValid=false (not independently rerun here). This directly violates the scoped historical signed-run verification requirement. Resolve the original authenticated dispatch bound to each historical envelope/run, preserving latest-context epoch/wave/cutoff checks for new run creation; add successful replacement-epoch redispatch coverage. No stale admission or forged authority is claimed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T09:01:44.929Z",
+      "reviewRound": "2026-09-08T08:59:34.347Z",
+      "reviewRunId": "B-88c7:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9d7f1478a442fe7a9ac6190066ef583fbd8fc1a4a7beb46b81f9aa1b98e1326a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|core-review-historical",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsfxfmq_21og_8771d8c032534e4991c52c5efad46069",
+      "ledgerCommitReceiptId": "lrc_mtsfxfmq_21og_8b4060ab593b4aabaf02f472c42086e6"
     }
   ]
 }

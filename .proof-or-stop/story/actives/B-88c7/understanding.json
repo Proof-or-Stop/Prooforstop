@@ -4,11 +4,12 @@
   "facts": [
     "B-0208 was permitted to implement through express channel.",
     "Three independent lanes passed before completeness critic dispatch failed.",
-    "The topology reviewer binding is currently required unconditionally.",
+    "Before this Story, the topology reviewer binding was required unconditionally.",
     "Current signed review runs already protect critic independence and lane evidence.",
     "Verified F-001: inventory-only full envelopes still require a topology receipt through the unconditional role contract; both dispatch and ReviewRun production and verification consume that contract.",
     "Verified F-002: a delayed critic run may reuse an old dispatch after inventory cancellation or rebegin in the same round.",
-    "Verified F-003: the exact canonical agent template modified here matches no certification domain and prevents PRE_CERT."
+    "Verified F-003: the exact canonical agent template modified here matches no certification domain and prevents PRE_CERT.",
+    "Verified F-004: actual CLI creates A/RR001 then B/RR002 after epoch replacement; old envelope fails canonical verification because the consumer chooses the latest dispatch."
   ],
   "constraints": [
     "Do not invent implementer authorship or dispatch records.",
@@ -18,7 +19,8 @@
     "Keep the default topology role contract unchanged.",
     "Select the inventory role contract only from a signed matching OPEN epoch, and verify historical signed envelopes by registered semantic digest after finalization.",
     "Reject stale dispatch responsibility and epoch before new run or envelope publication; historical signed runs remain verifiable.",
-    "Classify only canonical agent Markdown templates as manifest-semantic, retain unknown siblings and ambiguity refusal."
+    "Classify only canonical agent Markdown templates as manifest-semantic, retain unknown siblings and ambiguity refusal.",
+    "Historical dispatch lookup must use exact authenticated identity; missing/tampered original bindings cannot fall back to current dispatch. Legacy reconstruction must match its original launcher digest or refuse."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -35,7 +37,8 @@
     "packages/main/src/handlers/certification-window.ts",
     "packages/main/src/tasks/review-inventory-handler-smoke.ts",
     "packages/main/src/tasks/certification-window-smoke.ts",
-    "packages/main/src/core/prompt-contracts.ts"
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts"
   ],
-  "timestamp": "2026-09-08T08:37:19.093Z"
+  "timestamp": "2026-09-08T09:12:52.312Z"
 }

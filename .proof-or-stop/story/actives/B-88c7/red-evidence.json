@@ -69,8 +69,25 @@
       },
       "note": "Actual baseline execution failed before source repair; logs retained in /private/tmp/B-88c7-template-domain-red.log",
       "createdAt": "2026-09-08T08:37:21.714Z"
+    },
+    {
+      "id": "RED-20260908091254",
+      "trigger": "Verified F-004 actual historical envelope fails after replacement epoch dispatch",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "a46537b1d9b89cb718876a386fd46cbdc45b7acd",
+      "baselineMaterialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
+      "observedFailure": "Actual CLI creates A/RR001, cancels/rebegins B and creates B/RR002. Old canonical envelope verification is false while new verification is true; expected both authentic records verify.",
+      "failingCommand": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs"
+      },
+      "note": "Actual baseline exit1 in /private/tmp/B-88c7-historical-dispatch-red.log, before source repair.",
+      "createdAt": "2026-09-08T09:12:54.149Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T08:37:21.714Z"
+  "updatedAt": "2026-09-08T09:12:54.149Z"
 }
