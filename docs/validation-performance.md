@@ -145,3 +145,16 @@ The tool version in causal receipts is read from the loaded core package, never
 from an unrelated target project's packages/main/package.json. The optional host
 pin still refuses before dispatch, after bootstrap modules have been loaded.
 It is not a hostile-host sandbox or proof that every running reviewer adopted it.
+# Lab resource declaration audit
+
+The Lab candidate declares 21 additional read-only or isolated-fixture routine
+commands after the independent source audit in
+`experiments/five-item-proof/resource-audit.json`. This removes their exclusive
+plan barriers; it does not change the default four workers or remove any tests.
+Five routine checkout writers and both DONE commands retain the exclusive default.
+Keys use exact canonical equality, so a directory claim does not protect a
+different child-path key. Do not opt a writer into concurrency without auditing
+all readers of the same resource. `resource-config.mjs` compares four actual
+assertion suites under the original and candidate declarations and checks that
+all audited readers still conflict with the writer barrier. This is a bounded
+command comparison, not a full-suite or whole-Story performance claim.
