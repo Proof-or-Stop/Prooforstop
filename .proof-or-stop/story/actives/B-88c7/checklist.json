@@ -30,9 +30,9 @@
           "packages/main/src/tasks/certification-window-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-08T06:57:17.335Z",
-      "endTime": "2026-09-08T08:58:58.447Z",
+      "endTime": "2026-09-08T09:41:29.173Z",
       "verificationIntent": {
         "happy": [
           {
@@ -79,7 +79,7 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
-          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale cancellation/replacement/finalization rejection before publication, fresh redispatch and historical run verification; topology authority remains separate.",
+          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale-context refusal before publication, exact original historical dispatch lookup after successful replacement, missing/tampered binding refusal and fresh redispatch. Topology proof authority remains separate.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -87,10 +87,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T08:53:57.330Z",
+            "executedAt": "2026-09-08T09:31:30.365Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:fc49fc5d54cfba804ce19da861fa41a70c805cc7b753f914a7b291be81c00e2a",
-            "causalReceiptHash": "e043bdde1a76d6c577609e62248694f92c87d1df9f4f200c05f481c07d63ea4a",
+            "executionKey": "ce:v1:38504e394c0bd8abec314f059cba909ff4dfdb0e8ffbe5ead3222ae7b0d61455",
+            "causalReceiptHash": "e9eacbb75e6eee2acabf2d0e0746460c0fbbd52dc4d4e67688290d3d6fab4f3e",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -98,17 +98,17 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "93cab21288f93f0f7c156ed3b535502d9a52cb93",
-          "materialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
-          "storyFilesHash": "2e9b4131b8e15a1131fb2b31bb8f659e2db71241ab7fc54a8b23ac3f64b974af",
-          "timestamp": "2026-09-08T08:54:14.084Z"
+          "headHash": "41b0500b7edcf7a8ed93fc375ed4e1c839e1da51",
+          "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+          "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+          "timestamp": "2026-09-08T09:31:44.040Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
-          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale cancellation/replacement/finalization rejection before publication, fresh redispatch and historical run verification; topology authority remains separate.",
+          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale-context refusal before publication, exact original historical dispatch lookup after successful replacement, missing/tampered binding refusal and fresh redispatch. Topology proof authority remains separate.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -116,10 +116,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T08:53:57.330Z",
+            "executedAt": "2026-09-08T09:31:30.365Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:fc49fc5d54cfba804ce19da861fa41a70c805cc7b753f914a7b291be81c00e2a",
-            "causalReceiptHash": "e043bdde1a76d6c577609e62248694f92c87d1df9f4f200c05f481c07d63ea4a",
+            "executionKey": "ce:v1:38504e394c0bd8abec314f059cba909ff4dfdb0e8ffbe5ead3222ae7b0d61455",
+            "causalReceiptHash": "e9eacbb75e6eee2acabf2d0e0746460c0fbbd52dc4d4e67688290d3d6fab4f3e",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -127,17 +127,17 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "93cab21288f93f0f7c156ed3b535502d9a52cb93",
-          "materialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
-          "storyFilesHash": "2e9b4131b8e15a1131fb2b31bb8f659e2db71241ab7fc54a8b23ac3f64b974af",
-          "timestamp": "2026-09-08T08:54:14.084Z"
+          "headHash": "41b0500b7edcf7a8ed93fc375ed4e1c839e1da51",
+          "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+          "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+          "timestamp": "2026-09-08T09:31:44.040Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
-          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale cancellation/replacement/finalization rejection before publication, fresh redispatch and historical run verification; topology authority remains separate.",
+          "note": "Real handler regressions verify both prompt modes, authenticated current inventory responsibility, stale-context refusal before publication, exact original historical dispatch lookup after successful replacement, missing/tampered binding refusal and fresh redispatch. Topology proof authority remains separate.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -145,10 +145,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T08:53:57.330Z",
+            "executedAt": "2026-09-08T09:31:30.365Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:fc49fc5d54cfba804ce19da861fa41a70c805cc7b753f914a7b291be81c00e2a",
-            "causalReceiptHash": "e043bdde1a76d6c577609e62248694f92c87d1df9f4f200c05f481c07d63ea4a",
+            "executionKey": "ce:v1:38504e394c0bd8abec314f059cba909ff4dfdb0e8ffbe5ead3222ae7b0d61455",
+            "causalReceiptHash": "e9eacbb75e6eee2acabf2d0e0746460c0fbbd52dc4d4e67688290d3d6fab4f3e",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -156,17 +156,17 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "93cab21288f93f0f7c156ed3b535502d9a52cb93",
-          "materialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
-          "storyFilesHash": "2e9b4131b8e15a1131fb2b31bb8f659e2db71241ab7fc54a8b23ac3f64b974af",
-          "timestamp": "2026-09-08T08:54:14.084Z"
+          "headHash": "41b0500b7edcf7a8ed93fc375ed4e1c839e1da51",
+          "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+          "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+          "timestamp": "2026-09-08T09:31:44.040Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "integration_test",
           "command": "node scripts/verify-process-fact-contract.mjs --quiet",
           "result": "pass",
-          "note": "Process-fact contract verifies canonical inventory responsibility, digest-bound dispatch freshness checks and narrow canonical template certification classification.",
+          "note": "Process-fact contract verifies inventory responsibility, digest-bound new-run and historical dispatch semantics, authenticated optional envelope identity and narrow canonical template certification classification.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -174,16 +174,16 @@
             "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\nGREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nF027 legacy absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 current absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent projection: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent reasons: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 empty arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 populated arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation\nShared DONE predicate parity passed\nDONE/preflight predicate inventory parity passed\n\nProcess Fact Registry\n- entries: 486 (366 CLI, 55 runtime, 10 reviewer lanes, 51 artifacts)\n- levels: L0=166, L1=44, L2=71, L3=13, L4=192\n- kinds: artifact=25, command=281, execution-status=7, finding=3, flow-policy=7, gate-evidence=65, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=55, signed-artifact=26, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (56 files checked)\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
             "selectorMatched": true,
             "selector": "Process-fact contract verification passed",
-            "executedAt": "2026-09-08T08:54:13.506Z",
+            "executedAt": "2026-09-08T09:31:43.442Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:b3026505831f2d5067b789356f582d244670459be31563eb2646784919e34b69",
-            "causalReceiptHash": "4eb27da38bab665fef362ab7a6fdfda5ef4c490c9794cc89ec5859dec706f089",
+            "executionKey": "ce:v1:dd583c299aaaa3758f6a1951a630ab9cdbbea66947c855a34454cbef5bfc8088",
+            "causalReceiptHash": "a956dc7425c653efac460de5e33b074e6a28e12bebb636febf07624587d0f336",
             "commandReruns": 0
           },
-          "headHash": "93cab21288f93f0f7c156ed3b535502d9a52cb93",
-          "materialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
-          "storyFilesHash": "2e9b4131b8e15a1131fb2b31bb8f659e2db71241ab7fc54a8b23ac3f64b974af",
-          "timestamp": "2026-09-08T08:54:14.084Z"
+          "headHash": "41b0500b7edcf7a8ed93fc375ed4e1c839e1da51",
+          "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+          "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+          "timestamp": "2026-09-08T09:31:44.040Z"
         }
       ],
       "userSeesSnapshot": {
