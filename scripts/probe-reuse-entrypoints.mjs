@@ -7,6 +7,8 @@ const repo=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const {StoryStore}=await import('../packages/main/dist/core/store.js');
 const {acquireOwnerLease,getSessionId}=await import('../packages/main/dist/core/story-owner-lease.js');
 const disabled=process.argv.includes('--disabled');
+const workMs=Number(process.argv.find(x=>x.startsWith('--work-ms='))?.split('=')[1]??500);
+assert.ok(Number.isSafeInteger(workMs)&&workMs>=0&&workMs<=5000);
 const root=mkdtempSync(join(tmpdir(),'pos-real-entry-'));
 const git=argv=>execFileSync('git',argv,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 const storyId='B-reuse-entry',now=new Date().toISOString();
@@ -14,7 +16,7 @@ try{
  git(['init','-q','-b','main']);git(['config','user.name','Proof']);git(['config','user.email','proof@example.invalid']);
  writeFileSync(join(root,'.gitignore'),'.proof-or-stop/\n');
  mkdirSync(join(root,'packages/main'),{recursive:true});writeFileSync(join(root,'packages/main/package.json'),readFileSync(join(repo,'packages/main/package.json')));
- writeFileSync(join(root,'witness.mjs'),"import {randomUUID} from 'node:crypto';await new Promise(r=>setTimeout(r,500));console.log('ENTRY_WITNESS '+randomUUID());\n");
+ writeFileSync(join(root,'witness.mjs'),"import {randomUUID} from 'node:crypto';await new Promise(r=>setTimeout(r,"+workMs+"));console.log('ENTRY_WITNESS '+randomUUID());\n");
  const cmd={label:'entry witness',command:process.execPath,args:['witness.mjs'],focus:['proof'],executionReuse:disabled?undefined:'exact-inputs',executionInputs:[],timeoutMs:10000};
  writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'src',storyDir:'.proof-or-stop/story/actives',validate:{dynamic:{mode:'off'},commands:[cmd]},doneRequiredCommands:[cmd]}));
  git(['add','.']);git(['commit','-qm','immutable fixture']);
@@ -44,7 +46,7 @@ try{
  else{assert.equal(doneReceipt.executionReceipt.disposition,'reused');assert.equal(doneReceipt.executionReceipt.receiptHash,reports[0].commands[0].executionReceipt.receiptHash);}
  const doneExecutions=doneReceipt.executionReceipt?.disposition==='reused'?0:1;
 
- const summary={disabled,totalExecutions:reports.reduce((n,r)=>n+r.commandExecutions,0)+doneExecutions,elapsedMs:performance.now()-start,formalStoryDone:false};
+ const summary={disabled,workMs,totalExecutions:reports.reduce((n,r)=>n+r.commandExecutions,0)+doneExecutions,elapsedMs:performance.now()-start,formalStoryDone:false};
  const out=process.env.REUSE_PROOF_OUTPUT;if(out){mkdirSync(out,{recursive:true});writeFileSync(join(out,disabled?'entry-disabled.json':'entry-enabled.json'),JSON.stringify({summary,reports,doneReport},null,2));}
  console.log('ENTRYPOINT_GREEN '+JSON.stringify(summary));
 }finally{rmSync(root,{recursive:true,force:true});}
