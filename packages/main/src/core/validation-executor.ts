@@ -1,3 +1,4 @@
+import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
@@ -141,6 +142,7 @@ export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
 export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 
 export interface RunValidationCommandOptions {
+  sharedExecution?: SharedValidationExecutionContext;
   progress?: ValidationProgressReporter;
   commandIndex?: number;
   totalCommands?: number;
@@ -1323,8 +1325,13 @@ export function runValidationCommand(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
-  return runValidationCommandWithCompleteOutput(command, projectRoot, defaultTimeoutMs, options)
-    .then(({ result }) => result);
+  return executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
+    () => runValidationCommandWithCompleteOutput(command, projectRoot, defaultTimeoutMs, options).then(({ result }) => result), options.sharedExecution, () => {
+      if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
+      if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
+        throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
+      }
+    });
 }
 
 /**

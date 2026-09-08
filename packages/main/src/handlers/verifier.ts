@@ -48,7 +48,7 @@ import {
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
-import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
+import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import {
   isOfficialHeavyValidateInvocation,
   refuseHeavyCertificationUnlessAdmitted,
@@ -334,6 +334,8 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           command: entry.command,
           args,
           ...(entry.shell === true ? { shell: true } : {}),
+          ...(entry.executionReuse === 'exact-inputs' ? {executionReuse:'exact-inputs' as const} : {}),
+          ...(Array.isArray(entry.executionInputs) ? {executionInputs:entry.executionInputs} : {}),
           ...(typeof entry.cwd === 'string' ? { cwd: entry.cwd } : {}),
           ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
           ...(Array.isArray(entry.declaredEnvironmentKeys) ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys.filter((item: unknown): item is string => typeof item === 'string') } : {}),
@@ -610,7 +612,7 @@ function probeVerifierLease(storyDir: string, expectedCwd: string): { available:
   return { available: true, valid: true };
 }
 
-function probeValidationCausalPreflightFacts(
+export function probeValidationCausalPreflightFacts(
   ctx: HandlerContext,
   storyId: string,
   input: { command: string; cwd: string; timeoutMs?: number },
@@ -1219,7 +1221,7 @@ function persistStoryValidationEvidence(
       commands: commandResults,
     }),
     disposition: 'executed',
-    commandExecutions: commandResults.length,
+    commandExecutions: commandResults.filter(row => row.executionReceipt?.disposition !== 'reused').length,
   });
   // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
   // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
@@ -1455,7 +1457,7 @@ function decorateAndMaybePersistStoryValidation(
   const executed = {
     ...decorated,
     disposition: 'executed',
-    commandExecutions: commandResults?.length ?? 0,
+    commandExecutions: commandResults?.filter(row => row.executionReceipt?.disposition !== 'reused').length ?? 0,
   };
   if (!focus) {
     if (!commandResults || expectedCommandCount === undefined) {
@@ -1546,6 +1548,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         workspaceRoot: handlerGitCwd,
         requireGitIdentity: Boolean(args.story) || configuredGitRootExpected || existsSync(join(handlerGitCwd, '.git')),
         command: 'validate',
+        ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
+          ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
+        sharedExecution: args.story && dynamicMode === 'off' ? {
+          storyId: args.story, receiptStore: ctx.store,
+          probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
+        } : undefined,
+        ownerLeaseDir: args.story ? ctx.store.storyDirPath(args.story) : undefined,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
         deadlineError: args.deadlineError,

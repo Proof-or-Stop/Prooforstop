@@ -8,6 +8,10 @@ export type ValidationStatus = 'pass' | 'fail' | 'warn';
 export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface ValidationCommand {
+  /** Explicit cross-consumer reuse; never overrides forbidden/build policies. */
+  executionReuse?: 'exact-inputs';
+  /** Complete additional generated/external input files; [] explicitly declares none. */
+  executionInputs?: string[];
   /**
    * B-a745 CHK-001: OPTIONAL stable planner identity for this command.
    *
@@ -62,6 +66,7 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
   label: string;
   command: string;
   args: string[];
@@ -296,6 +301,7 @@ export interface DoneRequiredCommandSpecEnvelope {
 }
 
 export interface DoneRequiredCommandReceipt {
+  executionReceipt?: ValidationCommandResult['executionReceipt'];
   label: string;
   command: string;
   args: string[];

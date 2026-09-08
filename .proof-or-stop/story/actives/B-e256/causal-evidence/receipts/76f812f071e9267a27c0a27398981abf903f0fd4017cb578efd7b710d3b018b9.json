@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e256",
+  "executionKey": "ce:v1:c0ea534dcd12d31fc982f917e669855b47f887d24bc6d754dc7e5aad3bc78780",
+  "identityDigest": "c0ea534dcd12d31fc982f917e669855b47f887d24bc6d754dc7e5aad3bc78780",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e256",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:bc480c4118adb257aeaa582763993984ba5780e7a86e2929624cec9bf02bc860",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-e256/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "2ab58e87a5f42963ff810753b5e2b29c267c2bbb",
+          "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+          "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-e256",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "13efb28c4f4f9c03f850ff572f7739cf7e5a4c19c995201c7ce4dc6fc9e123c0",
+  "outputTail": "ok global-core-realpath\n",
+  "outputProbe": "ok global-core-realpath\n",
+  "outputLength": 24,
+  "executedAt": "2026-09-06T20:48:30.842Z",
+  "durationMs": 6856,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "JHm4iBT78nFfncFPBxXLbI4Wif3GVDi4aE7lcv/0RLLvN4BEqQxdgcGNzkFoamWwndIrqypHciG9ZlYdPqRrDg==",
+  "receiptHash": "76f812f071e9267a27c0a27398981abf903f0fd4017cb578efd7b710d3b018b9"
+}

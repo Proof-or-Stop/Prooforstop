@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7abb",
+  "mode": "custom",
+  "allowed": [
+    "Bounded implementation-reference false-positive correction and hostile controls",
+    "Process-fact registration and English recovery audit",
+    "Signed reviewer-launch reproduction using unchanged B-03b7 description"
+  ],
+  "excluded": [
+    "B-03b7 implementation changes",
+    "customerKeyRef",
+    "Dynamic Finding policy amendment",
+    "Layer4",
+    "Lifecycle gate bypass",
+    "Other triage grammar drafts",
+    "Raw or command-policy Story metadata unfreeze",
+    "Remote publishing",
+    "repair UX"
+  ],
+  "confirmedBy": "main",
+  "confirmationNote": "User authorized a minimal independent recovery Story. The initial correctness_fix preset excludes the bare word Authority, including this Story's classifier subject. Use explicit scoped custom boundary for that approved subject; preserve all concrete exclusions and the other preset exclusions. This does not authorize changing Dynamic Finding policy, B-03b7 metadata, or lifecycle protections.",
+  "createdAt": "2026-09-07T07:19:11.025Z",
+  "updatedAt": "2026-09-07T07:19:11.025Z",
+  "_hash": "3d6d71d1ff3f6512e09a4d8c6824bf0b6c05fce4ead7b1f8f016bfb405e71550"
+}

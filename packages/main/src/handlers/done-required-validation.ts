@@ -1,3 +1,4 @@
+import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -7,7 +8,7 @@ import {
   runDoneRequiredValidation,
 } from '../core/done-required-validation.js';
 import type { ValidationProgressReporter } from '../core/validation-types.js';
-import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
+import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
@@ -46,6 +47,9 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         workspaceRoot: gitCwd,
         requireGitIdentity: true,
         command: 'done_required_validate',
+        ...declaredValidationCapacity(policy.commands, gitCwd),
+        sharedExecution: {storyId,receiptStore:ctx.store,probe:input=>probeValidationCausalPreflightFacts(ctx,storyId,input)},
+        ownerLeaseDir: ctx.store.storyDirPath(storyId),
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
         deadlineError: args.deadlineError,

@@ -1,0 +1,99 @@
+{
+  "storyId": "B-8a40",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Current-Story acceptance repair for verified F-079/F-080 and repeated observations: narrowly admit the existing built-module mutation smoke by exact call shape, whole-source fingerprint and pinned producer provenance with rejection controls. The user reaffirmed necessary gate-blocker repair until DONE; this adds only the required scanner companion, not unrelated policy or host-assurance changes.",
+      "timestamp": "2026-09-07T07:19:06.937Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "894c0ef43748924ae026e1fd5e887fb0e6218654",
+      "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary companion contract registration for the F-080 scanner repair: the existing process-fact verifier pins the old eleven-entry inventory wording, so the new exact test-only loader admission must be registered and checked without preserving a false count or weakening the contract. This is the repository-required two-layer contract update, not an unrelated feature.",
+      "timestamp": "2026-09-07T07:22:33.896Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c5ceac93e32fc181fcb36d040c86f1bac35c9b5c",
+      "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F088 operational repair: dev_memory_finish generated this exact non-authoritative Story memory candidate output during required closeout. Preserve the CLI-generated audit data under this explicit path-only acknowledgement; it does not change classifier source, acceptance, verification, or authoritative evidence. No general artifact exemption or runtime registry change is included.",
+      "timestamp": "2026-09-07T08:23:14.346Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "aa93f257b402f914f896a85a2e58c0ca9f41ad97",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded repair of actual current TEST blockers F092/F094 and F093/F095, admitted by consumed remediation inventory RI-016:RCP-001. The formal132-command validation failed because the registered ledger guard requires missing historical candidate CAS metadata and the max-descendant fixture can be terminated before its startup premise. Preserve historical RED references, actual baseline/current execution, real private fixture CLI roundtrips and integrity negative controls; preserve production deadlines, timeout-layer and descendant-cleanup assertions. This acknowledgement covers only these two existing test files, not production deadline changes, artifact-store architecture, unbounded cleanup, or an assertion that out-of-scope work is repaired.",
+      "timestamp": "2026-09-07T10:01:03.067Z",
+      "paths": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "9bef56ef7aa4f801746d35da7933bd7ad1e6dc73",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd"
+    }
+  ],
+  "createdAt": "2026-09-06T16:25:31.563Z",
+  "updatedAt": "2026-09-07T10:01:03.067Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl": ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl",
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+  }
+}

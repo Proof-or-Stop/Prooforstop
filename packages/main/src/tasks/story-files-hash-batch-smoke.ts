@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 
 const COMMIT_ENV = ['-c', 'user.email=story-files-hash@example.test', '-c', 'user.name=Story Files Hash Smoke'];
@@ -132,3 +133,6 @@ check('delete and rename entries remain part of the story-owned hash', () => {
 });
 
 console.log(`story-files-hash-batch smoke passed (${passed} checks)`);
+
+// Keep the independent exact-digest regression in the existing validation inventory.
+execFileSync(process.execPath, [fileURLToPath(new URL('../../../../scripts/verify-hash-accuracy.mjs', import.meta.url))], { stdio: 'inherit', timeout: 120000 });

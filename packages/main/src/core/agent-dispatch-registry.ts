@@ -477,12 +477,27 @@ function cardinalityGuidance(entry: AgentDispatchRegistryEntry): string {
 }
 
 /** Resolve and validate the complete dispatch contract before any prompt is built. */
+export function validateCriticReviewPurpose(actor: string, purpose: unknown, epochId: unknown): void {
+  if (purpose === undefined && epochId === undefined) return;
+  if (resolveRegisteredAgentActor(actor)?.canonicalName !== 'proof-or-stop-review-topology-critic') {
+    throw new Error('review purpose is available only to the registered topology critic');
+  }
+  if (purpose !== 'topology' && purpose !== 'inventory-completeness') throw new Error('unknown or missing critic review purpose');
+  if (purpose === 'topology' && epochId !== undefined) throw new Error('topology purpose forbids inventoryEpochId');
+  if (purpose === 'inventory-completeness' && (typeof epochId !== 'string' || !epochId.trim() || epochId !== epochId.trim())) {
+    throw new Error('inventory-completeness purpose requires exact inventoryEpochId');
+  }
+}
+
 export function validateAgentDispatchRequest(args: AgentDispatchTargetInput & {
   agentType?: string;
   phase: StoryPhase;
+  reviewPurpose?: 'topology' | 'inventory-completeness';
+  inventoryEpochId?: string;
 }): ResolvedAgentDispatchType {
   const resolved = resolveAgentDispatchType(args.agentType);
   const { entry } = resolved;
+  validateCriticReviewPurpose(resolved.canonicalType, args.reviewPurpose, args.inventoryEpochId);
   if (!entry.allowedPhases.includes(args.phase)) {
     throw new AgentDispatchRegistryError(
       'invalid_dispatch_phase',

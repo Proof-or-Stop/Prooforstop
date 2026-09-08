@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Separate evidence purposes rather than weaken either contract.",
+    "Keep real Git attribution distinct from independent reviewer execution.",
+    "Bind authority to current signed producer artifacts and reject incomplete or replayed bindings.",
+    "Limit the repair to the demonstrated inventory-launch deadlock."
+  ],
+  "drivers": [
+    "B-7abb requires inventory completeness before REVIEW remediation but current shared dispatch requires an obsolete author identity.",
+    "Inventory receipts and topology certification have different consumers and must remain non-interchangeable.",
+    "The user requires RED before GREEN, independent review, real commit identity and local delivery."
+  ],
+  "options": [
+    {
+      "name": "Explicit inventory-purpose dispatch with current epoch binding",
+      "pros": [
+        "Removes the unrelated business-author launch dependency only for inventory completeness.",
+        "Preserves existing topology provenance rules and makes purpose mechanically reviewable."
+      ],
+      "cons": [
+        "Requires coordinated schema, dispatch, run, receipt-consumer and prompt regression coverage."
+      ]
+    },
+    {
+      "name": "Accept arbitrary Git authors throughout topology provenance",
+      "pros": [
+        "Would permit Harmonynet in more topology paths."
+      ],
+      "cons": [
+        "Changes the independent business-author contract beyond the reported inventory defect; accepting a username alone cannot prove independence."
+      ]
+    },
+    {
+      "name": "Restore role-named Git authors or bypass the critic",
+      "pros": [
+        "Could suppress the immediate launch error."
+      ],
+      "cons": [
+        "Violates the user identity requirement or mandatory independent review, so this option is rejected."
+      ]
+    }
+  ],
+  "chosen": "Explicit inventory-purpose dispatch with current epoch binding",
+  "rationale": "Inventory-only review gets an explicit purpose and current signed epoch/wave/cutoff binding before any dispatch is accepted. The default topology path retains its current provenance checks and never falls back after failure. Existing role, run, read-evidence, classification and freshness validation remain mandatory; purpose must survive the producer-to-consumer path rather than live only in prose.",
+  "preMortem": [
+    {
+      "scenario": "Inventory purpose is used to mint topology certification.",
+      "trigger": "A caller reuses inventory dispatch or terminal evidence at a topology consumer.",
+      "consequence": "A limited completeness review is promoted to stronger authority.",
+      "mitigation": "Bind and verify purpose; test cross-purpose replay and retain unchanged topology provenance admission."
+    },
+    {
+      "scenario": "An old or forged epoch launches an apparently current critic.",
+      "trigger": "Dispatch/run is replayed after wave advance, cancel, scope or material drift.",
+      "consequence": "Completeness receipt covers a different Finding set.",
+      "mitigation": "Read the canonical signed OPEN epoch, recheck epoch/wave/cutoff at run and receipt admission, and reject stale or tampered bindings."
+    },
+    {
+      "scenario": "A synthetic test identity is reported as real independent review.",
+      "trigger": "Disposable fixture adapter identity leaks into project evidence.",
+      "consequence": "Host assurance is falsely claimed.",
+      "mitigation": "Keep fixture identities isolated and restored, and obtain real reviewer runs and any required actual-host assurance separately."
+    }
+  ],
+  "timestamp": "2026-09-07T08:18:02.300Z"
+}

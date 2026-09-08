@@ -4,6 +4,7 @@ import type {
   ChecklistData,
   Finding,
   ReviewInventoryEpoch,
+  ReviewInventoryPurposeBinding,
   ReviewInventoryCriticReceipt,
   ReviewInventoryEpochData,
   ReviewInventoryFindingDisposition,
@@ -54,6 +55,23 @@ function canonical(value: unknown): string {
 
 export function reviewInventoryDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+/** Stable subject of one signed epoch wave, independent of critic receipt writes. */
+export function reviewInventoryPurposeBinding(epoch: ReviewInventoryEpoch): ReviewInventoryPurposeBinding {
+  const boundary = epoch.waves.at(-1)?.nextRunSequenceBoundary ?? epoch.initialRunSequenceBoundary;
+  if (!Number.isSafeInteger(boundary) || boundary! < 0) throw new Error('inventory purpose requires signed run-sequence boundary');
+  return {
+    storyId: epoch.storyId, epochId: epoch.epochId, reviewRound: epoch.reviewRound,
+    wave: epoch.waves.length + 1, cutoff: { ...epoch.cutoff }, scopeDigest: epoch.scopeDigest,
+    requiredLanesDigest: reviewInventoryDigest(epoch.requiredLanes),
+    runSequenceBoundary: boundary!,
+  };
+}
+
+export function inventoryPurposeMatchesEpoch(binding: ReviewInventoryPurposeBinding | undefined, epoch: ReviewInventoryEpoch): boolean {
+  try { return Boolean(binding) && canonical(binding) === canonical(reviewInventoryPurposeBinding(epoch)); }
+  catch { return false; }
 }
 
 export function emptyReviewInventoryEpochData(): ReviewInventoryEpochData {
@@ -164,9 +182,11 @@ export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): b
   if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryReceipt(unsigned)
-    && receipt.authority === 'inventory-completeness-only'
     && receipt.authorizesTest === false
-    && receipt.saturationResult === 'ZERO_NEW_VERIFIED_FINDINGS';
+    && ((receipt.authority === 'inventory-completeness-only' && receipt.saturationResult === 'ZERO_NEW_VERIFIED_FINDINGS')
+      || (receipt.authority === 'review-remediation-only' && receipt.saturationResult === 'NOT_EVALUATED_FOR_REMEDIATION'
+        && Number.isSafeInteger(receipt.waveCount) && receipt.waveCount >= 1 && Array.isArray(receipt.requiredLanes) && receipt.requiredLanes.length > 0
+        && receipt.requiredLanes.every(lane => typeof lane === 'string' && lane.trim().length > 0)));
 }
 
 export function signReviewInventoryCriticReceipt(receipt: Omit<ReviewInventoryCriticReceipt, '_hash'>): string {
@@ -231,6 +251,12 @@ export function validateReviewInventoryCriticReceipt(args: {
     return { ok: false, reason: 'critic required-lane coverage digest mismatch' };
   }
   const run = args.runs.find(row => row.reviewRunId === receipt.reviewRunId);
+  if (receipt.reviewPurpose !== 'inventory-completeness'
+    || !inventoryPurposeMatchesEpoch(receipt.inventoryBinding, epoch)
+    || run?.reviewPurpose !== 'inventory-completeness'
+    || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+    return { ok: false, reason: 'critic inventory purpose/subject binding missing or mismatched' };
+  }
   if (!run || !verifyReviewRun(run) || run.lane !== receipt.criticLane
     || run.reviewRound !== epoch.reviewRound || run.materialHash !== epoch.cutoff.materialHash
     || (run.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '')) {
@@ -282,7 +308,8 @@ function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[
   findings: Finding[];
 } {
   if (!verifyReviewRun(run)) return { terminal: null, findings: [] };
-  const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId && verifyReviewPass(run.storyId, pass));
+  const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId
+    && verifyReviewPass(run.storyId, pass) && Boolean(pass.readManifest) && Boolean(pass.readLog));
   const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId
     && verifyFinding(run.storyId, finding) && Boolean(finding.readManifest) && Boolean(finding.readLog));
   if (runPasses.length === 0 && runFindings.length === 0) return { terminal: null, findings: [] };
@@ -380,6 +407,17 @@ export function evaluateReviewInventoryWave(args: {
     // Coverage has one canonical terminal per lane, but completeness aggregates
     // every verified finding from every eligible same-wave run for that lane.
     runEvidence.forEach(row => row.findings.forEach(finding => rawFindings.set(finding.id, finding)));
+  }
+  // A completeness critic may discover a defect after required lanes finish.
+  // Include every eligible same-wave critic observation, without treating the
+  // critic as another required lane or accepting default topology authority.
+  const inventoryCriticRuns = candidates.filter(run =>
+    canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
+    && run.reviewPurpose === 'inventory-completeness'
+    && inventoryPurposeMatchesEpoch(run.inventoryBinding, args.epoch));
+  for (const run of inventoryCriticRuns) {
+    evidenceForRun(run, args.passes, args.findings).findings
+      .forEach(finding => rawFindings.set(finding.id, finding));
   }
   const signedBaselineIds = [...(args.epoch.baselineFindingIds ?? [])].sort();
   const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ epoch: args.epoch, runs: args.runs, findings: args.findings });
@@ -550,7 +588,9 @@ function finalizedLiveAggregateError(store: StoryStore, pair: {
 }): string | undefined {
   const { epoch, receipt } = pair;
   const finalWave = epoch.waves.at(-1);
-  if (!finalWave || !finalWave.completedAt || !finalWave.saturated || finalWave.newVerifiedFindingCount !== 0) {
+  const remediationOnly = receipt.authority === 'review-remediation-only';
+  if (!finalWave || !finalWave.completedAt
+    || (!remediationOnly && (!finalWave.saturated || finalWave.newVerifiedFindingCount !== 0))) {
     return 'final saturated wave is missing or invalid';
   }
   const replayEpoch: ReviewInventoryEpoch = {
@@ -588,8 +628,9 @@ function finalizedLiveAggregateError(store: StoryStore, pair: {
   if (reviewInventoryDigest(rebuilt.lanes) !== reviewInventoryDigest(finalWave.lanes)
     || rebuilt.verifiedFindingSetDigest !== finalWave.verifiedFindingSetDigest
     || rebuilt.criticDigest !== finalWave.criticDigest
-    || rebuilt.newVerifiedFindingCount !== 0
-    || !rebuilt.saturated) {
+    || rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount
+    || rebuilt.saturated !== finalWave.saturated
+    || (!remediationOnly && (rebuilt.newVerifiedFindingCount !== 0 || !rebuilt.saturated))) {
     return 'live terminal/finding aggregate digest differs from the finalized wave';
   }
   if (receipt.findingSetDigest !== reviewInventoryDigest(rebuilt.verifiedFindingFamilies)
@@ -730,6 +771,9 @@ export function consumeReviewInventoryCompletenessReceipt(
       );
     }
     const pair = finalizedUnconsumedReviewInventory(store, storyId);
+    if (pair?.receipt.authority === 'review-remediation-only') {
+      throw new Error('REVIEW_INVENTORY_AUTHORITY_MISMATCH: remediation-only receipt cannot enter certification');
+    }
     if (!pair) {
       throw new Error('REVIEW_INVENTORY_PRE_CERT_BLOCKED: missing valid unconsumed FINALIZED review inventory receipt');
     }

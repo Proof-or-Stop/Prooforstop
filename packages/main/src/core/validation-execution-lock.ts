@@ -1,3 +1,5 @@
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS } from './runtime-fact-registry.js';
+import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -22,6 +24,8 @@ import {
   type MkdirLockHolderInfo,
   readMkdirLockHolder,
 } from './mkdir-lock.js';
+import { canonicalizeEntries, claimsConflict, validateResourceClaims, MAX_JOBS, type ResourceClaim } from './keyed-scheduler.js';
+import { withOwnerLeaseHeartbeat, type OwnerLeaseHeartbeatOptions } from './story-owner-lease.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export const VALIDATION_EXECUTION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/validation`;
@@ -37,7 +41,7 @@ export const VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS = 30000;
 // owner acquires the same path, a path-only reentrancy check would let that
 // stale context enter as the new owner. Bind both the process-visible active
 // owner and the async context to the acquisition's never-reused lockId.
-const activeValidationLockTokens = new Map<string, string>();
+const activeValidationLockTokens = new Map<string, Set<string>>();
 const validationLockOwnerStore = new AsyncLocalStorage<Map<string, string>>();
 
 interface ValidationLockHeartbeatInfo {
@@ -90,9 +94,8 @@ export function storyRuntimeLockPath(
 }
 
 function currentContextOwns(lockKey: string): boolean {
-  const activeToken = activeValidationLockTokens.get(lockKey);
-  return activeToken !== undefined
-    && validationLockOwnerStore.getStore()?.get(lockKey) === activeToken;
+  const token = validationLockOwnerStore.getStore()?.get(lockKey);
+  return token !== undefined && activeValidationLockTokens.get(lockKey)?.has(token) === true;
 }
 
 function extendedOwnerTokens(lockKey: string, acquisitionToken: string): Map<string, string> {
@@ -103,9 +106,9 @@ function extendedOwnerTokens(lockKey: string, acquisitionToken: string): Map<str
 }
 
 function clearActiveValidationLockToken(lockKey: string, acquisitionToken: string): void {
-  if (activeValidationLockTokens.get(lockKey) === acquisitionToken) {
-    activeValidationLockTokens.delete(lockKey);
-  }
+  const tokens = activeValidationLockTokens.get(lockKey);
+  tokens?.delete(acquisitionToken);
+  if (tokens?.size === 0) activeValidationLockTokens.delete(lockKey);
 }
 
 function currentProcessStartTimeMs(): number {
@@ -368,7 +371,18 @@ export interface ValidationExecutionLockOptions {
   staleMs?: number;
 }
 
+const activeCapacityDeclarations = new Map<string, CapacityResourceDeclaration | null>();
+
+interface CapacityResourceDeclaration {
+  schema: 'validation-capacity-resources.v1';
+  maxConcurrent: number;
+  resources: ResourceClaim[];
+}
+
 export interface ValidationCapacityLockOptions {
+  /** Omitted/empty declarations retain exclusive legacy admission. */
+  resources?: ResourceClaim[];
+  maxConcurrent?: number;
   root: string;
   workspaceRoot: string;
   requireGitIdentity?: boolean;
@@ -383,7 +397,11 @@ export interface ValidationCapacityLockOptions {
   onWaitProgress?: (message: string) => void;
 }
 
-export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {}
+export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {
+  sharedExecution?: SharedValidationExecutionContext;
+  ownerLeaseDir?: string;
+  ownerLeaseHeartbeat?: OwnerLeaseHeartbeatOptions;
+}
 
 function capacityDeadlineError(options: ValidationCapacityLockOptions): Error {
   return options.deadlineError?.() ?? new Error('workspace validation capacity wait deadline exceeded');
@@ -558,7 +576,45 @@ function activeCapacityCandidates(
   return active;
 }
 
-function createValidationCapacityCandidate(path: string, holder: MkdirLockHolderInfo): void {
+function capacityDeclaration(options: ValidationCapacityLockOptions): CapacityResourceDeclaration | null {
+  const maxConcurrent = options.maxConcurrent ?? 1;
+  if (!Number.isSafeInteger(maxConcurrent) || maxConcurrent < 1 || maxConcurrent > MAX_JOBS) {
+    throw new Error(`validation maxConcurrent must be an integer between 1 and ${MAX_JOBS}`);
+  }
+  if (options.resources === undefined) return null;
+  if (!Array.isArray(options.resources)) throw new Error('validation resources must be an array');
+  const resources = canonicalizeEntries([{ name: options.command, resources: options.resources }], options.workspaceRoot)[0]!.resources;
+  return resources.length ? { schema: 'validation-capacity-resources.v1', maxConcurrent, resources } : null;
+}
+
+function readCapacityDeclaration(path: string): CapacityResourceDeclaration | null {
+  try {
+    const value = JSON.parse(readFileSync(join(path, 'resources.json'), 'utf8')) as CapacityResourceDeclaration;
+    if (value.schema !== 'validation-capacity-resources.v1' || !Number.isSafeInteger(value.maxConcurrent)
+      || value.maxConcurrent < 1 || value.maxConcurrent > MAX_JOBS || !Array.isArray(value.resources)
+      || value.resources.length === 0) return null;
+    validateResourceClaims(value.resources, 'capacity ticket');
+    if (value.resources.some(claim => typeof claim.canonicalKey !== 'string' || !claim.canonicalKey)) return null;
+    return value;
+  } catch { return null; } // Old or malformed tickets remain globally exclusive.
+}
+
+function capacityTicketAdmitted(tickets: Array<{ path: string }>, ticketPath: string): boolean {
+  const index = tickets.findIndex(ticket => ticket.path === ticketPath);
+  if (index < 0) return false;
+  if (index === 0) return true;
+  const own = readCapacityDeclaration(ticketPath);
+  if (!own || index >= own.maxConcurrent) return false;
+  // Count every earlier ticket, including blocked ones. Admission never evicts
+  // an active owner, and a later arrival cannot pass an earlier conflicting job.
+  for (const ticket of tickets.slice(0, index)) {
+    const earlier = readCapacityDeclaration(ticket.path);
+    if (!earlier || index >= earlier.maxConcurrent || claimsConflict({ name: 'current', resources: own.resources }, { name: 'earlier', resources: earlier.resources })) return false;
+  }
+  return true;
+}
+
+function createValidationCapacityCandidate(path: string, holder: MkdirLockHolderInfo, declaration: CapacityResourceDeclaration | null): void {
   // A `.choosing` name is queue-visible, so never publish it before its
   // identity is complete. A process killed while preparing leaves only an
   // ignored, never-reused private path; the atomic rename is the publication.
@@ -566,6 +622,7 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   mkdirSync(preparingPath);
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
+    if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');
     writeValidationHeartbeat(preparingPath, holder);
     renameSync(preparingPath, path);
   } catch (error) {
@@ -587,7 +644,16 @@ export async function withWorkspaceValidationCapacity<T>(
   const command = String(options.command ?? '').trim() || 'validate';
   const storyId = String(options.storyId ?? '').trim();
   const lockKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
-  if (currentContextOwns(lockKey)) return await fn();
+  const declaration = capacityDeclaration(options);
+  if (currentContextOwns(lockKey)) {
+    const token = validationLockOwnerStore.getStore()!.get(lockKey)!;
+    const held = activeCapacityDeclarations.get(token);
+    if (held && (!declaration || declaration.resources.some(claim => !held.resources.some(existing =>
+      existing.canonicalKey === claim.canonicalKey && (existing.access === 'exclusive' || claim.access === 'shared'))))) {
+      throw new Error('nested validation cannot expand held capacity resources');
+    }
+    return await fn();
+  }
 
   const holderInfo: MkdirLockHolderInfo = {
     lockId: randomUUID(),
@@ -604,7 +670,7 @@ export async function withWorkspaceValidationCapacity<T>(
   mkdirSync(lockKey, { recursive: true });
   const choosingPath = join(lockKey, `${holderInfo.lockId}.choosing`);
   let ticketPath = '';
-  createValidationCapacityCandidate(choosingPath, holderInfo);
+  createValidationCapacityCandidate(choosingPath, holderInfo, declaration);
   try {
     const existingNumbers = capacityCandidates(lockKey, '.ticket')
       .map(candidate => Number(candidate.name.slice(0, candidate.name.indexOf('-'))))
@@ -618,7 +684,7 @@ export async function withWorkspaceValidationCapacity<T>(
       const choosing = activeCapacityCandidates(lockKey, '.choosing', staleMs);
       const tickets = activeCapacityCandidates(lockKey, '.ticket', staleMs)
         .sort((a, b) => a.name.localeCompare(b.name));
-      if (choosing.length === 0 && tickets[0]?.path === ticketPath) break;
+      if (choosing.length === 0 && capacityTicketAdmitted(tickets, ticketPath)) break;
       const now = Date.now();
       if (now - lastProgressAt >= progressIntervalMs) {
         lastProgressAt = now;
@@ -650,7 +716,8 @@ export async function withWorkspaceValidationCapacity<T>(
   }
 
   const acquisitionToken = holderInfo.lockId!;
-  activeValidationLockTokens.set(lockKey, acquisitionToken);
+  activeValidationLockTokens.set(lockKey, new Set([...(activeValidationLockTokens.get(lockKey) ?? []), acquisitionToken]));
+  activeCapacityDeclarations.set(acquisitionToken, declaration);
   const heartbeat = startHeartbeat({ lockDir: ticketPath, release: () => undefined }, holderInfo);
   let callbackFailed = false;
   let callbackError: unknown;
@@ -667,6 +734,7 @@ export async function withWorkspaceValidationCapacity<T>(
   }
   clearInterval(heartbeat);
   clearActiveValidationLockToken(lockKey, acquisitionToken);
+  activeCapacityDeclarations.delete(acquisitionToken);
   let releaseError: unknown;
   try {
     await releaseValidationCapacityTicket(ticketPath, holderInfo);
@@ -684,7 +752,7 @@ export async function withOfficialValidationExecution<T>(
   options: OfficialValidationExecutionOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  return await withWorkspaceValidationCapacity(options, async () => {
+  const execute = () => withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity(options, async () => {
     const storyId = String(options.storyId ?? '').trim();
     if (!storyId) return await fn();
     return await withValidationExecutionLock({
@@ -694,7 +762,10 @@ export async function withOfficialValidationExecution<T>(
       command: options.command,
       staleMs: options.staleMs,
     }, fn);
-  });
+  }));
+  return options.ownerLeaseDir
+    ? withOwnerLeaseHeartbeat(options.ownerLeaseDir, { command: options.command, cwd: options.workspaceRoot, ...options.ownerLeaseHeartbeat }, execute)
+    : execute();
 }
 
 export async function withValidationExecutionLock<T>(
@@ -740,7 +811,7 @@ export async function withValidationExecutionLock<T>(
     }),
   });
   const acquisitionToken = holderInfo.lockId!;
-  activeValidationLockTokens.set(lockKey, acquisitionToken);
+  activeValidationLockTokens.set(lockKey, new Set([...(activeValidationLockTokens.get(lockKey) ?? []), acquisitionToken]));
   const heartbeat = startHeartbeat(lock, holderInfo);
   try {
     return await validationLockOwnerStore.run(
@@ -752,4 +823,23 @@ export async function withValidationExecutionLock<T>(
     clearActiveValidationLockToken(lockKey, acquisitionToken);
     lock.release();
   }
+}
+
+
+/** Whole official invocations can overlap only when every child declares its
+ * resources. The workspace claim also protects metadata and build preparation. */
+export function declaredValidationCapacity(
+  commands: Array<{ label: string; cwd?: string; resources?: ResourceClaim[] }>, workspaceRoot: string,
+): Pick<ValidationCapacityLockOptions, 'resources' | 'maxConcurrent'> {
+  if (!commands.length || commands.some(command => !command.resources?.length)) return {};
+  const resources: ResourceClaim[] = [{ class: 'fixed-path', key: resolve(workspaceRoot), access: 'exclusive' }];
+  for (const command of commands) {
+    const cwd = resolve(workspaceRoot, command.cwd ?? '.');
+    validateResourceClaims(command.resources!, command.label);
+    for (const claim of command.resources!) resources.push({
+      class: claim.class, key: claim.class === 'fixed-port' ? claim.key : resolve(cwd, claim.key),
+      access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
+    });
+  }
+  return { resources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
 }

@@ -2,13 +2,13 @@
   "storyId": "B-e256",
   "name": "global-cli-worktree-drift",
   "title": "Keep the global Proof-or-Stop executable working across dist rebuilds and worktrees",
-  "description": "The global proof-or-stop command is unreliable between sessions. Today (2026-09-02) proof-or-stop session_brief died with permission denied because packages/main/dist/cli.js was 0644 after the 13:29 rebuild; earlier (draft global-cli-worktree-drift) the /opt/homebrew/bin symlink resolved into the unrelated .worktrees/B-fe8f checkout. RED (repro probe rp-mtk46lj8-90q9av, red-reviewed rr-mtk4acx4-oqze5c, script red-global-cli-exec-bit.mjs): tsc emits a shebang entry as 0644, and scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs never restore the executable bit on the package.json bin target after promoting dist.staging into dist, so every real re-emit breaks the global symlink that npm link chmod-ed once. GREEN candidate proven in a scratch worktree: promote-dist.mjs restoreBinExecutableBits(dist) after promotion restores a 0644 bin target to 0755 and the script exits 0. Scope: restore bin executable bits in the build pipeline (both main and utils builds), commit the red script as packages/main/tests/red/red-global-cli-exec-bit.mjs, and add a doctor/verify check that the global executable realpath points at the canonical main checkout and is executable, with the exact repoint/reinstall remediation printed.",
+  "description": "Story B-e256 repairs the global Proof-or-Stop CLI failure observed on 2026-09-02: a real dist rebuild emitted packages/main/dist/cli.js as mode 0644, so the npm-linked global command failed with permission denied. The accepted safety contract validates and restores package.json bin targets on the staging tree before evicting the current dist, rejects final symlinks and intermediate-directory symlink escapes, and preserves the working dist when validation fails. The doctor check remains read-only, verifies the canonical global package realpath and executable mode, reports the compiled runtime version rather than the package manifest, and renders version=unknown when compiled-version probing fails. The current understanding snapshot supersedes the older post-promotion GREEN-candidate wording.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-09-02T13:15:10.247Z",
   "startedAt": "2026-09-02T13:15:10.247Z",
-  "endedAt": null,
+  "endedAt": "2026-09-07T15:54:06.413Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,889 @@
       "user": "Harmonynet",
       "sessionId": "sess-44250e6f617887b02d59a86020181e9c",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:13:53.271Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:27:36.238Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:21:29.951Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:29:45.928Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:41:44.013Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T01:07:09.633Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T01:07:19.699Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T02:07:09.724Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T03:31:33.624Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T03:36:47.654Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T04:06:23.988Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T04:44:14.410Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T04:44:20.610Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:22:08.354Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:22:11.207Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:28:47.383Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:29:02.494Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:46:24.058Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T05:55:28.534Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T06:04:30.304Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T06:27:46.208Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T06:35:37.154Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T06:39:54.131Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T07:29:57.479Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:25:42.619Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:25:53.335Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:30:35.426Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:31:55.113Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:32:01.947Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:35:40.156Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:35:46.468Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:59:12.892Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T10:04:53.658Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T10:14:45.943Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T11:06:59.064Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T11:15:05.695Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T11:34:34.882Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T13:35:49.069Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T13:49:59.849Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T21:00:23.390Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T21:14:14.660Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-04T07:42:24.092Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-04T15:44:34.842Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-04T15:49:14.300Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T12:13:22.486Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T13:22:17.538Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T15:21:00.344Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T15:32:14.385Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:03:09.588Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:10:39.782Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:10:48.981Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:16:37.858Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:16:46.565Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:19:41.072Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:23:39.403Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:40:40.510Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:52:33.065Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T17:49:25.302Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T18:04:10.014Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T18:12:39.467Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T19:11:32.288Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T20:13:46.600Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T20:38:14.182Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T20:45:25.165Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T21:16:44.119Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T22:33:37.738Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T22:48:01.169Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T22:52:33.582Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T22:54:32.776Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T22:58:38.016Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T23:04:57.031Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T23:07:19.308Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-06T23:38:10.157Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-06T23:59:11.909Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T00:04:36.823Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T00:08:17.859Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T00:35:44.550Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:08:30.368Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:31:53.884Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:46:01.658Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:09:16.421Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:30:53.931Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:42:26.638Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:47:10.578Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T10:22:34.794Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T10:26:35.445Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:03:41.655Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:19:37.089Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:27:07.005Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:27:25.337Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:37:11.275Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T11:50:12.292Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T13:24:02.709Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T13:41:58.878Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T14:33:02.753Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T14:39:23.674Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T15:30:49.003Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-07T15:54:06.413Z",
+      "branch": "story/B-e256",
+      "user": "Harmonynet",
+      "sessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-e256",
-    "branch": "story/B-e256",
-    "createdAt": "2026-09-02T15:11:08.780Z"
-  }
+  "currentReviewRound": "2026-09-07T14:39:23.674Z"
 }

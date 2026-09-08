@@ -1,0 +1,87 @@
+{
+  "storyId": "B-8a40",
+  "checkedAt": "2026-09-07T11:48:23.046Z",
+  "headHash": "c937e2c537fcf28259800c492d51a9e058a1e5bc",
+  "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+  "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+  "reviewRound": "2026-09-07T10:16:28.881Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/plan.md#CHK-001",
+      "promise": "The exact B-bcae description and a second equivalent safe wording produce integrity-valid full envelopes for every active modular reviewer role.",
+      "status": "verified",
+      "verifiedBy": "Canonical B-bcae CLI description comparison, committed source inspection, and independent execution",
+      "evidence": "The current description returned by story_get --storyId=B-bcae --detail equals the currentBbcaeDescription literal byte-for-byte. The safeNegativeDismissalDescriptions loop asserts role identity and verifyPromptEnvelopeIntegrity for ACTIVE_MODULAR_REVIEWER_ROLE_IDS. Independent node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exactly prompt full-context envelope smoke PASS. Test-first source commits a10617b603 and a9e85989e3 retain the implementer author and precede later bounded classifier repairs."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/checklist.json#CHK-001.verificationIntent.edge",
+      "promise": "Every declared unsafe negative-dismissal witness, including Accordingly, For that reason, and So, remains rejected without removing the existing unsafe-context corpus.",
+      "status": "verified",
+      "verifiedBy": "Full delivery source diff and executable assertions",
+      "evidence": "linkedNegativeDismissalUnsafeDescriptions includes all nine declared unsafe witnesses plus longer and inverted controls. assertLinkedNegativeDismissalUnsafeMatrix calls assert.throws for each witness and active modular reviewer role. The diff retains the pre-existing authority corpus and adds cross-leaf, structural-string, local-antecedent, polarity and proof-wrapper controls. The independent focused smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md#10-semantic-test-strategy",
+      "promise": "The repaired authority classifier remains REVIEW-only and rejects unsafe controlled relationships before envelope digests are minted, while allowing independent negative observations.",
+      "status": "verified",
+      "verifiedBy": "Production control-flow inspection and focused smoke",
+      "evidence": "This is an existing delivery-facing contract maintained by the repair. assembleFullPromptEnvelope calls assertReviewerTaskContextAuthoritySafety before environment capture, rendering and digest construction. The guard returns immediately for non-modular roles; segment classification preserves negative observations and tracks linked responsibility conclusions. Scope prose and structural strings are included without adding Finding schemas or lifecycle handlers. Existing non-REVIEW isolation and envelope integrity tests remain in the passing smoke."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/plan.md#CHK-001",
+      "promise": "The no-safe-narrowing mutation restores the reproduced safe-context rejection while retaining the complete unsafe matrix.",
+      "status": "verified",
+      "verifiedBy": "Inspection of the actual built-module mutation and independent smoke execution",
+      "evidence": "writeEnvelopeMutant admits exactly the no-safe-narrowing and broad-deletion labels and requires one production anchor. Returning false from isStandaloneNegativeDismissalObservation makes both safe descriptions throw the authority-safety diagnostic for every active modular role. The same mutated module is checked against the complete unsafe matrix. These assertions ran in the independent passing smoke."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/plan.md#CHK-001",
+      "promise": "The broad-filter mutation is evaluated independently for every role and every witness without stopping after the first escaped case.",
+      "status": "verified",
+      "verifiedBy": "Complete mutant-loop inspection and independent smoke execution",
+      "evidence": "The helper-only broad-deletion mutant disables hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal. The test records every role/witness cell before asserting results. It honestly expects the inline first witness to remain rejected by the per-segment guard and every genuine linkage witness to escape, then checks both aggregate counts. It also confirms that both safe descriptions still assemble. The independent focused smoke passed."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/checklist.json#CHK-001.userSees",
+      "promise": "The built focused smoke emits exactly prompt full-context envelope smoke PASS and leaves no temporary mutation modules.",
+      "status": "verified",
+      "verifiedBy": "Independent runtime execution, source/built parity, and committed live transcript",
+      "evidence": "The delivery reviewer executed node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js with exit 0 and the exact promised line. The committed live-smoke-transcript at 183740ff79 independently records the same command/output at 2026-09-07T11:27:59.372Z. All 13 tool-owned checklist receipts bind material9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25 and storyFiles80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0. In-memory TypeScript emission matched both executed classifier/smoke modules byte-for-byte excluding source-map footers. The smoke finally removes its isolated mutation tree and asserts that it no longer exists."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/summary.json#changes",
+      "promise": "The test-only dynamic mutation loader is accounted for by exact source and producer provenance, with a registered process-fact boundary.",
+      "status": "verified",
+      "verifiedBy": "Committed guard and process-fact diff inspection",
+      "evidence": "retired-authority-vocabulary-guard-smoke.ts admits one exact importEnvelopeMutant call, pins its whole-source fingerprint, and requires writeEnvelopeMutant with the two-literal parameter type. Added controls reject executable drift, changed call shape, external path rebinding, aliases, mutable bindings, widened/default/extra parameters, nested producer shadowing and URL-helper shadowing. process-fact-registry.ts and verify-process-fact-contract.mjs preserve the statement that loader admission is neither validation PASS nor a dynamic-code exemption. These are acknowledged scope-warning paths, not an unchanged original scope."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/summary.json#expectedOutcome",
+      "promise": "The two applicable validation-test repairs execute successfully while preserving their actual proof domains.",
+      "status": "verified",
+      "verifiedBy": "Independent execution of both registered commands plus source diff and compiled parity",
+      "evidence": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs exited 0, reporting historicalBaselineFails=true, currentGreenPasses=true, currentCorruptedRelationRejected=true and assertionUnchanged=true. Its output explicitly states historicalCandidateCAS=not-consumed and liveCandidate=fixture-only. node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js exited 0 with validate-progress-heartbeat smoke passed; its source matches the executed compiled module. The timeout repair supplies startup headroom for an existing-descendant fixture while preserving separate tight maximum-timeout controls and production deadlines."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8a40/summary.json#limitations",
+      "promise": "Delivery is confined to this supporting classifier repair and its acknowledged validation dependencies; it does not claim B-bcae completion, topology PASS, recovered historical CAS, or actual host quorum from fixture rollout.",
+      "status": "verified",
+      "verifiedBy": "Independent diff, scope reader, acceptance readers and runtime output",
+      "evidence": "scope_contract_check reports WARN with acknowledged paths, including both validation-test repairs. acceptance_topology_check and pre_review_check_read report observe/inconclusive and nonblocking with missing/stale/unsupported evidence diagnostics. acceptance_rollout_report_read and acceptance_rollout_check report a current enforce-mode fixture report PASS at the current material/story-files binding; its fixture host records are not accepted here as actual B-8a40 host assurance. The summary retains open cleanup/input-cost observations and traceable compatibility draft routes rather than calling them repaired or signed deferrals. B-bcae live reviewer writes and its bootstrap delivery remain outside this assessment; local merge and all DONE prerequisites remain owner/gate responsibilities."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent delivery runs in /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40: node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js => exit 0, prompt full-context envelope smoke PASS; node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs => exit 0, historical baseline failure/current GREEN import/one-bit corrupted relation rejection and fixture-only provenance; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js => exit 0, validate-progress-heartbeat smoke passed. The classifier smoke uses real assertions for both safe descriptions, every declared unsafe witness, active modular role coverage, cross-leaf/structural/polarity controls, and both actual built-module mutations without first-witness short-circuiting. Canonical B-bcae description equality and source/built byte parity (excluding source-map footer) also passed. The committed live-smoke transcript and all 13 current tool-owned verification receipts independently bind the focused user-visible result."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The scoped classifier delivery promises and acknowledged validation-test repair outcomes are supported by inspected committed implementation, current bound checklist/live evidence, and three independent passing command executions; no added unresolved TODO/FIXME/HACK was found in the non-test delivery diff. Scope remains WARN, topology/pre-review remain observe/inconclusive, rollout assurance remains fixture-only, and the summary retains unresolved nonblocking cleanup/input-cost work with compatibility routes. This delivery signature neither certifies formal validation or actual host quorum nor claims B-bcae delivery, local main merge, or overall DONE readiness; those remain separate current gate responsibilities."
+  },
+  "_hash": "8f39f06bd6aae941822fa69f7f381f7684a18751921f4ee2911ac78548951381"
+}

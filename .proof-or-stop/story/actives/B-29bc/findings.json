@@ -1,0 +1,451 @@
+{
+  "findings": [
+    {
+      "id": "B-29bc:F-001",
+      "desc": "Required inventory lane passes without mechanical readLog are admitted as complete. WHY: the retained implemented saturation contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 requires both signed readManifest AND readLog for every pass/finding terminal; CHK-001 promises preservation of signed terminal read evidence. Actual current B-29bc:RP-001 (test-coverage/RR-004), RP-002 (concept/RR-003), and RP-004 (docs/RR-001) have readManifest but no readLog in .proof-or-stop/story/actives/B-29bc/review-passes.json:3-29,30-71,133-163. RP-003 is a positive control with a persisted mechanical log. core/review-inventory-epoch.ts:309 accepts passes based solely on verifyReviewPass while the adjacent finding path requires both read fields; lines317-318 hash missing logs as null. handlers/finding.ts:554-557 accepts absent mechanical input for passes. Official purpose-bound review_run_start admitted RR-005 after those terminals, and fresh owner review_inventory_status reports all four lanes pass with only critic incomplete. This is not evidence that any reviewer failed to read; it is verified missing signed mechanical evidence and false complete-lane admission. Applicability candidate: directly blocks truthful current inventory completeness and the retained CHK-001 read-evidence promise, irrespective of whether the omitted guard predates this Story. Restore legitimate reviewer terminal read evidence without rewriting old records; preserve a failing missing-readLog admission control and repair the applicable producer/consumer path through authorized DEV scope. No topology or quorum claim is made.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-07T10:19:39.903Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b00ed69cec1eff2dda4f9928121a5be68ac75f120e92ad08316969f7262a309c",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        ".proof-or-stop/story/actives/B-29bc/review-passes.json"
+      ],
+      "signatureTag": "missing|ts|required-inventory-lane",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
+      "ledgerCommitReceiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf",
+      "resolvedAt": "2026-09-07T11:09:51.296Z",
+      "resolvedReason": "Fixed in 0ffe4cc619 after test-only RED d2461f5794. The shared recordReviewPass producer now refuses OPEN-inventory PASS records lacking signed readManifest or mechanical readLog, including pass-only finding_add normalization; evidenceForRun independently enforces both fields before lane coverage. The epoch and public handler regressions pass with signature-valid negative controls and valid positive terminals. Historical incomplete passes are retained, not retroactively repaired; RI-002 current required terminals carried fresh logs, and final REVIEW must produce new current-material evidence. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-002",
+      "desc": "Current verified inventory-critic Findings are omitted from the aggregate and cannot receive a completeness disposition. WHY: packages/main/src/core/review-inventory-epoch.ts:397-406 collects current-wave rawFindings only while iterating epoch.requiredLanes. The independent critic is deliberately not one of those four lanes, so its new signature-valid Finding is excluded. Concrete production witness: finding_add persisted B-29bc:F-001 on current purpose-bound RR-005 with signed manifest and mechanical readLog; finding_list returns it open/verified. The immediately following review_inventory_critic_set for RI-001/RR-005 with exactly one verified_family disposition for F-001 exited 1 with REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: B-29bc:F-001. The rejecting predicate is core/review-inventory-epoch.ts:435 and handler/review-inventory.ts:521. Thus a critic following the canonical duty to find missed issues cannot include its own discovery in the exact-set receipt; submitting an empty set would erase it from inventory accounting. This is a distinct aggregate completeness defect, not a second copy of the missing-readLog issue. Applicability candidate: directly blocks the explicitly promised independent critic workflow and per-Finding completeness in CHK-001/002. The required-lane aggregation predicate may predate B-29bc; do not label it an introduced regression without base proof. Preserve the real recorded Finding, include eligible critic discoveries in the immutable current aggregate through authorized scoped remediation, and retain a production negative/positive regression. No receipt was issued, no empty-disposition fallback was attempted, and no topology or quorum claim is made.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-07T10:21:10.917Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc43e6583f159a3c44470abfe661b91ce3daaccfcfd2f7b2533d39ee1575351d",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "missing|ts|current-verified-inventory",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90",
+      "ledgerCommitReceiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73",
+      "resolvedAt": "2026-09-07T11:09:53.614Z",
+      "resolvedReason": "Fixed in 0ffe4cc619 after test-only RED d2461f5794. Current-wave aggregation now includes every signed exact-purpose/epoch critic Finding without granting required-lane coverage or topology authority. The epoch regression proves prior same-wave Findings survive newer PASS runs, invalid bindings/read evidence are excluded, and incomplete dispositions fail closed. The separate production CLI fixture records critic discovery before the first receipt: an empty list is refused and the exact own-Finding disposition succeeds. Issued receipts remain immutable. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-003",
+      "desc": "doc-promise-undelivered: The new implementation audit asserts a terminal-read refusal which the current implementation does not enforce. docs/audits/inventory-critic-purpose-isolation.md:26-27 says terminal records still require signed reading evidence; lines 86-87 specifically assert missing/tampered terminal reads remain refusals. The controlling retained contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 explicitly requires BOTH readManifest and readLog. However packages/main/src/core/review-inventory-epoch.ts:309 admits run passes using verifyReviewPass alone, unlike the adjacent finding predicate which requires both fields; lines 317-318 include null missing read logs in the coverage digest. The current-round canonical run context and official finding_list preserve verified open B-29bc:F-001, whose real RP-001/RP-002/RP-004 and RR-005 witness confirms admission without mechanical logs. Fresh RI-002 terminal logs do not repair that predicate or make the broad audit assertion true. This is the documentary-contract manifestation of F-001, not a separately invented runtime root cause; preserve the original Finding and link this observation during owner disposition. Critical severity follows this lane's mandatory closing rule for newly added promised-but-undelivered behavior. Applicability candidate: CHK-002's accurate English recovery audit and CHK-001's preserved terminal-read guarantee. Correct the scoped consumer/producer behavior and its negative control through authorized DEV, or accurately qualify the audit to the actual proved boundary without waiving the controlling acceptance contract. B-29bc:F-002 also remains verified/open; this record neither repairs nor dismisses either original. The integrated two-item diff otherwise introduces a purpose-specific carrier/signature binding rather than deleting a concept en masse; preserved legacy topology defaults and compatibility aliases are intentional. No actual host assurance or topology certificate is inferred from fixture successes.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:28:46.062Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b62a5f8a6548d8a83c08a313f8c79fa3af0ba6a15a52907ee4fba5f0446f8938",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-implementation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3lhm8_ebo_bd9e5dd0228e4ae1b26305f8875a0347",
+      "ledgerCommitReceiptId": "lrc_mtr3lhm8_ebo_6786804b131c49799f130a389cf95d3b",
+      "resolvedAt": "2026-09-07T11:09:56.129Z",
+      "resolvedReason": "Fixed by runtime guard 0ffe4cc619 plus audit correction b2e7b6f495. The audit now distinguishes the original intended read-evidence contract from the missed producer/consumer enforcement, records F-001/F-002 and the documentary observations honestly, and cites actual test-only RED and passing GREEN. Both missing read fields now prevent inventory PASS coverage; the OPEN producer also refuses them. This is repair of the documentary contradiction and its underlying behavior, not dismissal or a claimed duplicate resolution. Original observation and severity remain in history; final independent review is still required. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-004",
+      "desc": "doc-promise-undelivered: RI-002 wave-2 re-observation of the exact documentary defect in B-29bc:F-003, whose underlying runtime cause is B-29bc:F-001; no new runtime cause or additional family is claimed. Fresh full reads of docs/audits/inventory-critic-purpose-isolation.md and docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md show the same audit promise at lines 26-27 and 86-87: signed terminal reads are required and missing reads remain refusals. The controlling decision lines 129-140 requires BOTH readManifest and readLog. Fresh inspection of packages/main/src/core/review-inventory-epoch.ts:309-318 confirms the unchanged pass predicate accepts verifyReviewPass alone and hashes absent readLog as null, whereas findings require both read fields. The same current-round F-001/F-002/F-003 are verified/open in official finding_list and this run's canonical context. git diff 5ebed6e...HEAD shows only reviewer/inventory bookkeeping, no implementation, docs, checklist, background or plan change; the selected SAFE_INCREMENTAL context reports changedFiles=[] and unchanged Story/scope bindings. Thus the previously completed integrated two-item concept review remains applicable: there is no en-masse concept deletion, intended legacy topology/default behavior remains, and the sole documentary observation here remains unfixed. The current lane body requires critical missing for this promised-but-undelivered behavior, so this is a fresh finding terminal, not a no-blocker PASS or a repair claim. Preserve F-001, F-002 and F-003 without severity/status rewrite; F-002 is the separate already-tracked critic-aggregate defect, not this observation's root. Family/duplicate classification belongs to the independent critic and owner, not this description. CHK-002 audit accuracy and CHK-001 terminal-read acceptance remain the applicability candidates. Prior full Story-input reads are reused only after the unchanged-material and exact diff checks; the two documentation full-read events supplied here were freshly performed in this wave. No tests rerun, source edited, topology authority or actual-host assurance claimed.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:35:32.731Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "81d42b06ff95ab506407c68abe8b6cf75df9663909f6fd43bc92e6ee97da348d",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-wave",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3u7ek_1w3l_e18cca4a813040c1a6d3a61f63dae39d",
+      "ledgerCommitReceiptId": "lrc_mtr3u7ek_1w3l_7db18eb644fc48e1aacce19a64b221df",
+      "resolvedAt": "2026-09-07T11:09:58.242Z",
+      "resolvedReason": "Fixed by runtime guard 0ffe4cc619 plus audit correction b2e7b6f495. The audit now distinguishes the original intended read-evidence contract from the missed producer/consumer enforcement, records F-001/F-002 and the documentary observations honestly, and cites actual test-only RED and passing GREEN. Both missing read fields now prevent inventory PASS coverage; the OPEN producer also refuses them. This is repair of the documentary contradiction and its underlying behavior, not dismissal or a claimed duplicate resolution. Original observation and severity remain in history; final independent review is still required. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-005",
+      "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529: the new semantic receipt mutation witnesses sign the complete mutated receipt including its existing _hash. signReviewInventoryCriticReceipt spreads every supplied property into its digest, but verifyReviewInventoryCriticReceipt strips _hash before recomputing; these witnesses therefore always fail with critic receipt signature invalid, before the intended purpose/subject or missing-disposition semantic guard. WHY: the comment claims correctly re-signed mutations and CHK-001 adversarial/CHK-002 compatibility evidence reports this matrix as semantic rejection coverage, yet removal of those receipt semantic guards could leave these assertions green. Verified by a read-only node import of the current dist signer/verifier: an unsigned control signs/verifies true; the exact changed._hash=signReviewInventoryCriticReceipt(changed) pattern verifies false; destructuring _hash before signing verifies true. Source line 529 repeats the defect for incompleteDispositions. Bounded current-Story repair: sign only the unsigned mutation, assert verifyReviewInventoryCriticReceipt(changed) is true before the negative consumer assertion, and assert the intended semantic rejection reason. This is a regression-test evidence defect introduced here, not proof of a production authority bypass; retain existing runtime controls and original findings.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T17:14:56.595Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "30ec4befa2cccdadd36ba1d2c24d4518d2f11d69811b450caf6431b8677b22ee",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "docs/audits/inventory-critic-purpose-isolation.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6",
+      "ledgerCommitReceiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7",
+      "resolvedAt": "2026-09-07T17:47:16.491Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-006",
+      "desc": "Coverage manifestation of registered B-29bc:F-005, same root cause and same bounded test repair, not a separate production defect. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 re-sign spread copies that still contain the prior _hash. core/review-inventory-epoch.ts:190 hashes every supplied key, while :194-197 removes _hash before verification; :227 therefore returns critic receipt signature invalid before purpose/subject or disposition semantics. Independently executed the compiled signer/verifier in node --input-type=module with one structurally valid control: verify(control)=true; verify(spread mutation re-signed including old _hash)=false; verify(the same mutated payload after destructuring _hash)=true. A first underspecified diagnostic fixture lacked criticLane and threw; the corrected controlled witness above is the reproduction, not that setup error. Fresh epoch smoke itself exited zero, showing its PASS selector does not expose this witness defect. Checklist_get confirms eight must intents and eight current material-bound mechanical PASS receipts with no waivers; nevertheless CHK-001:adversarial:0 lacks the claimed signature-valid receipt-substitution proof, and the historical-disposition mutation in CHK-001:adversarial:1 is similarly non-diagnostic at the receipt consumer. The public handler still has real empty-disposition refusal and exact-set positive controls, and the F-001/F-002 recovery semantic tests use proper unsigned/signature controls; this finding does not erase those checks or claim a production bypass. Repair these exact mutant constructors, explicitly assert signature validity and the intended consumer diagnostic, rerun affected receipts through the CLI, and reconcile the audit statement that semantic substitutions are re-signed. Current-Story applicability: frozen adversarial verification and truthful evidence, with F-005 as the existing root-cause observation. Independently checked the heartbeat merged readiness/release/close changes and ran --readiness-only successfully; no full-suite/build, source mutation, topology credential or independent-host assurance is claimed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T17:16:32.450Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "98cc46241e81ac3213fbed2b63afd375164888e69c1ee5664e6c3f6262fd66d8",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "docs/audits/inventory-critic-purpose-isolation.md"
+      ],
+      "signatureTag": "adversarial|ts|coverage-manifestation-registered",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50",
+      "ledgerCommitReceiptId": "lrc_mtri5w02_t4r_a6439732146242d795287ada8a89bf59",
+      "resolvedAt": "2026-09-07T17:47:17.627Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-007",
+      "desc": "doc-promise-undelivered: RI-007 wave-2 documentary re-observation of canonical B-29bc:F-005, also represented by coverage B-29bc:F-006; no distinct runtime root or additional defect family is claimed. docs/audits/inventory-critic-purpose-isolation.md:87-89 says the pure epoch suite re-signs semantic substitutions and is not limited to hash corruption. Fresh source inspection at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms both copied receipts still include the old _hash when passed to signReviewInventoryCriticReceipt. core/review-inventory-epoch.ts:190-197 hashes all supplied keys but removes _hash during verification, so these purported semantic receipt controls fail at signature verification. Official current finding_list preserves verified open F-005 and F-006 and their independent signature-valid control reproductions. This supports the same test-plus-audit repair already owned by the Story; it is not evidence of a production authority bypass. Critical/missing records this lane's mandatory closing rule for a promised-but-undelivered behavior claim, without rewriting F-005/F-006 severity or observations. The trusted SAFE_INCREMENTAL basis and git diff 9337c00...HEAD show only reviewer metadata changed, so prior full integrated CHK-001/002 source review remains reusable; no en-masse concept deletion or new root was discovered. Fresh full audit and inventory-decision reads confirm the overclaim remains unfixed. Repair the exact unsigned mutation constructors with signature-validity and intended-diagnostic assertions, refresh CLI evidence, and reconcile the audit within the existing F-005 repair. This terminal cannot claim no blockers, F-005 repair, saturation, host quorum or lifecycle completion; family disposition remains the independent critic's responsibility.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T17:25:29.269Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d900cb38782a9505bfc3e571851ef573fd2565b6076acf36b1dcaf155b1e7495",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-wave",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c",
+      "ledgerCommitReceiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08",
+      "resolvedAt": "2026-09-07T17:47:18.644Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-008",
+      "desc": "RI-007 wave-2 coverage re-observation of canonical B-29bc:F-005, also recorded as coverage manifestation F-006. This is the same root cause and same two test sites, proposed duplicate of F-005 for inventory disposition, not a new defect family or implementation scope. Fresh finding_list plus verifyFinding confirms F-005 and F-006 remain open, verified and signature-valid. Current review_run_start binds unchanged material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and storyFilesHash 6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0. Bounded git diff from RR-044 head a36b3b36af across source, docs, background, plan and checklist is empty; earlier integrated review context therefore remains applicable. Fresh source read at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms spread copies retaining old _hash are still passed into signReviewInventoryCriticReceipt. The already inspected production signer hashes that key but verifier removes it, so the intended signed receipt-substitution and omitted-disposition negative controls fail signature-first. Reuse the independently recorded F-006 true/false/true signer witness; no new execution is claimed in this wave. Eight must intents retain their recorded evidence, but the known semantic receipt-coverage defect remains, including CHK-001:adversarial:0 and the specified receipt-consumer witness of adversarial:1. No new coverage family identified on this unchanged subject; this is not a no-gap PASS, repair, deferral, topology or lifecycle credential. F-005 remains the canonical owner-tracked current-Story repair, with original F-006 preserved. Fresh full reading of the inventory decision supplied the actual read event; source and Story context are reused only after the bounded unchanged-diff check. No tests, build, full rescan, source or owner writes performed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T17:25:33.852Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "55b9756d63175726c85434fa697f9511ad2886e743b18e20258449cf9086c8e6",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "adversarial|ts|wave-coverage-observation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+      "ledgerCommitReceiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4",
+      "resolvedAt": "2026-09-07T17:47:19.857Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-009",
+      "desc": "RI-007 wave-2 re-observation of canonical B-29bc:F-005; duplicate of that exact root cause, not a new defect or repair claim. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 still re-sign the complete mutated receipt including its prior _hash, so the verifier rejects the signature before the intended semantic receipt guards. Fresh bounded line inspection confirms both calls remain unchanged. A fresh git diff from frozen a36b3b36af to HEAD is empty across packages/main/src, scripts, docs and managed agent mirrors; signed RR-050 and RI-007 retain material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope 2b0a7de. The earlier complete two-item source/context review and controlled runtime result original=true,current-test-pattern=false,unsigned-resign=true therefore remain applicable without rerunning tests. Fresh reads verify F-005 and coverage manifestation F-006 are still signed, verified and open. Both remain current-Story acceptance-evidence repairs; a quality green claim would be misleading. No additional quality root cause found. The signed first inventory wave already carries family finding:B-29bc:F-005; independent critic should retain this same family when classifying this current observation rather than count a new family. Preserve F-005/F-006 and this observation; no dismissal, resolution, topology, TEST/DONE or actual-host assurance is claimed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T17:26:03.290Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-050",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e3ed73db7da16b784d899f47066ad2e7218a21fc82a8a82c319ce496b8626f2",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "adversarial|ts|wave-observation-canonical",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrii4gr_15p6_b3f90fcff77d4565b4a63a128adc235d",
+      "ledgerCommitReceiptId": "lrc_mtrii4gr_15p6_8779764e9d974d0c87dad021033188db",
+      "resolvedAt": "2026-09-07T17:47:21.129Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

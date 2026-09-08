@@ -566,10 +566,36 @@ function occurrenceCount(content: string, needle: string): number {
 }
 
 function extractProofOrStopBlock(content: string): string | null {
-  return content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/)?.[0] ?? null;
+  return content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)?.[0] ?? null;
+}
+
+// The existing pins were approved before the managed marker branding migration.
+// Project only exact marker lines; all semantic bytes remain subject to the pins.
+function historicalMarkerProjection(body: string, modular: boolean): string {
+  const lines = body.split('\n');
+  if (modular) {
+    const marker = '<!-- proof-or-stop:modular-role-body:v1 -->';
+    assert.equal(lines.filter(line => line === marker).length, 1);
+    assert.equal((body.match(/modular-role-body:v1/g) ?? []).length, 1);
+    return lines.map(line => line === marker ? '<!-- proofbound:modular-role-body:v1 -->' : line).join('\n');
+  }
+  const managed = lines.filter(line => /<!--.*(?:lattice|proofOrStop|proof-or-stop):(?:start|end).*-->/.test(line));
+  if (managed.length === 0) return body; // The coverage legacy body has no managed block.
+  assert.deepEqual(managed, ['<!-- lattice:start -->', '<!-- lattice:end -->']);
+  return lines.map(line => line === '<!-- lattice:start -->' ? '<!-- proofOrStop:start -->' : line === '<!-- lattice:end -->' ? '<!-- proofOrStop:end -->' : line).join('\n');
 }
 
 function assertReviewFindingTriageDelivery(): void {
+  const modularMarkerControl = '<!-- proof-or-stop:modular-role-body:v1 -->\nunchanged semantic body';
+  assert.equal(historicalMarkerProjection(modularMarkerControl, true), '<!-- proofbound:modular-role-body:v1 -->\nunchanged semantic body');
+  for (const invalid of [modularMarkerControl.replace('proof-or-stop:', 'proofbound:'), `${modularMarkerControl}\n${modularMarkerControl}`, modularMarkerControl.replace(' -->', '  -->')]) {
+    assert.throws(() => historicalMarkerProjection(invalid, true), /AssertionError/);
+  }
+  const legacyMarkerControl = '<!-- lattice:start -->\nunchanged semantic body\n<!-- lattice:end -->';
+  assert.equal(historicalMarkerProjection(legacyMarkerControl, false), '<!-- proofOrStop:start -->\nunchanged semantic body\n<!-- proofOrStop:end -->');
+  for (const invalid of [legacyMarkerControl.replace('lattice:end', 'proofOrStop:end'), `${legacyMarkerControl}\n${legacyMarkerControl}`, legacyMarkerControl.replace('<!-- lattice:end -->', '')]) {
+    assert.throws(() => historicalMarkerProjection(invalid, false), /AssertionError/);
+  }
   assert.doesNotMatch(
     REVIEW_FINDING_TRIAGE_CONTRACT,
     /[\u3400-\u9fff]/u,
@@ -587,14 +613,14 @@ function assertReviewFindingTriageDelivery(): void {
     const frozenLegacyReconstruction = restoreLegacyPromptTemplate(entry);
     assert.equal(occurrenceCount(frozenLegacyReconstruction, reviewFindingTriageContractMarker), 0, `${roleId} frozen reconstruction excludes the appended contract`);
     assert.equal(
-      createHash('sha256').update(frozenLegacyReconstruction).digest('hex'),
+      createHash('sha256').update(historicalMarkerProjection(frozenLegacyReconstruction, false)).digest('hex'),
       frozenReviewerLegacyReconstructionDigests[roleId],
       `${roleId} frozen legacy reconstruction digest remains byte-for-byte unchanged`,
     );
     const frozenLegacyPrefixDigest = createHash('sha256').update(frozenLegacyReconstruction.trimEnd()).digest('hex');
     const modularSource = readFileSync(entry.sourcePath, 'utf8');
     assert.equal(
-      createHash('sha256').update(modularSource.trimEnd()).digest('hex'),
+      createHash('sha256').update(historicalMarkerProjection(modularSource, true).trimEnd()).digest('hex'),
       approvedReviewerModularPrefixDigests[roleId],
       `${roleId} modular reviewer prefix requires independent semantic approval`,
     );
@@ -606,7 +632,7 @@ function assertReviewFindingTriageDelivery(): void {
         body,
         `${roleId}/${mode}`,
         approvedReviewFindingTriageContractSha256,
-        mode === 'legacy-full-context' ? frozenLegacyPrefixDigest : approvedReviewerModularPrefixDigests[roleId],
+        mode === 'legacy-full-context' ? frozenLegacyPrefixDigest : createHash('sha256').update(modularSource.trimEnd()).digest('hex'),
       );
     }
   }
@@ -960,10 +986,10 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     modular.body,
     `${roleId} full-envelope path`,
     approvedReviewFindingTriageContractSha256,
-    approvedReviewerModularPrefixDigests[roleId],
+    createHash('sha256').update(modularSourceBody.trimEnd()).digest('hex'),
   );
   assert.equal(extractProofOrStopBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
-  assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
+  assert.ok(modular.body.includes('proof-or-stop:modular-role-body:v1'), `${roleId} keeps the canonical reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
     assert.equal(identity.rolloutMode, 'full-envelope');

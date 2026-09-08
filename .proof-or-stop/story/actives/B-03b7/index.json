@@ -1,0 +1,54 @@
+{
+  "storyId": "B-03b7",
+  "name": "dynamic-finding-identity-historical-lineage",
+  "title": "Finding Identity and Historical Lineage",
+  "description": "Implement Section 9.2 of the accepted Dynamic Finding execution plan after B-fe8f is accepted and merged. This high-risk feature changes evidence identity and migration boundaries while preserving lifecycle gate isolation. RED reproduces detector-signal authority confusion, duplicate canonical defects, supersession errors and historical recall failures. GREEN proves candidate isolation, canonicalDefectId stability, target-authorized non-gate routing and progress baselines, signed correction chains, measured recall, and dependency boundaries.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#92-story-2--finding-identity-and-historical-lineage",
+  "depends": [
+    "B-fe8f"
+  ],
+  "keywords": [
+    "candidate-finding",
+    "canonical-defect-id",
+    "historical-lineage",
+    "supersession-chain",
+    "dynamic-finding"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-09-01T08:13:21.933Z",
+  "startedAt": "2026-09-01T08:13:21.933Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-01T08:13:22.478Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-06T20:40:35.669Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "codex-01a05441-9430-7690-a900-464b44aff6fa-b03b7-owner",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-03b7",
+    "branch": "story/B-03b7",
+    "createdAt": "2026-09-06T20:40:24.473Z"
+  }
+}

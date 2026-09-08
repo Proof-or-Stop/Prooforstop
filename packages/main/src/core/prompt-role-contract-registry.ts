@@ -35,6 +35,12 @@ export const PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY = 'proofbound.prompt-envelop
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
+/** Live composition only: the frozen historical template/reconstruction stays byte-identical. */
+function purposeSelectedCriticBody(roleId: string, body: string): string {
+  if (canonicalAgentRoleId(roleId) !== 'proof-or-stop-review-topology-critic') return body;
+  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
+}
+
 export interface ResolvedPromptRoleBody {
   roleId: string;
   mode: PromptEnvelopeRolloutMode;
@@ -167,7 +173,7 @@ export function reviewerHostRenderIdentity(
   if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)) {
     throw new PromptRoleContractRegistryError(`role "${canonicalRoleId}" is not eligible for reviewer host rendering`);
   }
-  const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
+  const packageTemplate = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, rolloutMode));
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   // B-cc10 F-018: derive the adapter dir; this file already uses read-both
   // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
@@ -336,9 +342,9 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Independently challenge acceptance topology, discovery, closure, and exclusions.',
+    responsibility: 'Independently challenge acceptance topology, or review exact signed inventory completeness only when explicitly purpose-bound; never promote inventory evidence to topology certification.',
     allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
-    requiredOutputIds: ['topology-critic-receipt', 'review-finding-or-pass'],
+    requiredOutputIds: ['purpose-selected-critic-receipt', 'review-finding-or-pass'],
   },
   'proof-or-stop-review-story-init': {
     ...commonPolicy,
@@ -443,9 +449,9 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
       semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(entry.agentId, policy)),
       renderDigest: domainSeparatedDigest(
         'role-contract.render.v1',
-        isModularReviewerRoleId(entry.agentId)
+        purposeSelectedCriticBody(entry.agentId, isModularReviewerRoleId(entry.agentId)
           ? resolvePromptTemplateBody(entry, 'full-envelope')
-          : readPromptTemplate(entry),
+          : readPromptTemplate(entry)),
       ),
     };
     validateRoleContract(contract);
@@ -674,7 +680,7 @@ export function resolvePromptRoleBody(
   const mode = resolvePromptEnvelopeRolloutMode(canonicalRoleId, config);
   const entry = snapshot.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
-  const body = resolvePromptTemplateBody(entry, mode);
+  const body = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, mode));
   return Object.freeze({
     roleId: canonicalRoleId,
     mode,

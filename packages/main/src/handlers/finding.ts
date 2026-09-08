@@ -552,6 +552,10 @@ function recordReviewPass(
     const reviewRound = story.currentReviewRound || '';
     const trimmedNote = note.trim();
     const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
+    if (currentOpenReviewInventory(ctx.store, storyId)
+      && (!readEvidence.readManifest || !readEvidence.readLog)) {
+      throw new Error(`${command}: OPEN review inventory requires signed readManifest plus mechanical readEvents/readLog for every reviewer pass`);
+    }
     if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
       throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
     }

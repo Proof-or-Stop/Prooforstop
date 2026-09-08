@@ -1,0 +1,542 @@
+{
+  "storyId": "B-29bc",
+  "checkedAt": "2026-09-07T08:22:45.832Z",
+  "features": [
+    {
+      "feature": "Explicit inventory-completeness dispatch purpose before launch",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Preserve real Git attribution without role-named implementation commits",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "No fallback from a rejected topology dispatch into inventory purpose",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Preserve independent signed reviewer execution",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind inventory purpose into trusted dispatch evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind inventory purpose into the signed ReviewRun",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require canonical signed OPEN epoch at dispatch admission",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind exact Story identity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind exact inventory epoch identity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind exact current wave",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Bind exact frozen cutoff",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Revalidate binding at reviewer-run publication",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Revalidate binding at inventory critic receipt consumption",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Serialize subject validation and publication with existing inventory locking",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject missing inventory purpose bindings",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject tampered purpose and signatures",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject wrong-Story or mismatched epoch bindings",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject old-wave and rebegin replay",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject cancelled or finalized epoch launch",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject current subject scope or material drift",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require all required lanes to terminate before completeness critic eligibility",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require signed terminal pass or Finding",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require terminal readManifest",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require terminal readLog",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Require exactly one valid disposition for every aggregate verified Finding",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Retain existing verified families when newer runs or passes are issued",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Preserve real role eligibility instead of trusting arbitrary actor text",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Reject inventory evidence promoted to topology certification",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Reject inventory evidence promoted to TEST authority",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Reject inventory evidence promoted to DONE authority",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Exercise default-topology positive and provenance-refusal controls",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Exercise purpose removal, mutation and compatibility-alias replay",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Keep historical unbound evidence from minting a new current inventory credential",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Verify affected production dispatch, run and inventory consumers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Retain process-fact registry and executable verifier consistency",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Preserve frozen RED assertions through GREEN",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Record English source and RED/GREEN provenance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Distinguish synthetic fixture identity from actual independent-host assurance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Refresh local consumer evidence through canonical freshness outputs",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Distinguish B-29bc recovery delivery from B-7abb and B-03b7 completion",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "Unknown role or purpose is rejected before authority publication",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Canonical role aliases retain identical limited authority",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Canonical prompt expresses the trusted purpose without creating authority",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Existing role mutation restrictions remain intact",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Change topology business-author independence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: Changing topology business-author independence",
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Broaden topology implementation-provenance admission to arbitrary authors",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json rejects Accept arbitrary Git authors throughout topology provenance",
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Restore fake role authors or bypass independent critic review",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json rejects Restore role-named Git authors or bypass the critic",
+      "source": "decisions:decisions/role-separation.md"
+    },
+    {
+      "feature": "Repair B-7abb classifier implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: Repairing B-7abb classifier source",
+      "source": "description"
+    },
+    {
+      "feature": "Modify unrelated consumer Story content",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: Changing unrelated Story content",
+      "source": "description"
+    },
+    {
+      "feature": "Change Dynamic Finding policy",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: Changing the Dynamic Finding execution plan",
+      "source": "description"
+    },
+    {
+      "feature": "Relax REVIEW, TEST or DONE acceptance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: Relaxing REVIEW TEST or DONE acceptance",
+      "source": "decisions:decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Remote publication",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: Remote publication",
+      "source": "description"
+    },
+    {
+      "feature": "Global role/lifecycle redesign or historical role-separation wave implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json principle: Limit the repair to the demonstrated inventory-launch deadlock",
+      "source": "decisions:decisions/role-separation.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "docs/requirements/decisions/role-separation.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "docs/requirements/decisions/dynamic-validation-operations.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/graph-command-migration.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/LOCAL-cross-story-agent-session-performance-note.md",
+      "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+      "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 53,
+    "covered": 44,
+    "excluded": 9,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0ef31e52ecbddf39394184e4b3b91e4312cf52191ca930e77f325b9ec403793b",
+  "openQuestions": []
+}

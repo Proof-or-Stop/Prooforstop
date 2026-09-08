@@ -72,6 +72,8 @@ import {
   renderAuxiliaryClassification,
 } from '../core/auxiliary-worktree-cleanup.js';
 import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
+import { isDoneMainRuntimeBuildInput, shouldBuildDoneMainPackageForChangedPaths } from '../core/runtime-version-policy.js';
+export { isDoneMainRuntimeBuildInput, shouldBuildDoneMainPackageForChangedPaths } from '../core/runtime-version-policy.js';
 import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
 import { appendPlaybookPromotionHealthEvent, resolveLearningOwnerRoot, withLearningStoreLock } from '../core/learning-store.js';
 import { buildPlaybookCandidateIngestReport } from '../core/playbook-seed.js';
@@ -154,21 +156,6 @@ function normalizeGitPath(path: string): string {
   return path.replace(/\\/g, '/').replace(/^\.?\//, '');
 }
 
-export function isDoneMainRuntimeBuildInput(path: string): boolean {
-  const rel = normalizeGitPath(path);
-  return rel.startsWith('packages/main/src/')
-    || rel === 'docs/CLI.md'
-    || rel.startsWith('packages/main/tests/')
-    || rel === 'packages/main/package.json'
-    || rel === 'packages/main/package-lock.json'
-    || rel === 'packages/main/tsconfig.json'
-    || rel === 'package.json'
-    || rel === 'package-lock.json';
-}
-
-export function shouldBuildDoneMainPackageForChangedPaths(paths: string[]): boolean {
-  return paths.some(isDoneMainRuntimeBuildInput);
-}
 
 export function listChangedPathsBetweenMainShas(mainMergeRoot: string, beforeMainSha: string, afterMainSha: string): string[] {
   if (beforeMainSha === afterMainSha) return [];
