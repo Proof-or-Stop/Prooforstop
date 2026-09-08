@@ -1205,6 +1205,36 @@ console.log(findingOutput);
   ];
   const buildPaths = ['packages/lab/package-lock.json', 'packages/utils/package-lock.json'];
 
+  check('canonical agent templates bind exact manifest blobs and reject neighboring namespaces', () => {
+    const path = 'packages/main/templates/agents/proof-or-stop-review-topology-critic.md';
+    assert.deepEqual(CERTIFICATION_DOMAIN_PATH_RULES.filter(([, rule]) => rule.test(path)).map(([domain]) => domain), ['manifest-semantic']);
+    const dir = makeGitRoot();
+    try {
+      write(dir, path, 'baseline canonical role\n');
+      commit(dir, 'canonical role baseline');
+      git(dir, ['checkout', '-b', 'story/template-domain']);
+      write(dir, path, 'changed canonical role\n');
+      commit(dir, 'change canonical role');
+      const changed = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+      assert.ok(changed);
+      const entry = resolveStoryChangedFiles(dir, 'HEAD', dir).find(row => row.path === path)!;
+      assert.equal(changed['certification:manifest-semantic'], causalDigest([`${path}\0${entry.blobId}`]));
+      rmSync(join(dir, path));
+      commit(dir, 'delete canonical role');
+      const deleted = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+      assert.ok(deleted);
+      assert.equal(deleted['certification:manifest-semantic'], causalDigest([`${path}\0<deleted>`]));
+      assert.notEqual(deleted['certification:manifest-semantic'], changed['certification:manifest-semantic']);
+      for (const unknown of ['packages/main/templates/unknown.md', 'packages/main/templates/agents/nested/unknown.md', 'packages/main/templates/agents/unknown.json']) {
+        write(dir, unknown, 'unknown input\n');
+        commit(dir, 'add unknown neighboring input');
+        assert.equal(deriveCertificationDomainInputHashes(dir, 'HEAD', dir), undefined);
+        rmSync(join(dir, unknown));
+        commit(dir, 'remove unknown neighboring input');
+      }
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
   check('sibling build inputs have one domain and nearby ordinary files remain integration', () => {
     const mismatches: string[] = [];
     for (const pkg of ['lab', 'utils']) {

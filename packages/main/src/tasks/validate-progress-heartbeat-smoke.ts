@@ -457,8 +457,9 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
 
 async function assertOuterWatchdogsKillDescendants(): Promise<void> {
   const cases = [
-    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000' },
-    { name: 'max', idleMs: '2000', maxMs: '700', heartbeatMs: '50' },
+    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000', commandTimeoutMs: 5_000 },
+    // Allow CLI admission and descendant startup before max wins over idle and command deadlines.
+    { name: 'max', idleMs: '10000', maxMs: '5000', heartbeatMs: '50', commandTimeoutMs: 15_000 },
   ] as const;
   for (const testCase of cases) {
     const fixture = setupStoryAdvanceFixture();
@@ -470,7 +471,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
         label: `${testCase.name}-descendant-tree-timeout`,
         command: process.execPath,
         args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
-        timeoutMs: 5_000,
+        timeoutMs: testCase.commandTimeoutMs,
       }];
       writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
       writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');

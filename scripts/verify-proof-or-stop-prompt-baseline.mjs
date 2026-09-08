@@ -181,7 +181,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99',
+    templateHash: '392271b8d3d94009276954175dc59d4fbd46a464f6dda449b1dd255c06cee7ca',
   },
   {
     role: 'proof-or-stop-product-reviewer',
@@ -568,14 +568,14 @@ const ROLE_MATRIX_DEFAULTS = {
   'proof-or-stop-review-topology-critic': {
     status: 'active',
     phase: 'PLAN/DEV/REVIEW',
-    purpose: 'Independently reviews acceptance topology completeness and signs a current critic receipt.',
-    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check.',
+    purpose: 'Independently reviews acceptance topology completeness, or review inventory completeness for the dispatched signed OPEN epoch.',
+    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check; review_run_start; review_pass_set; finding_add; review_inventory_critic_set.',
     directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered ProofOrStop receipt commands.',
-    inputs: 'Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.',
-    outputs: 'Signed topology-critic receipt with pass or request_changes verdict.',
-    capabilities: 'Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.',
-    overlapCategory: 'independent acceptance-topology authority critic',
-    notes: 'Cannot override partial or unsupported discovery and cannot approve its own exclusions.',
+    inputs: 'Topology responsibility: acceptance basis/topology, scope, exclusions, and implementation provenance. Inventory responsibility: signed OPEN epoch, current wave, lane terminals, findings, and read evidence.',
+    outputs: 'Topology responsibility: signed topology-critic receipt. Inventory responsibility: signed ReviewRun terminal and exact epoch/wave inventory critic receipt.',
+    capabilities: 'Topology completeness criticism with implementation independence and exclusion validation; independently dispatched inventory completeness criticism with signed lane coverage.',
+    overlapCategory: 'independent topology and review-inventory completeness critic',
+    notes: 'Cannot override partial or unsupported discovery or approve its own exclusions. Inventory-only dispatch does not require topology business-commit authority, and inventory receipts never substitute for topology proof.',
   },
   'proof-or-stop-review-test-coverage': {
     status: 'active',

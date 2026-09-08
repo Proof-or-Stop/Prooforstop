@@ -1,0 +1,58 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "Pre-existing max-watchdog fixture expires during startup before its descendant witness executes",
+      "status": "fixed",
+      "foundAt": "2026-09-08T10:46:56.467Z",
+      "fixedAt": "2026-09-08T10:46:57.404Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required canonical validation heartbeat smoke waits for missing max-descendant.pid after max timeout.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js in candidate41b and unchanged main.",
+          "Inspect paired /private/tmp/B88-heartbeat-repro.log and /private/tmp/B88-heartbeat-main-baseline.log; isolated diagnostic shows no command-start before700ms max."
+        ],
+        "rootCause": "Pre-existing fixture gives CLI admission only700ms before total max timeout; the descendant command never starts, so subsequent PID wait cannot succeed.",
+        "fixEvidence": "Commit1626142765 modifies only max-row fixture budget ordering to5000 max,10000 idle,15000 command. Original complete smoke command exits0 and prints validate-progress-heartbeat smoke passed. PID existence, max-layer, ESRCH and no-postterminal-heartbeat assertions remain intact.",
+        "reproTest": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      }
+    },
+    {
+      "id": "BUG-002",
+      "title": "Changed inventory critic body leaves approved prompt baseline manifest and generated snapshots stale, blocking required full suite",
+      "status": "fixed",
+      "foundAt": "2026-09-08T11:39:16.445Z",
+      "fixedAt": "2026-09-08T12:03:41.959Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required root full suite rejected approved topology critic prompt hash mismatch, then interrupted remaining members.",
+        "reproSteps": [
+          "Run node scripts/verify-proof-or-stop-prompt-baseline.mjs at162614; exit1 approved9bcf versus actual392271.",
+          "Read /private/tmp/B88-prompt-baseline-red.log and /private/tmp/B88-done-required-final17.json."
+        ],
+        "rootCause": "Current Story changed critic body without synchronizing the independent exact approval manifest, truthful role matrix and generated baseline snapshots.",
+        "fixEvidence": "Commit b0d262e5df updates only four approved baseline files. Default verifier and manifest/baseline/matrix mutation probes PASS; all18roles remain and unauthorized repinning is rejected.",
+        "reproTest": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      }
+    },
+    {
+      "id": "BUG-003",
+      "title": "Dispatch registry regression expects inventory instructions in REVIEW without an OPEN inventory, conflicting with the scoped responsibility contract",
+      "status": "fixed",
+      "foundAt": "2026-09-08T12:34:48.967Z",
+      "fixedAt": "2026-09-08T13:09:39.279Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required flow-stability fullsuite member failed obsolete inventory prompt assertion in registry fixture without OPEN inventory.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/agent-dispatch-registry-smoke.js before0ca9a0ab1f; exit1.",
+          "Full error /private/tmp/B88-done-required-full-output.log and focusedRED /private/tmp/B88-dispatch-registry-red.log."
+        ],
+        "rootCause": "Fixture only enters REVIEW but never begins inventory, so its old unconditional inventory expectation conflicts with intended signedOPEN selection.",
+        "fixEvidence": "Commit0ca9a0ab1f changes one test: explicitnoOPENpremise, topologyset/check positive, inventorynegative. All registry16roles/15aliases preserved; exactregistry/liveness/flow commands terminalexit0.",
+        "reproTest": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      }
+    }
+  ]
+}

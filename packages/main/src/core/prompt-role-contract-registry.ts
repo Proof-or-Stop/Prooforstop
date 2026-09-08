@@ -561,11 +561,49 @@ export const PROMPT_ROLE_CONTRACTS = Object.freeze(
 
 const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
 
-export function promptRoleContract(roleId: string): Readonly<RoleContract> {
+export type PromptRoleResponsibility = 'inventory-completeness';
+
+const INVENTORY_CRITIC_CONTRACT = (() => {
+  const roleId = 'proof-or-stop-review-topology-critic';
+  const base = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId)!;
+  const policy: RolePolicy = {
+    ...ROLE_POLICIES[roleId]!,
+    responsibility: 'Independently verify current review inventory completeness and finding dispositions.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
+    requiredOutputIds: ['review-finding-or-pass', 'review-inventory-critic-receipt'],
+  };
+  const contract: RoleContract = {
+    ...base,
+    responsibility: policy.responsibility,
+    allowedCommandIds: [...policy.allowedCommandIds],
+    requiredOutputIds: [...policy.requiredOutputIds],
+    semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(roleId, policy)),
+  };
+  validateRoleContract(contract);
+  return deepFreezeRoleContract(contract);
+})();
+
+export function promptRoleContract(roleId: string, responsibility?: PromptRoleResponsibility): Readonly<RoleContract> {
   const canonicalRoleId = canonicalAgentRoleId(roleId);
   const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(canonicalRoleId);
   if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  if (responsibility === 'inventory-completeness') {
+    if (canonicalRoleId !== INVENTORY_CRITIC_CONTRACT.roleId) {
+      throw new PromptRoleContractRegistryError(`inventory completeness is unsupported for ${canonicalRoleId}`);
+    }
+    return INVENTORY_CRITIC_CONTRACT;
+  }
   return contract;
+}
+
+/** Reconstruct only registered semantics after the envelope and signed run have authenticated them. */
+export function promptRoleContractForSemanticDigest(roleId: string, semanticDigest: string): Readonly<RoleContract> {
+  const base = promptRoleContract(roleId);
+  if (base.semanticDigest === semanticDigest) return base;
+  if (base.roleId === INVENTORY_CRITIC_CONTRACT.roleId && INVENTORY_CRITIC_CONTRACT.semanticDigest === semanticDigest) {
+    return INVENTORY_CRITIC_CONTRACT;
+  }
+  throw new PromptRoleContractRegistryError(`unregistered Role Contract semantics for ${base.roleId}`);
 }
 
 /** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */

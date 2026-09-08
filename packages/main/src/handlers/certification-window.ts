@@ -153,6 +153,8 @@ export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDepe
   ['build-input', CERTIFICATION_BUILD_INPUT_PATH_PATTERN],
   ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],
   ['manifest-semantic', /^\.proof-or-stop\/proof-or-stop\.json$/],
+  // Canonical agent bodies are runtime prompt inputs, matching their host mirrors.
+  ['manifest-semantic', /^packages\/main\/templates\/agents\/[^/]+\.md$/],
   // B-5a15: `scripts/` here anchors at the repo root, so a per-package verifier
   // script such as packages/graph/scripts/verify-missing-assets-fail.mjs matched NO
   // rule. Because certificationDomainForPath requires exactly one match, an unmatched

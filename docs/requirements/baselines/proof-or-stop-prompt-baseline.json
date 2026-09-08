@@ -63,7 +63,7 @@
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "templateHash": "9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99"
+        "templateHash": "392271b8d3d94009276954175dc59d4fbd46a464f6dda449b1dd255c06cee7ca"
       },
       {
         "role": "proof-or-stop-product-reviewer",
@@ -145,7 +145,7 @@
     "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 18,
-    "materialHash": "6204e20f52c2b2ae54bb16c5ba82e691ed46af7307a341e32b0f5610a42020a9",
+    "materialHash": "d27c95b0e325df9973ee26a9d0cf8f86623d83b6897d6ececfa826140b040b33",
     "roles": [
       {
         "role": "proof-or-stop-evaluator-cli",
@@ -263,9 +263,9 @@
         "role": "proof-or-stop-review-topology-critic",
         "file": "proof-or-stop-review-topology-critic.md",
         "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-        "templateHash": "2376497e2190ec5349312839417adccc200ccecc30dc357671a4bd045637e8c7",
-        "bytes": 17728,
-        "lines": 174
+        "templateHash": "b72d19c39a70a63860323a5f46811f03e49decaa4372fe81042e90e7e62be9ab",
+        "bytes": 18667,
+        "lines": 189
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
@@ -383,9 +383,9 @@
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "sha256": "29745fd916098059516d4c6d6cb318e5fc20c193dfecaa1d68b02a3a860d93b3",
-        "bytes": 1648,
-        "lines": 26
+        "sha256": "44475149d1e2659bf656dbf5d620d6a5c77fc15809deb12b8f13197bfa4d52ae",
+        "bytes": 2587,
+        "lines": 41
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
@@ -594,14 +594,14 @@
       "role": "proof-or-stop-review-topology-critic",
       "status": "active",
       "phase": "PLAN/DEV/REVIEW",
-      "purpose": "Independently reviews acceptance topology completeness and signs a current critic receipt.",
-      "commands": "git diff; topology_critic_receipt_set; topology_critic_receipt_check.",
+      "purpose": "Independently reviews acceptance topology completeness, or review inventory completeness for the dispatched signed OPEN epoch.",
+      "commands": "git diff; topology_critic_receipt_set; topology_critic_receipt_check; review_run_start; review_pass_set; finding_add; review_inventory_critic_set.",
       "directFileAccess": "Reads current source, topology, basis, and scope artifacts; writes only through registered ProofOrStop receipt commands.",
-      "inputs": "Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.",
-      "outputs": "Signed topology-critic receipt with pass or request_changes verdict.",
-      "capabilities": "Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.",
-      "overlapCategory": "independent acceptance-topology authority critic",
-      "notes": "Cannot override partial or unsupported discovery and cannot approve its own exclusions."
+      "inputs": "Topology responsibility: acceptance basis/topology, scope, exclusions, and implementation provenance. Inventory responsibility: signed OPEN epoch, current wave, lane terminals, findings, and read evidence.",
+      "outputs": "Topology responsibility: signed topology-critic receipt. Inventory responsibility: signed ReviewRun terminal and exact epoch/wave inventory critic receipt.",
+      "capabilities": "Topology completeness criticism with implementation independence and exclusion validation; independently dispatched inventory completeness criticism with signed lane coverage.",
+      "overlapCategory": "independent topology and review-inventory completeness critic",
+      "notes": "Cannot override partial or unsupported discovery or approve its own exclusions. Inventory-only dispatch does not require topology business-commit authority, and inventory receipts never substitute for topology proof."
     },
     {
       "role": "proof-or-stop-test-case-reviewer",
@@ -745,7 +745,7 @@
         {
           "role": "proof-or-stop-review-topology-critic",
           "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-          "templateHash": "2376497e2190ec5349312839417adccc200ccecc30dc357671a4bd045637e8c7"
+          "templateHash": "b72d19c39a70a63860323a5f46811f03e49decaa4372fe81042e90e7e62be9ab"
         },
         {
           "role": "proof-or-stop-test-case-reviewer",

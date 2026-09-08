@@ -1805,7 +1805,7 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
         && read(path).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
         && read(path).includes('- A pass is forbidden when the basis')
-        && !read(path).includes('review_run_start')),
+        && read(path).includes('Return after completing the inventory responsibility.')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
@@ -4461,12 +4461,89 @@ function assertReviewInventoryRemediationContract() {
     `${dispatchPath}: topology critic dispatch must persist its dedicated target kind and current review-round binding`,
   );
 
+  assert(
+    dispatchText.includes("story.phase === 'REVIEW' ? currentOpenReviewInventory(store, args.storyId) : null")
+      && dispatchText.includes('inventory.reviewRound !== story.currentReviewRound')
+      && dispatchText.includes('inventory.storyId !== story.storyId')
+      && dispatchText.includes('inventory ? {} : topologyAuthorityDispatchBinding(story, true)')
+      && dispatchText.includes('Inventory completeness only'),
+    `${dispatchPath}: inventory-only critic dispatch requires signed current OPEN context and leaves topology provenance strict`,
+  );
+  assert(
+    read('packages/main/src/core/process-fact-registry.ts').includes('inventory receipts never substitute for topology proof'),
+    'process-fact registry must distinguish inventory completeness and topology proof authority',
+  );
+  for (const rolePath of [
+    'packages/main/templates/agents/proof-or-stop-review-topology-critic.md',
+    '.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md',
+    '.claude/agents/proof-or-stop-review-topology-critic.md',
+  ]) {
+    const role = read(rolePath);
+    assert(role.includes('Inventory completeness only') && role.includes('review_inventory_critic_set')
+      && role.includes('Return after completing the inventory responsibility.')
+      && role.includes('topology_critic_receipt_set'),
+    `${rolePath}: critic instructions must follow the dispatched responsibility and preserve topology rules`);
+  }
+
   const reviewRunPath = 'packages/main/src/core/review-run.ts';
   const reviewRunText = read(reviewRunPath);
   assert(
     /canonicalLane\s*===\s*'proof-or-stop-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
     `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
   );
+
+  const roleContracts = read('packages/main/src/core/prompt-role-contract-registry.ts');
+  const reviewRunHandler = read('packages/main/src/handlers/review-run.ts');
+  assert(
+    roleContracts.includes('const INVENTORY_CRITIC_CONTRACT')
+      && roleContracts.includes('return deepFreezeRoleContract(contract)')
+      && roleContracts.includes("requiredOutputIds: ['review-finding-or-pass', 'review-inventory-critic-receipt']")
+      && roleContracts.includes('promptRoleContractForSemanticDigest')
+      && roleContracts.includes('unregistered Role Contract semantics')
+      && dispatchText.includes("inventory ? 'inventory-completeness' : undefined")
+      && dispatchText.includes('promptRoleContract(agentType, responsibility)')
+      && reviewRunHandler.includes('currentOpenReviewInventory(store, args.storyId)')
+      && reviewRunHandler.includes('inventory.reviewRound !== story.currentReviewRound')
+      && reviewRunHandler.includes("promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined)")
+      && reviewRunText.includes('promptRoleContractForSemanticDigest(canonicalLane, envelope.roleSemanticDigest)'),
+    'full-envelope inventory semantics must be registered, selected by both signed OPEN producers, and reconstructed by authenticated digest after finalization',
+  );
+
+  const contractsText = read('packages/main/src/core/prompt-contracts.ts');
+  assert(contractsText.includes('reviewerResponsibility?: ReviewerDispatchResponsibility')
+    && contractsText.includes('parseReviewerDispatchResponsibility')
+    && reviewRunText.includes('parseReviewerDispatchResponsibility(event.reviewerResponsibility)')
+    && reviewRunText.includes('...(reviewerResponsibility ? { reviewerResponsibility } : {})')
+    && reviewRunHandler.includes('responsibility.epochId !== inventory.epochId')
+    && reviewRunHandler.includes('responsibility.wave !== inventory.waves.length + 1')
+    && reviewRunHandler.includes('responsibility.materialHash !== inventory.cutoff.materialHash')
+    && reviewRunHandler.includes("responsibility.storyFilesHash !== (inventory.cutoff.storyFilesHash ?? '')")
+    && reviewRunHandler.indexOf('critic dispatch lacks bound responsibility') < reviewRunHandler.indexOf('const reviewRunId ='),
+    'critic new-run responsibility must be digest-bound and compared before run/envelope publication');
+  const envelopeText = read('packages/main/src/core/prompt-envelope.ts');
+  assert(contractsText.includes('reviewerDispatchBindingDigest?: string')
+    && envelopeText.includes('reviewerDispatchBindingDigest: input.reviewerDispatchBindingDigest')
+    && envelopeText.includes('envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest')
+    && reviewRunHandler.includes('reviewerDispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest')
+    && reviewRunText.includes('verifyHistoricalReviewerDispatchBinding')
+    && reviewRunText.includes('expectedDispatchBindingDigest: expected')
+    && reviewRunText.includes("domainSeparatedDigest('prompt-launcher-spec.v1'")
+    && reviewRunText.includes('identities.length !== 1'),
+    'historical envelopes must authenticate and select the original dispatch; legacy fallback requires exact launcher reconstruction');
+  const incrementalText = read('packages/main/src/core/review-incremental-context.ts');
+  assert(contractsText.includes('eligibilityRoleSemanticDigest?: string')
+    && envelopeText.includes('envelope.eligibilityRoleSemanticDigest === input.eligibilityRoleSemanticDigest')
+    && envelopeText.includes('envelope.eligibilityRoleSemanticDigest === input.roleContract.semanticDigest')
+    && reviewRunHandler.includes('roleSemanticDigest: selectedRoleContract.semanticDigest')
+    && reviewRunHandler.includes('eligibilityRoleSemanticDigest: selectedRoleContract.semanticDigest')
+    && incrementalText.includes('promptRoleContractForSemanticDigest(role, options.roleSemanticDigest)')
+    && reviewRunText.includes('envelope.eligibilityRoleSemanticDigest ?? promptRoleContract(run.lane).semanticDigest'),
+    'incremental eligibility must consume authenticated registered responsibility semantics while preserving pre-marker history');
+  const certificationText = read('packages/main/src/handlers/certification-window.ts');
+  assert(certificationText.includes('templates\\/agents\\/[^/]+\\.md$')
+    && certificationText.includes("matches.length === 1")
+    && certificationText.includes('if (!domain) return undefined'),
+    'certification must classify the narrow canonical agent family while unknown or ambiguous paths refuse');
 
   const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
   const inventoryHandlerText = read(inventoryHandlerPath);
