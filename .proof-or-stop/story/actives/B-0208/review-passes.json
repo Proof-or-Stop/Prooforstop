@@ -619,6 +619,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f7cbc459c83284a7dd1825a6bb8fcd7aa252b5114ba2068db281f344668008e4"
+    },
+    {
+      "id": "B-0208:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Second-wave coverage review passed at unchanged source 24950bfd: the built smoke still mechanically covers every authored version-identity intent. F-002 remains the sole distinct coverage defect because it owns the missing per-producer contract assertion for validate; no duplicate finding is recorded.",
+      "createdAt": "2026-09-08T15:32:26.094Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-025",
+      "envelopeId": "dc3b47f757db584d7dae9946f35670acb39605a4fcca972caa5923548a3de080",
+      "writerSessionId": "sess-e6041b4e253745523747b7bce3302cfc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "50cd6b5ee2baaeaa6b149104f31ea1192da503e39b0abe564e01de402084997a"
     }
   ]
 }
