@@ -795,6 +795,44 @@
       },
       "readDiagnostics": [],
       "_hash": "d203b118fdf0d782b1690656d04ba70f00bd51dac29c19151fb5553e06b0305b"
+    },
+    {
+      "id": "B-0208:RP-027",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-006 independent concept review after local main integration: rechecked the full four-file Story diff, resolver call sites, process-fact registrations, and built external-project smoke. The resolver returns the executing CLI constant; missing, malformed, unrelated, conflicting, and copied target/CWD manifests are only negative test inputs. All five resolver-consuming producers retain the required semantic registration. The focused built smoke passed, and no concept residue, scope drift, or undelivered promise was found.",
+      "createdAt": "2026-09-08T17:36:47.497Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-034",
+      "envelopeId": "7abd34fe646694f74b209bc43e29e096fb51628963d483d3efa23b13210f42e8",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5c775c70db6c7593415dad56fe3e24d2bd82d3c8b4b770783bf7496d067e3ab"
     }
   ]
 }

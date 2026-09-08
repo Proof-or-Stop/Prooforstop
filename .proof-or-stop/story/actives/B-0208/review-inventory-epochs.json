@@ -357,9 +357,9 @@
       "epochId": "B-0208:RI-005",
       "storyId": "B-0208",
       "reviewRound": "2026-09-08T15:40:47.978Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-08T15:41:13.583Z",
-      "updatedAt": "2026-09-08T15:44:54.035Z",
+      "updatedAt": "2026-09-08T17:34:36.367Z",
       "cutoff": {
         "headHash": "519496b9b1054fffce60eed7c03bd00620815645",
         "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
@@ -423,7 +423,35 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-0208:RI-005:RCP-001",
-      "_hash": "7231111e1ce77bcb50b308316516d252d8375ec9b586a0d16e5e3666fdbac2f5"
+      "cancelledAt": "2026-09-08T17:34:36.367Z",
+      "cancelReason": "The local main branch was merged into the Story branch after finalization, so the finalized inventory cutoff no longer matches the current material and cannot authorize remediation or TEST. Cancel this superseded receipt and create a fresh review inventory bound to the merged baseline.",
+      "terminalRunSequenceBoundary": 30,
+      "_hash": "2655494a9706802a499f55db3ed53efe370f35275e40f9d0ede9965f2a58910f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-0208:RI-006",
+      "storyId": "B-0208",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-08T17:34:37.595Z",
+      "updatedAt": "2026-09-08T17:34:37.595Z",
+      "cutoff": {
+        "headHash": "10d908ef33a3b59c4dbfb30c324e134de0fe67e7",
+        "materialHash": "87c2813e1ea537c7e93161be0239f9e85c0539ac5fc744272eb8531543d79fe6",
+        "storyFilesHash": "38537662e7d3189a0ebbbf5cfdb940883d1e25c9ad08014bbccc4e4425cbea5e"
+      },
+      "scopeDigest": "945944c554c15c37eae621edc453b7d2b6b4e738c3f7b481422c79483d3a3d47",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 30,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "5766276b4e0559d3ffe27c8df2abf9ba446a0d3b798e846730cbe9f5ac2de54a"
     }
   ],
   "receipts": [
@@ -560,7 +588,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-08T15:44:54.035Z",
-      "_hash": "2f519bd932feb9139e62b79cc2f4d076e75b6d546244428c18e0270438b4a121"
+      "invalidatedAt": "2026-09-08T17:34:36.367Z",
+      "invalidationReason": "The local main branch was merged into the Story branch after finalization, so the finalized inventory cutoff no longer matches the current material and cannot authorize remediation or TEST. Cancel this superseded receipt and create a fresh review inventory bound to the merged baseline.",
+      "_hash": "02576f336268a4b96aebb259281f9d221bf0263c71dd2aeb05a8f5a7c9fb8aa3"
     }
   ],
   "criticReceipts": [

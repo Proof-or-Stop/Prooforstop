@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: proof-or-stop validate did not pass\nSummary: Validation result could not persist its canonical evidence transaction\n\n→ 修复后重跑 proof-or-stop validate，再 story_advance --phase=TEST",
     "lastAt": "2026-09-08T17:18:26.081Z"
+  },
+  "story_advance/0cf467e2277f": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff",
+    "lastAt": "2026-09-08T17:34:14.423Z"
   }
 }
