@@ -1160,6 +1160,360 @@
       },
       "readDiagnostics": [],
       "_hash": "fc8657e3c47aa8b24af91dfb2cbf99d78432f53141f3edd4dd750924ed27830e"
+    },
+    {
+      "id": "B-88c7:RP-038",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 wave 1 independent incremental coverage review: source and scoped diff remain unchanged from 41b0500b7e/RP-035; reloaded all four current tool-owned PASS receipts. No additional coverage finding beyond registered verified open F-005. F-005 exposes the missing repeated inventory-prior-PASS eligibility regression; it remains OPEN and requires selected-responsibility and real prior-PASS transition coverage in the repair. This terminal does not claim F-005 fixed or the Story gate passed. Existing happy/edge/adversarial receipts retain their bounded claims; fixture rollout is not actual dual-host delivery assurance. Previous full/targeted read coverage is retained truthfully; newly inspected incremental eligibility lines 997-1036 and current structured finding details.",
+      "createdAt": "2026-09-08T10:02:41.121Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-045",
+      "envelopeId": "94d9a1e1911d43c4fe9611b388618656af8aa2744ca667f09b19b74e7fd69c00",
+      "writerSessionId": "sess-07eafd11a96c16af4aff342332be7586",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "463adb5d9ef6c07ffb8644503e12773bafe6aa91d1c58d16dae82014ab7f83cc"
+    },
+    {
+      "id": "B-88c7:RP-039",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI006 wave 1 bounded incremental quality discovery over unchanged source 41b0500b7e, using trusted prior RR037/RP033 and current finding delta. Re-read background and plan, inspected checklist claims and receipts plus selected-contract producer, incremental eligibility, historical verifier and test call-chain sections. Confirmed the default-contract comparison is the already registered verified open F005; no distinct additional quality defect found. F005 remains open and requires repair; this lane terminal does not claim repair, inventory completion or lifecycle admission. Source sections were partial reads, represented conservatively as triaged entries rather than full source reads.",
+      "createdAt": "2026-09-08T10:02:50.076Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-044",
+      "envelopeId": "9746c7b922fe8301b025be39132f01acf8406553f8ad3072e08ade9313da635d",
+      "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "381af99d5d637a7f720517b2b9dbdfa237c5f84e366da4957be649792f929c98"
+    },
+    {
+      "id": "B-88c7:RP-040",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-006 wave 1 incremental docs review uses trusted prior RR-040/RP-036; verified zero material source or template changes since 41b0500b7e. Prior bounded review extracted six exported symbols, compared one relevant Wave 2A paragraph and three canonical/host documents. Fresh incremental prompt and structured F-005 reviewed. The incorrect inventory incremental eligibility diagnostic is already registered by concept as F-005; it does not create a separate documentation promise or drift family, and this lane PASS does not resolve or dismiss it. Inventory-only receipt authority, strict topology default and exact historical binding remain documented consistently. Full file reads in manifest were retained in this agent context; relatedDoc only triaged with its relevant paragraph inspected, not fully read. No additional docs finding.",
+      "createdAt": "2026-09-08T10:03:29.476Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-046",
+      "envelopeId": "724d431f44406edfb616fe012852f898a9df0fdf4677bc0e78f566445c15b81f",
+      "writerSessionId": "sess-07db9a2e820379359092e42a860aee5c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "f764394f440ba34bc266d1a96431913df10fc91e54e694de101889b4a5e781b0"
+    },
+    {
+      "id": "B-88c7:RP-041",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-006 completeness review inspected current RR-043 through RR-046 terminal findings/passes and complete read manifests. Independently source-confirmed F-005: incremental eligibility uses default promptRoleContract(role) while producer assembles selected inventory contract. My prior RR-031/RR-036 artifacts share head/material/story bindings and actual run outputs retain full-context fallback, consistent with incorrect contract-change diagnostic. This is one selected-responsibility eligibility family, not topology bypass. No additional distinct finding; F-005 remains open for repair, previous four findings remain resolved. Current aggregate finding records were read fully via CLI; source and run projections inspected selectively.",
+      "createdAt": "2026-09-08T10:05:01.149Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-047",
+      "envelopeId": "78ce61661b711445169d757dbc638b0502a7c8b0f4c2d23f7710a94f22d655a5",
+      "writerSessionId": "sess-c4c8dd2ceeb634009f66a1c99ba4b927",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "535bbe614e98045ec27fafac04f4faeb264fa2ebe9c2de880ae14947127bfbb8"
+    },
+    {
+      "id": "B-88c7:RP-042",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-006 wave 2 convergence review on unchanged 41b0500b7e material: the integrated fifteen-file diff, checklist intent receipts and responsibility/historical binding call-chain were reviewed. No additional concept or undelivered-promise family identified. F-005 remains verified and open, inherited from wave 1; this terminal record does not assert repair or override that finding. The default-topology eligibility mismatch still requires owner repair. Canonical and managed critic responsibilities remain coherent elsewhere. Source manifest triage entries reflect changed-hunk and relevant-section inspection, not full-source reads. Registered rollout fixture evidence is distinct from actual native-host assurance and lifecycle completion.",
+      "createdAt": "2026-09-08T10:06:30.612Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-048",
+      "envelopeId": "81973e7a944ca31cfd8f9a9a304e3954de574c71ca9843f2fb533faeac336331",
+      "writerSessionId": "sess-5a0dd31a4926da8b12579a97d7a0da08",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "cd2ed6a8e08b6f503ec8ca9aa1a9e62758ba6377d16551354fa6332fb135ff98"
+    },
+    {
+      "id": "B-88c7:RP-043",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI006 wave 2 incremental saturation review using authenticated prior RR044/RP039. Current basis has no changed files or finding deltas; git confirms scoped source unchanged from 41b0500b7e. Rechecked the default role comparison and registered semantic reconstruction boundary, and current structured finding states. No additional distinct quality family found. Verified open F005 is preserved and requires repair; this terminal neither resolves it nor approves lifecycle admission. Source snippets were inspected partially, not read fully; prior full review remains the incremental basis.",
+      "createdAt": "2026-09-08T10:06:49.652Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-049",
+      "envelopeId": "e1d0c26839edb07aafe788e970404f005a515671a50d14931d5355b804ce4853",
+      "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0eb04c3b56116218fe8e504d04a05244c1ddeda51ab4b3f35ee42e5df6e4b0ca"
+    },
+    {
+      "id": "B-88c7:RP-044",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 wave 2 incremental coverage convergence: trusted prior RP-038, no source/material or finding deltas. Independently reloaded four existing passing tool-owned intent receipts and the finding ledger; source remains 41b0500b7e. No additional finding family. Verified open F-005 remains inherited and unfixed; repeated inventory-prior-PASS eligibility and responsibility-transition regressions are required in its repair. This terminal neither overrides F-005 nor certifies Story gate or actual dual-host completion. Prior read manifest retained for unchanged bounded sources; no redundant full matrix execution.",
+      "createdAt": "2026-09-08T10:06:55.712Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-050",
+      "envelopeId": "c5cc4ff17473c8f8e5de40f375f4e34e0373e9be75eb836d6cd1be32d94547b7",
+      "writerSessionId": "sess-07eafd11a96c16af4aff342332be7586",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "adec3b1eef8e51eaf2ef980ea6a705931685f177836d8a69afc2cb68964bc1b4"
+    },
+    {
+      "id": "B-88c7:RP-045",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-006 wave 2 docs convergence review consumes current SAFE_INCREMENTAL basis and prior RR-046/RP-040. Independently verified source/template diff against 41b0500b7e remains empty; current finding_list retains F-005 open and no new finding delta. Prior bounded review extracted six exported symbols, compared one related Wave 2A paragraph and three full critic documents. Retained full reads are in agent context; relatedDoc remains only triaged plus relevant paragraph, never claimed fully read. Inventory receipt-only authority, strict topology default and historical exact binding docs remain consistent. No additional docs family; this PASS neither resolves nor dismisses inherited F-005 and does not assert lifecycle completion.",
+      "createdAt": "2026-09-08T10:08:18.894Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-051",
+      "envelopeId": "21d0aaa7b8b1011cb04f302ac5fb6b62b1a545f24762ca500aefbc4032d44874",
+      "writerSessionId": "sess-07db9a2e820379359092e42a860aee5c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5dea677b2213e333768830cad7851c9acec882248bc142bb917501ddac8ee63"
+    },
+    {
+      "id": "B-88c7:RP-046",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-006 wave 2 completeness review inspected fresh four-lane RR-048 through RR-051 terminal records and read manifests. All report unchanged source and no additional distinct family; full live finding artifact retains F-005 open verified and F-001 through F-004 resolved. Prior independent default-versus-selected-contract source trace remains applicable. No new current-wave finding record; signed prior F-005 family is inherited, not duplicated. This terminal records bounded discovery saturation only, preserving F-005 repair obligation and separate lifecycle/host assurance requirements.",
+      "createdAt": "2026-09-08T10:09:53.146Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-052",
+      "envelopeId": "807d42dcc4b95b37f683a0e14850dd45bc79fa2d46b4046547e20ae4a067478d",
+      "writerSessionId": "sess-c4c8dd2ceeb634009f66a1c99ba4b927",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2efa193690ac5aacbf231d206d2e1f48fbb444259a8cd96a1a90dc12b44fd97e"
     }
   ]
 }

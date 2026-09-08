@@ -86,8 +86,25 @@
       },
       "note": "Actual baseline exit1 in /private/tmp/B-88c7-historical-dispatch-red.log, before source repair.",
       "createdAt": "2026-09-08T09:12:54.149Z"
+    },
+    {
+      "id": "RED-20260908101150",
+      "trigger": "Verified F-005 real signed inventory prior PASS yields false role contract change",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "816ff69bba251bd003c3def882cdcb140c753bf3",
+      "baselineMaterialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+      "observedFailure": "The real signed prior inventory contract matches selected semantics and material is unchanged, yet production evaluator reports FULL_ROLE_CONTRACT_CHANGED. Historical envelope verification control passes.",
+      "failingCommand": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs"
+      },
+      "note": "Actual exit1 before source repair; /private/tmp/B-88c7-inventory-eligibility-red.log preserves matching semantic and material evidence.",
+      "createdAt": "2026-09-08T10:11:50.625Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T09:12:54.149Z"
+  "updatedAt": "2026-09-08T10:11:50.625Z"
 }

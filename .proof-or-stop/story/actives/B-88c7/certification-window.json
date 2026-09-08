@@ -17,7 +17,69 @@
         "authorizesTest": false
       },
       "_hash": "e6c409e830fe3981f148a61c1135d8e13377918bc255e8cc2656b489ea82f68d"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-88c7:CW-002",
+      "storyId": "B-88c7",
+      "state": "CANCELLED",
+      "createdAt": "2026-09-08T09:49:05.493Z",
+      "updatedAt": "2026-09-08T10:00:34.088Z",
+      "frozen": {
+        "headHash": "816ff69bba251bd003c3def882cdcb140c753bf3",
+        "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+        "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+        "causalInputHashes": {
+          "certification:source": "629e6ae60cc9ca56a3c8c26ac65ea623c9ad16dd7ee0e48a72437e1c4cc77fb7",
+          "certification:test": "19eed0101c1da847da42d799b976700058e2c3a1ddc53ece6a85dfba0cea12ea",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "00fa90dac33bde99f3566f75b2d81743d6dad44f5aa69eda8df6c46315209186",
+          "certification:integration": "19457a93005eb141c21518d4a6c9aa3afcb43b23cd49c0b48d27d704aaab0f9c",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "ec0c1390083444acc2af6982b0db1f0bb16f6953",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-88c7:RI-005",
+        "receiptId": "B-88c7:RI-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "cancelledAt": "2026-09-08T10:00:34.088Z",
+      "cancelReason": "Genuine late native Round 3 finding independently reproduced: inventory incremental eligibility compares against default topology contract. Reopen bounded repair before certification.",
+      "_hash": "f0c8d45bc2e4c381852c58f081b21af78c64df2ee4638595435f48a954e6a283"
     }
   ],
-  "receipts": []
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-88c7:PRECERT-001",
+      "windowId": "B-88c7:CW-002",
+      "storyId": "B-88c7",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "816ff69bba251bd003c3def882cdcb140c753bf3",
+        "materialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+        "storyFilesHash": "a672d40862c4b006e3a09218855efff421aacc2f34a635894bb177d1da9cd271",
+        "causalInputHashes": {
+          "certification:source": "629e6ae60cc9ca56a3c8c26ac65ea623c9ad16dd7ee0e48a72437e1c4cc77fb7",
+          "certification:test": "19eed0101c1da847da42d799b976700058e2c3a1ddc53ece6a85dfba0cea12ea",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "00fa90dac33bde99f3566f75b2d81743d6dad44f5aa69eda8df6c46315209186",
+          "certification:integration": "19457a93005eb141c21518d4a6c9aa3afcb43b23cd49c0b48d27d704aaab0f9c",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "ec0c1390083444acc2af6982b0db1f0bb16f6953",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-88c7:RI-005",
+      "inventoryReceiptId": "B-88c7:RI-005:RCP-001",
+      "createdAt": "2026-09-08T09:49:05.493Z",
+      "_hash": "c9487809c2cfb4903f9282cf9b8cbfb8c9e745868412e3576e3633b10e7db5e2"
+    }
+  ]
 }

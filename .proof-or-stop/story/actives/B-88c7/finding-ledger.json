@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "746b51e2682e95406bea01b94685e411c7afc885224945b4514616dd9475d78f",
+  "committedLedgerDigest": "e0101b4458d55242ebb236e71658805cfa105771609f664c55007d473d92e68a",
   "records": [
     {
       "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
@@ -282,6 +282,76 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-08T09:42:11.969Z"
+    },
+    {
+      "recordId": "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:20952540-cb66-43f3-93c8-faa5e714d5f9",
+      "payload": {
+        "id": "B-88c7:F-005",
+        "desc": "Selected inventory responsibility is missing from incremental eligibility. core/review-incremental-context.ts:1019 compares the prior inventory envelope to promptRoleContract(role), the default topology contract, while handlers/review-run.ts:317 assembles the registered inventory contract. Independently reproduced from immutable 41b0500b7e git artifacts: RR-031 -> RP-027 -> RR-036 have valid run/pass signatures and envelope integrity, identical head/material/story-file hashes and role semantic/render digests, yet RR-036 records FULL_ROLE_CONTRACT_CHANGED and SAFETY_REQUIRES_FULL (21588 full bytes versus a 19666-byte incremental candidate). This Story introduced the distinct inventory contract, so this is current-Story applicable: repeated inventory review unnecessarily expands context and persists an incorrect process diagnostic. Real Codex R3 corroboration: /private/tmp/b88c7-f4-codex-r3.events.log. Thread the selected registered responsibility through eligibility and reconstruct historical eligibility from authenticated semantics, with repeated prior-pass and responsibility-transition regressions. No topology bypass was reproduced. Manifest source entries were inspected through changed hunks and relevant call-chain sections, not full source reads.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-08T10:01:46.783Z",
+        "reviewRound": "2026-09-08T09:41:56.971Z",
+        "reviewRunId": "B-88c7:RR-043",
+        "readManifest": {
+          "filesReadFully": [
+            ".claude/agents/proof-or-stop-review-topology-critic.md",
+            ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+            ".proof-or-stop/story/actives/B-88c7/background.md",
+            ".proof-or-stop/story/actives/B-88c7/plan.md",
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-contracts.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/prompt-registry.ts",
+            "packages/main/src/core/prompt-role-contract-registry.ts",
+            "packages/main/src/core/review-incremental-context.ts",
+            "packages/main/src/core/review-run.ts",
+            "packages/main/src/handlers/certification-window.ts",
+            "packages/main/src/handlers/review-run.ts",
+            "packages/main/src/handlers/story-dispatch.ts",
+            "packages/main/src/tasks/certification-window-smoke.ts",
+            "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+        },
+        "readDiagnostics": [],
+        "_hash": "9e25319e91fe9154c98aeea9ac8206f86791886fb60b0e3e81e64975c5c61489",
+        "files": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|selected-inventory-responsibility",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "acfaa6623a67b5d7959af57d222645b450f4943db0f0ea22041bed64453f25f5",
+      "priorDigest": "746b51e2682e95406bea01b94685e411c7afc885224945b4514616dd9475d78f",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T10:01:46.784Z"
     }
   ],
   "receipts": [
@@ -663,6 +733,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "b335c1858ab0cadd22579279ba198d814bd8c9140ddcd85fba3c2215d1fa0513",
         "signature": "EYZH4NLx2mGh4r/IbG8WmLdqTDePx+FJrmmqbBHubJpJ/8oJ6jhko3j+LTsycr9umgIjJCwXaeXolrNrPoKpCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:20952540-cb66-43f3-93c8-faa5e714d5f9",
+      "requestDigest": "5a9492c9063778bf946f7ffa495fdd843402e65b71e5c22050092bd58a95def8",
+      "recordIds": [
+        "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5"
+      ],
+      "priorLedgerDigest": "746b51e2682e95406bea01b94685e411c7afc885224945b4514616dd9475d78f",
+      "committedLedgerDigest": "e0101b4458d55242ebb236e71658805cfa105771609f664c55007d473d92e68a",
+      "writerSessionId": "sess-5a0dd31a4926da8b12579a97d7a0da08",
+      "writerFenceToken": "b30b7892-e6f7-4e5b-b652-b9e3265ab892",
+      "committedAt": "2026-09-08T10:01:46.784Z",
+      "replayed": false,
+      "exactRequestDigest": "bffa56de6cce35fb500dec4c950acdfacf8af09e201adee259beb09dcd6fe650",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c",
+        "storyId": "B-88c7",
+        "idempotencyKey": "finding_add:20952540-cb66-43f3-93c8-faa5e714d5f9",
+        "exactRequestDigest": "bffa56de6cce35fb500dec4c950acdfacf8af09e201adee259beb09dcd6fe650",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "746b51e2682e95406bea01b94685e411c7afc885224945b4514616dd9475d78f",
+        "committedLedgerDigest": "e0101b4458d55242ebb236e71658805cfa105771609f664c55007d473d92e68a",
+        "replayed": false,
+        "committedAt": "2026-09-08T10:01:46.784Z",
+        "writerSessionId": "sess-5a0dd31a4926da8b12579a97d7a0da08",
+        "writerLeaseId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerFenceToken": "b30b7892-e6f7-4e5b-b652-b9e3265ab892",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "8246a57c197f9e4545e6384be1c5584613858c025f2a1fc26761d614c58ec9ed",
+        "signature": "l43f4ohIiFCM9+jIoUyt2zlVmHWIj8BlfTjUlpN1YzuYHYWukD4HYN2QIsPappTc/izPhbG7O2jG8aaT+mU9BQ=="
       }
     }
   ]

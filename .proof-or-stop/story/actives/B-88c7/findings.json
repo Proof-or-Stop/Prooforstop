@@ -170,6 +170,68 @@
       "resolvedReason": "Commit 41b0500b7e authenticates exact original dispatch identity in envelopes and verifies historical runs against that identity while retaining live latest-context checks for new runs. The real A/B epoch historical probe now passes both records; full and incremental envelope tests, shared-executor handler matrix and four current tool-owned intent receipts pass. Unreconstructible pre-field legacy ordering fails closed.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-005",
+      "desc": "Selected inventory responsibility is missing from incremental eligibility. core/review-incremental-context.ts:1019 compares the prior inventory envelope to promptRoleContract(role), the default topology contract, while handlers/review-run.ts:317 assembles the registered inventory contract. Independently reproduced from immutable 41b0500b7e git artifacts: RR-031 -> RP-027 -> RR-036 have valid run/pass signatures and envelope integrity, identical head/material/story-file hashes and role semantic/render digests, yet RR-036 records FULL_ROLE_CONTRACT_CHANGED and SAFETY_REQUIRES_FULL (21588 full bytes versus a 19666-byte incremental candidate). This Story introduced the distinct inventory contract, so this is current-Story applicable: repeated inventory review unnecessarily expands context and persists an incorrect process diagnostic. Real Codex R3 corroboration: /private/tmp/b88c7-f4-codex-r3.events.log. Thread the selected registered responsibility through eligibility and reconstruct historical eligibility from authenticated semantics, with repeated prior-pass and responsibility-transition regressions. No topology bypass was reproduced. Manifest source entries were inspected through changed hunks and relevant call-chain sections, not full source reads.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T10:01:46.783Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e25319e91fe9154c98aeea9ac8206f86791886fb60b0e3e81e64975c5c61489",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|selected-inventory-responsibility",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5",
+      "ledgerCommitReceiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c"
     }
   ]
 }

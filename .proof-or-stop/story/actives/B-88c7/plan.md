@@ -43,3 +43,11 @@ Register an immutable inventory-completeness role contract and select it only fr
 - Modify packages/main/src/core/prompt-envelope.ts in addition to the existing scoped prompt contracts, run producer/consumer, handler smoke and process registry/verifier. Persist exact dispatchBindingDigest as an optional authenticated envelope field for new runs; historical verification resolves and validates that original dispatch. New-run latest/live checks remain unchanged.
 - For pre-field history, require exact original launcherSpecDigest reconstruction from stored intent references/defaults. If original inputs are not recoverable, refuse without latest-dispatch or prompt-only fallback.
 - Regression: create A/run A, cancel and begin B, dispatch/run B, verify both historical A and B; remove/tamper A binding while B remains valid and require refusal, retain stale A new-run refusal. Verify full/incremental envelope contracts and canonical legacy reconstruction.
+
+
+### Verified F-005: selected eligibility contract
+
+- Modify: packages/main/src/core/review-incremental-context.ts and the already scoped prompt envelope, producer, verifier, handler tests and process-fact contract files.
+- Thread the same selected registered role semantics into incremental eligibility. New signed envelopes authenticate the eligibility semantic marker; historical records without it retain their original default-role eligibility calculation. Never infer the current responsibility from a prior envelope.
+- Verify a real signed prior inventory PASS with unchanged role and material has no false FULL_ROLE_CONTRACT_CHANGED. Verify topology/inventory transitions retain FULL_ROLE_CONTRACT_CHANGED, optional marker tampering fails, and old/new historical envelopes stay verifiable after finalization.
+- RED/GREEN: node /private/tmp/B-88c7-inventory-eligibility-probe.mjs; selector B-88c7 inventory eligibility contract: PASS.
