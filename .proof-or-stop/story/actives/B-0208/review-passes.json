@@ -137,6 +137,148 @@
       },
       "readDiagnostics": [],
       "_hash": "aced7c53de7bf87452b6e54e1d44d905fac2f7a0dc38ebbba9841de2209c7590"
+    },
+    {
+      "id": "B-0208:RP-006",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Integrated main quality review of four-file committed fix at89bcc552. Resolver reuses executing CLI compiled0.3.279 constant, preserves argument compatibility and eliminates all target/cwd manifest reads. Both verifier and checklist consumers use this resolver. External missing/malformed/conflicting/copied manifests are covered; independently executed causal-evidence smoke PASS and current three intent receipts read PASS. No implementation correctness or maintainability defect found. plan.md absent in this express Story; background/checklist and scope define bounded intent. Known AR_REPORT_STALE independently confirmed; this code-lane terminal does not attest rollout freshness or TEST/DONE admission and owner must refresh through legal DEV workflow.",
+      "createdAt": "2026-09-08T14:37:57.860Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-007",
+      "envelopeId": "9e6057830a813e46ef1cf1d83e5225358bd2a015b8cb91a5807808d6db51a145",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2812240f584d039dfa9c67f314cd89d4736faa89299d44957ae85375877e3dd"
+    },
+    {
+      "id": "B-0208:RP-007",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Integrated four-file review after B88 main merge: resolver now returns the executing CLI constant, retains its existing argument for callers, and removes all target/cwd manifest fallback. No incomplete concept replacement or undelivered promise found. All causal producer callsites still consume the resolver; generic tool_version_missing and historical receipt verification remain intentionally unchanged. Independently ran the external-directory probe against rebuilt dist: absent and unrelated 99.88.77 manifests both yielded 0.3.279, matching that build. Current three pinned intent receipts pass on integrated material. Plan file is absent under existing express channel; checklist/background provide bounded intent. acceptance_rollout_check remains AR_REPORT_STALE after integration and requires owner DEV refresh; this lane terminal is not current rollout, TEST or DONE authorization. Source manifest triage entries reflect entire four-file diff and relevant call-chain sections, not full file reads.",
+      "createdAt": "2026-09-08T14:38:21.150Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-008",
+      "envelopeId": "1af44c1af84119c62212672e18acf2a14555ddbefc596fa270a15051e91e82a4",
+      "writerSessionId": "sess-b3d0ead15d1a588b7ad00cb623f75625",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b87b07aad6b78d8435142361b191a6838c82d18e10286be685e6831c5f353d59"
+    },
+    {
+      "id": "B-0208:RP-008",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent integrated coverage review: 3 executable intents, 0 must gaps, 0 waivers. Current tool-owned exit0/selector receipts bind89bcc552/materialfcaa92ef. Four-file diff and targeted source reviewed: compiled CLI constant replaces target/cwd IO while preserving argument contract;7manifest scenarios cover missing, unrelated, conflicting, malformed and copied stale tool manifests across target and cwd; signed receipt asserts same version, complete identity and verified integrity. Independently executed built causal smoke PASS and CLI reports0.3.279. Understanding old0.3.278 is historical; acceptance is actual current CLI equality. plan.md absent confirmed via plan_get, so coverage uses frozen checklist and understanding without claiming plan read. acceptance_rollout_check independently returns blocking AR_REPORT_STALE after main integration; owner must refresh in DEV before closure. This scoped lane terminal does not certify rollout, TEST/DONE or actual host quorum. No additional implementation coverage blocker identified; source files were examined by diff and targeted sections, not full reads.",
+      "createdAt": "2026-09-08T14:39:57.467Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-009",
+      "envelopeId": "9130dabc27ccb291da8518c7da71656a36ea1c959228b5d5a8e7058da015340d",
+      "writerSessionId": "sess-18f6281ee40cbb869a5c02546ab2220f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f52b33fc68483028a672c1b4147bcd9c7187ca917d226ab1c6a61c647c3a995"
+    },
+    {
+      "id": "B-0208:RP-009",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "B-0208 RI-002 independent completeness review inspected current qualityRR007, conceptRR008 and coverageRR009 terminal passes and complete read manifests against the four-file integrated scope. Their checks cover executing CLI constant, preserved call compatibility, external manifest negative matrix and signed receipt identity; current canonical finding_list is empty. Independently checked resolver imports and constant return plus background. Current epoch matches fcaa92ef/dabc01d. acceptance_rollout_check independently FAILS AR_REPORT_STALE after main integration; this receipt grants only inventory completeness so owner can legally refresh evidence in DEV, not rollout freshness or TEST/DONE authority. No additional implementation or completeness finding discovered. Background read fully; current artifacts and source examined through bounded projections/sections.",
+      "createdAt": "2026-09-08T14:41:43.726Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-010",
+      "envelopeId": "34b7460341850e45978f3fdb1f89362ce962cf108e324ab41459806689b88829",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d44edc729b7bfd67a385e9bd7cf4389bb417538604c2acd5214119c063fd891"
     }
   ]
 }
