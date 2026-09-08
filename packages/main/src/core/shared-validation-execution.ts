@@ -100,8 +100,10 @@ export async function executeSharedValidationCommand(
   });
   assertActive();
   if (!unchanged()) throw new Error('shared validation inputs changed before publication');
+  // A store single-flight shares the leader's outcome with followers. Only
+  // this invocation's run callback proves that it launched a child.
   const executionReceipt={executionKey:causal.key.key,receiptHash:causal.receipt.receiptHash,
-    disposition:causal.disposition,executedAt:causal.receipt.executedAt};
+    disposition:(fresh ? 'executed' : 'reused') as 'executed'|'reused',executedAt:causal.receipt.executedAt};
   if (fresh) return {...fresh,executionReceipt,executionDecision:{disposition:'executed',
     reason:!causal.key.reusable ? 'identity_incomplete' : causal.receipt.reusable ? 'no_matching_receipt' : fresh.code !== 0 ? 'execution_failed' : 'result_not_reusable', details:causal.key.incompleteReasons}};
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');

@@ -97,3 +97,7 @@ It uses temporary Git data, real preflight/lease probes and disk receipts. Its
 136-row production configuration audit classifies missing declarations as unknown
 eligibility, not as permission to cache. It does not automatically enable commands,
 change dynamic mode, provide formal Story DONE evidence or claim Story-wide speedup.
+
+A concurrent caller that receives the leader's single-flight outcome is reported
+as reused unless its own execution callback actually ran. Sharing the leader's
+`executed` tag must not count a follower as a second child execution.
