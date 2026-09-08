@@ -833,6 +833,73 @@
       },
       "readDiagnostics": [],
       "_hash": "a5c775c70db6c7593415dad56fe3e24d2bd82d3c8b4b770783bf7496d067e3ab"
+    },
+    {
+      "id": "B-0208:RP-028",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent quality review of complete four-file material diff after main integration; refreshed envelope at f89603e has unchanged material87c2813 and story3853766. Resolver returns executing build constant, keeps argument compatibility and removes target/cwd manifest IO. Seven layout probes and signed causal receipt checks cover absent, malformed, conflicting and copied stale manifests. Registry and AST guard cover all five actual producers individually including refresh_stale and validate. No unsafe cast, swallowed error, dead branch or unfinished promise introduced. Independently executed causal smoke and process-fact verifier PASS on CLI0.3.284. Background read fully; checklist read by CLI; plan_get reports absent plan.md for existing express Story. All material sources inspected through full diff and targeted context; architecture doc lines1-65 and155-195 inspected partially, not claimed full. Existing checklist receipt hashes precede integration and remain subject to owner gate freshness checks; no native quorum, full suite, rollout, TEST or DONE certification claimed. Zero new findings.",
+      "createdAt": "2026-09-08T17:38:43.140Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-035",
+      "envelopeId": "56f17c9b579e7eec6b8b0258f3d04fa62b7cb0c481d466926684bb8807c93cc3",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "398a3f3f89046a1c848b2b82402de349a7b435348f89993ab5c8c2d896016846"
+    },
+    {
+      "id": "B-0208:RP-029",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed after local main integration: the built smoke exercises seven target/cwd manifest cases and confirms the executing CLI version plus signed receipt identity. The contract guard requires the executing-CLI version semantic for all five resolver consumers, including validate. No coverage finding.",
+      "createdAt": "2026-09-08T17:54:41.919Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-036",
+      "envelopeId": "e67bc62553e16aae1bfb5af0d067391d5d99bcdbcbf5be24de88d512b83cd412",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "23804d6a5c5e0d1526c53ca9d442daf3623e80860c9098e49faa6ffe17840657"
     }
   ]
 }
