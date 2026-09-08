@@ -127,6 +127,38 @@
       "cancelledAt": "2026-09-08T12:35:49.641Z",
       "cancelReason": "Required full suite revealed BUG-003 stale no-inventory dispatch expectation; reopen bounded test repair",
       "_hash": "5bceae0d0f6847081c631d529eb99828e88534839e7ca2f3e22b8f91a360fa5c"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-88c7:CW-005",
+      "storyId": "B-88c7",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-08T13:20:08.446Z",
+      "updatedAt": "2026-09-08T13:20:08.446Z",
+      "frozen": {
+        "headHash": "7172361d150e36f578a617427f0ba575721f91ed",
+        "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+        "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+        "causalInputHashes": {
+          "certification:source": "e59c46b0ac707c6a8216edb9cd81ded0ea208063bd84bbbb558ffc922b4d99a4",
+          "certification:test": "f423bbb7c6b74e9378417a1d3e562249436c436ea111a76d804dced3886b823f",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "00fa90dac33bde99f3566f75b2d81743d6dad44f5aa69eda8df6c46315209186",
+          "certification:integration": "0d5f2f6493520d0d2ea4ded4652a87416cfe22b764dd320252b78fa74e27a257",
+          "certification:review-subject": "4800048370e8797f0e5219c55e6621d8d1e069141bd49109d50bd9f42dd8d60e"
+        },
+        "expectedMainSha": "ec0c1390083444acc2af6982b0db1f0bb16f6953",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-88c7:RI-010",
+        "receiptId": "B-88c7:RI-010:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-88c7:PRECERT-004",
+      "_hash": "90b868afc0b03b43904999496614299f71a63f358c342d75db6628a6102ac9bb"
     }
   ],
   "receipts": [
@@ -213,6 +245,34 @@
       "inventoryReceiptId": "B-88c7:RI-008:RCP-001",
       "createdAt": "2026-09-08T12:10:48.907Z",
       "_hash": "06fc94bddb3635bc2866a15ed1080a7ead6695901a9d39afd8c1fd20a6b7fa13"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-88c7:PRECERT-004",
+      "windowId": "B-88c7:CW-005",
+      "storyId": "B-88c7",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "7172361d150e36f578a617427f0ba575721f91ed",
+        "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+        "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+        "causalInputHashes": {
+          "certification:source": "e59c46b0ac707c6a8216edb9cd81ded0ea208063bd84bbbb558ffc922b4d99a4",
+          "certification:test": "f423bbb7c6b74e9378417a1d3e562249436c436ea111a76d804dced3886b823f",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "00fa90dac33bde99f3566f75b2d81743d6dad44f5aa69eda8df6c46315209186",
+          "certification:integration": "0d5f2f6493520d0d2ea4ded4652a87416cfe22b764dd320252b78fa74e27a257",
+          "certification:review-subject": "4800048370e8797f0e5219c55e6621d8d1e069141bd49109d50bd9f42dd8d60e"
+        },
+        "expectedMainSha": "ec0c1390083444acc2af6982b0db1f0bb16f6953",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-88c7:RI-010",
+      "inventoryReceiptId": "B-88c7:RI-010:RCP-001",
+      "createdAt": "2026-09-08T13:20:08.446Z",
+      "_hash": "179777e7286a05425509b7674d4f5e1fe5615478a8fdff5d2ec49d8ab83abb5c"
     }
   ]
 }
