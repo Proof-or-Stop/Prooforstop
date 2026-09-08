@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab performance-production-validation - v0.3.283 - 2026-09-08
+
+- Allow official validation invocations with complete, nonconflicting resource declarations to share repository capacity across processes and worktrees. Unknown and conflicting resources retain exclusive admission.
+- Renew an existing same-owner lease during validation and capacity wait. Serialize acquire, refresh, release and takeover, atomically replace lease files, and fence stale heartbeat generations.
+- Add explicit exact-inputs sharing of signed causal PASS receipts between routine validation and DONE-required consumers. Bind declared generated/external inputs and preserve forbidden-reuse, build-proof, cancellation, environment and freshness controls. Existing commands are not implicitly opted into reuse.
+- Add review_inventory_finalize --remediation for a complete critic-certified review wave. Its single-use repair-only receipt preserves findings and cannot enter certification or TEST; explicit saturation finalization remains available.
+- Extend existing registered validation regression coverage and document production behavior. The earlier experimental timing percentages are not a measured whole-Story speedup.
+
+Maintenance provenance: codex/lab-performance-production-validation, repair 1b17bdb7d56b477f7ee743b7419f684d3cc7eb25.
+Verification command (replayed before integration and on main): `["node","scripts/verify-performance-production.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Proof-or-Stop v0.3.282 - 2026-09-08
 
 Temporary Lab maintenance tooling; explicitly authorized local bootstrap integration.
