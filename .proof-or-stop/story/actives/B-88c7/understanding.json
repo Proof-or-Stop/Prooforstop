@@ -10,7 +10,8 @@
     "Verified F-002: a delayed critic run may reuse an old dispatch after inventory cancellation or rebegin in the same round.",
     "Verified F-003: the exact canonical agent template modified here matches no certification domain and prevents PRE_CERT.",
     "Verified F-004: actual CLI creates A/RR001 then B/RR002 after epoch replacement; old envelope fails canonical verification because the consumer chooses the latest dispatch.",
-    "Verified F-005: real RR036 and prior PASS have matching inventory semantics and material, but eligibility compares default topology semantics and reports FULL_ROLE_CONTRACT_CHANGED."
+    "Verified F-005: real RR036 and prior PASS have matching inventory semantics and material, but eligibility compares default topology semantics and reports FULL_ROLE_CONTRACT_CHANGED.",
+    "Required validation heartbeat fixture fails on unchanged main:700ms max expires before its descendant PID witness runs; an isolated3000ms probe starts the descendant and passes max-timeout cleanup assertions."
   ],
   "constraints": [
     "Do not invent implementer authorship or dispatch records.",
@@ -22,7 +23,8 @@
     "Reject stale dispatch responsibility and epoch before new run or envelope publication; historical signed runs remain verifiable.",
     "Classify only canonical agent Markdown templates as manifest-semantic, retain unknown siblings and ambiguity refusal.",
     "Historical dispatch lookup must use exact authenticated identity; missing/tampered original bindings cannot fall back to current dispatch. Legacy reconstruction must match its original launcher digest or refuse.",
-    "Current eligibility uses the selected registered responsibility; historical eligibility reconstructs authenticated semantics, with pre-marker old behavior retained. Topology and inventory transitions still force full context."
+    "Current eligibility uses the selected registered responsibility; historical eligibility reconstructs authenticated semantics, with pre-marker old behavior retained. Topology and inventory transitions still force full context.",
+    "The bounded heartbeat fixture repair changes no production timeout policy and must preserve actual child startup, max timeout selection and descendant cleanup proof. Existing missing Lab build is an environment prerequisite, not a source defect."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -41,7 +43,8 @@
     "packages/main/src/tasks/certification-window-smoke.ts",
     "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-envelope.ts",
-    "packages/main/src/core/review-incremental-context.ts"
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   ],
-  "timestamp": "2026-09-08T10:11:48.498Z"
+  "timestamp": "2026-09-08T10:28:29.604Z"
 }

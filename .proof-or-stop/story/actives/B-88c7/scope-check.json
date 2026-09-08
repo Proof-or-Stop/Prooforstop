@@ -1,6 +1,6 @@
 {
   "storyId": "B-88c7",
-  "checkedAt": "2026-09-08T10:13:30.495Z",
+  "checkedAt": "2026-09-08T10:30:14.897Z",
   "features": [
     {
       "feature": "Valid signed current OPEN inventory permits independent completeness review without invented implementer provenance",
@@ -52,11 +52,18 @@
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Bounded 16-file repair includes real prior-PASS regression, transition and historical controls, process-fact enforcement and fresh tool-owned verification before completion",
+      "feature": "Bounded 17-file repair includes real prior-PASS regression, transition and historical controls, process-fact enforcement and fresh tool-owned verification before completion",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-88c7/scope-contract.json"
+    },
+    {
+      "feature": "Required validation startup repair changes only the max-descendant fixture timing, preserving PID existence, max-layer selection, ESRCH cleanup and no heartbeat after terminal; production timeout policy remains unchanged and full smoke plus canonical validation must pass",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     }
   ],
   "readManifest": {
@@ -70,19 +77,20 @@
     "filesTriagedByName": [
       ".proof-or-stop/story/actives/B-88c7/checklist.json",
       ".proof-or-stop/story/actives/B-88c7/red-evidence.json",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 8,
-    "covered": 8,
+    "total": 9,
+    "covered": 9,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-09-08T09:41:56.971Z",
-  "_hash": "ee83dbcbee82df7da4b0ff6afec2811733377533f3f9a95e2e547387b283058b",
+  "_hash": "7944ff2c82f83a19b7e4fb32ae54ba3f016836aace9561155d1de76501d835f7",
   "openQuestions": []
 }

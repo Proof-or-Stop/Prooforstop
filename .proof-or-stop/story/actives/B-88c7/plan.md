@@ -51,3 +51,12 @@ Register an immutable inventory-completeness role contract and select it only fr
 - Thread the same selected registered role semantics into incremental eligibility. New signed envelopes authenticate the eligibility semantic marker; historical records without it retain their original default-role eligibility calculation. Never infer the current responsibility from a prior envelope.
 - Verify a real signed prior inventory PASS with unchanged role and material has no false FULL_ROLE_CONTRACT_CHANGED. Verify topology/inventory transitions retain FULL_ROLE_CONTRACT_CHANGED, optional marker tampering fails, and old/new historical envelopes stay verifiable after finalization.
 - RED/GREEN: node /private/tmp/B-88c7-inventory-eligibility-probe.mjs; selector B-88c7 inventory eligibility contract: PASS.
+
+
+### Required validation fixture startup prerequisite
+
+- Test: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts.
+- Classification: independently reproduced on unchanged main, a pre-existing test timing race that directly prevents required validation. Keep repair in the current bounded Story because the required gate cannot accept the failed fixture.
+- The max watchdog row currently expires at700ms before its descendant command starts. Provide bounded startup margin and ensure the max deadline remains below idle and child-command deadlines. Preserve PID existence, max-layer classification, ESRCH cleanup, and no-heartbeat-after-terminal assertions; do not change production timeouts or skip the case.
+- RED: node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js fails on both41b and main with missing max-descendant.pid. Paired logs /private/tmp/B88-heartbeat-repro.log and /private/tmp/B88-heartbeat-main-baseline.log. Independent isolated3000ms timing probe passed descendant startup and cleanup.
+- GREEN: run the unchanged full heartbeat smoke command and canonical validation after the fixture correction.
