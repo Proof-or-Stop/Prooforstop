@@ -543,8 +543,8 @@ assert.match(criticTerminalStatus, /"findingDispositions":\[/, 'critic Next must
 assert.equal((criticTerminalStatus.match(/^Next:/gm) ?? []).length, 1);
 const criticCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery, criticComplete: true });
 assert.match(criticCompleteStatus, /Completeness critic: complete/);
-assert.match(criticCompleteStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
-assert.match(criticCompleteStatus, /Next: proof-or-stop review_inventory_wave_advance/);
+assert.match(criticCompleteStatus, /Blockers: none/);
+assert.match(criticCompleteStatus, /Next: proof-or-stop review_inventory_finalize/);
 assert.equal((criticCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
 const saturationReadyStatus = renderReviewInventoryStatus(secondEpoch, { evaluation: saturated, criticComplete: true });
 assert.match(saturationReadyStatus, /Blockers: none/);
@@ -611,6 +611,32 @@ const finalizedData: ReviewInventoryEpochData = {
 const finalizedStatus = renderReviewInventoryStatus(finalized, { criticComplete: true });
 assert.match(finalizedStatus, /Next: proof-or-stop story_advance --storyId=B-cdf6-replay --phase=DEV/);
 assert.equal((finalizedStatus.match(/^Next:/gm) ?? []).length, 1);
+// A complete signed first wave permits repair, while preserving its findings
+// and never becoming certification or TEST authority.
+const earlyUnsigned = {
+  ...unsignedReceipt, waveCount: 1,
+  coverageDigest: reviewInventoryDigest(firstWave.lanes.map(lane => lane.coverageDigest)),
+  saturationResult: 'NOT_EVALUATED_FOR_REMEDIATION', authority: 'review-remediation-only',
+} as unknown as Omit<ReviewInventoryReceipt, '_hash'>;
+const earlyReceipt = { ...earlyUnsigned, _hash: signReviewInventoryReceipt(earlyUnsigned) };
+assert.equal(verifyReviewInventoryReceipt(earlyReceipt), true, 'complete first wave admits remediation authority');
+const earlyData = {
+  ...finalizedData, epochs: [epoch({state:'FINALIZED',waves:[firstWave],receiptId:earlyReceipt.receiptId,updatedAt:issuedAt})],
+  receipts:[earlyReceipt], criticReceipts:[firstCritic.receipt],
+};
+const earlyStore = () => ({ ...memoryStore(earlyData),
+  readReviewRuns: () => ({runs:[...firstRuns,firstCritic.run]}),
+  readReviewPasses: () => ({passes:[...firstPasses,firstCritic.pass]}),
+});
+assert.equal(consumeReviewInventoryReceipt(earlyStore() as never,storyId,reviewRound,cutoff),earlyReceipt.receiptId);
+assert.throws(() => consumeReviewInventoryCompletenessReceipt(earlyStore() as never,storyId,reviewRound,cutoff),
+  /remediation-only/, 'remediation authority must not enter certification');
+const tamperedEarly = {...earlyReceipt,authorizesTest:true};
+assert.equal(verifyReviewInventoryReceipt(tamperedEarly as never),false);
+const missingCritic = earlyStore();
+const absentCriticData={...earlyData,criticReceipts:[]};
+missingCritic.writeReviewInventoryEpochs(storyId,absentCriticData);
+assert.throws(()=>consumeReviewInventoryReceipt(missingCritic as never,storyId,reviewRound,cutoff),/critic/);
 const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
 assert.equal(reviewInventoryRemediationGate(mockStore as never, storyId, 'wrong-round').ok, false);
