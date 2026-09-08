@@ -4628,8 +4628,18 @@ function assertReviewInventoryRemediationContract() {
   assert(/return PROOF_OR_STOP_CLI_VERSION;/.test(causalVersionBody)
     && !/readFileSync|process\.cwd|package\.json/.test(causalVersionBody),
     'causal tool version must use the executing CLI constant, never target or cwd manifests');
-  assert(read(processFactRegistryPath).includes('causal toolVersion binds the executing CLI build independently of target-project and cwd manifests'),
-    'executing CLI tool version must remain registered in verification gate semantics');
+  const causalVersionSemantics = 'causal toolVersion binds the executing CLI build independently of target-project and cwd manifests';
+  const causalVersionArtifacts = parseProcessFactArtifactByCommandFromSource(read(processFactRegistryPath));
+  for (const producerCommand of [
+    'verification_evidence_add',
+    'verification_evidence_batch_add',
+    'verification_evidence_refresh_stale',
+    'verification_run',
+    'validate',
+  ]) {
+    assert(causalVersionArtifacts.get(producerCommand)?.consumerGate?.includes(causalVersionSemantics),
+      `executing CLI tool version must remain registered for causal-version producer ${producerCommand}`);
+  }
   const stampBody = findFunctionDeclaration(refreshSource, 'enforceAndStampEvidence')?.body?.getText(refreshSource) ?? '';
   assert(stampBody.includes('executedAt: receipt.executedAt')
     && !stampBody.includes('executedAt: new Date()'),

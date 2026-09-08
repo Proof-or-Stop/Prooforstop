@@ -844,7 +844,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'test-evidence.json',
     signed: false,
     producerCommand: 'validate',
-    consumerGate: 'story_advance TEST and DONE validation gate',
+    consumerGate: 'story_advance TEST and DONE validation gate; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   done_required_validate: {
     name: 'done-required-evidence.json',
