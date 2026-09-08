@@ -1,6 +1,6 @@
+#!/usr/bin/env node
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
-#!/usr/bin/env node
 
 /**
  * Smoke: story-scoped validate executions are mutually exclusive without
