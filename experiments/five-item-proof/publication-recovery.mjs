@@ -32,14 +32,13 @@ await check('P1','canonical publication failure retries without rerunning the co
  const before=readOwnerLease(store.storyDirPath(storyId));const h=createChecklistHandlers({store,root:fixture,scanRoot:join(fixture,'packages/main')});
  const request={storyId,evidences:[{itemId:'CHK-001',intentRef:'I-1',kind:'integration_test',command:'node witness.mjs',selector:'BATCH_OK',note:'Real batch crosses lease expiry under controlled clock'}]};
  const canonicalWrite=store.writeChecklist.bind(store);let injected=0;store.writeChecklist=(...a)=>{if(injected++===0)throw new Error('INJECTED_CANONICAL_PUBLICATION_FAILURE');return canonicalWrite(...a);};
- await assert.rejects(h.verification_evidence_batch_add(request),/INJECTED_CANONICAL_PUBLICATION_FAILURE/);
- assert.equal(readFileSync(join(fixture,'.counts'),'utf8').trim().split('\n').length,1);
  const retryStart=performance.now();const result=await h.verification_evidence_batch_add(request);const retryMs=performance.now()-retryStart;
+ assert.equal(injected,2,'one failed canonical publication must be retried once');
  assert.equal(readFileSync(join(fixture,'.counts'),'utf8').trim().split('\n').length,1,'PUBLICATION_RECOVERY_RERAN_COMMAND');
- assert.match(result,/commandExecutions=0/);
- writeFileSync(join(output,'publication-recovery.json'),JSON.stringify({result,retryMs,commandExecutions:1,injectedPublicationFailures:1},null,2));
+ assert.match(result,/commandExecutions=1/);assert.match(result,/commandReruns=0/);
+ writeFileSync(join(output,'publication-recovery.json'),JSON.stringify({result,retryMs,canonicalWriteAttempts:injected,commandExecutions:1,injectedPublicationFailures:1},null,2));
  const cl=store.readChecklist(storyId),ev=cl.items[0].verificationEvidence?.[0],after=readOwnerLease(store.storyDirPath(storyId));
- assert.equal(ev?.result,'pass');assert.equal(ev?.receipt?.exitCode,0);assert.equal(isLeaseStale(after),false);assert.match(result,/commandExecutions=0/);
+ assert.equal(ev?.result,'pass');assert.equal(ev?.receipt?.exitCode,0);assert.equal(isLeaseStale(after),false);assert.match(result,/commandExecutions=1/);
  writeFileSync(join(output,'batch-result.json'),JSON.stringify({result,before,after,evidence:ev,clockScale:1,realCommandDurationMs:null},null,2));
  return {log:'batch-result.json',clockScale:1000,commandExecutions:1};
  }finally{if(clockActive){globalThis.Date=NativeDate;globalThis.setInterval=interval;}rmSync(fixture,{recursive:true,force:true});resetConfigCache();}
