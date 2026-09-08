@@ -1,3 +1,5 @@
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 #!/usr/bin/env node
 
 /**
@@ -291,6 +293,11 @@ console.log('probe ' + label + ' passed');
   store.writeStory(storyId, story(storyId, options.phase ?? 'TEST', options.priority ?? 'high'));
   store.writeChecklist(storyId, checklist());
   commitAll(root, 'seed story metadata');
+  if (options.doneRequired) {
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'capacity fixture must bind real certification inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+  }
   return { root, storyId };
 }
 
