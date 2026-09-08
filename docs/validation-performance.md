@@ -61,7 +61,8 @@ normal current evidence and blocker resolution.
 
 ## Verification and limits
 
-Run `npm run test:performance-production`. The regression uses disposable Git
+Run `node scripts/verify-performance-production.mjs`. The existing registered
+validation execution-lock suite also runs these regressions. The regression uses disposable Git
 repositories and fixtures, real command execution, cross-process capacity,
 lease loss/generation controls, receipt tampering and signed inventory replay.
 Existing validation-lock, DONE-required and inventory CLI suites provide the

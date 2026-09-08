@@ -185,7 +185,8 @@ export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): b
     && receipt.authorizesTest === false
     && ((receipt.authority === 'inventory-completeness-only' && receipt.saturationResult === 'ZERO_NEW_VERIFIED_FINDINGS')
       || (receipt.authority === 'review-remediation-only' && receipt.saturationResult === 'NOT_EVALUATED_FOR_REMEDIATION'
-        && Number.isSafeInteger(receipt.waveCount) && receipt.waveCount >= 1 && receipt.requiredLanes.length > 0));
+        && Number.isSafeInteger(receipt.waveCount) && receipt.waveCount >= 1 && Array.isArray(receipt.requiredLanes) && receipt.requiredLanes.length > 0
+        && receipt.requiredLanes.every(lane => typeof lane === 'string' && lane.trim().length > 0)));
 }
 
 export function signReviewInventoryCriticReceipt(receipt: Omit<ReviewInventoryCriticReceipt, '_hash'>): string {

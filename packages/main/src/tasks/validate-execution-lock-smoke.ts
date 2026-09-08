@@ -1798,7 +1798,10 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 26 assertion groups');
+    execFileSync(process.execPath, [join(repoRoot(), 'scripts/verify-performance-production.mjs')], {
+      cwd: repoRoot(), stdio: 'inherit', timeout: 180000,
+    });
+    console.log('validate-execution-lock smoke passed: 26 assertion groups plus production regressions');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

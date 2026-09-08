@@ -8,7 +8,6 @@
   },
   "scripts": {
     "lab:worktree": "node scripts/lab-worktree.mjs",
-    "test:performance-production": "node scripts/verify-performance-production.mjs",
     "test:lab-worktree": "node scripts/verify-lab-worktree.mjs",
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build && node scripts/verify-full-suite-build-binding.mjs",
