@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Separate inventory critic dispatch from topology proof prerequisites",
+      "context": "Choose inventory-only dispatch only for the valid current OPEN epoch and preserve existing topology proof requirements elsewhere.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "An independent inventory critic can review an express Story without an implementer-specific commit; invalid epochs and topology proof attempts remain refused.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-88c7",
+  "allowedCommands": [
+    "git *",
+    "node *",
+    "npm *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "story_create",
+  "createdAt": "2026-09-08T06:51:42.009Z",
+  "updatedAt": "2026-09-08T06:51:42.009Z",
+  "_hash": "328d444f0321d90308cd7288373a17718df45223c56f2da8e75b30ef3a68e2c6"
+}

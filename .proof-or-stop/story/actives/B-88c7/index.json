@@ -1,0 +1,28 @@
+{
+  "storyId": "B-88c7",
+  "name": "inventory-critic-dispatch-without-topology-provenance",
+  "title": "Allow independent inventory completeness review without topology implementation provenance",
+  "description": "Repair B-0208 closure: the express implementation channel has no dedicated implementer commit, but inventory completeness dispatch incorrectly demands topology implementation provenance. Select a verified OPEN inventory context without granting topology receipt authority.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-09-08T06:51:42.009Z",
+  "startedAt": "2026-09-08T06:51:42.009Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-08T06:51:43.498Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-3a086337cc563b750e4116c389ce9cb3",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-88c7",
+    "branch": "story/B-88c7",
+    "createdAt": "2026-09-08T06:53:00.562Z"
+  }
+}
