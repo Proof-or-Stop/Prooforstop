@@ -40,6 +40,7 @@ import {
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
   promptRoleContract,
+  type PromptRoleResponsibility,
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import {
@@ -316,6 +317,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     story: ReturnType<StoryStore['readStory']>,
     agentType: string,
     dispatchPrompt: string,
+    responsibility?: PromptRoleResponsibility,
   ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; promptBudget?: PromptBudgetObservation } {
     const mode = resolvePromptEnvelopeRolloutMode(agentType, loadConfig(root).promptEnvelope);
     if (mode !== 'full-envelope') return { prompt: dispatchPrompt };
@@ -327,7 +329,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       scopeContract: store.readScopeContract(story.storyId),
     });
     const assembly = assembleFullPromptEnvelope({
-      roleContract: promptRoleContract(agentType),
+      roleContract: promptRoleContract(agentType, responsibility),
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       rolePrompt: resolvePromptRoleBody(agentType, loadConfig(root).promptEnvelope).body,
       taskContext,
@@ -975,7 +977,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           throw new Error('inventory critic dispatch requires the current story and review round');
         }
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId, inventoryEpochId: inventory?.epochId });
-        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt, inventory ? 'inventory-completeness' : undefined);
         const authorityBinding = inventory ? {} : topologyAuthorityDispatchBinding(story, true);
         const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
         if (!story.currentReviewRound && envelopeMode === 'full-envelope') {

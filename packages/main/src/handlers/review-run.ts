@@ -37,7 +37,7 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
-import { assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { currentOpenReviewInventory, assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
@@ -289,8 +289,13 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             passesCutoffAt: startedAt,
             findingProjection,
           });
+          const inventory = lane === 'proof-or-stop-review-topology-critic' && story.phase === 'REVIEW'
+            ? currentOpenReviewInventory(store, args.storyId) : null;
+          if (inventory && (inventory.storyId !== story.storyId || inventory.reviewRound !== story.currentReviewRound)) {
+            throw new Error('inventory critic ReviewRun requires the current story and review round');
+          }
           const assembly = assembleConditionalReviewPromptEnvelope({
-            roleContract: promptRoleContract(lane),
+            roleContract: promptRoleContract(lane, inventory ? 'inventory-completeness' : undefined),
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
             rolePrompt: canonicalRolePrompt,
             taskContext: buildFullTaskContext({

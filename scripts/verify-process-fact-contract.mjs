@@ -4492,6 +4492,23 @@ function assertReviewInventoryRemediationContract() {
     `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
   );
 
+  const roleContracts = read('packages/main/src/core/prompt-role-contract-registry.ts');
+  const reviewRunHandler = read('packages/main/src/handlers/review-run.ts');
+  assert(
+    roleContracts.includes('const INVENTORY_CRITIC_CONTRACT')
+      && roleContracts.includes('return deepFreezeRoleContract(contract)')
+      && roleContracts.includes("requiredOutputIds: ['review-finding-or-pass', 'review-inventory-critic-receipt']")
+      && roleContracts.includes('promptRoleContractForSemanticDigest')
+      && roleContracts.includes('unregistered Role Contract semantics')
+      && dispatchText.includes("inventory ? 'inventory-completeness' : undefined")
+      && dispatchText.includes('promptRoleContract(agentType, responsibility)')
+      && reviewRunHandler.includes('currentOpenReviewInventory(store, args.storyId)')
+      && reviewRunHandler.includes('inventory.reviewRound !== story.currentReviewRound')
+      && reviewRunHandler.includes("promptRoleContract(lane, inventory ? 'inventory-completeness' : undefined)")
+      && reviewRunText.includes('promptRoleContractForSemanticDigest(canonicalLane, envelope.roleSemanticDigest)'),
+    'full-envelope inventory semantics must be registered, selected by both signed OPEN producers, and reconstructed by authenticated digest after finalization',
+  );
+
   const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
   const inventoryHandlerText = read(inventoryHandlerPath);
   assert(

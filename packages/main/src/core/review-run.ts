@@ -47,6 +47,7 @@ import {
   isPromptRoleEligibleForReviewEvidence,
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
+  promptRoleContractForSemanticDigest,
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
   resolvePromptRoleBody,
@@ -783,7 +784,7 @@ export function verifyReviewRunPromptEnvelope(
   let roleContract;
   let resolvedRoleBody;
   try {
-    roleContract = promptRoleContract(canonicalLane);
+    roleContract = promptRoleContractForSemanticDigest(canonicalLane, envelope.roleSemanticDigest);
     resolvedRoleBody = resolvePromptRoleBody(
       canonicalLane,
       loadConfig(metadataRoot).promptEnvelope,

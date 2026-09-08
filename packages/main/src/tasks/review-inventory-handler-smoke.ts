@@ -14,6 +14,8 @@ import {
   signReviewInventoryEpoch,
   signReviewInventoryReceipt,
 } from '../core/review-inventory-epoch.js';
+import { promptRoleContract, promptRoleContractForSemanticDigest } from '../core/prompt-role-contract-registry.js';
+import { verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import { signFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
@@ -77,13 +79,14 @@ function waitForFile(path: string, timeoutMs = 5_000): void {
   }
 }
 
-function setup(ordinaryAuthor = false) {
+function setup(ordinaryAuthor = false, fullEnvelope = false) {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    ...(fullEnvelope ? { promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-topology-critic': 'full-envelope' } } } : {}),
   }));
   writeFileSync(join(root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
   writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
@@ -196,6 +199,44 @@ tampered.epochs[0]._hash = 'tampered';
 ordinary.store.writeReviewInventoryEpochs(storyId, tampered);
 assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /signature mismatch/,
   'invalid signature cannot select completeness-only dispatch');
+
+// Exercise the actual full-envelope contract, independently of legacy prompt prose.
+function embeddedRoleContract(prompt: string): { requiredOutputIds: string[]; allowedCommandIds: string[]; semanticDigest: string } {
+  return JSON.parse(prompt.split('## Role Contract\n\n')[1].split('\n\n## ')[0]);
+}
+const fullInventory = setup(true, true);
+assert.throws(() => cli(fullInventory.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/);
+cli(fullInventory.root, 'review_inventory_begin', { storyId });
+const fullDispatch = JSON.parse(cli(fullInventory.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+const inventoryContract = embeddedRoleContract(fullDispatch.prompt);
+assert.deepEqual(inventoryContract.requiredOutputIds, ['review-finding-or-pass', 'review-inventory-critic-receipt'],
+  'full-envelope inventory contract requires only inventory outputs');
+assert.ok(!inventoryContract.allowedCommandIds.includes('topology_critic_receipt_set'));
+cli(fullInventory.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const fullRun = fullInventory.store.readReviewRuns(storyId).runs.at(-1)!;
+assert.deepEqual(embeddedRoleContract(fullRun.assembledPrompt!).requiredOutputIds, inventoryContract.requiredOutputIds,
+  'ReviewRun assembly retains the inventory responsibility');
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun).ok, true);
+assert.equal(Object.isFrozen(promptRoleContract(criticArgs.agentType, 'inventory-completeness')), true);
+assert.throws(() => promptRoleContractForSemanticDigest(criticArgs.agentType, 'sha256:unknown'), /unregistered/);
+assert.throws(() => promptRoleContractForSemanticDigest('proof-or-stop-review-quality', inventoryContract.semanticDigest), /unregistered/);
+const tamperedEnvelopes = structuredClone(fullInventory.store.readPromptEnvelopes(storyId).envelopes);
+tamperedEnvelopes.find(row => row.envelopeId === fullRun.envelopeId)!.roleSemanticDigest = 'sha256:unknown';
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun, tamperedEnvelopes).ok, false,
+  'modified envelope contract semantics are rejected');
+const fullState = fullInventory.store.readReviewInventoryEpochs(storyId);
+fullState.epochs[0].state = 'FINALIZED';
+const { _hash: _fullHash, ...fullUnsigned } = fullState.epochs[0];
+fullState.epochs[0]._hash = signReviewInventoryEpoch(fullUnsigned);
+fullInventory.store.writeReviewInventoryEpochs(storyId, fullState);
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun).ok, true,
+  'finalization does not rewrite the authenticated ReviewRun responsibility');
+assert.throws(() => cli(fullInventory.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+  'finalized full-envelope inventory cannot select the reduced contract');
+const strictTopology = setup(false, true);
+const topologyDispatch = JSON.parse(cli(strictTopology.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+assert.ok(embeddedRoleContract(topologyDispatch.prompt).requiredOutputIds.includes('topology-critic-receipt'),
+  'full-envelope topology dispatch retains topology output outside OPEN inventory');
 
 const first = setup();
 seedProofStoryAcceptance(first.store);
