@@ -266,6 +266,8 @@ export interface PromptEnvelope {
   launcherSpecDigest: string;
   /** Exact dispatch identity authenticated by the envelope; absent for pre-field history. */
   reviewerDispatchBindingDigest?: string;
+  /** Registered role semantics used by incremental eligibility; absent preserves pre-marker history. */
+  eligibilityRoleSemanticDigest?: string;
   commandPolicyDigest: string;
   toolPolicyDigest?: string;
   systemInstructionDigest?: string;
@@ -647,13 +649,14 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   const optional = [
     'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
-    'reviewerDispatchBindingDigest', 'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
+    'eligibilityRoleSemanticDigest', 'reviewerDispatchBindingDigest', 'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
     'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
+  if (record.eligibilityRoleSemanticDigest !== undefined) requireDigest(record.eligibilityRoleSemanticDigest, 'PromptEnvelope.eligibilityRoleSemanticDigest');
   if (record.reviewerDispatchBindingDigest !== undefined) requireDigest(record.reviewerDispatchBindingDigest, 'PromptEnvelope.reviewerDispatchBindingDigest');
   if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_ENVELOPE_SCHEMA, PROMPT_ENVELOPE_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
   for (const key of ['envelopeId', 'runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptEnvelope.${key}`);

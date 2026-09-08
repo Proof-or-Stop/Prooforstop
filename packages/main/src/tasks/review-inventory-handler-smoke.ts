@@ -22,6 +22,7 @@ import { signFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import {
+  reviewIncrementalContext,
   computeCanonicalDependencyClosure,
   postRemediationReviewSelection,
   verifyCurrentPostRemediationReviewSelection,
@@ -226,6 +227,12 @@ const tamperedEnvelopes = structuredClone(fullInventory.store.readPromptEnvelope
 tamperedEnvelopes.find(row => row.envelopeId === fullRun.envelopeId)!.roleSemanticDigest = 'sha256:unknown';
 assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun, tamperedEnvelopes).ok, false,
   'modified envelope contract semantics are rejected');
+const markedEnvelope = fullInventory.store.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === fullRun.envelopeId)!;
+assert.equal(markedEnvelope.eligibilityRoleSemanticDigest, inventoryContract.semanticDigest);
+for (const marker of [undefined, promptRoleContract(criticArgs.agentType).semanticDigest, '0'.repeat(64)]) {
+  const changed = { ...markedEnvelope, eligibilityRoleSemanticDigest: marker };
+  assert.equal(verifyPromptEnvelopeIntegrity(changed), false, 'eligibility marker omission/tamper changes signed envelope identity');
+}
 const fullState = fullInventory.store.readReviewInventoryEpochs(storyId);
 fullState.epochs[0].state = 'FINALIZED';
 const { _hash: _fullHash, ...fullUnsigned } = fullState.epochs[0];
@@ -338,7 +345,7 @@ for (const mode of [false, true]) {
   assertCriticDispatchRefused(fixture);
 }
 
-const first = setup();
+const first = setup(false, true);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
@@ -554,6 +561,22 @@ const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent
 });
 const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(secondCriticReviewRunId);
+const selectedInventoryRole = promptRoleContract(criticArgs.agentType, 'inventory-completeness');
+const secondCriticRun = reloaded.readReviewRuns(storyId).runs.find(row => row.reviewRunId === secondCriticReviewRunId)!;
+const secondCriticEnvelope = reloaded.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === secondCriticRun.envelopeId)!;
+assert.ok(secondCriticEnvelope.priorPassRef, 'wave two must consume a genuine signed prior critic PASS');
+assert.equal(secondCriticEnvelope.eligibilityRoleSemanticDigest, selectedInventoryRole.semanticDigest);
+assert.ok(!secondCriticEnvelope.eligibilityReasonCodes!.includes('FULL_ROLE_CONTRACT_CHANGED'), 'same inventory contract must not force full');
+assert.equal(verifyReviewRunPromptEnvelope(reloaded, secondCriticRun).ok, true);
+const currentEligibility = reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType);
+assert.ok(!currentEligibility.eligibilityReasonCodes.includes('FULL_ROLE_CONTRACT_CHANGED'), 'read-only live selector shares signed OPEN contract');
+const topologyEligibility = reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType, {
+  roleSemanticDigest: promptRoleContract(criticArgs.agentType).semanticDigest,
+});
+assert.ok(topologyEligibility.eligibilityReasonCodes.includes('FULL_ROLE_CONTRACT_CHANGED'), 'inventory-to-topology responsibility transition still requires full');
+assert.throws(() => reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType, {
+  roleSemanticDigest: promptRoleContract('proof-or-stop-review-quality').semanticDigest,
+}), /unregistered/, 'cross-role semantic selection is refused');
 cli(first.root, 'review_pass_set', {
   storyId, agent: 'proof-or-stop-review-topology-critic', reviewRunId: secondCriticReviewRunId,
   note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,

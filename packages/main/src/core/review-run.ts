@@ -851,6 +851,7 @@ export function verifyReviewRunPromptEnvelope(
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
+      eligibilityRoleSemanticDigest: envelope.eligibilityRoleSemanticDigest,
       rolePrompt: resolvedRoleBody.body,
       reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
@@ -861,6 +862,7 @@ export function verifyReviewRunPromptEnvelope(
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
+      eligibilityRoleSemanticDigest: envelope.eligibilityRoleSemanticDigest,
       rolePrompt: resolvedRoleBody.body,
       reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
@@ -878,6 +880,7 @@ export function verifyReviewRunPromptEnvelope(
         run.storyId,
         run.lane,
         {
+          roleSemanticDigest: envelope.eligibilityRoleSemanticDigest ?? promptRoleContract(run.lane).semanticDigest,
           excludedReviewRunId: run.reviewRunId,
           findingsCutoffAt: run.startedAt,
           // Recompute the baseline as-of this signed run. Later metadata-only

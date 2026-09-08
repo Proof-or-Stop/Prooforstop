@@ -62,9 +62,10 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
-import { promptRoleContract } from './prompt-role-contract-registry.js';
+import { promptRoleContract, promptRoleContractForSemanticDigest } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
 import {
+  currentOpenReviewInventory,
   reviewInventoryDigest,
   reviewInventoryAcceptanceSubjectDigestForStore,
   verifyReviewInventoryEpoch,
@@ -732,6 +733,8 @@ export function reviewIncrementalContext(
   storyId: string,
   role: string,
   options: {
+    /** Registered current contract; historical callers always provide their authenticated selection. */
+    roleSemanticDigest?: string;
     excludedReviewRunId?: string;
     findingsCutoffAt?: string;
     passesCutoffAt?: string;
@@ -1016,7 +1019,14 @@ export function reviewIncrementalContext(
     prior.run.storyFilesHash,
   );
   const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
-  const currentRole = promptRoleContract(role);
+  const storyForRole = store.readStory(storyId);
+  const inventoryForRole = options.roleSemanticDigest === undefined
+    && canonicalAgentRoleId(role) === 'proof-or-stop-review-topology-critic'
+    && storyForRole.phase === 'REVIEW' ? currentOpenReviewInventory(store, storyId) : null;
+  const currentRole = options.roleSemanticDigest !== undefined
+    ? promptRoleContractForSemanticDigest(role, options.roleSemanticDigest)
+    : promptRoleContract(role, inventoryForRole?.reviewRound === storyForRole.currentReviewRound
+      && inventoryForRole?.storyId === storyId ? 'inventory-completeness' : undefined);
   const environmentDigest = domainSeparatedDigest('known-execution-environment.v1', captureKnownExecutionEnvironment());
   const promptEnvelopes = options.promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes;
   const priorEnvelope = promptEnvelopes.find(

@@ -308,13 +308,16 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
               desc: finding.desc,
             }))
             .sort((left, right) => left.id.localeCompare(right.id));
+          const selectedRoleContract = promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined);
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
+            roleSemanticDigest: selectedRoleContract.semanticDigest,
             findingsCutoffAt: startedAt,
             passesCutoffAt: startedAt,
             findingProjection,
           });
           const assembly = assembleConditionalReviewPromptEnvelope({
-            roleContract: promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined),
+            roleContract: selectedRoleContract,
+            eligibilityRoleSemanticDigest: selectedRoleContract.semanticDigest,
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
             rolePrompt: canonicalRolePrompt,
             taskContext: buildFullTaskContext({

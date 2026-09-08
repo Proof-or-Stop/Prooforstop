@@ -4530,6 +4530,15 @@ function assertReviewInventoryRemediationContract() {
     && reviewRunText.includes("domainSeparatedDigest('prompt-launcher-spec.v1'")
     && reviewRunText.includes('identities.length !== 1'),
     'historical envelopes must authenticate and select the original dispatch; legacy fallback requires exact launcher reconstruction');
+  const incrementalText = read('packages/main/src/core/review-incremental-context.ts');
+  assert(contractsText.includes('eligibilityRoleSemanticDigest?: string')
+    && envelopeText.includes('envelope.eligibilityRoleSemanticDigest === input.eligibilityRoleSemanticDigest')
+    && envelopeText.includes('envelope.eligibilityRoleSemanticDigest === input.roleContract.semanticDigest')
+    && reviewRunHandler.includes('roleSemanticDigest: selectedRoleContract.semanticDigest')
+    && reviewRunHandler.includes('eligibilityRoleSemanticDigest: selectedRoleContract.semanticDigest')
+    && incrementalText.includes('promptRoleContractForSemanticDigest(role, options.roleSemanticDigest)')
+    && reviewRunText.includes('envelope.eligibilityRoleSemanticDigest ?? promptRoleContract(run.lane).semanticDigest'),
+    'incremental eligibility must consume authenticated registered responsibility semantics while preserving pre-marker history');
   const certificationText = read('packages/main/src/handlers/certification-window.ts');
   assert(certificationText.includes('templates\\/agents\\/[^/]+\\.md$')
     && certificationText.includes("matches.length === 1")
