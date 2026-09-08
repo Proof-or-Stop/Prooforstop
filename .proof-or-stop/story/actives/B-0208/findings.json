@@ -47,7 +47,7 @@
       "desc": "packages/main/src/core/process-fact-registry.ts:847 validate.consumerGate omits executing-CLI causal toolVersion semantics although verifier.ts:736 binds resolveCausalToolVersion through createValidationCausalPreflightGate, called by validate at1948 and2339. Native Claude R3 session b3c2f6ca-99b0-43fc-a1e1-0872a75cbd0f reported terminal PASS plus this low advisory against24950bfd in /private/tmp/b0208-refresh-claude-r3.events.jsonl. Independent exhaustive production-callsite audit identifies exactly five producer commands: verification_evidence_add, verification_evidence_batch_add, verification_run, verification_evidence_refresh_stale and validate. The first four already document these semantics; validate alone remains omitted. scripts/verify-process-fact-contract.mjs:4632 checks only global includes and cannot detect missing producer entries. This current-Story incomplete process-fact documentation belongs to current-scope repair; runtime identity is correct, no bypass claimed. Add the validate clause and per-producer contract assertions in existing scoped files. Preserve low severity and original native observation.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-08T15:22:12.483Z",
@@ -81,7 +81,11 @@
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
       "recordId": "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73",
-      "ledgerCommitReceiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef"
+      "ledgerCommitReceiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef",
+      "resolvedAt": "2026-09-08T15:41:03.249Z",
+      "resolvedReason": "Fixed by commit 6c1bfc6bf2: validate now registers the executing-CLI causal toolVersion semantic, and the process-fact contract parses and requires that semantic for each of the five resolver-consuming producer commands. Main build, causal-evidence smoke, and process-fact contract pass on the repaired source; the native Claude R3 observation remains preserved.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
