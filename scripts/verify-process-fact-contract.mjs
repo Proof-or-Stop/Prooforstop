@@ -8423,7 +8423,7 @@ const inventory = [
     name: 'Production validation sharing and bounded repair authority',
     files: [
       {relPath:'packages/main/src/handlers/verifier.ts',patterns:['validate?.sharedExecution === true']},
-      {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['import.meta.url','../../package.json']},
+      {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['dirname(fileURLToPath(import.meta.url))',"'package.json'"]},
       {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},
       {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt','executionImplementationIdentity().digest','implementationDigest']},
       {relPath:'packages/main/src/core/review-inventory-epoch.ts',patterns:['review-remediation-only','remediation-only receipt cannot enter certification','rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount']},
