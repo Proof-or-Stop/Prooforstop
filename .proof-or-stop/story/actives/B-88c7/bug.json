@@ -17,6 +17,14 @@
         "fixEvidence": "Commit1626142765 modifies only max-row fixture budget ordering to5000 max,10000 idle,15000 command. Original complete smoke command exits0 and prints validate-progress-heartbeat smoke passed. PID existence, max-layer, ESRCH and no-postterminal-heartbeat assertions remain intact.",
         "reproTest": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       }
+    },
+    {
+      "id": "BUG-002",
+      "title": "Changed inventory critic body leaves approved prompt baseline manifest and generated snapshots stale, blocking required full suite",
+      "status": "open",
+      "foundAt": "2026-09-08T11:39:16.445Z",
+      "fixedAt": null,
+      "checklistId": "CHK-001"
     }
   ]
 }
