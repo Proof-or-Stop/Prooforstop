@@ -64,7 +64,8 @@ atomic patch-bump helper for both manifests, both lockfiles and the CLI brand
 constant. Ordinary documentation-only changes retain the version. Changes and
 verification commands are recorded in CHANGELOG.md with Lab/commit provenance.
 
-The candidate is built when required, its CLI version checked, and its regression
+The candidate uses the existing `scripts/ensure-dist.mjs` preparation when required
+(main plus utils, including the CLI bootstrap dependencies), its CLI version is checked, and its regression
 command replayed before a fast-forward-only main update. Main is then built and
 checked again. Only after post-merge verification and reachability checks does the
 command remove the generated override, clean worktree and merged branch. It never

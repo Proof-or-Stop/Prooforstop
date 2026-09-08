@@ -183,7 +183,7 @@ async function main() {
     };
     const build = root => {
       if (s.bump) {
-        const r = run(root, ['npm', '--prefix', 'packages/main', 'run', 'build']);
+        const r = run(root, ['node', 'scripts/ensure-dist.mjs']);
         s.history.push({ kind: 'build', cwd: root, ...r }); save(s);
         if (!passed(r)) fail(`Build failed in ${root}; workspace retained. Retry finish after repair.`);
         const reported = run(root, ['node', 'bin/proof-or-stop.js', '--version']);

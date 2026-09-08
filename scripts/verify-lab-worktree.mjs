@@ -22,7 +22,7 @@ const cmd = (cwd, args, expected = 0, match) => {
 function fixture(name) {
   const repo = join(dir, name); mkdirSync(repo);
   git(repo, 'init', '-b', 'main'); git(repo, 'config', 'user.name', 'Lab Test'); git(repo, 'config', 'user.email', 'lab@example.invalid');
-  write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/\nbuilt-version\n');
+  write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/\nbuilt-version\nbuilt-utils\n');
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', scripts: { build: 'node ../../build.cjs' } }, null, 2));
   for (const rel of ['package-lock.json', 'packages/main/package-lock.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', lockfileVersion: 3, packages: { '': { name: 'proof-or-stop', version: '1.0.0' } } }, null, 2));
@@ -33,7 +33,8 @@ function fixture(name) {
   write(repo, 'check.cjs', "const fs=require('fs'); if(fs.readFileSync('bug.txt','utf8')!=='fixed'){ console.error('TARGET regression: broken behavior'); process.exit(1); } console.log('target and regression checks passed');\n");
   write(repo, 'bug.txt', 'broken');
   write(repo, 'build.cjs', "const fs=require('fs'); const p=require('path'); const root=p.resolve(__dirname); if(fs.existsSync(p.join(root,'.fail-build'))){process.exit(3)} fs.writeFileSync(p.join(root,'built-version'),JSON.parse(fs.readFileSync(p.join(root,'package.json'))).version);\n");
-  write(repo, 'bin/proof-or-stop.js', "console.log('Proof-or-Stop '+require('fs').readFileSync(require('path').join(__dirname,'../built-version'),'utf8'));\n");
+  write(repo, 'scripts/ensure-dist.mjs', "import {execFileSync} from 'node:child_process'; import {writeFileSync} from 'node:fs'; execFileSync('npm',['--prefix','packages/main','run','build'],{stdio:'inherit'}); writeFileSync('built-utils','ready');\n");
+  write(repo, 'bin/proof-or-stop.js', "const fs=require('fs'),path=require('path'); if(!fs.existsSync(path.join(__dirname,'../built-utils'))){console.error('Missing bootstrap utils artifact'); process.exit(1)} console.log('Proof-or-Stop '+fs.readFileSync(path.join(__dirname,'../built-version'),'utf8'));\n");
   commit(repo, 'fixture baseline'); return repo;
 }
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
