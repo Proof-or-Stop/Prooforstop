@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased - Temporary Lab maintenance
+## Proof-or-Stop v0.3.282 - 2026-09-08
+
+Temporary Lab maintenance tooling; explicitly authorized local bootstrap integration.
 
 - Added manually invoked create, sync, RED/GREEN, release preparation recovery,
   and local finish commands for bounded system bugs and performance regressions.
 - Reused the main write lock and synchronized version rules. Finish records
   maintenance notes, verifies the candidate and main, and only then removes the
   worktree and merged branch; failures retain the workspace and local audit record.
+- CLI preparation builds both main and utils so new worktrees can run the real CLI entrypoint.
 - Lab provenance remains separate from formal Story and product-release evidence.
 - Verification: isolated Git lifecycle scenarios, shared version-bump regression
   assertions, main-package build, and process/runtime contract checks.
