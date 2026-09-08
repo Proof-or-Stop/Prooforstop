@@ -27,6 +27,13 @@ export function executionImplementationIdentity() {
     }
   };
   scan(runtimeRoot,'core');
+  // The repository wrapper executes these modules before runCli. Binding only
+  // argv[1] misses imported bootstrap bytes while the displayed version stays
+  // unchanged. Include the wrapper surface and its dependency-free lock helper;
+  // ordinary project verification scripts remain execution inputs, not CLI code.
+  scan(join(repositoryRoot,'bin'),'bootstrap');
+  const bootstrapLockHelper=join(repositoryRoot,'scripts/build-lock-target.mjs');
+  if(existsSync(bootstrapLockHelper)) files.push({path:'bootstrap/build-lock-target.mjs',digest:sha(readFileSync(bootstrapLockHelper))});
   scan(join(packageRoot,'templates'),'core/templates',true);
   for(const name of ['utils','lab'])scan(join(repositoryRoot,'packages',name,'dist'),name);
   const pkg=JSON.parse(readFileSync(join(packageRoot,'package.json'),'utf8'));
