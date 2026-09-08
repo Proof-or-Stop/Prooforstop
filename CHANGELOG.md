@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab hash-accuracy-production - v0.3.284 - 2026-09-08
+
+Correct shared evidence hash inputs and literal Git path handling. Evidence-store objects/sha256, refs/by-id and ledger/observed.jsonl are excluded as process outputs rather than disposable runtime artifacts; unknown evidence paths and policy remain material. Story diffs use NUL framing and literal target blob lookup, preserving Unicode and control characters, with missing target objects failing closed. Existing evidence is neither rewritten nor automatically re-attested.
+
+Validation: reproduced 19/27 independent exact-digest cases on 0.3.283, then passed 27/27 plus special-name rename/content changes, real main-store publication, digest/subject tampering and source-drift controls using node scripts/verify-hash-accuracy.mjs. The regression is included through the existing story-files-hash-batch validation entry. Build, hash-batch, large-tree freshness, story-aware validation, process-fact contract and previous production-performance regression passed. The separate story-aware-validation-production smoke fails identically on unchanged main and Lab at the legacy lattice.config.json fixture inventory assertion (0 vs 3); that existing fixture issue is outside this hash repair. No full lifecycle or whole-Story speed claim is made; the earlier 33.7% claim remains withdrawn.
+
+Maintenance provenance: codex/lab-hash-accuracy-production, repair a2a17276d19f8ba8348d80597cf346be38d1ed6a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-hash-accuracy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab performance-production-validation - v0.3.283 - 2026-09-08
 
 - Allow official validation invocations with complete, nonconflicting resource declarations to share repository capacity across processes and worktrees. Unknown and conflicting resources retain exclusive admission.
