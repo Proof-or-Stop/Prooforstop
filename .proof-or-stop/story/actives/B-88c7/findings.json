@@ -176,7 +176,7 @@
       "desc": "Selected inventory responsibility is missing from incremental eligibility. core/review-incremental-context.ts:1019 compares the prior inventory envelope to promptRoleContract(role), the default topology contract, while handlers/review-run.ts:317 assembles the registered inventory contract. Independently reproduced from immutable 41b0500b7e git artifacts: RR-031 -> RP-027 -> RR-036 have valid run/pass signatures and envelope integrity, identical head/material/story-file hashes and role semantic/render digests, yet RR-036 records FULL_ROLE_CONTRACT_CHANGED and SAFETY_REQUIRES_FULL (21588 full bytes versus a 19666-byte incremental candidate). This Story introduced the distinct inventory contract, so this is current-Story applicable: repeated inventory review unnecessarily expands context and persists an incorrect process diagnostic. Real Codex R3 corroboration: /private/tmp/b88c7-f4-codex-r3.events.log. Thread the selected registered responsibility through eligibility and reconstruct historical eligibility from authenticated semantics, with repeated prior-pass and responsibility-transition regressions. No topology bypass was reproduced. Manifest source entries were inspected through changed hunks and relevant call-chain sections, not full source reads.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-08T10:01:46.783Z",
@@ -231,7 +231,11 @@
       "signatureTag": "missing|ts|selected-inventory-responsibility",
       "signatureTagSource": "auto",
       "recordId": "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5",
-      "ledgerCommitReceiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c"
+      "ledgerCommitReceiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c",
+      "resolvedAt": "2026-09-08T10:46:54.300Z",
+      "resolvedReason": "Commit4943d0bd2f propagates selected registered semantics into eligibility, authenticates the optional marker and preserves pre-marker historical calculation. Stable actual pre-fix signed records now omit false FULL_ROLE_CONTRACT_CHANGED and both historical controls pass. Full/incremental/handler regressions and final four tool receipts pass; original dynamic Story probe separately reports approved scope/task drift, not a claimed full GREEN.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

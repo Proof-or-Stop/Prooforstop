@@ -1,0 +1,22 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "Pre-existing max-watchdog fixture expires during startup before its descendant witness executes",
+      "status": "fixed",
+      "foundAt": "2026-09-08T10:46:56.467Z",
+      "fixedAt": "2026-09-08T10:46:57.404Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required canonical validation heartbeat smoke waits for missing max-descendant.pid after max timeout.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js in candidate41b and unchanged main.",
+          "Inspect paired /private/tmp/B88-heartbeat-repro.log and /private/tmp/B88-heartbeat-main-baseline.log; isolated diagnostic shows no command-start before700ms max."
+        ],
+        "rootCause": "Pre-existing fixture gives CLI admission only700ms before total max timeout; the descendant command never starts, so subsequent PID wait cannot succeed.",
+        "fixEvidence": "Commit1626142765 modifies only max-row fixture budget ordering to5000 max,10000 idle,15000 command. Original complete smoke command exits0 and prints validate-progress-heartbeat smoke passed. PID existence, max-layer, ESRCH and no-postterminal-heartbeat assertions remain intact.",
+        "reproTest": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      }
+    }
+  ]
+}
