@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync,mkdirSync,existsSync} from 'node:fs';
@@ -7,11 +6,12 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const repo=resolve(fileURLToPath(new URL('..',import.meta.url)));
-const {runValidationCommand}=await import('../packages/main/src/core/validation-executor.ts');
-const shared=await import('../packages/main/src/core/shared-validation-execution.ts');
-const {StoryStore}=await import('../packages/main/src/core/store.ts');
-const {acquireOwnerLease}=await import('../packages/main/src/core/story-owner-lease.ts');
-const {probeValidationCausalPreflightFacts}=await import('../packages/main/src/handlers/verifier.ts');
+execFileSync(process.execPath,['scripts/ensure-dist.mjs'],{cwd:repo,stdio:'inherit'});
+const {runValidationCommand}=await import('../packages/main/dist/core/validation-executor.js');
+const shared=await import('../packages/main/dist/core/shared-validation-execution.js');
+const {StoryStore}=await import('../packages/main/dist/core/store.js');
+const {acquireOwnerLease}=await import('../packages/main/dist/core/story-owner-lease.js');
+const {probeValidationCausalPreflightFacts}=await import('../packages/main/dist/handlers/verifier.js');
 const root=mkdtempSync(join(tmpdir(),'pos-reuse-proof-'));
 const originalCwd=process.cwd();
 const git=argv=>execFileSync('git',argv,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
