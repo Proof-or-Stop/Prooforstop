@@ -448,6 +448,34 @@
         "scanEscalationReason": null
       },
       "_hash": "2e03e7a09494cfefe771336da8bb7f09a6b8bda8b444c0112754f22c3109ba44"
+    },
+    {
+      "id": "B-0208:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-004 pre-fix concept review at 24950bfd: the removed target/cwd manifest lookup is fully replaced by the executing-build constant. The full resolver-callsite scan finds only the intended checklist, import, refresh, verifier, smoke, and contract uses; scenario labels retain the old layouts solely as negative coverage, not runtime residue. No deleted concept has a residual reference and no new documentation promise is undelivered. F-002 is already registered by another lane for validate registry semantics; it is distinct from this concept-residue review and is not duplicated here.",
+      "createdAt": "2026-09-08T15:26:25.527Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-018",
+      "envelopeId": "9cf75362dc2c20477aa288dfb5bdb0608486ba77cc22c379da563fbf4e1c34de",
+      "writerSessionId": "sess-3a086337cc563b750e4116c389ce9cb3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a47675ff29c35e8db86482a1e7a0757abfac0601d7cebf70db3489c83960c665"
     }
   ]
 }
