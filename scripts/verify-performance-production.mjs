@@ -22,7 +22,7 @@ try {
     let active = 0, maximum = 0;
     await Promise.all(['a', 'b'].map(key => locks.withWorkspaceValidationCapacity({
       root: dir, workspaceRoot: dir, command: 'production-resource-regression', pollMs: 10,
-      resources: [{ class: 'fixture-dir', key, access: 'write' }], maxConcurrent: 2,
+      resources: [{ class: 'fixed-path', key, access: 'exclusive' }], maxConcurrent: 2,
     }, async () => { active++; maximum=Math.max(maximum,active); await delay(120); active--; })));
     assert.equal(maximum, 2, 'independent resources were unnecessarily serialized');
   });
