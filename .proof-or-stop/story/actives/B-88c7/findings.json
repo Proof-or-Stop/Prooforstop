@@ -1,0 +1,44 @@
+{
+  "findings": [
+    {
+      "id": "B-88c7:F-001",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:330 supplies the unconditional promptRoleContract(agentType) when assembling the new Inventory completeness only dispatch. packages/main/src/core/prompt-role-contract-registry.ts:341 still requires topology-critic-receipt for this role, while the new role body explicitly says inventory completion does not issue topology receipts and must return after review_inventory_critic_set. Thus the actual full envelope simultaneously requires and forbids a topology receipt for the exact repaired express workflow, whose topology implementation provenance is absent. This directly contradicts the Story promise of inventory-only instructions and can stop a contract-following critic. Bind the required output contract to the selected responsibility, retaining strict topology requirements for topology dispatch, and assert the full assembled inventory envelope. This is a verified prompt-contract contradiction; no separate runtime requiredOutputIds gate or topology proof bypass is claimed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T07:39:18.246Z",
+      "reviewRound": "2026-09-08T07:37:13.526Z",
+      "reviewRunId": "B-88c7:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e4e8fbbcb7e6c9b623162f98e3e710679c120b9a771070b481117ed76691988d",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
+      "ledgerCommitReceiptId": "lrc_mtsczeqv_1i0u_fbdebf6e333a43d58257d7661d2b5f09"
+    }
+  ]
+}
