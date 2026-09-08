@@ -476,6 +476,34 @@
         "scanEscalationReason": null
       },
       "_hash": "a47675ff29c35e8db86482a1e7a0757abfac0601d7cebf70db3489c83960c665"
+    },
+    {
+      "id": "B-0208:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-004 concept review at unchanged source 24950bfd: the removed target/cwd manifest lookup is fully replaced by the executing-build constant. The resolver-callsite and old-layout scans find the legacy layouts only in the new negative smoke matrix; no runtime or documentation residue retains the deleted lookup concept. No added CLI/documentation promise lacks code. F-002 remains an already-open, distinct validate registry-semantic finding and is not duplicated by this concept lane.",
+      "createdAt": "2026-09-08T15:28:47.343Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-020",
+      "envelopeId": "0e94825919fae0feefa9cd9de1f277269d6e713680ef3e203fa84a61b75eca2e",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48c6c61f680406efc5c0a2c387aeb38b35d595d73b50f513d16473ddebd9be14"
     }
   ]
 }
