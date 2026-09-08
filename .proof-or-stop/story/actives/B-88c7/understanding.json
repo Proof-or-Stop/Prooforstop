@@ -12,7 +12,8 @@
     "Verified F-004: actual CLI creates A/RR001 then B/RR002 after epoch replacement; old envelope fails canonical verification because the consumer chooses the latest dispatch.",
     "Verified F-005: real RR036 and prior PASS have matching inventory semantics and material, but eligibility compares default topology semantics and reports FULL_ROLE_CONTRACT_CHANGED.",
     "Required validation heartbeat fixture fails on unchanged main:700ms max expires before its descendant PID witness runs; an isolated3000ms probe starts the descendant and passes max-timeout cleanup assertions.",
-    "BUG-002: DONE-required npm test fails at approved critic manifest mismatch after the current Story template change; build passed, suite9/65 then interruption."
+    "BUG-002: DONE-required npm test fails at approved critic manifest mismatch after the current Story template change; build passed, suite9/65 then interruption.",
+    "BUG-003: Complete raw fullsuite output reproduces stale inventory expectation in agent-dispatch-registry-smoke.ts829; fixture never begins an inventory."
   ],
   "constraints": [
     "Do not invent implementer authorship or dispatch records.",
@@ -26,7 +27,8 @@
     "Historical dispatch lookup must use exact authenticated identity; missing/tampered original bindings cannot fall back to current dispatch. Legacy reconstruction must match its original launcher digest or refuse.",
     "Current eligibility uses the selected registered responsibility; historical eligibility reconstructs authenticated semantics, with pre-marker old behavior retained. Topology and inventory transitions still force full context.",
     "The bounded heartbeat fixture repair changes no production timeout policy and must preserve actual child startup, max timeout selection and descendant cleanup proof. Existing missing Lab build is an environment prerequisite, not a source defect.",
-    "Approval digest is computed from legacyized assembled role content, not the raw template hash. Preserve topology rules and all unauthorized body drift checks; regenerate snapshots with the verifier, never hand-author derived identities."
+    "Approval digest is computed from legacyized assembled role content, not the raw template hash. Preserve topology rules and all unauthorized body drift checks; regenerate snapshots with the verifier, never hand-author derived identities.",
+    "Keep no-OPEN topology authority strict; assert fixture absence explicitly and forbid inventory-only commands. Preserve existing OPENpositive tests and all registry canonical/alias/phase loops; do not change production code."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -50,7 +52,8 @@
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
-    "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
   ],
-  "timestamp": "2026-09-08T11:42:02.784Z"
+  "timestamp": "2026-09-08T12:48:27.012Z"
 }

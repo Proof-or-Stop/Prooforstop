@@ -37,7 +37,7 @@
           "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-08T06:57:17.335Z",
       "endTime": "2026-09-08T11:56:09.888Z",
       "verificationIntent": {
@@ -94,10 +94,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T11:54:45.335Z",
+            "executedAt": "2026-09-08T13:01:37.920Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:2d00661401bb73ffdd70de13371b86ce48534df49b1ef3e00c2de4d6d48944fd",
-            "causalReceiptHash": "19ec1ef187ab40303d45933230e14a9742d00e79f939b406ffac6eca60fe46c3",
+            "executionKey": "ce:v1:96de0fd2672bfa5782ba772ea676b51095a717c8fd109dc71e52229aeaca51ca",
+            "causalReceiptHash": "d80ddb146863bb53b4c12dcc02ebdcac85c2a17a249f05bb908e342844372269",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -105,10 +105,10 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "b0d262e5df79a6bcd5fa15857665578ce1469132",
-          "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-          "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115",
-          "timestamp": "2026-09-08T11:54:58.978Z"
+          "headHash": "0ca9a0ab1f79342c47fb7ca75edd3fa5f7f7097a",
+          "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+          "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+          "timestamp": "2026-09-08T13:01:52.092Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -123,10 +123,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T11:54:45.335Z",
+            "executedAt": "2026-09-08T13:01:37.920Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:2d00661401bb73ffdd70de13371b86ce48534df49b1ef3e00c2de4d6d48944fd",
-            "causalReceiptHash": "19ec1ef187ab40303d45933230e14a9742d00e79f939b406ffac6eca60fe46c3",
+            "executionKey": "ce:v1:96de0fd2672bfa5782ba772ea676b51095a717c8fd109dc71e52229aeaca51ca",
+            "causalReceiptHash": "d80ddb146863bb53b4c12dcc02ebdcac85c2a17a249f05bb908e342844372269",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -134,10 +134,10 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "b0d262e5df79a6bcd5fa15857665578ce1469132",
-          "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-          "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115",
-          "timestamp": "2026-09-08T11:54:58.978Z"
+          "headHash": "0ca9a0ab1f79342c47fb7ca75edd3fa5f7f7097a",
+          "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+          "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+          "timestamp": "2026-09-08T13:01:52.092Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -152,10 +152,10 @@
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
             "selector": "review inventory real handler smoke: PASS",
-            "executedAt": "2026-09-08T11:54:45.335Z",
+            "executedAt": "2026-09-08T13:01:37.920Z",
             "timeoutMs": 900000,
-            "executionKey": "ce:v1:2d00661401bb73ffdd70de13371b86ce48534df49b1ef3e00c2de4d6d48944fd",
-            "causalReceiptHash": "19ec1ef187ab40303d45933230e14a9742d00e79f939b406ffac6eca60fe46c3",
+            "executionKey": "ce:v1:96de0fd2672bfa5782ba772ea676b51095a717c8fd109dc71e52229aeaca51ca",
+            "causalReceiptHash": "d80ddb146863bb53b4c12dcc02ebdcac85c2a17a249f05bb908e342844372269",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 900000,
@@ -163,10 +163,10 @@
               "reason": "The complete real-handler fixture matrix executes nested CLI subprocesses under the shared executor; retain the previously audited bounded fifteen-minute budget."
             }
           },
-          "headHash": "b0d262e5df79a6bcd5fa15857665578ce1469132",
-          "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-          "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115",
-          "timestamp": "2026-09-08T11:54:58.978Z"
+          "headHash": "0ca9a0ab1f79342c47fb7ca75edd3fa5f7f7097a",
+          "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+          "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+          "timestamp": "2026-09-08T13:01:52.092Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -181,16 +181,16 @@
             "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\nGREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nF027 legacy absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 current absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent projection: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent reasons: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 empty arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 populated arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation\nShared DONE predicate parity passed\nDONE/preflight predicate inventory parity passed\n\nProcess Fact Registry\n- entries: 486 (366 CLI, 55 runtime, 10 reviewer lanes, 51 artifacts)\n- levels: L0=166, L1=44, L2=71, L3=13, L4=192\n- kinds: artifact=25, command=281, execution-status=7, finding=3, flow-policy=7, gate-evidence=65, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=55, signed-artifact=26, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (56 files checked)\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
             "selectorMatched": true,
             "selector": "Process-fact contract verification passed",
-            "executedAt": "2026-09-08T11:54:58.336Z",
+            "executedAt": "2026-09-08T13:01:51.514Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:b87b739e30012966bc8e96b3343eef5eebed01bf0e8ed453153ee817350421ca",
-            "causalReceiptHash": "22eaaa0e30fec380572837f4428601a778dcb2964a7be607cd7e175b2f06ff7e",
+            "executionKey": "ce:v1:ced7b4990e145447e7887ffaac4c8767d0ea5f2f90e553bb309adbc7ab9b00be",
+            "causalReceiptHash": "20c9f15f51396a17f0ba6e488e5b2b945be24be433a62f0a1ccaef2e80ee6ab9",
             "commandReruns": 0
           },
-          "headHash": "b0d262e5df79a6bcd5fa15857665578ce1469132",
-          "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-          "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115",
-          "timestamp": "2026-09-08T11:54:58.978Z"
+          "headHash": "0ca9a0ab1f79342c47fb7ca75edd3fa5f7f7097a",
+          "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+          "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+          "timestamp": "2026-09-08T13:01:52.092Z"
         }
       ],
       "userSeesSnapshot": {

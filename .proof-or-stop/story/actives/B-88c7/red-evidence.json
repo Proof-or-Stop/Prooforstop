@@ -137,8 +137,25 @@
       },
       "note": "Current Story changed critic instructions without synchronizing independent manifest and generated snapshots. Preserve exact approval and mutation guards; bounded four-file repair.",
       "createdAt": "2026-09-08T11:42:04.713Z"
+    },
+    {
+      "id": "RED-20260908124829",
+      "trigger": "BUG-003 required fullsuite flow-stability fails stale no-inventory critic assertion",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "06c2b484d5148df9ee0fd815cc8ed909ecc91a8b",
+      "baselineMaterialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
+      "observedFailure": "agent-dispatch-registry-smoke.ts829 expects review_run_start and review_inventory_critic_set after only changingphaseREVIEW, with no inventoryepoch. Correct production output is topology-only.",
+      "failingCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      },
+      "note": "Full raw diagnostic /private/tmp/B88-done-required-full-output.log; boundedonefixturechange. Preserve OPEN-positive realhandler and complete registry alias matrix.",
+      "createdAt": "2026-09-08T12:48:29.149Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T11:42:04.713Z"
+  "updatedAt": "2026-09-08T12:48:29.149Z"
 }

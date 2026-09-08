@@ -25,14 +25,15 @@
   "allowedTest": [
     "packages/main/src/tasks/review-inventory-handler-smoke.ts",
     "packages/main/src/tasks/certification-window-smoke.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "BUG-002: The changed critic body left the independent approval manifest and role matrix at topology-only content, directly failing required npm test. Update only its reviewed exact approval hash, truthful dual-responsibility matrix and three generated snapshots; preserve all role-count, exact-hash and unauthorized-drift rejection checks.",
+  "scopeChangeReason": "BUG-003: Required flow-stability suite reaches dispatch registry fixture that changes only phase to REVIEW without creating any OPEN inventory, yet expects inventory commands. Correct that one fixture to require topology commands and reject inventory instructions, retaining all canonical/alias/phase coverage and existing real OPEN-positive tests.",
   "acknowledgements": [],
   "createdAt": "2026-09-08T06:54:59.815Z",
-  "updatedAt": "2026-09-08T11:42:01.965Z",
+  "updatedAt": "2026-09-08T12:48:26.307Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -56,6 +57,7 @@
     "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
-    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
   }
 }

@@ -1,6 +1,6 @@
 {
   "storyId": "B-88c7",
-  "checkedAt": "2026-09-08T11:42:58.776Z",
+  "checkedAt": "2026-09-08T12:48:59.818Z",
   "features": [
     {
       "feature": "Valid signed current OPEN inventory permits independent completeness review without invented implementer provenance",
@@ -52,7 +52,7 @@
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Bounded 21-file repair includes real prior-PASS regression, transition and historical controls, process-fact enforcement and fresh tool-owned verification before completion",
+      "feature": "Bounded 22-file repair includes real prior-PASS regression, transition and historical controls, process-fact enforcement and fresh tool-owned verification before completion",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
@@ -71,36 +71,40 @@
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
+    },
+    {
+      "feature": "BUG003/F006 corrects only no-inventory dispatch fixture: explicit absent epoch, required topology receipt commands, forbidden inventory instructions, preserved canonical/alias/phase loops and separate genuine OPEN-positive coverage; rerun child and parent suites before full closure",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       ".proof-or-stop/story/actives/B-88c7/background.md",
       ".proof-or-stop/story/actives/B-88c7/decision.json",
-      ".proof-or-stop/story/actives/B-88c7/plan.md",
-      ".proof-or-stop/story/actives/B-88c7/understanding.json"
+      ".proof-or-stop/story/actives/B-88c7/plan.md"
     ],
     "filesTriagedByName": [
       ".proof-or-stop/story/actives/B-88c7/checklist.json",
       ".proof-or-stop/story/actives/B-88c7/red-evidence.json",
       ".proof-or-stop/story/actives/B-88c7/scope-contract.json",
-      "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
-      "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
-      "docs/requirements/baselines/role-prompt-measurement-baseline.json",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ".proof-or-stop/story/actives/B-88c7/understanding.json",
+      "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+      "packages/main/src/tasks/review-inventory-handler-smoke.ts"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 10,
-    "covered": 10,
+    "total": 11,
+    "covered": 11,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-08T10:46:18.698Z",
-  "_hash": "8f3f7903191aa3825eb01196c2d54bc899a8a2237372a429e7b23e3f80ac90c7",
+  "reviewRound": "2026-09-08T12:02:23.829Z",
+  "_hash": "c206307f11060f3503f5544cf623eed5774f562ca430cbd903251e7b14f8ff40",
   "openQuestions": []
 }

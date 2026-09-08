@@ -68,3 +68,11 @@ Register an immutable inventory-completeness role contract and select it only fr
 - Independent product review confirmed the exact critic content delta adds the inventory branch and preserves the original topology body. Repin only this role approval entry to the legacyized assembled content hash, update its hand-authored role matrix to describe both responsibilities, and generate baseline/matrix/measurement via the verifier --write.
 - Preserve18role count, exact content addressing, all unapproved mutation refusals and source guards. Inspect all generated changes and explain derived prompt count/token drift.
 - RED: node scripts/verify-proof-or-stop-prompt-baseline.mjs fails with approved critic hash mismatch. GREEN: same command plus existing --probe-prompt-policy-manifest, --probe-baseline-drift and --probe-role-matrix-snapshot-drift modes. Then run required full suite without skips and refresh final evidence/review.
+
+
+### BUG-003: No-inventory dispatch fixture contract
+
+- Test: packages/main/src/tasks/agent-dispatch-registry-smoke.ts.
+- The fixture sets phase REVIEW but creates no OPEN inventory. Replace its obsolete inventory prompt expectation with explicit no-epoch premise, topology receipt set/check requirements and absence of inventory-only instructions. Preserve downstream registry canonical/alias/phase matrix and existing realhandler OPEN-positive coverage; no production changes.
+- Independent scan found no other conflicting critic/inventory expectation in tasks/tests/scripts.
+- RED/GREEN: node packages/main/dist/tasks/agent-dispatch-registry-smoke.js; then node packages/main/dist/tasks/agent-liveness-suite-smoke.js and node packages/main/dist/tasks/flow-stability-smoke.js. Full raw log /private/tmp/B88-done-required-full-output.log identifies the exact failure and propagation.
