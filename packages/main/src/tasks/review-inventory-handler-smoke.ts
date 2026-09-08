@@ -14,10 +14,15 @@ import {
   signReviewInventoryEpoch,
   signReviewInventoryReceipt,
 } from '../core/review-inventory-epoch.js';
+import { promptRoleContract, promptRoleContractForSemanticDigest } from '../core/prompt-role-contract-registry.js';
+import { computePromptEnvelopeId, verifyPromptEnvelopeIntegrity } from '../core/prompt-envelope.js';
+import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import { verifyHistoricalReviewerDispatchBinding, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import { signFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import {
+  reviewIncrementalContext,
   computeCanonicalDependencyClosure,
   postRemediationReviewSelection,
   verifyCurrentPostRemediationReviewSelection,
@@ -41,7 +46,12 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      // The executor deliberately clears host context; this isolated fixture owns its host.
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex-cli',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: env.LATTICE_SESSION_ID ?? 'inventory-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: env.PROOF_OR_STOP_AGENT ?? env.LATTICE_AGENT ?? 'main',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: '',
+      PROOF_OR_STOP_SESSION_ID: '',
       ...env,
     },
   }).trim();
@@ -53,7 +63,12 @@ function cliAsync(root: string, command: string, payload: Record<string, unknown
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      // The executor deliberately clears host context; this isolated fixture owns its host.
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex-cli',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: env.LATTICE_SESSION_ID ?? 'inventory-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: env.PROOF_OR_STOP_AGENT ?? env.LATTICE_AGENT ?? 'main',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: '',
+      PROOF_OR_STOP_SESSION_ID: '',
       ...env,
     },
   }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
@@ -67,13 +82,14 @@ function waitForFile(path: string, timeoutMs = 5_000): void {
   }
 }
 
-function setup() {
+function setup(ordinaryAuthor = false, fullEnvelope = false) {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    ...(fullEnvelope ? { promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-topology-critic': 'full-envelope' } } } : {}),
   }));
   writeFileSync(join(root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
   writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
@@ -86,8 +102,8 @@ function setup() {
   }
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['config', 'user.name', 'lattice-implementer']);
-  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
+  git(root, ['config', 'user.name', ordinaryAuthor ? 'Project Owner' : 'lattice-implementer']);
+  git(root, ['config', 'user.email', ordinaryAuthor ? 'owner@example.test' : 'lattice-implementer@noreply.local']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
   resetConfigCache();
@@ -146,14 +162,197 @@ function seedProofStoryAcceptance(store: StoryStore): void {
   store.writeProofStoryContract(storyId, contract);
 }
 
-const first = setup();
+// Express implementation is legitimately authored by its project owner.
+const ordinary = setup(true);
+const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
+const criticEnv = { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-ordinary-critic' };
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+  'without OPEN inventory topology dispatch retains implementation provenance');
+cli(ordinary.root, 'acceptance_basis_generate', { storyId });
+cli(ordinary.root, 'review_inventory_begin', { storyId });
+const ordinaryDispatch = JSON.parse(cli(ordinary.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+assert.match(ordinaryDispatch.prompt, /Inventory completeness only/);
+assert.doesNotMatch(ordinaryDispatch.prompt, /topology_critic_receipt_set/);
+const ordinaryDispatchEvent = ordinary.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+assert.equal(ordinaryDispatchEvent.businessCommit, undefined, 'inventory dispatch confers no topology business commit authority');
+assert.equal(ordinaryDispatchEvent.targetKind, 'topology-critic-review');
+assert.equal(ordinaryDispatchEvent.reviewRound, reviewRound);
+assert.ok(ordinaryDispatchEvent.dispatchBindingDigest, 'inventory critic retains trusted reviewer binding');
+assert.throws(() => cli(ordinary.root, 'topology_critic_receipt_set', { storyId, verdict: 'pass' }, { ...criticEnv, PROOF_OR_STOP_AGENT: criticArgs.agentType }),
+  /implementation provenance is missing a business commit/, 'inventory dispatch cannot produce topology proof');
+const ordinaryInventory = ordinary.store.readReviewInventoryEpochs(storyId);
+for (const state of ['CANCELLED', 'FINALIZED'] as const) {
+  const changed = structuredClone(ordinaryInventory);
+  changed.epochs[0].state = state;
+  const { _hash: _oldHash, ...unsigned } = changed.epochs[0];
+  changed.epochs[0]._hash = signReviewInventoryEpoch(unsigned);
+  ordinary.store.writeReviewInventoryEpochs(storyId, changed);
+  assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+    `${state} inventory cannot select completeness-only dispatch`);
+}
+const stale = structuredClone(ordinaryInventory);
+stale.epochs[0].reviewRound = '2019-01-01T00:00:00.000Z';
+const { _hash: _staleHash, ...staleUnsigned } = stale.epochs[0];
+stale.epochs[0]._hash = signReviewInventoryEpoch(staleUnsigned);
+ordinary.store.writeReviewInventoryEpochs(storyId, stale);
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /round|implementation provenance/,
+  'stale review round cannot select completeness-only dispatch');
+const tampered = structuredClone(ordinaryInventory);
+tampered.epochs[0]._hash = 'tampered';
+ordinary.store.writeReviewInventoryEpochs(storyId, tampered);
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /signature mismatch/,
+  'invalid signature cannot select completeness-only dispatch');
+
+// Exercise the actual full-envelope contract, independently of legacy prompt prose.
+function embeddedRoleContract(prompt: string): { requiredOutputIds: string[]; allowedCommandIds: string[]; semanticDigest: string } {
+  return JSON.parse(prompt.split('## Role Contract\n\n')[1].split('\n\n## ')[0]);
+}
+const fullInventory = setup(true, true);
+assert.throws(() => cli(fullInventory.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/);
+cli(fullInventory.root, 'review_inventory_begin', { storyId });
+const fullDispatch = JSON.parse(cli(fullInventory.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+const inventoryContract = embeddedRoleContract(fullDispatch.prompt);
+assert.deepEqual(inventoryContract.requiredOutputIds, ['review-finding-or-pass', 'review-inventory-critic-receipt'],
+  'full-envelope inventory contract requires only inventory outputs');
+assert.ok(!inventoryContract.allowedCommandIds.includes('topology_critic_receipt_set'));
+cli(fullInventory.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const fullRun = fullInventory.store.readReviewRuns(storyId).runs.at(-1)!;
+assert.deepEqual(embeddedRoleContract(fullRun.assembledPrompt!).requiredOutputIds, inventoryContract.requiredOutputIds,
+  'ReviewRun assembly retains the inventory responsibility');
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun).ok, true);
+assert.equal(Object.isFrozen(promptRoleContract(criticArgs.agentType, 'inventory-completeness')), true);
+assert.throws(() => promptRoleContractForSemanticDigest(criticArgs.agentType, 'sha256:unknown'), /unregistered/);
+assert.throws(() => promptRoleContractForSemanticDigest('proof-or-stop-review-quality', inventoryContract.semanticDigest), /unregistered/);
+const tamperedEnvelopes = structuredClone(fullInventory.store.readPromptEnvelopes(storyId).envelopes);
+tamperedEnvelopes.find(row => row.envelopeId === fullRun.envelopeId)!.roleSemanticDigest = 'sha256:unknown';
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun, tamperedEnvelopes).ok, false,
+  'modified envelope contract semantics are rejected');
+const markedEnvelope = fullInventory.store.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === fullRun.envelopeId)!;
+assert.equal(markedEnvelope.eligibilityRoleSemanticDigest, inventoryContract.semanticDigest);
+for (const marker of [undefined, promptRoleContract(criticArgs.agentType).semanticDigest, '0'.repeat(64)]) {
+  const changed = { ...markedEnvelope, eligibilityRoleSemanticDigest: marker };
+  assert.equal(verifyPromptEnvelopeIntegrity(changed), false, 'eligibility marker omission/tamper changes signed envelope identity');
+}
+const fullState = fullInventory.store.readReviewInventoryEpochs(storyId);
+fullState.epochs[0].state = 'FINALIZED';
+const { _hash: _fullHash, ...fullUnsigned } = fullState.epochs[0];
+fullState.epochs[0]._hash = signReviewInventoryEpoch(fullUnsigned);
+fullInventory.store.writeReviewInventoryEpochs(storyId, fullState);
+assert.equal(verifyReviewRunPromptEnvelope(fullInventory.store, fullRun).ok, true,
+  'finalization does not rewrite the authenticated ReviewRun responsibility');
+assert.throws(() => cli(fullInventory.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+  'finalized full-envelope inventory cannot select the reduced contract');
+const strictTopology = setup(false, true);
+const topologyDispatch = JSON.parse(cli(strictTopology.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+assert.ok(embeddedRoleContract(topologyDispatch.prompt).requiredOutputIds.includes('topology-critic-receipt'),
+  'full-envelope topology dispatch retains topology output outside OPEN inventory');
+
+// Real A/B lifecycle: later dispatch must not become the historical run's input.
+const history = setup(false, true);
+cli(history.root, 'review_inventory_begin', { storyId });
+cli(history.root, 'dispatch', criticArgs, criticEnv);
+cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const runA = history.store.readReviewRuns(storyId).runs.at(-1)!;
+const dispatchA = history.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+cli(history.root, 'review_inventory_cancel', { storyId, reason: 'historical dispatch lifecycle witness' });
+cli(history.root, 'review_inventory_begin', { storyId });
+assert.throws(() => cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv), /dispatch|inventory/);
+cli(history.root, 'dispatch', criticArgs, criticEnv);
+cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const runB = history.store.readReviewRuns(storyId).runs.at(-1)!;
+assert.equal(verifyReviewRunPromptEnvelope(history.store, runA).ok, true, 'historical A remains valid after B dispatch');
+assert.equal(verifyReviewRunPromptEnvelope(history.store, runB).ok, true);
+const envelopeA = history.store.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === runA.envelopeId)!;
+assert.equal(envelopeA.reviewerDispatchBindingDigest, dispatchA.dispatchBindingDigest);
+const omittedBinding = { ...envelopeA };
+delete omittedBinding.reviewerDispatchBindingDigest;
+assert.equal(verifyPromptEnvelopeIntegrity(omittedBinding), false, 'omitting the new field invalidates envelope identity');
+assert.equal(verifyPromptEnvelopeIntegrity({ ...envelopeA, reviewerDispatchBindingDigest: '0'.repeat(64) }), false,
+  'tampering the new field invalidates envelope identity');
+for (const refs of [[], ['CHK-001:happy:0', 'CHK-001:edge:0']]) {
+  // Reconstructible pre-field launcher payloads, both default and explicit scoped refs.
+  const legacyEnvelope = { ...omittedBinding, launcherSpecDigest: domainSeparatedDigest('prompt-launcher-spec.v1', {
+    reviewedIntentRefs: refs, dispatchBindingDigest: dispatchA.dispatchBindingDigest, hostRenderHost: dispatchA.hostRenderHost,
+  }) };
+  legacyEnvelope.envelopeId = computePromptEnvelopeId(legacyEnvelope);
+  assert.equal(verifyPromptEnvelopeIntegrity(legacyEnvelope), true);
+  const result = verifyHistoricalReviewerDispatchBinding({ store: history.store, storyId, lane: criticArgs.agentType,
+    reviewRound, projectRoot: history.root, envelope: legacyEnvelope, reviewedIntentRefs: refs });
+  assert.equal(result.ok, true, 'pre-field history selects the exact launcher identity');
+  if (result.ok) assert.equal(result.binding.dispatchBindingDigest, dispatchA.dispatchBindingDigest);
+  if (refs.length) assert.equal(verifyHistoricalReviewerDispatchBinding({ store: history.store, storyId,
+    lane: criticArgs.agentType, reviewRound, projectRoot: history.root, envelope: legacyEnvelope,
+    reviewedIntentRefs: [...refs].reverse() }).ok, false, 'unreconstructible legacy raw-ref order refuses');
+}
+
+const withoutA = Object.create(history.store) as StoryStore;
+withoutA.readProcessEvents = () => history.store.readProcessEvents(storyId).filter(row => row.dispatchBindingDigest !== dispatchA.dispatchBindingDigest);
+assert.equal(verifyReviewRunPromptEnvelope(withoutA, runA).ok, false, 'missing original dispatch cannot fall back to B');
+const corruptA = Object.create(history.store) as StoryStore;
+corruptA.readProcessEvents = () => history.store.readProcessEvents(storyId).map(row => row.dispatchBindingDigest === dispatchA.dispatchBindingDigest
+  ? { ...row, dispatchPrompt: `${row.dispatchPrompt} corrupted` } : row);
+assert.equal(verifyReviewRunPromptEnvelope(corruptA, runA).ok, false, 'tampered original dispatch cannot fall back to B');
+
+function assertCriticDispatchRefused(fixture: ReturnType<typeof setup>, env = criticEnv): void {
+  const runs = fixture.store.readReviewRuns(storyId).runs.length;
+  const envelopes = fixture.store.readPromptEnvelopes(storyId).envelopes.length;
+  assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, env), /dispatch|inventory|responsibility/i);
+  assert.equal(fixture.store.readReviewRuns(storyId).runs.length, runs, 'refusal publishes no ReviewRun');
+  assert.equal(fixture.store.readPromptEnvelopes(storyId).envelopes.length, envelopes, 'refusal publishes no Prompt Envelope');
+}
+for (const mode of [false, true]) {
+  const fixture = setup(false, mode);
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_inventory_begin', { storyId });
+  assertCriticDispatchRefused(fixture); // topology responsibility cannot become inventory
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'cancel stale dispatch witness' });
+  assertCriticDispatchRefused(fixture);
+  cli(fixture.root, 'review_inventory_begin', { storyId });
+  assertCriticDispatchRefused(fixture); // replacement epoch is not the dispatched epoch
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  const authenticDispatch = fixture.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+  fixture.store.appendProcessEvent(storyId, { ...authenticDispatch, reviewerResponsibility: { kind: 'topology-proof' } });
+  assertCriticDispatchRefused(fixture); // changed structure cannot reuse the authenticated digest
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  git(fixture.root, ['commit', '--allow-empty', '-m', 'metadata-only head advance']);
+  cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  const previousWaveRun = fixture.store.readReviewRuns(storyId).runs.at(-1)!;
+  const waveState = fixture.store.readReviewInventoryEpochs(storyId);
+  // Signed synthetic checkpoint isolates new-run wave binding in both rollout modes.
+  waveState.epochs.at(-1)!.waves.push({ wave: 1, startedAt: reviewRound, lanes: [], verifiedFindingFamilies: [] });
+  const { _hash: _waveHash, ...waveUnsigned } = waveState.epochs.at(-1)!;
+  waveState.epochs[waveState.epochs.length - 1] = { ...waveUnsigned, _hash: signReviewInventoryEpoch(waveUnsigned) };
+  fixture.store.writeReviewInventoryEpochs(storyId, waveState);
+  assertCriticDispatchRefused(fixture);
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  if (mode) {
+    const currentWaveRun = fixture.store.readReviewRuns(storyId).runs.at(-1)!;
+    const envelopes = fixture.store.readPromptEnvelopes(storyId).envelopes;
+    const prior = envelopes.find(row => row.envelopeId === previousWaveRun.envelopeId)!;
+    const current = envelopes.find(row => row.envelopeId === currentWaveRun.envelopeId)!;
+    assert.equal(prior.dispatchPromptDigest, current.dispatchPromptDigest, 'wave prompts intentionally have identical bytes');
+    assert.notEqual(prior.reviewerDispatchBindingDigest, current.reviewerDispatchBindingDigest, 'wave identities remain distinct');
+    assert.equal(verifyReviewRunPromptEnvelope(fixture.store, previousWaveRun).ok, true);
+    assert.equal(verifyReviewRunPromptEnvelope(fixture.store, currentWaveRun).ok, true);
+  }
+  const state = fixture.store.readReviewInventoryEpochs(storyId);
+  state.epochs.at(-1)!.state = 'FINALIZED';
+  const { _hash: _hash, ...unsigned } = state.epochs.at(-1)!;
+  state.epochs[state.epochs.length - 1] = { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
+  fixture.store.writeReviewInventoryEpochs(storyId, state);
+  assertCriticDispatchRefused(fixture);
+}
+
+const first = setup(false, true);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
 });
-assert.match(criticDispatch, /findingDispositions/);
+assert.match(criticDispatch, /topology_critic_receipt_set/);
 const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
@@ -161,7 +360,6 @@ const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'p
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
 const listedCriticRuns = JSON.parse(cli(first.root, 'review_run_list', {
   storyId,
-  lane: 'lattice-review-topology-critic',
   latest: true,
   json: true,
 })) as { latest: boolean; runs: Array<{ reviewRunId: string; signatureValid: boolean }> };
@@ -309,6 +507,7 @@ assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length,
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);
+assertCriticDispatchRefused(first, { LATTICE_AGENT: criticArgs.agentType, LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
 const oldWaveLane = epoch.requiredLanes[1];
 const oldWaveRun = firstWaveRuns.get(oldWaveLane)!;
 assert.throws(
@@ -362,6 +561,22 @@ const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent
 });
 const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(secondCriticReviewRunId);
+const selectedInventoryRole = promptRoleContract(criticArgs.agentType, 'inventory-completeness');
+const secondCriticRun = reloaded.readReviewRuns(storyId).runs.find(row => row.reviewRunId === secondCriticReviewRunId)!;
+const secondCriticEnvelope = reloaded.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === secondCriticRun.envelopeId)!;
+assert.ok(secondCriticEnvelope.priorPassRef, 'wave two must consume a genuine signed prior critic PASS');
+assert.equal(secondCriticEnvelope.eligibilityRoleSemanticDigest, selectedInventoryRole.semanticDigest);
+assert.ok(!secondCriticEnvelope.eligibilityReasonCodes!.includes('FULL_ROLE_CONTRACT_CHANGED'), 'same inventory contract must not force full');
+assert.equal(verifyReviewRunPromptEnvelope(reloaded, secondCriticRun).ok, true);
+const currentEligibility = reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType);
+assert.ok(!currentEligibility.eligibilityReasonCodes.includes('FULL_ROLE_CONTRACT_CHANGED'), 'read-only live selector shares signed OPEN contract');
+const topologyEligibility = reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType, {
+  roleSemanticDigest: promptRoleContract(criticArgs.agentType).semanticDigest,
+});
+assert.ok(topologyEligibility.eligibilityReasonCodes.includes('FULL_ROLE_CONTRACT_CHANGED'), 'inventory-to-topology responsibility transition still requires full');
+assert.throws(() => reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType, {
+  roleSemanticDigest: promptRoleContract('proof-or-stop-review-quality').semanticDigest,
+}), /unregistered/, 'cross-role semantic selection is refused');
 cli(first.root, 'review_pass_set', {
   storyId, agent: 'proof-or-stop-review-topology-critic', reviewRunId: secondCriticReviewRunId,
   note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,
@@ -403,7 +618,7 @@ assert.throws(
 // Restore the exact frozen semantic subject so the remaining independent
 // receipt/aggregate tests can exercise their intended rejection boundaries.
 reloaded.writeProofStoryContract(storyId, originalProofStoryContract);
-unlinkSync(join(first.root, '.lattice/story/actives', storyId, 'scope-shrinkage-decision.json'));
+unlinkSync(join(first.root, '.proof-or-stop/story/actives', storyId, 'scope-shrinkage-decision.json'));
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);

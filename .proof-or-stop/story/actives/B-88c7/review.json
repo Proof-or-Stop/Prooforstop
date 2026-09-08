@@ -1,0 +1,187 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-09-08T06:56:11.077Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `proof-or-stop dispatch --storyId=B-88c7 --agentType=proof-or-stop-review-scope-plan`; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling `proof-or-stop scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "d8cd3b54b91311b98901eda928e7330c982f1d9efe2a8e5594503c018867f572"
+    },
+    {
+      "timestamp": "2026-09-08T06:56:49.670Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "20b68906182dc42cb9f83f57e395372b9ef7edd18218e9c6749b258ca7309462"
+    },
+    {
+      "timestamp": "2026-09-08T07:14:27.979Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "e50cc4c6b4ef5ed79bf1f8893d56d7f1d964b8c9b4112d1da285b02dafa14175"
+    },
+    {
+      "timestamp": "2026-09-08T07:53:58.209Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "fa3d48b01e952bb4f1f7a0acb5b34d839529342e5752619af8f07b027bced301"
+    },
+    {
+      "timestamp": "2026-09-08T07:57:44.754Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "7802fae58ab38445f6450abb04cd251f23a58f2488d2485403397b14547a4820"
+    },
+    {
+      "timestamp": "2026-09-08T08:37:43.614Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-09-08T07:37:13.526Z) does not match the current review round (2026-09-08T08:14:21.977Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "d259bc514b3a1f145a3a517a6dbeb7ecc0629c1a540d8f56f8af02bd47a5728c"
+    },
+    {
+      "timestamp": "2026-09-08T08:38:37.470Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "3a487fddd45b2e94ce62a87f8e67f1335c03891d6d423f48ef1d0215db9ca196"
+    },
+    {
+      "timestamp": "2026-09-08T09:14:19.533Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "9e0b0ec54bfe58a6ace92b8b9ef58cf5d0842f9ae2c06650b2c13573fec15d66"
+    },
+    {
+      "timestamp": "2026-09-08T10:13:47.318Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "c93bc6f88608b4edb9cdde9daf60e11b6bdbea2da59e9105599c61b7eba33eca"
+    },
+    {
+      "timestamp": "2026-09-08T10:30:32.898Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "10fe787271ca9fd0b0b47ca0b619d1ddcda5b242b4f550123791ccfa4be8078f"
+    },
+    {
+      "timestamp": "2026-09-08T11:43:12.171Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "2ff6c0f9d5dc4c300663f4ca06e45d6bf37764ad66169180c780888a772770a0"
+    },
+    {
+      "timestamp": "2026-09-08T12:49:46.986Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "029b071f16b516051d37ab68806580bed0ebfe47fd3f736456f198587522e4f7"
+    }
+  ]
+}

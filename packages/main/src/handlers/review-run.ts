@@ -37,7 +37,7 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
-import { assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { currentOpenReviewInventory, assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
@@ -240,6 +240,30 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         }) ?? undefined;
       }
 
+      // New critic runs must consume the exact authenticated responsibility. Historical
+      // envelope verification deliberately does not consult this live inventory state.
+      const criticDispatch = lane === 'proof-or-stop-review-topology-critic'
+        ? verifyCurrentReviewerDispatchBinding({ store, storyId: args.storyId, lane,
+          reviewRound: story.currentReviewRound!, projectRoot: workspace.metadataRoot || ctx.root }) : null;
+      let inventoryResponsibility = false;
+      if (criticDispatch) {
+        if (!criticDispatch.ok) throw new Error(`review_run_start: ${criticDispatch.reason}; redispatch critic`);
+        const responsibility = criticDispatch.binding.reviewerResponsibility;
+        if (!responsibility) throw new Error('review_run_start: critic dispatch lacks bound responsibility; redispatch critic');
+        const inventory = story.phase === 'REVIEW' ? currentOpenReviewInventory(store, args.storyId) : null;
+        if (responsibility.kind === 'inventory-completeness') {
+          if (!inventory || inventory.storyId !== story.storyId || inventory.reviewRound !== story.currentReviewRound
+            || responsibility.epochId !== inventory.epochId || responsibility.wave !== inventory.waves.length + 1
+            || responsibility.materialHash !== inventory.cutoff.materialHash
+            || responsibility.storyFilesHash !== (inventory.cutoff.storyFilesHash ?? '')) {
+            throw new Error('review_run_start: inventory dispatch responsibility is stale; redispatch critic for current OPEN epoch');
+          }
+          inventoryResponsibility = true;
+        } else if (inventory) {
+          throw new Error('review_run_start: topology dispatch cannot become inventory responsibility; redispatch critic');
+        }
+      }
+
       // One per-story unique-ticket transaction covers both Prompt Envelope and
       // ReviewRun read-modify-write cycles. Stale reclaim removes only the
       // dead acquisition's UUID path, never a replacement holder's path.
@@ -263,7 +287,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         let promptContextNote = 'legacy-full-context';
         let promptBudgetNote = '';
         if (resolvedRoleBody.mode === 'full-envelope') {
-          const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+          const dispatchBinding = criticDispatch ?? verifyCurrentReviewerDispatchBinding({
             store,
             storyId: args.storyId,
             lane,
@@ -284,13 +308,16 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
               desc: finding.desc,
             }))
             .sort((left, right) => left.id.localeCompare(right.id));
+          const selectedRoleContract = promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined);
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
+            roleSemanticDigest: selectedRoleContract.semanticDigest,
             findingsCutoffAt: startedAt,
             passesCutoffAt: startedAt,
             findingProjection,
           });
           const assembly = assembleConditionalReviewPromptEnvelope({
-            roleContract: promptRoleContract(lane),
+            roleContract: selectedRoleContract,
+            eligibilityRoleSemanticDigest: selectedRoleContract.semanticDigest,
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
             rolePrompt: canonicalRolePrompt,
             taskContext: buildFullTaskContext({
@@ -308,6 +335,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             createdAt: startedAt,
             dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
             hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+            reviewerDispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
             launcherSpec: {
               reviewedIntentRefs: args.reviewedIntentRefs ?? [],
               dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,

@@ -264,6 +264,10 @@ export interface PromptEnvelope {
   assemblerVersion: string;
   dispatchProtocolVersion: string;
   launcherSpecDigest: string;
+  /** Exact dispatch identity authenticated by the envelope; absent for pre-field history. */
+  reviewerDispatchBindingDigest?: string;
+  /** Registered role semantics used by incremental eligibility; absent preserves pre-marker history. */
+  eligibilityRoleSemanticDigest?: string;
   commandPolicyDigest: string;
   toolPolicyDigest?: string;
   systemInstructionDigest?: string;
@@ -411,12 +415,32 @@ export function reviewerDispatchPromptDigest(prompt: string): string {
   return domainSeparatedDigest('reviewer-story-dispatch.raw-utf8.v1', prompt);
 }
 
+export type ReviewerDispatchResponsibility =
+  | { kind: 'topology-proof' }
+  | { kind: 'inventory-completeness'; epochId: string; wave: number; materialHash: string; storyFilesHash: string };
+
+export function parseReviewerDispatchResponsibility(value: unknown): ReviewerDispatchResponsibility {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid reviewer dispatch responsibility');
+  const row = value as Record<string, unknown>;
+  const keys = Object.keys(row).sort().join(',');
+  if (row.kind === 'topology-proof' && keys === 'kind') return { kind: 'topology-proof' };
+  if (row.kind === 'inventory-completeness' && keys === 'epochId,kind,materialHash,storyFilesHash,wave'
+    && typeof row.epochId === 'string' && row.epochId.trim().length > 0
+    && typeof row.wave === 'number' && Number.isInteger(row.wave) && row.wave >= 1
+    && typeof row.materialHash === 'string' && row.materialHash.length > 0
+    && typeof row.storyFilesHash === 'string') {
+    return { kind: row.kind, epochId: row.epochId, wave: row.wave, materialHash: row.materialHash, storyFilesHash: row.storyFilesHash };
+  }
+  throw new Error('invalid reviewer dispatch responsibility');
+}
+
 export function reviewerDispatchBindingDigest(value: {
   storyId: string;
   lane: string;
   reviewRound: string;
   dispatchPromptDigest: string;
   hostRenderIdentityDigest: string;
+  reviewerResponsibility?: ReviewerDispatchResponsibility;
 }): string {
   return domainSeparatedDigest('reviewer-dispatch-binding.v1', value);
 }
@@ -625,13 +649,15 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   const optional = [
     'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
-    'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
+    'eligibilityRoleSemanticDigest', 'reviewerDispatchBindingDigest', 'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
     'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
+  if (record.eligibilityRoleSemanticDigest !== undefined) requireDigest(record.eligibilityRoleSemanticDigest, 'PromptEnvelope.eligibilityRoleSemanticDigest');
+  if (record.reviewerDispatchBindingDigest !== undefined) requireDigest(record.reviewerDispatchBindingDigest, 'PromptEnvelope.reviewerDispatchBindingDigest');
   if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_ENVELOPE_SCHEMA, PROMPT_ENVELOPE_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
   for (const key of ['envelopeId', 'runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptEnvelope.${key}`);
   for (const key of ['roleId', 'storyId', 'createdAt', 'headHash', 'runtimeContractVersion', 'roleContractVersion', 'assemblerVersion', 'dispatchProtocolVersion', 'tokenEstimatorVersion']) requireNonblank(record[key], `PromptEnvelope.${key}`);
