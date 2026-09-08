@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-0208:CW-001",
+      "storyId": "B-0208",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-08T15:00:53.855Z",
+      "updatedAt": "2026-09-08T15:00:53.855Z",
+      "frozen": {
+        "headHash": "5929ce6cad486de303ce35f2ee1aadec25f5ad8d",
+        "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+        "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a",
+        "causalInputHashes": {
+          "certification:source": "c28802b738d34b115de79218ecd70f891b0e8126c09a757ea04d6df04fe09db7",
+          "certification:test": "7f39b4c25c26023f7d1f0f97ec4c684b6d7f0e43bf03f99b8ff50b949429e24a",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "f5b906fb1be745dc6fecf0d053922b546dd01c5a722f3566b0fc86c30817fac9",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "efbac7abc560e799fa1595e9a20ef48f00a9bd35",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-0208:RI-003",
+        "receiptId": "B-0208:RI-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-0208:PRECERT-001",
+      "_hash": "b5128a88e2636be3a291fa28bcd349295d8f17770b7c86501fc4cc1a9515ad01"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-0208:PRECERT-001",
+      "windowId": "B-0208:CW-001",
+      "storyId": "B-0208",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "5929ce6cad486de303ce35f2ee1aadec25f5ad8d",
+        "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+        "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a",
+        "causalInputHashes": {
+          "certification:source": "c28802b738d34b115de79218ecd70f891b0e8126c09a757ea04d6df04fe09db7",
+          "certification:test": "7f39b4c25c26023f7d1f0f97ec4c684b6d7f0e43bf03f99b8ff50b949429e24a",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "f5b906fb1be745dc6fecf0d053922b546dd01c5a722f3566b0fc86c30817fac9",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "efbac7abc560e799fa1595e9a20ef48f00a9bd35",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-0208:RI-003",
+      "inventoryReceiptId": "B-0208:RI-003:RCP-001",
+      "createdAt": "2026-09-08T15:00:53.855Z",
+      "_hash": "c39e1ddf97dce82639f02e9e2cb2b0650a058b3f87509821a49fdc7286d01cf3"
+    }
+  ]
+}
