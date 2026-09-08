@@ -35,12 +35,17 @@
  * produces a dirty write before DONE.
  */
 
+import { randomUUID, createHash } from 'node:crypto';
+import { withMkdirLock } from './mkdir-lock.js';
+import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { hostname } from 'os';
-import { join, resolve } from 'path';
+import { basename, dirname, join, resolve } from 'path';
 import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'fs';
@@ -94,6 +99,8 @@ export const OWNER_LEASE_FILE = 'owner-lease.json';
  * no gate semantics.
  */
 export interface StoryOwnerLease {
+  /** Acquisition generation; absent only on legacy leases. */
+  leaseId?: string;
   /**
    * Process-local session coordination id of the owning session.
    *
@@ -220,6 +227,8 @@ function normalizeLease(value: unknown): StoryOwnerLease | null {
   // dropped rather than rejecting the whole lease.
   const sessionSource = normalizeSessionSource(v.sessionSource);
   if (sessionSource !== null) lease.sessionSource = sessionSource;
+  const leaseId = nonEmptyString(v.leaseId);
+  if (leaseId !== null) lease.leaseId = leaseId;
   const label = nonEmptyString(v.label);
   if (label !== null) lease.label = label;
   return lease;
@@ -265,7 +274,11 @@ function writeLease(storyDir: string, lease: StoryOwnerLease): void {
     throw new Error('writeLease: storyDir is required');
   }
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(ownerLeasePath(dir), `${JSON.stringify(lease, null, 2)}\n`, 'utf-8');
+  const temporary = join(dir, `.owner-lease-${randomUUID()}.tmp`);
+  try {
+    writeFileSync(temporary, `${JSON.stringify(lease, null, 2)}\n`, 'utf-8');
+    renameSync(temporary, ownerLeasePath(dir));
+  } finally { rmSync(temporary, { force: true }); }
 }
 
 /**
@@ -281,7 +294,7 @@ function writeLease(storyDir: string, lease: StoryOwnerLease): void {
  *
  * The lease's `command` field reflects whichever command first wrote the file.
  */
-export function acquireOwnerLease(
+function acquireOwnerLeaseUnlocked(
   storyDir: string,
   options: OwnerLeaseWriteOptions,
 ): StoryOwnerLease {
@@ -293,6 +306,7 @@ export function acquireOwnerLease(
   const stamp = nowFn();
   const identity = getSessionIdentity();
   const lease: StoryOwnerLease = {
+    leaseId: randomUUID(),
     sessionId: identity.sessionId,
     sessionSource: identity.sessionSource,
     hostname: hostname(),
@@ -320,7 +334,7 @@ export function acquireOwnerLease(
  * Returns `null` (no write) when there is no readable lease — refresh never
  * creates a lease; that is `acquireOwnerLease`'s job.
  */
-export function refreshOwnerLease(
+function refreshOwnerLeaseUnlocked(
   storyDir: string,
   options: OwnerLeaseWriteOptions,
 ): StoryOwnerLease | null {
@@ -360,7 +374,7 @@ export function refreshOwnerLease(
  *    primitive itself stays side-effect-free for non-owners (a non-owner must
  *    never silently steal or refresh someone else's lease).
  */
-export function acquireOrRefreshOwnerLease(
+function acquireOrRefreshOwnerLeaseUnlocked(
   storyDir: string,
   options: OwnerLeaseWriteOptions,
 ): { lease: StoryOwnerLease; action: 'acquired' | 'refreshed' | 'foreign' } {
@@ -387,7 +401,7 @@ export function acquireOrRefreshOwnerLease(
  * Returns `true` when a lease file was actually removed, `false` when there was
  * nothing to remove.
  */
-export function releaseOwnerLease(storyDir: string): boolean {
+function releaseOwnerLeaseUnlocked(storyDir: string): boolean {
   const path = ownerLeasePath(storyDir);
   if (!existsSync(path)) return false;
   rmSync(path, { force: true });
@@ -750,7 +764,7 @@ export function summarizeOwnerLease(
 
 /* ───────────────────────────────────────────────────────────────────────── */
 
-export function takeOverOwnerLease(
+function takeOverOwnerLeaseUnlocked(
   storyDir: string,
   options: TakeoverOptions,
 ): TakeoverResult {
@@ -788,6 +802,7 @@ export function takeOverOwnerLease(
   // Transfer: rewrite the lease naming the current session.
   const identity = getSessionIdentity();
   const transferred: StoryOwnerLease = {
+    leaseId: randomUUID(),
     sessionId: identity.sessionId,
     sessionSource: identity.sessionSource,
     hostname: hostname(),
@@ -840,4 +855,77 @@ export function takeOverOwnerLease(
     previous: existing,
     kind: options.kind,
   };
+}
+
+
+const activeOwnerMutationLocks = new Set<string>();
+function withOwnerMutation<T>(storyDir: string, fn: () => T): T {
+  const path = resolve(ownerLeasePath(storyDir));
+  const directory = dirname(path);
+  const canonical = existsSync(directory) ? realpathSync(directory) : directory;
+  const key = createHash('sha256').update(canonical).digest('hex').slice(0, 24);
+  const lockPath = storyRuntimeLockPath(dirname(directory), 'owner-lease', basename(directory), key);
+  if (activeOwnerMutationLocks.has(lockPath)) return fn();
+  return withMkdirLock(lockPath, () => {
+    activeOwnerMutationLocks.add(lockPath);
+    try { return fn(); } finally { activeOwnerMutationLocks.delete(lockPath); }
+  }, { label: 'story owner lease', deadlineMs: 15000, staleMs: 10000 });
+}
+
+export function acquireOwnerLease(storyDir: string, options: OwnerLeaseWriteOptions): StoryOwnerLease {
+  return withOwnerMutation(storyDir, () => acquireOwnerLeaseUnlocked(storyDir, options));
+}
+export function refreshOwnerLease(storyDir: string, options: OwnerLeaseWriteOptions): StoryOwnerLease | null {
+  return withOwnerMutation(storyDir, () => refreshOwnerLeaseUnlocked(storyDir, options));
+}
+export function acquireOrRefreshOwnerLease(storyDir: string, options: OwnerLeaseWriteOptions): { lease: StoryOwnerLease; action: 'acquired' | 'refreshed' | 'foreign' } {
+  return withOwnerMutation(storyDir, () => acquireOrRefreshOwnerLeaseUnlocked(storyDir, options));
+}
+export function releaseOwnerLease(storyDir: string): boolean {
+  return withOwnerMutation(storyDir, () => releaseOwnerLeaseUnlocked(storyDir));
+}
+export function takeOverOwnerLease(storyDir: string, options: TakeoverOptions): TakeoverResult {
+  return withOwnerMutation(storyDir, () => takeOverOwnerLeaseUnlocked(storyDir, options));
+}
+
+export interface OwnerLeaseHeartbeatOptions {
+  intervalMs?: number;
+  now?: () => string;
+}
+
+/** Renew an existing generation only. Missing, expired, or transferred leases
+ * abort renewal; a heartbeat never acquires or takes over ownership. */
+export async function withOwnerLeaseHeartbeat<T>(
+  storyDir: string, options: OwnerLeaseWriteOptions & OwnerLeaseHeartbeatOptions,
+  fn: () => Promise<T> | T,
+): Promise<T> {
+  const now = options.now ?? (() => new Date().toISOString());
+  const initial = readOwnerLease(storyDir);
+  const beat = () => withOwnerMutation(storyDir, () => {
+    const current = readOwnerLease(storyDir);
+    if (!initial || !current || current.sessionId !== getSessionId()
+      || current.sessionId !== initial.sessionId || current.acquiredAt !== initial.acquiredAt
+      || current.leaseId !== initial.leaseId || !ownerCwdMatchesCurrent(current.cwd, options.cwd ?? process.cwd())
+      || isLeaseStale(current, Date.parse(now()))) {
+      throw new Error('validation owner lease lost, expired, or transferred');
+    }
+    refreshOwnerLeaseUnlocked(storyDir, options);
+  });
+  beat();
+  let failure: unknown;
+  const interval = options.intervalMs ?? 30000;
+  if (!Number.isFinite(interval) || interval < 1 || interval >= STALE_LEASE_THRESHOLD_MS / 2) {
+    throw new Error('invalid owner lease heartbeat interval');
+  }
+  const timer = setInterval(() => {
+    if (failure) return;
+    try { beat(); } catch (error) { failure = error; }
+  }, interval);
+  timer.unref?.();
+  try {
+    const result = await fn();
+    if (failure) throw failure;
+    beat();
+    return result;
+  } finally { clearInterval(timer); }
 }

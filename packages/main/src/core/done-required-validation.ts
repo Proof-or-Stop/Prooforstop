@@ -1,3 +1,4 @@
+import { validateResourceClaims, type ResourceClaim } from './keyed-scheduler.js';
 import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
@@ -317,6 +318,18 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
   if (raw.env !== undefined && !env) {
     errors.push(`doneRequiredCommands[${index}].env must be an object when present`);
   }
+  let resources: ResourceClaim[] | undefined;
+  if (raw.resources !== undefined) {
+    try {
+      if (!Array.isArray(raw.resources)) throw new Error('resources must be an array');
+      resources = raw.resources.map(claim => ({ class: claim.class, key: claim.key, access: claim.access,
+        ...(claim.ownership ? { ownership: claim.ownership } : {}) }));
+      validateResourceClaims(resources!, `doneRequiredCommands[${index}]`);
+    } catch (error) {
+      errors.push(`doneRequiredCommands[${index}].resources invalid: ${error instanceof Error ? error.message : String(error)}`);
+      resources = undefined;
+    }
+  }
   const requiresBuildProof = normalizePackagesMainBuildProof(
     `doneRequiredCommands[${index}].requiresBuildProof`,
     raw.requiresBuildProof,
@@ -343,6 +356,7 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
     ...(requiresBuildProof ? { requiresBuildProof } : {}),
     ...(providesBuildProof ? { providesBuildProof } : {}),
     ...(proof ? { proof } : {}),
+    ...(resources ? { resources } : {}),
   };
 }
 

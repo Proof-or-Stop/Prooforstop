@@ -48,7 +48,7 @@ import {
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
-import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
+import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import {
   isOfficialHeavyValidateInvocation,
   refuseHeavyCertificationUnlessAdmitted,
@@ -1546,6 +1546,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         workspaceRoot: handlerGitCwd,
         requireGitIdentity: Boolean(args.story) || configuredGitRootExpected || existsSync(join(handlerGitCwd, '.git')),
         command: 'validate',
+        ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
+          ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
+        ownerLeaseDir: args.story ? ctx.store.storyDirPath(args.story) : undefined,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
         deadlineError: args.deadlineError,

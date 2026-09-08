@@ -130,8 +130,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // story-scoped `activity.jsonl`.
     id: 'runtime-story-owner-lease',
     description: 'Per-story owner lease (local session ownership) written under .proof-or-stop/story/actives/<id>/.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)owner-lease\.json$`) }],
-    ignorePatterns: ['**/owner-lease.json'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)(?:owner-lease\.json|\.owner-lease-[a-f0-9-]+\.tmp)$`) }],
+    ignorePatterns: ['**/owner-lease.json', '**/.owner-lease-*.tmp'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
