@@ -1136,6 +1136,158 @@
       },
       "readDiagnostics": [],
       "_hash": "c6aac4046568708ae15678e32363f1ba9d174987ffea789cddfe514129fbebaf"
+    },
+    {
+      "id": "B-0208:RP-036",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the merged diff, executing-CLI version binding, focused regression smoke, and process-fact contract; no correctness or maintainability blocker found.",
+      "createdAt": "2026-09-08T19:31:09.852Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-046",
+      "envelopeId": "b2824441348746ad8e809eca15d5c4e78dd2dfefeeb75906660fbe0ccc0826fd",
+      "writerSessionId": "sess-f2ac64e1b6267caa182e10b2d6bf953f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea604256a58bbaf8e7ec5a61038215b2a1d2de3bb297429d07fbceb1db8cb5fd"
+    },
+    {
+      "id": "B-0208:RP-037",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept deletion or replacement is incomplete. The executing-CLI version boundary is explicit, external-layout smoke coverage is present, and the merged-main fixture repairs preserve their stated synthetic-registry and inventory concepts.",
+      "createdAt": "2026-09-08T19:32:32.137Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-045",
+      "envelopeId": "71c9b10edbce0274fdaf98f7b4ebdce56adda99093199a4b065d3bb6f252b9ac",
+      "writerSessionId": "sess-df0314b854b3799c70d42e5e7efb6df2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/scope-contract.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9149d6aeab24ce3170abaed78fa59902be8e6eb5641b09658d99fa36cd6d9a8"
+    },
+    {
+      "id": "B-0208:RP-038",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent coverage review passed: the external-project version resolution, process fact registration, and merged guard repairs have focused regression coverage.",
+      "createdAt": "2026-09-08T19:35:05.400Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-047",
+      "envelopeId": "0d012407612ecb5e740eaf31a56748c099e0f1422814fe3179caaff189fd6c4c",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2181366b6e05770e824d2669adf299fe6259cd86da9b11e0db1c77ea647f0db"
+    },
+    {
+      "id": "B-0208:RP-039",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory review passed: all required lane records match the frozen cutoff and this wave contains no findings.",
+      "createdAt": "2026-09-08T19:37:29.629Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-048",
+      "envelopeId": "02b4cdb6412b1290751740f2672210bd084ba06b95a0025300653c3c484b2ddf",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc823f17144836ca8d89663536f3a839a05d4dd0c9d011736f4fd1a3cb79b214"
     }
   ]
 }
