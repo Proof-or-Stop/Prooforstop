@@ -21,10 +21,20 @@
     {
       "id": "BUG-002",
       "title": "Changed inventory critic body leaves approved prompt baseline manifest and generated snapshots stale, blocking required full suite",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-08T11:39:16.445Z",
-      "fixedAt": null,
-      "checklistId": "CHK-001"
+      "fixedAt": "2026-09-08T12:03:41.959Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required root full suite rejected approved topology critic prompt hash mismatch, then interrupted remaining members.",
+        "reproSteps": [
+          "Run node scripts/verify-proof-or-stop-prompt-baseline.mjs at162614; exit1 approved9bcf versus actual392271.",
+          "Read /private/tmp/B88-prompt-baseline-red.log and /private/tmp/B88-done-required-final17.json."
+        ],
+        "rootCause": "Current Story changed critic body without synchronizing the independent exact approval manifest, truthful role matrix and generated baseline snapshots.",
+        "fixEvidence": "Commit b0d262e5df updates only four approved baseline files. Default verifier and manifest/baseline/matrix mutation probes PASS; all18roles remain and unauthorized repinning is rejected.",
+        "reproTest": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      }
     }
   ]
 }

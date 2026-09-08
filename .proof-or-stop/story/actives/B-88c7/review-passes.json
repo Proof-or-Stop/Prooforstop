@@ -1733,6 +1733,240 @@
       },
       "readDiagnostics": [],
       "_hash": "d94fd1c20ba51bbc59eef2c1d96580204be7df6ddc41547a8d574fb88c756abd"
+    },
+    {
+      "id": "B-88c7:RP-052",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-008 current docs review binds 21-file scope and b0d262e5df material. Six exported declaration anchors from integrated implementation have no direct hits in bounded README/CLAUDE/relatedDoc; compared one Wave 2A paragraph, three full canonical/host critic bodies, and changed role-matrix row plus audit-boundary paragraphs. Current plan fully read. Matrix correctly separates signed OPEN inventory lane/read/terminal evidence from topology provenance and signed topology receipt, with no substituted authority. Four baseline repair files change only critic approval/semantic row and derived snapshots; structural measurement comparison confirms only critic record plus aggregate and registry/report digests changed. No-provider-call and heuristic measurement limitations remain unchanged. Three role bodies are byte-identical. Fresh independent default baseline verifier passed at current material; supplied three mutation-mode logs reviewed, not claimed rerun. Selected eligibility semantics and legacy fail-closed boundaries remain as previously audited; no broader historical GREEN or lifecycle completion claim. Source/JSON/Markdown diffs and sections were inspected rather than full baseline files; triage entries do not claim full reads. No new docs inconsistency.",
+      "createdAt": "2026-09-08T12:06:06.034Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-058",
+      "envelopeId": "2eb2dbeba8621cb9f10d6c114f552c8d6af1ccf206663b2f5d6e5955269665e0",
+      "writerSessionId": "sess-07db9a2e820379359092e42a860aee5c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf0bf49913cb7f7fb46d37bdddeb3b74c4aef48bdb68f45634ec0e5da544be15"
+    },
+    {
+      "id": "B-88c7:RP-053",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI008 quality review over final21-file scope b0d262e5df. Prior17-file source remains unchanged since independently reviewed162614; inspected all four new file diffs and structurally compared every changed JSON leaf. Only critic approval/matrix/record plus derived aggregate hashes and counts change:939bytes,15lines,235estimatedtokens. Exact18-role count, other role records and unauthorized mutation checks remain unchanged. Matrix accurately separates inventory and topology authority. Default baseline and manifest/drift/matrix probe logs PASS; current four intent receipts PASS. No additional actionable quality issue found. Source and generated snapshots were inspected by diffs/selected sections, not full-file reads; no full-suite/native quorum completion inferred.",
+      "createdAt": "2026-09-08T12:06:14.264Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-059",
+      "envelopeId": "67d62e551741f0225a26b183948915c4db5ecd3e6ed3bb9489d654f158f4a11e",
+      "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e40ba8b6f67b117b477ef9fc32c9d4fa0d63e59e6b86b22b8be8659a1c8b9e85"
+    },
+    {
+      "id": "B-88c7:RP-054",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-008 current twenty-one-file concept review: the original seventeen source changes are byte-unchanged from 1626142765; inspected all four added baseline/verifier diffs, current plan and current CHK-001 receipts. The critic matrix now describes both registered responsibilities and preserves inventory-only versus topology authority boundaries. Exactly one role approval hash changes; role count remains eighteen, unrelated role approvals and mutation guards remain intact. Generated measurement deltas are the critic body and derived aggregate values, with provider input explicitly unavailable. Manifest, baseline-drift and matrix-drift probe logs pass and do not confer reviewer approval by themselves. No incomplete concept replacement or newly undelivered command promise found. F005 selected-contract and historical-marker distinctions remain as previously independently verified. Actual host assurance and TEST/DONE remain separate completion requirements. Source/baseline triage entries reflect full diffs and relevant sections, not full file reads.",
+      "createdAt": "2026-09-08T12:07:31.758Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-060",
+      "envelopeId": "6fe4ec0d5fa9622f35ceacc6348f4e8f763168ca92f4a7830dffcb02d156fbe7",
+      "writerSessionId": "sess-5a0dd31a4926da8b12579a97d7a0da08",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "a0cb40a922fb71d46b13d5438c2dd4308ef698815d0727c5b17bfa15ccf8e236"
+    },
+    {
+      "id": "B-88c7:RP-055",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-008 independent final coverage review: all 4 executable intents have current tool-owned exit-zero selector receipts at b0d262e5df/material671b5502; 0 must gaps and 0 waivers. Original 17-file implementation unchanged from reviewed162614. Examined BUG-002 four-file committed completion: only critic approval hash changes, dual-responsibility human matrix, corresponding three generated baselines. Default verifier and manifest/drift/matrix mutation logs PASS, retaining exact18roles and refresh self-authorization refusal. Measurement diff is critic-only plus derived aggregates: +939bytes/+15lines/+235estimated tokens; no unrelated role records change. Previous F001-F005 and heartbeat coverage retained. Independently checked current acceptance rollout PASS; fixture cohort remains distinct from actual native-host assurance. No new coverage finding. Manifest material paths reflect changed-hunk/targeted-section inspection, not full source reads; previous unchanged full reads retained. Routine/full-suite and actual-host delivery evidence are separate closure gates.",
+      "createdAt": "2026-09-08T12:08:06.628Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-061",
+      "envelopeId": "3cddf869264452c6cc3911d7117d03804129193234f3ccf9075648f026ca4d8b",
+      "writerSessionId": "sess-07eafd11a96c16af4aff342332be7586",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/checklist.json",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "03d45d376654053d59eb7ccf263c459c9f60e7574712e03b522fdf423f90f42a"
+    },
+    {
+      "id": "B-88c7:RP-056",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-008 completeness review inspected all four current RR-058 through RR-061 terminal passes and complete read manifests at frozen material671b5502/storybc2e434. Lanes cover retained seventeen-file implementation plus four bounded baseline/verifier completion files, exact critic-only snapshot deltas and mutation checks. Independently inspected changed matrix and verifier role declarations: inventory terminal/receipt remains distinct from topology provenance/receipt. Current finding projection shows F-001 through F-005 resolved with preserved observations; no new raw finding or missing lane coverage found. Canonical role template read fully; current epoch/pass/finding projections and baseline changes inspected selectively. No additional family. Actual host assurance and remaining TEST/DONE evidence are separate; this receipt is completeness only.",
+      "createdAt": "2026-09-08T12:09:35.906Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-062",
+      "envelopeId": "3ecec012f75ba041f951fb7aae676294ace9aad3fcf81788b9193f8d31cf23ae",
+      "writerSessionId": "sess-c4c8dd2ceeb634009f66a1c99ba4b927",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6266e35d4554066d9483628e20c85d0b0ecd86f6efd8a46cd4af971b3395e3c"
     }
   ]
 }
