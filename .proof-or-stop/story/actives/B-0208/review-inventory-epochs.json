@@ -151,6 +151,31 @@
       "consumedAt": "2026-09-08T14:42:59.279Z",
       "consumedByReviewRound": "2026-09-08T06:27:31.318Z",
       "_hash": "da3b745a781981d72d2c3b96d6bd16d0fe9aeb397b198bfb50e5cca63c7130ae"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-0208:RI-003",
+      "storyId": "B-0208",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-08T14:55:50.461Z",
+      "updatedAt": "2026-09-08T14:55:50.461Z",
+      "cutoff": {
+        "headHash": "6a16bbf45b0ef55d56b15375d9d2d6f93f45382c",
+        "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+        "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a"
+      },
+      "scopeDigest": "ab714d18d1b615da1524d40c5f914ff22d626fb4028ce95adb0df8bd50a83e12",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 11,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "501d9063eb450e3079dfdb0d376fa072eae0f306de971d79a427f89cec6543ee"
     }
   ],
   "receipts": [
@@ -258,6 +283,30 @@
       "findingDispositions": [],
       "createdAt": "2026-09-08T14:41:50.722Z",
       "_hash": "9bc6cde7e9a956ca0beb9fb6fd81913df53414dd60a8a6a28c9417068c17b2e2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-0208:RI-003:CRIT-01",
+      "epochId": "B-0208:RI-003",
+      "storyId": "B-0208",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "6a16bbf45b0ef55d56b15375d9d2d6f93f45382c",
+        "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+        "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "045567f8889a942ebfa95413818400ae21ffa75b7ac537842b894fb9442a5abd",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-0208:RR-015",
+      "terminalEvidenceIds": [
+        "B-0208:RP-013"
+      ],
+      "readEvidenceDigest": "f2fb505e2fc699092943744014c54d59ed42a97b5191d96dd7dca233671f0058",
+      "findingDispositions": [],
+      "createdAt": "2026-09-08T14:59:27.746Z",
+      "_hash": "ca7e7d2ff285cdec8a15bb29f7a9829fc7d7d9566e62ba9d7b865b75465fcdcc"
     }
   ]
 }

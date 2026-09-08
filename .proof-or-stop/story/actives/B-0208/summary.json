@@ -1,9 +1,9 @@
 {
   "storyId": "B-0208",
-  "changes": "Causal evidence resolves toolVersion from the executing CLI build, independent of the target project and current working directory package manifests. Regression coverage checks missing, unrelated, malformed, conflicting and copied manifests plus signed receipt identity.",
+  "changes": "Causal evidence resolves toolVersion from the executing CLI build, independent of the target project and current working directory package manifests. Regression coverage checks missing, unrelated, malformed, conflicting and copied manifests plus signed receipt identity. All four evidence-producing commands, including stale evidence refresh, document the executing-CLI version identity.",
   "usage": "Run Proof-or-Stop verification from any external project as usual; no target packages/main/package.json is required.",
   "expectedOutcome": "The tool version remains the running CLI version for absent and unrelated external project manifests.",
-  "actualTranscript": "External project live capture returned expected=0.3.278, absent=0.3.278, unrelated=0.3.278 and CAUSAL_TOOL_VERSION_EXTERNAL_PASS.",
+  "actualTranscript": "Current external project live capture at CLI 0.3.279 returned expected=0.3.279, absent=0.3.279, unrelated=0.3.279 and CAUSAL_TOOL_VERSION_EXTERNAL_PASS. The causal-evidence smoke passed its external target/cwd matrix and genuinely signed receipt identity assertions.",
   "outcomeDiff": "No difference in the tested external-project cases.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
@@ -12,7 +12,7 @@
     "skipped": []
   },
   "limitations": "Historical receipts are not rewritten; this repair applies to newly executed evidence.",
-  "pitfalls": "Inventory critic dispatch initially required dedicated implementer provenance even for an express Story. B-88c7 repairs that responsibility mismatch; no implementation authorship or topology receipt was fabricated.",
+  "pitfalls": "Inventory critic dispatch initially required dedicated implementer provenance even for an express Story. B-88c7 repairs that responsibility mismatch; no implementation authorship or topology receipt was fabricated. B-88c7 is now merged into local main. Main integration required fresh acceptance report and reviewer bindings. A genuine Claude review found a missing refresh-command registry description; F-001 preserves the original low finding and its one-clause repair in 24950bfd. No prior FINDINGS verdict was relabeled PASS.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,15 +27,15 @@
       "durationMs": 285652
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 570937
+      "count": 2,
+      "durationMs": 1230568
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 3119636
+      "count": 2,
+      "durationMs": 30094879
     }
   },
-  "totalDurationMs": 4241078,
+  "totalDurationMs": 31875952,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +48,5 @@
     "open": 0
   },
   "createdAt": "2026-09-08T07:19:30.954Z",
-  "updatedAt": "2026-09-08T07:19:30.954Z"
+  "updatedAt": "2026-09-08T15:00:05.829Z"
 }
