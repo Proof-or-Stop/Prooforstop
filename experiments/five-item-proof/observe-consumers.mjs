@@ -38,5 +38,5 @@ for(let pair=1;pair<=pairs;pair++)for(const mode of pair%2?['RED','GREEN']:['GRE
  }catch(e){writeFileSync(join(output,'failure.json'),JSON.stringify({pair,mode,error:String(e.stack),fixture},null,2));throw e;}
  finally{rmSync(fixture,{recursive:true,force:true});resetConfigCache();}
 }
-writeFileSync(join(output,'consumer-trials.json'),JSON.stringify({negative,trials,limitations:['real handlers and persisted StoryStore receipts; fixture admission is synthetic and grants no real Story authority','dynamic off with complete unchanged 6-case corpus; not proof that the root 134-command observe configuration benefits','forbidden/build-proof controls remain in production-mechanisms regression; this workload is eligible by construction']},null,2));
+writeFileSync(join(output,'consumer-trials.json'),JSON.stringify({negative,trials,limitations:['real handlers and persisted StoryStore receipts; fixture admission is synthetic and grants no real Story authority','dynamic observe with explicit sharedExecution and complete unchanged 6-case corpus; not proof that the root 134-command configuration benefits','forbidden/build-proof controls remain in production-mechanisms regression; this workload is eligible by construction']},null,2));
 console.log(negative?'REAL_CONSUMER_NEGATIVE_PASS':'REAL_CONSUMERS_GREEN');

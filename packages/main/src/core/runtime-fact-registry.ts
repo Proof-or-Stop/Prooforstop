@@ -177,5 +177,5 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   schema: 'execution-implementation.v1',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
-  scope: 'loaded-core-workspace-extensions-dependency-closure-and-node',
+  scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;

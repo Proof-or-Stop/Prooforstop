@@ -40,7 +40,7 @@ await check('P1','canonical publication failure retries without rerunning the co
  const cl=store.readChecklist(storyId),ev=cl.items[0].verificationEvidence?.[0],after=readOwnerLease(store.storyDirPath(storyId));
  assert.equal(ev?.result,'pass');assert.equal(ev?.receipt?.exitCode,0);assert.equal(isLeaseStale(after),false);assert.match(result,/commandExecutions=1/);
  writeFileSync(join(output,'batch-result.json'),JSON.stringify({result,before,after,evidence:ev,clockScale:1,realCommandDurationMs:null},null,2));
- return {log:'batch-result.json',clockScale:1000,commandExecutions:1};
+ return {log:'batch-result.json',clockScale:1,commandExecutions:1};
  }finally{if(clockActive){globalThis.Date=NativeDate;globalThis.setInterval=interval;}rmSync(fixture,{recursive:true,force:true});resetConfigCache();}
 });
 writeFileSync(join(output,'summary.json'),JSON.stringify({head:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),rows,failures,status:failures.length?'FAIL':'PASS',wholeStorySpeedup:null},null,2));console.log('Evidence '+output);if(failures.length)process.exitCode=1;
