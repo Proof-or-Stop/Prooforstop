@@ -13,6 +13,7 @@ try {
  for(const name of ['main','utils','lab']){const dest=join(runtime,'packages',name);mkdirSync(dest,{recursive:true});for(const sub of ['dist','package.json'])if(existsSync(join(lab,'packages',name,sub)))cpSync(join(lab,'packages',name,sub),join(dest,sub),{recursive:true,verbatimSymlinks:true});}
  for(const path of ['node_modules','bin','scripts','packages/main/templates'])cpSync(join(lab,path),join(runtime,path),{recursive:true,verbatimSymlinks:true});
  cpSync(join(lab,'package.json'),join(runtime,'package.json'));
+ mkdirSync(join(fixture,'packages/main'),{recursive:true});writeFileSync(join(fixture,'packages/main/package.json'),JSON.stringify({name:'fixture',version:'1.0.0'}));
  writeFileSync(join(fixture,'package.json'),JSON.stringify({name:'receipt-identity-fixture',type:'module',version:'1.0.0'}));
  writeFileSync(join(fixture,'.gitignore'),'runtime/\n.proof-or-stop/\nignored.txt\n');
  writeFileSync(join(fixture,'witness.mjs'),"import {randomUUID} from 'node:crypto'; console.log('PASS '+randomUUID());\n");
