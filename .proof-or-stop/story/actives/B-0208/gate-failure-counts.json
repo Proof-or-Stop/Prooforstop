@@ -1,14 +1,8 @@
 {
-  "story_advance/fb471b045004": {
+  "story_advance/e6f3b48d61bc": {
     "count": 1,
     "command": "story_advance",
-    "lastReason": "Cannot enter TEST: proof-or-stop validate did not pass\nSummary: Validation result could not persist its canonical evidence transaction\n\n→ 修复后重跑 proof-or-stop validate，再 story_advance --phase=TEST",
-    "lastAt": "2026-09-08T17:18:26.081Z"
-  },
-  "story_advance/0cf467e2277f": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff",
-    "lastAt": "2026-09-08T17:34:14.423Z"
+    "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=fail; blocking=true\n  receipt=stale; quorum=full-3x2\n  codes=AR_REPORT_STALE\n\n-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
+    "lastAt": "2026-09-08T18:30:43.461Z"
   }
 }
