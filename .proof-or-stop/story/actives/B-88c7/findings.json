@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/story-dispatch.ts:330 supplies the unconditional promptRoleContract(agentType) when assembling the new Inventory completeness only dispatch. packages/main/src/core/prompt-role-contract-registry.ts:341 still requires topology-critic-receipt for this role, while the new role body explicitly says inventory completion does not issue topology receipts and must return after review_inventory_critic_set. Thus the actual full envelope simultaneously requires and forbids a topology receipt for the exact repaired express workflow, whose topology implementation provenance is absent. This directly contradicts the Story promise of inventory-only instructions and can stop a contract-following critic. Bind the required output contract to the selected responsibility, retaining strict topology requirements for topology dispatch, and assert the full assembled inventory envelope. This is a verified prompt-contract contradiction; no separate runtime requiredOutputIds gate or topology proof bypass is claimed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-08T07:39:18.246Z",
@@ -38,7 +38,11 @@
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
-      "ledgerCommitReceiptId": "lrc_mtsczeqv_1i0u_fbdebf6e333a43d58257d7661d2b5f09"
+      "ledgerCommitReceiptId": "lrc_mtsczeqv_1i0u_fbdebf6e333a43d58257d7661d2b5f09",
+      "resolvedAt": "2026-09-08T08:14:43.894Z",
+      "resolvedReason": "Fixed in 68ee4dc044: registered inventory contract selected by signed current OPEN context in both producers; verifier reconstructs registered authenticated semantics. Fresh tool-owned full-envelope and legacy handler smoke plus process contract passed, covering tamper rejection and finalization.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
