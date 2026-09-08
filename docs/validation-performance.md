@@ -68,3 +68,14 @@ lease loss/generation controls, receipt tampering and signed inventory replay.
 Existing validation-lock, DONE-required and inventory CLI suites provide the
 integration controls. The earlier experiment's approximately 48% reductions
 remain measurements of those workloads: there is no Story-wide speedup claim.
+
+## Evidence hash accuracy
+
+The shared material policy excludes the evidence store's defined object, ref and
+observation outputs so publishing them does not invalidate their own input hash.
+Their independent integrity and subject checks remain required. Unknown evidence
+paths and policy files remain material. The Story changed-file resolver preserves
+NUL-framed Git names when looking up blobs, including Unicode and control
+characters. See [the hash decision](requirements/decisions/story-files-hash-material-drift.md)
+for migration boundaries and the independent oracle regression. This correction
+carries no percentage performance claim.

@@ -1801,7 +1801,17 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
+export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
+  name: 'runtime:evidence_hash_input_boundary', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  level: 'L4', producer: 'core/material-path-policy and core/story-aware-validation',
+  producerSourceRefs: ['packages/main/src/core/material-path-policy.ts', 'packages/main/src/core/story-aware-validation.ts', 'packages/main/src/core/evidence-freshness.ts'],
+  consumerGate: 'Shared material and Story hashes used by review, validation and evidence freshness consumers',
+  rationale: 'Store objects/sha256, refs/by-id and ledger/observed.jsonl are process outputs excluded from material inputs, not disposable runtime artifacts. Unknown evidence paths and policy remain material. Output digest and subject bindings require independent consumer verification; hash stability grants no artifact acceptance. NUL-delimited Git paths retain literal names and target blobs; missing objects fail closed. Existing evidence is never rewritten or automatically re-attested after this correction.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  ...PROCESS_FACT_EVIDENCE_HASH_INPUTS,
   ...PROCESS_FACT_VALIDATION_EXECUTION,
   ...PROCESS_FACT_LAB_MAINTENANCE,
   ...COMMAND_PROCESS_FACTS,

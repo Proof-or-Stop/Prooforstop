@@ -1,3 +1,4 @@
+import { STATE_DIR_NAMES } from './brand-paths.js';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import { PROOF_OR_STOP_STORY_DIR_NAMES, LEGACY_DOCS_STORY_DIR } from './proof-or-stop-paths.js';
@@ -24,6 +25,19 @@ export function isStoryMetadataPath(path: string, projectRoot?: string): boolean
   return prefixes.some(prefix => normalized.startsWith(prefix));
 }
 
+/** Evidence outputs remain process artifacts, independently verified by consumers.
+ * Only the store's defined output locations are excluded; policy and unknown
+ * files under evidence/ remain material. Git paths are already slash-delimited.
+ */
+export function isEvidenceOutputPath(path: string): boolean {
+  return STATE_DIR_NAMES.some(dir => {
+    const root = `${dir}/evidence/`;
+    return path.startsWith(`${root}objects/sha256/`)
+      || path.startsWith(`${root}refs/by-id/`)
+      || path === `${root}ledger/observed.jsonl`;
+  });
+}
+
 export function isMaterialExcludedPath(path: string, projectRoot?: string): boolean {
-  return isStoryMetadataPath(path, projectRoot) || isMaterialExcludedRuntimeArtifactPath(path);
+  return isEvidenceOutputPath(path) || isStoryMetadataPath(path, projectRoot) || isMaterialExcludedRuntimeArtifactPath(path);
 }

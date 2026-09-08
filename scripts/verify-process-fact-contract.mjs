@@ -8970,6 +8970,13 @@ for (const entry of inventory) {
 }
 if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} files checked)`);
 
+// Hash input exclusions must retain the independent integrity boundary.
+assert(read(processFactRegistryPath).includes('...PROCESS_FACT_EVIDENCE_HASH_INPUTS'), 'Evidence hash input facts must be registered');
+const hashPolicySource = read('packages/main/src/core/material-path-policy.ts');
+for (const boundary of ['objects/sha256/', 'refs/by-id/', 'ledger/observed.jsonl']) assert(hashPolicySource.includes(boundary), `Missing bounded evidence output location: ${boundary}`);
+assert(read('packages/main/src/core/story-aware-validation.ts').includes("'--name-status', '-z'"), 'Story diff must preserve NUL-framed Git filenames');
+assert(read('packages/main/src/tasks/story-files-hash-batch-smoke.ts').includes('verify-hash-accuracy.mjs'), 'Independent hash oracle must run in the existing validation inventory');
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
