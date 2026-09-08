@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "fc91ad103aad1777aad282241745b720f6c88721a0a8a7f0491c39d7e9736169",
+  "committedLedgerDigest": "cd86f2a63f4966e1111cbe1479731808057500d31beb0706c116358dba6b1437",
   "records": [
     {
       "recordId": "lr_mtssjwai_1bro_724f1b8c462c48069e12c3ad82b999cf",
@@ -72,6 +72,55 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-08T14:55:37.654Z"
+    },
+    {
+      "recordId": "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:1b5063a9-53e0-4b1c-a3b9-e00af806c37f",
+      "payload": {
+        "id": "B-0208:F-002",
+        "desc": "packages/main/src/core/process-fact-registry.ts:847 validate.consumerGate omits executing-CLI causal toolVersion semantics although verifier.ts:736 binds resolveCausalToolVersion through createValidationCausalPreflightGate, called by validate at1948 and2339. Native Claude R3 session b3c2f6ca-99b0-43fc-a1e1-0872a75cbd0f reported terminal PASS plus this low advisory against24950bfd in /private/tmp/b0208-refresh-claude-r3.events.jsonl. Independent exhaustive production-callsite audit identifies exactly five producer commands: verification_evidence_add, verification_evidence_batch_add, verification_run, verification_evidence_refresh_stale and validate. The first four already document these semantics; validate alone remains omitted. scripts/verify-process-fact-contract.mjs:4632 checks only global includes and cannot detect missing producer entries. This current-Story incomplete process-fact documentation belongs to current-scope repair; runtime identity is correct, no bypass claimed. Add the validate clause and per-producer contract assertions in existing scoped files. Preserve low severity and original native observation.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-08T15:22:12.483Z",
+        "reviewRound": "2026-09-08T14:53:58.016Z",
+        "reviewRunId": "B-0208:RR-016",
+        "readManifest": {
+          "filesReadFully": [],
+          "filesTriagedByName": [
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/handlers/checklist.ts",
+            "packages/main/src/handlers/verifier.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "70a34e3bd367e85d216be4fc36cde8788ed04547640f4307830887826f675653",
+        "files": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "signatureTag": "missing|ts|packages-main-core",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "2d5fd2edb618e1dc114fdedeb1b323aea7bbfdcf999c43f7dfdba5a0b3f6c190",
+      "priorDigest": "fc91ad103aad1777aad282241745b720f6c88721a0a8a7f0491c39d7e9736169",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T15:22:12.484Z"
     }
   ],
   "receipts": [
@@ -168,6 +217,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "3775c0f11108e577789da287d8d54b23cc073b0fbea98b3fd493b7f22e051137",
         "signature": "JQZReiPLy61KedesiFOAysPoMTwD2ZDAccujUTyG7B4lfZO8WhViRXZdCxLY+u3eZ6tnx4zHlY0TtsVPe4sIAw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:1b5063a9-53e0-4b1c-a3b9-e00af806c37f",
+      "requestDigest": "b58eca3cdcbdb9927a7751919d6c38217bac4f2e9bd0c91a44658a876f5d6daa",
+      "recordIds": [
+        "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73"
+      ],
+      "priorLedgerDigest": "fc91ad103aad1777aad282241745b720f6c88721a0a8a7f0491c39d7e9736169",
+      "committedLedgerDigest": "cd86f2a63f4966e1111cbe1479731808057500d31beb0706c116358dba6b1437",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "writerFenceToken": "ee58d5da-acd6-4f83-be39-ea1ac12eba07",
+      "committedAt": "2026-09-08T15:22:12.484Z",
+      "replayed": false,
+      "exactRequestDigest": "f5235d217438bc3ee7b329969f4269378c299561fea9f484741b1c87ffa30d8b",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef",
+        "storyId": "B-0208",
+        "idempotencyKey": "finding_add:1b5063a9-53e0-4b1c-a3b9-e00af806c37f",
+        "exactRequestDigest": "f5235d217438bc3ee7b329969f4269378c299561fea9f484741b1c87ffa30d8b",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "fc91ad103aad1777aad282241745b720f6c88721a0a8a7f0491c39d7e9736169",
+        "committedLedgerDigest": "cd86f2a63f4966e1111cbe1479731808057500d31beb0706c116358dba6b1437",
+        "replayed": false,
+        "committedAt": "2026-09-08T15:22:12.484Z",
+        "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+        "writerLeaseId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+        "writerFenceToken": "ee58d5da-acd6-4f83-be39-ea1ac12eba07",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c2edbe9f9f3443b3133f562a1367a69106c403ecb9b6ed038663458acadbded1",
+        "signature": "dEbmgdFJ0YasoKElBauH1ZzpHXkGcpwC2LhqG8/cST5+DrtHBYdByocY+i9xjLqepai+ZDZJoPW8F/rtsMRBBQ=="
       }
     }
   ]

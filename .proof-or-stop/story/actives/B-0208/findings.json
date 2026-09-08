@@ -41,6 +41,47 @@
       "resolvedReason": "Fixed by commit 24950bfd5c3dc49cfead5063be79ccd67c8c32e2: verification_evidence_refresh_stale now documents executing-CLI causal toolVersion identity, matching the other three producers. The prior stamping, identity, signed timestamp and failed/pinless semantics remain verbatim. Independent quality review confirmed the one-clause delta; process-fact contract passed in /private/tmp/B0208-refresh-registry-contract.log and main build passed. Historical Claude R2 FINDINGS remains preserved; the original report is not relabeled PASS.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0208:F-002",
+      "desc": "packages/main/src/core/process-fact-registry.ts:847 validate.consumerGate omits executing-CLI causal toolVersion semantics although verifier.ts:736 binds resolveCausalToolVersion through createValidationCausalPreflightGate, called by validate at1948 and2339. Native Claude R3 session b3c2f6ca-99b0-43fc-a1e1-0872a75cbd0f reported terminal PASS plus this low advisory against24950bfd in /private/tmp/b0208-refresh-claude-r3.events.jsonl. Independent exhaustive production-callsite audit identifies exactly five producer commands: verification_evidence_add, verification_evidence_batch_add, verification_run, verification_evidence_refresh_stale and validate. The first four already document these semantics; validate alone remains omitted. scripts/verify-process-fact-contract.mjs:4632 checks only global includes and cannot detect missing producer entries. This current-Story incomplete process-fact documentation belongs to current-scope repair; runtime identity is correct, no bypass claimed. Add the validate clause and per-producer contract assertions in existing scoped files. Preserve low severity and original native observation.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-08T15:22:12.483Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-016",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "70a34e3bd367e85d216be4fc36cde8788ed04547640f4307830887826f675653",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73",
+      "ledgerCommitReceiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef"
     }
   ]
 }

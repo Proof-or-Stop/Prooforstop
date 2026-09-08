@@ -420,6 +420,34 @@
       },
       "readDiagnostics": [],
       "_hash": "99e59a40f0e863075dd0427f34ebde3f7a653c1fe6f8af1c7467857492f1c0aa"
+    },
+    {
+      "id": "B-0208:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed for the stated version-identity behavior: the built smoke mechanically covers happy, malformed/missing, and conflicting-business-manifest cases and confirms signed receipt identity. F-002 already owns the distinct missing per-producer contract assertion; no duplicate finding is recorded.",
+      "createdAt": "2026-09-08T15:25:08.494Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-017",
+      "envelopeId": "2c680417fca2255a09e9631dbe59bcf7ecba068a6ff519ff0384491b46df4a9a",
+      "writerSessionId": "sess-e6041b4e253745523747b7bce3302cfc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e03e7a09494cfefe771336da8bb7f09a6b8bda8b444c0112754f22c3109ba44"
     }
   ]
 }
