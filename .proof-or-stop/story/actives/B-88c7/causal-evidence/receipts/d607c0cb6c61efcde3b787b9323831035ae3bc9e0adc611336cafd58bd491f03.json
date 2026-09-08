@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-88c7",
+  "executionKey": "ce:v1:1042fe5e2d9fbbad9de3a71cb5e0f0cac5b6b53c1a60df920128affe0607a905",
+  "identityDigest": "1042fe5e2d9fbbad9de3a71cb5e0f0cac5b6b53c1a60df920128affe0607a905",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-88c7",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/.proof-or-stop/story/actives/B-88c7/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/.proof-or-stop/story/actives/B-88c7/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:07697369567a9c2df737a0366d8267788681261b40b5b30188a4e9d1b78f8f82",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-88c7/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "ae8386a95240a7fedb983969ca70b42940ec2385",
+          "materialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
+          "storyFilesHash": "7a786866f763c98c5ff156d81783b29d9def0caeccdbc1ea7c6e9a661e84dae1"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 900000
+          },
+          "required": {
+            "timeoutMs": 900000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-88c7",
+      "timeoutMs": 900000
+    },
+    "storyFilesHash": "7a786866f763c98c5ff156d81783b29d9def0caeccdbc1ea7c6e9a661e84dae1",
+    "effectiveEnvironment": {
+      "ARK_API_KEY": "<redacted>:sha256:361f9421ba3263350ff8247b928856273041afa53ae5dfb5af8c02fed6fc95bf",
+      "BUN_INSTALL": "/Users/qipan/.bun",
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/163f21ef-9915-4e4c-aa1f-a5a83069585e.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":workspace",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SANDBOX": "seatbelt",
+      "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "CONDA_DEFAULT_ENV": "base",
+      "CONDA_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/conda",
+      "CONDA_PREFIX": "/opt/homebrew/Caskroom/miniconda/base",
+      "CONDA_PROMPT_MODIFIER": "(base) ",
+      "CONDA_PYTHON_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+      "CONDA_SHLVL": "1",
+      "DISABLE_AUTOUPDATER": "1",
+      "GH_PAGER": "cat",
+      "GITHUB_NPM_TOKEN": "<redacted>:sha256:cc13bb8c75925bb5d5ef52b1dbdedb2331ef7965d95c880fd566b80f07368327",
+      "GIT_PAGER": "cat",
+      "GSETTINGS_SCHEMA_DIR": "/opt/homebrew/Caskroom/miniconda/base/share/glib-2.0/schemas",
+      "GSETTINGS_SCHEMA_DIR_CONDA_BACKUP": "",
+      "HOME": "/Users/qipan",
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LESS": "-R",
+      "LIBRARY_PATH": "/opt/homebrew/opt/gcc/lib/gcc/16:/opt/homebrew/opt/libgccjit/lib/gcc/16:/opt/homebrew/opt/gcc/lib/gcc/16",
+      "LOGNAME": "qipan",
+      "LOG_FORMAT": "json",
+      "LSCOLORS": "Gxfxcxdxbxegedabagacad",
+      "LSP_USE_PLISTS": "true",
+      "LS_COLORS": "di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43",
+      "LaunchInstanceID": "E4FEEA33-23BC-40B5-96D4-3F2B77106D77",
+      "MallocNanoZone": "0",
+      "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df",
+      "NO_COLOR": "1",
+      "NVM_CD_FLAGS": "-q",
+      "NVM_DIR": "/Users/qipan/.nvm",
+      "OSLogRateLimit": "64",
+      "PAGER": "less",
+      "PATH": "/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.local/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/usr/local/bin:/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.cargo/bin:/Users/qipan/.codex/tmp/arg0/codex-arg0x0POqM:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin",
+      "PNPM_HOME": "/Users/qipan/Library/pnpm",
+      "PROOF_OR_STOP_IDLE_TIMEOUT_MS": "3600000",
+      "PROOF_OR_STOP_MAX_TIMEOUT_MS": "3600000",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "PYTHONPATH": ":/opt/homebrew/opt/glib/lib/",
+      "RCSBROOT": "/Users/qipan/bin/maxit-v11.400",
+      "RUST_LOG": "warn",
+      "SECURITYSESSIONID": "186b0",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:a321cfbc8f3c8d789d216a7852b51814a2c8455eea92fb88d1ac0344d2f556d2",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "USER": "qipan",
+      "XML_CATALOG_FILES": "file:///opt/homebrew/Caskroom/miniconda/base/etc/xml/catalog file:///etc/xml/catalog",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "application.com.openai.codex.573774599.573774605",
+      "ZSH": "/Users/qipan/.oh-my-zsh",
+      "_CE_CONDA": "",
+      "_CE_M": "",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.278",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "18778afc7578d90caaf1685d9c0249cec7951c473006efecb35e45fc9be8a0a6",
+  "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
+  "outputProbe": "B3F3D-006-H3 docs/provenance: PASS\nB-8af0 selected path mutation invalidates: PASS\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\nB-8af0 pre-begin malformed candidates fail closed: PASS\nB-8af0 handler artifactDigest tamper fail closed: PASS\nreview inventory real handler smoke: PASS\n",
+  "outputLength": 686,
+  "executedAt": "2026-09-08T07:30:19.479Z",
+  "durationMs": 179139,
+  "timeoutMs": 900000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "VyGwb+qf23osdGZ+EAWCTKmt3xrkN/accLHCGAQd3iadU8RGoDpZwMsZeYRWfeG+LLEcYI4SwbXDmP/ClJstBA==",
+  "receiptHash": "d607c0cb6c61efcde3b787b9323831035ae3bc9e0adc611336cafd58bd491f03"
+}

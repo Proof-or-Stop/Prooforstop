@@ -1,0 +1,93 @@
+{
+  "schema": "proof-or-stop.done-required-evidence",
+  "version": 1,
+  "storyId": "B-88c7",
+  "status": "FAIL",
+  "startedAt": "2026-09-08T11:31:07.647Z",
+  "endedAt": "2026-09-08T11:36:54.289Z",
+  "durationMs": 346642,
+  "headHash": "8bbefaa70c90db1cfaf5bd2a9eb40f4fcf4af645",
+  "materialHash": "51c59144e62320f5dc04631123f017c7a0fbf95a46bff139e52b4c1ab395a4b6",
+  "storyFilesHash": "080d53363545be237e00b309ca2d28870d9d695478aa10ce5c0bddb24494c2e7",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "proof-or-stop.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 1424,
+      "outputDigest": "8fd5c32973e90ca8c6632abdf2688555f76fc19f15c670d7c05044008c4a4606",
+      "outputTail": "\n> @proof-or-stop/core@0.3.278 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-09-08T11:31:07.649Z",
+      "endedAt": "2026-09-08T11:31:09.075Z",
+      "effectiveEnvironmentDigest": "9acad65084c34346f2dcb6155c78482c2b6b6b7afa34a9125090fa751f8cb727",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "8bbefaa70c90db1cfaf5bd2a9eb40f4fcf4af645",
+      "materialHash": "51c59144e62320f5dc04631123f017c7a0fbf95a46bff139e52b4c1ab395a4b6",
+      "storyFilesHash": "080d53363545be237e00b309ca2d28870d9d695478aa10ce5c0bddb24494c2e7"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "proof-or-stop.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 344039,
+      "outputDigest": "3186d264d8b635e321bb4d1b1b673e6a513890568240d7e26cd0449e7c43a1da",
+      "outputTail": "562\n  throw new Error(\n        ^\n\nError: Refusing to collect or refresh the baseline because the approved prompt policy manifest failed:\n- approved prompt policy manifest hash mismatch for proof-or-stop-review-topology-critic: approved=9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99 entry=392271b8d3d94009276954175dc59d4fbd46a464f6dda449b1dd255c06cee7ca\n    at assertApprovedPromptPolicyManifest (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/scripts/verify-proof-or-stop-prompt-baseline.mjs:1562:9)\n    at buildCurrentBaseline (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/scripts/verify-proof-or-stop-prompt-baseline.mjs:2313:3)\n    at verifyBaseline (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/scripts/verify-proof-or-stop-prompt-baseline.mjs:3597:19)\n    at async file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/scripts/verify-proof-or-stop-prompt-baseline.mjs:3675:3\n\nNode.js v26.8.1\n\n\n--- test:codex-heartbeat-timeout INTERRUPTED ---\n\n\n--- test:audit-scan-bin-token INTERRUPTED ---\n\n\n--- test:review-convergence-smoke INTERRUPTED ---\n\n\n--- test:review-loop-smoke INTERRUPTED ---\n\n\n--- test:delivery-context-pack-smoke INTERRUPTED ---\n\n\n--- test:flow-stability-smoke INTERRUPTED ---\n\n\n--- test:review-assurance-floor-smoke INTERRUPTED ---\n\n\n--- test:proofstory-intent-hardening-smoke INTERRUPTED ---\n\n\n--- test:scope-shrinkage-withdrawal-floor-smoke INTERRUPTED ---\n\n\n--- test:withdrawn-disposition-smoke INTERRUPTED ---\n\n\n--- test:milestone-status INTERRUPTED ---\n\n\n--- test:global-core-realpath INTERRUPTED ---\n\n\n--- test:brand-path-resolver-smoke INTERRUPTED ---\n\n\n--- test:config-filename-migration-smoke INTERRUPTED ---\n\n\n--- test:core-package-rename INTERRUPTED ---\n\n\n--- test:state-dir-migration INTERRUPTED ---\n\n\n--- test:identity-state-migrate-atomicity INTERRUPTED ---\n\n\n--- test:migration-contract INTERRUPTED ---\n\n\n--- test:review-incremental-context-smoke INTERRUPTED ---\n\n\n--- test:review-assurance-floor-storyfileshash-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-wrapper-root INTERRUPTED ---\n\n\n--- test:graph-story-flag-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:verifier-causal-preflight INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-experience-refresh INTERRUPTED ---\n\n\n--- test:experience-coverage-gap INTERRUPTED ---\n\n\n--- test:nested-worktree-bootstrap INTERRUPTED ---\n\n\n--- test:e2e INTERRUPTED ---\n\n\n--- test:experience-arm-gate INTERRUPTED ---\n\n\n--- test:experience-arm-isolation-e2e INTERRUPTED ---\n\n\n--- test:convergence-breaker INTERRUPTED ---\n\n\n--- test:proofstory-acceptance-rollout INTERRUPTED ---\n\n> proof-or-stop@0.3.278 test:proofstory-acceptance-rollout\n> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js\n\n\n\n--- test:topology-signing-source-guard INTERRUPTED ---\n\n\n--- test:signing-guard-mutation-proof INTERRUPTED ---\n\n\n--- test:validation-tier-planner INTERRUPTED ---\n\n\n--- test:single-owner-extraction INTERRUPTED ---\n\n\n--- test:validation-protocol INTERRUPTED ---\n\n\n--- test:narrowing-repin INTERRUPTED ---\n\nfull-suite: 9/65 passed in 340.7s; retries=0; jobs=2\n",
+      "startedAt": "2026-09-08T11:31:09.619Z",
+      "endedAt": "2026-09-08T11:36:53.743Z",
+      "effectiveEnvironmentDigest": "9acad65084c34346f2dcb6155c78482c2b6b6b7afa34a9125090fa751f8cb727",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "8bbefaa70c90db1cfaf5bd2a9eb40f4fcf4af645",
+      "materialHash": "51c59144e62320f5dc04631123f017c7a0fbf95a46bff139e52b4c1ab395a4b6",
+      "storyFilesHash": "080d53363545be237e00b309ca2d28870d9d695478aa10ce5c0bddb24494c2e7"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
