@@ -142,7 +142,7 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
       const tab = row.indexOf('\t');
       if (tab < 0) continue;
       const parts = row.slice(0, tab).trim().split(/\s+/);
-      const path = normalPath(row.slice(tab + 1));
+      const path = row.slice(tab + 1);
       if (parts[2] && path) result.set(path, parts[2]);
     }
   } catch (error) {
@@ -174,21 +174,34 @@ export function resolveStoryChangedFiles(
   const ids = objectIdsAtRef(gitCwd, ref);
   const out: StoryChangedFile[] = [];
   try {
-    const raw = git(['diff', '--name-status', '-M', base + '..' + ref], gitCwd).trim();
-    for (const line of raw ? raw.split('\n') : []) {
-      const cols = line.split('\t').map(normalPath).filter(Boolean);
-      if (cols.length < 2) continue;
-      const code = cols[0] || '';
-      if (code.startsWith('R') && cols.length >= 3) {
-        const oldPath = cols[1]!;
-        const path = cols[2]!;
-        if (!isMaterialExcludedPath(oldPath, metadataRoot)) out.push({ path: oldPath, oldPath, status: 'renamed', blobId: '<deleted>' });
-        if (!isMaterialExcludedPath(path, metadataRoot)) out.push({ path, oldPath, status: 'renamed', blobId: ids.get(path) || '<deleted>' });
+    // NUL framing preserves Git path names, including Unicode, tabs and newlines.
+    const fields = git(['diff', '--name-status', '-z', '-M', base + '..' + ref], gitCwd).split('\0');
+    if (fields.at(-1) === '') fields.pop();
+    let cursor = 0;
+    const nextPath = (): string => {
+      const value = fields[cursor++];
+      if (!value) throw new Error('missing path in NUL-delimited Git diff');
+      return value;
+    };
+    const blobAt = (path: string): string => {
+      const blob = ids.get(path);
+      if (!blob) throw new Error(`missing target object for ${JSON.stringify(path)}`);
+      return blob;
+    };
+    while (cursor < fields.length) {
+      const code = fields[cursor++];
+      if (!code || !/^(?:[ADMTUXB]|[RC][0-9]+)$/.test(code)) throw new Error('invalid Git diff status');
+      const firstPath = nextPath();
+      if (code.startsWith('R') || code.startsWith('C')) {
+        const oldPath = firstPath;
+        const path = nextPath();
+        if (code.startsWith('R') && !isMaterialExcludedPath(oldPath, metadataRoot)) out.push({ path: oldPath, oldPath, status: 'renamed', blobId: '<deleted>' });
+        if (!isMaterialExcludedPath(path, metadataRoot)) out.push({ path, oldPath, status: code.startsWith('R') ? 'renamed' : 'added', blobId: blobAt(path) });
       } else {
-        const path = cols[cols.length - 1]!;
+        const path = firstPath;
         if (isMaterialExcludedPath(path, metadataRoot)) continue;
-        const status: StoryChangedFile['status'] = code.startsWith('A') ? 'added' : code.startsWith('D') ? 'deleted' : 'modified';
-        out.push({ path, status, ...(status === 'deleted' ? { blobId: '<deleted>' } : { blobId: ids.get(path) || '<deleted>' }) });
+        const status: StoryChangedFile['status'] = code === 'A' ? 'added' : code === 'D' ? 'deleted' : 'modified';
+        out.push({ path, status, blobId: status === 'deleted' ? '<deleted>' : blobAt(path) });
       }
     }
   } catch (error) {

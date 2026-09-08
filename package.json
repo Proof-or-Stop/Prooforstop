@@ -1,12 +1,14 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.279",
+  "version": "0.3.284",
   "description": "",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
+    "lab:worktree": "node scripts/lab-worktree.mjs",
+    "test:lab-worktree": "node scripts/verify-lab-worktree.mjs",
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build && node scripts/verify-full-suite-build-binding.mjs",
     "build:lab": "npm --prefix packages/lab run build",

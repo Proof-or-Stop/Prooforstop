@@ -112,6 +112,9 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * its live direct StoryStore reads/writes with background_get, story_get,
  * checklist_get, and init_check_set. The CLI-only surface invariant below binds
  * the source template, both generated mirrors, and the assembled registry body.
+ * B-29bc: independently re-approved only the selected critic body after auditing
+ * its exact trusted-purpose appendix. The historical template and reconstruction
+ * remain unchanged; inventory-only duties do not supply topology authority.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -181,7 +184,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '392271b8d3d94009276954175dc59d4fbd46a464f6dda449b1dd255c06cee7ca',
+    templateHash: 'c9aff511b9b67d6640860adc87363c08bc2f418ccdf3d5d0e269134919a5fabb',
   },
   {
     role: 'proof-or-stop-product-reviewer',
@@ -568,14 +571,14 @@ const ROLE_MATRIX_DEFAULTS = {
   'proof-or-stop-review-topology-critic': {
     status: 'active',
     phase: 'PLAN/DEV/REVIEW',
-    purpose: 'Independently reviews acceptance topology completeness, or review inventory completeness for the dispatched signed OPEN epoch.',
-    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check; review_run_start; review_pass_set; finding_add; review_inventory_critic_set.',
-    directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered ProofOrStop receipt commands.',
-    inputs: 'Topology responsibility: acceptance basis/topology, scope, exclusions, and implementation provenance. Inventory responsibility: signed OPEN epoch, current wave, lane terminals, findings, and read evidence.',
-    outputs: 'Topology responsibility: signed topology-critic receipt. Inventory responsibility: signed ReviewRun terminal and exact epoch/wave inventory critic receipt.',
-    capabilities: 'Topology completeness criticism with implementation independence and exclusion validation; independently dispatched inventory completeness criticism with signed lane coverage.',
-    overlapCategory: 'independent topology and review-inventory completeness critic',
-    notes: 'Cannot override partial or unsupported discovery or approve its own exclusions. Inventory-only dispatch does not require topology business-commit authority, and inventory receipts never substitute for topology proof.',
+    purpose: 'Independently reviews acceptance topology by default, or exact inventory completeness only under an explicit mechanically validated inventory-purpose assignment.',
+    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check; review_run_start; finding_add; review_pass_set; review_inventory_critic_set.',
+    directFileAccess: 'Reads current source, topology, basis, scope artifacts, and purpose-bound inventory terminal/read records; writes evidence only through registered ProofOrStop commands, never direct Story artifacts.',
+    inputs: 'Topology: current acceptance basis, scope, exclusions, and implementation provenance. Inventory only: signed OPEN epoch, wave, cutoff, required-lane terminal reads, and exact aggregate Findings.',
+    outputs: 'Topology: signed topology-critic receipt with pass or request_changes. Explicit inventory only: signed reviewer terminal and exact per-Finding completeness receipt, never topology authority.',
+    capabilities: 'Topology completeness, four-dimensional independence, and exclusion validation remain unchanged; explicit inventory review preserves real Git authors and signed current-subject completeness.',
+    overlapCategory: 'independent purpose-selected topology or inventory critic',
+    notes: 'Cannot override partial or unsupported discovery or approve its own exclusions. No topology-refusal fallback; inventory credentials never prove topology, TEST, DONE, dependency approval, or independent-host assurance.',
   },
   'proof-or-stop-review-test-coverage': {
     status: 'active',

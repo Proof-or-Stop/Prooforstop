@@ -83,7 +83,15 @@ function rx(value: string): RegExp {
   return new RegExp(value);
 }
 
+export const LAB_MAINTENANCE_GIT_DIR = 'lab-maintenance';
+
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
+  {
+    id: 'lab-maintenance-git-records',
+    description: 'Local Lab command records, output and key in the Git common directory; not Story evidence.',
+    matchers: [{ kind: 'prefix', value: `.git/${LAB_MAINTENANCE_GIT_DIR}/` }],
+    ignorePatterns: [], materialHash: 'exclude', volatile: false, repairableTrackedArtifact: false,
+  },
   {
     id: 'proof-or-stop-runtime-root-ignore',
     description: `Ignore runtime state under the state directory (${STATE_DIR_NAMES.join(', ')}) while keeping tracked story evidence visible.`,
@@ -122,8 +130,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // story-scoped `activity.jsonl`.
     id: 'runtime-story-owner-lease',
     description: 'Per-story owner lease (local session ownership) written under .proof-or-stop/story/actives/<id>/.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)owner-lease\.json$`) }],
-    ignorePatterns: ['**/owner-lease.json'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)(?:owner-lease\.json|\.owner-lease-[a-f0-9-]+\.tmp)$`) }],
+    ignorePatterns: ['**/owner-lease.json', '**/.owner-lease-*.tmp'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

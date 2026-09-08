@@ -1,52 +1,20 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-02T15:10:01.732Z",
-  "reviewRound": "",
+  "checkedAt": "2026-09-06T16:16:16.782Z",
+  "reviewRound": "2026-09-06T15:32:14.385Z",
   "agentId": "proof-or-stop-review-story-init",
-  "issues": [
-    {
-      "id": "INIT-001",
-      "severity": "medium",
-      "desc": "background.md Trigger Event/Key Insights sections use undefined jargon: \"Probe rp-mtk46lj8-90q9av and review rr-mtk4acx4-oqze5c are bound before development starts\" and \"The repro review is red-reviewed and classified as target-bug\" never explain what a repro probe, a rp-/rr- id, \"red-reviewed\", or the \"target-bug\" classification mean. These terms are documented only in docs/requirements/decisions/*.md (e.g. experience-layer-fresh-failure-recurrence-execution-plan.md, proof-admissibility-hardening-execution-plan.md), not in CLAUDE.md or background.md itself, so a fresh reader with no conversation history cannot understand this section from the text alone."
-    },
-    {
-      "id": "INIT-002",
-      "severity": "medium",
-      "desc": "background.md Solution Tradeoffs section says the story \"avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof\" -- \"Authority proof\" and \"production proof\" are capitalized/specific jargon terms with no inline definition and no mention in CLAUDE.md, so a fresh reader cannot tell what distinguishes them from ordinary DONE evidence or why they are listed as things to avoid pretending."
-    },
-    {
-      "id": "INIT-003",
-      "severity": "medium",
-      "desc": "Internal inconsistency between background.md and the checklist: Solution Tradeoffs explicitly states \"Candidate global-cli-worktree-drift remains intake evidence only\" (i.e. NOT confirmed by a RED reproduction, unlike the exec-bit defect which has probe rp-mtk46lj8-90q9av / review rr-mtk4acx4-oqze5c bound). Yet checklist item CHK-003 (\"Make doctor verify the global executable realpath ...\") implements a fix for exactly that unconfirmed worktree-drift/realpath candidate (context literally says \"Draft symptom: /opt/homebrew/bin/proof-or-stop resolved into .worktrees/B-fe8f\"), with no RED/GREEN evidence pair analogous to CHK-001/CHK-002. This folds unverified candidate scope into a story whose own stated tradeoff is to avoid treating candidate evidence as proven."
-    }
-  ],
+  "issues": [],
   "agentResults": [
     {
-      "agentId": "product-reviewer",
-      "checkedAt": "2026-09-02T15:08:20.954Z",
+      "agentId": "proof-or-stop-product-reviewer",
+      "checkedAt": "2026-09-06T16:16:09.991Z",
       "issues": []
     },
     {
       "agentId": "proof-or-stop-review-story-init",
-      "checkedAt": "2026-09-02T15:10:01.732Z",
-      "issues": [
-        {
-          "id": "INIT-001",
-          "severity": "medium",
-          "desc": "background.md Trigger Event/Key Insights sections use undefined jargon: \"Probe rp-mtk46lj8-90q9av and review rr-mtk4acx4-oqze5c are bound before development starts\" and \"The repro review is red-reviewed and classified as target-bug\" never explain what a repro probe, a rp-/rr- id, \"red-reviewed\", or the \"target-bug\" classification mean. These terms are documented only in docs/requirements/decisions/*.md (e.g. experience-layer-fresh-failure-recurrence-execution-plan.md, proof-admissibility-hardening-execution-plan.md), not in CLAUDE.md or background.md itself, so a fresh reader with no conversation history cannot understand this section from the text alone."
-        },
-        {
-          "id": "INIT-002",
-          "severity": "medium",
-          "desc": "background.md Solution Tradeoffs section says the story \"avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof\" -- \"Authority proof\" and \"production proof\" are capitalized/specific jargon terms with no inline definition and no mention in CLAUDE.md, so a fresh reader cannot tell what distinguishes them from ordinary DONE evidence or why they are listed as things to avoid pretending."
-        },
-        {
-          "id": "INIT-003",
-          "severity": "medium",
-          "desc": "Internal inconsistency between background.md and the checklist: Solution Tradeoffs explicitly states \"Candidate global-cli-worktree-drift remains intake evidence only\" (i.e. NOT confirmed by a RED reproduction, unlike the exec-bit defect which has probe rp-mtk46lj8-90q9av / review rr-mtk4acx4-oqze5c bound). Yet checklist item CHK-003 (\"Make doctor verify the global executable realpath ...\") implements a fix for exactly that unconfirmed worktree-drift/realpath candidate (context literally says \"Draft symptom: /opt/homebrew/bin/proof-or-stop resolved into .worktrees/B-fe8f\"), with no RED/GREEN evidence pair analogous to CHK-001/CHK-002. This folds unverified candidate scope into a story whose own stated tradeoff is to avoid treating candidate evidence as proven."
-        }
-      ]
+      "checkedAt": "2026-09-06T16:16:16.782Z",
+      "issues": []
     }
   ],
-  "_hash": "d61301625ef7e048d03270bc982d61ac999ed95ffe7c7a6538e67535351d2304"
+  "_hash": "c5cb0135fc250e906cfbd9a1e9cea190a2b662e1b9dffc4e4cb734110919fef1"
 }

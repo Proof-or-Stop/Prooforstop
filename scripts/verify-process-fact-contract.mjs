@@ -200,7 +200,7 @@ const requiredProcessFactSemantics = {
   certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
-  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence', 'normalization-policy'],
   review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
@@ -1469,6 +1469,22 @@ function assertProofStoryProgressiveBoundary() {
   const verificationText = read('packages/main/src/core/verification.ts');
   const milestoneStatusText = read('packages/main/src/core/milestone-status.ts');
   const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
+  // B-29bc: explicit inventory purpose is a producer/consumer contract, not
+  // a prose exemption from topology business-author admission.
+  const inventoryDispatchText = read('packages/main/src/handlers/story-dispatch.ts');
+  const inventoryRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  const purposeRunText = read('packages/main/src/core/review-run.ts');
+  const purposeEpochText = read('packages/main/src/core/review-inventory-epoch.ts');
+  const purposeInventoryHandlerText = read('packages/main/src/handlers/review-inventory.ts');
+  for (const [label, source] of [['dispatch', inventoryDispatchText], ['run', inventoryRunHandlerText]]) {
+    assert(source.includes('requireInventoryCriticSubjectLocked') && source.includes('inventory-completeness'), `${label}: inventory purpose must bind the current signed epoch under the inventory lock`);
+  }
+  assert(inventoryDispatchText.includes("targetKind: 'inventory-critic-review'") && inventoryDispatchText.includes('topologyDispatchBusinessAuthor'),
+    'inventory dispatch must use a distinct carrier while default topology retains Git business-author admission');
+  assert(purposeRunText.includes("'critic-review-purpose.v1'") && purposeRunText.includes('run.inventoryBinding')
+    && purposeEpochText.includes('inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)')
+    && purposeInventoryHandlerText.includes('REVIEW_INVENTORY_CRITIC_PURPOSE_REQUIRED'),
+    'signed run and inventory receipt consumers must enforce purpose and exact epoch subject');
   const configText = read('packages/main/src/core/config.ts');
   const activityPolicyText = read('packages/main/src/cli/activity-policy.ts');
   const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
@@ -2197,7 +2213,12 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
-    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'any executable drift revokes the envelope mutation loader fingerprint',
+    'mutant path rebound to external input',
+    'mutant producer type widened',
+    'mutant producer nested shadow',
+    'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
@@ -2800,6 +2821,10 @@ function assertCloseoutTrustBoundary() {
     'GeneratorFunction',
   ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
+  }
+  const requiredValidationFact = registry.get('artifact:done-required-evidence.json');
+  for (const token of ['exact call shape', 'whole-source fingerprint', 'producer provenance', 'Loader admission is not a validation PASS or a dynamic-code exemption']) {
+    assert(requiredValidationFact?.rationale.includes(token), `${processFactRegistryPath}: test-only loader admission boundary must remain registered: ${token}`);
   }
   const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
@@ -4450,6 +4475,14 @@ function assertReviewInventoryRemediationContract() {
   const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
   const epochText = read(epochPath);
   assert(
+    /const runPasses = passes\.filter\([\s\S]*?verifyReviewPass\(run\.storyId, pass\)[\s\S]*?Boolean\(pass\.readManifest\)[\s\S]*?Boolean\(pass\.readLog\)/.test(epochText),
+    `${epochPath}: inventory PASS coverage requires both signed read fields`,
+  );
+  assert(
+    /const inventoryCriticRuns = candidates\.filter\([\s\S]*?canonicalAgentRoleId\(run\.lane\)[\s\S]*?run\.reviewPurpose === 'inventory-completeness'[\s\S]*?inventoryPurposeMatchesEpoch\(run\.inventoryBinding, args\.epoch\)[\s\S]*?for \(const run of inventoryCriticRuns\)[\s\S]*?evidenceForRun\(run, args\.passes, args\.findings\)\.findings[\s\S]*?rawFindings\.set\(finding\.id, finding\)/.test(epochText),
+    `${epochPath}: exact inventory aggregate must include signed current purpose-bound critic discoveries without lane promotion`,
+  );
+  assert(
     /\['verified_family',\s*'duplicate',\s*'not_verified'\]\.includes\(row\.disposition\)/.test(epochText),
     `${epochPath}: critic finding dispositions must be runtime-enumerated and reject unknown values`,
   );
@@ -4462,11 +4495,11 @@ function assertReviewInventoryRemediationContract() {
   );
 
   assert(
-    dispatchText.includes("story.phase === 'REVIEW' ? currentOpenReviewInventory(store, args.storyId) : null")
-      && dispatchText.includes('inventory.reviewRound !== story.currentReviewRound')
-      && dispatchText.includes('inventory.storyId !== story.storyId')
-      && dispatchText.includes('inventory ? {} : topologyAuthorityDispatchBinding(story, true)')
-      && dispatchText.includes('Inventory completeness only'),
+    dispatchText.includes("args.reviewPurpose === 'inventory-completeness'")
+      && dispatchText.includes('requireInventoryCriticSubjectLocked(ctx, args.storyId, args.inventoryEpochId!)')
+      && dispatchText.includes('withReviewInventoryMutationLock(store, args.storyId')
+      && dispatchText.includes('const authorityBinding = topologyAuthorityDispatchBinding(story, true)')
+      && dispatchText.includes("reviewPurpose: 'inventory-completeness', inventoryBinding, reviewerResponsibility"),
     `${dispatchPath}: inventory-only critic dispatch requires signed current OPEN context and leaves topology provenance strict`,
   );
   assert(
@@ -4500,7 +4533,7 @@ function assertReviewInventoryRemediationContract() {
       && roleContracts.includes("requiredOutputIds: ['review-finding-or-pass', 'review-inventory-critic-receipt']")
       && roleContracts.includes('promptRoleContractForSemanticDigest')
       && roleContracts.includes('unregistered Role Contract semantics')
-      && dispatchText.includes("inventory ? 'inventory-completeness' : undefined")
+      && dispatchText.includes("assembleComplexStoryDispatch(currentStory, canonicalType, dispatchPrompt, 'inventory-completeness')")
       && dispatchText.includes('promptRoleContract(agentType, responsibility)')
       && reviewRunHandler.includes('currentOpenReviewInventory(store, args.storyId)')
       && reviewRunHandler.includes('inventory.reviewRound !== story.currentReviewRound')
@@ -4553,7 +4586,7 @@ function assertReviewInventoryRemediationContract() {
   );
   assert(
     /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
-    `${inventoryHandlerPath}: a complete nonzero-new wave must expose the explicit wave-advance blocker and command`,
+    `${inventoryHandlerPath}: explicit saturation finalization must preserve the wave-advance blocker and command`,
   );
   assert(
     /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
@@ -4566,6 +4599,11 @@ function assertReviewInventoryRemediationContract() {
 
   const findingHandlerPath = 'packages/main/src/handlers/finding.ts';
   const findingHandlerText = read(findingHandlerPath);
+  const passProducer = extractNamedFunctionBody(findingHandlerText, 'recordReviewPass') ?? '';
+  assert(
+    /currentOpenReviewInventory\(ctx\.store, storyId\)[\s\S]*?!readEvidence\.readManifest \|\| !readEvidence\.readLog[\s\S]*?OPEN review inventory requires signed readManifest plus mechanical readEvents\/readLog/.test(passProducer),
+    `${findingHandlerPath}: the shared pass producer must reject incomplete OPEN-inventory read evidence before publication`,
+  );
   assert(
     /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
     `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and enforce temporal evidence admission`,
@@ -8449,6 +8487,25 @@ function assertFilePatterns(entryName, relPath, patterns) {
 
 const inventory = [
   {
+    name: 'Production validation sharing and bounded repair authority',
+    files: [
+      {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},
+      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt']},
+      {relPath:'packages/main/src/core/review-inventory-epoch.ts',patterns:['review-remediation-only','remediation-only receipt cannot enter certification','rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount']},
+      {relPath:'packages/main/src/handlers/transition-effects.ts',patterns:['--remediation','cannot enter certification or TEST']},
+      {relPath:'docs/validation-performance.md',patterns:['exact-inputs','forbidden','--remediation','no Story-wide speedup']},
+    ],
+  },
+  {
+    name: 'Explicit Lab maintenance integration boundary',
+    files: [
+      { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', '--ff-only', "phase = 'verified'", "'branch', '-d'"] },
+      { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm'] },
+    ],
+  },
+
+  {
     name: 'phase advance',
     files: [
       {
@@ -8989,6 +9046,13 @@ for (const entry of inventory) {
   }
 }
 if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} files checked)`);
+
+// Hash input exclusions must retain the independent integrity boundary.
+assert(read(processFactRegistryPath).includes('...PROCESS_FACT_EVIDENCE_HASH_INPUTS'), 'Evidence hash input facts must be registered');
+const hashPolicySource = read('packages/main/src/core/material-path-policy.ts');
+for (const boundary of ['objects/sha256/', 'refs/by-id/', 'ledger/observed.jsonl']) assert(hashPolicySource.includes(boundary), `Missing bounded evidence output location: ${boundary}`);
+assert(read('packages/main/src/core/story-aware-validation.ts').includes("'--name-status', '-z'"), 'Story diff must preserve NUL-framed Git filenames');
+assert(read('packages/main/src/tasks/story-files-hash-batch-smoke.ts').includes('verify-hash-accuracy.mjs'), 'Independent hash oracle must run in the existing validation inventory');
 
 if (failures.length) {
   console.error('');

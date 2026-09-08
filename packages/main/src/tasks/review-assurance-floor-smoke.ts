@@ -502,6 +502,7 @@ try {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story(),
+      storyId: STORY_ID,
       changedFiles: ['packages/main/src/index.ts'],
       processEvents: [],
       materialHash,
@@ -514,14 +515,19 @@ try {
     assert.match(formatted, /Cannot enter DONE: material code diff requires review assurance floor/);
     assert.match(formatted, /Stale material recovery:/);
     assert.match(formatted, /autopilot_review_submit/);
+    const submitCommands = buildReviewAssuranceFloorGuidance(report).legalWriterPaths.reviewerHost
+      .filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.equal(submitCommands.length, 1, 'ordinary material requires exactly one local round');
+    assert.match(submitCommands[0]!.command, new RegExp(`--runId=${STORY_ID}-degraded-r1(?: |$)`));
   });
 
   check('one fresh local review round passes clean material code', () => {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story(),
+      storyId: STORY_ID,
       changedFiles: ['packages/main/src/index.ts'],
-      processEvents: [verdict('round-1', 'codex-a', materialHash)],
+      processEvents: [verdict(`${STORY_ID}-degraded-r1`, 'codex-a', materialHash)],
       materialHash,
     });
     assert.equal(report.ok, true);
@@ -530,6 +536,12 @@ try {
     assert.equal(report.authorityDone, false);
     assert.equal(report.fullAuthorityDone, false);
     assert.equal(report.productionDone, false);
+    assert.equal(
+      buildReviewAssuranceFloorGuidance(report).legalWriterPaths.reviewerHost
+        .filter(recipe => recipe.command.includes('autopilot_review_submit')).length,
+      0,
+      'satisfied ordinary guidance must not suggest the already effective runId',
+    );
   });
 
   check('compatibility/retired-only records cannot satisfy the host-verdict assurance floor', () => {
@@ -625,13 +637,31 @@ try {
   });
 
   check('failure signals require sticky 3x1 local rounds', () => {
+    const empty = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story(),
+      storyId: STORY_ID,
+      changedFiles: ['packages/main/src/index.ts'],
+      bugs: bugData('fixed'),
+      processEvents: [],
+      materialHash,
+    });
+    const emptyCommands = buildReviewAssuranceFloorGuidance(empty).legalWriterPaths.reviewerHost
+      .filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.deepEqual(
+      emptyCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1]),
+      [`${STORY_ID}-degraded-r1`, `${STORY_ID}-degraded-r2`, `${STORY_ID}-degraded-r3`],
+      'failure floor guidance emits the complete distinct 3x1 recipe set',
+    );
+
     const oneRound = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story(),
+      storyId: STORY_ID,
       changedFiles: ['packages/main/src/index.ts'],
       bugs: bugData('fixed'),
       findings: [finding()],
-      processEvents: [verdict('round-1', 'codex-a', materialHash)],
+      processEvents: [verdict(`${STORY_ID}-degraded-r1`, 'codex-a', materialHash)],
       materialHash,
     });
     assert.equal(oneRound.ok, false);
@@ -639,6 +669,36 @@ try {
     assert.equal(oneRound.localRounds.requiredRounds, REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS);
     assert.equal(oneRound.failureSignals.some(signal => signal.kind === 'bug'), true);
     assert.equal(oneRound.failureSignals.some(signal => signal.kind === 'verified-reviewer-finding'), true);
+    const remainingCommands = buildReviewAssuranceFloorGuidance(oneRound).legalWriterPaths.reviewerHost
+      .filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.deepEqual(
+      remainingCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1]),
+      [`${STORY_ID}-degraded-r2`, `${STORY_ID}-degraded-r3`],
+      'guidance omits an already valid generated runId and supplies only the missing rounds',
+    );
+
+    const duplicateRunId = `${STORY_ID}-degraded-r1`;
+    const duplicate = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story(),
+      storyId: STORY_ID,
+      changedFiles: ['packages/main/src/index.ts'],
+      bugs: bugData('fixed'),
+      processEvents: [
+        verdict(duplicateRunId, 'codex-a', materialHash),
+        verdict(duplicateRunId, 'codex-a', materialHash, { verdictId: `${duplicateRunId}-duplicate` }),
+      ],
+      materialHash,
+    });
+    assert.equal(duplicate.localRounds.validRounds.length, 0);
+    assert.equal(duplicate.localRounds.invalidRounds[0]?.runId, duplicateRunId);
+    const recoveryCommands = buildReviewAssuranceFloorGuidance(duplicate).legalWriterPaths.reviewerHost
+      .filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.deepEqual(
+      recoveryCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1]),
+      [`${STORY_ID}-degraded-r2`, `${STORY_ID}-degraded-r3`, `${STORY_ID}-degraded-r4`],
+      'duplicate-poisoned runIds are skipped while a complete three-round recovery set is emitted',
+    );
 
     const threeRounds = evaluateReviewAssuranceFloor({
       projectRoot: root,
@@ -683,8 +743,8 @@ try {
     assertProofAdmissibilityBlocked(oneRound);
     const guidance = buildReviewAssuranceFloorGuidance(oneRound);
     const singleHostCommands = guidance.legalWriterPaths.reviewerHost.filter(recipe => recipe.command.includes('autopilot_review_submit'));
-    assert.equal(singleHostCommands.length, 3, 'high-risk fallback guidance emits three distinct single-host rounds');
-    assert.equal(new Set(singleHostCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1])).size, 3);
+    assert.equal(singleHostCommands.length, 2, 'high-risk fallback guidance emits only the two missing single-host rounds');
+    assert.equal(new Set(singleHostCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1])).size, 2);
     for (const recipe of singleHostCommands) {
       assert.match(recipe.command, /--deriveBindings/);
       assert.match(recipe.command, new RegExp(`--materialDigest=${materialHash}`));
@@ -880,6 +940,12 @@ try {
       assert.equal(degraded.authorityDone, false);
       assert.equal(degraded.fullAuthorityDone, false);
       assert.equal(degraded.productionDone, false);
+      assert.equal(
+        buildReviewAssuranceFloorGuidance(degraded).legalWriterPaths.reviewerHost
+          .filter(recipe => recipe.command.includes('autopilot_review_submit')).length,
+        0,
+        're-evaluated guidance does not replay any persisted effective runId',
+      );
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
       resetConfigCache();

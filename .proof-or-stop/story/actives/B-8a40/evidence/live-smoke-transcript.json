@@ -1,0 +1,20 @@
+{
+  "storyId": "B-8a40",
+  "expected": "The focused smoke prints exactly \"prompt full-context envelope smoke PASS\" after exercising the exact B-bcae text, the full unsafe matrix, and both dynamic mutants across every active reviewer role.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+    "exitCode": 0,
+    "stdout": "prompt full-context envelope smoke PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-07T11:27:59.372Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "0452add23042f9fbc249a75be847c0c1ca551a07",
+  "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25"
+}

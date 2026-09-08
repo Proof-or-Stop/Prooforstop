@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-8a40",
+  "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+  "identityDigest": "3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-8a40",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40/.proof-or-stop/story/actives/B-8a40/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40/.proof-or-stop/story/actives/B-8a40/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:b4a98b09df5d2c0cf7d44fbcad76deff863335fe70ea7b69374a20c906c0854c",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-8a40/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-8a40",
+      "timeoutMs": 270000,
+      "verificationExecutionSemanticsKey": "{\"version\":1,\"rawExecutionKey\":\"{\\\"version\\\":1,\\\"command\\\":{\\\"executable\\\":\\\"node\\\",\\\"args\\\":[\\\"packages/main/dist/tasks/prompt-full-context-envelope-smoke.js\\\"]},\\\"cwd\\\":\\\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40\\\",\\\"effectiveTimeoutMs\\\":270000,\\\"timeoutProvenance\\\":{\\\"source\\\":\\\"executor-default\\\",\\\"configuredTimeoutMs\\\":null}}\",\"selector\":\"prompt full-context envelope smoke PASS\",\"intentType\":\"logic\",\"evidenceKind\":\"logic_test\"}"
+    },
+    "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/9fa2f60e-acd6-4d7f-8eec-3a553e15d0be.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg0sdXHW0:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.278",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+  "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+  "outputProbe": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+  "outputLength": 214,
+  "executedAt": "2026-09-07T10:11:32.860Z",
+  "durationMs": 3031,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "vF8L5kn4Go7rluRBDNHNHoJT5tBlUOASKF8dGjhfzYezF1CP1iXcUgcvhOittYldf9QFNC1NsHdSnmeKF+ZDAQ==",
+  "receiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97"
+}

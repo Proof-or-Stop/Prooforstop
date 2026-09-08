@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 
 /**
  * Smoke: story-scoped validate executions are mutually exclusive without
@@ -58,7 +60,7 @@ import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { CONFIG_FILENAMES, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
 import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
-import { createVerifierHandlers } from '../handlers/verifier.js';
+import { createVerifierHandlers as unownedcreateVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
@@ -291,6 +293,11 @@ console.log('probe ' + label + ' passed');
   store.writeStory(storyId, story(storyId, options.phase ?? 'TEST', options.priority ?? 'high'));
   store.writeChecklist(storyId, checklist());
   commitAll(root, 'seed story metadata');
+  if (options.doneRequired) {
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'capacity fixture must bind real certification inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+  }
   return { root, storyId };
 }
 
@@ -1798,9 +1805,23 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 26 assertion groups');
+    execFileSync(process.execPath, [join(repoRoot(), 'scripts/verify-performance-production.mjs')], {
+      cwd: repoRoot(), stdio: 'inherit', timeout: 180000,
+    });
+    console.log('validate-execution-lock smoke passed: 26 assertion groups plus production regressions');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 })();
+
+import { acquireOwnerLease, readOwnerLease } from '../core/story-owner-lease.js';
+// Direct handler tests bypass the CLI ownership gate. Establish its prerequisite
+// only in these disposable fixtures; production heartbeat never acquires leases.
+function createVerifierHandlers(ctx: Parameters<typeof unownedcreateVerifierHandlers>[0]) {
+  for (const id of ctx.store.listStoryIds()) {
+    const directory = ctx.store.storyDirPath(id);
+    if (!readOwnerLease(directory)) acquireOwnerLease(directory, {command:'fixture-owner',cwd:ctx.root});
+  }
+  return unownedcreateVerifierHandlers(ctx);
+}

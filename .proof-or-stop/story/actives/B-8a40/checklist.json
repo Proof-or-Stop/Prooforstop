@@ -49,7 +49,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake as out of scope.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake as out of scope.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -58,7 +58,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. It is out of scope.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. It is out of scope.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -67,7 +67,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Consequently, the issue is out of scope.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Consequently, the issue is out of scope.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -76,7 +76,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Therefore another Story owns it.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Therefore another Story owns it.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -85,7 +85,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. The work is outside this Story.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. The work is outside this Story.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -94,7 +94,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Evidence is preserved. It proves the work is out of scope.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Evidence is preserved. It proves the work is out of scope.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -103,7 +103,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Accordingly, the issue is out of scope.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Accordingly, the issue is out of scope.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -112,7 +112,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. For that reason, the work is outside this Story.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. For that reason, the work is outside this Story.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -121,7 +121,7 @@
             }
           },
           {
-            "desc": "Negative fixture: \"No parent Finding is closed by this intake. So another Story owns it.\" Expected result: validation must reject this input.",
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. So another Story owns it.\" Expected result: validation must reject the input.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -151,9 +151,356 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-06T16:25:45.019Z",
+      "endTime": "2026-09-07T10:12:27.684Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:7",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.952Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:8",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.953Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:9",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.953Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.953Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "The focused built smoke exercises the exact safe context, unsafe causal-link witnesses, all active reviewer roles, and independent mutant assertions.",
+          "headHash": "9b8ca8879f68c8f384f784aa7149c2136c5d16c6",
+          "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+          "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "14965e755ec8f4216730ede091b4d0310770816c699ce964742a2987eb18e4cf",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke PASS\n",
+            "selectorMatched": true,
+            "selector": "prompt full-context envelope smoke PASS",
+            "executedAt": "2026-09-07T10:11:32.860Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:3722db4c8269d3e95b2164f02271b49e98171c57b6e3af80925db5789673d165",
+            "causalReceiptHash": "7c846ee4800c726c7c3593d6688c8d2bdf4ee507487e6551f0ca6b8172274a97",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-07T10:11:32.953Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9738a1921a64f79a697cde52b7ab7ebfe0043566a4781b6fa12d479735ad18c5",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd",
+        "headHash": "7b3b1ca8a42c0010a1407d49271ab082ffe27502",
+        "attestedAt": "2026-09-06T16:32:26.727Z",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50"
+      }
     }
   ]
 }

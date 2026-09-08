@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import { resetConfigCache } from '../core/config.js';
 import {
   createProofStoryHandlers,
@@ -72,7 +73,32 @@ const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
 const activeScenarioKinds = new Map<string, ScenarioCaseKind>();
-const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
+
+function resolveActiveStoryId(
+  argumentStoryId: string | undefined,
+  env: Partial<Pick<NodeJS.ProcessEnv, 'PROOF_OR_STOP_ACTIVE_STORY_ID' | 'LATTICE_ACTIVE_STORY_ID'>>,
+): string | undefined {
+  // `live_smoke_transcript` supplies the canonical environment name. Keep the
+  // deprecated spelling as a last-resort compatibility input for older direct
+  // runners, but never let it override either an explicit argument or the
+  // current canonical handoff.
+  return argumentStoryId
+    || env.PROOF_OR_STOP_ACTIVE_STORY_ID
+    || env.LATTICE_ACTIVE_STORY_ID;
+}
+
+const activeScenarioStoryId = scenarioMode ? resolveActiveStoryId(activeStoryArgId, process.env) : undefined;
+
+if (!liveProofMode && !scenarioMode) {
+  assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: 'B-canonical', LATTICE_ACTIVE_STORY_ID: undefined }), 'B-canonical',
+    'nested proof scenarios consume the canonical live_smoke_transcript Story handoff');
+  assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: 'B-canonical', LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-canonical',
+    'the canonical Story handoff takes precedence over deprecated compatibility state');
+  assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: undefined, LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-legacy',
+    'older direct scenario runners retain their deprecated environment fallback');
+  assert.equal(resolveActiveStoryId('B-argument', { PROOF_OR_STOP_ACTIVE_STORY_ID: 'B-canonical', LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-argument',
+    'an explicit Story argument remains authoritative');
+}
 
 function codexAdapterDir(root: string): '.proof-or-stop-codex' | '.lattice-codex' {
   return existsSync(join(root, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
@@ -176,12 +202,30 @@ if (scenarioMode) {
   }
 }
 
-// A live production contract is materially larger than the historical A-*
-// fixture catalog.  Its active-witness run needs only the clean canonical
-// fixture plus the per-assertion verifier loop below; the focused regression
-// mutations remain covered by the ordinary smoke path and should not be
-// replayed a second time inside the bounded live-proof capture.
-const productionScenarioMode = scenarioMode && activeScenarioAssertions.size > registeredScenarioKinds.size;
+function isProductionScenarioExecution(
+  requestedScenarioMode: boolean,
+  selectedStoryId: string | undefined,
+): boolean {
+  // Production-mode selection comes from the explicit active-Story handoff, not
+  // from topology size. A legitimate Story may declare fewer assertions than
+  // the historical 29-case fixture catalog (B-e256 currently does), and its
+  // direct Wave 4 reads must still target that Story rather than the isolated
+  // B-pre-review-smoke fixture.
+  return requestedScenarioMode && selectedStoryId !== undefined;
+}
+
+// The ordinary no-selector smoke remains fixture mode. `--proof-scenarios`
+// with an explicit active Story is the bounded production capture path; its
+// per-assertion verifier loop below avoids replaying unrelated fixture-only
+// mutations.
+const productionScenarioMode = isProductionScenarioExecution(scenarioMode, activeScenarioStoryId);
+
+if (!liveProofMode && !scenarioMode) {
+  assert.equal(isProductionScenarioExecution(true, 'B-small-production-topology'), true,
+    'a production topology smaller than the built-in fixture catalog remains production mode');
+  assert.equal(isProductionScenarioExecution(false, undefined), false,
+    'the ordinary no-selector regression smoke remains fixture mode');
+}
 
 function scenarioSourceRef(assertionId: string): string {
   return scenarioSourceRefs.get(assertionId) ?? `intent:${assertionId}`;
@@ -511,7 +555,7 @@ function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohor
 }
 
 if (liveProofMode) {
-  const activeStoryId = activeStoryArgId || process.env.PROOF_OR_STOP_ACTIVE_STORY_ID;
+  const activeStoryId = resolveActiveStoryId(activeStoryArgId, process.env);
   if (!activeStoryId) throw new Error('--live-proof requires --story=<id> or PROOF_OR_STOP_ACTIVE_STORY_ID from live_smoke_transcript');
   const scenarioArgs = [fileURLToPath(import.meta.url), '--proof-scenarios'];
   if (cohortArgPath) scenarioArgs.push(`--cohort=${cohortArgPath}`);
@@ -563,8 +607,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
         // verifier. Nested fixture CLI calls must resolve their own adapter
         // actor from the explicit session envelope instead of inheriting that
         // non-dispatch actor marker.
-        PROOF_OR_STOP_AGENT: undefined,
-        LATTICE_AGENT: agent,
+        PROOF_OR_STOP_AGENT: agent,
         ...adapterSessionEnv(sessionTask, agent),
       },
       encoding: 'utf8',
@@ -1361,8 +1404,8 @@ try {
   if (!scenarioMode) {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
-    cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
-    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
+    cli(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, 'proof-or-stop-review-topology-critic')).at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
     assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');

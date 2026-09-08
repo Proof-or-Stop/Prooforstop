@@ -25,14 +25,15 @@ alongside, never instead of, the existing whole-tree `materialHash`.
 1. Resolve the story's signed git workspace.
 2. Resolve the merge-base between current `HEAD` and `main`.
 3. Use the story's changed files between that merge-base and `HEAD`.
-4. Exclude story metadata and runtime artifacts with the same material-exclusion
-   policy used by `materialHash`.
+4. Exclude story metadata, runtime artifacts and the defined evidence-store output
+   locations with the same material-exclusion policy used by `materialHash`.
 5. Hash each remaining path with its blob object id at the target ref, sorted by
    path. Deleted story-owned paths are included with a deletion marker so
    removing a story-owned file changes the hash.
 
-The existing whole-tree `materialHash` remains byte-for-byte unchanged and is
-still recorded on every adopted binding. Consumers must not infer that a record
+The original introduction of this secondary hash kept `materialHash` unchanged.
+The September 2026 accuracy correction below adjusts output classification;
+`materialHash` is still recorded on every adopted binding. Consumers must not infer that a record
 is fully fresh merely because `storyFilesHash` matches.
 
 ## Adopted Bindings
@@ -101,3 +102,32 @@ Adopted with extra guard (signed): delivery-check (core/delivery-check-hash.ts),
 Kept strict (re-runs): the done-required build+full-test-suite evidence (core/done-required-validation.ts evaluateDoneRequiredEvidence). On whole-tree materialHash drift it re-runs the suite on the merged tree rather than downgrading, so behavioral breakage from an unrelated merge is caught directly; this cheap genuine re-verification is preferred over an advisory for the suite.
 
 Excluded (kept strict): the completed-DONE-projection evidence snapshot check (core/done-oracle.ts checkCompletedEvidenceSnapshotFreshness). It recomputes materialHash AT the recorded evidence.headHash (a frozen past ref) to verify the recorded (headHash, materialHash) pair is self-consistent — an evidence-integrity / tamper check, not a HEAD-drift freshness check. storyFilesHash computed at the same frozen ref yields no independent signal and an unrelated main merge does not change the tree at the recorded head, so this gate cannot exhibit the whole-tree-drift symptom; storyFilesHash MUST NOT be wired into it.
+
+## September 2026 accuracy correction
+
+Both hashes now exclude only the evidence store's defined `objects/sha256/`,
+`refs/by-id/` and `ledger/observed.jsonl` outputs below accepted state-directory
+spellings. These remain process artifacts, not disposable runtime state. Unknown
+paths and policy files within `evidence/` remain material. The shared
+`material-path-policy` owns this boundary; no blanket evidence-directory ignore
+or new runtime cleanup permission is introduced.
+
+Consumers must still independently verify output digests, subject binding,
+signatures and acceptance requirements. A stable material hash does not verify an
+artifact. Never rewrite existing evidence or silently re-attest old hashes after
+upgrading; use the applicable consumer's normal freshness/re-attestation path.
+Use the implementation belonging to the current checkout consistently when
+producing and consuming evidence; a matching version string alone cannot prove
+identical implementation bytes.
+
+The shared changed-file resolver uses NUL-framed Git output and literal tree
+paths, preserving Unicode, tabs, newlines and backslashes during blob lookup.
+Renames retain the old deletion marker and target blob. Missing target objects
+fail closed instead of being represented as deletions. This corrects the hash
+inputs; it does not change review or certification authorization.
+
+`node scripts/verify-hash-accuracy.mjs` runs the 27 independent exact-digest
+oracles plus special-path, publication, corruption and material-drift controls.
+The existing story-files-hash-batch validation entry invokes this regression.
+The historical 33.7% speed claim is withdrawn: this is an accuracy correction,
+and no whole-Story speedup or faster single hash computation has been measured.

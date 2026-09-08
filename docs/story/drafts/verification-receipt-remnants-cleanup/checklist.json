@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Align the dependency-manifest comment with the policy-owned V2 environment contract",
+      "context": "B-aa5f:F-086, verified at material 10b620e7aa1e4f38cb70b13c1f026849f01f89fbb581c64f7a6f763b24ae870a. Reproduce by reading packages/main/src/core/evidence-freshness.ts:140-143 and :215-237: the comment requires an enumerated environment key set, but V1 is untrusted and V2 permits schemaVersion/capsuleProfile/files and derives the environment from tool policy. Comment-only maintenance confusion; no executable, closure, acceptance or gate-truth defect demonstrated. Correct only the stale comment and check it against the current V2 implementation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Remove the unreferenced private bundle-digest helper without changing receipt behavior",
+      "context": "B-aa5f:F-087 at the same material. Reproduce with rg -n '\\bbundleDigestSubject\\b' packages/main/src scripts: only the private definition at packages/main/src/core/verification-execution-evidence.ts:389 exists, returning receipt.bundleBinding. No production or test caller, executed behavior, public API, signature, assertion, command identity or acceptance regression demonstrated. Remove only the dead helper after reconfirming no callers and run focused build/receipt contract verification; preserve existing V5 issuance and graph validation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reassess risk and retain the original Finding lineage",
+      "context": "Owner must retain B-aa5f:F-086/F-087 unchanged as the original verified observations and close them only through an authorized repair workflow with fresh evidence. If either issue gains a runtime caller, affects security/data integrity/public compatibility, or becomes a direct B-aa5f acceptance/lifecycle blocker before B-aa5f reaches DONE, immediately return it to current-Story repair. After B-aa5f DONE, escalate within the responsible follow-up Story. Do not broaden into redesigning receipt digests, manifests or lifecycle gates.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

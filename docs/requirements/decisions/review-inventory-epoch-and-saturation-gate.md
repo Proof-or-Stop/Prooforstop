@@ -41,13 +41,25 @@ During REVIEW:
 ```bash
 proof-or-stop review_inventory_begin --storyId=B-xxxx
 proof-or-stop review_inventory_status --storyId=B-xxxx
-proof-or-stop review_run_start --storyId=B-xxxx --agent=lattice-review-topology-critic
+# finish the required lanes reported by status before dispatching the critic
+proof-or-stop dispatch '{"storyId":"B-xxxx","agentType":"proof-or-stop-review-topology-critic","reviewPurpose":"inventory-completeness","inventoryEpochId":"<epoch>"}'
+proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-review-topology-critic","reviewPurpose":"inventory-completeness","inventoryEpochId":"<epoch>"}'
 # submit the critic's terminal finding_add or review_pass_set with read evidence
-proof-or-stop review_inventory_critic_set '{"storyId":"B-xxxx","epochId":"<epoch>","reviewRunId":"<critic-run>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"B-xxxx:F-001","disposition":"verified_family","familyKey":"finding:B-xxxx:F-001","reason":"independent critic retained this verified family"}]}'
+proof-or-stop review_inventory_critic_set '{"storyId":"B-xxxx","epochId":"<epoch>","reviewRunId":"<critic-run>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"B-xxxx:F-001","disposition":"verified_family","familyKey":"finding:B-xxxx:F-001","reason":"independent critic retained this verified family"}]}'
 # use findingDispositions:[] only when the aggregate verified finding set is empty
 proof-or-stop review_inventory_wave_advance --storyId=B-xxxx # only when status reports new families
 proof-or-stop review_inventory_finalize --storyId=B-xxxx
 ```
+
+B-29bc separates explicit `inventory-completeness` admission from the default
+topology purpose. Use the current epoch returned by the CLI, not a historical ID.
+The inventory dispatch, signed run and critic receipt bind the current OPEN
+epoch, wave, cutoff, scope, required lanes and run-sequence boundary. This branch
+preserves real Git attribution and does not require a role-named Git author;
+it still requires independent critic execution and signed terminal/read evidence.
+Omitted purpose retains the original topology provenance requirements. Do not
+retry a refused topology assignment as inventory, or present inventory evidence
+as topology certification, TEST/DONE approval or independent-host assurance.
 
 `begin` prints the epoch ID, `State: OPEN`, frozen material cutoff and exactly
 one status command. `status` prints every required lane, current wave, verified
@@ -121,8 +133,9 @@ facts. A wave can complete only when:
    `readLog`; all of those lane evidence records plus lane-specific prompt
    identity are folded into the lane coverage digest;
 4. duplicate lane identities cannot increase coverage;
-5. a separately dispatched `lattice-review-topology-critic` starts a fresh
-   ReviewRun only after all required lanes terminate, submits signed terminal
+5. a separately dispatched `proof-or-stop-review-topology-critic`, explicitly
+   bound to `inventory-completeness`, starts a fresh ReviewRun only after all
+   required lanes terminate, submits signed terminal
    pass/finding plus read evidence, and signs a critic receipt bound to the exact
    epoch, wave, cutoff, aggregate finding set and lane coverage; and
 6. the current complete wave adds zero new verified families.

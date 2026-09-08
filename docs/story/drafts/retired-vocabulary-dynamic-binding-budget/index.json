@@ -1,0 +1,14 @@
+{
+  "name": "retired-vocabulary-dynamic-binding-budget",
+  "title": "Enforce the retired-vocabulary dynamic binding build budget",
+  "description": "Follow-up owned by this draft, routed from B-aa5f integration c88e3f23c1. The cost-budget helper has zero call sites on both parent versions and current HEAD. This is a pre-existing low-severity performance-observability gap, not a current B-aa5f receipt/fan-out acceptance regression. Preserve actual semantic vocabulary checks and do not claim their PASS proves the unused numeric ceiling.",
+  "type": "bug",
+  "priority": "low",
+  "keywords": [
+    "retired-vocabulary",
+    "dynamic-binding",
+    "budget",
+    "baa5f-followup"
+  ],
+  "createdAt": "2026-09-06T21:22:39.060Z"
+}

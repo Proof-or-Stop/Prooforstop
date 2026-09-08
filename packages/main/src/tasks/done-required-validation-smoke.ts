@@ -27,7 +27,7 @@ import {
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
-import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { createDoneRequiredValidationHandlers as unownedcreateDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import {
   effectiveValidationCommandEnvironment,
   HOST_LAUNCHER_SESSION_ENV_KEYS,
@@ -1219,3 +1219,14 @@ function assertDoneRequiredBlocked(
 }
 
 console.log('done-required-validation smoke passed');
+
+import { acquireOwnerLease, readOwnerLease } from '../core/story-owner-lease.js';
+// Direct handler tests bypass the CLI ownership gate. Establish its prerequisite
+// only in these disposable fixtures; production heartbeat never acquires leases.
+function createDoneRequiredValidationHandlers(ctx: Parameters<typeof unownedcreateDoneRequiredValidationHandlers>[0]) {
+  for (const id of ctx.store.listStoryIds()) {
+    const directory = ctx.store.storyDirPath(id);
+    if (!readOwnerLease(directory)) acquireOwnerLease(directory, {command:'fixture-owner',cwd:ctx.root});
+  }
+  return unownedcreateDoneRequiredValidationHandlers(ctx);
+}

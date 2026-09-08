@@ -1,5 +1,41 @@
 # Changelog
 
+## Lab hash-accuracy-production - v0.3.284 - 2026-09-08
+
+Correct shared evidence hash inputs and literal Git path handling. Evidence-store objects/sha256, refs/by-id and ledger/observed.jsonl are excluded as process outputs rather than disposable runtime artifacts; unknown evidence paths and policy remain material. Story diffs use NUL framing and literal target blob lookup, preserving Unicode and control characters, with missing target objects failing closed. Existing evidence is neither rewritten nor automatically re-attested.
+
+Validation: reproduced 19/27 independent exact-digest cases on 0.3.283, then passed 27/27 plus special-name rename/content changes, real main-store publication, digest/subject tampering and source-drift controls using node scripts/verify-hash-accuracy.mjs. The regression is included through the existing story-files-hash-batch validation entry. Build, hash-batch, large-tree freshness, story-aware validation, process-fact contract and previous production-performance regression passed. The separate story-aware-validation-production smoke fails identically on unchanged main and Lab at the legacy lattice.config.json fixture inventory assertion (0 vs 3); that existing fixture issue is outside this hash repair. No full lifecycle or whole-Story speed claim is made; the earlier 33.7% claim remains withdrawn.
+
+Maintenance provenance: codex/lab-hash-accuracy-production, repair a2a17276d19f8ba8348d80597cf346be38d1ed6a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-hash-accuracy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab performance-production-validation - v0.3.283 - 2026-09-08
+
+- Allow official validation invocations with complete, nonconflicting resource declarations to share repository capacity across processes and worktrees. Unknown and conflicting resources retain exclusive admission.
+- Renew an existing same-owner lease during validation and capacity wait. Serialize acquire, refresh, release and takeover, atomically replace lease files, and fence stale heartbeat generations.
+- Add explicit exact-inputs sharing of signed causal PASS receipts between routine validation and DONE-required consumers. Bind declared generated/external inputs and preserve forbidden-reuse, build-proof, cancellation, environment and freshness controls. Existing commands are not implicitly opted into reuse.
+- Add review_inventory_finalize --remediation for a complete critic-certified review wave. Its single-use repair-only receipt preserves findings and cannot enter certification or TEST; explicit saturation finalization remains available.
+- Extend existing registered validation regression coverage and document production behavior. The earlier experimental timing percentages are not a measured whole-Story speedup.
+
+Maintenance provenance: codex/lab-performance-production-validation, repair 1b17bdb7d56b477f7ee743b7419f684d3cc7eb25.
+Verification command (replayed before integration and on main): `["node","scripts/verify-performance-production.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Proof-or-Stop v0.3.282 - 2026-09-08
+
+Temporary Lab maintenance tooling; explicitly authorized local bootstrap integration.
+
+- Added manually invoked create, sync, RED/GREEN, release preparation recovery,
+  and local finish commands for bounded system bugs and performance regressions.
+- Reused the main write lock and synchronized version rules. Finish records
+  maintenance notes, verifies the candidate and main, and only then removes the
+  worktree and merged branch; failures retain the workspace and local audit record.
+- CLI preparation builds both main and utils so new worktrees can run the real CLI entrypoint.
+- Lab provenance remains separate from formal Story and product-release evidence.
+- Verification: isolated Git lifecycle scenarios, shared version-bump regression
+  assertions, main-package build, and process/runtime contract checks.
+
 ## Proof-or-Stop v0.3.267 - 2026-08-20
 
 This release completes the state and package identity migration, strengthens signed

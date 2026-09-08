@@ -1,0 +1,40 @@
+{
+  "task": "Separate inventory completeness review launch from topology business-author admission without weakening either evidence contract.",
+  "outcome": "After an explicit inventory-purpose dispatch on the current frozen epoch, the CLI prints a signed ReviewRun and Completeness critic: complete using real Harmonynet Git attribution; topology-purpose requests still report their original provenance blockers.",
+  "facts": [
+    "B-7abb BUG-CRITIC-PROVENANCE-001 reproduces official dispatch exit 1 before a critic run because currentImplementationBusinessCommit accepts only role-named authors.",
+    "review_inventory_critic_set and validateReviewInventoryCriticReceipt consume current epoch, cutoff, run, lane terminals, signed read evidence and per-Finding dispositions; they do not consume TopologyCriticReceiptV1.",
+    "The user requires Harmonynet <26995688+Harmonynet@users.noreply.github.com> Git commits and independent review.",
+    "The scope is limited to explicit review purpose admission, trusted bindings, prompt projections, focused tests and a local audit; B-7abb remains frozen."
+  ],
+  "constraints": [
+    "Keep original topology business-author and implementer provenance admission unchanged; no username allowlist.",
+    "Inventory purpose must be explicit and current-epoch-bound, not selected after a topology failure.",
+    "Reject missing/stale/tampered/wrong-Story/wrong-purpose evidence; never promote inventory completeness to topology certification or lifecycle completion.",
+    "Do not edit Story JSON, other worktrees, unrelated source or remote refs.",
+    "Distinguish real host review from synthetic disposable test identity."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "docs/audits/inventory-critic-purpose-isolation.md"
+  ],
+  "timestamp": "2026-09-07T08:16:46.820Z"
+}

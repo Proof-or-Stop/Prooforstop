@@ -205,7 +205,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
-  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence', 'normalization-policy'],
   review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
@@ -358,7 +358,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch including initialRunSequenceBoundary, complete acceptance scopeDigest, candidateSpecSetDigest, corpusDigest, requiredLanes, and baselineFindingIds; signReviewInventoryReceipt/verifyReviewInventoryReceipt',
     producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_wave_advance/review_inventory_finalize/review_inventory_cancel',
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate',
   },
   review_inventory_status: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
@@ -367,14 +367,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_critic_set: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with fresh topology-critic ReviewRun, terminal read evidence, and complete per-finding dispositions', producerCommand: 'review_inventory_critic_set',
+    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with explicit inventory-completeness purpose and exact signed epoch/wave/cutoff binding in dispatch and ReviewRun, terminal read evidence, and complete per-finding dispositions including current purpose-bound critic discoveries; never topology business-author provenance. OPEN inventory pass producers and lane consumers require both signed readManifest and mechanical readLog, including pass-only finding normalization.', producerCommand: 'review_inventory_critic_set',
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
     reviewerLane: 'proof-or-stop-review-topology-critic',
   },
   review_inventory_wave_advance: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families; nextRunSequenceBoundary seals every lower/equal ReviewRun independent of timestamp equality', producerCommand: 'review_inventory_wave_advance',
-    consumerGate: 'review_inventory_finalize zero-new saturation gate and reviewer terminal admission boundary',
+    consumerGate: 'review_inventory_finalize authority-specific completeness gate and reviewer terminal admission boundary',
     reviewerLane: 'proof-or-stop-review-topology-critic',
   },
   review_inventory_finalize: {
@@ -383,7 +383,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt and signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt under withReviewInventoryMutationLock; authorizesTest=false inventory-completeness-only never authorizes PRE_CERT',
     producerCommand: 'review_inventory_finalize',
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate with live terminal/finding aggregate replay before consume; certification_window_begin',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate with live terminal/finding aggregate replay before consume; certification_window_begin',
   },
   review_inventory_cancel: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
@@ -640,7 +640,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. In full-envelope mode promptHash equals the exact assembledPrompt domain digest and envelopeId signs the immutable run-start finding projection.',
+    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures. Explicit critic reviewPurpose and inventoryBinding use a versioned signature suffix; absent legacy fields retain their old signature domain but never authorize a new inventory receipt. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. In full-envelope mode promptHash equals the exact assembledPrompt domain digest and envelopeId signs the immutable run-start finding projection.',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -966,7 +966,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'topology_critic_receipt_check CLI verification and review_inventory_finalize saturation gate',
     reviewerLane: 'proof-or-stop-review-topology-critic',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_critic_set,
-    rationale: 'Independent critic dispatch selects inventory-completeness-only for a signed OPEN epoch in the current REVIEW round, retaining reviewer dispatch identity and terminal read evidence without topology business-commit authority. All other topology dispatches retain strict implementation provenance; inventory receipts never substitute for topology proof. Full-envelope dispatch and ReviewRun producers select the registered inventory contract only from current signed OPEN context; consumers reconstruct authenticated registered semantic digests after finalization. New critic runs require digest-bound responsibility, epoch, wave and material/story cutoff coherence before publication; head-only metadata commits retain that binding. Canonical agent template Markdown belongs to certification manifest-semantic inputs, including deletions. New envelopes authenticate their exact original dispatch binding; historical selection never uses the latest dispatch or prompt-only matching. Pre-field history requires an exactly reconstructible launcher digest. Incremental eligibility uses the selected registered responsibility contract, authenticated by an optional envelope eligibility semantic marker; absent-marker historical envelopes retain the original default-contract evaluation.',
+    rationale: 'Default topology critic dispatch preserves business-author provenance. Explicit inventory-completeness dispatch derives the signed current OPEN epoch/wave/cutoff under the inventory lock, supplies no topology provenance, and requires a purpose-bound fresh ReviewRun plus terminal read evidence before signing the exact inventory critic receipt. Historical envelopes retain exact dispatch identity and registered selected-contract semantic and eligibility bindings. inventory receipts never substitute for topology proof. No topology-refusal fallback or promotion to TEST/DONE.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-concept',
@@ -1469,10 +1469,10 @@ export const PROCESS_FACT_ARTIFACTS = [
     level: 'L4',
     producer: 'handlers/review-inventory',
     producerSourceRefs: ['packages/main/src/core/review-inventory-epoch.ts', 'packages/main/src/handlers/review-inventory.ts'],
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate and certification_window_begin',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate and certification_window_begin',
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
-    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts prove only bounded zero-new verified-finding saturation, are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT.',
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts either prove bounded zero-new verified-finding saturation or explicitly grant review-remediation-only authority after a complete critic-certified wave; remediation-only receipts cannot enter certification. Both are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT.',
   },
   {
     name: 'artifact:findings.json',
@@ -1601,7 +1601,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/done-required-validation',
     consumerGate: 'story_advance DONE done-required-validation gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.done_required_validate,
-    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes, every path touched by every intervening commit is trusted story metadata, and HEAD remains stable across evaluation. Command/phase/CLI-idle/CLI-max timeout terminals are structured and retain cleanup before result emission.',
+    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes, every path touched by every intervening commit is trusted story metadata, and HEAD remains stable across evaluation. Command/phase/CLI-idle/CLI-max timeout terminals are structured and retain cleanup before result emission. The configured root suite consumes the retired vocabulary guard; its test-only envelope mutation loader admission requires exact call shape, whole-source fingerprint and producer provenance, with drift and rebinding rejection controls. Loader admission is not a validation PASS or a dynamic-code exemption.',
   },
   {
     name: 'artifact:declared-artifacts.json',
@@ -1781,7 +1781,39 @@ export const PROCESS_FACT_REQUIRED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact && PROCESS_FACT_REQUIRED_ARTIFACT_NAMES.includes(entry.artifact.path as typeof PROCESS_FACT_REQUIRED_ARTIFACT_NAMES[number]),
 ) as readonly ProcessFactRegistryEntry[];
 
+// Lab maintenance is an explicit local integration exception, never Story evidence.
+export const PROCESS_FACT_LAB_MAINTENANCE = [{
+  name: 'runtime:lab_local_maintenance_integration',
+  kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'validation-result', 'gate-evidence'],
+  level: 'L4',
+  producer: 'scripts/lab-worktree.mjs',
+  consumerGate: 'Lab finish only; never Story REVIEW/TEST/DONE',
+  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
+export const PROCESS_FACT_VALIDATION_EXECUTION = [{
+  name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
+  level: 'L4', producer: 'core/shared-validation-execution',
+  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts'],
+  consumerGate: 'validate and done_required_validate retain their independent acceptance and build-proof predicates',
+  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
+export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
+  name: 'runtime:evidence_hash_input_boundary', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  level: 'L4', producer: 'core/material-path-policy and core/story-aware-validation',
+  producerSourceRefs: ['packages/main/src/core/material-path-policy.ts', 'packages/main/src/core/story-aware-validation.ts', 'packages/main/src/core/evidence-freshness.ts'],
+  consumerGate: 'Shared material and Story hashes used by review, validation and evidence freshness consumers',
+  rationale: 'Store objects/sha256, refs/by-id and ledger/observed.jsonl are process outputs excluded from material inputs, not disposable runtime artifacts. Unknown evidence paths and policy remain material. Output digest and subject bindings require independent consumer verification; hash stability grants no artifact acceptance. NUL-delimited Git paths retain literal names and target blobs; missing objects fail closed. Existing evidence is never rewritten or automatically re-attested after this correction.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  ...PROCESS_FACT_EVIDENCE_HASH_INPUTS,
+  ...PROCESS_FACT_VALIDATION_EXECUTION,
+  ...PROCESS_FACT_LAB_MAINTENANCE,
   ...COMMAND_PROCESS_FACTS,
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,

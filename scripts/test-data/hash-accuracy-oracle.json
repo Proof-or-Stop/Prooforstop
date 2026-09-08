@@ -1,0 +1,351 @@
+{
+  "provenance": "Independent Python SHA1 blob / SHA256 declared-file oracle, 2026-09-08; expected hashes do not use production classifiers or parsers.",
+  "base": {
+    "proof-or-stop.config.json": "{\"storyDir\": \"custom/story/actives\", \"scanRoot\": \".\", \"rootDir\": \"src\", \"testsDir\": \"tests\"}\n",
+    "package.json": "{\"type\":\"module\",\"name\":\"hash-experiment-only\"}\n",
+    "src/add.mjs": "export function add(a,b) { return a+b; }\n",
+    "src/delete-me.mjs": "export const deletionWitness = 1;\n",
+    "src/rename-me.mjs": "export const renameWitness = \"stable bytes\";\n",
+    "tests/acceptance.test.mjs": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { add } from '../src/add.mjs';\ntest('addition handles positive, negative, zero and fractional inputs', () => {\n  for (const [a,b,want] of [[2,3,5],[-4,3,-1],[0,7,7],[0.5,0.25,0.75]]) assert.equal(add(a,b),want);\n});\n",
+    "docs/requirements/behavior.md": "Addition must retain all specified input behavior.\n",
+    "docs/evidence/design.md": "Evidence reader integrity remains a material design requirement.\n",
+    ".proof-or-stop/Proof-or-Stop.md": "Material operating policy.\n",
+    ".proof-or-stop/evidence-policy.json": "{\"verifyDigests\":true}\n",
+    ".proof-or-stop/story/actives/EXPERIMENT/note.txt": "synthetic metadata A\n",
+    "custom/story/actives/EXPERIMENT/note.txt": "custom synthetic metadata A\n",
+    ".proof-or-stop/runtime/cache.txt": "cache A\n",
+    ".proof-or-stop/locks/holder.txt": "runtime holder A\n"
+  },
+  "cases": [
+    {
+      "name": "unchanged-source-empty-story",
+      "changes": {},
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "source-code-change",
+      "changes": {
+        "src/add.mjs": "export function add(a,b) { return Number(a)+Number(b); }\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "a615c3b5ddcd9d5feec794b34506f7778f3e92f7ea2f1bf4d4e0594ad8c473ac",
+        "storyFilesHash": "52760668f7e8229d575173cdaaa0ab2496440734a467d329ddd3cc1996dbabc7"
+      }
+    },
+    {
+      "name": "test-change",
+      "changes": {
+        "tests/acceptance.test.mjs": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { add } from '../src/add.mjs';\ntest('addition handles positive, negative, zero and fractional inputs', () => {\n  for (const [a,b,want] of [[2,3,5],[-4,3,-1],[0,7,7],[0.5,0.25,0.75]]) assert.equal(add(a,b),want);\n});\n// Coverage declaration changed.\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "aeb4897a0bebf50f71a92a9ff9329676ac0c6f29a991db35cb1728b26c65b0fe",
+        "storyFilesHash": "c27746627d9edbe847cf46adbc82f555a795a4f30f4030d839b9d607e927707c"
+      }
+    },
+    {
+      "name": "build-config-change",
+      "changes": {
+        "proof-or-stop.config.json": "{\"storyDir\": \"custom/story/actives\", \"scanRoot\": \".\", \"rootDir\": \"src\", \"testsDir\": \"tests\"} \n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "084c87a6bff56be79ee3369d256b0314446da1ea9a2fc14b03444040cc94ff42",
+        "storyFilesHash": "254b8c90f2c456ce75dff0256c3ebbfad34f5dc77c662c7ed54cf809b3f3b8a8"
+      }
+    },
+    {
+      "name": "requirement-doc-change",
+      "changes": {
+        "docs/requirements/behavior.md": "New acceptance requirement.\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "0b925b62815cb4889714d151f16a3b376e5e8346c222cce8882728a7c303b5b7",
+        "storyFilesHash": "82acdc13595c0306012c103f583e31742f6cf56e9f57b46972a0b4a5a95beeb8"
+      }
+    },
+    {
+      "name": "operating-policy-change",
+      "changes": {
+        ".proof-or-stop/Proof-or-Stop.md": "Changed material operating policy.\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "d45a236c2943f8c55b746a877f676afdf06dd8b841a025ca28abd09f22c4750b",
+        "storyFilesHash": "ffa7cb52a18423807512b1a042493da587df51938562048a6d981d529d61cadd"
+      }
+    },
+    {
+      "name": "canonical-story-metadata-only",
+      "changes": {
+        ".proof-or-stop/story/actives/EXPERIMENT/note.txt": "synthetic metadata B\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "custom-story-metadata-only",
+      "changes": {
+        "custom/story/actives/EXPERIMENT/note.txt": "custom synthetic metadata B\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "runtime-cache-only",
+      "changes": {
+        ".proof-or-stop/runtime/cache.txt": "cache B\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "runtime-lock-only",
+      "changes": {
+        ".proof-or-stop/locks/holder.txt": "runtime holder B\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "output-object-only",
+      "changes": {
+        ".proof-or-stop/evidence/objects/sha256/test-object.json": "{\"output\":\"test completed\"}\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "output-ref-only",
+      "changes": {
+        ".proof-or-stop/evidence/refs/by-id/test-ref.json": "{\"object\":\"test-object\"}\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "output-ledger-only",
+      "changes": {
+        ".proof-or-stop/evidence/ledger/observed.jsonl": "{\"observed\":true}\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "9d4d7ca09eb2484d1fa7315096a6bd413353938e44d989a1629bd3d4ef466f79",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "similar-prefix-is-material",
+      "changes": {
+        ".proof-or-stop/evidence-source/reader.mjs": "export const readerPolicy = 1;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "1629bfc1112ce740e060924473bb82499e858c82878d7ed06e6546890904ac73",
+        "storyFilesHash": "74a98a27e77e428ad6504254c9bb725a02799e99dc85b0534628b668424b404d"
+      }
+    },
+    {
+      "name": "evidence-policy-is-material",
+      "changes": {
+        ".proof-or-stop/evidence-policy.json": "{\"verifyDigests\":false}\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "a3918e294fb5ccb145130a11a33291a721c6bd93ea974298a21071f4fee3a7fd",
+        "storyFilesHash": "5fc0624f309536fffca74dfcc107efc28e8a5a344465a2582b271364c64e8fce"
+      }
+    },
+    {
+      "name": "evidence-doc-is-material",
+      "changes": {
+        "docs/evidence/design.md": "Changed evidence verification requirement.\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "14ce0dc7bea847cf93b0b891dca8510d990b8576ad43960ad22e2a8204a20743",
+        "storyFilesHash": "03766015dc30d29e9cc1ae404207ebb3eb29b9133b7968c138e13edd9f71be94"
+      }
+    },
+    {
+      "name": "material-deletion",
+      "changes": {},
+      "remove": [
+        "src/delete-me.mjs"
+      ],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "22c13a69fcaeec7d7227f34655d870587e98af2776e878355c09e64920beda95",
+        "storyFilesHash": "f625d1e4ccb8bf0d2f75498e31b39f66aa782af427ccc74e46e0922dce63f74b"
+      }
+    },
+    {
+      "name": "material-rename",
+      "changes": {
+        "src/renamed.mjs": "export const renameWitness = \"stable bytes\";\n"
+      },
+      "remove": [
+        "src/rename-me.mjs"
+      ],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "d2f2c200eefb0cc78179ad1150f30c9951a8aaec822341c7fdf3de1cf2fafdee",
+        "storyFilesHash": "f6ebb2def7906cdc8d8eaf258e36e11be0328f161d0e66e75ff17b9c541f26da"
+      }
+    },
+    {
+      "name": "move-material-to-runtime",
+      "changes": {
+        ".proof-or-stop/runtime/moved.mjs": "export const renameWitness = \"stable bytes\";\n"
+      },
+      "remove": [
+        "src/rename-me.mjs"
+      ],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "ee146b2277e9f1f4077d11269a766d8136ee4f3784f8ea6af978dd514e0bea70",
+        "storyFilesHash": "bb92b83297b6888211e3a1d60409a4ff08bec6070c5d384213332ed3c7e39a1d"
+      }
+    },
+    {
+      "name": "move-runtime-to-material",
+      "changes": {
+        "src/former-cache.txt": "cache A\n"
+      },
+      "remove": [
+        ".proof-or-stop/runtime/cache.txt"
+      ],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "4a264844ab4f57c5151666b18b87b033f5b1566aa778d88d0df1757a098f65b0",
+        "storyFilesHash": "bc9c708e67f914f1714fb2bcfb3a0664f4e01015f1dc4abb07a918ecd45c21ae"
+      }
+    },
+    {
+      "name": "mixed-material-and-output",
+      "changes": {
+        "src/add.mjs": "export function add(a,b) { return a-b; }\n",
+        ".proof-or-stop/evidence/objects/sha256/output.json": "{\"output\":\"record\"}\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "958d2a3ff4367e5290caa377faafe612fe0329034576fbfb27709fa18408f256",
+        "storyFilesHash": "816a2385a995a0bc849bf3e90bed5d57db520db5004ca7dc6c14744a9f26b1fd"
+      }
+    },
+    {
+      "name": "unicode-material-path",
+      "changes": {
+        "src/计算.mjs": "export const unicodeWitness = 1;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "771768379d6509576d46fbe072ca967ec9f0d85e27e09e041ea7079627a6cd89",
+        "storyFilesHash": "500b1dfeeafc5ff24a558358f88cc280d0b78589b8a58250f7f936897e732216"
+      }
+    },
+    {
+      "name": "tab-material-path",
+      "changes": {
+        "src/tab\tname.mjs": "export const tabWitness = 1;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "f1b2c4107b698dff3ff0e157bebd7d01cb165cd3582d963802da47b408064cd2",
+        "storyFilesHash": "6dc21185f1b504ea2e9dac6b2286db9e8d1bdaa2cfce310732a8feaf5ee6bf21"
+      }
+    },
+    {
+      "name": "space-material-path",
+      "changes": {
+        "src/space name.mjs": "export const spaceWitness = 1;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "3e7c43155efb97f368ca95ab836593faecddb988f8793533d7ce2c14cd718197",
+        "storyFilesHash": "992ddf41dd60d49bdeb1420a8d740b417dbb492b16efdf72d1c705097598fc9d"
+      }
+    },
+    {
+      "name": "unrelated-base-plus-same-story-change",
+      "changes": {
+        "src/add.mjs": "export function add(a,b) { return Number(a)+Number(b); }\n",
+        "src/unrelated-base.mjs": "export const unrelatedBase = 1;\n"
+      },
+      "remove": [],
+      "unrelatedBase": true,
+      "expected": {
+        "materialHash": "7afa2c1886a888294e6199797653540a7792ecc0fff319bd65144986b2911e45",
+        "storyFilesHash": "52760668f7e8229d575173cdaaa0ab2496440734a467d329ddd3cc1996dbabc7"
+      }
+    },
+    {
+      "name": "unicode-content-change",
+      "changes": {
+        "src/计算.mjs": "export const materiallyDifferentContent = 98765;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "82154fe773545cdd89ba268805ac4d768fc89e1741db95a000fdf185be32ae92",
+        "storyFilesHash": "634555092cc13c9da52a65263d59f70d0263e616a28265f2c874fea53c33d5bb"
+      }
+    },
+    {
+      "name": "tab-content-change",
+      "changes": {
+        "src/tab\tname.mjs": "export const materiallyDifferentContent = 98765;\n"
+      },
+      "remove": [],
+      "unrelatedBase": false,
+      "expected": {
+        "materialHash": "f5194fd80161052f1a5f3c4f03e7f51ce15f0096a86c8ef11a2dad7b734d4b79",
+        "storyFilesHash": "b336faa120808638685f31b363b23a2b7d406431c9d219abc5c289e25e0991bf"
+      }
+    }
+  ]
+}

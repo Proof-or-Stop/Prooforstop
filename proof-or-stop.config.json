@@ -61,6 +61,17 @@
     },
     "commands": [
       {
+        "command": "node",
+        "args": ["scripts/verify-lab-worktree.mjs"],
+        "timeoutMs": 180000,
+        "focus": ["fast"],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-lab-maintenance"
+      },
+      {
         "command": "npm",
         "args": [
           "--prefix",
@@ -1577,6 +1588,22 @@
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "timeoutMs": 180000,
+        "id": "red-global-cli-exec-bit",
+        "label": "B-e256 global CLI rebuild and promotion regression",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",

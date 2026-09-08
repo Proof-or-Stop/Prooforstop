@@ -1,3 +1,4 @@
+import { validateResourceClaims, type ResourceClaim } from './keyed-scheduler.js';
 import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
@@ -317,6 +318,18 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
   if (raw.env !== undefined && !env) {
     errors.push(`doneRequiredCommands[${index}].env must be an object when present`);
   }
+  let resources: ResourceClaim[] | undefined;
+  if (raw.resources !== undefined) {
+    try {
+      if (!Array.isArray(raw.resources)) throw new Error('resources must be an array');
+      resources = raw.resources.map(claim => ({ class: claim.class, key: claim.key, access: claim.access,
+        ...(claim.ownership ? { ownership: claim.ownership } : {}) }));
+      validateResourceClaims(resources!, `doneRequiredCommands[${index}]`);
+    } catch (error) {
+      errors.push(`doneRequiredCommands[${index}].resources invalid: ${error instanceof Error ? error.message : String(error)}`);
+      resources = undefined;
+    }
+  }
   const requiresBuildProof = normalizePackagesMainBuildProof(
     `doneRequiredCommands[${index}].requiresBuildProof`,
     raw.requiresBuildProof,
@@ -343,6 +356,12 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
     ...(requiresBuildProof ? { requiresBuildProof } : {}),
     ...(providesBuildProof ? { providesBuildProof } : {}),
     ...(proof ? { proof } : {}),
+    ...(resources ? { resources } : {}),
+    ...(raw.executionReuse === 'exact-inputs' ? {executionReuse:'exact-inputs' as const} : {}),
+    ...(Array.isArray(raw.executionInputs) ? {executionInputs:raw.executionInputs as string[]} : {}),
+    ...(typeof raw.fullBaselineReusePolicy === 'string' ? {fullBaselineReusePolicy:raw.fullBaselineReusePolicy as ValidationCommand['fullBaselineReusePolicy']} : {}),
+    ...(typeof raw.closurePolicy === 'string' ? {closurePolicy:raw.closurePolicy as ValidationCommand['closurePolicy']} : {}),
+    ...(typeof raw.riskTier === 'string' ? {riskTier:raw.riskTier as ValidationCommand['riskTier']} : {}),
   };
 }
 
@@ -905,8 +924,11 @@ export async function runDoneRequiredValidation(args: {
         durationMs: result.durationMs,
         outputDigest: sha256(result.output),
         outputTail: outputTail(result.output),
+        // These are this consumer's receipt boundaries. executionReceipt keeps
+        // the original child execution attribution when no child was launched.
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
+        ...(result.executionReceipt ? {executionReceipt:result.executionReceipt} : {}),
         ...(result.timedOut ? { timedOut: true } : {}),
         ...(commandIdentity
           ? {
