@@ -411,12 +411,32 @@ export function reviewerDispatchPromptDigest(prompt: string): string {
   return domainSeparatedDigest('reviewer-story-dispatch.raw-utf8.v1', prompt);
 }
 
+export type ReviewerDispatchResponsibility =
+  | { kind: 'topology-proof' }
+  | { kind: 'inventory-completeness'; epochId: string; wave: number; materialHash: string; storyFilesHash: string };
+
+export function parseReviewerDispatchResponsibility(value: unknown): ReviewerDispatchResponsibility {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid reviewer dispatch responsibility');
+  const row = value as Record<string, unknown>;
+  const keys = Object.keys(row).sort().join(',');
+  if (row.kind === 'topology-proof' && keys === 'kind') return { kind: 'topology-proof' };
+  if (row.kind === 'inventory-completeness' && keys === 'epochId,kind,materialHash,storyFilesHash,wave'
+    && typeof row.epochId === 'string' && row.epochId.trim().length > 0
+    && typeof row.wave === 'number' && Number.isInteger(row.wave) && row.wave >= 1
+    && typeof row.materialHash === 'string' && row.materialHash.length > 0
+    && typeof row.storyFilesHash === 'string') {
+    return { kind: row.kind, epochId: row.epochId, wave: row.wave, materialHash: row.materialHash, storyFilesHash: row.storyFilesHash };
+  }
+  throw new Error('invalid reviewer dispatch responsibility');
+}
+
 export function reviewerDispatchBindingDigest(value: {
   storyId: string;
   lane: string;
   reviewRound: string;
   dispatchPromptDigest: string;
   hostRenderIdentityDigest: string;
+  reviewerResponsibility?: ReviewerDispatchResponsibility;
 }): string {
   return domainSeparatedDigest('reviewer-dispatch-binding.v1', value);
 }

@@ -34,6 +34,7 @@ import {
 } from '../core/agent-dispatch-registry.js';
 import {
   reviewerDispatchBindingDigest,
+  type ReviewerDispatchResponsibility,
   reviewerDispatchPromptDigest,
 } from '../core/prompt-contracts.js';
 import {
@@ -182,6 +183,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     hostRenderHost?: PromptHost;
     hostRenderIdentityDigest?: string;
     dispatchBindingDigest?: string;
+    reviewerResponsibility?: ReviewerDispatchResponsibility;
     reviewRound?: string;
     promptEnvelopeId?: string;
     promptEnvelopeDigest?: string;
@@ -221,6 +223,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.hostRenderHost ? { hostRenderHost: args.hostRenderHost } : {}),
         ...(args.hostRenderIdentityDigest ? { hostRenderIdentityDigest: args.hostRenderIdentityDigest } : {}),
         ...(args.dispatchBindingDigest ? { dispatchBindingDigest: args.dispatchBindingDigest } : {}),
+        ...(args.reviewerResponsibility ? { reviewerResponsibility: args.reviewerResponsibility } : {}),
         ...(args.reviewRound ? { reviewRound: args.reviewRound } : {}),
         ...(args.promptEnvelopeId ? { promptEnvelopeId: args.promptEnvelopeId } : {}),
         ...(args.promptEnvelopeDigest ? { promptEnvelopeDigest: args.promptEnvelopeDigest } : {}),
@@ -983,16 +986,22 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
           throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
         }
+        const reviewerResponsibility: ReviewerDispatchResponsibility = inventory ? {
+          kind: 'inventory-completeness', epochId: inventory.epochId, wave: inventory.waves.length + 1,
+          materialHash: inventory.cutoff.materialHash, storyFilesHash: inventory.cutoff.storyFilesHash ?? '',
+        } : { kind: 'topology-proof' };
         const reviewerBinding = story.currentReviewRound ? (() => {
           const hostRenderHost = currentReviewerPromptHost();
           const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
           return {
+            reviewerResponsibility,
             dispatchPrompt: result.prompt,
             dispatchPromptDigest,
             hostRenderHost,
             hostRenderIdentityDigest: hostIdentity.identityDigest,
             dispatchBindingDigest: reviewerDispatchBindingDigest({
+              reviewerResponsibility,
               storyId: args.storyId,
               lane: canonicalType,
               reviewRound: story.currentReviewRound!,

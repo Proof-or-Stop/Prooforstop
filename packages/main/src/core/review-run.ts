@@ -36,6 +36,8 @@ import {
 import {
   domainSeparatedDigest,
   reviewerDispatchBindingDigest,
+  parseReviewerDispatchResponsibility,
+  type ReviewerDispatchResponsibility,
   reviewerDispatchPromptDigest,
   type PromptEnvelope,
 } from './prompt-contracts.js';
@@ -621,6 +623,7 @@ export function verifyReviewRun(run: ReviewRun): boolean {
 }
 
 export interface VerifiedReviewerDispatchBinding {
+  reviewerResponsibility?: ReviewerDispatchResponsibility;
   dispatchPrompt: string;
   dispatchPromptDigest: string;
   hostRenderHost: PromptHost;
@@ -675,7 +678,13 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   if (hostRenderIdentityDigest !== hostIdentity.identityDigest) {
     return { ok: false, reason: 'reviewer host render identity is stale or does not match current host assets' };
   }
+  let reviewerResponsibility: ReviewerDispatchResponsibility | undefined;
+  if (event.reviewerResponsibility !== undefined) {
+    try { reviewerResponsibility = parseReviewerDispatchResponsibility(event.reviewerResponsibility); }
+    catch { return { ok: false, reason: 'reviewer dispatch responsibility is malformed' }; }
+  }
   const expectedBindingDigest = reviewerDispatchBindingDigest({
+    ...(reviewerResponsibility ? { reviewerResponsibility } : {}),
     storyId: args.storyId,
     lane: args.lane,
     reviewRound: args.reviewRound,
@@ -688,6 +697,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   return {
     ok: true,
     binding: {
+      ...(reviewerResponsibility ? { reviewerResponsibility } : {}),
       dispatchPrompt,
       dispatchPromptDigest,
       hostRenderHost,

@@ -238,6 +238,47 @@ const topologyDispatch = JSON.parse(cli(strictTopology.root, 'dispatch', criticA
 assert.ok(embeddedRoleContract(topologyDispatch.prompt).requiredOutputIds.includes('topology-critic-receipt'),
   'full-envelope topology dispatch retains topology output outside OPEN inventory');
 
+function assertCriticDispatchRefused(fixture: ReturnType<typeof setup>, env = criticEnv): void {
+  const runs = fixture.store.readReviewRuns(storyId).runs.length;
+  const envelopes = fixture.store.readPromptEnvelopes(storyId).envelopes.length;
+  assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, env), /dispatch|inventory|responsibility/i);
+  assert.equal(fixture.store.readReviewRuns(storyId).runs.length, runs, 'refusal publishes no ReviewRun');
+  assert.equal(fixture.store.readPromptEnvelopes(storyId).envelopes.length, envelopes, 'refusal publishes no Prompt Envelope');
+}
+for (const mode of [false, true]) {
+  const fixture = setup(false, mode);
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_inventory_begin', { storyId });
+  assertCriticDispatchRefused(fixture); // topology responsibility cannot become inventory
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'cancel stale dispatch witness' });
+  assertCriticDispatchRefused(fixture);
+  cli(fixture.root, 'review_inventory_begin', { storyId });
+  assertCriticDispatchRefused(fixture); // replacement epoch is not the dispatched epoch
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  const authenticDispatch = fixture.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+  fixture.store.appendProcessEvent(storyId, { ...authenticDispatch, reviewerResponsibility: { kind: 'topology-proof' } });
+  assertCriticDispatchRefused(fixture); // changed structure cannot reuse the authenticated digest
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  git(fixture.root, ['commit', '--allow-empty', '-m', 'metadata-only head advance']);
+  cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  const waveState = fixture.store.readReviewInventoryEpochs(storyId);
+  // Signed synthetic checkpoint isolates new-run wave binding in both rollout modes.
+  waveState.epochs.at(-1)!.waves.push({ wave: 1, startedAt: reviewRound, lanes: [], verifiedFindingFamilies: [] });
+  const { _hash: _waveHash, ...waveUnsigned } = waveState.epochs.at(-1)!;
+  waveState.epochs[waveState.epochs.length - 1] = { ...waveUnsigned, _hash: signReviewInventoryEpoch(waveUnsigned) };
+  fixture.store.writeReviewInventoryEpochs(storyId, waveState);
+  assertCriticDispatchRefused(fixture);
+  cli(fixture.root, 'dispatch', criticArgs, criticEnv);
+  cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  const state = fixture.store.readReviewInventoryEpochs(storyId);
+  state.epochs.at(-1)!.state = 'FINALIZED';
+  const { _hash: _hash, ...unsigned } = state.epochs.at(-1)!;
+  state.epochs[state.epochs.length - 1] = { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
+  fixture.store.writeReviewInventoryEpochs(storyId, state);
+  assertCriticDispatchRefused(fixture);
+}
+
 const first = setup();
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
@@ -400,6 +441,7 @@ assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length,
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);
+assertCriticDispatchRefused(first, { LATTICE_AGENT: criticArgs.agentType, LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
 const oldWaveLane = epoch.requiredLanes[1];
 const oldWaveRun = firstWaveRuns.get(oldWaveLane)!;
 assert.throws(

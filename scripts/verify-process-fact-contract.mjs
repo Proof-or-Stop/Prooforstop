@@ -4504,10 +4504,27 @@ function assertReviewInventoryRemediationContract() {
       && dispatchText.includes('promptRoleContract(agentType, responsibility)')
       && reviewRunHandler.includes('currentOpenReviewInventory(store, args.storyId)')
       && reviewRunHandler.includes('inventory.reviewRound !== story.currentReviewRound')
-      && reviewRunHandler.includes("promptRoleContract(lane, inventory ? 'inventory-completeness' : undefined)")
+      && reviewRunHandler.includes("promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined)")
       && reviewRunText.includes('promptRoleContractForSemanticDigest(canonicalLane, envelope.roleSemanticDigest)'),
     'full-envelope inventory semantics must be registered, selected by both signed OPEN producers, and reconstructed by authenticated digest after finalization',
   );
+
+  const contractsText = read('packages/main/src/core/prompt-contracts.ts');
+  assert(contractsText.includes('reviewerResponsibility?: ReviewerDispatchResponsibility')
+    && contractsText.includes('parseReviewerDispatchResponsibility')
+    && reviewRunText.includes('parseReviewerDispatchResponsibility(event.reviewerResponsibility)')
+    && reviewRunText.includes('...(reviewerResponsibility ? { reviewerResponsibility } : {})')
+    && reviewRunHandler.includes('responsibility.epochId !== inventory.epochId')
+    && reviewRunHandler.includes('responsibility.wave !== inventory.waves.length + 1')
+    && reviewRunHandler.includes('responsibility.materialHash !== inventory.cutoff.materialHash')
+    && reviewRunHandler.includes("responsibility.storyFilesHash !== (inventory.cutoff.storyFilesHash ?? '')")
+    && reviewRunHandler.indexOf('critic dispatch lacks bound responsibility') < reviewRunHandler.indexOf('const reviewRunId ='),
+    'critic new-run responsibility must be digest-bound and compared before run/envelope publication');
+  const certificationText = read('packages/main/src/handlers/certification-window.ts');
+  assert(certificationText.includes('templates\\/agents\\/[^/]+\\.md$')
+    && certificationText.includes("matches.length === 1")
+    && certificationText.includes('if (!domain) return undefined'),
+    'certification must classify the narrow canonical agent family while unknown or ambiguous paths refuse');
 
   const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
   const inventoryHandlerText = read(inventoryHandlerPath);
