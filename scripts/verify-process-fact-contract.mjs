@@ -1805,7 +1805,7 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
         && read(path).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
         && read(path).includes('- A pass is forbidden when the basis')
-        && !read(path).includes('review_run_start')),
+        && read(path).includes('Return after completing the inventory responsibility.')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
@@ -4460,6 +4460,30 @@ function assertReviewInventoryRemediationContract() {
     /promptBuilder\s*===\s*'topology-critic-review'[\s\S]*targetKind:\s*'topology-critic-review'[\s\S]*reviewRound/.test(dispatchText),
     `${dispatchPath}: topology critic dispatch must persist its dedicated target kind and current review-round binding`,
   );
+
+  assert(
+    dispatchText.includes("story.phase === 'REVIEW' ? currentOpenReviewInventory(store, args.storyId) : null")
+      && dispatchText.includes('inventory.reviewRound !== story.currentReviewRound')
+      && dispatchText.includes('inventory.storyId !== story.storyId')
+      && dispatchText.includes('inventory ? {} : topologyAuthorityDispatchBinding(story, true)')
+      && dispatchText.includes('Inventory completeness only'),
+    `${dispatchPath}: inventory-only critic dispatch requires signed current OPEN context and leaves topology provenance strict`,
+  );
+  assert(
+    read('packages/main/src/core/process-fact-registry.ts').includes('inventory receipts never substitute for topology proof'),
+    'process-fact registry must distinguish inventory completeness and topology proof authority',
+  );
+  for (const rolePath of [
+    'packages/main/templates/agents/proof-or-stop-review-topology-critic.md',
+    '.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md',
+    '.claude/agents/proof-or-stop-review-topology-critic.md',
+  ]) {
+    const role = read(rolePath);
+    assert(role.includes('Inventory completeness only') && role.includes('review_inventory_critic_set')
+      && role.includes('Return after completing the inventory responsibility.')
+      && role.includes('topology_critic_receipt_set'),
+    `${rolePath}: critic instructions must follow the dispatched responsibility and preserve topology rules`);
+  }
 
   const reviewRunPath = 'packages/main/src/core/review-run.ts';
   const reviewRunText = read(reviewRunPath);

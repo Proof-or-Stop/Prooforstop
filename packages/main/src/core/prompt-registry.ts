@@ -152,7 +152,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object
   'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
   'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
   // Post-merge of B-cdf6 rebranded slice into this branch's modular critic template.
-  'lattice-review-topology-critic': '2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224',
+  'lattice-review-topology-critic': 'ef5a28b1b3496c1e1133f165afb5cc87262775f2de1df5bf58ab3d4a4ff88e96',
 
 });
 

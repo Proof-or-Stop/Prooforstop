@@ -966,7 +966,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'topology_critic_receipt_check CLI verification and review_inventory_finalize saturation gate',
     reviewerLane: 'proof-or-stop-review-topology-critic',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_critic_set,
-    rationale: 'Independent topology critic verifies topology receipts in PLAN/DEV and, in REVIEW, creates a fresh ReviewRun plus terminal read evidence before signing the exact epoch/wave inventory critic receipt.',
+    rationale: 'Independent critic dispatch selects inventory-completeness-only for a signed OPEN epoch in the current REVIEW round, retaining reviewer dispatch identity and terminal read evidence without topology business-commit authority. All other topology dispatches retain strict implementation provenance; inventory receipts never substitute for topology proof.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-concept',

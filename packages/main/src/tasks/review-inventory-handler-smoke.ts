@@ -67,13 +67,13 @@ function waitForFile(path: string, timeoutMs = 5_000): void {
   }
 }
 
-function setup() {
+function setup(ordinaryAuthor = false) {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }));
   writeFileSync(join(root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
   writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
@@ -86,8 +86,8 @@ function setup() {
   }
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['config', 'user.name', 'lattice-implementer']);
-  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
+  git(root, ['config', 'user.name', ordinaryAuthor ? 'Project Owner' : 'lattice-implementer']);
+  git(root, ['config', 'user.email', ordinaryAuthor ? 'owner@example.test' : 'lattice-implementer@noreply.local']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
   resetConfigCache();
@@ -146,6 +146,47 @@ function seedProofStoryAcceptance(store: StoryStore): void {
   store.writeProofStoryContract(storyId, contract);
 }
 
+// Express implementation is legitimately authored by its project owner.
+const ordinary = setup(true);
+const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
+const criticEnv = { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-ordinary-critic' };
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+  'without OPEN inventory topology dispatch retains implementation provenance');
+cli(ordinary.root, 'acceptance_basis_generate', { storyId });
+cli(ordinary.root, 'review_inventory_begin', { storyId });
+const ordinaryDispatch = JSON.parse(cli(ordinary.root, 'dispatch', criticArgs, criticEnv)) as { prompt: string };
+assert.match(ordinaryDispatch.prompt, /Inventory completeness only/);
+assert.doesNotMatch(ordinaryDispatch.prompt, /topology_critic_receipt_set/);
+const ordinaryDispatchEvent = ordinary.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+assert.equal(ordinaryDispatchEvent.businessCommit, undefined, 'inventory dispatch confers no topology business commit authority');
+assert.equal(ordinaryDispatchEvent.targetKind, 'topology-critic-review');
+assert.equal(ordinaryDispatchEvent.reviewRound, reviewRound);
+assert.ok(ordinaryDispatchEvent.dispatchBindingDigest, 'inventory critic retains trusted reviewer binding');
+assert.throws(() => cli(ordinary.root, 'topology_critic_receipt_set', { storyId, verdict: 'pass' }, { ...criticEnv, PROOF_OR_STOP_AGENT: criticArgs.agentType }),
+  /implementation provenance is missing a business commit/, 'inventory dispatch cannot produce topology proof');
+const ordinaryInventory = ordinary.store.readReviewInventoryEpochs(storyId);
+for (const state of ['CANCELLED', 'FINALIZED'] as const) {
+  const changed = structuredClone(ordinaryInventory);
+  changed.epochs[0].state = state;
+  const { _hash: _oldHash, ...unsigned } = changed.epochs[0];
+  changed.epochs[0]._hash = signReviewInventoryEpoch(unsigned);
+  ordinary.store.writeReviewInventoryEpochs(storyId, changed);
+  assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /implementation provenance/,
+    `${state} inventory cannot select completeness-only dispatch`);
+}
+const stale = structuredClone(ordinaryInventory);
+stale.epochs[0].reviewRound = '2019-01-01T00:00:00.000Z';
+const { _hash: _staleHash, ...staleUnsigned } = stale.epochs[0];
+stale.epochs[0]._hash = signReviewInventoryEpoch(staleUnsigned);
+ordinary.store.writeReviewInventoryEpochs(storyId, stale);
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /round|implementation provenance/,
+  'stale review round cannot select completeness-only dispatch');
+const tampered = structuredClone(ordinaryInventory);
+tampered.epochs[0]._hash = 'tampered';
+ordinary.store.writeReviewInventoryEpochs(storyId, tampered);
+assert.throws(() => cli(ordinary.root, 'dispatch', criticArgs, criticEnv), /signature mismatch/,
+  'invalid signature cannot select completeness-only dispatch');
+
 const first = setup();
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
@@ -153,7 +194,7 @@ const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
 });
-assert.match(criticDispatch, /findingDispositions/);
+assert.match(criticDispatch, /topology_critic_receipt_set/);
 const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
@@ -161,7 +202,6 @@ const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'p
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
 const listedCriticRuns = JSON.parse(cli(first.root, 'review_run_list', {
   storyId,
-  lane: 'lattice-review-topology-critic',
   latest: true,
   json: true,
 })) as { latest: boolean; runs: Array<{ reviewRunId: string; signatureValid: boolean }> };
@@ -403,7 +443,7 @@ assert.throws(
 // Restore the exact frozen semantic subject so the remaining independent
 // receipt/aggregate tests can exercise their intended rejection boundaries.
 reloaded.writeProofStoryContract(storyId, originalProofStoryContract);
-unlinkSync(join(first.root, '.lattice/story/actives', storyId, 'scope-shrinkage-decision.json'));
+unlinkSync(join(first.root, '.proof-or-stop/story/actives', storyId, 'scope-shrinkage-decision.json'));
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);

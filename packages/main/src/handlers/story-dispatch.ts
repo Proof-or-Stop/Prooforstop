@@ -55,6 +55,7 @@ import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
 import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import { currentOpenReviewInventory } from '../core/review-inventory-epoch.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
@@ -502,11 +503,24 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return { prompt: lines.join('\n') };
   }
 
-  function buildTopologyCriticReviewPrompt(args: { storyId: string }): { prompt: string } {
+  function buildTopologyCriticReviewPrompt(args: { storyId: string; inventoryEpochId?: string }): { prompt: string } {
     const story = store.readStory(args.storyId);
     if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
       throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
     }
+    if (args.inventoryEpochId) {
+      const lines = [
+        `Inventory completeness only for ${args.storyId}, epoch ${args.inventoryEpochId}.`,
+        renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/story', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/story' }),
+        `Working directory: ${root}`,
+        'Use the canonical proof-or-stop-review-topology-critic role and preserve independent reviewer identity.',
+        'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
+        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"proof-or-stop-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"${args.inventoryEpochId}","reviewRunId":"<critic ReviewRun>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
+      ];
+      return { prompt: lines.join('\n') };
+    }
+
     const lines = [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
@@ -520,13 +534,6 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       `Finish with proof-or-stop topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
       `Then run proof-or-stop topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
     ];
-    if (story.phase === 'REVIEW') {
-      lines.push('',
-        'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
-        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"proof-or-stop-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
-        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
-      );
-    }
     return { prompt: lines.join('\n') };
 
   }
@@ -963,9 +970,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         return wrapped;
       }
       if (promptBuilder === 'topology-critic-review') {
-        const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
+        const inventory = story.phase === 'REVIEW' ? currentOpenReviewInventory(store, args.storyId) : null;
+        if (inventory && (inventory.storyId !== story.storyId || inventory.reviewRound !== story.currentReviewRound)) {
+          throw new Error('inventory critic dispatch requires the current story and review round');
+        }
+        const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId, inventoryEpochId: inventory?.epochId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
-        const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        const authorityBinding = inventory ? {} : topologyAuthorityDispatchBinding(story, true);
         const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
         if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
           throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
