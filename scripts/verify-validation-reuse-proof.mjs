@@ -20,6 +20,7 @@ const check=(name,actual)=>{evidence.push({name,...actual});console.log('PROOF '
 try{
  git(['init','-q','-b','main']);git(['config','user.name','Reuse proof']);git(['config','user.email','proof@example.invalid']);
  writeFileSync(join(root,'.gitignore'),'.proof-or-stop/\n');
+ mkdirSync(join(root,'packages/main'),{recursive:true});writeFileSync(join(root,'packages/main/package.json'),readFileSync(join(repo,'packages/main/package.json')));
  writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-fixture',version:'1.0.0'}));
  writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'src',storyDir:'.proof-or-stop/story/actives'}));
  writeFileSync(join(root,'witness.mjs'),"import {randomUUID} from 'node:crypto';await new Promise(r=>setTimeout(r,150));console.log('WITNESS '+randomUUID());\n");
@@ -63,6 +64,16 @@ try{
  const failure={args:['-e',"console.log('FAIL '+Math.random());process.exitCode=1"]};
  const fa=await run(failure),fb=await run(failure);assert.equal(fa.code,1);assert.equal(fb.code,1);assert.notEqual(fa.output,fb.output);assert.equal(fa.executionDecision.reason,'execution_failed');
  check('identity changes and failed results never reuse',{environment:true,timeout:true,externalInput:true,missingInput:true,dirtyWorkspace:true,failure:true});
+ const tampered={...store.readCausalEvidenceReceipt(storyId,first.executionReceipt.executionKey),outputProbe:'tampered'};
+ assert.throws(()=>store.writeCausalEvidenceReceipt(storyId,tampered),/invalid|partial/);
+ const abort=new AbortController();abort.abort(new Error('proof cancellation'));
+ await assert.rejects(run({}, {abortSignal:abort.signal}),/proof cancellation/);
+ writeFileSync(join(root,'witness.mjs'),readFileSync(join(root,'witness.mjs'),'utf8')+'// material change\n');git(['add','witness.mjs']);git(['commit','-qm','material counter control']);
+ const material=await run();assert.notEqual(material.output,first.output);assert.equal(material.executionReceipt.disposition,'executed');
+ const pair=await Promise.all([run({env:{PROOF_CONCURRENT:'same'}}),run({env:{PROOF_CONCURRENT:'same'}})]);
+ assert.equal(pair[0].output,pair[1].output,'concurrent callers must share the actual child result');
+ check('concurrent attribution',{dispositions:pair.map(x=>x.executionReceipt.disposition),runtimeSpawns:pair.filter(x=>x.runtimeTrace?.events.includes('spawn')).length});
+ assert.equal(pair.filter(x=>x.executionReceipt.disposition==='executed').length,1,'REUSE_PROOF_CONCURRENT_EXECUTIONS_OVERCOUNTED');
  const config=JSON.parse(readFileSync(join(repo,'proof-or-stop.config.json')));
  const inventory=[...config.validate.commands.map((command,index)=>({consumer:'validate',index,command})),...config.doneRequiredCommands.map((command,index)=>({consumer:'done_required',index,command}))];
  const audit=inventory.map(row=>({...row,decision:shared.sharedValidationReusePolicy(row.command)}));

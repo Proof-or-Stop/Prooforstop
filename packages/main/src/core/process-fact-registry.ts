@@ -1798,7 +1798,7 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   level: 'L4', producer: 'core/shared-validation-execution',
   producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts'],
   consumerGate: 'validate and done_required_validate retain their independent acceptance and build-proof predicates',
-  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
+  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. executionDecision reports bounded reason codes only and never grants gate or reuse authority.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{

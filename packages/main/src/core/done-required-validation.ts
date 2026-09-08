@@ -929,6 +929,7 @@ export async function runDoneRequiredValidation(args: {
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
         ...(result.executionReceipt ? {executionReceipt:result.executionReceipt} : {}),
+        ...(result.executionDecision ? {executionDecision:result.executionDecision} : {}),
         ...(result.timedOut ? { timedOut: true } : {}),
         ...(commandIdentity
           ? {

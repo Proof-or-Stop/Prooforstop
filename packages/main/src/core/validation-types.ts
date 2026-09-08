@@ -66,6 +66,8 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** Informational execution outcome; never consumed as gate authority. No environment values or secrets. */
+  executionDecision?: {disposition:'executed'|'reused';reason:string;details?:string[]};
   executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
   label: string;
   command: string;
@@ -301,6 +303,7 @@ export interface DoneRequiredCommandSpecEnvelope {
 }
 
 export interface DoneRequiredCommandReceipt {
+  executionDecision?: ValidationCommandResult['executionDecision'];
   executionReceipt?: ValidationCommandResult['executionReceipt'];
   label: string;
   command: string;

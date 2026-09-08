@@ -21,15 +21,19 @@ export function withSharedValidationExecutions<T>(context: SharedValidationExecu
   return context ? contexts.run(context, fn) : fn();
 }
 
-/** Explicit reuse is subordinate to existing never-reuse and build policies. */
-export function sharedValidationReuseAllowed(command: ValidationCommand): boolean {
+/** Diagnostic only: reasons never grant authority or weaken existing policy. */
+export function sharedValidationReusePolicy(command: ValidationCommand): {eligible:boolean;reason:string} {
   const proof = command as ValidationCommand & { requiresBuildProof?: unknown; providesBuildProof?: unknown; proof?: unknown };
-  return command.executionReuse === 'exact-inputs'
-    && Array.isArray(command.executionInputs) && command.executionInputs.every(path => typeof path === 'string' && path.trim().length > 0)
-    && command.fullBaselineReusePolicy !== 'forbidden'
-    && command.closurePolicy !== 'never-reuse'
-    && command.riskTier !== 'gate' && command.riskTier !== 'validation-infra'
-    && !proof.requiresBuildProof && !proof.providesBuildProof && !proof.proof;
+  if (proof.requiresBuildProof || proof.providesBuildProof || proof.proof) return {eligible:false,reason:'build_proof_required'};
+  if (command.fullBaselineReusePolicy === 'forbidden') return {eligible:false,reason:'policy_forbidden'};
+  if (command.closurePolicy === 'never-reuse') return {eligible:false,reason:'policy_never_reuse'};
+  if (command.riskTier === 'gate' || command.riskTier === 'validation-infra') return {eligible:false,reason:'policy_risk_tier'};
+  if (command.executionReuse !== 'exact-inputs') return {eligible:false,reason:'not_opted_in'};
+  if (!Array.isArray(command.executionInputs) || !command.executionInputs.every(path => typeof path === 'string' && path.trim().length > 0)) return {eligible:false,reason:'inputs_undeclared'};
+  return {eligible:true,reason:'eligible'};
+}
+export function sharedValidationReuseAllowed(command: ValidationCommand): boolean {
+  return sharedValidationReusePolicy(command).eligible;
 }
 
 export async function executeSharedValidationCommand(
@@ -37,10 +41,15 @@ export async function executeSharedValidationCommand(
   run: () => Promise<ValidationCommandResult>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
 ): Promise<ValidationCommandResult> {
   const context = explicitContext ?? contexts.getStore();
-  if (!context || !sharedValidationReuseAllowed(command)) return run();
+  const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
+    ...await run(), executionDecision: {disposition:'executed',reason},
+  });
+  const policy = sharedValidationReusePolicy(command);
+  if (!policy.eligible) return executeWithoutReuse(policy.reason);
+  if (!context) return executeWithoutReuse('shared_context_unavailable');
   assertActive();
   const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
-  if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return run();
+  if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return executeWithoutReuse('executable_identity_unavailable');
   const input = { command: causalCanonical({command:command.command,args:command.args,shell:normalized.shell}), cwd:normalized.cwd, timeoutMs };
   const probe = () => context.probe(input);
   const initial = probe();
@@ -49,7 +58,7 @@ export async function executeSharedValidationCommand(
     return {path:actual,digest:createHash('sha256').update(readFileSync(actual)).digest('hex')};
   });
   let inputFiles: ReturnType<typeof additionalInputs>;
-  try { inputFiles=additionalInputs(); } catch { return run(); }
+  try { inputFiles=additionalInputs(); } catch { return executeWithoutReuse('input_unreadable'); }
   // Bind uncommitted source/index changes as well as committed material. Unknown
   // Git state refuses reuse; it does not manufacture a complete identity.
   const workspaceState = () => {
@@ -58,10 +67,10 @@ export async function executeSharedValidationCommand(
     return createHash('sha256').update(status).update('\0').update(diff).digest('hex');
   };
   let workspace: string;
-  try { workspace=workspaceState(); } catch { return run(); }
+  try { workspace=workspaceState(); } catch { return executeWithoutReuse('workspace_identity_unavailable'); }
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
-  if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return run();
+  if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return executeWithoutReuse('workspace_dirty');
   const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles);
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
   const identity = {
@@ -93,9 +102,10 @@ export async function executeSharedValidationCommand(
   if (!unchanged()) throw new Error('shared validation inputs changed before publication');
   const executionReceipt={executionKey:causal.key.key,receiptHash:causal.receipt.receiptHash,
     disposition:causal.disposition,executedAt:causal.receipt.executedAt};
-  if (fresh) return {...fresh,executionReceipt};
+  if (fresh) return {...fresh,executionReceipt,executionDecision:{disposition:'executed',
+    reason:!causal.key.reusable ? 'identity_incomplete' : causal.receipt.reusable ? 'no_matching_receipt' : fresh.code !== 0 ? 'execution_failed' : 'result_not_reusable', details:causal.key.incompleteReasons}};
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');
   return {label:command.label,command:command.command,args:[...command.args],shell:normalized.shell,
     cwd:resolve(normalized.cwd),code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
-    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt};
+    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_signed_pass'}};
 }

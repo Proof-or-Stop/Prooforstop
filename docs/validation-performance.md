@@ -79,3 +79,21 @@ NUL-framed Git names when looking up blobs, including Unicode and control
 characters. See [the hash decision](requirements/decisions/story-files-hash-material-drift.md)
 for migration boundaries and the independent oracle regression. This correction
 carries no percentage performance claim.
+
+## Auditable execution decisions
+
+Command results expose an informational `executionDecision` with `disposition`
+and a bounded reason code. It cannot authorize reuse or satisfy gate evidence.
+Policy reasons distinguish build proof, forbidden/never-reuse policy, risk tier,
+missing opt-in and missing input declarations. Runtime reasons distinguish absent
+shared context, unreadable inputs, unavailable executable/workspace identity,
+dirty workspaces, incomplete causal identity, failures and non-reusable output.
+`no_matching_receipt` does not claim to know which historical input changed;
+`matching_signed_pass` is accompanied by the original signed execution receipt.
+Diagnostics contain no raw environment values. Existing reuse policy is unchanged.
+
+Run `node scripts/verify-validation-reuse-proof.mjs` for the bounded Lab proof.
+It uses temporary Git data, real preflight/lease probes and disk receipts. Its
+136-row production configuration audit classifies missing declarations as unknown
+eligibility, not as permission to cache. It does not automatically enable commands,
+change dynamic mode, provide formal Story DONE evidence or claim Story-wide speedup.
