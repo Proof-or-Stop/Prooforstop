@@ -8808,7 +8808,7 @@ const inventory = [
       {relPath:'scripts/verify-routine-precert-entry.mjs',patterns:['PRE_CERT refusal must precede child launch',"focus: 'fast'"]},
       {relPath:'packages/main/src/core/store.ts',patterns:['causalEvidenceOutputPaths','verifyCausalEvidenceReceipt(receipt)','verified.get(key) === hash']},
       {relPath:'scripts/verify-shared-receipt-publication.mjs',patterns:['new StoryStore(root)','dirty material cannot consume a shared receipt']},
-      {relPath:'scripts/verify-flat-provider-validation.mjs',patterns:['canonical provider validation must not launch another registered command','canonical coverage union must retain']},
+      {relPath:'scripts/verify-flat-provider-validation.mjs',patterns:['canonical validation must not launch another registered command','canonical coverage union must retain']},
       {relPath:'scripts/verify-convergence-net-progress.mjs',patterns:['verified blocker reduction must not be classified as a stall','canMintReviewRoundGuard(ctx)']},
       {relPath:'scripts/verify-shared-output-boundary.mjs',patterns:['truncated capture must never become reusable evidence','receipt digest binds complete captured output','exactly 12000 complete characters remain reusable']},
       {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},
