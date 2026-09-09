@@ -20,6 +20,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { isBuiltin } from 'node:module';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import ts from 'typescript';
@@ -74,7 +75,7 @@ import {
 } from './review-inventory-epoch.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
-export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v1' as const;
+export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v2' as const;
 
 export type PostRemediationSelectionReason =
   | 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE'
@@ -161,7 +162,7 @@ function hasOpaqueDynamicLoad(source: ts.SourceFile): boolean {
  * Build a deterministic, bidirectional source dependency component from the
  * tracked TypeScript/JavaScript inventory. Walking both directions covers
  * transitive dependencies and all dependants that share a changed module.
- * Any unresolved relative import, opaque dynamic load, symlink, alias escape,
+ * Any unresolved non-builtin import, opaque dynamic load, symlink, alias escape,
  * or missing changed source makes the proof incomplete rather than narrow.
  */
 export function computeCanonicalDependencyClosure(
@@ -199,8 +200,10 @@ export function computeCanonicalDependencyClosure(
       for (const specifier of imports) {
         const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys).resolvedModule;
         if (!resolved) {
-          if (specifier.startsWith('.')) return { complete: false, files: changedFiles, reason: `unresolved relative dependency: ${path} -> ${specifier}` };
-          continue;
+          // A bare specifier may be a runtime/bundler alias into this repo.
+          // Only a proven builtin can be ignored without a resolved target.
+          if (isBuiltin(specifier)) continue;
+          return { complete: false, files: changedFiles, reason: `unresolved ${specifier.startsWith('.') ? 'relative' : 'bare'} dependency: ${path} -> ${specifier}` };
         }
         const target = canonicalRepoPath(gitCwd, relative(gitCwd, resolved.resolvedFileName));
         if (!target || !sourceSet.has(target)) {
