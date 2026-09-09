@@ -366,7 +366,8 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
-  ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
+  // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
+  ['packages/main/src/handlers/delivery-context-pack.ts', '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9'],
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.

@@ -2087,7 +2087,7 @@ function assertCloseoutTrustBoundary() {
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
     '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5',
-    '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
+    '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
     // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT

@@ -128,7 +128,7 @@ export const QUORUM_CASES: readonly QuorumCase[] = [
   },
   {
     "id": "Q026",
-    "name": "never sets authorityDone, fullAuthorityDone, or productionDone",
+    "name": "never sets retired delivery authority flags",
     "group": "ordered-quorum-state"
   },
   {

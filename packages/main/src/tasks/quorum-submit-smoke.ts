@@ -1766,7 +1766,7 @@ try {
     }
   });
 
-  check("Q026", 'never sets authorityDone, fullAuthorityDone, or productionDone', () => {
+  check("Q026", 'never sets retired delivery authority flags', () => {
     assert.equal(result.authorityDone, false);
     assert.equal(result.fullAuthorityDone, false);
     assert.equal(result.productionDone, false);
