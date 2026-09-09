@@ -39,4 +39,38 @@ assert.throws(() => deriveAcceptanceAmendment(withBound, delta), /binding|duplic
 const withId = structuredClone(base); withId.checklist.items[0].verificationIntent.happy[0].id = 'existing-intent';
 const alias = structuredClone(delta); alias.appendIntents[0].verificationIntent.happy[0].id = 'existing-intent';
 assert.throws(() => deriveAcceptanceAmendment(withId, alias), /intent|duplicate/i);
+const brokenTopology = structuredClone(delta); brokenTopology.topologyDelta[0].verificationTopology.consumerRefs[0].producerRefs = ['missing-producer'];
+assert.throws(() => deriveAcceptanceAmendment(base, brokenTopology), /topology/i);
+const newItemDelta = structuredClone(delta);
+newItemDelta.addItems.push({ id: 'CHK-007', title: 'New boundary requirement', files: { modify: [], create: ['src/boundary.ts'], test: ['tests/boundary.test.ts'] },
+  verificationIntent: { happy: [{ desc: 'New boundary is verified', type: 'cli' }], edge: [], adversarial: [] } });
+newItemDelta.scopeDelta.create.push('src/boundary.ts'); newItemDelta.scopeDelta.test.push('tests/boundary.test.ts');
+const newBinding = JSON.parse(JSON.stringify(binding).replaceAll('AB-NEW', 'AB-BOUNDARY').replaceAll('CHK-006', 'CHK-007'));
+newItemDelta.topologyDelta.push(newBinding);
+const expanded = deriveAcceptanceAmendment(base, newItemDelta);
+assert.equal(expanded.checklist.items.at(-1).status, 'pending');
+assert.deepEqual(expanded.scope.allowedCreate, ['src/boundary.ts']);
+assert.deepEqual(expanded.scope.protectedFiles, base.scope.protectedFiles);
+assert.deepEqual(expanded.checklist.items.slice(0, 5), original.checklist.items.slice(0, 5));
+const tightenedBase = structuredClone(base); tightenedBase.checklist.items[0].files = base.checklist.items[5].files;
+const tightened = structuredClone(delta);
+tightened.appendIntents.push({ itemId: 'CHK-001', verificationIntent: { happy: [{ desc: 'Additional mandatory boundary', type: 'cli' }], edge: [], adversarial: [] } });
+tightened.topologyDelta.push(JSON.parse(JSON.stringify(binding).replaceAll('AB-NEW', 'AB-STRICTER').replaceAll('CHK-006:happy:0', 'CHK-001:happy:7').replaceAll('CHK-006', 'CHK-001')));
+const strengthened = deriveAcceptanceAmendment(tightenedBase, tightened);
+assert.deepEqual(strengthened.checklist.items[0].verificationIntent.happy.slice(0, 7), tightenedBase.checklist.items[0].verificationIntent.happy, 'stricter appends preserve every original positional intent');
+assert.deepEqual(strengthened.checklist.items[0].verificationEvidence, tightenedBase.checklist.items[0].verificationEvidence);
+assert.equal(strengthened.checklist.items[0].status, 'pending');
+const planned = structuredClone(delta);
+planned.appendIntents[0].filesDelta = { modify: [], create: [], test: ['tests/add-negative.test.ts'] };
+planned.scopeDelta.test = ['tests/add-negative.test.ts'];
+planned.appendIntents[0].verificationIntent.happy[0].plannedPathDeclarations = [{
+  schemaVersion: 'proofstory.verification_planned_path_declaration.v1', id: 'PD-NEG', relation: 'producer_to_consumer', outputFactRef: 'negative-result',
+  producer: { id: 'P-NEG', role: 'producer', expectedArtifactKind: 'source_file', expectedFileRef: 'src/add.ts', expectedSymbolOrFact: 'add', fileDeclarationRef: 'CHK-006:files:modify:0' },
+  consumers: [{ id: 'C-NEG', role: 'consumer', expectedArtifactKind: 'source_file', expectedFileRef: 'tests/add-negative.test.ts', expectedSymbolOrFact: 'verifyNegative', fileDeclarationRef: 'CHK-006:files:test:1' }],
+}];
+planned.topologyDelta[0].verificationTopology.producerRefs[0].sourceRef = { refKind: 'planned', plannedPathDeclarationRef: 'CHK-006:happy:0:PD-NEG', endpointRef: 'P-NEG' };
+planned.topologyDelta[0].verificationTopology.consumerRefs[0].sourceRef = { refKind: 'planned', plannedPathDeclarationRef: 'CHK-006:happy:0:PD-NEG', endpointRef: 'C-NEG' };
+const plannedResult = deriveAcceptanceAmendment(base, planned);
+assert.deepEqual(plannedResult.checklist.items[5].files.test, ['tests/add.test.ts', 'tests/add-negative.test.ts'], 'stricter intent can append a new test file without moving existing path references');
+assert.deepEqual(plannedResult.scope.allowedTest, ['tests/add.test.ts', 'tests/add-negative.test.ts']);
 console.log('PASS U05 additive acceptance amendment derivation preserves frozen history');
