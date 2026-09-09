@@ -1,5 +1,27 @@
 # Changelog
 
+## Lab bcae-dist-promotion-integration-20260909 - v0.3.290 - 2026-09-09
+
+# B-bcae dist-promotion integration
+
+Problem: B-bcae demonstrated that a local CLI reader could begin resolving the mutable `dist` graph while a build promoted a replacement tree, producing transient mixed-generation or missing-module failures. The original Story accumulated valid focused evidence but its lifecycle metadata could not honestly converge to DONE; this Lab carries the implementation and evidence onto the latest local main without copying or rewriting Story JSON.
+
+Fix: the bootstrap reader now enters repository-scoped dist-import admission before resolving all main, utils, Lab, brand, and Zod modules. Builders coordinate the canonical build target with the distinct reader-admission target, recheck dist inside admission, preserve dependency-free fresh-checkout diagnostics, and release both lock layers on success and failure. Desktop packaging includes the helper closure. Validation policy registers the B-bcae race and admission co-scheduling guards. Latest-main compatibility was preserved: existing main smoke coverage was retained, the B-e40f Lab-only harness received an explicit non-registration reason, three newly introduced main validation rows received evidence-backed admission classifications, and an already-mismatched process-contract mirror was synchronized to the guard's current reviewed fingerprint.
+
+Lab evidence: the pinned command is `node packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs`. RED was recorded at the pre-fix Lab head with the expected marker `B-bcae protected import:start`. GREEN was recorded after commits `dc4670ba7c` and `343554c4ca`, then replayed successfully after syncing local main through `64e7140f7a`. The harness earned 26 mechanical selectors and intentionally reported `CHK-004 happy-1` as deferred because only a canonical full validation run can observe that claim. Its completion matrix was baseline RED 3/3, final GREEN 0/3 failures, protection-removed mutant RED 3/3, controls 3/3 for each variant, and zero builder failures. Writer-wins-after-readiness completed with reader and builder exit 0, no overlap, and one NEW:NEW generation.
+
+Focused compatibility evidence: `node packages/main/tests/red/red-bcae-admission-coscheduling.mjs` passed with 23 candidates derived from 141 registered commands, 8 real-root admission takers and 15 static references, with no co-schedulable member pair. `node packages/main/dist/tasks/validation-tier-planner-smoke.js` passed after pinning the retained 141-command inventory. `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` passed. `node scripts/verify-process-fact-contract.mjs --quiet` passed. `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` passed.
+
+Carried Story evidence, stated without upgrading it: the prior DONE-required run at Story commit `d8886383ab` passed the packages/main build and the root 65/65 suite. A later standalone `npm --prefix packages/graph run check` passed after an earlier canonical 136-command attempt had reported 135 passes plus the graph failure. Therefore this Lab does not claim that historical canonical validation attempt was PASS, and it does not claim 27/27 intent coverage. The Story's honest evidence state is 26 mechanically witnessed selectors plus the intentionally deferred canonical-full-validation selector.
+
+Bounded-scope observation: `npm ci` completed without changing dependency manifests or lockfiles and reported four existing dependency advisories (three moderate, one high). No B-bcae source or dependency change introduced them, the install command exited successfully, and they did not block the focused behavior, build, security guard, process-contract check, RED, or GREEN. They are recorded here for traceability and are not remediated by this Lab.
+
+No remote push is authorized or performed. This Lab integration is local maintenance evidence and must not be represented as formal Story DONE.
+
+Maintenance provenance: codex/lab-bcae-dist-promotion-integration-20260909, repair 245b054bd6538d23bd57257312c2f6a32e74f968.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab story-evidence-carry-forward - v0.3.289 - 2026-09-09
 
 Add an open, bounded Story evidence carry-forward rule to Temporary Lab maintenance.

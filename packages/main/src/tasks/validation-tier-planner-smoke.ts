@@ -510,8 +510,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-aa5f CHK-008 retains those three upstream entries AND the two receipt
   // contracts plus inventory-epoch smoke. B-fe8f adds its ledger/runtime guard:
   // the earlier merged union had 135. The current local-main merge adds B-e256's
-  // global CLI executable-bit guard and adds `node scripts/verify-lab-worktree.mjs`:
-  // the complete retained inventory is the exact 137-command union.
+  // global CLI executable-bit guard and Lab maintenance coverage. Latest main
+  // carries 139 commands; B-bcae adds its bootstrap-race and admission
+  // co-scheduling rows without dropping any predecessor, yielding 141.
   // Derived through configuredValidationCommands -> buildValidationCommandInventory.
   // B-aa5f timeout remediation keeps that inventory intact while raising only
   // verification-run-and-guard-smoke from 600000ms to its audited 1200000ms budget.
@@ -526,7 +527,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
      'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
      'packages/main/tests/canonical-new-story-artifacts.test.mjs',
    ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-   assert.equal(real.commandSetDigest, '801c593732271bffd33c283f32e457498e738a7aef72c36d6e61dd69370fcfff', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+   assert.equal(real.commandSetDigest, '13713a76121ba865757900dd635493bdf8c93b4901c5d8dc1ce35ef45fb1565f', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
