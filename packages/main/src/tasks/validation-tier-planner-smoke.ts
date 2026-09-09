@@ -500,7 +500,8 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
   // 129-entry inventory form a 132-entry union without losing either side;
   // B-e256 then adds its global launcher row for the 133-entry merged inventory.
-  assert.equal(real.commandSetDigest, '6f6a4fa01f9ae975a04c754c17d1ca31df1066ba6c4967b4ed2f35f7a5452e24', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // The Lab-maintenance registration adds the 134th command; all prior commands remain.
+  assert.equal(real.commandSetDigest, 'b5e05c15917f461d8ba72b3369fe3637968ac26c542469281d419ee9b2a46a03', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

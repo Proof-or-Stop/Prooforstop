@@ -733,6 +733,33 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
+  // Explicit structural fixtures for the current signed process-fact closure.
+  // These contain no simulated runtime behavior; missing-source and incomplete-seal
+  // negative assertions below remain unchanged.
+  for (const path of [
+    'bin/bootstrap-runner.js',
+    'packages/main/src/cli-engine.ts',
+    'packages/main/src/core/auto-commit-metadata.ts',
+    'packages/main/src/core/causal-evidence.ts',
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/execution-implementation.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/store.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification-intent-amendment.ts',
+    'packages/main/src/core/verification-intent-checkpoint.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/done-required-validation.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/tasks/quorum-case-parallel.ts',
+    'packages/main/src/tasks/quorum-case-plan.ts',
+    'packages/main/src/tasks/quorum-case-registry.ts',
+    'packages/main/src/tasks/quorum-submit-smoke.ts',
+    'scripts/build-lock-target.mjs',
+  ]) write(root, path, 'export const registeredClosureFixture = true;\n');
 }
 
 function writeLiveProofFixture(root: string, proof: unknown, recomputeRoot = true): void {
