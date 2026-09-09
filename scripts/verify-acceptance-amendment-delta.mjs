@@ -74,3 +74,5 @@ const plannedResult = deriveAcceptanceAmendment(base, planned);
 assert.deepEqual(plannedResult.checklist.items[5].files.test, ['tests/add.test.ts', 'tests/add-negative.test.ts'], 'stricter intent can append a new test file without moving existing path references');
 assert.deepEqual(plannedResult.scope.allowedTest, ['tests/add.test.ts', 'tests/add-negative.test.ts']);
 console.log('PASS U05 additive acceptance amendment derivation preserves frozen history');
+
+export { base, delta };
