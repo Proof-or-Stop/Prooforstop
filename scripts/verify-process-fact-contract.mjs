@@ -9341,6 +9341,12 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+const entryDiagnosticSource = readFileSync(join(root, 'scripts/entry-preflight.mjs'), 'utf8');
+assert(entryDiagnosticSource.includes('diagnosticOnly: true') && entryDiagnosticSource.includes('writesEvidence: false')
+  && entryDiagnosticSource.includes('advancesPhase: false') && entryDiagnosticSource.includes('UNAVAILABLE'),
+  'entry preflight diagnostics must not claim unavailable checks or transition/evidence authority');
+assert(readFileSync(join(root, 'packages/main/src/handlers/story-review.ts'), 'utf8').includes('assessPlanTouchpointCoverage(understanding.touchpoints, cl.items)'),
+  'entry preflight and Story review must share the existing touchpoint coverage semantics');
 assertReviewInventoryRemediationContract();
 assertProcessFactCommandInventory();
 assertDonePreflightPredicateInventoryParity();

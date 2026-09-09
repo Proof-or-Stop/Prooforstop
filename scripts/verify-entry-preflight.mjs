@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 const repository = fileURLToPath(new URL('../', import.meta.url));
 const script = join(repository, 'scripts/entry-preflight.mjs');
 assert.ok(existsSync(script), 'U14 dependency-free entry preflight must be available');
@@ -23,6 +23,7 @@ function run(entry, project, storyId) {
   const result = spawnSync(process.execPath, [entry, '--root', project, '--json', ...(storyId ? ['--storyId', storyId] : [])],
     { cwd: project, encoding: 'utf8', timeout: 45000, maxBuffer: 2 * 1024 * 1024 });
   assert.ok([0,1].includes(result.status), `${result.error ?? ''}\n${result.stderr}`);
+  assert.ok(result.stdout.trim(), `entry preflight must print its report: ${result.stderr}`);
   const report = JSON.parse(result.stdout);
   assert.equal(snapshot(root), before, 'preflight cannot alter project files, Story artifacts or installed packages');
   assert.equal(report.diagnosticOnly, true);
@@ -38,6 +39,7 @@ try {
   write(join(cold, 'packages/main/package.json'), { name: 'cold-runtime', dependencies: { 'missing-preflight-fixture-package': '1' } });
   write(join(cold, 'proof-or-stop.config.json'), '{broken');
   write(join(cold, '.git'), 'gitdir: absent-worktree\n');
+  mkdirSync(join(cold, 'absent-worktree'));
   const broken = run(coldScript, cold);
   assert.equal(status(broken, 'config-syntax'), 'BLOCKED');
   assert.equal(status(broken, 'git-pointer'), 'BLOCKED');
@@ -52,7 +54,7 @@ try {
     write(join(cold, 'node_modules', name, 'index.js'), 'throw new Error("preflight must not execute dependency code");');
   }
   const installed = run(coldScript, cold);
-  for (const name of ['import-only', 'subpath-only']) assert.equal(status(installed, `dependency:${core}:${name}`), 'PASS', 'inherited ESM or subpath-only package is installed without executing it');
+  for (const name of ['import-only', 'subpath-only']) assert.equal(status(installed, `dependency:${realpathSync(core)}:${name}`), 'PASS', 'inherited ESM or subpath-only package is installed without executing it');
 
   const project = join(root, 'project');
   write(join(project, 'proof-or-stop.config.json'), { storyDir: '.proof-or-stop/story/actives', scanRoot: 'src', rootDir: '.' });
@@ -69,14 +71,49 @@ try {
   assert.equal(status(baseline, 'path:CHK-001:test:tests/future.test.ts'), 'PASS');
   assert.ok(!baseline.rows.some(row => row.status === 'BLOCKED' || row.status === 'UNAVAILABLE'), JSON.stringify(baseline));
   const checklist = store.readChecklist(storyId);
-  checklist.items[0].files.modify = ['src/missing.ts', '../escape.ts', 'outside/secret.ts'];
+  checklist.items[0].files.modify = ['src/missing.ts', '../escape.ts', 'outside/secret.ts', '.', 'broken-link/future.ts'];
   store.writeChecklist(storyId, checklist);
   symlinkSync(root, join(project, 'outside'));
+  symlinkSync(join(root, 'absent'), join(project, 'broken-link'));
   const brokenPlan = run(script, project, storyId);
   assert.equal(status(brokenPlan, 'path:CHK-001:modify:src/missing.ts'), 'BLOCKED');
   assert.equal(status(brokenPlan, 'path:CHK-001:modify:../escape.ts'), 'BLOCKED');
   assert.equal(status(brokenPlan, 'path:CHK-001:modify:outside/secret.ts'), 'BLOCKED');
+  assert.equal(status(brokenPlan, 'path:CHK-001:modify:.'), 'BLOCKED');
+  assert.equal(status(brokenPlan, 'path:CHK-001:modify:broken-link/future.ts'), 'BLOCKED');
   assert.equal(status(brokenPlan, 'touchpoint_uncovered'), 'BLOCKED');
+  const gitProject = join(root, 'git-project'), worktree = join(gitProject, 'worktree');
+  write(join(gitProject, 'proof-or-stop.config.json'), { storyDir: '.proof-or-stop/story/actives' });
+  write(join(gitProject, 'seed.txt'), 'worktree fixture');
+  const gitStore = new StoryStore(gitProject), gitStoryId = 'B-entry-worktree';
+  gitStore.writeStory(gitStoryId, { storyId: gitStoryId, phase: 'PLAN', worktree: { path: worktree, branch: 'codex/entry-preflight-fixture' } });
+  gitStore.writeChecklist(gitStoryId, { items: [] });
+  const git = (...args) => execFileSync('git', args, { cwd: gitProject, stdio: 'pipe' });
+  git('init', '-q', '-b', 'main'); git('config', 'user.name', 'Entry Fixture'); git('config', 'user.email', 'entry@example.invalid');
+  git('add', '.'); git('commit', '-qm', 'entry preflight fixture');
+  git('worktree', 'add', '-b', 'codex/entry-preflight-fixture', worktree);
+  const wrongRoot = run(script, gitProject, gitStoryId);
+  assert.equal(status(wrongRoot, 'story-worktree'), 'PASS', 'the recorded worktree itself is valid');
+  assert.equal(status(wrongRoot, 'story-worktree-cwd'), 'BLOCKED', 'PLAN entry from main must be distinguished from valid worktree registration');
+  const correctRoot = run(script, worktree, gitStoryId);
+  assert.equal(status(correctRoot, 'story-worktree-cwd'), 'PASS');
+
+  // Re-export actual core readers into a deliberately incomplete runtime. The
+  // missing INIT module must not erase independently available path diagnostics.
+  write(join(core, 'package.json'), { name: 'partial-runtime', type: 'module' });
+  for (const name of ['store', 'config', 'lifecycle-registry', 'plan-touchpoint-coverage', 'acceptance-topology', 'worktree-runtime']) {
+    write(join(core, `dist/core/${name}.js`), `export * from ${JSON.stringify(pathToFileURL(join(repository, `packages/main/dist/core/${name}.js`)).href)};\n`);
+  }
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'INIT' });
+  const partial = run(coldScript, project, storyId);
+  assert.equal(status(partial, 'story-shape'), 'PASS');
+  assert.equal(status(partial, 'init-prerequisites'), 'UNAVAILABLE');
+  assert.equal(status(partial, 'path:CHK-001:modify:../escape.ts'), 'BLOCKED');
+  assert.ok(status(partial, 'story-worktree'), 'later worktree diagnostics survive the missing INIT module');
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'PLNA' });
+  const invalidPhase = run(script, project, storyId);
+  assert.equal(status(invalidPhase, 'story-shape'), 'BLOCKED', 'an unknown phase cannot bypass INIT and worktree diagnostics');
+  assert.equal(status(invalidPhase, 'path:CHK-001:modify:../escape.ts'), 'BLOCKED');
   const before = snapshot(root);
   const refused = spawnSync(process.execPath, [script, '--root', project, '--apply'], { cwd: project, encoding: 'utf8' });
   assert.equal(refused.status, 1); assert.equal(snapshot(root), before);

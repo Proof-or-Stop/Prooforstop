@@ -202,3 +202,12 @@ export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
   launchOrder: 'supervisor-ready-before-worker',
   cleanupAuthority: 'recorded-provider-process-identity',
 } as const;
+
+/** Independent early diagnostics must survive unavailable runtime dependencies. */
+export const ENTRY_PREFLIGHT_RUNTIME_POLICY = {
+  entry: 'scripts/entry-preflight.mjs',
+  bootstrapDependencies: 'node-builtins-only',
+  probeTimeoutMs: 30_000,
+  unavailable: 'not-pass',
+  authority: 'diagnostic-only',
+} as const;

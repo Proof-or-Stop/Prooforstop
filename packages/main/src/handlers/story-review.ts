@@ -15,6 +15,7 @@
  *   - [CHK-001] Require qualified items to carry observable userSees plus happy/edge/adversarial verification intent in strict paths
  */
 
+import { assessPlanTouchpointCoverage } from '../core/plan-touchpoint-coverage.js';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ScopeContractData } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
@@ -79,16 +80,6 @@ function projectStoryReviewBrief(result: {
   };
 }
 
-function normalizeTouchpointPath(value: string): string {
-  const trimmed = value
-    .trim()
-    .replace(/^[-*]\s+/, '')
-    .replace(/^`|`$/g, '')
-    .trim();
-  const firstSegment = trimmed.split(/\s+\(/)[0].split(/\s+-\s+/)[0].trim();
-  const token = firstSegment.split(/\s+/)[0] || firstSegment;
-  return token.replace(/[),:;]+$/g, '').replace(/^`|`$/g, '').trim();
-}
 
 /**
  * Story 4 (B-fa7c): surface evaluateDecompositionGate()'s ADVISORIES at REVIEW as
@@ -522,34 +513,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       //   - If at least one checklist item has files field filled → hard validation mode, each uncovered touchpoint counts as one blocker
       //   - If all items lack files field (legacy story) → fallback advisory `touchpoint_mapping_missing`
       // Coverage check: extract path prefix then compare, allowing human annotations like "src/foo.ts (reason)".
-      if (understanding && understanding.touchpoints && understanding.touchpoints.length > 0) {
-        const itemsWithFiles = cl.items.filter(i => !!i.files);
-        if (itemsWithFiles.length === 0) {
-          issues.push({
-            type: 'touchpoint_mapping_missing',
-            severity: 'advisory',
-            message: 'None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation',
-          });
-        } else {
-          // Strict validation mode: collect all file paths declared by items
-          const covered = new Set<string>();
-          for (const item of itemsWithFiles) {
-            const f = item.files!;
-            for (const p of f.modify || []) covered.add(normalizeTouchpointPath(p));
-            for (const p of f.create || []) covered.add(normalizeTouchpointPath(p));
-            for (const p of f.test || []) covered.add(normalizeTouchpointPath(p));
-          }
-          for (const tp of understanding.touchpoints) {
-            const normalizedTp = normalizeTouchpointPath(tp);
-            if (!covered.has(normalizedTp)) {
-              issues.push({
-                type: 'touchpoint_uncovered',
-                severity: 'blocker',
-                message: `touchpoint_uncovered: ${tp} is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)`,
-              });
-            }
-          }
-        }
+      if (understanding?.touchpoints?.length) {
+        issues.push(...assessPlanTouchpointCoverage(understanding.touchpoints, cl.items));
       }
 
       // 2.55. plan.md check (respect policy.plan.requirePlanMd)

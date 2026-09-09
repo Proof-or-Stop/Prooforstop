@@ -67,6 +67,13 @@ async function main() {
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
+  check(registrySource.includes('ENTRY_PREFLIGHT_RUNTIME_POLICY'), 'entry preflight runtime boundary must be registered');
+  const entryPreflight = read(root, 'scripts/entry-preflight.mjs');
+  check(entryPreflight.includes('timeout: 30_000') && entryPreflight.includes('diagnosticOnly: true')
+    && entryPreflight.includes('writesEvidence: false') && entryPreflight.includes('advancesPhase: false'),
+  'entry diagnostics need bounded probes and explicit non-authority output');
+  check([...entryPreflight.matchAll(/^import .* from ['"]([^'"]+)['"]/gm)].every(match => match[1].startsWith('node:')),
+    'entry diagnostics must bootstrap using only Node builtins');
   check(registrySource.includes('MANAGED_SUPERVISOR_RUNTIME_POLICY'), 'autonomous managed supervisor policy must be registered');
   check(registrySource.includes('MANAGED_STATUS_OBSERVATION_POLICY'), 'managed status cursor semantics must be registered');
   const managedStatusSource = read(root, 'packages/main/src/core/managed-host-run.ts');
