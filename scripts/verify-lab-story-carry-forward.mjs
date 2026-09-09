@@ -26,7 +26,7 @@ const invoke = (cwd, args, expected = 0, match) => {
     env: { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') },
   });
   const output = `${result.stdout || ''}${result.stderr || ''}`;
-  if (result.status !== expected && /Unknown command/.test(output)) {
+  if (/Unknown command/.test(output)) {
     console.error('STORY_CARRY_FORWARD_RULE_MISSING');
   }
   assert.equal(result.status, expected, `${args.join(' ')}\n${output}`);
