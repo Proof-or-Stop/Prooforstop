@@ -8,6 +8,7 @@
     "git commit *",
     "git diff *",
     "git log *",
+    "git show *",
     "git status *",
     "node *",
     "proof-or-stop *",
@@ -21,7 +22,7 @@
     "shell"
   ],
   "allowedPaths": [
-    "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
     "docs/requirements/NAV.md"
   ],
   "excludedCommands": [
@@ -32,12 +33,12 @@
   "excludedTools": [],
   "excludedPaths": [
     ".proof-or-stop/story/actives",
+    "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
     "packages/main/src",
     "proof-or-stop.config.json"
   ],
   "confirmedBy": "codex",
-  "confirmationNote": "Execution is limited to documentation authoring, lifecycle CLI operations, and read-only cross-CLI audits.",
-  "createdAt": "2026-09-09T22:13:58.986Z",
-  "updatedAt": "2026-09-09T22:13:58.986Z",
-  "_hash": "71ce013524f462978aec53c1ad128f41fd224461d47c54d0f69f2e543d225ee9"
+  "createdAt": "2026-09-09T22:31:03.705Z",
+  "updatedAt": "2026-09-09T22:31:03.705Z",
+  "_hash": "5437fcdea4bf020f7b441bb574dee40182eae537fa79d5993b922329ff4e8e68"
 }

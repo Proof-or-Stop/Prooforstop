@@ -2,9 +2,10 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Write the focused three-tier dynamic-validation RED/GREEN execution plan",
-      "context": "Define one canonical selector shared by validation_plan and validate; specify tier membership, impact index, stable identities, exclusion/receipt proof, fail-closed widening, rollout, acceptance evidence, and non-hard-coded inventory accounting.",
+      "title": "Promote and reconcile the canonical three-tier dynamic-validation execution plan",
+      "context": "Recover docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md from story/B-ccf4, preserve its ownership of Story-fast, Story-intermediate, Repository-full, subset invariants and widening rules, reconcile its implementation-state claims against current main, and add copy-pasteable future RED/GREEN fixture specifications plus derived inventory accounting. Do not create a second tier specification and do not claim the documented fixtures already exist.",
       "relatedDocs": [
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
         "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
         "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
         "docs/requirements/decisions/dynamic-validation-operations.md",
@@ -12,7 +13,7 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/NAV.md"
       ],
-      "userSees": "A concise Markdown execution plan that states exactly how fast, intermediate, and full become distinct, executable, and auditable.",
+      "userSees": "The canonical tier-specific plan is available on main, reconciled to current implementation state, and contains copy-pasteable RED/GREEN specifications with expected output shapes.",
       "excludes": [
         "Implementing runtime selector changes",
         "Changing validate.dynamic.mode",
@@ -23,37 +24,89 @@
           "docs/requirements/NAV.md"
         ],
         "create": [
-          "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md"
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
         ],
         "test": []
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "TIER-DOC-HAPPY",
+            "desc": "The companion names its subordinate status, defines one selector shared by planning and execution, and gives executable RED and GREEN commands with expected output shapes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "TIER-DOC-EDGE",
+            "desc": "Inventory size and command membership are derived at execution time rather than copied as durable numeric claims, and legitimate tier collapse to repository-full is documented.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "TIER-DOC-ADV",
+            "desc": "The companion cannot authorize a reduced TEST result from labels alone, stale receipts, unmapped inputs, protected changes, or a planner/executor digest mismatch.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "Obtain and resolve independent Claude CLI and Agy CLI audits",
-      "context": "Give both CLIs the same frozen document and audit rubric; record actionable findings, reconcile conflicts against repository truth sources, revise the plan, and preserve a bounded audit record without claiming the CLIs grant lifecycle authority.",
+      "context": "Freeze one candidate document payload and one inverse-question rubric; compute SHA-256 digests and give the exact same bytes to pinned Claude CLI and Agy CLI versions. Record exact non-interactive invocations, versions, payload/rubric/response digests, findings, truth-source adjudication, accepted edits, rejected suggestions and unresolved blockers. If either CLI cannot inspect the frozen payload or returns no substantive result, record the audit as blocked and stop rather than substituting prose. Neither CLI grants lifecycle authority.",
       "relatedDocs": [
-        "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+        "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
         "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
       ],
-      "userSees": "The final plan includes a transparent two-CLI audit disposition showing what changed and what remained unresolved.",
+      "userSees": "The canonical plan contains a same-payload, version-pinned Claude/Agy audit disposition with reproducible invocations and explicit failure handling.",
       "excludes": [
         "Treating reviewer prose as signed gate evidence",
         "Allowing either CLI to modify the repository directly"
       ],
       "files": {
         "modify": [
-          "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md"
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
         ],
         "create": [],
         "test": []
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "TIER-AUDIT-HAPPY",
+            "desc": "Claude CLI and Agy CLI audit the exact same frozen payload and rubric, and the document records both payload and response digests with dispositions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "TIER-AUDIT-EDGE",
+            "desc": "Conflicting auditor recommendations are adjudicated against named repository truth sources instead of being averaged or silently discarded.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "TIER-AUDIT-ADV",
+            "desc": "Audit prose, mutable paths, missing digests, or tool-inaccessible claims are never represented as signed lifecycle authority or implementation proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
