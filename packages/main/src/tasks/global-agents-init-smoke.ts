@@ -99,21 +99,14 @@ function listProjectAgentMd(root: string): string[] {
       // tools sandbox preserved
       assert.match(content, /^tools:/m, `${basename} shim must keep tools: frontmatter`);
       const role = basename.replace(/\.md$/, '');
-      // B-cdf6: these pinned the PRE-rename bin name, so they failed BECAUSE the
-      // rename succeeded. Note line 2 of the old `else` branch already SAID
-      // "must reference proof-or-stop agent_prompt" while its regex checked
-      // `proof-or-stop` — the message and the assertion disagreed, which is why the
-      // mismatch survived earlier passes. Measured shim contents: 12x
-      // `proof-or-stop agent_prompt --role=`, 5x `proof-or-stop review_run_start`,
-      // zero `proof-or-stop`. Each canonical check is paired with a doesNotMatch on the
-      // deprecated form so the generated shims cannot regress to the old bin name.
+      // Require the supported CLI and independently reject the retired command.
       if (isActiveModularReviewerRoleId(role)) {
         assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
-        assert.doesNotMatch(content, /proof-or-stop review_run_start/, `${basename} must not teach the deprecated bin`);
+        assert.doesNotMatch(content, /lattice review_run_start/, `${basename} must not teach the deprecated bin`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
       } else {
         assert.match(content, /proof-or-stop agent_prompt --role=/, `${basename} shim body must reference proof-or-stop agent_prompt`);
-        assert.doesNotMatch(content, /proof-or-stop agent_prompt --role=/, `${basename} shim body must not teach the deprecated bin`);
+        assert.doesNotMatch(content, /lattice agent_prompt --role=/, `${basename} shim body must not teach the deprecated bin`);
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
