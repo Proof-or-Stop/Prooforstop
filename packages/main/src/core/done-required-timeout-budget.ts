@@ -287,6 +287,15 @@ export function commandCliMaxBudget(
   }
   const derived = doneRequiredDerivedBudget(root);
   if (command === 'done_required_validate') return derived;
+  if (command === 'validate' || (command === 'story_advance' && args.phase === 'TEST')) {
+    const commandBudgetMs = safeTimeoutSum(configuredRoutineCommands(root).map(command => resolveCommandTimeoutMs(command)));
+    return {
+      timeoutMs: Math.max(15 * 60_000, safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS])),
+      source: 'derived-command-budget',
+      commandBudgetMs,
+      graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
+    };
+  }
   if (command !== 'done_prepare') return { timeoutMs: 15 * 60_000, source: 'default' };
 
   const validateEnabled = args.validate !== false;
