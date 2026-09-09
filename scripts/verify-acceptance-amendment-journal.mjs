@@ -23,11 +23,28 @@ try {
   git('add', '.'); git('commit', '-qm', 'baseline acceptance');
   const controller = createAcceptanceAmendmentController(store, root);
   const request = { storyId, amendmentId: 'AM-1', delta, submitterSessionId: 'owner-1' };
+  controller.propose({ ...request, amendmentId: 'AM-failed' });
+  let failedLaunches = 0;
+  const failedRun = await controller.startReview({ storyId, amendmentId: 'AM-failed', host: 'codex' }, {
+    beforeOneShotInputWrite: () => { throw new Error('injected input write failure after pin'); },
+    launchWorker: () => { failedLaunches++; throw new Error('must not launch'); },
+  });
+  assert.equal(failedLaunches, 0);
+  const pinnedFailure = store.readAcceptanceAmendments(storyId).entries[0].review.publicKey;
+  const failedRetry = await controller.startReview({ storyId, amendmentId: 'AM-failed', host: 'codex' });
+  assert.equal(failedRetry.runId, failedRun.runId);
+  assert.match(failedRetry.recoveryHint, /cancel.*new amendment ID/);
+  assert.equal(store.readAcceptanceAmendments(storyId).entries[0].review.publicKey, pinnedFailure);
+  controller.cancel({ storyId, amendmentId: 'AM-failed', reason: 'The private input write failed before worker launch; retain attempt and start a new amendment.' });
   const before = readFileSync(store.storyFilePath(storyId, 'checklist.json'));
   const proposal = controller.propose(request);
   assert.equal(proposal.state, 'PROPOSED');
   assert.deepEqual(readFileSync(store.storyFilePath(storyId, 'checklist.json')), before, 'proposal cannot mutate acceptance');
   assert.match(acceptanceAmendmentBlocker(store, storyId, root), /pending|PROPOSED/);
+  const originalJournal = store.readAcceptanceAmendments(storyId);
+  store.writeAcceptanceAmendments(storyId, { ...originalJournal, entries: [] });
+  assert.match(acceptanceAmendmentBlocker(store, storyId, root), /signature|invalid/, 'deleting pending entries cannot erase the gate');
+  store.writeAcceptanceAmendments(storyId, originalJournal);
   assert.throws(() => controller.approve({ storyId, amendmentId: 'AM-1' }), /review|receipt/);
   assert.deepEqual(controller.propose(request), proposal, 'exact proposal retry is stable');
   assert.throws(() => controller.propose({ ...request, delta: { ...delta, scopeDelta: { ...delta.scopeDelta, modify: ['different.ts'] } } }), /conflict|IDEMPOTENCY/);
@@ -52,6 +69,10 @@ try {
   assert.throws(() => controller.approve({ storyId, amendmentId: 'AM-1' }), /injected/);
   assert.match(acceptanceAmendmentBlocker(store, storyId, root), /APPLYING|pending/);
   store.writeScopeContract = originalWriter;
+  writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a-b;\n');
+  assert.throws(() => controller.approve({ storyId, amendmentId: 'AM-1' }), /source drift/, 'interrupted application never approves changed source');
+  assert.match(acceptanceAmendmentBlocker(store, storyId, root), /APPLYING/);
+  writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
   const approved = controller.approve({ storyId, amendmentId: 'AM-1' });
   assert.equal(approved.state, 'APPROVED');
   assert.equal(acceptanceAmendmentBlocker(store, storyId, root), null);

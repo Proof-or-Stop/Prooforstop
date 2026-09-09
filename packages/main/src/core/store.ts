@@ -1,3 +1,4 @@
+import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -1616,6 +1617,15 @@ export class StoryStore {
   }
 
   // ── Scope Contract (B-be27: story-scoped allowed-file contract) ──
+
+  readAcceptanceAmendments(storyId: string): AcceptanceAmendmentJournal | null {
+    try { return this.readJson<AcceptanceAmendmentJournal>(storyId, 'acceptance-amendments.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  writeAcceptanceAmendments(storyId: string, data: AcceptanceAmendmentJournal): void {
+    this.writeJson(storyId, 'acceptance-amendments.json', data);
+  }
 
   readScopeContract(storyId: string): ScopeContractData | null {
     try {

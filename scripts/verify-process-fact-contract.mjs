@@ -8641,6 +8641,12 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
   'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
   const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  const amendmentJournal = read('packages/main/src/core/acceptance-amendment-journal.ts');
+  assert(registrySource.includes('artifact:acceptance-amendments.json'), 'signed amendment application must be registered');
+  for (const invariant of ['verifyValidationArtifact', 'deriveAcceptanceAmendment', 'onAcceptanceReviewKeyCreated', "state: 'APPLYING'", "state: 'APPROVED'", 'Acceptance amendment interrupted']) {
+    assert(amendmentJournal.includes(invariant), `amendment journal requires ${invariant}`);
+  }
+  assert(read('packages/main/src/core/lifecycle-registry.ts').includes("'acceptance-amendments.json'"), 'amendment journal must be classified as lifecycle metadata');
   const acceptanceReviewer = read('packages/main/src/core/managed-host-run.ts');
   assert(registrySource.includes('artifact:acceptance-amendment-review-receipt'), 'DEV amendment review seal must be registered');
   for (const invariant of ['parseAcceptanceReviewFinal', 'readManagedAcceptanceReviewReceipt', 'managedAcceptanceReviewPublicKey', 'verifyCanonical(claims, signature, expected.publicKey)']) {

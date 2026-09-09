@@ -1587,6 +1587,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Managed review submissions are idempotent by host/story/reviewRunId/lane, with the normalized submission digest sealed in the spec; conflicting inputs and archived or interrupted requests never launch replacements. The provider-owned immutable proposal is stored at the dynamic managed-run evidence-proposal.json path and is not gate evidence until an exact successful terminal seals it. The formal path accepts only one schema-valid bounded Codex agent_message or exact standalone Codex raw stdout envelope, or one Claude result final-result envelope after successful provider exit, and binds the exact run/review/provider tuple. Ordinary Codex progress agent messages are ignored; envelope-looking malformed/oversized attempts remain explicit failures, and multiple valid envelopes, tool-log, ordinary or mixed raw stdout, arbitrary streamed-output, or controller-authored input fails closed. The older signed-descriptor provider callback remains compatibility-only.',
   },
   {
+    name: 'artifact:acceptance-amendments.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'verification-policy', 'workspace-binding'],
+    level: 'L3',
+    producer: 'core/acceptance-amendment-journal',
+    artifact: { name: 'acceptance-amendments.json', path: 'acceptance-amendments.json', signed: true, signature: 'signValidationArtifact/verifyValidationArtifact with schema-separated acceptance claims and the trusted Git common-directory key' },
+    consumerGate: 'acceptanceAmendmentBlocker and exact application recovery',
+    rationale: 'Each amendment preserves a signed original scope/checklist/ProofStory snapshot and additive delta, deterministic next digest, submitter identity, and independent worker public key pinned before launch. Proposal and review leave acceptance untouched. Application verifies exact current base/source and approving provider receipt, then persists APPLYING before any acceptance artifact write and APPROVED only after complete exact readback. Interrupted application admits only original or exact derived artifact values and rechecks source; unknown drift is never overwritten. Exact retry preserves authority bytes; cancellation is audited and cannot discard an applying or approved change.',
+  },
+  {
     name: 'artifact:acceptance-amendment-review-receipt',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'prompt-envelope', 'execution-evidence', 'schema-contract'],

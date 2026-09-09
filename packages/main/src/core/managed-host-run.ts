@@ -589,6 +589,8 @@ interface ManagedHostRunSnapshotEventTransition {
 }
 
 export interface ManagedHostRunSubmitDeps {
+  /** Trusted application callback: durably pin the generated public key before any worker launch. */
+  onAcceptanceReviewKeyCreated?: (value: { runId: string; publicKey: string }) => void;
   launchWorker?: ManagedHostRunWorkerLauncher;
   /** Declares an injected launcher that faithfully forwards the private key by pipe. */
   workerCapabilityTransport?: 'descriptor';
@@ -2282,6 +2284,7 @@ export async function submitManagedHostRun(
   // an explicit test seam and may start the worker in a separate fixture
   // process, so retain the legacy one-shot file only for that seam.
   try {
+    if (args.profile === ACCEPTANCE_REVIEW_PROFILE && proposalInvocationKeys) deps.onAcceptanceReviewKeyCreated?.({ runId, publicKey: proposalInvocationKeys.publicKey });
     deps.beforeOneShotInputWrite?.({ root: args.root, runId });
     if (!proposalInvocationKeys || (deps.launchWorker && deps.workerCapabilityTransport !== 'descriptor')) {
       writeFileSync(paths.capability, capability, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
