@@ -43,6 +43,8 @@ try {
   rmSync(indexPath);
   assert.equal(evaluateConvergenceProgress(store, storyId, root).state.snapshot.missingRequired, 0);
   assert.equal(existsSync(indexPath), false, 'U11 read-only progress must not repair the receipt index');
+  store.readCausalEvidenceReceipt(storyId, evidence.receipt.executionKey);
+  assert.equal(existsSync(indexPath), true, 'normal execution reads retain orphan recovery');
   writeFileSync(indexPath, indexBytes);
   const complete = readFileSync(path, 'utf8');
   writeFileSync(join(root, 'subject.cjs'), 'module.exports=2;\n');

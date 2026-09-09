@@ -831,6 +831,7 @@ export class StoryStore {
   private recoverOrphanedCausalEvidenceReceipt(
     storyId: string,
     executionKey: string,
+    repairIndex: boolean,
   ): CausalEvidenceReceipt | null {
     const receiptsDir = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
     if (!existsSync(receiptsDir)) return null;
@@ -863,16 +864,17 @@ export class StoryStore {
     // that exact receipt and rebuild only its missing index entry before the
     // caller decides whether a command needs to run.
     const [receipt] = matches;
-    this.writeCausalEvidenceReceipt(storyId, receipt);
+    if (repairIndex) this.writeCausalEvidenceReceipt(storyId, receipt);
     return receipt;
   }
 
-  readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
+  /** Read-only callers may verify an orphan receipt without rebuilding its index. */
+  readCausalEvidenceReceipt(storyId: string, executionKey: string, options: { repairIndex?: boolean } = {}): CausalEvidenceReceipt | null {
     const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey, options.repairIndex !== false);
     const index = JSON.parse(readFileSync(indexPath, 'utf8')) as { receipts?: Record<string, string> };
     const receiptHash = index.receipts?.[executionKey];
-    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey, options.repairIndex !== false);
     const receiptPath = this.causalEvidenceReceiptPath(storyId, receiptHash);
     if (!existsSync(receiptPath)) throw new Error(`CausalEvidence receipt ${receiptHash} is missing [causal_receipt_missing]`);
     const receipt = JSON.parse(readFileSync(receiptPath, 'utf8')) as CausalEvidenceReceipt;

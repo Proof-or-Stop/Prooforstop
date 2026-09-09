@@ -11,7 +11,7 @@ export function hasMechanicalExecutionAuthority(store: StoryStore, storyId: stri
   if (evidence.mechanical !== true || evidence.result !== 'pass' || evidence.kind === 'waiver'
     || !executed || executed.exitCode !== 0 || executed.selectorMatched !== true
     || !pin || pin.command !== evidence.command || pin.selector !== executed.selector) return false;
-  const causal = executed.executionKey ? store.readCausalEvidenceReceipt(storyId, executed.executionKey) : undefined;
+  const causal = executed.executionKey ? store.readCausalEvidenceReceipt(storyId, executed.executionKey, { repairIndex: false }) : undefined;
   if (!causal || !verifyCausalEvidenceReceipt(causal, executed.executionKey) || causal.storyId !== storyId
     || causal.receiptHash !== executed.causalReceiptHash || causal.status !== 'pass' || causal.exitCode !== 0
     || causal.outputDigest !== executed.outputDigest || causal.executedAt !== executed.executedAt
