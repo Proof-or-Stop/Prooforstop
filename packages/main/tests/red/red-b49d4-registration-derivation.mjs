@@ -307,7 +307,10 @@ const sweepLegacyProbeDebris = () => {
  * which is outside every guarded population and cannot make any guard fail.
  */
 function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [], copyTracked = false, copyTrees = [] } = {}) {
-  const root = mkdtempSync(join(tmpdir(), prefix));
+  // Canonical argv paths keep nested ESM entrypoint detection faithful on macOS
+  // (/var is a symlink to /private/var); a preserved parent path must not make
+  // the child silently look like an import instead of a CLI invocation.
+  const root = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   const mustBeReal = new Set();
   const copied = new Set(copyDirs);
   const tracked = new Set(copyTracked ? gitRead(repoRoot,['ls-files','-z']).toString('utf8').split('\0').filter(Boolean) : []);
@@ -349,6 +352,14 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
   };
   walk('');
   initializePrivateGit(root, repoRoot);
+  if (copyTracked && gitText(root,['branch','--show-current']) !== 'main') {
+    // A copied self-host runtime needs a real PRIVATE main authority worktree,
+    // just as the source Lab has. Never borrow the real repository's admin.
+    const mainAuthority=join(root,'.worktrees','mirror-main-authority');
+    mkdirSync(dirname(mainAuthority),{recursive:true});
+    gitRead(root,['worktree','add','--quiet',mainAuthority,'main']);
+    assert.ok(realpathSync(gitText(mainAuthority,['rev-parse','--path-format=absolute','--git-common-dir'])).startsWith(realpathSync(root)+'/'));
+  }
   return root;
 }
 
