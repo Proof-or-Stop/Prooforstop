@@ -30,6 +30,8 @@ import {
 } from '../handlers/recover-evidence.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { resetConfigCache } from '../core/config.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -831,6 +833,9 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       store.writeStory(storyId, story);
       store.writeChecklist(storyId, checklist);
       acquireOwnerLease(store.storyDirPath(storyId), { command: 'recover-evidence-smoke', cwd: root });
+      const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(causalInputHashes, 'recovery fixture must bind real certification inputs');
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
       return { root, storyId, store, cleanup: () => rmSync(root, { recursive: true, force: true }) };
     } catch (e) {
       rmSync(root, { recursive: true, force: true });
