@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +9,11 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
 const repoRoot = resolve(packageRoot, '..', '..');
+const mainRoot = dirname(execFileSync(
+  'git',
+  ['rev-parse', '--path-format=absolute', '--git-common-dir'],
+  { cwd: repoRoot, encoding: 'utf8' },
+).trim());
 
 const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
   cwd: repoRoot,
@@ -42,7 +47,7 @@ assert.ok(storyWriters.length > 0);
 const admitted = storyWriters.filter((command) => classifyRuntimeEntrypointAuthority({
   command,
   commandArgs: ['{"storyId":"B-lab"}'],
-  projectRoot: resolve(repoRoot, '..', '..'),
+  projectRoot: mainRoot,
   invokedEntrypoint: join(repoRoot, 'bin', 'proof-or-stop.js'),
   loadedCorePackageRoot: packageRoot,
   env: {},
