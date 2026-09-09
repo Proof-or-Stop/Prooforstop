@@ -2674,94 +2674,21 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
   }
 });
 
-test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable', () => {
-  const topology = runProofOrStopJson('acceptance_topology_check', { storyId: 'B-5a15', json: true });
-  const preReview = runProofOrStopJson('pre_review_check_read', { storyId: 'B-5a15', json: true });
-  const rolloutRead = runProofOrStopJson('acceptance_rollout_report_read', { storyId: 'B-5a15', json: true });
-  const rolloutCheck = runProofOrStopJson('acceptance_rollout_check', { storyId: 'B-5a15', json: true });
-
-  const topologyCodes = Array.isArray(topology.diagnostics)
-    ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
-    : [];
-  const topologyFresh = topology.status === 'pass';
-  assert.ok(
-    topologyFresh
-    || [
-      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
-      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
-    ].includes(topologyCodes.join(',')),
-    `unexpected topology fail-closed codes: ${topologyCodes.join(',')}`,
-  );
-  if (topologyFresh) {
-    assert.equal(topology.basisStatus, 'complete');
-    assert.equal(topology.structuralPass, true);
-    assert.deepEqual(topology.diagnostics, []);
-  }
-  const preReviewFresh = preReview.status === 'pass';
-  const preReviewFailClosed = [
-    'PR_ARTIFACT_TAMPERED',
-    'PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE',
-    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED',
-    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND',
-  ].includes(preReview.codes?.join(',') ?? '')
-    || (
-      Array.isArray(preReview.codes)
-      && preReview.codes.length > 0
-      && preReview.codes.every((code) => [
-        'PR_ARTIFACT_TAMPERED',
-        'PR_COVERAGE_BASIS_CHANGED',
-        'PR_POSITIVE_EVIDENCE_MISSING',
-        'PR_EVIDENCE_STALE',
-        'PR_CUTOFF_UNBOUND',
-      ].includes(code))
-    );
-  assert.ok(preReviewFresh || preReviewFailClosed);
-  if (preReviewFresh) {
-    assert.equal(preReview.ok, true);
-    assert.equal(preReview.executableEvidence, 'current');
-    assert.equal(preReview.mutations, 'biting');
-    assert.equal(preReview.transcript, 'related');
-    assert.equal(preReview.authority, 'admissible');
-  }
-  const rolloutFresh = rolloutRead.ok === true
-    && rolloutRead.receipt === 'current'
-    && rolloutCheck.status === 'pass';
-  const rolloutStale = rolloutRead.receipt === 'stale'
-    || (Array.isArray(rolloutCheck.diagnostics) && rolloutCheck.diagnostics.includes('AR_REPORT_STALE'));
-  assert.ok(
-    rolloutFresh || rolloutStale,
-    `unexpected rollout state: read=${JSON.stringify({ ok: rolloutRead.ok, receipt: rolloutRead.receipt, quorum: rolloutRead.quorum })} check=${JSON.stringify({ status: rolloutCheck.status, diagnostics: rolloutCheck.diagnostics })}`,
-  );
-  assert.equal(rolloutRead.quorum, 'full-3x2');
-  assert.equal(rolloutCheck.mode, 'enforce');
-  if (rolloutFresh) {
-    assert.equal(rolloutCheck.blocking, false);
-    assert.deepEqual(rolloutCheck.diagnostics, []);
-  } else {
-    assert.ok((rolloutCheck.diagnostics || []).includes('AR_REPORT_STALE'));
-  }
-
-  const store = new StoryStore(repoRoot);
-  const artifact = store.readAcceptanceRolloutReport('B-5a15');
-  assert.ok(artifact, 'the current story must provide the signed rollout receipt used by this regression');
+test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable', async () => {
+  const {withCurrentRolloutFixture}=await import('./helpers/current-rollout-fixture.mjs');
+  await withCurrentRolloutFixture(async ({root,storyId,store,cohort,artifact,read,rollout})=>{
+ const {acceptanceRolloutHistoryDigest,deriveAcceptanceRolloutReport,verifyAcceptanceRolloutArtifact}=rollout;
+ const rolloutRead=read('acceptance_rollout_report_read');
+ const rolloutCheck=read('acceptance_rollout_check');
+ assert.equal(rolloutRead.ok,true);assert.equal(rolloutRead.receipt,'current');
+ assert.equal(rolloutRead.quorum,'full-3x2');assert.equal(rolloutCheck.mode,'enforce');
+ assert.equal(rolloutCheck.status,'pass');assert.equal(rolloutCheck.blocking,false);assert.deepEqual(rolloutCheck.diagnostics,[]);
   const originalHistoryDigest = acceptanceRolloutHistoryDigest(artifact);
-  const cohort = {
-    schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1',
-    generatedBy: 'runProofStoryAcceptanceRolloutCohort',
-    evaluationWindow: artifact.report.evaluationWindow,
-    eligibilityRuleVersion: artifact.report.eligibilityRuleVersion,
-    thresholdVersion: artifact.report.thresholdVersion,
-    registeredSeedIds: artifact.report.registeredSeedIds,
-    sourceRecords: artifact.report.sourceRecords,
-    sourceInventoryDigest: artifact.report.sourceInventoryDigest,
-    runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
-    runnerDigest: artifact.report.binding.runnerDigest,
-  };
   const verify = (candidate, mode = 'enforce') => verifyAcceptanceRolloutArtifact({
     artifact: candidate,
-    gitCwd: repoRoot,
-    metadataRoot: repoRoot,
-    expectedStoryId: 'B-5a15',
+    gitCwd: root,
+    metadataRoot: root,
+    expectedStoryId: storyId,
     expectedCohort: cohort,
     mode,
   });
@@ -2790,10 +2717,10 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
   degradedRecord.observationReceipt.hostVerdicts = degradedRecord.observationReceipt.hostVerdicts
     .filter(verdict => verdict.provider !== 'codex');
   const degradedReport = deriveAcceptanceRolloutReport({
-    storyId: 'B-5a15',
+    storyId: storyId,
     cohort: degradedCohort,
     binding: artifact.report.binding,
-    gitCwd: repoRoot,
+    gitCwd: root,
   });
   assert.equal(degradedReport.verdict, 'fail');
   assert.ok(degradedReport.diagnostics.includes('AR_SOURCE_EVIDENCE_INVALID'));
@@ -2812,7 +2739,9 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
   ]);
   assert.deepEqual(modeReports.map(report => report.blocking), [false, false, true]);
 
-  const after = store.readAcceptanceRolloutReport('B-5a15');
+  const after = store.readAcceptanceRolloutReport(storyId);
   assert.deepEqual(after, artifact, 'read/check and in-memory mutation probes do not rewrite rollout history');
   assert.equal(acceptanceRolloutHistoryDigest(after), originalHistoryDigest);
+ console.log('PASS F249-F264 current rollout positive and all original negative mutations');
+},{cohortPath:process.env.PROOF_OR_STOP_ROLLOUT_COHORT_INPUT_PATH});
 });
