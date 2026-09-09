@@ -91,7 +91,7 @@ function jsonRun<T = any>(root: string, command: string, args: Record<string, un
 // block/message this file exists to test.
 function ackDevMemoryPreflightForProofstory(store: StoryStore, storyId: string): void {
   store.writeDevMemoryPreflightAck(storyId, {
-    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
     storyId,
     packDigest: 'proofstory-intent-hardening-smoke-synthetic-digest',
     topHitIds: [],
@@ -149,7 +149,7 @@ function seedFinalizedReviewInventoryPrecondition(root: string, store: StoryStor
   const receiptId = `${epochId}:RCP-001`;
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const epochUnsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
-    schemaVersion: 'proofbound.review_inventory_epoch.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_epoch.v1',
     epochId,
     storyId,
     reviewRound,
@@ -164,7 +164,7 @@ function seedFinalizedReviewInventoryPrecondition(root: string, store: StoryStor
     receiptId,
   };
   const receiptUnsigned: Omit<ReviewInventoryReceipt, '_hash'> = {
-    schemaVersion: 'proofbound.review_inventory_receipt.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_receipt.v1',
     receiptId,
     epochId,
     storyId,
@@ -181,7 +181,7 @@ function seedFinalizedReviewInventoryPrecondition(root: string, store: StoryStor
     issuedAt: now,
   };
   store.writeReviewInventoryEpochs(storyId, {
-    schemaVersion: 'proofbound.review_inventory_epochs.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_epochs.v1',
     epochs: [{ ...epochUnsigned, _hash: signReviewInventoryEpoch(epochUnsigned) }],
     receipts: [{ ...receiptUnsigned, _hash: signReviewInventoryReceipt(receiptUnsigned) }],
     criticReceipts: [],

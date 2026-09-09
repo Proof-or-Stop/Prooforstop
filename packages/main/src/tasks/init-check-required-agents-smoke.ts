@@ -94,7 +94,7 @@ try {
       '## Tradeoffs',
       'The smoke writes both reviewer records through the CLI instead of editing JSON directly, preserving the artifact protocol.',
       '## Conversation Texture',
-      'A maintainer sees a clear blocker naming product-reviewer until that reviewer records pass or fail with init_check_set.',
+      'A maintainer sees a clear blocker naming proof-or-stop-product-reviewer until that reviewer records pass or fail with init_check_set.',
     ].join('\n\n'),
     checklist: [{ title: 'Verify init reviewer records', context: 'Both init reviewers must persist their result.' }],
   });
@@ -115,7 +115,7 @@ try {
   run(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
-  assert.match(missingProduct, /product-reviewer/);
+  assert.match(missingProduct, /proof-or-stop-product-reviewer/);
   assert.match(missingProduct, /agentType":"proof-or-stop-product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
   assert.doesNotMatch(
     missingProduct,
@@ -125,12 +125,12 @@ try {
   assert.match(missingProduct, /Host-native task liveness policy/, 'partial product recovery should include canonical liveness guidance');
   assert.match(missingProduct, /unknown or temporarily unavailable/, 'partial product recovery should preserve ambiguous task identity');
 
-  run(root, 'init_check_set', { storyId, issues: [{ severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'product-reviewer' });
+  run(root, 'init_check_set', { storyId, issues: [{ severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
   const blockingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(blockingProduct, /init_check_blocking_issues/);
   assert.match(blockingProduct, /Product value is not yet clear/);
 
-  run(root, 'init_check_set', { storyId, issues: [{ severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' }], agent: 'product-reviewer' });
+  run(root, 'init_check_set', { storyId, issues: [{ severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' }], agent: 'proof-or-stop-product-reviewer' });
   const advanced = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
   assert.match(advanced, /advanced to INIT_CHECK/);
 
@@ -156,7 +156,7 @@ try {
   assert.ok(tamperStoryId, 'story_create should return tamper story id');
   freezeScope(root, tamperStoryId!);
 
-  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
+  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
   const missingStoryInit = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
   assert.match(missingStoryInit, /missing_init_check_agent/);
   assert.match(missingStoryInit, /proof-or-stop-review-story-init/);

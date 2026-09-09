@@ -8,9 +8,6 @@ Canonical paths and active entrypoints:
 - Codex adapter manifest: `.proof-or-stop-codex/proof-or-stop.json`.
 - Codex activity log: `.proof-or-stop/activity.jsonl`.
 
-Existing projects may still be read through the deprecated `.lattice/`, `.lattice-codex/`,
-and `lattice.config.json` spellings; init writes only the canonical Proof-or-Stop paths.
-
 优先做法：
 
 ```bash
@@ -40,14 +37,6 @@ fallback 说明：
 - `.proof-or-stop-codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
 - `.proof-or-stop-codex/proof-or-stop.json` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
-旧安装只读兼容 fallback（仅当环境只认识旧变量名时使用；新配置不要复制）：
-
-```bash
-LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
-```
-
-该 fallback 只用于读取当前状态和记录只读 heartbeat，不作为 gate 证据；Proof-or-Stop 会优先读取同名的 `PROOF_OR_STOP_*` 变量。
-
 建议：
 
 - 新 session 第一条命令跑 `node bin/proof-or-stop-codex.js session_brief`
@@ -62,5 +51,5 @@ LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_E
 边界：
 
 - 不创建 `.proof-or-stop-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/proof-or-stop-scope-pretool.cjs`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`，由 Proof-or-Stop init/check 管理
 - 需要观测 Codex 活动时，使用 `.proof-or-stop-codex/proof-or-stop.json` 记录的 wrapper 或带 `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` 的 fallback

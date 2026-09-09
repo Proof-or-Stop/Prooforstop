@@ -87,7 +87,7 @@ export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
 const CLAUDE_PRINT_LAUNCHER = canonicalReviewHostLauncherSpec('claude').launcherArgv.join(' ');
 
 export interface HostRuntimeProbe {
-  schemaVersion: 'lattice.host_runtime_probe.v1';
+  schemaVersion: 'proof-or-stop.host_runtime_probe.v1';
   host: HostRuntimeId;
   requestedHost: string;
   status: HostRuntimeStatus;
@@ -118,7 +118,7 @@ export interface HostRuntimeProbe {
 }
 
 export interface HostRuntimeList {
-  schemaVersion: 'lattice.host_runtime_list.v1';
+  schemaVersion: 'proof-or-stop.host_runtime_list.v1';
   runtimes: HostRuntimeProbe[];
   authority: DispatchAuthorityState;
 }
@@ -137,7 +137,7 @@ export interface DispatchPackPreview {
 }
 
 export interface DispatchPlanResult {
-  schemaVersion: 'lattice.dispatch_plan.v1';
+  schemaVersion: 'proof-or-stop.dispatch_plan.v1';
   storyId: string;
   requestedHost: string;
   selectedHost: HostRuntimeId;
@@ -165,7 +165,7 @@ export interface DispatchPlanResult {
 }
 
 export interface DispatchRecord {
-  schemaVersion: 'lattice.dispatch_record.v1';
+  schemaVersion: 'proof-or-stop.dispatch_record.v1';
   dispatchId: string;
   storyId: string;
   requestedHost: string;
@@ -202,7 +202,7 @@ export interface DispatchRecord {
 }
 
 export interface DispatchCollection {
-  schemaVersion: 'lattice.dispatch_collect.v1';
+  schemaVersion: 'proof-or-stop.dispatch_collect.v1';
   dispatchId: string;
   storyId: string;
   host: HostRuntimeId;
@@ -222,7 +222,7 @@ export interface DispatchCollection {
 }
 
 export interface DispatchReceiptDraft {
-  schemaVersion: 'lattice.dispatch_receipt_create.v1';
+  schemaVersion: 'proof-or-stop.dispatch_receipt_create.v1';
   dispatchId: string;
   status: 'created' | 'diagnostic';
   receipt: HandoffReceipt;
@@ -233,7 +233,7 @@ export interface DispatchReceiptDraft {
 }
 
 export interface DispatchRunResult {
-  schemaVersion: 'lattice.dispatch_run.v1';
+  schemaVersion: 'proof-or-stop.dispatch_run.v1';
   dispatchId: string;
   storyId: string;
   host: HostRuntimeId;
@@ -250,7 +250,7 @@ export interface DispatchRunResult {
 }
 
 export interface DispatchReassignResult {
-  schemaVersion: 'lattice.dispatch_reassign.v1';
+  schemaVersion: 'proof-or-stop.dispatch_reassign.v1';
   mode: 'fresh-context';
   previousDispatchId: string;
   dispatchId: string;
@@ -279,7 +279,7 @@ export interface DispatchReassignResult {
 }
 
 export interface DispatchStatusResult {
-  schemaVersion: 'lattice.dispatch_status.v1';
+  schemaVersion: 'proof-or-stop.dispatch_status.v1';
   dispatch: DispatchRecord;
   receipt?: HandoffReceiptSubmission;
   runner?: DispatchRunnerRecord;
@@ -292,7 +292,7 @@ export interface DispatchStatusResult {
 export type { DispatchRunnerRecord };
 
 export interface DispatchListResult {
-  schemaVersion: 'lattice.dispatch_list.v1';
+  schemaVersion: 'proof-or-stop.dispatch_list.v1';
   dispatches: Array<{
     dispatchId: string;
     storyId: string;
@@ -316,7 +316,7 @@ export interface DispatchReviewRunnerSummary {
 }
 
 export interface DispatchReviewResult {
-  schemaVersion: 'lattice.dispatch_review.v1';
+  schemaVersion: 'proof-or-stop.dispatch_review.v1';
   dispatchId: string;
   storyId: string;
   status: DispatchLifecycleStatus;
@@ -337,7 +337,7 @@ export interface DispatchReviewResult {
 }
 
 export interface DispatchMergePlanResult {
-  schemaVersion: 'lattice.dispatch_merge_plan.v1';
+  schemaVersion: 'proof-or-stop.dispatch_merge_plan.v1';
   dispatchId: string;
   storyId: string;
   status: DispatchLifecycleStatus;
@@ -358,7 +358,7 @@ export interface DispatchMergePlanResult {
 }
 
 export interface DispatchAutoResult {
-  schemaVersion: 'lattice.dispatch_auto.v1';
+  schemaVersion: 'proof-or-stop.dispatch_auto.v1';
   dispatchId: string;
   storyId: string;
   host: HostRuntimeId;
@@ -380,7 +380,7 @@ export interface DispatchWatchWorkerSummary {
 }
 
 export interface DispatchWatchResult {
-  schemaVersion: 'lattice.dispatch_watch.v1';
+  schemaVersion: 'proof-or-stop.dispatch_watch.v1';
   dispatchId: string;
   storyId: string;
   status: DispatchLifecycleStatus;
@@ -843,7 +843,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
   }
   if (normalized === 'fake') {
     return {
-      schemaVersion: 'lattice.host_runtime_probe.v1',
+      schemaVersion: 'proof-or-stop.host_runtime_probe.v1',
       host: 'fake',
       requestedHost: host,
       status: 'ready',
@@ -910,7 +910,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
         : probeCodexCapabilities(commandPath, isCodexSession);
 
   return {
-    schemaVersion: 'lattice.host_runtime_probe.v1',
+    schemaVersion: 'proof-or-stop.host_runtime_probe.v1',
     host: normalized,
     requestedHost: host,
     status: available ? 'scaffolded' : 'unavailable',
@@ -955,7 +955,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
 
 export function listHostRuntimes(): HostRuntimeList {
   return {
-    schemaVersion: 'lattice.host_runtime_list.v1',
+    schemaVersion: 'proof-or-stop.host_runtime_list.v1',
     runtimes: ['fake', ...CURRENT_HOST_RUNTIME_IDS].map(host => probeHostRuntime(host)),
     authority: authorityState(),
   };
@@ -1206,7 +1206,7 @@ function computePlan(
     ...constraintWarnings,
   ];
   return {
-    schemaVersion: 'lattice.dispatch_plan.v1',
+    schemaVersion: 'proof-or-stop.dispatch_plan.v1',
     storyId: args.storyId,
     requestedHost: args.host?.trim() || 'auto',
     selectedHost,
@@ -1845,7 +1845,7 @@ function createClaudeCodeReceipt(opts: {
   const verdict: HandoffReceipt['verdict'] =
     opts.changedFiles.length > 0 && opts.diagnosticWarnings.length === 0 ? 'pass' : 'warn';
   return {
-    schemaVersion: 'lattice.handoff_receipt.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt.v1',
     storyId: opts.pack.storyId,
     host: dispatchReceiptHost(opts.record, opts.pack),
     packId: opts.pack.packId,
@@ -1890,7 +1890,7 @@ function createFakeReceipt(
 ): HandoffReceipt {
   const failedCommand = commandResults.find(result => !result.ok);
   return {
-    schemaVersion: 'lattice.handoff_receipt.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt.v1',
     storyId: pack.storyId,
     host: dispatchReceiptHost(record, pack),
     packId: pack.packId,
@@ -1952,7 +1952,7 @@ function leafDispatchCollection(root: string, record: DispatchRecord, pack: Hand
     ...(changedFiles.length > 0 ? [] : ['No git-derived changedFiles detected.']),
   ];
   return {
-    schemaVersion: 'lattice.dispatch_collect.v1',
+    schemaVersion: 'proof-or-stop.dispatch_collect.v1',
     dispatchId: record.dispatchId,
     storyId: record.storyId,
     host: record.selectedHost,
@@ -1990,7 +1990,7 @@ type CollectDispatchOptions = {
 function aggregateWorkerCollections(root: string, record: DispatchRecord, options: CollectDispatchOptions = {}): DispatchCollection {
   const workers = record.workerIds.map(workerId => collectDispatch(root, workerId, options));
   return {
-    schemaVersion: 'lattice.dispatch_collect.v1',
+    schemaVersion: 'proof-or-stop.dispatch_collect.v1',
     dispatchId: record.dispatchId,
     storyId: record.storyId,
     host: record.selectedHost,
@@ -2032,7 +2032,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
     ? normalizeDispatchId(args.parentDispatchId, 'parentDispatchId')
     : requestedDispatchId;
   const record: DispatchRecord = {
-    schemaVersion: 'lattice.dispatch_record.v1',
+    schemaVersion: 'proof-or-stop.dispatch_record.v1',
     dispatchId,
     storyId: args.storyId,
     requestedHost: args.host?.trim() || 'auto',
@@ -2119,7 +2119,7 @@ export function reassignDispatch(store: StoryStore, root: string, args: Dispatch
   });
   const newPack = readPack(root, updated.dispatchId);
   return {
-    schemaVersion: 'lattice.dispatch_reassign.v1',
+    schemaVersion: 'proof-or-stop.dispatch_reassign.v1',
     mode: 'fresh-context',
     previousDispatchId: previous.dispatchId,
     dispatchId: updated.dispatchId,
@@ -2239,7 +2239,7 @@ function runFakeLeafDispatch(
     nextAction,
   });
   return {
-    schemaVersion: 'lattice.dispatch_run.v1',
+    schemaVersion: 'proof-or-stop.dispatch_run.v1',
     dispatchId: record.dispatchId,
     storyId: record.storyId,
     host: 'fake',
@@ -2286,7 +2286,7 @@ function dispatchProjectRootHash(root: string): string {
  * B-dd44: build the BLOCKED dispatch result when the fail-closed hard-budget
  * guard skips the provider spawn. It MIRRORS the existing exitCode!=0 failure
  * return: writes a `failed` record + a leaf collection, then returns the
- * `lattice.dispatch_run.v1` shape with status `failed`. The block carries a
+ * `proof-or-stop.dispatch_run.v1` shape with status `failed`. The block carries a
  * distinct, machine-readable warning prefix so downstream handlers can tell a
  * budget block apart from a provider error / timeout. The provider is NEVER
  * called on this path.
@@ -2321,7 +2321,7 @@ function buildBudgetBlockedDispatchResult(
   });
   writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
   return {
-    schemaVersion: 'lattice.dispatch_run.v1',
+    schemaVersion: 'proof-or-stop.dispatch_run.v1',
     dispatchId: blocked.dispatchId,
     storyId: blocked.storyId,
     host: blocked.selectedHost,
@@ -2468,7 +2468,7 @@ function runBoundedRealLeafDispatch(
     warnings: [...record.warnings],
   });
   return {
-    schemaVersion: 'lattice.dispatch_run.v1',
+    schemaVersion: 'proof-or-stop.dispatch_run.v1',
     dispatchId: updated.dispatchId,
     storyId: updated.storyId,
     host: updated.selectedHost,
@@ -2565,7 +2565,7 @@ function runClaudeCodeRealLeafDispatch(
       nextAction: `Claude Code subprocess was not started because ${record.promptFile} could not be read. Regenerate the dispatch prompt, then rerun dispatch_run.`,
     });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: failed.dispatchId,
       storyId: failed.storyId,
       host: failed.selectedHost,
@@ -2716,7 +2716,7 @@ function runClaudeCodeRealLeafDispatch(
     });
     writeJson(resolve(root, failed.collectFile), leafDispatchCollection(root, failed, pack));
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: failed.dispatchId,
       storyId: failed.storyId,
       host: failed.selectedHost,
@@ -2788,7 +2788,7 @@ function runClaudeCodeRealLeafDispatch(
     nextAction,
   });
   return {
-    schemaVersion: 'lattice.dispatch_run.v1',
+    schemaVersion: 'proof-or-stop.dispatch_run.v1',
     dispatchId: updated.dispatchId,
     storyId: updated.storyId,
     host: updated.selectedHost,
@@ -2835,7 +2835,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   if (resolveEffectiveStatus(record) === 'expired') {
     const expired = writeRecord(root, { ...record, status: 'expired', nextAction: 'Dispatch expired. Run dispatch_resume to refresh metadata and rerun it.' });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: expired.dispatchId,
       storyId: expired.storyId,
       host: expired.selectedHost,
@@ -2874,7 +2874,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       nextAction,
     });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: updated.dispatchId,
       storyId: updated.storyId,
       host: 'fake',
@@ -2919,7 +2919,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       warnings: [...record.warnings, ...runtime.warnings],
     });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: updated.dispatchId,
       storyId: updated.storyId,
       host: updated.selectedHost,
@@ -2960,7 +2960,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       nextAction,
     });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: failed.dispatchId,
       storyId: failed.storyId,
       host: failed.selectedHost,
@@ -3003,7 +3003,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       nextAction,
     });
     return {
-      schemaVersion: 'lattice.dispatch_run.v1',
+      schemaVersion: 'proof-or-stop.dispatch_run.v1',
       dispatchId: failed.dispatchId,
       storyId: failed.storyId,
       host: failed.selectedHost,
@@ -3081,7 +3081,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
     warnings: [...record.warnings, ...runtime.warnings],
   });
   return {
-    schemaVersion: 'lattice.dispatch_run.v1',
+    schemaVersion: 'proof-or-stop.dispatch_run.v1',
     dispatchId: updated.dispatchId,
     storyId: updated.storyId,
     host: updated.selectedHost,
@@ -3119,7 +3119,7 @@ export function createDispatchReceipt(root: string, dispatchId: string): Dispatc
   const collection = collectDispatch(root, dispatchId);
   const warnings = [...collection.warnings];
   const receipt: HandoffReceipt = {
-    schemaVersion: 'lattice.handoff_receipt.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt.v1',
     storyId: record.storyId,
     host: dispatchReceiptHost(record, pack),
     packId: pack.packId,
@@ -3147,7 +3147,7 @@ export function createDispatchReceipt(root: string, dispatchId: string): Dispatc
   };
   writeJson(resolve(root, record.receiptFile), receipt);
   return {
-    schemaVersion: 'lattice.dispatch_receipt_create.v1',
+    schemaVersion: 'proof-or-stop.dispatch_receipt_create.v1',
     dispatchId,
     status: collection.changedFiles.length > 0 ? 'created' : 'diagnostic',
     receipt,
@@ -3173,7 +3173,7 @@ export function dispatchStatus(root: string, dispatchId: string): DispatchStatus
   const current = effectiveStatus === record.status ? record : { ...record, status: effectiveStatus };
   const runner = maybeReadRunnerRecord(root, current);
   return {
-    schemaVersion: 'lattice.dispatch_status.v1',
+    schemaVersion: 'proof-or-stop.dispatch_status.v1',
     dispatch: current,
     receipt: maybeReadReceiptSubmission(root, current),
     ...(runner !== undefined ? { runner } : {}),
@@ -3188,7 +3188,7 @@ export function listDispatches(root: string, storyId?: string): DispatchListResu
   const storageRoot = dispatchStorageRoot(root);
   if (!existsSync(storageRoot)) {
     return {
-      schemaVersion: 'lattice.dispatch_list.v1',
+      schemaVersion: 'proof-or-stop.dispatch_list.v1',
       dispatches: [],
       authorityChanged: false,
       receiptVerified: false,
@@ -3209,7 +3209,7 @@ export function listDispatches(root: string, storyId?: string): DispatchListResu
       updatedAt: record.updatedAt,
     }));
   return {
-    schemaVersion: 'lattice.dispatch_list.v1',
+    schemaVersion: 'proof-or-stop.dispatch_list.v1',
     dispatches,
     authorityChanged: false,
     receiptVerified: false,
@@ -3262,7 +3262,7 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
         ? workers.every(w => w.localReceiptStatus === 'accepted-local') ? 'accepted-local' : 'diagnostic'
         : workers.some(w => w.localReceiptStatus === 'diagnostic') ? 'diagnostic' : 'missing';
     return {
-      schemaVersion: 'lattice.dispatch_review.v1',
+      schemaVersion: 'proof-or-stop.dispatch_review.v1',
       dispatchId,
       storyId: status.dispatch.storyId,
       status: aggregateStatus(workers.map(worker => worker.status)),
@@ -3307,7 +3307,7 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
     ...(!transcriptExists ? ['transcript file missing or not yet written'] : []),
   ];
   return {
-    schemaVersion: 'lattice.dispatch_review.v1',
+    schemaVersion: 'proof-or-stop.dispatch_review.v1',
     dispatchId,
     storyId: status.dispatch.storyId,
     status: status.dispatch.status,
@@ -3362,7 +3362,7 @@ export function buildDispatchMergePlan(root: string, dispatchId: string): Dispat
     warnings.push('Normal merge guidance is withheld because the dispatch is not accepted_local across all required workers.');
   }
   return {
-    schemaVersion: 'lattice.dispatch_merge_plan.v1',
+    schemaVersion: 'proof-or-stop.dispatch_merge_plan.v1',
     dispatchId,
     storyId: status.dispatch.storyId,
     status: status.dispatch.status,
@@ -3639,7 +3639,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
 
   function convertToAutoResult(worker: DispatchRunResult): DispatchAutoResult {
     return {
-      schemaVersion: 'lattice.dispatch_auto.v1',
+      schemaVersion: 'proof-or-stop.dispatch_auto.v1',
       dispatchId: worker.dispatchId,
       storyId: worker.storyId,
       host: worker.host,
@@ -3696,7 +3696,7 @@ export function dispatchWatch(root: string, dispatchId: string): DispatchWatchRe
       : record.nextAction;
 
   return {
-    schemaVersion: 'lattice.dispatch_watch.v1',
+    schemaVersion: 'proof-or-stop.dispatch_watch.v1',
     dispatchId: record.dispatchId,
     storyId: record.storyId,
     status: effectiveStatus,

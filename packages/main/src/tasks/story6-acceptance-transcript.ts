@@ -83,7 +83,7 @@ try {
     storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     promptEnvelope: {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-      roles: Object.fromEntries(roles.map(role => [role, 'legacy-full-context'])),
+      roles: Object.fromEntries(roles.map(role => [role, 'full-envelope'])),
     },
   }, null, 2));
   resetConfigCache();
@@ -108,15 +108,18 @@ try {
 
   const handlers = createAgentPromptHandlers({ root, scanRoot: root, store });
   for (const role of roles) {
-    const legacy = resolvePromptRoleBody(role, {
+    const selected = resolvePromptRoleBody(role, {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-      roles: { [role]: 'legacy-full-context' },
+      roles: { [role]: 'full-envelope' },
     });
-    const defaultPrompt = handlers.agent_prompt({ role, storyId, format: 'json' });
-    assert.equal(defaultPrompt, legacy.body, `${role} production default must remain exact legacy bytes`);
+    const defaultResponse = JSON.parse(handlers.agent_prompt({ role, storyId, format: 'json' }));
+    assert.equal(defaultResponse.mode, 'full-envelope');
+    assert.equal(defaultResponse.roleBodyDigest, selected.bodyDigest);
+    assert.equal(defaultResponse.envelope.roleId, role);
+    assert.equal(verifyPromptEnvelopeIntegrity(defaultResponse.envelope), true);
     transcript.push(
-      `PRODUCTION_DEFAULT role=${role} rollout=legacy-full-context exactLegacyBinding=true`
-      + ` roleBodyDigest=${legacy.bodyDigest}`,
+      `PRODUCTION_DEFAULT role=${role} rollout=full-envelope canonicalBinding=true`
+      + ` roleBodyDigest=${selected.bodyDigest}`,
     );
 
     const response = JSON.parse(handlers.agent_prompt({

@@ -749,8 +749,7 @@ export function listManagedAssetDefinitions(
             return Boolean(
               parsed && typeof parsed === 'object' && !Array.isArray(parsed)
               && (parsed as Record<string, unknown>)['assetMode'] === 'global-thin'
-              && ((parsed as Record<string, unknown>)['proofOrStopVersion'] === 1
-                || (parsed as Record<string, unknown>)['latticeVersion'] === 1),
+              && (parsed as Record<string, unknown>)['proofOrStopVersion'] === 1,
             );
           } catch { return false; }
         },
@@ -865,7 +864,7 @@ export function listManagedAssetDefinitions(
       wholeFile(
         `${PROOF_OR_STOP_ADAPTER_DIR}:README.md`,
         `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`,
-        renderCodexReadmeTemplate(assetMode, 'proof-or-stop'),
+        renderCodexReadmeTemplate(assetMode),
         actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(
@@ -894,14 +893,8 @@ export function listManagedAssetDefinitions(
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
-      // B-META-framework-audit:F-005 — a MODULAR COMPLEX role is materialized as its
-      // digest-pinned legacy-full-context reconstruction, not the raw modular
-      // template, or every freshly-init-ed project reports STALE_SAFE for those 5
-      // files. Delegated to renderPromptEntryForHost rather than re-deriving the rule
-      // here: that helper IS the rule, it is what verify_codex compares against, and
-      // hand-rolling it in parallel places is exactly how F-034 (a third divergent
-      // copy) happened. Verified byte-identical to the previous hand-rolled output
-      // for all 17 roles.
+      // Active mirrors are rendered through the canonical registry helper so host
+      // transforms and reviewer bootstrap behavior stay single-sourced.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of files) {
         const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
@@ -1103,6 +1096,9 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
     if (def.okWhen?.(actualSection, root)) {
+      if (inspection.block.family === 'legacy') {
+        return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section uses retired markers and requires canonical migration', action: 'replace managed section only' };
+      }
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches a recognized Proof-or-Stop compatibility contract', action: 'none' };
     }
     if (!manifestUnchanged && !def.ownedWhen?.(actualSection)) {

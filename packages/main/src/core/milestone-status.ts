@@ -23,9 +23,9 @@ import { collectVerificationIntents } from './verification.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checklist-status.js';
 
-export const MILESTONE_STATUS_SCHEMA_VERSION = 'proofbound.milestone_status.v1';
-export const MILESTONE_CLOSEOUT_SCHEMA_VERSION = 'proofbound.milestone_closeout.v1';
-export const MILESTONE_CLOSEOUT_MISSING_SCHEMA_VERSION = 'proofbound.milestone_closeout_missing.v1';
+export const MILESTONE_STATUS_SCHEMA_VERSION = 'proof-or-stop.milestone_status.v1';
+export const MILESTONE_CLOSEOUT_SCHEMA_VERSION = 'proof-or-stop.milestone_closeout.v1';
+export const MILESTONE_CLOSEOUT_MISSING_SCHEMA_VERSION = 'proof-or-stop.milestone_closeout_missing.v1';
 export const MILESTONE_CLOSEOUT_FILENAME = 'milestone-closeout.json';
 
 export type MilestoneProgressStatus = 'completed' | 'current' | 'remaining';

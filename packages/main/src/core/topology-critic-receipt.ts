@@ -18,10 +18,11 @@ export const TOPOLOGY_CRITIC_ROLE = 'proof-or-stop-review-topology-critic' as co
 export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'proof-or-stop-review-scope-plan' as const;
 const IMPLEMENTER_ROLE = 'proof-or-stop-implementer' as const;
 const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
-const LEGACY_IMPLEMENTER_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
 function canonicalBusinessAuthorIdentity(identity: string): string {
-  return identity.trim() === LEGACY_IMPLEMENTER_AUTHOR ? IMPLEMENTER_AUTHOR : identity.trim();
+  // Preserve observed Git identity; retired names cannot become canonical
+  // implementation or independent-review authority through normalization.
+  return identity.trim();
 }
 
 type ReceiptContext = {
@@ -113,8 +114,7 @@ export function currentImplementationBusinessCommit(gitCwd: string): { businessC
   let rows = '';
   try { rows = git(gitCwd, ['log', 'main..HEAD', '--format=%H%x09%an <%ae>']); } catch { /* no local main */ }
   if (!rows) rows = git(gitCwd, ['log', '-n', '50', '--format=%H%x09%an <%ae>']);
-  const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`))
-    ?? rows.split('\n').find(row => row.endsWith(`\t${LEGACY_IMPLEMENTER_AUTHOR}`));
+  const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`));
   if (!line) throw new Error(`implementation provenance is missing a business commit authored by ${IMPLEMENTER_AUTHOR}`);
   const [businessCommit, businessCommitAuthor] = line.split('\t');
   return { businessCommit, businessCommitAuthor: canonicalBusinessAuthorIdentity(businessCommitAuthor) };

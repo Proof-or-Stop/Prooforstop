@@ -604,8 +604,8 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
 function readResumeSource(file: string, options: HandoffAdmissibilityOptions): HandoffPack | HandoffAcceptProjection {
   const schemaVersion = (JSON.parse(readFileSync(file, 'utf8')) as { schemaVersion?: unknown }).schemaVersion;
   if (schemaVersion === 'handoff-pack-v0') return readHandoffPack(file, options);
-  if (schemaVersion === 'lattice.handoff_accept.v1') return readHandoffAcceptProjection(file, options);
-  throw new Error(`handoff_resume expected handoff-pack-v0 or lattice.handoff_accept.v1, got ${String(schemaVersion)}`);
+  if (schemaVersion === 'proof-or-stop.handoff_accept.v1') return readHandoffAcceptProjection(file, options);
+  throw new Error(`handoff_resume expected handoff-pack-v0 or proof-or-stop.handoff_accept.v1, got ${String(schemaVersion)}`);
 }
 
 function wantsJson(args: FormatArgs | undefined): boolean {
@@ -748,7 +748,7 @@ export function createProofOrStopHandoffHandlers(ctx: HandlerContext): Record<st
       const admissibleProofRefs = normalizeList(args.admissibleProofRefs);
       const options = handoffAdmissibilityOptions(policy, admissibleProofRefs);
       const source = readResumeSource(resolve(process.cwd(), args.file), options);
-      const targetHost = args.resumeHost ?? (source.schemaVersion === 'lattice.handoff_accept.v1' ? source.acceptedByHost : source.toHost);
+      const targetHost = args.resumeHost ?? (source.schemaVersion === 'proof-or-stop.handoff_accept.v1' ? source.acceptedByHost : source.toHost);
       const hostPolicy = evaluateRuntimeHostPolicy({
         requestedHost: targetHost,
         primaryHostFailure: args.primaryHostFailure,

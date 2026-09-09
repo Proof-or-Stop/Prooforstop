@@ -65,8 +65,7 @@ import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.j
 import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
-// review_run_start accepts canonical reviewer lanes for new callers and the
-// historical lattice spellings for persisted/compatibility callers. Runtime
+// review_run_start accepts only canonical reviewer lanes. Runtime
 // phase and evidence eligibility checks remain in core/review-run.ts.
 const REVIEW_RUN_LANE_INPUTS = [
   'proof-or-stop-review-topology-critic',
@@ -77,14 +76,6 @@ const REVIEW_RUN_LANE_INPUTS = [
   'proof-or-stop-review-channel',
   'proof-or-stop-review-test-coverage',
   'proof-or-stop-review-delivery',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-channel',
-  'lattice-review-test-coverage',
-  'lattice-review-delivery',
 ] as const;
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
@@ -679,6 +670,7 @@ Behavior:
   }},
   { name: 'certification_window_status', description: 'Inspect the current PRE_CERT CertificationWindow; prints State and exactly one Next command', schema: {
     storyId: z.string().min(1).describe('Story ID'),
+    refresh: z.boolean().optional().describe('Persist a signed INVALIDATED state when the read-only status preflight detects certification drift.'),
   }},
   { name: 'certification_window_cancel', description: 'Cancel a BLOCKED, ADMITTED, or RUNNING CertificationWindow without granting heavy-certification authority', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -687,7 +679,7 @@ Behavior:
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
-    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Omitted preserves topology admission; inventory requires a current signed OPEN epoch.'),
@@ -695,15 +687,7 @@ Behavior:
   }},
   { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
-    lane: z.enum([
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-behavior',
-      'lattice-review-docs',
-      'lattice-review-channel',
-      'lattice-review-topology-critic',
-    ]).optional().describe('Optional reviewer lane filter.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Optional canonical reviewer lane filter.'),
     latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
     json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
   }},

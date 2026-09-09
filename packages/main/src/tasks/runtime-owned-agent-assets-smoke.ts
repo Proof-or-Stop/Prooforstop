@@ -60,8 +60,8 @@ function countApproximateTokens(): number {
     if (isActiveModularReviewerRoleId(entry.agentId)) {
       assert.match(claude, /review_run_start/, `${entry.agentId} Claude registry render is bootstrap-only`);
       assert.match(codex, /review_run_start/, `${entry.agentId} Codex registry render is bootstrap-only`);
-      assert.doesNotMatch(claude, /proofbound:modular-role-body:v1/, `${entry.agentId} Claude registry render excludes role body`);
-      assert.doesNotMatch(codex, /proofbound:modular-role-body:v1/, `${entry.agentId} Codex registry render excludes role body`);
+      assert.doesNotMatch(claude, /proof-or-stop:modular-role-body:v1/, `${entry.agentId} Claude registry render excludes role body`);
+      assert.doesNotMatch(codex, /proof-or-stop:modular-role-body:v1/, `${entry.agentId} Codex registry render excludes role body`);
     }
     bytes += Buffer.byteLength(claude, 'utf8');
     bytes += Buffer.byteLength(codex, 'utf8');

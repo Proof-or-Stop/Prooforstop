@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-export const BUILD_BINDING_SCHEMA = 'lattice.main-build-binding.v1';
+export const BUILD_BINDING_SCHEMA = 'proof-or-stop.main-build-binding.v1';
 export const BUILD_MANIFEST = 'packages/main/dist/full-suite-build-binding.json';
-export const UTILS_BUILD_BINDING_SCHEMA = 'lattice.utils-build-binding.v1';
+export const UTILS_BUILD_BINDING_SCHEMA = 'proof-or-stop.utils-build-binding.v1';
 export const BUILD_UTILS_MANIFEST = 'packages/utils/dist/full-suite-build-binding.json';
 
 // Both bindings live inside their dist tree; a tree digest never folds its own

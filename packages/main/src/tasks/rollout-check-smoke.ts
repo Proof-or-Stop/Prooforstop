@@ -64,7 +64,7 @@ function collectCommands(result: RolloutCheckResult): string[] {
 }
 
 function assertRolloutShape(result: RolloutCheckResult, label: string): void {
-  assert.equal(result.schemaVersion, 'lattice.rollout_check.v1', `${label} schema`);
+  assert.equal(result.schemaVersion, 'proof-or-stop.rollout_check.v1', `${label} schema`);
   assert.equal(result.readOnly, true, `${label} is read-only`);
   assert.equal(result.macAppRequired, false, `${label} does not require Mac App`);
   // B-cdf6 CHK-002: the canonical bin is now proof-or-stop; `proof-or-stop` survives

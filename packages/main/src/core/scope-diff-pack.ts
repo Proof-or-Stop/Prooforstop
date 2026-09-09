@@ -26,7 +26,7 @@ import {
 import { GIT_TREE_OUTPUT_MAX_BUFFER } from './evidence-freshness.js';
 
 export const SCOPE_ANCHOR_PARSER_VERSION = `typescript-${ts.versionMajorMinor}-ast-v1` as const;
-export const SCOPE_ANCHOR_ARTIFACT_VERSION = 'lattice.scope-anchor.v1' as const;
+export const SCOPE_ANCHOR_ARTIFACT_VERSION = 'proof-or-stop.scope-anchor.v1' as const;
 
 export function digestScopeDiffPack(pack: Omit<ScopeDiffPack, 'diffPackHash'>): string {
   return createHash('sha256').update(JSON.stringify({

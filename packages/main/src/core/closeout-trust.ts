@@ -22,12 +22,11 @@ import {
 } from './legacy-delivery-claims-compat.js';
 import {
   CLOSEOUT_WRITE_RECEIPT_SCHEMA,
-  CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
   isCloseoutWriteReceiptSchema,
   type CloseoutWriteReceiptSchema,
 } from './artifact-schema.js';
 
-export { CLOSEOUT_WRITE_RECEIPT_SCHEMA, CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY };
+export { CLOSEOUT_WRITE_RECEIPT_SCHEMA};
 
 export type CloseoutArtifactClass = 'scope-defining' | 'closeout-evidence';
 
@@ -419,7 +418,7 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
 }
 
 export const CLOSEOUT_WRITE_RECEIPTS_PATH = 'closeout-write-receipts.jsonl';
-const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'lattice-closeout-write-receipt-integrity-v3';
+const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'proof-or-stop-closeout-write-receipt-integrity-v3';
 
 export interface CloseoutWriteReceipt {
   schemaVersion: CloseoutWriteReceiptSchema;

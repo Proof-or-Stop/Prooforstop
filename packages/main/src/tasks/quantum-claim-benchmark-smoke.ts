@@ -26,7 +26,7 @@ function byId<T extends { id: string }>(items: readonly T[]): Map<string, T> {
 }
 
 const benchmark = runQuantumClaimBenchmark();
-assert.equal(benchmark.schemaVersion, 'lattice.quantum_claim_benchmark.v1', 'benchmark schema version is stable');
+assert.equal(benchmark.schemaVersion, 'proof-or-stop.quantum_claim_benchmark.v1', 'benchmark schema version is stable');
 assert.equal(benchmark.runtimeStatus, QUANTUM_RUNTIME_STATUS, 'benchmark reports M0-M5 runtime status');
 assert.equal(benchmark.suiteStatus, 'PASS', 'benchmark suite passes');
 assert.equal(benchmark.supportedCaseTotal, 4, 'benchmark includes A1-A4 supported cases');
@@ -117,7 +117,7 @@ assert.match(benchmarkText, /gateEvidence: false/, 'benchmark text reports non-e
 assert.match(benchmarkText, /B15: class=mismatch/, 'benchmark text lists B15');
 
 const report = buildQuantumClaimReport(benchmark);
-assert.equal(report.schemaVersion, 'lattice.quantum_claim_report.v1', 'report schema version is stable');
+assert.equal(report.schemaVersion, 'proof-or-stop.quantum_claim_report.v1', 'report schema version is stable');
 assert.equal(report.suiteStatus, 'PASS', 'report preserves benchmark PASS status');
 assert.equal(report.diagnosticOnly, true, 'report is diagnostic only');
 assert.equal(report.gateEvidence, false, 'report is not gate evidence');

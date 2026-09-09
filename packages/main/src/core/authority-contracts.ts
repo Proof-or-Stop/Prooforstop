@@ -958,7 +958,7 @@ export type AuthorityVerdictDecisionValue = 'pass' | 'fail' | 'blocked';
 /** The kind a verdict-endpoint receipt MUST carry. */
 export const AUTHORITY_VERDICT_RECEIPT_KIND = 'host_verdict';
 
-export const FINAL_HOST_REVIEW_PROMPT_PROFILE = 'lattice-final-host-check-v1';
+export const FINAL_HOST_REVIEW_PROMPT_PROFILE = 'proof-or-stop-final-host-check-v1';
 
 export const FINAL_HOST_REVIEW_CORE_PRINCIPLES = [
   "don't optimize for the sake of optimization",
@@ -979,7 +979,7 @@ export function buildFinalHostReviewPromptDigestInput(input: {
   checkedCommit?: string;
 }): Record<string, unknown> {
   return {
-    kind: 'lattice.final_host_review_prompt.v1',
+    kind: 'proof-or-stop.final_host_review_prompt.v1',
     profile: FINAL_HOST_REVIEW_PROMPT_PROFILE,
     principles: [...FINAL_HOST_REVIEW_CORE_PRINCIPLES],
     reviewWaveId: input.reviewWaveId,

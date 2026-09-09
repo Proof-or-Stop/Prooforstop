@@ -52,7 +52,7 @@ export interface ActiveReviewer {
   name: string;
   /** canonical proof-or-stop reviewer role used for dispatch and evidence */
   lane: string;
-  /** historical lattice spelling(s) accepted by readers for this lane */
+  /** Registered aliases; current canonical-only rows expose an empty list. */
   legacyAliases: readonly string[];
   /** why enabled: baseline / "riskSignal: <cats>" / "touchpoints .md" / forced */
   reason: string;

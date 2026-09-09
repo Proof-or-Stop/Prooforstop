@@ -1535,7 +1535,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const dynamicMode = resolveDynamicMode(
         args.dynamicMode
         || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
-        || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
             || projectConfig.validation?.dynamic?.mode
             || projectConfig.validate?.dynamic?.mode,
       );
@@ -1838,7 +1837,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     receipts: dynamic.receipts.length,
                     selectedAllPass: dynamic.dynamicAllPass,
                     authoritativeResult: {
-                      provider: 'lattice-verifier-dynamic-authoritative',
+                      provider: 'proof-or-stop-verifier-dynamic-authoritative',
                       status: dynamic.dynamicAllPass ? 'pass' : 'fail',
                       allPass: dynamic.dynamicAllPass,
                       summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
@@ -1909,7 +1908,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               'full-plan oracle not run; supply --story',
             ];
             const preview = externalResult({
-              provider: 'lattice-verifier-dynamic-preview',
+              provider: 'proof-or-stop-verifier-dynamic-preview',
               status: 'warn',
               summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
               details: previewDetails,
@@ -2178,7 +2177,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const runValidateFile = (beforeLaunch?: () => void) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
         return executeValidationPlan({
-          provider: 'lattice-verifier-validate-file',
+          provider: 'proof-or-stop-verifier-validate-file',
           commands: [identityCommand],
           warnings: [],
           ...(focus ? { focus } : {}),
@@ -2208,7 +2207,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               changedFiles: [],
             });
             const preview = externalResult({
-              provider: 'lattice-verifier-dynamic-preview',
+              provider: 'proof-or-stop-verifier-dynamic-preview',
               status: 'warn',
               summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
               details: [dynamic.report, 'full-plan oracle not run; supply --story'],
@@ -2310,7 +2309,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 receipts: dynamic.receipts.length,
                 selectedAllPass: dynamic.dynamicAllPass,
                 authoritativeResult: dynamic.authority.authoritative ? {
-                  provider: 'lattice-verifier-dynamic-authoritative',
+                  provider: 'proof-or-stop-verifier-dynamic-authoritative',
                   status: dynamic.dynamicAllPass ? 'pass' : 'fail',
                   allPass: dynamic.dynamicAllPass,
                   summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',

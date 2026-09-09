@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertCanonicalStory6Provenance, isCanonicalStory6Provenance } from './lib/story6-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const RUNTIME = path.join(HERE, 'runtime', 'story6');
@@ -28,13 +29,14 @@ function digest(value) {
 }
 
 function parseArgs(argv) {
-  const options = { campaignId: null, adjudication: null };
+  const options = { campaignId: null, adjudication: null, provenanceSelfcheck: null };
   for (const arg of argv) {
     if (arg.startsWith('--campaign-id=')) options.campaignId = arg.slice(14);
     else if (arg.startsWith('--adjudication=')) options.adjudication = arg.slice(15);
+    else if (arg.startsWith('--provenance-selfcheck=')) options.provenanceSelfcheck = path.resolve(arg.slice(23));
     else throw new Error(`unknown argument: ${arg}`);
   }
-  if (!options.campaignId) throw new Error('--campaign-id is required');
+  if (!options.campaignId && !options.provenanceSelfcheck) throw new Error('--campaign-id is required');
   return options;
 }
 
@@ -58,6 +60,13 @@ function expectedReceiptFileNames(campaignId) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (options.provenanceSelfcheck) {
+    const probes = JSON.parse(await readFile(options.provenanceSelfcheck, 'utf8'));
+    if (!Array.isArray(probes) || probes.length !== 2) throw new Error('provenance selfcheck requires exactly two arm probes');
+    for (const probe of probes) assertCanonicalStory6Provenance(probe?.provenance, `analyze/${probe?.arm}`);
+    process.stdout.write(`story6-analyze provenance selfcheck: PASS arms=${probes.length}\n`);
+    return;
+  }
   const campaignFiles = (await readdir(RUNTIME).catch(() => []))
     .filter(file => file.startsWith(`${options.campaignId}.`) && file.endsWith('.json'));
   const expectedReceiptFiles = expectedReceiptFileNames(options.campaignId);
@@ -69,7 +78,7 @@ async function main() {
   if (campaignFiles.includes(adjudicationFile)) {
     try {
       const candidate = JSON.parse(await readFile(path.join(RUNTIME, adjudicationFile), 'utf8'));
-      if (candidate?.schemaVersion !== 'proofbound.story6-independent-adjudication.v1'
+      if (candidate?.schemaVersion !== 'proof-or-stop.story6-independent-adjudication.v1'
           || candidate?.campaignId !== options.campaignId) {
         fileBoundaryErrors.push(`invalid independent adjudication artifact: ${adjudicationFile}`);
       }
@@ -78,7 +87,7 @@ async function main() {
     }
   }
   const receipts = await Promise.all(files.map(async file => JSON.parse(await readFile(path.join(RUNTIME, file), 'utf8'))));
-  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.json'), 'utf8'));
+  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.current.json'), 'utf8'));
   const samples = new Map(corpus.samples.map(sample => [sample.id, sample]));
   const byKey = new Map();
   let campaignBindingDigest = null;
@@ -88,7 +97,7 @@ async function main() {
     const key = cell && `${cell.sampleId}|${cell.host}|${cell.arm}|${cell.repeat}`;
     const expectedSample = cell && samples.get(cell.sampleId);
     const requiredDigest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-    const valid = row?.schemaVersion === 'proofbound.story6-live-ab-receipt.v1'
+    const valid = row?.schemaVersion === 'proof-or-stop.story6-live-ab-receipt.v1'
       && row.campaignId === options.campaignId
       && cell && typeof cell.cellId === 'string'
       && EXPECTED_ROLES.has(cell.roleId)
@@ -99,16 +108,7 @@ async function main() {
       && row.promptDigest && requiredDigest(row.promptDigest)
       && row.materialDigest && requiredDigest(row.materialDigest)
       && row.findingSetDigest && requiredDigest(row.findingSetDigest)
-      && row.provenance?.kind === 'production-provider-dispatch'
-      && row.provenance?.producer === 'agent_prompt'
-      && row.provenance?.producerMode === (cell?.arm === 'modular' ? 'full-envelope' : 'legacy-full-context')
-      && requiredDigest(row.provenance?.producerResponseDigest)
-      && (cell?.arm === 'modular'
-        ? requiredDigest(row.provenance?.envelopeId)
-          && row.provenance?.eventBinding?.promptEnvelopeId === row.provenance.envelopeId
-          && requiredDigest(row.provenance?.eventBinding?.assembledPromptDigest)
-        : row.provenance?.envelopeId === null && row.provenance?.eventBinding === null)
-      && row.provenance?.gateEvidence === false
+      && isCanonicalStory6Provenance(row.provenance)
       && typeof row.observedAt === 'string' && !Number.isNaN(Date.parse(row.observedAt))
       && expectedSample && row.materialDigest === expectedSample.materialDigest
       && row.findingSetDigest === expectedSample.findingSetDigest;
@@ -134,7 +134,7 @@ async function main() {
   const exactAdjudicationCells = adjudicationCellIds.length === receiptCellIds.length
     && new Set(adjudicationCellIds).size === adjudicationCellIds.length
     && [...adjudicationCellIds].sort().join('\n') === [...receiptCellIds].sort().join('\n');
-  const adjudicationValid = adjudication?.schemaVersion === 'proofbound.story6-independent-adjudication.v1'
+  const adjudicationValid = adjudication?.schemaVersion === 'proof-or-stop.story6-independent-adjudication.v1'
     && adjudication.campaignId === options.campaignId
     && typeof adjudication.adjudicatorId === 'string'
     && adjudication.adjudicatorId.trim().length > 0
@@ -164,7 +164,7 @@ async function main() {
   if (!adjudicationValid) reasonCodes.push('ADJUDICATION_EVIDENCE_UNVERIFIED');
   const status = reasonCodes.length ? 'INCONCLUSIVE' : 'EVALUABLE';
   const result = {
-    schemaVersion: 'proofbound.story6-live-ab-analysis.v1',
+    schemaVersion: 'proof-or-stop.story6-live-ab-analysis.v1',
     campaignId: options.campaignId,
     status,
     reasonCodes,

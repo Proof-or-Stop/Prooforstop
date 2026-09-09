@@ -324,8 +324,7 @@ function setupFixture(): { root: string; started: string; finished: string } {
   write(root, '.gitignore', [
     'command-started.txt',
     'command-finished.txt',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
     '.proof-or-stop/locks/',
     '',
   ].join('\n'));
@@ -363,7 +362,7 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
 }
 
 function setupTimeoutFixture(): { root: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-heartbeat-timeout-'));
   write(root, '.gitignore', '.proof-or-stop/locks/\n');
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',

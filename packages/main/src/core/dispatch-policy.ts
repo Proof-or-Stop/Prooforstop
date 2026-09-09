@@ -6,7 +6,7 @@ export type DispatchPolicyStatus = 'authorized' | 'supervised' | 'refused';
 export type DispatchNetworkPolicy = 'none' | 'local' | 'restricted';
 
 export interface DispatchPolicy {
-  schemaVersion: 'lattice.dispatch_policy.v1';
+  schemaVersion: 'proof-or-stop.dispatch_policy.v1';
   policy: string;
   allowedHosts: string[];
   allowedPaths: string[];
@@ -37,7 +37,7 @@ export interface DispatchPolicy {
 }
 
 export interface DispatchPolicyCheckResult {
-  schemaVersion: 'lattice.dispatch_policy_check.v1';
+  schemaVersion: 'proof-or-stop.dispatch_policy_check.v1';
   policy: string;
   authorized: boolean;
   status: DispatchPolicyStatus;
@@ -329,7 +329,7 @@ export function createDispatchPolicy(root: string, args: CreateDispatchPolicyArg
   }
 
   const policy: DispatchPolicy = {
-    schemaVersion: 'lattice.dispatch_policy.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy.v1',
     policy: normalized.policy!,
     allowedHosts: normalized.allowedHosts!,
     allowedPaths: normalized.allowedPaths!,
@@ -392,7 +392,7 @@ export function getDispatchPolicy(root: string, policy: string): DispatchPolicy 
 
 function fakePolicyRecord(): DispatchPolicy {
   return {
-    schemaVersion: 'lattice.dispatch_policy.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy.v1',
     policy: 'fake',
     allowedHosts: ['fake'],
     allowedPaths: ['packages/main/src/generated/'],
@@ -664,7 +664,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     : `Policy "${policyName}" is supervised-only. Declare the following to enable unattended authorization: ${degradations.map(d => d.split(';')[0]).join('; ')}.`;
 
   return {
-    schemaVersion: 'lattice.dispatch_policy_check.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy_check.v1',
     policy: policyName,
     authorized,
     status,
@@ -685,14 +685,14 @@ function refusedResult(
   normalizedPolicy?: DispatchPolicy,
 ): DispatchPolicyCheckResult {
   return {
-    schemaVersion: 'lattice.dispatch_policy_check.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy_check.v1',
     policy,
     authorized: false,
     status: 'refused',
     reasons,
     degradations: [],
     normalizedPolicy: normalizedPolicy ?? ({
-      schemaVersion: 'lattice.dispatch_policy.v1',
+      schemaVersion: 'proof-or-stop.dispatch_policy.v1',
       policy,
       allowedHosts: [],
       allowedPaths: [],

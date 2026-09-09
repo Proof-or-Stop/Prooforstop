@@ -35,9 +35,9 @@ import { writeFileSync } from 'node:fs';
 
 function holdFinalizeForDeterministicStress(): void {
   if (process.env.NODE_ENV !== 'test') return;
-  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS ?? 0);
+  const holdMs = Number(process.env.PROOF_OR_STOP_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS ?? 0);
   if (!Number.isFinite(holdMs) || holdMs <= 0) return;
-  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE;
+  const readyFile = process.env.PROOF_OR_STOP_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE;
   if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
@@ -429,7 +429,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         }, 0) + 1;
         const now = new Date().toISOString();
         const provisional: Omit<ReviewInventoryEpoch, '_hash'> = {
-          schemaVersion: 'proofbound.review_inventory_epoch.v1',
+          schemaVersion: 'proof-or-stop.review_inventory_epoch.v1',
           epochId: `${args.storyId}:RI-${String(epochNum).padStart(3, '0')}`,
           storyId: args.storyId,
           reviewRound: story.currentReviewRound,
@@ -534,7 +534,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const terminalEvidenceIds = terminal.map(row => row.id).sort();
         const readEvidence = terminal.map(row => ({ id: row.id, readManifest: row.readManifest ?? null, readLog: row.readLog?.digest ?? null }));
         const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
-          schemaVersion: 'proofbound.review_inventory_critic_receipt.v1',
+          schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
           criticReceiptId: `${epoch.epochId}:CRIT-${String(epoch.waves.length + 1).padStart(2, '0')}`,
           epochId: epoch.epochId,
           storyId: epoch.storyId,
@@ -631,7 +631,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const aggregateFamilies = wave.verifiedFindingFamilies;
         const receiptId = `${epoch.epochId}:RCP-001`;
         const unsignedReceipt: Omit<ReviewInventoryReceipt, '_hash'> = {
-          schemaVersion: 'proofbound.review_inventory_receipt.v1',
+          schemaVersion: 'proof-or-stop.review_inventory_receipt.v1',
           receiptId,
           epochId: epoch.epochId,
           storyId: epoch.storyId,

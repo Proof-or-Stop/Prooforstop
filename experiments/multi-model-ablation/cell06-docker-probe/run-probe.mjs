@@ -19,7 +19,7 @@ const ARM = "A2prime";
 const EXECUTOR_FAMILY = "E2";
 const REVIEWER_FAMILY = "not_applicable";
 const RUNNER_ID = "cell06-docker-probe";
-const IMAGE_TAG = "proofbound-cell06-codex-probe:b8092";
+const IMAGE_TAG = "proof-or-stop-cell06-codex-probe:b8092";
 const AUTH_ENV_BY_ACCOUNT = Object.freeze({
   "account-a": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
   "account-b": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
@@ -829,7 +829,7 @@ const rows = rowInputs.map((input, index) => {
       hostPathLeak: false,
       foreignCellLeak: false,
       reviewerLeak: false,
-      proofboundMemoryLeak: false,
+      proofOrStopMemoryLeak: false,
     },
     runtime: {
       imageTag: IMAGE_TAG,

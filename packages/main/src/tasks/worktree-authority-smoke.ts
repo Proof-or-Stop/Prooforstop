@@ -60,7 +60,7 @@ function write(root: string, path: string, content: string): void {
 // B-74b9 CHK-003: bumpVersionOnDoneMerge (wired into done_recover's post-merge path) requires
 // all five version sync points to exist and agree on a version, or applyPatchBump throws ENOENT
 // reading them from the filesystem (they are never absent on any real repo root -- every real
-// Proofbound checkout has package.json et al. by construction). Synthetic fixture roots that
+// Proof-or-Stop checkout has package.json et al. by construction). Synthetic fixture roots that
 // exercise done_recover's post-merge path need this same scaffold.
 function writeVersionSyncFiles(root: string, version: string): void {
   write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "proof-or-stop",\n  "version": "${version}",\n  "description": ""\n}\n`);
@@ -311,7 +311,7 @@ function assertTerminalStoriesDoNotRedirect(): void {
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
   runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-product-reviewer', agent: 'proof-or-stop-product-reviewer' });
   runProofOrStop(root, 'scope_boundary_set', {
     storyId,
     mode: 'custom',

@@ -5,6 +5,7 @@ import {
   storyIdFromArgs,
 } from './ownership-gate.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import type { ProofOrStopConfig } from '../core/config.js';
 
 export const REVIEWER_READONLY_ENV = 'PROOF_OR_STOP_REVIEWER_READONLY';
 
@@ -17,11 +18,12 @@ export function enforceReviewerReadOnlyCommandGate(
   args: Record<string, unknown>,
   activeStory: ActiveStoryForOwnershipGate | null,
   externalOwnershipClasses?: ExternalCommandOwnershipClasses,
+  config?: Pick<ProofOrStopConfig, 'promptEnvelope' | 'browser' | 'cli'>,
 ): void {
   if (!isReviewerReadOnlyModeEnabled()) return;
 
   const storyId = storyIdFromArgs(args, activeStory);
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses, { config });
 
   if (cls === 'readOnly') return;
 

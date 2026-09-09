@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
@@ -21,54 +21,64 @@ const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 // B-cc10: resolve the codex adapter agents dir instead of hardcoding the deprecated
 // spelling. With the old name, all 23 prompt mirrors read as "missing; no semantic drift
 // comparison available", so this contract failed and took several dependent smokes with it.
-const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.proof-or-stop-codex/agents']
-  .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
+const CODEX_AGENTS_DIR = '.proof-or-stop-codex/agents';
 
-// Role assets are canonical on disk after the rename. Keep the old spelling as
-// a read-only fallback so this contract can still inspect an older checkout;
-// never use the fallback to define the process-fact contract itself.
-const LEGACY_ROLE_ALIASES = Object.freeze({
-  'proof-or-stop-evaluator': ['lattice-evaluator'],
-  'proof-or-stop-evaluator-cli': ['lattice-evaluator-cli'],
-  'proof-or-stop-implementer': ['lattice-implementer'],
-  'proof-or-stop-review-behavior': ['lattice-review-behavior'],
-  'proof-or-stop-review-channel': ['lattice-review-channel'],
-  'proof-or-stop-review-concept': ['lattice-review-concept'],
-  'proof-or-stop-review-delivery': ['lattice-review-delivery'],
-  'proof-or-stop-review-docs': ['lattice-review-docs'],
-  'proof-or-stop-review-quality': ['lattice-review-quality'],
-  'proof-or-stop-review-scope-plan': ['lattice-review-scope-plan'],
-  'proof-or-stop-review-story-init': ['lattice-review-story-init'],
-  'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
-  'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
-  'proof-or-stop-product-reviewer': ['product-reviewer'],
-  'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
-  'proof-or-stop-test-intent': ['verification-intent', 'test-intent'],
-});
-const LEGACY_ROLE_TO_CANONICAL = new Map(
-  Object.entries(LEGACY_ROLE_ALIASES).flatMap(([canonical, aliases]) =>
-    aliases.map(alias => [alias, canonical])),
-);
-
+// Only current canonical assets and lane identities satisfy this contract.
 function canonicalRoleId(roleId) {
-  const name = String(roleId).replace(/\.md$/, '');
-  return LEGACY_ROLE_TO_CANONICAL.get(name) ?? name;
+  return String(roleId).replace(/\.md$/, '');
+}
+
+function capabilityMaterialContractErrors(source) {
+  const errors = [];
+  const requirePattern = (pattern, label) => { if (!pattern.test(source)) errors.push(label); };
+  requirePattern(/value\.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION/u, 'canonical schema rejection');
+  requirePattern(/options\.requireCurrentWrite \|\| value\.changedPathsScope !== undefined/u, 'current-write and unknown-marker rejection');
+  requirePattern(/value\.changedPathsScope === 'capability-material'[\s\S]*selectArtifactReleasePathsV1\(paths\)/u, 'marked subset validation');
+  requirePattern(/computeCapabilityDigest\(value\.capabilityId,[\s\S]*paths, value\.artifactSetDigest[\s\S]*value\.capabilityDigest !== expectedDigest/u, 'marked digest integrity');
+  requirePattern(/capabilityPaths\.some\(path => !fullChangedPaths\.has\(path\)\)/u, 'actual full-input subset binding');
+  requirePattern(/changedPathsScope: 'capability-material',\s*changedPaths: capabilityPaths/u, 'current builder material-only output');
+  const append = source.slice(source.indexOf('export function appendCapabilityReleaseRecord('));
+  const validation = append.indexOf('capabilityReleaseRecordValidationErrors(record, { requireCurrentWrite: true })');
+  const lookup = append.indexOf('const existing =');
+  if (validation < 0 || lookup < 0 || validation > lookup) errors.push('current-write validation before idempotency');
+  return errors;
+}
+
+function assertCapabilityMaterialContract() {
+  const path = 'packages/main/src/core/capability-release.ts';
+  const source = read(path);
+  for (const error of capabilityMaterialContractErrors(source)) fail(`${path}: ${error}`);
+  const mutations = [
+    ['options.requireCurrentWrite || value.changedPathsScope !== undefined', 'false'],
+    ['selectArtifactReleasePathsV1(paths)', 'paths'],
+    ['value.capabilityDigest !== expectedDigest', 'false'],
+    ['capabilityPaths.some(path => !fullChangedPaths.has(path))', 'false'],
+    ['changedPaths: capabilityPaths', 'changedPaths: opts.changedPaths'],
+    ['value.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION', 'false'],
+  ];
+  for (const [before, after] of mutations) {
+    assert(source.includes(before) && capabilityMaterialContractErrors(source.replace(before, after)).length > 0,
+      `${path}: capability material contract mutation escaped: ${before}`);
+  }
+  const appendStart = source.indexOf('export function appendCapabilityReleaseRecord(');
+  const appendMutation = source.slice(0, appendStart) + source.slice(appendStart).replace('requireCurrentWrite: true', 'requireCurrentWrite: false');
+  assert(capabilityMaterialContractErrors(appendMutation).length > 0, `${path}: append current-write bypass escaped`);
+  const entry = parseRegistryArrayEntriesFromSource(read(processFactRegistryPath), 'PROCESS_FACT_ARTIFACTS')
+    .find(entry => entry.name === 'artifact:.proof-or-stop/capability-releases.jsonl');
+  assert(entry?.kind === 'artifact' && entry.level === 'L1' && entry.semantics.includes('schema-contract')
+    && /gateEvidence:\s*false/u.test(entry.block) && /capability-material/u.test(entry.rationale),
+  `${processFactRegistryPath}: capability material boundary must remain non-authoritative and registered`);
+  const doc = read('docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md');
+  assert(/changedPathsScope/u.test(doc) && /capability-material/u.test(doc) && /before.*idempotency/u.test(doc),
+    'capability execution plan must describe current material-only writes and before-idempotency validation');
 }
 
 function rolePromptPath(directory, roleId) {
-  const canonical = canonicalRoleId(roleId);
-  const candidates = [
-    `${directory}/${canonical}.md`,
-    ...(LEGACY_ROLE_ALIASES[canonical] ?? []).map(alias => `${directory}/${alias}.md`),
-  ];
-  return candidates.find(relPath => existsSync(join(root, relPath))) ?? candidates[0];
+  return `${directory}/${canonicalRoleId(roleId)}.md`;
 }
 
 function reviewerLaneEntry(registry, roleId) {
-  const canonical = canonicalRoleId(roleId);
-  return [canonical, ...(LEGACY_ROLE_ALIASES[canonical] ?? [])]
-    .map(name => registry.get(`reviewer-lane:${name}`))
-    .find(Boolean);
+  return registry.get(`reviewer-lane:${canonicalRoleId(roleId)}`);
 }
 
 const promptDirs = [
@@ -180,6 +190,7 @@ const legacyTestAutoProcessFactClaimPatterns = [
 const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
 const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
 const processFactRegistryPath = 'packages/main/src/core/process-fact-registry.ts';
+const storyRuntimeAdmissionPath = 'packages/main/src/cli/story-runtime-admission.ts';
 const localAssuranceBoundaryPattern = /local (?:assurance|admissibility|workflow evidence|host verdict|quorum|review escalation|review assurance|validation|DONE-required-validation)|proof-admissibility|receipt-bundle|quorum|admissibility/i;
 const noReleaseOrRemoteCompletionBoundaryPattern = /retired remote-completion fields|remote completion|remote-completion|release readiness|release approval|remote publish readiness/i;
 const processFactRegistryKinds = new Set([
@@ -323,7 +334,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-discard-digest.json', path: 'scope-discard-digest.json', signed: false },
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
-  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
+  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash.*exact-field allowlists/ },
   { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
@@ -822,6 +833,34 @@ function read(relPath) {
   }
   if (mutation === 'weaken-acceptance-rollout-3x2' && relPath === 'packages/main/src/core/acceptance-rollout.ts') {
     text = text.replace("record.quorum.rounds === 3", 'record.quorum.rounds >= 1');
+  }
+  if (mutation === 'synthetic-story-writer-partial-runtime-admission' && relPath === commandPolicyPath) {
+    text = text.replace(
+      'export const COMMAND_POLICIES: Record<string, CommandPolicy> = {',
+      `export const COMMAND_POLICIES: Record<string, CommandPolicy> = {
+  synthetic_story_writer: {
+    status: 'supported',
+    reason: 'Synthetic mutation: a future Story writer must inherit the shared runtime gate.',
+    allowedPhases: 'all',
+    ownershipClass: 'storyScopedMutating',
+    destructiveRisk: 'metadata-write',
+  },`,
+    );
+  }
+  if (mutation === 'synthetic-story-writer-partial-runtime-admission' && relPath === storyRuntimeAdmissionPath) {
+    text = text.replace(
+      'commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)',
+      "input.command === 'story_update'",
+    );
+  }
+  if (mutation === 'omit-dangerous-story-writer-capability' && relPath === commandPolicyPath) {
+    text = text.replace("  'story_discard',\n", '');
+  }
+  if (mutation === 'omit-direct-story-writer-effects' && relPath === commandPolicyPath) {
+    for (const command of ['agent_prompt', 'evaluate']) {
+      const row = new RegExp(`(${command}: \\{[^\\n]*?)storyWriteEffect: '[^']+', `);
+      text = text.replace(row, '$1');
+    }
   }
   return text;
 }
@@ -1693,7 +1732,7 @@ function assertProofStoryProgressiveBoundary() {
   const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
     'proof-or-stop-implementer',
-    'test-case-reviewer',
+    'proof-or-stop-test-case-reviewer',
     'proof-or-stop-review-topology-critic',
     'proof-or-stop-review-concept',
     'proof-or-stop-review-quality',
@@ -1758,7 +1797,7 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutText.includes('export function deriveAcceptanceRolloutReport')
       && acceptanceRolloutText.includes('ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3')
       && acceptanceRolloutText.includes('issueAcceptanceRolloutObservationFromProduction')
-      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'lattice.quorum_submit.v1'")
+      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'proof-or-stop.quorum_submit.v1'")
       && acceptanceRolloutText.includes("['cat-file', '-e'")
       && acceptanceRolloutText.includes('quorum.reviewerPasses.some')
       && acceptanceRolloutText.includes("run('acceptance_topology_check')")
@@ -1837,6 +1876,10 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticText.includes('events: readonly ProcessEvent[];')
       && topologyCriticText.includes('if (!Array.isArray(args.events) || args.events.length === 0)')
       && topologyCriticText.includes('implementationProvenanceDiagnostics')
+      && topologyCriticText.includes("const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>'")
+      && !topologyCriticText.includes('LEGACY_IMPLEMENTER_AUTHOR')
+      && /function canonicalBusinessAuthorIdentity\(identity: string\): string \{[^}]*return identity\.trim\(\);\s*\}/.test(topologyCriticText)
+      && processRegistryText.includes('retired author spellings cannot be mapped or selected as canonical implementation provenance')
       && topologyCriticText.includes('exact one-to-one independent approvals')
       && processRegistryText.includes('runtime:topology_critic_authority_verification')
       && processLevelText.includes('runtime:topology_critic_authority_verification')
@@ -2044,9 +2087,9 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    rolePromptPath('packages/main/templates/agents', 'product-reviewer'),
-    rolePromptPath(CODEX_AGENTS_DIR, 'product-reviewer'),
-    rolePromptPath('.claude/agents', 'product-reviewer'),
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-product-reviewer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-product-reviewer'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-product-reviewer'),
   ]) {
     const promptText = read(promptPath);
     assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
@@ -2117,7 +2160,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5',
+    'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
@@ -2142,7 +2185,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271',
+    'b03c095a373bbbad19811ffc40e280800a92dbc67489dcc82e06fe00a57c2473',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2245,7 +2288,7 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
-    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
     'mutant path rebound to external input',
     'mutant producer type widened',
@@ -4739,10 +4782,10 @@ function assertReviewInventoryRemediationContract() {
     `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
   );
 
-  const projectConfig = read('lattice.config.json');
+  const projectConfig = read('proof-or-stop.config.json');
   assert(
     /"acceptanceRolloutGateMode"\s*:\s*"enforce"/.test(projectConfig),
-    'lattice.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
+    'proof-or-stop.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
   );
 }
 
@@ -5250,6 +5293,7 @@ function parseInlineProcessFactArtifactFromSource(block, label) {
   const openIndex = artifactMatch.index + artifactMatch[0].lastIndexOf('{');
   const artifactBlock = extractBalancedBlock(block, openIndex, '{', '}', `${label} inline artifact`);
   return {
+    name: readStringProperty(artifactBlock, 'name'),
     path: readStringProperty(artifactBlock, 'path'),
     signed: /\bsigned:\s*true\b/.test(artifactBlock),
     signature: readStringProperty(artifactBlock, 'signature'),
@@ -5578,6 +5622,17 @@ function assertDonePreflightPredicateInventoryParity() {
     assert(fact?.level === 'L4' && fact?.consumerGate?.includes('storyMachine.canFinish DONE gate')
       && fact?.consumerGate?.includes('done_closure/done_prepare preflight'), name + ': both DONE consumers must stay registered at L4');
   }
+  assert(registry.get('runtime:done_finish_decision_presence')?.rationale.includes('byte-exact proof-or-stop.dev-memory-finish-decision.v1'),
+    'finish-decision process fact must require exact canonical schema admission');
+  const finishReader = read('packages/main/src/core/playbook-runtime-memory.ts');
+  assert(finishReader.includes("if (record.schemaVersion !== 'proof-or-stop.dev-memory-finish-decision.v1') {")
+    && finishReader.includes('return { record: null, unsupportedIdentity:')
+    && finishReader.includes('return inspectDevMemoryFinishDecision(root, storyId).record;'),
+    'finish-decision reader must reject unsupported schema before DONE admission');
+  assert(registry.get('runtime:done_finish_decision_presence')?.rationale.includes('unsupported_identity')
+    && machineSource.includes('const finishDecisionRead = inspectDevMemoryFinishDecision(projectRoot, storyId);')
+    && doneOracleSource.includes("donePredicateValue<ReturnType<typeof inspectDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision')"),
+    'unsupported finish identity must retain its shared diagnostic in DONE and the read-only oracle');
   const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
   if (evaluator?.body) {
@@ -5713,14 +5768,11 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
     const policy = policyByName.get(commandName);
     assert(policy, `${commandPolicyPath}: ${commandName} missing COMMAND_POLICIES entry`);
     assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
     if (commandName === 'certification_window_status') {
-      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
-      assert(
-        policyBlockHasOwnershipClass(policy, 'readOnly'),
-        `${commandPolicyPath}: ${commandName} must stay readOnly`,
-      );
+      assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} default must stay readOnly`);
+      assert(readStringProperty(policy.block, 'storyWriteEffect') === 'whenRefresh', `${commandPolicyPath}: ${commandName} explicit refresh must stay a declared Story write`);
     } else {
-      assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
       assert(
         policyBlockHasOwnershipClass(policy, 'storyScopedMutating'),
         `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
@@ -6690,6 +6742,72 @@ function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   ]) {
     assert(smokeText.includes(token), `packages/main/src/tasks/field-regression-cli-smoke.ts: required storyFilesHash smoke token missing: ${token}`);
   }
+}
+
+function assertCurrentPromptIdentityBoundary() {
+  const contracts = read('packages/main/src/core/prompt-contracts.ts');
+  const envelope = read('packages/main/src/core/prompt-envelope.ts');
+  const reviewRun = read('packages/main/src/core/review-run.ts');
+  const registry = read(processFactRegistryPath);
+
+  for (const token of [
+    'CURRENT_PROMPT_IDENTITIES',
+    'PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS',
+    'assertPromptEnvelopeIdentityRegistryTotal',
+    'validatePromptEnvelopeAgainst(value)',
+    "promptEnvelope: 'proof-or-stop.prompt-envelope.v1'",
+  ]) {
+    assert(contracts.includes(token), `prompt-contracts.ts: current Prompt identity boundary missing ${token}`);
+  }
+  for (const retiredToken of ['LEGACY_PROMPT_IDENTITIES', 'validateLegacyPromptEnvelope']) {
+    assert(!contracts.includes(retiredToken), `prompt-contracts.ts: retired Prompt identity API remains active: ${retiredToken}`);
+  }
+  for (const path of [
+    'schemaVersion',
+    'runtimeContractVersion',
+    'roleContractVersion',
+    'assemblerVersion',
+    'dispatchProtocolVersion',
+  ]) {
+    assert(contracts.includes(`'${path}'`), `prompt-contracts.ts: active Prompt Envelope identity path missing ${path}`);
+  }
+  assert(
+    contracts.includes("proof-or-stop.digest.v1\\0${domain}\\0"),
+    'prompt-contracts.ts: current proof-or-stop.digest.v1 domain separator must remain exact',
+  );
+  for (const token of [
+    'verifyPromptEnvelopeIntegrity',
+    'validatePromptEnvelope(envelope)',
+  ]) {
+    assert(envelope.includes(token), `prompt-envelope.ts: current reader boundary missing ${token}`);
+  }
+  for (const retiredToken of ['verifyLegacyPromptEnvelopeIntegrity', 'validateLegacyPromptEnvelope']) {
+    assert(!envelope.includes(retiredToken), `prompt-envelope.ts: retired Prompt identity reader remains active: ${retiredToken}`);
+  }
+  for (const token of [
+    "REVIEW_RUN_SALT = 'proof-or-stop-review-run-integrity-v1'",
+    'verifyReviewRunSignatureIntegrity',
+    'hasOnlyKeys(run',
+    'verifyReviewScopeBinding(run.scopeBinding)',
+    'reviewRunPromptUsesCurrentIdentityFamily(run)',
+  ]) {
+    assert(reviewRun.includes(token), `review-run.ts: current signed ReviewRun boundary missing ${token}`);
+  }
+  for (const retiredToken of ['verifyLegacyReviewRun', 'LEGACY_PROMPT_IDENTITIES']) {
+    assert(!reviewRun.includes(retiredToken), `review-run.ts: retired ReviewRun reader remains active: ${retiredToken}`);
+  }
+  for (const token of [
+    'Fresh Story writers persist exact proof-or-stop.* Prompt identities',
+    'retired identity family remain inert historical bytes',
+    'reject them without a compatibility fallback',
+    'Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
+  ]) {
+    assert(registry.includes(token), `${processFactRegistryPath}: Prompt identity process contract missing ${token}`);
+  }
+  assert(
+    !registry.includes('exact proof-or-stop.* rows are available only through the named legacy verifier'),
+    `${processFactRegistryPath}: canonical Prompt identity must never be described as legacy-verifier-only`,
+  );
 }
 
 function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
@@ -8341,6 +8459,8 @@ function assertPromptMeasurementObservationBoundary() {
   const registryText = read('packages/main/src/registry.ts');
   const handlerText = read('packages/main/src/handlers/prompt-measurement.ts');
   const verifierText = read('scripts/verify-proof-or-stop-prompt-baseline.mjs');
+  const promptRegistryText = read('packages/main/src/core/prompt-registry.ts');
+  const promptRoleRegistryText = read('packages/main/src/core/prompt-role-contract-registry.ts');
 
   assert(catalogText.includes(`name: '${command}'`), `prompt measurement: ${command} missing from command catalog`);
   assert(
@@ -8358,6 +8478,281 @@ function assertPromptMeasurementObservationBoundary() {
   assert(handlerText.includes('generatePromptMeasurementReport'), 'prompt measurement: handler must use deterministic local generator');
   assert(verifierText.includes('verifyPromptMeasurementSidecar'), 'prompt measurement: proof-or-stop verifier sidecar check missing');
   assert(verifierText.includes('PromptMeasurementRecord sidecar verified without refresh authority'), 'prompt measurement: verifier must state non-authoritative no-refresh boundary');
+  assert(
+    promptRegistryText.includes('assertPromptRegistrySnapshotIdentity'),
+    'prompt registry: exact schemaVersion/source identity validator missing',
+  );
+  assert(
+    /buildPromptRoleContracts\([\s\S]*?assertPromptRegistrySnapshotIdentity\(snapshot\)/.test(promptRoleRegistryText),
+    'prompt registry: role-contract consumer must validate the snapshot identity before deriving contracts',
+  );
+}
+
+function assertStoryWriterRuntimeAdmissionContract() {
+  const admission = read(storyRuntimeAdmissionPath);
+  const engine = read('packages/main/src/cli-engine.ts');
+  const policy = read(commandPolicyPath);
+  const processFacts = read('packages/main/src/core/process-fact-registry.ts');
+  const scopeEvaluator = read('packages/main/src/core/scope-anti-expansion.ts');
+  const policyEntries = parseCommandPolicyEntries();
+  const crossOwnershipEffects = new Map([
+    ['story_create', 'always'],
+    ['story_reconcile', 'always'],
+    ['identity_state_migrate', 'whenConfirm'],
+    ['story_discard', 'always'],
+    ['story_draft_discard', 'always'],
+    ['story_create_from_repro', 'always'],
+    ['signature_backfill', 'whenApply'],
+    ['done_recover', 'always'],
+    ['audit', 'always'],
+    ['gap_log', 'always'],
+    ['doctor', 'whenRepair'],
+    ['certification_window_status', 'whenRefresh'],
+    ['reviewer_list', 'whenForceReviewer'],
+    ['agent_prompt', 'whenStoryPromptEnvelope'],
+    ['evaluate', 'whenEvaluatorPromptEnvelope'],
+    ['planner_create_story', 'always'],
+    ['planner_run', 'always'],
+  ]);
+  const storyWriteEffect = entry => readStringProperty(entry.block, 'storyWriteEffect');
+  const capabilityCommands = new Set(policyEntries
+    .filter(entry =>
+      policyBlockHasOwnershipClass(entry, 'storyScopedMutating')
+      || policyBlockHasOwnershipClass(entry, 'reviewerWrite')
+      || Boolean(storyWriteEffect(entry)))
+    .map(entry => entry.name));
+  const omittedCapability = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_OMIT_STORY_WRITER;
+  if (omittedCapability === '*') capabilityCommands.clear();
+  else if (omittedCapability) capabilityCommands.delete(omittedCapability);
+  assert(policy.includes('STORY_WRITE_CAPABILITY_COMMANDS'), `${commandPolicyPath}: missing actual Story-write capability registry`);
+  assert(policy.includes('commandRequiresAuthoritativeRuntime'), `${commandPolicyPath}: missing actual Story-write capability predicate`);
+  const runtimePredicate = policy.match(/export function commandRequiresAuthoritativeRuntime\([\s\S]*?\n\}/)?.[0].replace(/\s/g, '') ?? '';
+  assert(
+    runtimePredicate.includes("returneffectiveOwnership!==null&&effectiveOwnership!=='readOnly'&&(effectiveOwnership==='storyScopedMutating'||effectiveOwnership==='reviewerWrite'||STORY_WRITE_CAPABILITY_COMMAND_SET.has(command));"),
+    `${commandPolicyPath}: raw and final admission must include intrinsic effective extension writers while preserving null/read-only refusal and declared cross-class effects`,
+  );
+  assert(policy.includes("policy.ownershipClass === 'storyScopedMutating'"), `${commandPolicyPath}: Story-write capability registry must derive owner writers from command policy`);
+  assert(policy.includes("policy.ownershipClass === 'reviewerWrite'"), `${commandPolicyPath}: Story-write capability registry must derive reviewer writers from command policy`);
+  assert(policy.includes("'storyWriteEffect' in policy && policy.storyWriteEffect !== undefined"), `${commandPolicyPath}: Story-write capability registry must derive cross-class writers from declared effects`);
+  for (const [command, expectedEffect] of crossOwnershipEffects) {
+    const entry = policyEntries.find(candidate => candidate.name === command);
+    assert(entry, `${commandPolicyPath}: missing cross-class Story writer ${command}`);
+    assert(storyWriteEffect(entry) === expectedEffect, `${commandPolicyPath}: ${command} storyWriteEffect must be ${expectedEffect}`);
+    assert(capabilityCommands.has(command), `${commandPolicyPath}: Story-write capability registry missing ${command}`);
+  }
+  for (const entry of policyEntries) {
+    if (policyBlockHasOwnershipClass(entry, 'storyScopedMutating') || policyBlockHasOwnershipClass(entry, 'reviewerWrite')) {
+      assert(capabilityCommands.has(entry.name), `${commandPolicyPath}: Story-write capability registry missing ${entry.name}`);
+      continue;
+    }
+    const effect = storyWriteEffect(entry);
+    if (effect) {
+      assert(crossOwnershipEffects.get(entry.name) === effect, `${commandPolicyPath}: unverified cross-class Story writer effect ${entry.name}:${effect}`);
+    }
+  }
+  const policyNames = new Set(policyEntries.map(entry => entry.name));
+  const sourceRoot = join(root, 'packages/main/src');
+  const sourcePaths = [];
+  const collectSourcePaths = (absoluteDir, relativeDir) => {
+    for (const entry of readdirSync(absoluteDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const absolutePath = join(absoluteDir, entry.name);
+      const relPath = join(relativeDir, entry.name);
+      if (entry.isDirectory()) collectSourcePaths(absolutePath, relPath);
+      else if (entry.isFile() && entry.name.endsWith('.ts')) sourcePaths.push(relPath);
+    }
+  };
+  collectSourcePaths(sourceRoot, 'packages/main/src');
+
+  const definitions = [];
+  const definitionsByFileAndName = new Map();
+  const importsByFile = new Map();
+  const namespaceImportsByFile = new Map();
+  const callableDescriptor = (node, sourceFile, relPath) => {
+    if (ts.isFunctionDeclaration(node) && node.name && node.body) {
+      return { name: node.name.text, body: node.body };
+    }
+    if (ts.isMethodDeclaration(node) && node.name && node.body) {
+      const name = ts.isIdentifier(node.name) || ts.isStringLiteral(node.name) ? node.name.text : null;
+      return name ? { name, body: node.body } : null;
+    }
+    if (
+      ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.initializer
+      && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+      && node.initializer.body
+    ) {
+      return { name: node.name.text, body: node.initializer.body };
+    }
+    return null;
+  };
+  const resolveImportedModule = (fromRelPath, specifier) => {
+    if (!specifier.startsWith('.')) return null;
+    const joined = join(dirname(fromRelPath), specifier);
+    const candidates = joined.endsWith('.js')
+      ? [`${joined.slice(0, -3)}.ts`]
+      : [joined, `${joined}.ts`, join(joined, 'index.ts')];
+    return candidates.find(candidate => existsSync(join(root, candidate))) ?? null;
+  };
+  for (const relPath of sourcePaths) {
+    const sourceFile = parseSourceFile(relPath);
+    const namedImports = new Map();
+    const namespaceImports = new Map();
+    for (const statement of sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const importedPath = resolveImportedModule(relPath, statement.moduleSpecifier.text);
+      if (!importedPath || !statement.importClause) continue;
+      const bindings = statement.importClause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          namedImports.set(element.name.text, { relPath: importedPath, name: element.propertyName?.text ?? element.name.text });
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings)) {
+        namespaceImports.set(bindings.name.text, importedPath);
+      }
+    }
+    importsByFile.set(relPath, namedImports);
+    namespaceImportsByFile.set(relPath, namespaceImports);
+    const visit = node => {
+      const descriptor = callableDescriptor(node, sourceFile, relPath);
+      if (descriptor) {
+        const definition = {
+          key: `${relPath}:${descriptor.name}:${node.pos}`,
+          name: descriptor.name,
+          relPath,
+          node,
+          body: descriptor.body,
+          directWrites: [],
+          calls: [],
+        };
+        definitions.push(definition);
+        const fileKey = `${relPath}:${descriptor.name}`;
+        const matches = definitionsByFileAndName.get(fileKey) ?? [];
+        matches.push(definition);
+        definitionsByFileAndName.set(fileKey, matches);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  const isNestedNamedCallable = node => Boolean(callableDescriptor(node));
+  for (const definition of definitions) {
+    const sourceFile = parseSourceFile(definition.relPath);
+    const visitBody = node => {
+      if (node !== definition.body && isNestedNamedCallable(node)) return;
+      if (ts.isCallExpression(node)) {
+        if (ts.isPropertyAccessExpression(node.expression)) {
+          const receiver = node.expression.expression.getText(sourceFile);
+          const method = node.expression.name.text;
+          if (/(?:^|\.)store$/.test(receiver) && /^(?:write|append)/.test(method)) {
+            definition.directWrites.push(`${receiver}.${method}`);
+          }
+          if (ts.isIdentifier(node.expression.expression)) {
+            definition.calls.push({ kind: 'property', receiver: node.expression.expression.text, name: method });
+          }
+        } else if (ts.isIdentifier(node.expression)) {
+          definition.calls.push({ kind: 'identifier', name: node.expression.text });
+        }
+      }
+      ts.forEachChild(node, visitBody);
+    };
+    ts.forEachChild(definition.body, visitBody);
+  }
+
+  const edges = new Map(definitions.map(definition => [definition.key, []]));
+  for (const definition of definitions) {
+    const targets = edges.get(definition.key);
+    for (const call of definition.calls) {
+      if (call.kind === 'identifier') {
+        const local = definitionsByFileAndName.get(`${definition.relPath}:${call.name}`);
+        if (local?.length) {
+          targets.push(...local);
+          continue;
+        }
+        const imported = importsByFile.get(definition.relPath)?.get(call.name);
+        if (imported) targets.push(...(definitionsByFileAndName.get(`${imported.relPath}:${imported.name}`) ?? []));
+        continue;
+      }
+      const importedPath = namespaceImportsByFile.get(definition.relPath)?.get(call.receiver);
+      if (importedPath) targets.push(...(definitionsByFileAndName.get(`${importedPath}:${call.name}`) ?? []));
+    }
+  }
+
+  const storyWriteTraces = new Map();
+  const traceWrites = (definition, path, seen) => {
+    if (seen.has(definition.key)) return [];
+    const nextSeen = new Set(seen).add(definition.key);
+    const nextPath = [...path, definition];
+    const traces = definition.directWrites.length > 0
+      ? [{ path: nextPath, writes: definition.directWrites }]
+      : [];
+    for (const target of edges.get(definition.key) ?? []) {
+      traces.push(...traceWrites(target, nextPath, nextSeen));
+    }
+    return traces;
+  };
+  for (const definition of definitions) {
+    if (!ts.isMethodDeclaration(definition.node) || !policyNames.has(definition.name)) continue;
+    const traces = traceWrites(definition, [], new Set());
+    if (traces.length > 0) {
+      const existing = storyWriteTraces.get(definition.name) ?? [];
+      existing.push(...traces);
+      storyWriteTraces.set(definition.name, existing);
+    }
+  }
+  for (const [command, traces] of storyWriteTraces) {
+    if (capabilityCommands.has(command)) continue;
+    const trace = traces[0];
+    const kind = trace.path.length === 1 ? 'direct' : 'transitive';
+    const chain = trace.path.map(definition => definition.name).join(' -> ');
+    const sink = trace.path.at(-1);
+    assert(
+      false,
+      `${kind} Story-writing handler ${command} is absent from the capability inventory (${chain} -> ${trace.writes.join(', ')} at ${sink.relPath})`,
+    );
+  }
+  const ownership = read('packages/main/src/cli/ownership-gate.ts');
+  for (const [command, argument] of [
+    ['signature_backfill', 'args.apply'],
+    ['identity_state_migrate', 'args.confirm'],
+    ['reviewer_list', 'args.forceReviewer'],
+    ['doctor', 'args.repair'],
+    ['certification_window_status', 'args.refresh'],
+    ['agent_prompt', 'args.auditExperiment'],
+    ['evaluate', 'hasEvaluatorTarget'],
+  ]) {
+    assert(ownership.includes(`cmd === '${command}'`), `ownership gate missing conditional Story writer ${command}`);
+    assert(ownership.includes(argument), `ownership gate missing ${command} write argument ${argument}`);
+  }
+  assert(
+    admission.includes('commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)'),
+    `${storyRuntimeAdmissionPath}: admission must consume the actual Story-write capability predicate`,
+  );
+  assert(!admission.includes("input.effectiveOwnership === 'storyScopedMutating'"), `${storyRuntimeAdmissionPath}: admission must not enumerate ownership classes`);
+  assert(admission.includes('classifyRuntimeEntrypointAuthority'), `${storyRuntimeAdmissionPath}: must consume the shared runtime authority classifier`);
+  const rawResolution = engine.indexOf('resolveRawRuntimeAdmissionOwnership(');
+  const rawClassifier = engine.indexOf('classifyRuntimeEntrypointAuthority({', rawResolution);
+  assert(
+    rawResolution >= 0 && rawClassifier > rawResolution,
+    'cli-engine: raw runtime preflight must resolve argument-aware effective ownership before classifying runtime authority',
+  );
+  assert(
+    engine.indexOf('commandRequiresAuthoritativeRuntime(', rawResolution) >= rawResolution,
+    'cli-engine: raw and parsed runtime admission must consume the actual Story-write capability predicate',
+  );
+  for (const schema of [
+    'proof-or-stop.execution_boundary.v1.1',
+    'lattice.execution_boundary.v1',
+    'proof-or-stop.scope_freeze_check.v1.1',
+    'lattice.scope_freeze_check.v1',
+  ]) {
+    assert(scopeEvaluator.includes(schema), `scope anti-expansion: missing exact schema contract ${schema}`);
+    assert(processFacts.includes(schema), `process fact registry: missing exact schema contract ${schema}`);
+  }
+  const gate = engine.indexOf('enforceStoryRuntimeAdmission({');
+  const hook = engine.indexOf("runHooks('preCommand'", gate);
+  assert(gate >= 0 && hook > gate, 'cli-engine: Story runtime admission must precede preCommand hooks');
 }
 
 function assertProcessFactCommandInventory() {
@@ -9357,6 +9752,9 @@ assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
 assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
+assertCurrentPromptIdentityBoundary();
+assertCapabilityMaterialContract();
+assertStoryWriterRuntimeAdmissionContract();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);

@@ -111,7 +111,7 @@ function makeCapabilityPlaybook(status: Playbook['status']): Playbook {
 /** A validatable PlaybookOutcomeEvent with a caller-chosen verdictSource. */
 function makeHelpedOutcome(verdictSource: string, eventId: string): PlaybookOutcomeEvent {
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId,
     idempotencyKey: `idem-${eventId}`,
     observedAt: '2026-07-05T00:00:00.000Z',

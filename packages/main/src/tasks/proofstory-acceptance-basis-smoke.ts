@@ -198,6 +198,12 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // bounded snapshot closure requires them once that entry is live.
   write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/evidence-freshness.ts', 'export const evidenceFreshness = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/material-path-policy.ts', 'export const materialPathPolicy = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/shared-validation-execution.ts', 'export const sharedValidationExecution = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-aware-validation.ts', 'export const storyAwareValidation = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-owner-lease.ts', 'export const storyOwnerLease = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/validation-execution-lock.ts', 'export const validationExecutionLock = "acceptance_basis";\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
 }
 

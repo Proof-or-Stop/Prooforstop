@@ -261,7 +261,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'done-readiness',
     mode: 'warn',
     checks: {
-      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      ...currentValidChecks('proof-or-stop.done_required_evidence.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -274,7 +274,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'done-readiness',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      ...currentValidChecks('proof-or-stop.done_required_evidence.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -287,7 +287,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'done-readiness',
     policy: { mode: 'enforce', enforcedConsumers: ['AUTHORITY_GATE_DECISION'] },
     checks: {
-      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      ...currentValidChecks('proof-or-stop.done_required_evidence.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -300,7 +300,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
     policy: enforceHighRisk,
-    checks: currentValidChecks('lattice.external_gate_decision.v1'),
+    checks: currentValidChecks('proof-or-stop.external_gate_decision.v1'),
   });
   assert.equal(authorityPass.allowed, true, 'Authority-facing gate decision can be admissible evidence for its matching consumer');
   assert.equal(authorityPass.blocking, false, 'valid Authority-facing gate decision does not block');
@@ -312,7 +312,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'production-completion',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.external_gate_decision.v1'),
+      ...currentValidChecks('proof-or-stop.external_gate_decision.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -324,7 +324,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
     policy: enforceHighRisk,
-    checks: currentValidChecks('lattice.external_receipt.v1'),
+    checks: currentValidChecks('proof-or-stop.external_receipt.v1'),
   });
   assert.equal(plainReceipt.blocking, true, 'plain Authority receipt cannot replace a gate decision in enforce mode');
   assert.ok(plainReceipt.reasons.includes('artifact_consumer_mismatch'), 'plain receipt exposes consumer mismatch');
@@ -417,7 +417,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
   assertBlockedHandoffSummary(resume);
 
   const receipt: HandoffReceipt = {
-    schemaVersion: 'lattice.handoff_receipt.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt.v1',
     storyId: pack.storyId,
     host: 'fake',
     packId: pack.packId,
@@ -456,7 +456,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'review-pass',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.review_run.v1'),
+      ...currentValidChecks('proof-or-stop.review_run.v1'),
       signatureOrReceiptBindingValid: false,
     },
   });
@@ -484,7 +484,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'done-readiness',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      ...currentValidChecks('proof-or-stop.done_required_evidence.v1'),
       commandSpecDigestValid: undefined,
     },
   });
@@ -497,7 +497,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'done-readiness',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      ...currentValidChecks('proof-or-stop.done_required_evidence.v1'),
       commandSpecDigestValid: false,
     },
   });

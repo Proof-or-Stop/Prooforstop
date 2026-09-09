@@ -8,7 +8,7 @@
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/proof-or-stop-scope-pretool.cjs\"",
             "timeout": 30,
-            "statusMessage": "Checking Proofbound scope"
+            "statusMessage": "Checking Proof-or-Stop scope"
           }
         ]
       },
@@ -19,7 +19,7 @@
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/proof-or-stop-evidence-pretool.cjs\"",
             "timeout": 10,
-            "statusMessage": "Checking Proofbound evidence pin"
+            "statusMessage": "Checking Proof-or-Stop evidence pin"
           }
         ]
       }

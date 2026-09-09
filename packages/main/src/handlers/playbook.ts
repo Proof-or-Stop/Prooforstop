@@ -85,7 +85,9 @@ import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import {
   buildLearningSourceLineageAudit,
   renderSourceLineageAuditReport,
+  SOURCE_LINEAGE_AUDIT_SCHEMA_VERSION,
 } from '../core/source-lineage-audit.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
   buildPlaybookAutoPromotionApplyReport,
   buildPlaybookCandidateIngestReport,
@@ -351,7 +353,7 @@ function buildOutcomeEvent(args: PlaybookOutcomeRecordArgs, playbook: Playbook):
   const idempotencyKey = optionalString(args, 'idempotencyKey') ?? `${playbookId}:${storyId}:${observedAt}:${verdict}`;
 
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId: optionalString(args, 'eventId') ?? `PBO-${randomUUID()}`,
     idempotencyKey,
     observedAt,
@@ -583,7 +585,7 @@ function buildPromotionDecisionRow(
 ): PlaybookPromotionDecisionRow {
   const nonDeducibleSourceKey = action === 'mark_non_deducible' ? aggregate.source.sourceKey : undefined;
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: `PBD-${randomUUID()}`,
     idempotencyKey: promotionDecisionIdempotencyKey(aggregate, action),
     decidedAt: opts.decidedAt ?? new Date().toISOString(),
@@ -1454,6 +1456,7 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
      * candidates, promote playbooks, enable settlement, or block runtime paths.
      */
     source_lineage_audit(args: SourceLineageAuditArgs = {}): string {
+      assertActiveIdentityConsumerContract('learning-source-lineage', SOURCE_LINEAGE_AUDIT_SCHEMA_VERSION);
       const domain = typeof args.domain === 'string' ? args.domain.trim() : '';
       if (domain !== 'learning') {
         throw new Error(`source_lineage_audit: unsupported domain ${JSON.stringify(domain || '<missing>')} (supported: learning)`);

@@ -114,7 +114,7 @@ function outcome(
   const eventId = overrides.eventId ?? `PBO-${playbook.id}-${overrides.exposureMode ?? 'candidate'}`;
   const verdict = overrides.verdict ?? 'helped';
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId,
     idempotencyKey: overrides.idempotencyKey ?? eventId,
     observedAt: overrides.observedAt ?? NOW,
@@ -151,7 +151,7 @@ function decision(
 ): PlaybookPromotionDecisionRow {
   const aggregate = aggregatePlaybookPromotion(playbook, [], []);
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: `PBD-${playbook.id}-${action}`,
     idempotencyKey: `observe:${playbook.id}:${action}:${aggregate.aggregateDigest}`,
     decidedAt,

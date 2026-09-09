@@ -103,7 +103,7 @@ export interface BaselineRunAssessment extends BaselineRunSummary {
 }
 
 export interface BaselineSuiteReport {
-  schemaVersion: 'lattice.baseline.suite-report.v1';
+  schemaVersion: 'proof-or-stop.baseline.suite-report.v1';
   suiteId: string;
   generatedAt: string;
   root: string;
@@ -546,8 +546,8 @@ function validateEvidenceIndexBinding(
     failures.push('evidence-index.json must contain a baseline evidence index object');
     return;
   }
-  if (value.schemaVersion !== 'lattice.baseline.evidence-index.v1') {
-    failures.push('evidence-index schemaVersion must be lattice.baseline.evidence-index.v1');
+  if (value.schemaVersion !== 'proof-or-stop.baseline.evidence-index.v1') {
+    failures.push('evidence-index schemaVersion must be proof-or-stop.baseline.evidence-index.v1');
   }
   if (value.baselineId !== run.baselineId) failures.push('evidence-index baselineId must match final-report baselineId');
   if (value.runId !== run.runId) failures.push('evidence-index runId must match final-report runId');
@@ -605,7 +605,7 @@ function checkScenarioEvidenceRecords(run: BaselineRunSummary): string[] {
     failures.push('scenario-evidence.json must contain an object');
     return failures;
   }
-  if (evidence.schemaVersion !== 'lattice.baseline.scenario-evidence.v1') failures.push('scenario evidence schemaVersion must be lattice.baseline.scenario-evidence.v1');
+  if (evidence.schemaVersion !== 'proof-or-stop.baseline.scenario-evidence.v1') failures.push('scenario evidence schemaVersion must be proof-or-stop.baseline.scenario-evidence.v1');
   if (evidence.baselineId !== run.baselineId) failures.push('scenario evidence baselineId must match final-report baselineId');
   if (evidence.runId !== run.runId) failures.push('scenario evidence runId must match final-report runId');
   if (evidence.scenarioProofValid !== true) failures.push('scenario evidence must report scenarioProofValid=true');
@@ -1075,7 +1075,7 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
   const markdownPath = join(outputDir, 'baseline-suite-report.md');
 
   return {
-    schemaVersion: 'lattice.baseline.suite-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.suite-report.v1',
     suiteId: options.suiteId ?? DEFAULT_SUITE_ID,
     generatedAt: options.generatedAt ?? new Date().toISOString(),
     root,

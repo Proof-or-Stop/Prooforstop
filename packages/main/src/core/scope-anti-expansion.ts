@@ -38,7 +38,13 @@ import type {
   ScopeFreezeTextSource,
 } from './types.js';
 
-export const SCOPE_ANTI_EXPANSION_SCHEMA_VERSION = 'lattice.scope_anti_expansion.v1';
+export const SCOPE_ANTI_EXPANSION_SCHEMA_VERSION = 'proof-or-stop.scope_anti_expansion.v1';
+export const SCOPE_BOUNDARY_SCHEMA_VERSION = 'proof-or-stop.scope_boundary.v1.1' as const;
+export const LEGACY_SCOPE_BOUNDARY_SCHEMA_VERSION = 'lattice.scope_boundary.v1' as const;
+export const EXECUTION_BOUNDARY_SCHEMA_VERSION = 'proof-or-stop.execution_boundary.v1.1' as const;
+export const LEGACY_EXECUTION_BOUNDARY_SCHEMA_VERSION = 'lattice.execution_boundary.v1' as const;
+export const SCOPE_FREEZE_CHECK_SCHEMA_VERSION = 'proof-or-stop.scope_freeze_check.v1.1' as const;
+export const LEGACY_SCOPE_FREEZE_CHECK_SCHEMA_VERSION = 'lattice.scope_freeze_check.v1' as const;
 export const SCOPE_BOUNDARY_FILE = 'scope-boundary.json';
 export const EXECUTION_BOUNDARY_FILE = 'execution-boundary.json';
 export const SCOPE_FREEZE_CHECK_FILE = 'scope-freeze-check.json';
@@ -263,15 +269,36 @@ function normalizeBoundaryPathArray(values: readonly string[] | null | undefined
 }
 
 export function normalizeScopeBoundary(boundary: ScopeBoundaryData): ScopeBoundaryData {
+  if (
+    boundary.schemaVersion !== SCOPE_BOUNDARY_SCHEMA_VERSION
+    && boundary.schemaVersion !== LEGACY_SCOPE_BOUNDARY_SCHEMA_VERSION
+  ) {
+    throw new Error(`unsupported scope-boundary schemaVersion: ${String(boundary.schemaVersion)}`);
+  }
+  if (!scopeBoundaryHashIsFresh(boundary)) {
+    throw new Error('scope-boundary hash is stale or tampered [scope_boundary_tampered]');
+  }
   const normalized: ScopeBoundaryData = {
     ...boundary,
     allowed: normalizeBoundaryArray(boundary.allowed),
     excluded: normalizeBoundaryArray(boundary.excluded),
   };
-  return { ...normalized, _hash: digestScopeBoundary(normalized) };
+  // This function consumes persisted evidence. Preserve the exact stored hash
+  // after validation; replacing it here would turn a schema-only edit into a
+  // newly signed artifact before the lifecycle gate can judge freshness.
+  return { ...normalized, _hash: boundary._hash };
 }
 
 export function normalizeExecutionBoundary(boundary: ExecutionBoundaryData): ExecutionBoundaryData {
+  if (
+    boundary.schemaVersion !== EXECUTION_BOUNDARY_SCHEMA_VERSION
+    && boundary.schemaVersion !== LEGACY_EXECUTION_BOUNDARY_SCHEMA_VERSION
+  ) {
+    throw new Error(`unsupported execution-boundary schemaVersion: ${String(boundary.schemaVersion)}`);
+  }
+  if (!executionBoundaryHashIsFresh(boundary)) {
+    throw new Error('execution-boundary hash is stale or tampered [execution_boundary_tampered]');
+  }
   const normalized: ExecutionBoundaryData = {
     ...boundary,
     allowedCommands: normalizeBoundaryArray(boundary.allowedCommands),
@@ -281,7 +308,9 @@ export function normalizeExecutionBoundary(boundary: ExecutionBoundaryData): Exe
     excludedTools: normalizeBoundaryArray(boundary.excludedTools),
     excludedPaths: normalizeBoundaryArray(boundary.excludedPaths),
   };
-  return { ...normalized, _hash: digestExecutionBoundary(normalized) };
+  // Persisted evidence is validated before normalization. Preserve its exact
+  // hash so a schema-only edit cannot be laundered into fresh gate evidence.
+  return { ...normalized, _hash: boundary._hash };
 }
 
 export function digestScopeBoundary(boundary: ScopeBoundaryData): string {
@@ -316,7 +345,7 @@ export function buildScopeBoundary(input: BuildScopeBoundaryInput): ScopeBoundar
     throw new Error('scopeBoundary.allowed must include at least one non-empty entry');
   }
   const boundary: ScopeBoundaryData = {
-    schemaVersion: 'lattice.scope_boundary.v1',
+    schemaVersion: SCOPE_BOUNDARY_SCHEMA_VERSION,
     storyId: input.storyId,
     mode: input.mode,
     allowed,
@@ -349,7 +378,7 @@ export function buildExecutionBoundary(input: BuildExecutionBoundaryInput): Exec
     throw new Error('executionBoundary must include at least one allowed or excluded command/tool/path entry');
   }
   const boundary: ExecutionBoundaryData = {
-    schemaVersion: 'lattice.execution_boundary.v1',
+    schemaVersion: EXECUTION_BOUNDARY_SCHEMA_VERSION,
     storyId: input.storyId,
     allowedCommands,
     allowedTools,
@@ -732,7 +761,7 @@ export function evaluateScopeFreeze(input: ScopeFreezeEvaluationInput): ScopeFre
   });
 
   const checkBase: ScopeFreezeCheckData = {
-    schemaVersion: 'lattice.scope_freeze_check.v1',
+    schemaVersion: SCOPE_FREEZE_CHECK_SCHEMA_VERSION,
     storyId: input.storyId,
     checkedAt: now,
     mode,
@@ -902,6 +931,13 @@ function makeAdapterId(prefix: string, storyId: string, seed: unknown): string {
 
 function normalizeScopeBoundaryArtifact(value: JsonObject | null): ScopeBoundaryData | null {
   if (!value) return null;
+  const schemaVersion = optionalStringField(value.schemaVersion);
+  if (
+    schemaVersion !== SCOPE_BOUNDARY_SCHEMA_VERSION
+    && schemaVersion !== LEGACY_SCOPE_BOUNDARY_SCHEMA_VERSION
+  ) {
+    throw new Error(`unsupported scope-boundary schemaVersion: ${schemaVersion ?? '<missing>'}`);
+  }
   const mode = scopeModeFrom(value.mode) ?? 'correctness_fix';
   const boundary = buildScopeBoundary({
     storyId: optionalStringField(value.storyId) ?? '',
@@ -914,13 +950,22 @@ function normalizeScopeBoundaryArtifact(value: JsonObject | null): ScopeBoundary
   });
   return {
     ...boundary,
+    schemaVersion,
     createdAt: optionalStringField(value.createdAt) ?? boundary.createdAt,
     updatedAt: optionalStringField(value.updatedAt) ?? boundary.updatedAt,
+    _hash: optionalStringField(value._hash) ?? boundary._hash,
   };
 }
 
 function normalizeExecutionBoundaryArtifact(value: JsonObject | null): ExecutionBoundaryData | null {
   if (!value) return null;
+  const schemaVersion = optionalStringField(value.schemaVersion);
+  if (
+    schemaVersion !== EXECUTION_BOUNDARY_SCHEMA_VERSION
+    && schemaVersion !== LEGACY_EXECUTION_BOUNDARY_SCHEMA_VERSION
+  ) {
+    throw new Error(`unsupported execution-boundary schemaVersion: ${schemaVersion ?? '<missing>'}`);
+  }
   const boundary = buildExecutionBoundary({
     storyId: optionalStringField(value.storyId) ?? '',
     allowedCommands: stringArrayField(value.allowedCommands),
@@ -939,11 +984,13 @@ function normalizeExecutionBoundaryArtifact(value: JsonObject | null): Execution
     confirmationNote: optionalStringField(value.confirmationNote) ?? optionalStringField(value.notes),
     now: optionalStringField(value.createdAt) ?? optionalStringField(value.updatedAt),
   });
-  return {
+  return normalizeExecutionBoundary({
     ...boundary,
+    schemaVersion,
     createdAt: optionalStringField(value.createdAt) ?? boundary.createdAt,
     updatedAt: optionalStringField(value.updatedAt) ?? boundary.updatedAt,
-  };
+    _hash: optionalStringField(value._hash) ?? boundary._hash,
+  });
 }
 
 export function buildScopeBoundaryArtifact(input: {
@@ -1062,7 +1109,7 @@ export function buildScopeFreezeCheckArtifact(input: {
   });
 
   const checkBase: ScopeFreezeCheckData = {
-    schemaVersion: 'lattice.scope_freeze_check.v1',
+    schemaVersion: SCOPE_FREEZE_CHECK_SCHEMA_VERSION,
     storyId: input.args.storyId,
     checkedAt: input.now,
     mode,

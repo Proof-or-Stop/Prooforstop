@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 
-export const DRAFT_CHECK_SALT = 'lattice-draft-check-integrity-v1';
+export const DRAFT_CHECK_SALT = 'proof-or-stop-draft-check-integrity-v1';
 
 export function computeDraftCheckHash(
   draftName: string,

@@ -61,7 +61,7 @@ const DEGRADATION_SEVERITIES: readonly DegradationSeverity[] = ['info', 'warn', 
 const list = buildCapabilityList();
 
 // Stable host profiles and category coverage.
-assert.equal(list.schemaVersion, 'lattice.capability_list.v1');
+assert.equal(list.schemaVersion, 'proof-or-stop.capability_list.v1');
 assert.deepEqual(list.hosts.map(h => h.id), [...EXPECTED_HOSTS]);
 assert.deepEqual(list.categories.map(c => c.id), [...CAPABILITY_CATEGORIES]);
 for (const host of list.hosts) {
@@ -144,7 +144,7 @@ assert.doesNotMatch(text, /fatal=/);
 
 // Productized single-host probe is a diagnostic projection of the same registry.
 const codexProbe = buildCapabilityProbe('codex');
-assert.equal(codexProbe.schemaVersion, 'lattice.capability_probe.v1');
+assert.equal(codexProbe.schemaVersion, 'proof-or-stop.capability_probe.v1');
 assert.equal(codexProbe.host, 'codex');
 assert.equal(codexProbe.diagnosticOnly, true);
 assert.equal(codexProbe.authorityRules.productionDoneRequiresReceipt, false);

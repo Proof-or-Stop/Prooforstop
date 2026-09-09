@@ -32,6 +32,7 @@ import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContrac
 import { ADAPTER_DIR_NAMES } from '../core/brand-paths.js';
 import {
   canonicalTopologyReceiptContext,
+  currentImplementationBusinessCommit,
   deriveImplementationProvenance,
   deriveRoleProvenance,
   independenceMatrix,
@@ -39,6 +40,7 @@ import {
   issueTopologyExclusionApproval,
   TOPOLOGY_CRITIC_ROLE,
   TOPOLOGY_EXCLUSION_APPROVER_ROLE,
+  topologyDispatchBusinessAuthor,
   verifyTopologyCriticReceipt,
   verifyTopologyExclusionApproval,
 } from '../core/topology-critic-receipt.js';
@@ -50,7 +52,7 @@ const proofOrStopBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 const smokeArgs = process.argv.slice(2);
-if (smokeArgs.length > 1 || (smokeArgs.length === 1 && smokeArgs[0] !== '--live-happy')) {
+if (smokeArgs.length > 1 || (smokeArgs.length === 1 && !['--live-happy', '--author-identity'].includes(smokeArgs[0]))) {
   throw new Error(`unsupported proofstory topology critic smoke arguments: ${smokeArgs.join(' ') || '<none>'}`);
 }
 
@@ -75,6 +77,36 @@ function write(root: string, rel: string, content: string): void {
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
+
+// Synthetic isolated repository: these author spellings are test inputs, not
+// the identity used for any product implementation commit in this worktree.
+function assertCanonicalBusinessAuthorIdentity(): void {
+  const authorRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-topology-author-'));
+  const retiredRole = ['lat', 'tice-implementer'].join('');
+  const retiredAuthor = `${retiredRole} <${retiredRole}@noreply.local>`;
+  const canonicalRole = 'proof-or-stop-implementer';
+  const canonicalAuthor = `${canonicalRole} <${canonicalRole}@noreply.local>`;
+  try {
+    git(authorRoot, ['init', '-b', 'main']);
+    git(authorRoot, ['config', 'user.name', retiredRole]);
+    git(authorRoot, ['config', 'user.email', `${retiredRole}@noreply.local`]);
+    git(authorRoot, ['commit', '--allow-empty', '-m', 'synthetic retired author fixture']);
+    assert.throws(() => currentImplementationBusinessCommit(authorRoot), /missing a business commit authored by proof-or-stop-implementer/,
+      'a retired author must never be promoted to canonical implementation provenance');
+    assert.equal(topologyDispatchBusinessAuthor(authorRoot), retiredAuthor,
+      'dispatch author evidence must preserve the real identity rather than remapping a retired spelling');
+    git(authorRoot, ['commit', '--allow-empty', `--author=${canonicalAuthor}`, '-m', 'synthetic canonical author fixture']);
+    const canonical = currentImplementationBusinessCommit(authorRoot);
+    assert.equal(canonical.businessCommitAuthor, canonicalAuthor);
+    assert.equal(canonical.businessCommit, git(authorRoot, ['rev-parse', 'HEAD']));
+    console.log('topology author identity: retired rejection, raw identity, canonical acceptance PASS');
+  } finally {
+    rmSync(authorRoot, { recursive: true, force: true });
+  }
+}
+
+assertCanonicalBusinessAuthorIdentity();
+if (smokeArgs[0] === '--author-identity') process.exit(0);
 
 /**
  * `sessionTask` is a task LABEL, not a session id. The signing guard in `deriveRoleProvenance`
@@ -257,7 +289,7 @@ smokeSuite: try {
   store.writeScopeContract(storyId, scopeContract());
   store.writeScopeCheck(storyId, scopeCheck(root));
   const reviewAt = '2026-07-22T00:00:01.000Z';
-  const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:lattice-review-integrity-v1`).digest('hex');
+  const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:proof-or-stop-review-integrity-v1`).digest('hex');
   store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
   git(root, ['config', 'user.name', 'Scope Reviewer']);
   git(root, ['config', 'user.email', 'scope@noreply.local']);

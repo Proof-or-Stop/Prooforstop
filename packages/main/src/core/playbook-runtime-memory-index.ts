@@ -36,7 +36,7 @@ import {
   type SignatureTagEntry,
 } from './learning-store.js';
 
-export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proofbound.runtime-memory-index.v3' as const;
+export const RUNTIME_MEMORY_INDEX_SCHEMA_VERSION = 'proof-or-stop.runtime-memory-index.v3' as const;
 const RUNTIME_MEMORY_INDEX_TOKEN_ID_CAP = 4096;
 const RUNTIME_MEMORY_INDEX_FUZZY_TOKEN_CAP = 4096;
 const RUNTIME_MEMORY_INDEX_SUBSTRING_FALLBACK_CAP = 512;

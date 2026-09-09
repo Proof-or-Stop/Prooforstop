@@ -4,7 +4,7 @@
  * Implements "Call and Attempt Correlation Semantics" from
  * docs/requirements/decisions/proof-or-stop-identity-cutover.md.
  *
- * Identity is minted LOCALLY by Proofbound BEFORE any provider dispatch. Crucially,
+ * Identity is minted LOCALLY by Proof-or-Stop BEFORE any provider dispatch. Crucially,
  * `ledgerCallId` and `attemptId` must NEVER be derived from
  * `provider.requestIdHash` — a preflight estimate or a blocked refusal has no
  * provider request yet, so a provider-derived id could not exist there. The

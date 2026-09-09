@@ -2,7 +2,7 @@
 
 Research boundary: `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`.
 
-M1 DONE here means the provider-free protocol freeze artifacts exist and are locally checkable. It does not authorize provider execution, Phase 1, Phase 2, outcome collection, or any Proofbound product gate change.
+M1 DONE here means the provider-free protocol freeze artifacts exist and are locally checkable. It does not authorize provider execution, Phase 1, Phase 2, outcome collection, or any Proof-or-Stop product gate change.
 
 | Milestone | Status | Checked artifact |
 |---|---|---|

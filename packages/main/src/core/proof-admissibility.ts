@@ -22,7 +22,6 @@ import {
 
 import {
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
   isDoneRequiredEvidenceVersionedSchema,
 } from './artifact-schema.js';
 
@@ -153,8 +152,8 @@ export const ADMISSIBILITY_REASON_CODES = [
 ] as const;
 export type AdmissibilityReasonCode = typeof ADMISSIBILITY_REASON_CODES[number];
 
-export const PROOF_ADMISSIBILITY_CONTRACT_VERSION = 'lattice.proof_admissibility.v1' as const;
-export const PROOF_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.proof_admissibility_verifier.v1' as const;
+export const PROOF_ADMISSIBILITY_CONTRACT_VERSION = 'proof-or-stop.proof_admissibility.v1' as const;
+export const PROOF_ADMISSIBILITY_VERIFIER_VERSION = 'proof-or-stop.proof_admissibility_verifier.v1' as const;
 
 export type AdmissibilityOverall = 'pass' | 'warn' | 'fail' | 'error';
 
@@ -244,7 +243,7 @@ const AUTHORITY_ADAPTER_REMEDIATION =
 
 const DONE_REQUIRED_EVIDENCE_SCHEMA_VERSIONS = [
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
 ] as const;
 
 export const PROOF_SURFACE_REGISTRY = [
@@ -293,7 +292,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'current-verification',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.delivery_check.v1'],
+    schemaVersions: ['proof-or-stop.delivery_check.v1'],
     strictShapeRequired: false,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -312,7 +311,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'planning-review',
     temporalRole: 'current-state',
     producerBoundary: 'trusted-reviewer-owned',
-    schemaVersions: ['lattice.review_run.v1'],
+    schemaVersions: ['proof-or-stop.review_run.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -331,7 +330,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.external_gate_decision.v1'],
+    schemaVersions: ['proof-or-stop.external_gate_decision.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -349,7 +348,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.external_receipt.v1'],
+    schemaVersions: ['proof-or-stop.external_receipt.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -368,7 +367,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'legacy-authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'legacy-authority-owned',
-    schemaVersions: ['lattice.legacy_authority_receipt_refs.v1'],
+    schemaVersions: ['proof-or-stop.legacy_authority_receipt_refs.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -399,7 +398,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'legacy-authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'legacy-authority-owned',
-    schemaVersions: ['lattice.legacy_authority_receipt.v1'],
+    schemaVersions: ['proof-or-stop.legacy_authority_receipt.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -417,7 +416,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'local-diagnostic',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.receipt_bundle.v1'],
+    schemaVersions: ['proof-or-stop.receipt_bundle.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -435,7 +434,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'planning-review',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.host_verdict.v1'],
+    schemaVersions: ['proof-or-stop.host_verdict.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -454,7 +453,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'handoff-context',
     temporalRole: 'not-applicable',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.handoff.v1'],
+    schemaVersions: ['proof-or-stop.handoff.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -473,7 +472,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'local-diagnostic',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.usage_ledger_authority_evidence.v1'],
+    schemaVersions: ['proof-or-stop.usage_ledger_authority_evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -491,7 +490,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'problem-observation',
     temporalRole: 'historical-baseline',
     producerBoundary: 'caller-writable',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -509,7 +508,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'repro-validity-review',
     temporalRole: 'historical-baseline',
     producerBoundary: 'trusted-reviewer-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -527,7 +526,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'problem-observation',
     temporalRole: 'historical-baseline',
     producerBoundary: 'caller-writable',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -545,7 +544,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'planning-review',
     temporalRole: 'historical-baseline',
     producerBoundary: 'trusted-reviewer-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -563,7 +562,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'red-green-relation',
     temporalRole: 'transition-relation',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -582,7 +581,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'red-green-relation',
     temporalRole: 'transition-relation',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -600,7 +599,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'regression-matrix-review',
     temporalRole: 'transition-relation',
     producerBoundary: 'trusted-reviewer-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -618,7 +617,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'planning-input',
     temporalRole: 'not-applicable',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.evidence.v1'],
+    schemaVersions: ['proof-or-stop.evidence.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,

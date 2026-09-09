@@ -42,7 +42,7 @@ import {
   type SignatureBase64,
 } from './authority-signing.js';
 
-export const RECEIPT_BUNDLE_SCHEMA_VERSION = 'lattice.receipt_bundle.v1' as const;
+export const RECEIPT_BUNDLE_SCHEMA_VERSION = 'proof-or-stop.receipt_bundle.v1' as const;
 
 /** The only assurance level a local-key/single-host bundle can ever carry. */
 export type ReceiptBundleAssurance = 'local-key-single-host';

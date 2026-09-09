@@ -461,7 +461,7 @@ export function assertQuorumRefuses(registry: ReturnType<typeof createMainRegist
 export function startRunAndPass(
   registry: ReturnType<typeof createMainRegistry>,
   lane: string,
-  mode: 'legacy-full-context' | 'full-envelope' = 'full-envelope',
+  mode: 'full-envelope' = 'full-envelope',
 ): void {
   const dispatch = registry.get('dispatch');
   const start = registry.get('review_run_start');
@@ -1247,7 +1247,7 @@ export const QUORUM_SMOKE_CASES = [
   }),
   defineQuorumSmokeCase({
     id: "qsm-014",
-    title: "mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission",
+    title: "explicit full-envelope reviewer evidence crosses collector, REVIEW gate, and quorum admission",
     domain: "integration",
     shard: "integration-a",
     capabilities: ["signature"],
@@ -1258,25 +1258,25 @@ export const QUORUM_SMOKE_CASES = [
       const configPath = join(fixture.root, 'proof-or-stop.config.json');
       const config = JSON.parse(readFileSync(configPath, 'utf8'));
       const modes = {
-        'proof-or-stop-review-concept': 'legacy-full-context',
+        'proof-or-stop-review-concept': 'full-envelope',
         'proof-or-stop-review-quality': 'full-envelope',
-        'proof-or-stop-review-test-coverage': 'legacy-full-context',
+        'proof-or-stop-review-test-coverage': 'full-envelope',
       } as const;
       config.promptEnvelope.roles = modes;
       write(fixture.root, 'proof-or-stop.config.json', `${JSON.stringify(config, null, 2)}\n`);
       git(fixture.root, ['add', 'proof-or-stop.config.json']);
-      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'select mixed reviewer rollout']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '--allow-empty', '-m', 'select explicit full reviewer rollout']);
       resetConfigCache();
 
       withSessionProvider('codex', () => {
         for (const lane of REVIEW_LANES) startRunAndPass(fixture.registry, lane, modes[lane]);
       });
       const evidence = collectReviewerEvidenceState(fixture.store, STORY_ID, fixture.root);
-      assert.equal(evidence.invalid.length, 0, `mixed collector invalid=${JSON.stringify(evidence.invalid)}`);
+      assert.equal(evidence.invalid.length, 0, `full-envelope collector invalid=${JSON.stringify(evidence.invalid)}`);
       assert.equal(evidence.valid.length, REVIEW_LANES.length);
       assert.equal(canPassReviewGuard({ storyId: STORY_ID, store: fixture.store, projectRoot: fixture.root }), true);
       const result: any = fixture.registry.get('quorum_submit')!(quorumArgs());
-      assert.equal(result.emittedCount, 6, 'mixed reviewer passes authorize the same 3x2 quorum batch');
+      assert.equal(result.emittedCount, 6, 'full-envelope reviewer passes authorize the same 3x2 quorum batch');
     });
   },
   }),
@@ -1779,7 +1779,7 @@ export const QUORUM_SMOKE_CASES = [
       note: 'quorum_submit smoke local voluntary quorum',
       format: 'json',
     });
-    assert.equal(result.schemaVersion, 'lattice.quorum_submit.v1');
+    assert.equal(result.schemaVersion, 'proof-or-stop.quorum_submit.v1');
     assert.equal(result.emittedCount, 6);
     assert.equal(result.verdictIds.length, 6);
     assert.deepEqual(result.runIds, [`${STORY_ID}-q-r1`, `${STORY_ID}-q-r2`, `${STORY_ID}-q-r3`]);
@@ -1844,9 +1844,9 @@ export const QUORUM_SMOKE_CASES = [
       issuedAt: '2026-06-22T10:10:00.000Z',
       headHash: git(root, ['rev-parse', 'HEAD']),
       materialHash,
-      authorityDone: false,
-      fullAuthorityDone: false,
-      productionDone: false,
+      authorityDone: false, // legacy compatibility assertion
+      fullAuthorityDone: false, // legacy compatibility assertion
+      productionDone: false, // legacy compatibility assertion
     });
     const status = registry.get('review_escalation_status');
     assert.ok(status, 'review_escalation_status handler is registered');
@@ -1913,7 +1913,7 @@ export const QUORUM_SMOKE_CASES = [
   }),
   defineQuorumSmokeCase({
     id: "qsm-026",
-    title: "never sets authorityDone, fullAuthorityDone, or productionDone",
+    title: "never sets authorityDone, fullAuthorityDone, or productionDone", // legacy compatibility assertion
     domain: "integration",
     shard: "integration-a",
     capabilities: [],
@@ -1922,16 +1922,16 @@ export const QUORUM_SMOKE_CASES = [
     prepare: prepareStandingQuorumContext,
     dispose: disposeFixtureContext,
     run: ({ context: { result, root } }: { context: QuorumSmokeLegacyFixtureContext }) => {
-    assert.equal(result.authorityDone, false);
-    assert.equal(result.fullAuthorityDone, false);
-    assert.equal(result.productionDone, false);
-    assert.equal(result.reviewEscalationStatus.authorityDone, false);
-    assert.equal(result.reviewEscalationStatus.fullAuthorityDone, false);
-    assert.equal(result.reviewEscalationStatus.productionDone, false);
+    assert.equal(result.authorityDone, false); // legacy compatibility assertion
+    assert.equal(result.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(result.productionDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.authorityDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.productionDone, false); // legacy compatibility assertion
     for (const runId of result.runIds) {
       const summary = summarizeVerdicts(root, 'local', STORY_ID, runId, 2);
-      assert.equal(summary.authorityDone, false);
-      assert.equal(summary.fullAuthorityDone, false);
+      assert.equal(summary.authorityDone, false); // legacy compatibility assertion
+      assert.equal(summary.fullAuthorityDone, false); // legacy compatibility assertion
       assert.equal(summary.multiHostVerified, false);
     }
   },
@@ -1985,7 +1985,9 @@ export const QUORUM_SMOKE_CASES = [
       fixture.registry.get('quorum_submit')!(quorumArgs());
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
       const beforeEvents = hostVerdictEventCount(fixture.store);
+      assert.equal(verdictFileCount(fixture.root), 6, 'the retry witness starts with a populated canonical verdict cache');
       rmSync(join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      assert.equal(verdictFileCount(fixture.root), 0, 'the retry witness actually deletes the canonical verdict cache');
       assert.throws(
         () => fixture.registry.get('quorum_submit')!(quorumArgs()),
         /quorum_submit refuses: verdicts already exist for runId/,
@@ -2075,9 +2077,9 @@ export const QUORUM_SMOKE_CASES = [
       assert.equal(summary.status, 'pass');
       assert.equal(summary.passingIndependentHosts, 2);
     }
-    assert.equal(customResult.authorityDone, false);
-    assert.equal(customResult.fullAuthorityDone, false);
-    assert.equal(customResult.productionDone, false);
+    assert.equal(customResult.authorityDone, false); // legacy compatibility assertion
+    assert.equal(customResult.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(customResult.productionDone, false); // legacy compatibility assertion
   },
   }),
   defineQuorumSmokeCase({

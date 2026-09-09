@@ -19,7 +19,7 @@ import type { Playbook, PlaybookLineage } from './experience-layer-types.js';
 // at a path that no longer holds it — the same defect class as managed-assets.json
 // and the gap-log paths.
 export const CAPABILITY_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
-export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
+export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proof-or-stop.product-capability-release.v1';
 
 export type CapabilityKind =
   | 'experiment-launch-control'
@@ -58,6 +58,8 @@ export interface ProductCapabilityReleaseRecord {
   artifactReleaseId?: string;
   /** Provenance; folded into capabilityDigest, so absence is safe. */
   artifactSetDigest?: string;
+  /** Marked records contain only capability material; unmarked canonical v1 is historical read-only data. */
+  changedPathsScope?: 'capability-material';
   changedPaths: string[];
   runtimeSemverChanged: boolean;
   activationBoundary: CapabilityActivationBoundary;
@@ -73,7 +75,7 @@ export interface CapabilityReleaseRecordOptions {
   capabilityId: string;
   capabilityName?: string;
   capabilityKind: CapabilityKind;
-  /** The FULL DONE-time changed-path list (persisted so backfill needs no git replay). */
+  /** FULL DONE-time classifier input; never persisted as the capability subset. */
   changedPaths: string[];
   /** Capability-declaring subset of changedPaths that defines the capability identity. */
   capabilityPaths: string[];
@@ -210,12 +212,19 @@ const CAPABILITY_KINDS = new Set<CapabilityKind>([
 ]);
 const CAPABILITY_ACTIVATION_BOUNDARIES = new Set<CapabilityActivationBoundary>(['non-runtime-capability', 'runtime-capability']);
 
-export function capabilityReleaseRecordValidationErrors(value: unknown): string[] {
+export function capabilityReleaseRecordValidationErrors(
+  value: unknown,
+  options: { requireCurrentWrite?: boolean } = {},
+): string[] {
   if (!isPlainRecord(value)) return ['record must be an object'];
   const errors: string[] = [];
   const requiredStrings = ['id', 'idempotencyKey', 'storyId', 'createdAt', 'mainCommit', 'capabilityId', 'capabilityVersion', 'capabilityDigest'] as const;
   for (const field of requiredStrings) if (!isNonEmptyString(value[field])) errors.push(`${field} must be a non-empty string`);
   if (value.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) errors.push(`schemaVersion must be ${CAPABILITY_RELEASE_SCHEMA_VERSION}`);
+  if ((options.requireCurrentWrite || value.changedPathsScope !== undefined)
+    && value.changedPathsScope !== 'capability-material') {
+    errors.push('changedPathsScope must be capability-material for current writes or marked records');
+  }
   if (isNonEmptyString(value.id) && !/^PCR-[a-f0-9]{24}$/u.test(value.id)) errors.push('id must be PCR-<24 lowercase hex>');
   if (isNonEmptyString(value.storyId) && !/^B-[A-Za-z0-9][A-Za-z0-9-]*$/u.test(value.storyId)) errors.push('storyId must be a B-* Story id');
   if (isNonEmptyString(value.createdAt) && Number.isNaN(Date.parse(value.createdAt))) errors.push('createdAt must be an ISO-compatible timestamp');
@@ -230,6 +239,19 @@ export function capabilityReleaseRecordValidationErrors(value: unknown): string[
     errors.push('changedPaths must be a non-empty array of non-empty strings');
   } else if (JSON.stringify(uniqueSortedCapabilityPaths(value.changedPaths as string[])) !== JSON.stringify(value.changedPaths)) {
     errors.push('changedPaths must be normalized, unique, and sorted');
+  }
+  if (value.changedPathsScope === 'capability-material'
+    && Array.isArray(value.changedPaths) && value.changedPaths.every(isNonEmptyString)) {
+    const paths = value.changedPaths as string[];
+    if (JSON.stringify(selectArtifactReleasePathsV1(paths)) !== JSON.stringify(paths)) {
+      errors.push('changedPaths must contain only the capability-material subset');
+    }
+    if (isNonEmptyString(value.capabilityId) && CAPABILITY_KINDS.has(value.capabilityKind as CapabilityKind)
+      && (value.artifactSetDigest === undefined || isNonEmptyString(value.artifactSetDigest))) {
+      const expectedDigest = computeCapabilityDigest(value.capabilityId, value.capabilityKind as CapabilityKind,
+        paths, value.artifactSetDigest as string | undefined);
+      if (value.capabilityDigest !== expectedDigest) errors.push('capabilityDigest does not match capability-material changedPaths/artifactSetDigest');
+    }
   }
   if (typeof value.runtimeSemverChanged !== 'boolean') errors.push('runtimeSemverChanged must be boolean');
   if (!CAPABILITY_ACTIVATION_BOUNDARIES.has(value.activationBoundary as CapabilityActivationBoundary)) errors.push('activationBoundary is invalid');
@@ -266,7 +288,11 @@ export function readCapabilityReleaseLedger(root: string): ProductCapabilityRele
         `capability release ledger parse failed at line ${index + 1}: ${e?.message ?? e}`,
       );
     }
-    if (parsed.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) continue;
+    if (parsed.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) {
+      throw new CapabilityReleaseLedgerError(
+        `capability release ledger line ${index + 1}: unsupported identity schema ${String(parsed.schemaVersion)}; expected ${CAPABILITY_RELEASE_SCHEMA_VERSION}`,
+      );
+    }
     const errors = capabilityReleaseRecordValidationErrors(parsed);
     if (errors.length > 0) throw new CapabilityReleaseLedgerError(`capability release ledger line ${index + 1}: ${errors.join('; ')}`);
     assertNonAuthoritative(parsed, index);
@@ -279,7 +305,10 @@ export function buildCapabilityReleaseRecord(opts: CapabilityReleaseRecordOption
   const capabilityId = opts.capabilityId.trim();
   if (!capabilityId) throw new Error('buildCapabilityReleaseRecord: capabilityId is required');
   const capabilityPaths = uniqueSortedCapabilityPaths(opts.capabilityPaths);
-  const changedPaths = uniqueSortedCapabilityPaths(opts.changedPaths);
+  const fullChangedPaths = new Set(uniqueSortedCapabilityPaths(opts.changedPaths));
+  if (capabilityPaths.some(path => !fullChangedPaths.has(path))) {
+    throw new CapabilityReleaseLedgerError('capabilityPaths must be a subset of the full DONE changedPaths input');
+  }
   const capabilityDigest = computeCapabilityDigest(
     capabilityId,
     opts.capabilityKind,
@@ -289,7 +318,7 @@ export function buildCapabilityReleaseRecord(opts: CapabilityReleaseRecordOption
   const capabilityVersion = capabilityVersionFromDigest(capabilityDigest);
   const idempotencyKey = `${opts.storyId}:${capabilityId}:${capabilityDigest}`;
   const id = `PCR-${sha256Hex(idempotencyKey).slice(0, 24)}`;
-  return {
+  const record: ProductCapabilityReleaseRecord = {
     schemaVersion: CAPABILITY_RELEASE_SCHEMA_VERSION,
     id,
     idempotencyKey,
@@ -303,7 +332,8 @@ export function buildCapabilityReleaseRecord(opts: CapabilityReleaseRecordOption
     capabilityDigest,
     ...(opts.artifactReleaseId ? { artifactReleaseId: opts.artifactReleaseId } : {}),
     ...(opts.artifactSetDigest ? { artifactSetDigest: opts.artifactSetDigest } : {}),
-    changedPaths,
+    changedPathsScope: 'capability-material',
+    changedPaths: capabilityPaths,
     runtimeSemverChanged: opts.runtimeSemverChanged,
     activationBoundary: opts.activationBoundary ?? 'non-runtime-capability',
     authority: 'non_authoritative',
@@ -313,13 +343,20 @@ export function buildCapabilityReleaseRecord(opts: CapabilityReleaseRecordOption
       'Non-authoritative and never gate evidence; distinct from package semver and from the artifact release ledger.',
     ],
   };
+  const errors = capabilityReleaseRecordValidationErrors(record, { requireCurrentWrite: true });
+  if (errors.length > 0) throw new CapabilityReleaseLedgerError(`capability release build: ${errors.join('; ')}`);
+  return record;
 }
 
 export function appendCapabilityReleaseRecord(
   root: string,
   record: ProductCapabilityReleaseRecord,
 ): RecordCapabilityReleaseResult {
-  const existing = readCapabilityReleaseLedger(root);
+  // Validate the new-write claim before idempotency: an existing row never
+  // authorizes an unmarked or tampered append input.
+  const errors = capabilityReleaseRecordValidationErrors(record, { requireCurrentWrite: true });
+  if (errors.length > 0) throw new CapabilityReleaseLedgerError(`capability release append: ${errors.join('; ')}`);
+  const existing = readCanonicalCapabilityReleaseRecordsForAppend(root);
   const previous = existing.find(row => row.idempotencyKey === record.idempotencyKey);
   if (previous) return { status: 'already_recorded', record: previous };
 
@@ -327,6 +364,37 @@ export function appendCapabilityReleaseRecord(
   mkdirSync(dirname(file), { recursive: true });
   appendFileSync(file, `${JSON.stringify(record)}\n`, 'utf-8');
   return { status: 'recorded', record };
+}
+
+/**
+ * Writer-only idempotency scan. Historical non-canonical rows remain opaque and
+ * are admitted only by DONE's frozen-provenance verifier. They are never exposed
+ * as active capability-release records.
+ */
+function readCanonicalCapabilityReleaseRecordsForAppend(root: string): ProductCapabilityReleaseRecord[] {
+  const file = capabilityReleaseLedgerPath(root);
+  if (!existsSync(file)) return [];
+  const records: ProductCapabilityReleaseRecord[] = [];
+  for (const [index, rawLine] of readFileSync(file, 'utf-8').split(/\r?\n/).entries()) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    let parsed: ProductCapabilityReleaseRecord;
+    try {
+      parsed = JSON.parse(line) as ProductCapabilityReleaseRecord;
+    } catch (e: any) {
+      throw new CapabilityReleaseLedgerError(
+        `capability release ledger parse failed at line ${index + 1}: ${e?.message ?? e}`,
+      );
+    }
+    if (parsed.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) continue;
+    const errors = capabilityReleaseRecordValidationErrors(parsed);
+    if (errors.length > 0) {
+      throw new CapabilityReleaseLedgerError(`capability release ledger line ${index + 1}: ${errors.join('; ')}`);
+    }
+    assertNonAuthoritative(parsed, index);
+    records.push(parsed);
+  }
+  return records;
 }
 
 /**
@@ -469,7 +537,7 @@ export function createCapabilityReleaseRecordForTest(
 // usage.surfacedCount, and NEVER appends a playbook-outcome.
 
 export const CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION =
-  'proofbound.capability-release-backfill.v1';
+  'proof-or-stop.capability-release-backfill.v1';
 
 export type CapabilityReleaseBackfillPlanKind = 'bind' | 'record-then-bind';
 

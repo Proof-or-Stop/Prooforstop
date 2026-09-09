@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import type { AdmissibilityReasonCode } from './proof-admissibility.js';
-import { PROOF_BINDING_SCHEMA, PROOF_BINDING_SCHEMA_LEGACY } from './artifact-schema.js';
+import { PROOF_BINDING_SCHEMA} from './artifact-schema.js';
 
 export const PROOF_BINDING_SCHEMA_VERSION = PROOF_BINDING_SCHEMA;
 
@@ -18,7 +18,7 @@ export interface ProofBindingDigestResult {
 
 const PROOF_BINDING_READ_SCHEMA_VERSIONS = [
   PROOF_BINDING_SCHEMA_VERSION,
-  PROOF_BINDING_SCHEMA_LEGACY,
+  PROOF_BINDING_SCHEMA,
 ] as const;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

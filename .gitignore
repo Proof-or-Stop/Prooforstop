@@ -76,6 +76,15 @@ Thumbs.db
 packages/koala-observer-cli/
 
 # proof-or-stop runtime artifacts (managed)
+.lattice/runtime/host-runs/
+.lattice/learning/runtime-memory-pack-cache/
+.lattice/runtime/framework-audit/state.json
+.lattice/learning/finding-signals.json
+.lattice/learning/playbook-promotion-health.jsonl
+.lattice/learning/playbooks.json
+.lattice/learning/signature-registry.json
+/lattice.config.json
+/.remember-scratch-readmanifest.json
 **/owner-lease.json
 **/breaker-state.json
 **/takeover-count.json

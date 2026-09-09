@@ -158,7 +158,7 @@ function statusProjection(storyId: string, records: ReviewLoopRecord[], loopId?:
   const activeLoopIds = new Set(listActiveLoops(records));
   const latest = loopId ? deriveLatestLoopRecord(records, loopId) ?? null : null;
   return {
-    schemaVersion: 'lattice.review_loop_status.v1',
+    schemaVersion: 'proof-or-stop.review_loop_status.v1',
     storyId,
     loopId: loopId ?? null,
     active: loopId ? activeLoopIds.has(loopId) : activeLoopIds.size > 0,
@@ -227,7 +227,7 @@ export function createReviewLoopHandlers(ctx: HandlerContext): Record<string, (.
         throw new Error(`review loop already exists: ${loopId}`);
       }
       const record: ReviewLoopStart = {
-        schemaVersion: 'lattice.review_loop_start.v1',
+        schemaVersion: 'proof-or-stop.review_loop_start.v1',
         event: 'start',
         loopId,
         storyId: args.storyId,
@@ -248,7 +248,7 @@ export function createReviewLoopHandlers(ctx: HandlerContext): Record<string, (.
       const records = readRecords(ctx.store, args.storyId);
       assertLoopOpen(args.loopId, records);
       const record: ReviewLoopIteration = {
-        schemaVersion: 'lattice.review_loop_iteration.v1',
+        schemaVersion: 'proof-or-stop.review_loop_iteration.v1',
         event: 'iteration',
         loopId: args.loopId,
         storyId: args.storyId,
@@ -308,7 +308,7 @@ export function createReviewLoopHandlers(ctx: HandlerContext): Record<string, (.
       );
       if (closeError) throw new Error(`review_loop_close invalid: ${closeError}`);
       const record: ReviewLoopClose = {
-        schemaVersion: 'lattice.review_loop_close.v1',
+        schemaVersion: 'proof-or-stop.review_loop_close.v1',
         event: 'close',
         loopId: args.loopId,
         storyId: args.storyId,

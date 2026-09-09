@@ -92,7 +92,7 @@ function runPilot(args, envExtra = {}) {
 /** Minimal valid frozen-protocol config for the selfcheck corpus. */
 function protocolConfig(experimentId, memorySnapshotHash) {
   return {
-    schemaVersion: 'proofbound.experience-ablation-protocol.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-protocol.v1',
     experimentId,
     taskClasses: { inStore: ['false-done'], heldOut: [], clean: ['clean'] },
     perPopulation: {

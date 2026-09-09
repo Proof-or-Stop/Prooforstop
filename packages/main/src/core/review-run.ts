@@ -19,6 +19,7 @@ import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution
 import {
   buildCurrentScopeContext,
   compareScopeBinding,
+  verifyReviewScopeBinding,
   type CurrentScopeContext,
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
@@ -34,6 +35,7 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
 import {
+  CURRENT_PROMPT_IDENTITIES,
   domainSeparatedDigest,
   reviewerDispatchBindingDigest,
   reviewerDispatchPromptDigest,
@@ -54,7 +56,7 @@ import {
 import { reviewIncrementalContext } from './review-incremental-context.js';
 import { assertReviewInventoryCutoff, currentOpenReviewInventory, inventoryPurposeMatchesEpoch } from './review-inventory-epoch.js';
 
-export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
+export const REVIEW_RUN_SALT = 'proof-or-stop-review-run-integrity-v1';
 
 type ReviewLaneForEntry<Entry> = Entry extends {
   readonly allowedPhases: infer Phases extends readonly string[];
@@ -63,7 +65,7 @@ type ReviewLaneForEntry<Entry> = Entry extends {
   ? 'REVIEW' extends Phases[number] ? Lane : never
   : never;
 
-/** Includes the retired historical lane at the type boundary; runtime eligibility still rejects it. */
+/** Canonical lane identities; persisted retired strings remain untrusted input. */
 export type ReviewRunLane =
   | ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>
   | 'proof-or-stop-review-story-init'
@@ -75,20 +77,7 @@ export type ReviewRunLane =
   | 'proof-or-stop-review-behavior'
   | 'proof-or-stop-review-docs'
   | 'proof-or-stop-review-delivery'
-  | 'proof-or-stop-review-channel'
-  // Historical lane spellings remain valid input types for persisted evidence
-  // and migration tests; resolveReviewRunLane canonicalizes them before use.
-  | 'lattice-review-story-init'
-  | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery';
+  | 'proof-or-stop-review-channel';
 
 /** Stable registry-order projection; the dispatch registry is the sole lane authority. */
 export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
@@ -230,10 +219,8 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
 // binding) only when its agent resolves to a proof-or-stop-review-* lane.
-// Historical lattice-review-* values are explicit legacy compatibility input
-// and are canonicalized before this check. lattice-implementer is a
-// historical/legacy compatibility alias; the canonical implementer is
-// proof-or-stop-implementer. main / main-agent / other non-reviewer actors
+// Retired role identities are rejected by the registry. The canonical
+// proof-or-stop-implementer, main / main-agent / other non-reviewer actors
 // create findings during DEV or for meta-process
 // notes and must NOT be treated as reviewer evidence by the REVIEW→TEST gate.
 // Mirrors the predicate used at finding_add time (handlers/finding.ts) and
@@ -291,8 +278,8 @@ export function resolveReviewPromptHash(prompt?: string, promptHash?: string): s
   return computed;
 }
 
-export const REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION = 'lattice.review_run_workspace_binding.v1';
-export const REVIEW_RUN_WORKSPACE_BINDING_SALT = 'lattice-review-run-workspace-binding-v1';
+export const REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION = 'proof-or-stop.review_run_workspace_binding.v1';
+export const REVIEW_RUN_WORKSPACE_BINDING_SALT = 'proof-or-stop-review-run-workspace-binding-v1';
 
 export interface ReviewRunWorkspaceBindingInput {
   metadataRoot: string;
@@ -590,7 +577,30 @@ export function ensureCurrentReviewRound(
   return story;
 }
 
-export function verifyReviewRun(run: ReviewRun): boolean {
+function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
+  const hasOnlyKeys = (value: object, allowed: readonly string[]): boolean => {
+    const allow = new Set(allowed);
+    return Object.keys(value).every((key) => allow.has(key));
+  };
+  if (!hasOnlyKeys(run, [
+    'reviewRunId', 'storyId', 'agent', 'lane', 'reviewRound', 'startedAt',
+    'headHash', 'materialHash', 'storyFilesHash', 'promptHash', 'envelopeId',
+    'assembledPrompt', 'reviewerEscalationReason', 'scopeBinding',
+    'workspaceBinding', 'reviewPurpose', 'inventoryBinding', '_hash',
+  ])) return false;
+  if (run.scopeBinding && (
+    !hasOnlyKeys(run.scopeBinding, [
+      'scopeContractHash', 'compositeScopeDigest', 'diffPackHash',
+      'reviewedChangedFiles', 'reviewedIntentRefs', 'reviewedHunkDigests',
+      'bindingHash',
+    ])
+    || !verifyReviewScopeBinding(run.scopeBinding)
+  )) return false;
+  if (run.workspaceBinding && !hasOnlyKeys(run.workspaceBinding, [
+    'schemaVersion', 'metadataRoot', 'invocationCwd', 'repoRoot',
+    'signedWorkspaceRoot', 'workspaceMode', 'headHash', 'materialHash',
+    'storyFilesHash', 'bindingHash',
+  ])) return false;
   if (run.reviewPurpose !== undefined && run.reviewPurpose !== 'topology' && run.reviewPurpose !== 'inventory-completeness') return false;
   if ((run.reviewPurpose === 'inventory-completeness') !== (run.inventoryBinding !== undefined)) return false;
   if (run.reviewPurpose !== undefined && canonicalAgentRoleId(run.lane) !== 'proof-or-stop-review-topology-critic') return false;
@@ -629,6 +639,30 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     );
 }
 
+function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun): boolean {
+  if (!run.assembledPrompt || !run.envelopeId) return false;
+  const versions = [...run.assembledPrompt.matchAll(/"schemaVersion":"([^"]+)"/g)].map(match => match[1]);
+  const allowedValues = new Set<string>([
+    CURRENT_PROMPT_IDENTITIES.roleContract,
+    CURRENT_PROMPT_IDENTITIES.fullTaskContext,
+    CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis,
+    CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment,
+  ]);
+  const contextVersion = versions.includes(CURRENT_PROMPT_IDENTITIES.fullTaskContext)
+    || versions.includes(CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis);
+  return versions.includes(CURRENT_PROMPT_IDENTITIES.roleContract)
+    && contextVersion
+    && versions.includes(CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment)
+    && versions.every(value => allowedValues.has(value));
+}
+
+/** Current consumer: full-envelope ReviewRuns must carry only current prompt identities. */
+export function verifyReviewRun(run: ReviewRun): boolean {
+  if (!isReviewerAgent(run.agent) || run.agent !== run.lane) return false;
+  if (!verifyReviewRunSignatureIntegrity(run)) return false;
+  return reviewRunPromptUsesCurrentIdentityFamily(run);
+}
+
 export interface VerifiedReviewerDispatchBinding {
   dispatchPrompt: string;
   dispatchPromptDigest: string;
@@ -643,7 +677,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   lane: string;
   reviewRound: string;
   projectRoot: string;
-  rolloutMode?: 'legacy-full-context' | 'full-envelope';
+  rolloutMode?: 'full-envelope';
   reviewPurpose?: ReviewRun['reviewPurpose'];
   inventoryBinding?: ReviewInventoryPurposeBinding;
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
@@ -713,68 +747,14 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   };
 }
 
-function verifyLegacyReviewRunPromptBinding(
-  store: StoryStore,
-  run: ReviewRun,
-): { ok: boolean; reason?: string } {
-  const metadataRoot = run.workspaceBinding?.metadataRoot
-    || run.workspaceBinding?.signedWorkspaceRoot
-    || process.cwd();
-  const legacyConfig = {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [run.lane]: 'legacy-full-context' },
-  };
-  const modularConfig = {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [run.lane]: 'full-envelope' },
-  };
-  try {
-    const contract = promptRoleContract(run.lane);
-    const legacyBody = resolvePromptRoleBody(run.lane, legacyConfig);
-    const modularBody = resolvePromptRoleBody(run.lane, modularConfig);
-    if (run.promptHash !== hashReviewPrompt(legacyBody.body)) {
-      return { ok: false, reason: 'legacy ReviewRun promptHash does not match the frozen legacy role body' };
-    }
-    if (contract.renderDigest !== domainSeparatedDigest('role-contract.render.v1', modularBody.body)) {
-      return { ok: false, reason: 'legacy ReviewRun Role Contract render binding is stale or inconsistent' };
-    }
-    // Both supported host transforms must remain deterministic for the exact
-    // frozen body. Legacy rollback is package-resolved, not a claim that the
-    // physically modular full asset contains legacy bytes.
-    reviewerHostRenderIdentity(metadataRoot, run.lane, 'claude', 'legacy-full-context');
-    reviewerHostRenderIdentity(metadataRoot, run.lane, 'codex', 'legacy-full-context');
-
-    const dispatch = verifyCurrentReviewerDispatchBinding({
-      store,
-      storyId: run.storyId,
-      lane: run.lane,
-      reviewRound: run.reviewRound,
-      projectRoot: metadataRoot,
-      rolloutMode: 'legacy-full-context',
-      reviewPurpose: run.reviewPurpose,
-      inventoryBinding: run.inventoryBinding,
-    });
-    // Pre-B-235e legacy runs did not persist dispatch bindings. Preserve only
-    // that bounded history/binding-race case; once a binding exists, every
-    // body/host/round digest is mandatory and drift is rejected.
-    if (!dispatch.ok && (run.reviewPurpose === 'inventory-completeness' || !dispatch.reason.startsWith('no trusted story-review dispatch binding'))) {
-      return dispatch;
-    }
-    return { ok: true };
-  } catch (error) {
-    return {
-      ok: false,
-      reason: `legacy ReviewRun canonical binding cannot be reconstructed: ${error instanceof Error ? error.message : String(error)}`,
-    };
-  }
-}
-
 export function verifyReviewRunPromptEnvelope(
   store: StoryStore,
   run: ReviewRun,
   promptEnvelopes?: readonly PromptEnvelope[],
 ): { ok: boolean; reason?: string } {
-  if (!run.envelopeId) return verifyLegacyReviewRunPromptBinding(store, run);
+  if (!run.envelopeId) {
+    return { ok: false, reason: 'ReviewRun without a current Prompt Envelope identity is unsupported' };
+  }
   const envelopes = promptEnvelopes ?? store.readPromptEnvelopes(run.storyId).envelopes;
   const matching = envelopes.filter(
     envelope => envelope.envelopeId === run.envelopeId,
@@ -1663,10 +1643,8 @@ export function collectReviewerEvidenceState(
   const passes = store.readReviewPasses(storyId).passes || [];
 
   // Only true reviewer lanes (proof-or-stop-review-*) require reviewRunId
-  // binding. Historical lattice-review-* values are legacy compatibility input
-  // and are canonicalized before this check. main / main-agent /
-  // lattice-implementer is a historical/legacy compatibility alias; the
-  // canonical implementer is proof-or-stop-implementer. Other non-reviewer
+  // binding. Retired role identities are rejected by the registry.
+  // main / main-agent / proof-or-stop-implementer and other non-reviewer
   // actors create findings during DEV
   // or capture meta-process notes that must not be treated as reviewer evidence
   // by the REVIEW→TEST gate.

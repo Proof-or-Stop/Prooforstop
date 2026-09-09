@@ -59,7 +59,7 @@ function initRoot(phase = 'INIT') {
   return { root, store };
 }
 
-// F-081: live roster output identifies the canonical role and its readable alias.
+// F-081: live roster output identifies only canonical roles.
 const reviewers = reviewerList.computeActiveReviewers(
   { riskSignals: [{ category: 'gate' }] },
   { items: [] },
@@ -67,12 +67,12 @@ const reviewers = reviewerList.computeActiveReviewers(
   ['docs/README.md'],
 );
 const reviewerText = reviewerList.renderActiveReviewersText(reviewers);
-assert.match(reviewerText, /proof-or-stop-review-quality \(legacy alias: lattice-review-quality\)/);
-assert.match(reviewerText, /proof-or-stop-review-test-coverage \(legacy alias: lattice-review-test-coverage\)/);
-assert.match(reviewerText, /proof-or-stop-review-behavior \(legacy alias: lattice-review-behavior\); riskSignal: gate/);
+assert.match(reviewerText, /proof-or-stop-review-quality/);
+assert.match(reviewerText, /proof-or-stop-review-test-coverage/);
+assert.match(reviewerText, /proof-or-stop-review-behavior; riskSignal: gate/);
 assert.equal(reviewers.find((reviewer) => reviewer.name === 'quality')?.lane, 'proof-or-stop-review-quality');
 
-// F-082: CLI schema accepts canonical lanes and still reads the legacy spelling.
+// F-082: CLI schema accepts canonical lanes and rejects retired spellings.
 const reviewRunTool = MAIN_TOOLS.find((tool) => tool.name === 'review_run_start');
 assert.ok(reviewRunTool, 'review_run_start is present in the command catalog');
 for (const lane of [
@@ -80,13 +80,14 @@ for (const lane of [
   'proof-or-stop-review-delivery',
   'proof-or-stop-review-concept',
   'proof-or-stop-review-test-coverage',
-  'lattice-review-quality',
 ]) {
   assert.equal(reviewRunTool.schema.lane.safeParse(lane).success, true, `${lane} is accepted by --lane schema`);
 }
 assert.equal(reviewRunTool.schema.lane.safeParse('proof-or-stop-review-unknown').success, false);
 assert.equal(resolveReviewRunLane(undefined, 'proof-or-stop-review-quality'), 'proof-or-stop-review-quality');
-assert.equal(resolveReviewRunLane(undefined, 'lattice-review-quality'), 'proof-or-stop-review-quality');
+assert.throws(() => resolveReviewRunLane(undefined, 'lattice-review-quality'), /not in the supported REVIEW reviewer lane list/);
+assert.equal(reviewRunTool.schema.lane.safeParse('lattice-review-quality').success, false);
+assert.doesNotMatch(reviewerText, /lattice-review-/);
 
 // F-083: canonical INIT reviewer identity receives the same mutation refusal as its alias.
 const { root: guardRoot, store: guardStore } = initRoot();
@@ -142,13 +143,13 @@ try {
   rmSync(doneRoot, { recursive: true, force: true });
 }
 
-// F-085: canonical and legacy callers produce the same normalized budget observation.
-assert.equal(identity.canonicalAgentRoleId('lattice-implementer'), 'proof-or-stop-implementer');
+// F-085: budget admission requires a canonical role.
+assert.equal(identity.canonicalAgentRoleId('lattice-implementer'), 'lattice-implementer');
 assert.equal(budget.isBudgetedComplexRole('proof-or-stop-implementer'), true);
-assert.equal(budget.isBudgetedComplexRole('lattice-implementer'), true);
-assert.deepEqual(
-  budget.observeComplexRolePromptBudget({ roleId: 'lattice-review-delivery', contextMode: 'full', bytes: 100, estimatedTokens: 25 }),
-  budget.observeComplexRolePromptBudget({ roleId: 'proof-or-stop-review-delivery', contextMode: 'full', bytes: 100, estimatedTokens: 25 }),
+assert.equal(budget.isBudgetedComplexRole('lattice-implementer'), false);
+assert.equal(
+  budget.observeComplexRolePromptBudget({ roleId: 'proof-or-stop-review-delivery', contextMode: 'full', bytes: 100, estimatedTokens: 25 }).roleId,
+  'proof-or-stop-review-delivery',
 );
 
 console.log('F-081..F-085 canonical role boundary tests passed');

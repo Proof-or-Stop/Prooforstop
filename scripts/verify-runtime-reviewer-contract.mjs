@@ -258,7 +258,7 @@ try {
 
   const blockerCount = 0;
   const issueCount = 0;
-  const reviewSalt = 'lattice-review-integrity-v1';
+  const reviewSalt = 'proof-or-stop-review-integrity-v1';
   const hashInput = `${storyId}:${reviewTimestamp}:${issueCount}:${blockerCount}:${reviewSalt}`;
   writeJson(join(storyDir, 'review.json'), {
     reviews: [

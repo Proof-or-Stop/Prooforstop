@@ -23,6 +23,8 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { verifyReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
@@ -73,18 +75,17 @@ const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
 const activeScenarioKinds = new Map<string, ScenarioCaseKind>();
+const isolatedFixtureRoots = new Set<string>();
 
 function resolveActiveStoryId(
   argumentStoryId: string | undefined,
-  env: Partial<Pick<NodeJS.ProcessEnv, 'PROOF_OR_STOP_ACTIVE_STORY_ID' | 'LATTICE_ACTIVE_STORY_ID'>>,
+  env: Readonly<NodeJS.ProcessEnv>,
 ): string | undefined {
-  // `live_smoke_transcript` supplies the canonical environment name. Keep the
-  // deprecated spelling as a last-resort compatibility input for older direct
-  // runners, but never let it override either an explicit argument or the
-  // current canonical handoff.
+  // `live_smoke_transcript` supplies the canonical environment name. Only the
+  // explicit argument or that canonical handoff may select the active Story;
+  // deprecated environment state is never an active compatibility fallback.
   return argumentStoryId
-    || env.PROOF_OR_STOP_ACTIVE_STORY_ID
-    || env.LATTICE_ACTIVE_STORY_ID;
+    || env.PROOF_OR_STOP_ACTIVE_STORY_ID;
 }
 
 const activeScenarioStoryId = scenarioMode ? resolveActiveStoryId(activeStoryArgId, process.env) : undefined;
@@ -94,14 +95,14 @@ if (!liveProofMode && !scenarioMode) {
     'nested proof scenarios consume the canonical live_smoke_transcript Story handoff');
   assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: 'B-canonical', LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-canonical',
     'the canonical Story handoff takes precedence over deprecated compatibility state');
-  assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: undefined, LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-legacy',
-    'older direct scenario runners retain their deprecated environment fallback');
+  assert.equal(resolveActiveStoryId(undefined, { PROOF_OR_STOP_ACTIVE_STORY_ID: undefined, LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), undefined,
+    'deprecated environment state alone cannot select an active Story');
   assert.equal(resolveActiveStoryId('B-argument', { PROOF_OR_STOP_ACTIVE_STORY_ID: 'B-canonical', LATTICE_ACTIVE_STORY_ID: 'B-legacy' }), 'B-argument',
     'an explicit Story argument remains authoritative');
 }
 
-function codexAdapterDir(root: string): '.proof-or-stop-codex' | '.lattice-codex' {
-  return existsSync(join(root, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+function codexAdapterDir(_root: string): '.proof-or-stop-codex' {
+  return '.proof-or-stop-codex';
 }
 
 type JsonObject = Record<string, unknown>;
@@ -522,13 +523,13 @@ function adaptCanonicalScenarioRecordsToActiveTopology(
 }
 
 function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohortInputV1 {
-  const frozenPath = cohortArgPath || process.env.LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE;
+  const frozenPath = cohortArgPath || process.env.PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE;
   const persistedReport = !frozenPath && activeScenarioStoryId
     ? new StoryStore(repositoryRoot).readAcceptanceRolloutReport(activeScenarioStoryId)
     : null;
   if (!frozenPath && !persistedReport) {
     throw new Error(
-      '--proof-scenarios requires --cohort=<path>, LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE, or a persisted verifier-owned acceptance rollout report; ' +
+      '--proof-scenarios requires --cohort=<path>, PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE, or a persisted verifier-owned acceptance rollout report; ' +
       'scenario execution refuses to spawn the expensive registered cohort runner',
     );
   }
@@ -599,7 +600,7 @@ function git(root: string, args: string[]): string {
  */
 function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'proof-or-stop-implementer', sessionTask = 'sess-pre-review-smoke'): string {
   try {
-    return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
+    const output = execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
         ...process.env,
@@ -613,10 +614,19 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
+    return output;
   } catch (error) {
     if (!allowFail) throw error;
     const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string };
     return `${failure.stdout ?? ''}\n${failure.stderr ?? ''}`;
+  } finally {
+    assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
+    const storyDir = new StoryStore(root).storyDirPath(storyId);
+    const lease = readOwnerLease(storyDir);
+    if (lease?.sessionId === adapterSessionId(root, sessionTask, agent)) {
+      assert.equal(releaseOwnerLease(storyDir), true, 'completed matching fixture owner releases its lease');
+      assert.equal(readOwnerLease(storyDir), null);
+    }
   }
 }
 
@@ -977,7 +987,84 @@ assert.notEqual(
   'CHK-006 and CHK-007 must remain distinct verifier-owned canonical cases',
 );
 
+function assertTopologyCriticPhaseContract(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proofstory-critic-phase-'));
+  isolatedFixtureRoots.add(root);
+  const originalCwd = process.cwd();
+  const critic = 'proof-or-stop-review-topology-critic';
+  const task = 'critic-phase-contract';
+  try {
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives' }));
+    write(root, '.gitignore', '.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.proof-or-stop/activity.jsonl\n');
+    write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
+    write(root, 'packages/main/src/consumer.ts', consumerControlSource);
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.name', 'Harmonynet']);
+    git(root, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
+    git(root, ['add', '.']); git(root, ['commit', '-m', 'seed isolated critic phase contract']);
+    git(root, ['switch', '-c', `story/${storyId}`]);
+    // Explicit, clone-reachable historical prerequisite for the existing author policy.
+    // Preserve this real object; never manufacture a new implementer-author commit.
+    const historicalImplementation = 'b1a0bee88c2a57e33d3835600db53bb9297f04c1';
+    git(repositoryRoot, ['merge-base', '--is-ancestor', historicalImplementation, 'HEAD']);
+    assert.equal(git(repositoryRoot, ['show', '-s', '--format=%an <%ae>', historicalImplementation]),
+      'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>');
+    git(root, ['fetch', '--no-tags', '--depth=1', repositoryRoot, historicalImplementation]);
+    git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historicalImplementation, '-m', 'retain unchanged historical provenance prerequisite']);
+    process.chdir(root); resetConfigCache();
+    const store = new StoryStore(root);
+    const story = { storyId, name: storyId, title: 'Critic phase contract', description: 'Canonical critic dispatch phase contract', type: 'feature', priority: 'high', phase: 'DEV', createdAt: baseAt, startedAt: baseAt, endedAt: null, events: [], worktree: { path: root, branch: `story/${storyId}`, createdAt: baseAt } } as StoryInfo;
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist());
+    store.writeProofStoryContract(storyId, contract());
+    store.writeScopeContract(storyId, scopeContract());
+    store.writeScopeCheck(storyId, scopeCheck(root));
+    git(root, ['add', '.']); git(root, ['commit', '-m', 'record isolated critic fixture']);
+    const dev = JSON.parse(cli(root, 'dispatch', { storyId, agentType: critic }, false, critic, task));
+    assert.doesNotMatch(dev.prompt, /proof-or-stop review_run_start/, 'DEV has no instruction to start a REVIEW run');
+    const devEvent = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch').at(-1)!;
+    assert.equal(devEvent.agentType, critic);
+    assert.ok(devEvent.promptEnvelopeId, 'DEV retains canonical envelope provenance');
+    assert.equal(devEvent.reviewRound, undefined);
+    assert.equal(devEvent.dispatchBindingDigest, undefined, 'DEV has no REVIEW-only binding');
+    assert.equal(store.readStory(storyId).currentReviewRound, undefined, 'dispatch never invents a round');
+
+    store.writeStory(storyId, { ...story, phase: 'REVIEW' });
+    const eventsBefore = JSON.stringify(store.readProcessEvents(storyId));
+    const envelopesBefore = JSON.stringify(store.readPromptEnvelopes(storyId));
+    assert.throws(() => cli(root, 'dispatch', { storyId, agentType: critic }, false, critic, task), /review dispatch requires currentReviewRound/);
+    assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsBefore, 'missing-round refusal emits no dispatch event');
+    assert.equal(JSON.stringify(store.readPromptEnvelopes(storyId)), envelopesBefore, 'missing-round refusal persists no envelope');
+
+    const round = '2026-09-05T00:00:00.000Z';
+    store.writeStory(storyId, { ...story, phase: 'REVIEW', currentReviewRound: round });
+    const review = JSON.parse(cli(root, 'dispatch', { storyId, agentType: critic }, false, critic, task));
+    assert.match(review.prompt, /proof-or-stop review_run_start/, 'REVIEW retains its reviewer run instruction');
+    const reviewEvent = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch').at(-1)!;
+    assert.equal(reviewEvent.reviewRound, round);
+    assert.ok(reviewEvent.dispatchBindingDigest, 'REVIEW retains trusted dispatch binding');
+    const started = cli(root, 'review_run_start', { storyId, agent: critic }, false, critic, task);
+    const runId = started.match(/Review run (\S+) started/)?.[1];
+    assert.ok(runId, started);
+    const run = store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === runId)!;
+    assert.ok(run, 'production reviewer run was persisted');
+    assert.equal(run.reviewRound, round);
+    assert.equal(verifyReviewRun(run), true, 'REVIEW run retains its valid production signature');
+    assert.equal(verifyReviewRunPromptEnvelope(store, run).ok, true, 'signed REVIEW run binds the canonical envelope');
+    console.log('ProofStory topology critic phase contract: PASS');
+  } finally {
+    process.chdir(originalCwd); resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+if (process.argv.includes('--topology-critic-phase-contract-only')) {
+  assertTopologyCriticPhaseContract();
+  process.exit(0);
+}
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
+isolatedFixtureRoots.add(root);
 const originalCwd = process.cwd();
 try {
   smoke: {
@@ -1191,7 +1278,7 @@ try {
       'proof-or-stop-review-docs',
     ];
     for (const lane of reviewLanes) {
-      cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
+      cli(root, 'dispatch', { storyId, agentType: lane });
       const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, `sess-${storyId}-${lane}-review`);
       const reviewRunId = run.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId, `cohort review run missing for ${lane}: ${run}`);
@@ -1427,12 +1514,15 @@ try {
   if (!scenarioMode) {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
-    cli(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+    const criticPrompt = cli(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
+    assert.doesNotMatch(criticPrompt, /proof-or-stop review_run_start/, 'DEV topology critic is receipt authority, not REVIEW lane evidence');
     const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, 'proof-or-stop-review-topology-critic')).at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
     assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
     assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
+    assert.equal(criticDispatch.reviewRound, undefined, 'DEV topology critic dispatch must not fabricate a REVIEW round');
+    assert.equal(criticDispatch.dispatchBindingDigest, undefined, 'DEV topology critic dispatch must not masquerade as signed REVIEW lane evidence');
     const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic'));
     assert.equal(critic.verification.ok, true);
     const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
@@ -1551,12 +1641,12 @@ try {
     assert.equal(globalLabPassed, true, `global lab entrypoint migration check did not pass: ${globalLabOutput}`);
     recordExecutedCase(['A-MUT-18', 'mutation', 'package-identity:global-lab-entrypoint', 'package-identity-entrypoint', 'execute the global lab entrypoint version check against the canonical sibling package names and versions', 'PASS', globalLabPassed ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
-    const binResidueOutput = execFileSync('npm', ['--prefix', 'packages/main', 'run', 'test:lattice-residue'], {
+    const binResidueOutput = execFileSync('npm', ['--prefix', 'packages/main', 'run', 'test:proof-or-stop-residue'], {
       cwd: repositoryRoot,
       encoding: 'utf8',
     });
-    const binResiduePassed = /PASS lattice-residue \[npm-bin\]/.test(binResidueOutput)
-      && /PASS lattice-residue \[brand-decision\]/.test(binResidueOutput);
+    const binResiduePassed = /PASS proof-or-stop-residue \[npm-bin\]/.test(binResidueOutput)
+      && /PASS proof-or-stop-residue \[brand-decision\]/.test(binResidueOutput);
     assert.equal(binResiduePassed, true, `removed-bin-alias migration check did not pass: ${binResidueOutput}`);
     recordExecutedCase(['A-POS-7', 'positive', 'bin-alias:canonical-only', 'npm-bin-migration', 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published', 'PASS', binResiduePassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
 

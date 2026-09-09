@@ -21,8 +21,8 @@ import {
 } from './reviewer-read-evidence.js';
 import { readGitBlobAt } from './git-blob-reader.js';
 
-const FINDING_SALT = 'lattice-finding-integrity-v1';
-const REVIEW_PASS_SALT = 'lattice-review-pass-integrity-v1';
+const FINDING_SALT = 'proof-or-stop-finding-integrity-v1';
+const REVIEW_PASS_SALT = 'proof-or-stop-review-pass-integrity-v1';
 
 /** Sign a single finding to prevent main agent from faking reviewer findings */
 export function signFinding(
@@ -140,7 +140,7 @@ export function verifyFinding(
 
 import { PROOF_OR_STOP_STATE_DIR, stateDirCandidates } from './brand-paths.js';
 
-export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
+export const GAP_LOG_PROVENANCE_SCHEMA = 'proof-or-stop.gap-log-provenance.v1' as const;
 // B-cc10: these hardcoded '.proof-or-stop/' after CHK-003's move, so gap_log wrote to the
 // DEPRECATED directory. The write reported success while the canonical B-META ledger
 // never received the finding — a framework gap I believed I had recorded was in fact

@@ -26,7 +26,7 @@ import { STALL_RESOLUTION_ACTIONS, type StallResolutionAction } from './review-c
 import type { StallAdjudicationData } from './types.js';
 
 /** Signature salt (versioned; a bump invalidates every prior signed record). */
-export const STALL_ADJUDICATION_SALT = 'lattice-stall-adjudication-integrity-v1';
+export const STALL_ADJUDICATION_SALT = 'proof-or-stop-stall-adjudication-integrity-v1';
 
 /** Minimum length (after trim) for a stall-resolution reason. */
 export const STALL_RESOLUTION_REASON_MIN = 20;

@@ -143,7 +143,7 @@ export function projectAdmissibilityWaterline(
   });
 
   return {
-    schemaVersion: 'lattice.admissibility_waterline.v1',
+    schemaVersion: 'proof-or-stop.admissibility_waterline.v1',
     readOnly: true,
     diagnosticOnly: true,
     generatedAt: options.now ?? new Date().toISOString(),

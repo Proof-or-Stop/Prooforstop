@@ -24,7 +24,8 @@ package through `dist/index.js`.
 
 ## What it reads
 
-Story state comes from `.proof-or-stop/story/actives` and `.lattice/story/actives`.
+Story state comes only from `.proof-or-stop/story/actives`; retired state roots
+are not normal discovery fallbacks.
 
 **Worktree precedence is load-bearing.** From PLAN onward a story's live artifacts live
 in its linked git worktree; the main checkout keeps only the INIT_CHECK snapshot. Reading
@@ -131,8 +132,9 @@ Everything is derived client-side from the raw `/api/story` detail (`findings.js
 `process-events.jsonl`, `index.json`, `clusters.json`, `checklist.json`) — seeded from the
 drawer's already-fetched copy, then refreshed by the dossier's own polling. Colours are
 read as CSS custom properties at paint time, so the dossier follows the light/dark toggle
-with no repaint hook. Lane names merge the `lattice-review-` and `proof-or-stop-review-`
-prefixes, so a story that straddles the rename reads as one set of lanes.
+with no repaint hook. Lane labels shorten canonical `proof-or-stop-review-`
+and `proof-or-stop-` prefixes. Historical labels are shown without rewriting
+them into current role identities.
 
 ## Timeline playback
 
