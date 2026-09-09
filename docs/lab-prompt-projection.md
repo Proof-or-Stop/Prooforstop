@@ -22,3 +22,10 @@ Existing eighteen-role baselines retain their exact host and body contracts.
 Tests check externally visible markers and materialization against these frozen
 baselines rather than rebuilding the complex-role expected renderer. This local
 Lab change is not a Story completion or a release receipt.
+
+The compatibility smokes exercise the real full-asset generator in a temporary
+project for both hosts. They do not mistake unused repository-local copies for
+newly generated assets. Historical reconstruction retains its immutable runtime
+digest guard and rejects mutated semantic bytes. Current complete reviewer bodies
+use the existing independent whole-body approval pins; retired prefix-only test
+pins are not a separate authority to rewrite those approved bodies.

@@ -14,7 +14,9 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { runManagedAssetCheck } from '../core/managed-assets.js';
 import { join } from 'node:path';
 import {
   LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
@@ -39,10 +41,14 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
+import { legacyizeAgentRoleText } from '../core/agent-role-identity.js';
 import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
+const materializedProject = mkdtempSync(join(tmpdir(), 'prompt-materialization-'));
+process.once('exit', () => rmSync(materializedProject, {recursive:true,force:true}));
+runManagedAssetCheck(materializedProject, {apply:true,profile:'all',assetMode:'full'});
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'proof-or-stop-review-channel.md',
@@ -128,24 +134,13 @@ const approvedReviewFindingTriageNormativeLines = [
   '- Distinguish `disproven` (evidence refutes the observation), `duplicate` (another tracked Finding owns the same defect), and `not_reproduced_under_current_witness` (fresh target-bound negative witness evidence does not reproduce an older claim). Do not collapse any of them, or `defer_with_proof`, into resolved.',
   '- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.',
 ] as const;
-const frozenReviewerLegacyReconstructionDigests = {
-  'proof-or-stop-review-behavior': 'bbb6815ba8131f9fa7b25fd2fa82a9d91890dc56f1c5e43b814cba8b55e4e582',
-  'proof-or-stop-review-concept': '960bf0df46737570bbf55ebaefa3776272fe25b302f76bbde5c57e289a5db70c',
-  'proof-or-stop-review-docs': 'e26caaf232929404a9ddd6e772e743ef87d5d67fdaedcde75123e6ed58f027c5',
-  'proof-or-stop-review-quality': 'f8122f08bef477636732a450148dd567bf835c22636c842881a9162d1265b031',
-  'proof-or-stop-review-test-coverage': '1d3e1705db33a4c801cc516f242bca3b2665dd94d8157801beaa2e07b208310a',
-} as const;
-// Independent approval for the complete modular reviewer body that precedes the
-// injected contract. Terminal-contract validation alone cannot see contradictory
-// prose inserted before the marker, and generated registry/baseline digests are
-// refreshable. These pins make any prefix change require deliberate semantic-test
-// review instead of allowing a baseline refresh to approve it implicitly.
-const approvedReviewerModularPrefixDigests = {
-  'proof-or-stop-review-behavior': 'dee2bd93fbe8914aa1ca96ffad2ac2e632739137dffefb330cb18a556aa10f34',
-  'proof-or-stop-review-concept': '4a620ff64aec0b19cf13ef9f15f6d49a0597c1fef3a7a373685ab228b15ed3cf',
-  'proof-or-stop-review-docs': 'bbc444a5536e3bad297d016469c6850a3ddc1d580d679e351a8c66b083bccc0d',
-  'proof-or-stop-review-quality': 'd1377e890b30e837f1aaccc689bfd757095c4893faa545d8ab4d0f9b6781ffe3',
-  'proof-or-stop-review-test-coverage': 'bc9eef6284186ff8909c93915824839b4524b796ace4acd48c96aa222e6ee360',
+// Existing whole-body approval pins from the independently verified prompt policy manifest.
+const approvedCurrentReviewerBodyDigests = {
+  "proof-or-stop-review-behavior": "a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54",
+  "proof-or-stop-review-concept": "2d604a1f82169895940e4329cac3562be0e349a5107f4c988ec10db4e2e9a4e0",
+  "proof-or-stop-review-docs": "a0aa78c4959c3d6dc3e3433b729c165f5b778eead596010e803a3ad4fc1f6008",
+  "proof-or-stop-review-quality": "a4fd9fd8b2f20c63159b9134780e710383f88d729373652f10f1d9fc49c23912",
+  "proof-or-stop-review-test-coverage": "e393d606e38e55de6d451898da45767fb1b3eae469e00aa1728519f4c36f177d"
 } as const;
 const approvedEmptyReviewerPrefixSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const requiredReviewFindingTriagePhrases = [
@@ -612,18 +607,16 @@ function assertReviewFindingTriageDelivery(): void {
     assert.ok(entry, `${roleId} is registered`);
     const frozenLegacyReconstruction = restoreLegacyPromptTemplate(entry);
     assert.equal(occurrenceCount(frozenLegacyReconstruction, reviewFindingTriageContractMarker), 0, `${roleId} frozen reconstruction excludes the appended contract`);
-    assert.equal(
-      createHash('sha256').update(historicalMarkerProjection(frozenLegacyReconstruction, false)).digest('hex'),
-      frozenReviewerLegacyReconstructionDigests[roleId],
-      `${roleId} frozen legacy reconstruction digest remains byte-for-byte unchanged`,
-    );
+    // restoreLegacyPromptTemplate verifies its own immutable historical digest.
+    // Whole-body approval below covers the current canonical prefix and contract together.
     const frozenLegacyPrefixDigest = createHash('sha256').update(frozenLegacyReconstruction.trimEnd()).digest('hex');
     const modularSource = readFileSync(entry.sourcePath, 'utf8');
-    assert.equal(
-      createHash('sha256').update(historicalMarkerProjection(modularSource, true).trimEnd()).digest('hex'),
-      approvedReviewerModularPrefixDigests[roleId],
-      `${roleId} modular reviewer prefix requires independent semantic approval`,
-    );
+    const mutatedPath = join(materializedProject, `${roleId}-legacy-mutation.md`);
+    writeFileSync(mutatedPath, `${modularSource}\nUnapproved historical permission.\n`);
+    assert.throws(() => restoreLegacyPromptTemplate({...entry,sourcePath:mutatedPath}),
+      /legacy reviewer prompt reconstruction drift/, `${roleId} historical reconstruction rejects changed semantic bytes`);
+    assert.equal(createHash('sha256').update(legacyizeAgentRoleText(resolvePromptTemplateBody(entry, 'full-envelope'))).digest('hex'),
+      approvedCurrentReviewerBodyDigests[roleId], `${roleId} complete body retains independent semantic approval`);
     for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
       const body = resolvePromptTemplateBody(entry, mode);
       assert.equal(occurrenceCount(body, reviewFindingTriageContractMarker), 1, `${roleId}/${mode} receives one contract`);
@@ -934,11 +927,13 @@ for (const entry of registry.agents) {
       assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
     }
   }
-  const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
+  const claudeMirrorPath = join(materializedProject, '.claude', 'agents', entry.file);
+  assert.ok(existsSync(claudeMirrorPath), `${entry.file} is materialized for Claude`);
   if (existsSync(claudeMirrorPath)) {
     assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host render`);
   }
-  const codexMirrorPath = join(projectRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
+  const codexMirrorPath = join(materializedProject, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
+  assert.ok(existsSync(codexMirrorPath), `${entry.file} is materialized for Codex`);
   if (existsSync(codexMirrorPath)) {
     assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host render`);
   }
