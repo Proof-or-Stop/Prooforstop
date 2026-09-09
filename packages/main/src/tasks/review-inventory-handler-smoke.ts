@@ -356,6 +356,14 @@ async function inventoryPurposeRecovery(): Promise<void> {
     cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv);
     assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'later dispatch preserves historical signed run');
     const fullData = fixture.store.readReviewInventoryEpochs(storyId);
+    if (process.argv.includes('--progress-recovery-fixture')) {
+      const observationPath = fixture.store.storyFilePath(storyId, 'convergence-progress.json');
+      const beforeObservation = readFileSync(observationPath, 'utf8');
+      writeFileSync(observationPath, '{invalid');
+      assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner')), /Convergence progress unavailable/);
+      assert.equal(fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)?.state, 'FINALIZED', 'observation failure does not erase independently completed review');
+      writeFileSync(observationPath, beforeObservation);
+    }
     assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner')), /FINALIZED/);
     const progress = readConvergenceProgress(fixture.store, storyId, fixture.root);
     assert.ok(progress?.state.snapshot.completedEpochIds.includes(fullEpoch.epochId), 'U11 finalization captures actual independently completed epoch');
@@ -363,6 +371,12 @@ async function inventoryPurposeRecovery(): Promise<void> {
     const progressBytes = readFileSync(progressPath, 'utf8');
     cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner'));
     assert.equal(readFileSync(progressPath, 'utf8'), progressBytes, 'inventory status never signs or mutates progress');
+    if (process.argv.includes('--progress-recovery-fixture')) {
+      cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner'));
+      assert.equal(readFileSync(progressPath, 'utf8'), progressBytes, 'recovered completion is recorded exactly once');
+      console.log('PASS U11 finalize retry recovers one verified observation');
+    }
+
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|FINALIZED/i);
     assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|sealed/i);
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /OPEN|epoch|sealed/i);
