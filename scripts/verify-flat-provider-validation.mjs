@@ -9,7 +9,8 @@ const scratch = mkdtempSync(join(tmpdir(), 'flat-provider-validation-'));
 try {
   const commands = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'))).validate.commands;
   const registered = commands.flatMap(command => command.args.filter(arg => /\.(?:mjs|js)$/.test(arg)).map(arg => resolve(root, arg)));
-  const roots = process.argv.includes('--remaining-receipts-only') ? ['red-b2aa7-chk007-receipt.mjs', 'red-b2aa7-chk009-receipt.mjs']
+  const roots = process.argv.includes('--readonly-only') ? ['red-w2d-command-readonly.mjs']
+    : process.argv.includes('--remaining-receipts-only') ? ['red-b2aa7-chk007-receipt.mjs', 'red-b2aa7-chk009-receipt.mjs']
     : process.argv.includes('--receipts-only') ? ['red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs']
     : process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
