@@ -257,3 +257,6 @@ export const MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY = {
   statusHistoryReads: 'none',
   authority: 'diagnostic-only',
 } as const;
+
+/** Shared contract with the CJS preloader, checked by runtime contract verification. */
+export const VALIDATION_RUNTIME_TRACE_POLICY = { schemaVersion: 'validation-runtime-trace.physical-read.v2', readIdentity: 'call-time-physical-path-observation' } as const;

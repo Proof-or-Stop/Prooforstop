@@ -1,3 +1,4 @@
+import { VALIDATION_RUNTIME_TRACE_POLICY } from '../core/runtime-fact-registry.js';
 /**
  * Runtime adapter for story-aware validation.
  *
@@ -9,7 +10,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { builtinModules } from 'node:module';
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
@@ -101,7 +102,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 2, executor: 'validation-executor' });
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 3, executor: 'validation-executor' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -163,19 +164,19 @@ export function runtimeTraceForResult(result: ValidationCommandResult | undefine
   const normalizeObserved = (value: string): string | undefined => {
     if (!value) return undefined;
     if (/^node:/.test(value) || builtinModules.includes(value)) return undefined;
-    const candidate = sourceAuthorityPath(value);
-    if (candidate && !isAbsolute(candidate)) return candidate;
-    const root = resolve(projectRoot);
-    const absolute = resolve(candidate || value);
-    const rel = relative(root, absolute).replace(/\\/g, '/');
-    if (rel && !rel.startsWith('../') && rel !== '..') return candidate || rel;
-    if (isAbsolute(value)) return `__external__/${value.replace(/^[\\/]+/, '').replace(/\\/g, '/')}`;
-    return `__unresolved__/${value.replace(/\\/g, '/')}`;
+    // Do not realpath the captured read after exit: it may be deleted or retargeted.
+    if (!isAbsolute(value)) return `__unresolved__/${value.replace(/\\/g, '/')}`;
+    const absolute = value;
+    const rel = relative(realpathSync(projectRoot), absolute).replace(/\\/g, '/');
+    if (rel && rel !== '..' && !rel.startsWith('../') && !isAbsolute(rel)) return sourceAuthorityPath(rel) || rel;
+    return `__external__/${absolute.replace(/^[\\/]+/, '').replace(/\\/g, '/')}`;
   };
   const unknownRuntimeInputs = [...boundary.unknownRuntimeInputs];
+  if (boundary.readPathSchema !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion) unknownRuntimeInputs.push('legacy or unsupported physical read trace');
+  if ((boundary.readPaths ?? []).some(value => !isAbsolute(value))) unknownRuntimeInputs.push('nonabsolute physical read observation');
   const normalizedReads = (boundary.readPaths || []).map((value) => ({ value, path: normalizeObserved(value) }));
   for (const row of normalizedReads) {
-    if (!row.path && (isAbsolute(row.value) || row.value.includes('/') || row.value.includes('\\'))) {
+    if ((!row.path || row.path.startsWith('__unresolved__/')) && (isAbsolute(row.value) || row.value.includes('/') || row.value.includes('\\'))) {
       unknownRuntimeInputs.push(`unmapped-runtime-read:${row.value}`);
     }
   }

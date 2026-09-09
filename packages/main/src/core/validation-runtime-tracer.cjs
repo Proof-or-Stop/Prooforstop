@@ -10,10 +10,15 @@ const Module = require('node:module');
 const childProcess = require('node:child_process');
 const path = require('node:path');
 const util = require('node:util');
+const { fileURLToPath } = require('node:url');
+const originalRealpath = fs.realpathSync.native.bind(fs.realpathSync);
+const originalCwd = process.cwd.bind(process);
 const traceFile = process.env.PROOF_OR_STOP_RUNTIME_TRACE_FILE;
 if (!traceFile) return;
 
 const trace = {
+  schemaVersion: 'validation-runtime-trace.physical-read.v2',
+  unknownRuntimeInputs: [],
   readPaths: [],
   loadedPaths: [],
   spawnedPaths: [],
@@ -25,7 +30,22 @@ const add = (list, value) => {
   if (typeof value !== 'string' || value.length === 0) return;
   if (!list.includes(value)) list.push(value);
 };
-const pathArg = value => typeof value === 'string' ? value : (value && typeof value.path === 'string' ? value.path : undefined);
+// Snapshot at call time: later chdir/unlink/symlink replacement cannot rewrite it.
+// This is observed path resolution, not a claim of atomic kernel read provenance.
+const recordFilesystemRead = value => {
+  let name;
+  try {
+    if (typeof value === 'string') name = value;
+    else if (value instanceof URL) name = fileURLToPath(value);
+    else if (Buffer.isBuffer(value)) {
+      name = value.toString('utf8');
+      if (!Buffer.from(name, 'utf8').equals(value)) throw new Error('non-UTF8 Buffer path');
+    } else throw new Error('file descriptor or unsupported path argument');
+    const absolute = path.resolve(originalCwd(), name);
+    try { add(trace.readPaths, originalRealpath(absolute)); }
+    catch { add(trace.readPaths, absolute); add(trace.unknownRuntimeInputs, 'physical read target unavailable: ' + absolute); }
+  } catch (error) { add(trace.unknownRuntimeInputs, 'unresolved filesystem read: ' + error.message); }
+};
 // npm's own CLI reads and mutates process.env using native assumptions that a
 // Proxy does not satisfy (the wrapper exits 1 before it can print anything).
 // Keep the wrapper transparent and trace the actual verifier child instead;
@@ -68,25 +88,25 @@ if (!isNpmWrapper) {
 
 const originalReadFileSync = fs.readFileSync;
 fs.readFileSync = function wrappedReadFileSync(path, ...args) {
-  add(trace.readPaths, pathArg(path));
+  recordFilesystemRead(path);
   return originalReadFileSync.call(this, path, ...args);
 };
 const originalReadFile = fs.readFile;
 fs.readFile = function wrappedReadFile(path, ...args) {
-  add(trace.readPaths, pathArg(path));
+  recordFilesystemRead(path);
   return originalReadFile.call(this, path, ...args);
 };
 if (fs.promises && typeof fs.promises.readFile === 'function') {
   const originalPromisesReadFile = fs.promises.readFile.bind(fs.promises);
   fs.promises.readFile = function wrappedPromisesReadFile(path, ...args) {
-    add(trace.readPaths, pathArg(path));
+    recordFilesystemRead(path);
     return originalPromisesReadFile(path, ...args);
   };
 }
 if (typeof fs.createReadStream === 'function') {
   const originalCreateReadStream = fs.createReadStream;
   fs.createReadStream = function wrappedCreateReadStream(path, ...args) {
-    add(trace.readPaths, pathArg(path));
+    recordFilesystemRead(path);
     return originalCreateReadStream.call(this, path, ...args);
   };
 }
@@ -94,7 +114,7 @@ for (const name of ['open', 'openSync', 'readdir', 'readdirSync', 'stat', 'statS
   const original = fs[name];
   if (typeof original !== 'function') continue;
   fs[name] = function wrappedFilesystemRead(path, ...args) {
-    add(trace.readPaths, pathArg(path));
+    recordFilesystemRead(path);
     return original.call(this, path, ...args);
   };
 }
@@ -103,7 +123,7 @@ if (fs.promises) {
     const original = fs.promises[name];
     if (typeof original !== 'function') continue;
     fs.promises[name] = async function wrappedPromiseFilesystemRead(path, ...args) {
-      add(trace.readPaths, pathArg(path));
+      recordFilesystemRead(path);
       return original.call(this, path, ...args);
     };
   }

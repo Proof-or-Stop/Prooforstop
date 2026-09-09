@@ -84,6 +84,8 @@ export interface ValidationCommandResult {
   durationMs: number;
   /** Real command-boundary observations captured by the executor spawn seam. */
   runtimeTrace?: {
+    /** Filesystem paths resolved at call time; not atomic kernel provenance. */
+    readPathSchema?: string;
     command: string;
     argv: string[];
     cwd: string;

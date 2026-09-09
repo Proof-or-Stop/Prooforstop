@@ -1,3 +1,4 @@
+import { VALIDATION_RUNTIME_TRACE_POLICY } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execSync, spawn } from 'node:child_process';
@@ -68,17 +69,19 @@ function runtimeTracerPath(projectRoot: string): string | undefined {
 }
 
 type RuntimeTraceFragment = {
+  schemaVersion?: unknown; unknownRuntimeInputs?: unknown;
   readPaths?: unknown; loadedPaths?: unknown; spawnedPaths?: unknown;
   registryKeys?: unknown; environmentKeys?: unknown; events?: unknown;
 };
 
 function stringValues(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+  if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) throw new Error('runtime trace field must be a string array');
+  return value as string[];
 }
 
 /** Collect the legacy trace or every child-safe sidecar for one command. */
 function readRuntimeTraceFragments(traceFile: string): {
-  observed?: { readPaths: string[]; loadedPaths: string[]; spawnedPaths: string[]; registryKeys: string[]; environmentKeys: string[]; events: string[] };
+  observed?: { readPathSchema: string; unknownRuntimeInputs: string[]; readPaths: string[]; loadedPaths: string[]; spawnedPaths: string[]; registryKeys: string[]; environmentKeys: string[]; events: string[] };
   files: string[];
   malformed: boolean;
 } {
@@ -95,12 +98,15 @@ function readRuntimeTraceFragments(traceFile: string): {
   }
   if (files.length === 0) return { files, malformed: false };
   const merged = {
+    unknownRuntimeInputs: new Set<string>(),
     readPaths: new Set<string>(), loadedPaths: new Set<string>(), spawnedPaths: new Set<string>(),
     registryKeys: new Set<string>(), environmentKeys: new Set<string>(), events: new Set<string>(),
   };
   try {
     for (const file of files) {
       const fragment = JSON.parse(readFileSync(file, 'utf8')) as RuntimeTraceFragment;
+      if (!fragment || fragment.schemaVersion !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion) throw new Error('legacy or unsupported runtime trace schema');
+      for (const value of stringValues(fragment.unknownRuntimeInputs)) merged.unknownRuntimeInputs.add(value);
       for (const value of stringValues(fragment.readPaths)) merged.readPaths.add(value);
       for (const value of stringValues(fragment.loadedPaths)) merged.loadedPaths.add(value);
       for (const value of stringValues(fragment.spawnedPaths)) merged.spawnedPaths.add(value);
@@ -115,6 +121,7 @@ function readRuntimeTraceFragments(traceFile: string): {
     files,
     malformed: false,
     observed: {
+      readPathSchema: VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion, unknownRuntimeInputs: [...merged.unknownRuntimeInputs],
       readPaths: [...merged.readPaths], loadedPaths: [...merged.loadedPaths], spawnedPaths: [...merged.spawnedPaths],
       registryKeys: [...merged.registryKeys], environmentKeys: [...merged.environmentKeys], events: [...merged.events],
     },
@@ -1485,7 +1492,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
           ...(traceFragments.malformed
             ? { unknownRuntimeInputs: ['runtime trace malformed'] }
             : traceFragments.observed
-              ? { ...traceFragments.observed, unknownRuntimeInputs: [] }
+              ? { ...traceFragments.observed }
               : { unknownRuntimeInputs: ['runtime tracer unavailable for command'] }),
         },
         ...(pollutionStatusLines.length > 0

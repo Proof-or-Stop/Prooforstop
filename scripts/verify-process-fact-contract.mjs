@@ -8307,6 +8307,13 @@ function assertStoryAwareDynamicValidationRuntime() {
     const line = registryText.split('\n').find((candidate) => candidate.includes(`'${fact}':`)) || '';
     assert(line.includes("'workspace-binding'"), `process-fact-registry: ${fact} must retain Git-rooted provenance binding`);
   }
+  const closureSemantics = registryText.split('\n').find(line => line.includes("'runtime:story_aware_dynamic_closure_receipt':")) || '';
+  assert(closureSemantics.includes("'normalization-policy'"), 'dynamic closure must register physical read normalization');
+  const executorText = read('packages/main/src/core/validation-executor.ts');
+  const handlerText = read('packages/main/src/handlers/story-aware-validation.ts');
+  assert(executorText.includes('fragment.schemaVersion !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion'), 'executor must refuse unsupported trace fragments');
+  assert(executorText.includes('merged.unknownRuntimeInputs.add(value)') && !executorText.includes('...observed, unknownRuntimeInputs: []'), 'executor must preserve unknown input evidence');
+  assert(handlerText.includes('boundary.readPathSchema !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion') && handlerText.includes('sourceAuthorityPath(rel)'), 'closure must require physical trace schema and map contained relative paths');
   const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
   const validationText = read('packages/main/src/core/story-aware-validation.ts');
   assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
@@ -9417,7 +9424,7 @@ if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} fi
 assert(read(processFactRegistryPath).includes('...PROCESS_FACT_EVIDENCE_HASH_INPUTS'), 'Evidence hash input facts must be registered');
 const hashPolicySource = read('packages/main/src/core/material-path-policy.ts');
 for (const boundary of ['objects/sha256/', 'refs/by-id/', 'ledger/observed.jsonl']) assert(hashPolicySource.includes(boundary), `Missing bounded evidence output location: ${boundary}`);
-assert(read('packages/main/src/core/story-aware-validation.ts').includes("'--name-status', '-z'"), 'Story diff must preserve NUL-framed Git filenames');
+assert(read('packages/main/src/core/story-git-bytes.ts').includes("'--name-status', '-z'") && read('packages/main/src/core/story-aware-validation.ts').includes("raw.diff.split('\\0')"), 'Story diff must preserve NUL-framed Git filenames');
 assert(read('packages/main/src/tasks/story-files-hash-batch-smoke.ts').includes('verify-hash-accuracy.mjs'), 'Independent hash oracle must run in the existing validation inventory');
 
 if (failures.length) {
