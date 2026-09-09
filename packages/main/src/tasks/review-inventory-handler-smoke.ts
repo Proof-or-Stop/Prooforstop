@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { resolveManagedReviewerBasePrompt } from '../core/managed-review-evidence.js';
 import { runManagedBurnFixture } from './managed-burn-fixture.js';
 import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
 import { enforceConvergenceBreakerGate } from '../core/convergence-breaker.js';
@@ -364,6 +365,13 @@ async function inventoryPurposeRecovery(): Promise<void> {
         'U12 new signed review runs must reference prompt CAS instead of duplicating full body');
       assert.ok(fullRun.promptHash);
       assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'CAS references retain full prompt assembly verification');
+      const body = fixture.store.readReviewPrompt(fullRun)!;
+      assert.equal(resolveManagedReviewerBasePrompt(fixture.root, fullRun), body, 'managed launcher reads the same exact CAS bytes');
+      const bodyPath = fixture.store.storyFilePath(storyId, `prompt-bodies/${fullRun.assembledPromptRef}.txt`);
+      writeFileSync(bodyPath, 'corrupt prompt');
+      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, false, 'native gate refuses corrupt referenced bytes');
+      assert.throws(() => resolveManagedReviewerBasePrompt(fixture.root, fullRun), /digest mismatch/, 'managed launch cannot replace missing original bytes with a current template');
+      writeFileSync(bodyPath, body);
       console.log('PASS U12 actual reviewer run stores a body reference and retains native review authority');
       return;
     }

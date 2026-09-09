@@ -186,3 +186,14 @@ no independent review requirement is waived. Normal TERM/KILL/reap and replaceme
 safety still apply. Actual child close fences further burn requests before any
 asynchronous descendant cleanup completes. Explicit startup/total/absolute deadlines remain finite and
 retain their distinct terminal reasons. A burn stop never redispatches a replacement.
+
+### Exact prompt bodies and slim review history
+
+New full-envelope review runs persist `assembledPromptRef` equal to their signed
+`promptHash`. Exact UTF-8 bodies live once per digest under the Story's
+`prompt-bodies/` directory and are published before the run reference. Existing
+objects are checked rather than overwritten. Ordinary `readReviewRuns` reads only
+metadata; review gates, incremental eligibility and managed reviewer launch use
+`readReviewPrompt` to load and hash-check the body. Envelope and canonical assembly
+verification remain required. Missing, corrupt or conflicting references fail
+closed. Legacy inline records remain readable and are not migrated by a read.

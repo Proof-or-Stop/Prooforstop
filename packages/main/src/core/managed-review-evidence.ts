@@ -1,3 +1,4 @@
+import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
 
 import { execFileSync } from 'node:child_process';
@@ -260,7 +261,9 @@ export function classifyReviewerExecutionAuthority(args: {
 }
 
 export function resolveManagedReviewerBasePrompt(root: string, run: ReviewRun): string {
-  if (run.assembledPrompt) return run.assembledPrompt;
+  const assembledPrompt = new StoryStore(root).readReviewPrompt(run);
+  if (assembledPrompt) return assembledPrompt;
+  if (run.envelopeId) throw new Error('managed reviewer exact prompt body unavailable');
   // A no-envelope ReviewRun predates modular prompt assembly. Its signed
   // promptHash therefore names the frozen legacy role body, regardless of a
   // later rollout/template-mode change in the live project configuration.

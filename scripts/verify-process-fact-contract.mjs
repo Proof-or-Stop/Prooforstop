@@ -2911,7 +2911,7 @@ function assertCloseoutTrustBoundary() {
   const transitionText = read('packages/main/src/handlers/transition-orchestrator.ts');
   assert(transitionText.includes("story.events.push(collectContext(args.phase, 'advance'))"), 'persisted REVIEW-to-TEST retention exception must remain tied to the production collectContext transition shape');
   assert(/if \(args\.phase === 'DONE'\)[\s\S]{0,800}runReviewToTestPreflightGate\(ctx, args\.storyId, actor\)/.test(transitionText), 'DONE must independently re-run REVIEW-to-TEST preflight facts so a manual index phase edit grants no privilege');
-  assert(reviewRunText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && !reviewRunText.includes("'process-metrics.json'"), 'review-run must consume the lifecycle registry instead of maintaining a local protocol ignore list');
+  assert(reviewRunText.includes('isReviewRetentionProtocolMetadataPath') && !reviewRunText.includes("'process-metrics.json'"), 'review-run must consume the lifecycle registry instead of maintaining a local protocol ignore list');
   for (const [handlerPath, writerCommand, artifactPath] of [
     ['packages/main/src/handlers/proofstory.ts', 'parent_ledger_rollup_set', 'parent-ledger-rollup.json'],
     ['packages/main/src/handlers/delivery-context-pack.ts', 'delivery_context_pack', 'evidence/delivery-context-pack.json'],
@@ -9410,3 +9410,9 @@ assert(read('packages/main/src/core/convergence-progress-journal.ts').includes('
 assert(read('packages/main/src/handlers/stall-adjudication.ts').includes('does not clear the completed-epoch convergence gate'), 'compatibility decisions must not claim new gate authority');
 assert(read('packages/main/src/core/managed-burn-guard.ts').includes("progress.code === 'effective_progress_stalled'"), 'burn stop requires the exact verified progress verdict, never generic integrity failure');
 assert(read('packages/main/src/core/managed-host-run.ts').includes('onProviderUsage: usage =>'), 'managed burn must use canonical provider usage observations');
+
+assert(read('packages/main/src/core/process-fact-registry.ts').includes('artifact:prompt-bodies'), 'prompt CAS process artifact must be registered');
+assert(read('packages/main/src/handlers/review-run.ts').includes('assembledPromptRef: store.writeReviewPromptBody'), 'review-run producer must persist exact prompt CAS before references');
+for (const path of ['packages/main/src/core/review-run.ts', 'packages/main/src/core/review-incremental-context.ts', 'packages/main/src/core/managed-review-evidence.ts']) {
+  assert(read(path).includes('.readReviewPrompt('), `${path}: prompt authority must explicitly hydrate body references`);
+}

@@ -1,3 +1,4 @@
+import { isPromptBodyArtifactPath } from './prompt-body-store.js';
 /**
  * @task B-d339
  * @checklist CHK-003
@@ -922,7 +923,7 @@ export function classifyLifecycleArtifact(
     if (isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
       return null;
     }
-    if (!isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
+    if (!isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath) && !isPromptBodyArtifactPath(relativePath)) {
       return null;
     }
     return {
@@ -994,3 +995,8 @@ import {
  */
 /** @deprecated Use `isAnyProofOrStopStoryMetadataPath`. */
 /** @deprecated Use `isProofOrStopLifecycleArtifactPath`. */
+
+/** Prompt bodies are digest-bound process evidence, not arbitrary Story subtree content. */
+export function isReviewRetentionProtocolMetadataPath(path: string): boolean {
+  return REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path) || isPromptBodyArtifactPath(path);
+}

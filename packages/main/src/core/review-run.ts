@@ -17,7 +17,7 @@ import {
   verifyManagedReviewLiveBinding,
 } from './managed-review-evidence.js';
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
-import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
+import { isReviewRetentionProtocolMetadataPath } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
 import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
@@ -632,6 +632,10 @@ export function verifyReviewRun(run: ReviewRun): boolean {
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run))
+    && (run.assembledPromptRef === undefined || (
+      Boolean(run.envelopeId) && run.assembledPrompt === undefined
+      && /^[a-f0-9]{64}$/.test(run.assembledPromptRef) && run.assembledPromptRef === run.promptHash
+    ))
     && (
       run.assembledPrompt === undefined
       || (
@@ -839,7 +843,10 @@ export function verifyReviewRunPromptEnvelope(
   if (!agentRoleIdsEqual(envelope.roleId, run.lane)) {
     return { ok: false, reason: 'Prompt Envelope roleId does not match the signed ReviewRun lane' };
   }
-  if (!run.assembledPrompt) {
+  let assembledPrompt: string | undefined;
+  try { assembledPrompt = store.readReviewPrompt(run); }
+  catch (error) { return { ok: false, reason: `signed ReviewRun prompt unavailable: ${error instanceof Error ? error.message : String(error)}` }; }
+  if (!assembledPrompt) {
     return { ok: false, reason: 'signed ReviewRun is missing the exact assembled prompt bytes' };
   }
   if (run.promptHash !== envelope.assembledPromptDigest) {
@@ -879,7 +886,7 @@ export function verifyReviewRunPromptEnvelope(
   if (!dispatchBinding.ok) return dispatchBinding;
   const assemblyValid = envelope.contextMode === 'incremental'
     ? verifyIncrementalPromptAssemblyIntegrity({
-      prompt: run.assembledPrompt,
+      prompt: assembledPrompt,
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
@@ -890,7 +897,7 @@ export function verifyReviewRunPromptEnvelope(
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     })
     : verifyFullPromptAssemblyIntegrity({
-      prompt: run.assembledPrompt,
+      prompt: assembledPrompt,
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
@@ -1333,7 +1340,7 @@ export function evaluateReviewRunMetadataRetention(
   const metadataPaths = [...new Set(changedFiles
     .filter((path) => path.startsWith(storyPrefix))
     .map((path) => path.slice(storyPrefix.length))
-    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path)))];
+    .filter((path) => !isReviewRetentionProtocolMetadataPath(path)))];
   const indexTransition = metadataPaths.includes('index.json')
     ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
     : null;

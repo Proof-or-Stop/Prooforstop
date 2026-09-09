@@ -2007,6 +2007,8 @@ export interface ReviewRun {
    * domain-separated digest is promptHash and is also bound by envelopeId.
    */
   assembledPrompt?: string;
+  /** Exact promptHash-addressed body; new envelope runs omit the inline legacy bytes. */
+  assembledPromptRef?: string;
   /** Reviewer-authored reason that forced this otherwise eligible run to full context. */
   reviewerEscalationReason?: string;
   /** Explicit critic purpose; absent retains historical/default topology semantics. */

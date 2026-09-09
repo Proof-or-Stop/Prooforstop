@@ -1,3 +1,4 @@
+import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
 import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
@@ -1321,6 +1322,15 @@ export class StoryStore {
     this.writeJson(storyId, 'review-passes.json', data);
   }
 
+  writeReviewPromptBody(storyId: string, body: string, digest: string): string {
+    return writePromptBody(this.storyDirPath(storyId), body, digest);
+  }
+
+  readReviewPrompt(run: ReviewRunData['runs'][number]): string | undefined {
+    return readReviewPromptBody(this.storyDirPath(run.storyId), run);
+  }
+
+  /** Slim by default: references remain references; callers hydrate only when verifying or launching. */
   readReviewRuns(storyId: string): ReviewRunData {
     try {
       return this.readJson<ReviewRunData>(storyId, 'review-runs.json');

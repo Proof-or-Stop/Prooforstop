@@ -69,6 +69,8 @@ const envelope = assembleFullPromptEnvelope({
   lane: 'proof-or-stop-review-quality',
   dispatchPrompt,
   hostRenderIdentityDigest: hostIdentity.identityDigest,
+  reviewerDispatchBindingDigest: dispatchBindingDigest,
+  launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest, hostRenderHost: 'codex' },
   createdAt: '2026-07-18T00:00:00.000Z',
 });
 
@@ -103,6 +105,7 @@ run._hash = signReviewRun(
 );
 assert.equal(verifyReviewRun(run), true);
 const store = {
+  readReviewPrompt: (row: ReviewRun) => row.assembledPrompt,
   readPromptEnvelopes: () => ({ envelopes: [envelope.envelope] }),
   readProcessEvents: () => [{
     type: 'dispatch',

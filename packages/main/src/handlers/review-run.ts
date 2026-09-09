@@ -407,7 +407,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           ...(args.reviewPurpose ? { reviewPurpose: args.reviewPurpose } : {}),
           ...(inventoryBinding ? { inventoryBinding } : {}),
           ...(envelopeId ? { envelopeId } : {}),
-          ...(assembledPrompt ? { assembledPrompt } : {}),
+          ...(assembledPrompt ? { assembledPromptRef: store.writeReviewPromptBody(args.storyId, assembledPrompt, promptHash) } : {}),
           ...(reviewerEscalationReason
             ? { reviewerEscalationReason }
             : {}),
@@ -441,7 +441,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
           || persisted.envelopeId !== envelopeId
-          || persisted.assembledPrompt !== assembledPrompt
+          || store.readReviewPrompt(persisted) !== assembledPrompt
           || persisted.reviewerEscalationReason !== reviewerEscalationReason
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);

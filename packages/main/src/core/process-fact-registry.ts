@@ -1493,7 +1493,15 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical assembledPrompt bytes delivered by review_run_start.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical promptHash-addressed body delivered by review_run_start. New records carry assembledPromptRef and slim readers do not load body files; legacy inline records remain unchanged. Gate and managed-launch consumers hydrate and verify exact content digests before accepting authority.',
+  },
+  {
+    name: 'artifact:prompt-bodies',
+    kind: 'artifact', semantics: ['artifact', 'prompt-envelope', 'schema-contract'], level: 'L1',
+    producer: 'review_run_start via StoryStore.writeReviewPromptBody',
+    consumerGate: 'verifyReviewRunPromptEnvelope and managed reviewer launch hydrate exact signed promptHash references',
+    artifact: { name: 'prompt-bodies', path: 'prompt-bodies', signed: false },
+    rationale: 'Immutable content-addressed exact UTF-8 bodies are published before signed run references. Existing objects are verified, never overwritten. Body bytes alone grant no authority; signed run promptHash, envelope integrity and assembly verification remain required. Ordinary review-run reads carry references without reading the body, while missing, corrupted or conflicting bodies fail closed at authority consumers.',
   },
   {
     name: 'artifact:review-inventory-epochs.json',

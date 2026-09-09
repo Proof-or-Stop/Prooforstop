@@ -98,7 +98,7 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
       pass.reviewRunId, undefined, undefined, undefined, { writerSessionId: pass.writerSessionId }, pass.envelopeId);
     assert.equal(api.verifyReviewRun(run), true, 'fixture has a real valid run signature');
     assert.equal(api.verifyReviewPass(value.storyId, pass), true, 'fixture has a real envelope-bound pass signature');
-    return envelopes => api.latestTrustedPriorPass({}, value.storyId, role, [pass], [run], undefined, undefined, envelopes)?.pass.id ?? null;
+    return envelopes => api.latestTrustedPriorPass({ readReviewPrompt: row => row.assembledPrompt }, value.storyId, role, [pass], [run], undefined, undefined, envelopes)?.pass.id ?? null;
   };
   const projection = [{ id: 'F-001', createdAt: envelope.createdAt, status: 'resolved', severity: 'low', category: 'missing', desc: 'fixture' }];
   const withProjection = rows => ({ findingProjection: rows,

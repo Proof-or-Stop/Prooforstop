@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 /**
  * B-f675 CHK-003 — proves the read-only incremental review context
  * (core/review-incremental-context.ts, CHK-001) reports the right shape for a
@@ -195,6 +196,7 @@ function buildFixtureStore(input: FixtureStoreInput): StoryStore {
     readStory: (storyId: string) => { guard(storyId); return input.story; },
     readFindings: (storyId: string) => { guard(storyId); return { findings }; },
     readReviewPasses: (storyId: string) => { guard(storyId); return { passes }; },
+    readReviewPrompt: (row: ReviewRun) => row.assembledPrompt,
     readReviewRuns: (storyId: string) => { guard(storyId); return { runs }; },
     readScopeContract: (storyId: string) => { guard(storyId); return (input.scopeContract ?? null) as never; },
     readReviewLoopRecords: (storyId: string) => { guard(storyId); return (input.reviewLoopRecords ?? []) as never; },
@@ -436,7 +438,7 @@ function runTemporalCutoffRegression(root: string): void {
   console.log(`${MARKER} TEMPORAL CUTOFF: A-before-B selected; C-after-B and equal-timestamp passes excluded; mutation bite confirmed`);
 }
 
-function runProductionVerifierTemporalCutoffRegression(): void {
+async function runProductionVerifierTemporalCutoffRegression(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
   const role = 'proof-or-stop-review-quality';
@@ -461,9 +463,18 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
   };
+  const recordPass = async (payload: Record<string, unknown>, actor: string): Promise<void> => {
+    readFileSync(join(root, 'src/cutoff.ts'), 'utf8');
+    await runBrokeredNativeReviewCli({ root, store: new StoryStore(root), storyId, agent: actor,
+      reviewRunId: String(payload.reviewRunId), command: 'review_pass_set', payload: { ...payload,
+        readManifest: { filesReadFully: ['src/cutoff.ts'], filesTriagedByName: [], scanEscalationReason: null },
+        readEvents: [{ path: 'src/cutoff.ts', mode: 'full', action: 'Read', tokenCount: null }],
+      } });
+  };
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'proof-or-stop.config.json', JSON.stringify({
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
@@ -526,7 +537,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     runCli('dispatch', { storyId, agentType: role }, 'main');
     runCli('review_run_start', { storyId, agent: role }, role);
     const runA = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runA.reviewRunId,
@@ -567,7 +578,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       { ok: true },
       'production verifier accepts B before a later pass is appended',
     );
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runB.reviewRunId,
@@ -583,7 +594,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       reviewerEscalationReason: fullContextReason,
     }, laterLane);
     const laterLaneRun = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: laterLane,
       reviewRunId: laterLaneRun.reviewRunId,
@@ -699,7 +710,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
 
     runCli('review_run_start', { storyId, agent: role }, role);
     const runC = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runC.reviewRunId,
@@ -868,7 +879,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
 function runAsOfRunEligibilityRegression(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-asof-run-'));
   const storyId = 'B-asof-run';
-  const role = 'lattice-review-quality';
+  const role = 'proof-or-stop-review-quality';
   const round = '2026-07-21T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -890,18 +901,20 @@ function runAsOfRunEligibilityRegression(): void {
     });
   };
   const verifierOptions = (run: ReviewRun) => ({
+    roleSemanticDigest: promptRoleContract(role).semanticDigest,
+    findingProjection: new StoryStore(root).readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === run.envelopeId)?.findingProjection,
     excludedReviewRunId: run.reviewRunId,
     findingsCutoffAt: run.startedAt,
     passesCutoffAt: run.startedAt,
   });
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
@@ -940,7 +953,7 @@ function runAsOfRunEligibilityRegression(): void {
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run review metadata']);
 
     runCli('dispatch', { storyId, agentType: role }, 'main');
@@ -966,7 +979,7 @@ function runAsOfRunEligibilityRegression(): void {
       runA.envelopeId,
     );
     store.writeReviewPasses(storyId, { passes: [passA] });
-    git(root, ['add', `.lattice/story/actives/${storyId}`]);
+    git(root, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'trusted prior pass A']);
 
     runCli('review_run_start', { storyId, agent: role }, role);
@@ -986,10 +999,10 @@ function runAsOfRunEligibilityRegression(): void {
 
     write(
       root,
-      `.lattice/story/actives/${storyId}/import-padding.json`,
+      `.proof-or-stop/story/actives/${storyId}/import-padding.json`,
       `${JSON.stringify({ kind: 'metadata-only-import-commit', padding: 'm'.repeat(64) }, null, 2)}\n`,
     );
-    git(root, ['add', `.lattice/story/actives/${storyId}/import-padding.json`]);
+    git(root, ['add', `.proof-or-stop/story/actives/${storyId}/import-padding.json`]);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata-only import padding']);
     assert.notEqual(currentGitHead(root), headH1, 'metadata-only commit must move HEAD');
 
@@ -2098,9 +2111,9 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
-      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
+      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPromptRef) === full;
       if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
-      if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
+      if (!mutation) assert.equal(Boolean(run.assembledPromptRef), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores exact prompt reference only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
@@ -2252,14 +2265,14 @@ function runScheduleMutationTrial(): {
   }
 }
 
-function run(): void {
+async function run(): Promise<void> {
   runPolicyCases();
   runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
   const cutoffStarted = performance.now();
-  runProductionVerifierTemporalCutoffRegression();
+  await runProductionVerifierTemporalCutoffRegression();
   runAsOfRunEligibilityRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;
   runGateUnchangedCase();
@@ -2337,7 +2350,7 @@ if (isDirectRun) {
   } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
-    runProductionVerifierTemporalCutoffRegression();
+    await runProductionVerifierTemporalCutoffRegression();
   } else if (process.argv.includes('--asof-run-only')) {
     runAsOfRunEligibilityRegression();
   } else if (process.argv.includes('--bounded-paths-only')) {
@@ -2347,6 +2360,6 @@ if (isDirectRun) {
   } else if (process.argv.includes('--schedule-mutation-only')) {
     console.log(`SCHEDULE_MUTATION_RECEIPT=${JSON.stringify(runScheduleMutationTrial())}`);
   } else {
-    run();
+    await run();
   }
 }
