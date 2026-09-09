@@ -22,6 +22,7 @@ import {
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
+import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { verifyReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
@@ -582,6 +583,24 @@ function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
   writeFileSync(join(root, rel), content, 'utf8');
 }
+/**
+ * Every source a PROCESS_FACT_REGISTRY entry declares as its producer or
+ * consumer implementation. Kept identical to the copy in
+ * proofstory-acceptance-basis-smoke.ts rather than imported from it, because
+ * importing that module would execute its smoke.
+ */
+function registryDeclaredSourceRefs(): string[] {
+  const refs = new Set<string>();
+  for (const entry of PROCESS_FACT_REGISTRY) {
+    for (const ref of [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]) refs.add(ref);
+  }
+  return [...refs].sort();
+}
+/** A valid module identifier for a derived stub, from the ref's basename. */
+function derivedStubIdentifier(ref: string): string {
+  const base = (ref.split('/').at(-1) ?? ref).replace(/\.[^.]+$/, '');
+  return base.replace(/[^A-Za-z0-9]+(.)?/g, (_match, next?: string) => (next ? next.toUpperCase() : ''));
+}
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
@@ -766,6 +785,18 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
+  // Everything above is an explicit stub whose CONTENT matters to a discovery
+  // adapter. Whatever PROCESS_FACT_REGISTRY declares beyond that only has to be
+  // inspectable: buildBoundedSourceGraph reports a missing declared ref of a
+  // reached entry as a blind spot, which seals as snapshot_missing and makes
+  // acceptance_basis_generate return partial. Deriving the remainder from the
+  // registry keeps this fixture correct when an entry declares a new source
+  // (B-bcae CHK-004: runtime:evidence_hash_input_boundary and
+  // runtime:shared_validation_execution added six such refs).
+  for (const ref of registryDeclaredSourceRefs()) {
+    if (existsSync(join(root, ref))) continue;
+    write(root, ref, `export const ${derivedStubIdentifier(ref)} = true;\n`);
+  }
 }
 
 function writeLiveProofFixture(root: string, proof: unknown, recomputeRoot = true): void {

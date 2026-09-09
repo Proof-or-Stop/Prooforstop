@@ -2169,7 +2169,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    '1c2b56a892daaa9b1a9c6dbbb6dc8bed7946ba03faa56143905e79d70d0e519d',
+    'bcf68b8796e04d0e0416864b171e8609ed4b04575459e12d85d43eaca8ba2946',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -2285,7 +2285,7 @@ function assertCloseoutTrustBoundary() {
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
     '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
-    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
     'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
     'mutant path rebound to external input',
@@ -2293,7 +2293,7 @@ function assertCloseoutTrustBoundary() {
     'mutant producer nested shadow',
     'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',

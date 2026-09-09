@@ -1849,6 +1849,42 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"
+        ],
+        "timeoutMs": 300000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-bcae-admission-coscheduling.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
         ],
         "timeoutMs": 180000,

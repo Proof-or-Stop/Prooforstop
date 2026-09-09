@@ -3,9 +3,11 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   accessSync,
+  closeSync,
   constants,
   chmodSync,
   existsSync,
+  openSync,
   mkdtempSync,
   mkdirSync,
   realpathSync,
@@ -20,7 +22,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import {
   FINDING_LEDGER_LOCAL_FS_CAPABILITY,
@@ -35,6 +37,13 @@ import {
   type DurableCommitTrace,
   type JsonValue,
 } from '../core/finding-ledger.js';
+// CONSUME the production derivations; never re-implement them (B-bcae F-014/F-023, F-046/F-056).
+// This is the dependency-free single source of truth for BOTH lock targets, and the module
+// bin/bootstrap-runner.js itself imports. Static, not dynamic: the specifier is a fixed
+// first-party path that resolves identically from src/tasks and from the generated dist/tasks
+// (both are four levels below the repository root), so there is no reason to defer it to
+// runtime and no non-literal loader surface to approve.
+import { buildLockTarget, distImportLockTarget } from '../../../../scripts/build-lock-target.mjs';
 import { canonicalDigest, generateEd25519KeyPair, verifyCanonical } from '../core/authority-signing.js';
 import {
   appendAssessmentProposal,
@@ -3163,28 +3172,119 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     );
     assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
     console.log('runtime.canonical_build_lock: PASS callerFalse=reject callerOmitted=reject zeroWrites=true');
+    // B-bcae F-033 separation control for the SAME predicate. bin/bootstrap-runner.js coordinates its
+    // initial dist import through withDistImportLock, a different target from the canonical build mutex
+    // above. An ordinary concurrent CLI startup is not a build, so it must NOT make this command refuse
+    // with build_in_progress. Contrast with runtime.canonical_build_lock, where a real withBuildLock
+    // holder is still rejected: same command, same predicate, opposite verdicts.
+    const distImportReaderFixture = `
+      import { spawnSync } from 'node:child_process';
+      import { pathToFileURL } from 'node:url';
+      const { withDistImportLock } = await import(pathToFileURL(process.argv[1]).href);
+      const cli = process.argv[2];
+      const root = process.argv[3];
+      const args = JSON.parse(Buffer.from(process.argv[4], 'base64').toString('utf8'));
+      let result;
+      await withDistImportLock(root, async () => {
+        result = spawnSync(process.execPath, [cli, 'finding_runtime_evidence_run', JSON.stringify(args)], {
+          cwd: root, env: process.env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+        });
+      });
+      process.stdout.write(JSON.stringify({ status: result.status, output: (result.stdout || '') + '\\n' + (result.stderr || '') }));
+    `;
+    const distImportReader = spawnSync(process.execPath, [
+      '--input-type=module', '-e', distImportReaderFixture,
+      join(repositoryRoot, 'scripts', 'build-lock.mjs'),
+      join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'),
+      realpathSync(root),
+      Buffer.from(JSON.stringify(runArgs)).toString('base64'),
+    ], {
+      cwd: repositoryRoot,
+      env: { ...process.env, ...RUNTIME_CLI_TEST_SESSION_ENV, ...signingEnv },
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(distImportReader.status, 0, `${distImportReader.stderr}\n${distImportReader.stdout}`);
+    const readerResult = JSON.parse(distImportReader.stdout) as { status: number; output: string };
+    assert.equal(readerResult.status, 0, readerResult.output);
+    assert.equal(/build[\s_-]*(?:is[\s_-]*)?in[\s_-]*progress/i.test(readerResult.output), false, readerResult.output);
+    assert.match(readerResult.output, /"replayed"\s*:\s*true/);
+    assert.equal(store.readFindingLedger<JsonValue>(storyId).records.length, rowsBeforeRefusal);
+    console.log('runtime.dist_import_reader_is_not_a_build: PASS liveReader=admit refusals=0 zeroWrites=true');
+    // buildLockTarget / distImportLockTarget are the PRODUCTION derivations, imported statically at
+    // the top of this file (B-bcae F-014/F-023, F-046/F-056). Transcribing `proof-or-stop-build-lock-`
+    // / `proof-or-stop-dist-import-lock-` and the sha256 here would let a change to the production
+    // prefix or hashing turn both assertions below into claims about paths nothing ever created —
+    // green for every case while checking nothing.
+    const canonicalBuildTarget = buildLockTarget(String(root));
+    const readerAdmissionTarget = distImportLockTarget(String(root));
+    // The whole point of the pair is that they are two targets. A collapsed derivation would make the
+    // reader probe below contend with the mutex its own parent holds, which is exactly B-bcae F-033.
+    assert.notEqual(
+      canonicalBuildTarget,
+      readerAdmissionTarget,
+      'reader admission must derive a target distinct from the canonical build mutex',
+    );
     const interleavingHandlers = createFindingLedgerHandlers({ store, root, scanRoot: root });
     let successorBuildAcquired = false;
+    let nestedReaderAdmitted = false;
     const interleavingResult = interleavingHandlers.finding_runtime_evidence_run({
       ...runArgs,
       idempotencyKey: 'runtime-build-lock-successor-interleaving',
       afterCanonicalBuildLockForTest: () => {
-        const target = join(tmpdir(), `proof-or-stop-build-lock-${createHash('sha256').update(String(root)).digest('hex')}`);
-        const probe = spawnSync(process.execPath, ['-e', String.raw`
+        // Three OUTCOMES, not two: a blanket `catch { exit 75 }` cannot tell "somebody holds this" from
+        // "that path does not exist" or any other error, so the negative leg would stay green through a
+        // drifted derivation. ELOCKED is the only failure that means HELD; anything else exits 70 and
+        // prints why. `realpath:false` matches how production takes reader admission (B-bcae F-060) and
+        // is what lets the probe observe a target no one materialises as a file.
+        const acquireProbe = String.raw`
           const lockfile = require(process.argv[1]);
           try {
-            const release = lockfile.lockSync(process.argv[2], { stale: 30000, update: 10000, retries: 0 });
+            const release = lockfile.lockSync(process.argv[2], {
+              stale: 30000, update: 10000, retries: 0, realpath: false,
+            });
             release();
             process.exit(0);
-          } catch { process.exit(75); }
-        `, require.resolve('proper-lockfile'), target]);
+          } catch (error) {
+            if (error && error.code === 'ELOCKED') process.exit(75);
+            process.stderr.write(String((error && error.stack) || error));
+            process.exit(70);
+          }
+        `;
+        const probeFor = (target: string) => spawnSync(
+          process.execPath, ['-e', acquireProbe, require.resolve('proper-lockfile'), target], { encoding: 'utf8' },
+        );
+        // NEGATIVE leg: the broker really holds this target right now, so acquisition must be REFUSED,
+        // and refused specifically with ELOCKED.
+        const probe = probeFor(canonicalBuildTarget);
         successorBuildAcquired = probe.status === 0;
-        assert.equal(probe.status, 75, 'a successor build must not enter after runtime admission');
+        assert.equal(
+          probe.status, 75,
+          `a successor build must not enter after runtime admission (expected ELOCKED on ${canonicalBuildTarget}): ${probe.stderr}`,
+        );
+        // POSITIVE leg, B-bcae F-033 leg 2. This critical section holds ONLY the canonical build mutex,
+        // and the caller-supplied build/execution commands really run inside it. Those commands may route
+        // through bin/proof-or-stop.js, whose bootstrap coordinates its dist import on the SEPARATE
+        // reader-admission target — so a nested CLI must be admitted immediately here. If reader
+        // admission shared this mutex, this probe would take the ELOCKED branch above instead. Nothing
+        // creates this target: the probe locks the production-derived path as production would find it,
+        // rather than a file the test made for itself.
+        const nested = probeFor(readerAdmissionTarget);
+        nestedReaderAdmitted = nested.status === 0;
+        assert.equal(
+          nested.status, 0,
+          `a nested reader must be admitted inside a canonical build critical section (on ${readerAdmissionTarget}): ${nested.stderr}`,
+        );
       },
     });
     assert.equal(interleavingResult.persisted, true);
     assert.equal(successorBuildAcquired, false);
-    console.log('runtime.canonical_build_lock_interleaving: PASS successorStartedAfterAdmission=true successorAcquired=false receiptCommitted=true');
+    assert.equal(nestedReaderAdmitted, true);
+    console.log(
+      'runtime.canonical_build_lock_interleaving: PASS successorStartedAfterAdmission=true '
+      + 'successorAcquired=false successorRefusal=ELOCKED nestedReaderAdmitted=true '
+      + 'targetsDerivedFrom=scripts/build-lock-target.mjs targetsDistinct=true receiptCommitted=true',
+    );
     console.log('runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0');
 
     const beforeReplay = store.readFindingLedger<JsonValue>(storyId);
