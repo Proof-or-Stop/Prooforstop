@@ -29,6 +29,9 @@ try {
   git('add', '.'); git('commit', '-m', 'second');
   assert.notEqual(currentMaterialHash(root), before);
   assert.equal(trees, 2);
+  git('commit', '--allow-empty', '-m', 'new HEAD with identical tree');
+  assert.notEqual(currentMaterialHash(root), before);
+  assert.equal(trees, 3, 'U17: a new HEAD must refresh the process memo');
   assert.equal(currentMaterialHash(root, 'missing'), undefined);
   console.log('PASS U17 material-tree-memo');
 } finally {
