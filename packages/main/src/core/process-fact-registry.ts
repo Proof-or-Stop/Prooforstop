@@ -1530,7 +1530,7 @@ export const PROCESS_FACT_ARTIFACTS = [
       signature: 'signFindingLedgerReceipt/verifyFindingLedgerReceipt; every committed semantic row is covered by an exact signed commit receipt',
       producerCommand: 'finding_add/finding_runtime_evidence_run',
     },
-    rationale: 'Append-only Finding persistence carrier and REVIEW-retention metadata. It has no lifecycle/gate authority; protected query and runtime verification establish its receipt trust independently.',
+    rationale: 'Append-only Finding persistence carrier and REVIEW-retention metadata. Atomic multi-append preparation preserves each existing signed receipt and exact prefix, publishes one complete envelope under the original fence, and leaves disk unchanged on any preparation refusal. The carrier has no lifecycle/gate authority; protected query and runtime verification establish its receipt trust independently.',
   },
   {
     name: 'artifact:finding-ledger-lifecycle-transition',
