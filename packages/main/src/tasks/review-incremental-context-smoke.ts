@@ -98,6 +98,7 @@ import {
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
+  assertCurrentReviewRunForEvidence,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -999,10 +1000,10 @@ function runAsOfRunEligibilityRegression(): void {
 
     write(
       root,
-      `.proof-or-stop/story/actives/${storyId}/import-padding.json`,
+      `.proof-or-stop/story/actives/${storyId}/process-metrics.json`,
       `${JSON.stringify({ kind: 'metadata-only-import-commit', padding: 'm'.repeat(64) }, null, 2)}\n`,
     );
-    git(root, ['add', `.proof-or-stop/story/actives/${storyId}/import-padding.json`]);
+    git(root, ['add', `.proof-or-stop/story/actives/${storyId}/process-metrics.json`]);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata-only import padding']);
     assert.notEqual(currentGitHead(root), headH1, 'metadata-only commit must move HEAD');
 
@@ -1025,6 +1026,7 @@ function runAsOfRunEligibilityRegression(): void {
       { ok: true },
       'production verifier must still accept B after a metadata-only import-style commit',
     );
+    assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runB.reviewRunId), 'current admission accepts metadata-only history');
     const liveHeadAfterMeta = reviewIncrementalContext(store, root, storyId, role, verifierOptions(runB));
     assert.equal(
       liveHeadAfterMeta.currentHeadHash,
@@ -1066,6 +1068,7 @@ function runAsOfRunEligibilityRegression(): void {
       { ok: true },
       'receipt-bound verifier stays pinned to H1 and does not consume later material drift as envelope invalidity',
     );
+    assert.throws(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runB.reviewRunId), /stale|material/i, 'historical replay never grants current admission after related material drift');
     console.log(`${MARKER} AS-OF-RUN ELIGIBILITY: metadata-only commit preserves H1 envelope; live HEAD probe remains the old path; later material commit mismatches HEAD-based context`);
   } finally {
     resetConfigCache();
