@@ -1,0 +1,113 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reconcile the trusted RED-to-GREEN enforcement execution plan",
+      "context": "Update the existing v7 program plan against current 0.3.294 code and the trusted RED-evidence decision spec. Define current-vs-target truth, mechanical tri-class classification, trusted RED and exact-target GREEN contracts, lifecycle doors, legacy adoption, concurrency, adversarial evidence, rollout order, acceptance tests, and explicit non-goals. The document must remain a program plan and must not claim runtime enforcement already exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/lab-maintenance.md",
+        "AGENTS.md#two-layer-process-fact-contract"
+      ],
+      "userSees": "One current, implementation-sequenced Markdown truth source that states exactly which Stories require RED-to-GREEN evidence, how documentation-only work is exempted, and what evidence proves enforcement.",
+      "excludes": [
+        "Changing runtime code or configuration",
+        "Enabling reproFirstPreflight enforce mode",
+        "Creating RED or GREEN runtime evidence commands",
+        "Treating the plan as implemented authority"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "PLAN-HAPPY",
+            "desc": "The plan defines a complete ordered program from trusted RED production through same-target GREEN consumption and enforcement rollout.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "PLAN-EDGE",
+            "desc": "Pure refactor and mechanically proven non-executable documentation, research, and audit Stories have explicit non-synthetic evidence paths while retaining the normal lifecycle.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "PLAN-ADV",
+            "desc": "The plan closes declaration-only exemption, post-hoc RED, v1 self-report, rollback-door, direct-terminal compatibility, stale receipt, chain fork, and concurrent transition bypasses.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Freeze and independently audit the candidate plan with Claude CLI",
+      "context": "Audit the exact candidate bytes in read-only Claude CLI mode. Record tool version, timestamp, candidate digest, invocation rubric, raw response digest, findings, truth-source adjudication, accepted changes, rejected suggestions, and final verdict in a separate audit Markdown file. If the first verdict has blockers, revise the plan and repeat until APPROVE or report the unresolved blocker.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/lab-maintenance.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A reproducible Claude CLI audit record bound to the exact final plan bytes, with no audit prose represented as runtime or lifecycle authority.",
+      "excludes": [
+        "Allowing Claude CLI to modify repository files",
+        "Treating an APPROVE response as implementation evidence",
+        "Auditing mutable or unhashed plan bytes"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/audits/repro-first-gate-enforce-plan-claude-audit.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "AUDIT-HAPPY",
+            "desc": "The final audit records Claude CLI version, exact plan SHA-256, exact rubric, response SHA-256, and an APPROVE verdict for those bytes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "AUDIT-EDGE",
+            "desc": "Any unavailable, timed-out, or non-APPROVE audit remains explicitly blocked and cannot be described as approval.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "AUDIT-ADV",
+            "desc": "The audit record distinguishes external reviewer opinion from signed Proof-or-Stop lifecycle evidence and runtime truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

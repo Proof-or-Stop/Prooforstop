@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "proof-or-stop.scope_boundary.v1.1",
+  "storyId": "B-de09",
+  "mode": "maintenance",
+  "allowed": [
+    "Create docs/audits/repro-first-gate-enforce-plan-claude-audit.md",
+    "Revise docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+    "Run read-only inspection and Claude CLI audit commands",
+    "Use the full Story lifecycle for the documentation change"
+  ],
+  "excluded": [
+    "Configuration enforcement flips",
+    "Lab creation or integration",
+    "RED/GREEN subsystem implementation",
+    "Runtime source changes"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "The user explicitly requested a Markdown plan followed by Claude CLI audit on 2026-09-09.",
+  "createdAt": "2026-09-09T22:32:35.126Z",
+  "updatedAt": "2026-09-09T22:32:35.126Z",
+  "_hash": "fcaaf286d9407e4434962ba94e1e293689e29b2a4e46f0d4a4e593a8d13aa171"
+}
