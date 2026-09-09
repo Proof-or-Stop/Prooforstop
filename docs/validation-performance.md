@@ -26,6 +26,10 @@ available. DONE-required validation keeps its own policy, evidence and capacity
 checks and requires a current PRE_CERT window; it does not consume the routine
 suite's execution claim.
 
+Session and transition hints follow this order. When a certification window
+already exists, inspect its status and recovery command before starting another;
+session status alone does not establish that its evidence is current.
+
 ## Identical command results
 
 A structured command in `validate.commands` or `doneRequiredCommands` may opt in

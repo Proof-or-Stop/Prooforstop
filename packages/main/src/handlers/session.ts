@@ -19,6 +19,7 @@
  */
 
 import { execSync } from 'child_process';
+import { loadVerifiedCertificationWindow, type CertificationWindowState } from '../core/certification-window.js';
 import { existsSync, readFileSync, realpathSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
 import type { HandlerContext } from './context.js';
@@ -431,6 +432,7 @@ export interface NextStepCtx {
   configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
   reviewerStatus: ReviewerStatusSummary | null;
+  certificationWindowState?: CertificationWindowState | 'UNVERIFIED' | null;
   reviewInventoryState?: 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED' | null;
   /**
    * B-b9d0 CHK-004: scope gate blocking signal. When the scope gate fails
@@ -644,7 +646,14 @@ export function computeNextStep(c: NextStepCtx): string {
       }
       return `DEV phase, all checklist items done. Next: git commit + proof-or-stop story_advance --storyId=${sid} --phase=REVIEW to enter code review`;
     }
-    case 'REVIEW':
+    case 'REVIEW': {
+      const precertNext = c.certificationWindowState
+        ? `proof-or-stop certification_window_status --storyId=${sid}`
+        : c.reviewInventoryState === 'OPEN'
+          ? `proof-or-stop review_inventory_status --storyId=${sid}`
+          : c.reviewInventoryState === 'FINALIZED'
+            ? `proof-or-stop validate --story=${sid} --focus=fast --json, then immediately proof-or-stop certification_window_begin --storyId=${sid}`
+            : `proof-or-stop review_inventory_begin --storyId=${sid}`;
       if (c.reviewerStatus) {
         if (c.reviewerStatus.totalBlockers > 0) {
           const blocked = c.reviewerStatus.entries
@@ -664,11 +673,12 @@ export function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which proof-or-stop-review-* reviewers should run; once all pass, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
+          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which proof-or-stop-review-* reviewers should run; once all required lanes are terminal, continue with ${precertNext}`;
         }
-        return `REVIEW phase, All reviewer gates passed. Next: proof-or-stop story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
+        return `REVIEW phase, All reviewer gates passed. Next: ${precertNext} to prepare current PRE_CERT evidence before TEST`;
       }
-      return `REVIEW phase. Proof-or-Stop reviewers review code and file findings. After all critical/high findings are resolved, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
+      return `REVIEW phase. Proof-or-Stop reviewers review code and file findings. Finish the signed review inventory before PRE_CERT. Next: ${precertNext}`;
+    }
     case 'TEST_CASE':
       return `TEST_CASE phase (legacy). Recommend proof-or-stop story_advance --phase=TEST to enter verification directly`;
     case 'TEST_CASE_REVIEW':
@@ -682,13 +692,13 @@ export function computeNextStep(c: NextStepCtx): string {
         return `TEST phase. Scope gate: blocking — ${c.scopeBlocking.reason}. DONE is not recommended while scope is blocking. Next: return to DEV/REVIEW to fix out-of-scope diff or run proof-or-stop scope_contract_acknowledge then proof-or-stop story_advance --phase=TEST`;
       }
       if (openBugs.length > 0) {
-        return `TEST phase, ${openBugs.length} open bug(s): ${openBugs.slice(0, 3).map(b => b.id).join(', ')}. After fixing, run proof-or-stop validate to verify`;
+        return `TEST phase, ${openBugs.length} open bug(s): ${openBugs.slice(0, 3).map(b => b.id).join(', ')}. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to repair bugs and restore PRE_CERT before REVIEW routine verification`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST phase. Next: proof-or-stop validate to run verification, record bug/evidence`;
+        return `TEST phase, current signed REVIEW routine PASS is missing. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to restore PRE_CERT; TEST consumes existing verification evidence`;
       }
       if (!c.hasPassingTestEvidence) {
-        return `TEST phase, last verification failed. Next: fix failing items then rerun proof-or-stop validate`;
+        return `TEST phase, last verification failed. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to repair failing items and restore PRE_CERT`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
@@ -1450,6 +1460,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // Next step (kept — most important field).
       let reviewInventoryState: NextStepCtx['reviewInventoryState'] = null;
       try { reviewInventoryState = ctx.store.readReviewInventoryEpochs(storyId).epochs.at(-1)?.state ?? null; } catch {}
+      let certificationWindowState: NextStepCtx['certificationWindowState'] = null;
+      if (story.phase === 'REVIEW') {
+        try { certificationWindowState = loadVerifiedCertificationWindow(ctx.store, storyId).window?.state ?? null; }
+        catch { certificationWindowState = 'UNVERIFIED'; }
+      }
       const nextStep = computeNextStep({
         storyId,
         phase: story.phase,
@@ -1465,6 +1480,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         donePrecheck,
         reviewerStatus,
         reviewInventoryState,
+        certificationWindowState,
         scopeBlocking,
       });
 
