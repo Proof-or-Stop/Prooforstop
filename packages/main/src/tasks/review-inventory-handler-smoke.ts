@@ -557,7 +557,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
   }
 }
 
-function criticDiscoveryRecovery(): void {
+async function criticDiscoveryRecovery(): Promise<void> {
   // Separate real-handler fixture: a critic discovers before its first receipt.
   // A receipt already issued for an empty set remains immutable; this test does
   // not require replacing it or reopening a previously certified observation.
@@ -574,8 +574,10 @@ function criticDiscoveryRecovery(): void {
       const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, env(lane));
       const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId, started);
-      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId,
-        note: 'Disposable required lane inspected the frozen source.', readManifest, readEvents }, env(lane));
+      await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store,
+        storyId, agent: lane, reviewRunId, command: 'review_pass_set', payload: {
+          storyId, agent: lane, reviewRunId,
+          note: 'Disposable required lane inspected the frozen source.', readManifest, readEvents } });
     }
     const actor = 'proof-or-stop-review-topology-critic';
     const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
@@ -583,10 +585,12 @@ function criticDiscoveryRecovery(): void {
     const started = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, env(actor));
     const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
     assert.ok(reviewRunId, started);
-    const output = cli(fixture.root, 'finding_add', { storyId, agent: actor, reviewRunId,
-      desc: 'The disposable critic discovered a verified missing read boundary after required lanes terminated.',
-      severity: 'high', category: 'missing', evidenceState: 'verified', files: ['packages/main/src/subject.ts'],
-      readManifest, readEvents }, env(actor));
+    const output = await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store,
+      storyId, agent: actor, reviewRunId, command: 'finding_add', payload: {
+        storyId, agent: actor, reviewRunId,
+        desc: 'The disposable critic discovered a verified missing read boundary after required lanes terminated.',
+        severity: 'high', category: 'missing', evidenceState: 'verified', files: ['packages/main/src/subject.ts'],
+        readManifest, readEvents } });
     const findingId = output.match(/(B-inventory-handler:F-\d+)/)?.[1];
     assert.ok(findingId, output);
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId,
@@ -602,7 +606,7 @@ function criticDiscoveryRecovery(): void {
 }
 
 if (process.argv.includes('--discovery-only')) {
-  criticDiscoveryRecovery();
+  await criticDiscoveryRecovery();
   process.exit(0);
 }
 await inventoryPurposeRecovery();
@@ -610,7 +614,7 @@ if (process.argv.includes('--progress-capture-fixture')) {
   console.log('PASS U11 real inventory finalization captures verified progress');
   process.exit(0);
 }
-criticDiscoveryRecovery();
+await criticDiscoveryRecovery();
 if (process.argv.includes('--purpose-only')) process.exit(0);
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
