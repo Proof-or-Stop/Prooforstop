@@ -9,7 +9,9 @@ const scratch = mkdtempSync(join(tmpdir(), 'flat-provider-validation-'));
 try {
   const commands = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'))).validate.commands;
   const registered = commands.flatMap(command => command.args.filter(arg => /\.(?:mjs|js)$/.test(arg)).map(arg => resolve(root, arg)));
-  const roots = ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js'];
+  const roots = ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
+    'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
+    'red-w2b-wiring-contract.mjs'];
   const trace = join(scratch, 'trace.mjs');
   const log = join(scratch, 'nested.jsonl');
   writeFileSync(trace, `
@@ -24,7 +26,7 @@ const fixtureModes = {
   'managed-host-run-smoke.js': ['--granted-no-identity-worker', '--timer-error-worker',
     '--fifo-worker', '--post-claim-intake-worker', '--fifo-writer', '--terminal-lock-holder'],
 };
-for (const name of ['execFileSync', 'spawnSync', 'spawn']) {
+for (const name of ['execFileSync', 'execFile', 'spawnSync', 'spawn']) {
   const original = cp[name];
   cp[name] = function(command, args, ...rest) {
     if (Array.isArray(args) && args[0] && registered.has(resolve(args[0]))
@@ -38,12 +40,12 @@ for (const name of ['execFileSync', 'spawnSync', 'spawn']) {
 syncBuiltinESMExports();
 `);
   for (const filename of roots) {
-  const entry = commands.find(command => command.args.includes(`packages/main/dist/tasks/${filename}`));
+  const entry = commands.find(command => command.args.some(arg => arg.endsWith('/' + filename)));
   assert.ok(entry, `${filename} contract remains in the canonical suite`);
-  const child = spawnSync(process.execPath, entry.args, { cwd: root, timeout: 120000,
+  const child = spawnSync(process.execPath, entry.args, { cwd: root, timeout: 180000,
     env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import=${trace}` }, encoding: 'utf8' });
   const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
-  assert.equal(nested, '', 'U18: canonical provider validation must not launch another registered command');
+  assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
   assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
   }
   for (const filename of ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
