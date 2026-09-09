@@ -120,4 +120,5 @@ assert.equal(failures.length, 0, 'OBSERVE_FRESH_PASS_REUSE_MISSING: actual-handl
 await import('./schema-value-controls.mjs');
 await import('./schema-wiring-controls.mjs');
 await import('./failure-output-controls.mjs');
+await import('./schema-producer-consumer-controls.mjs');
 console.log('OBSERVE_FULL_PASS_REUSE_GREEN');

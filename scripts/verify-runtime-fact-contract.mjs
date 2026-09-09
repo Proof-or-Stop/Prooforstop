@@ -319,6 +319,15 @@ async function main() {
     check(Boolean(site && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `current schema lacks coupled runtime identity control: ${canonical}`);
     check(Boolean(site.valueBinding), `current schema must bind its actual declaration/producer/comparison value: ${canonical}`);
   }
+  for (const [boundaryId, sourcePath, canonical] of [
+    ['review-incremental-context', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
+  ]) {
+    const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === boundaryId);
+    const site = boundary?.identitySites.find(row => row.sourcePath === sourcePath && row.canonical === canonical);
+    check(Boolean(site && boundary.paths.some(row => row.sourcePath === sourcePath) && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `live schema producer/consumer must be registered with its negative control: ${sourcePath}`);
+  }
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
   const configModule = await importDist(root, 'packages/main/dist/core/config.js');

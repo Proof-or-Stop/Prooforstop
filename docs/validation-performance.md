@@ -358,11 +358,15 @@ DONE-required PASS reuse. A nested npm suite is not interchangeable with an
 argv-similar leaf invocation unless their complete execution identities match.
 
 
-The two identity modules involved in the new schema repair also bind their
-reviewed complete executable syntax (TypeScript printer, comments removed,
+The four registered identity modules (evidence-freshness, review-inventory-epoch,
+verification-execution-evidence and handlers/checklist) bind their reviewed
+complete executable syntax (TypeScript printer, comments removed,
 SHA-256). This covers live producers, comparisons, aliases and computed writes,
 including neighbouring identity sites in those modules. Merely keeping a
-canonical declaration or a dead comparison is insufficient. Comments/formatting
+canonical declaration or a dead comparison is insufficient. Exact value checks
+run first, then the syntax guard rejects rewiring that retains those values.
+This covers the registered modules; the separately pinned execution identity
+protects the checker implementation itself. Comments/formatting
 alone do not revoke this syntax binding. Intentional executable changes require
 reviewed pin updates; there is no automatic refresh or hostile-host guarantee.
 Failed-command diagnostics preserve both the output prefix and terminal failure

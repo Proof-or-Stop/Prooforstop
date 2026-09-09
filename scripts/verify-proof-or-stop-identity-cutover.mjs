@@ -3152,7 +3152,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"6fd5c5e219984cc47b389cb42f33d1a224cab375dd7177700008874b7a59be1d"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"b7ea8ddecb6ae44059356e87ab7fe9cd3ec31bbfa08e8d0974e261d856d812dc"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "23db6d5e896552fae206dc318a930a295262d6a7b4bd4fe409b2ea300dc60187"
@@ -3295,7 +3295,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "cf3d37272ee67991907b2b08ff34c7e895f607248a7cf7d616d6375d11ed7d27"
+    "sha256": "fe48a88ac59da7faeff71ef2f7952d6116e3e90418194e4f30e687d83e03cee3"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3652,7 +3652,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"6fd5c5e219984cc47b389cb42f33d1a224cab375dd7177700008874b7a59be1d"],
+  [52,"b7ea8ddecb6ae44059356e87ab7fe9cd3ec31bbfa08e8d0974e261d856d812dc"],
   [55,"6247df3d01e06afbc65f88a0a045506420d093170269e8143d31bfd0fdc99353"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],

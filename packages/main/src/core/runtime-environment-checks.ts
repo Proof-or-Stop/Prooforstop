@@ -444,6 +444,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     commands: Object.freeze(['review_incremental_context', 'review_run_start']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/evidence-freshness.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
       runtimeSource('packages/main/src/core/impact-classification-policy.ts'),
       runtimeSource('packages/main/src/core/review-incremental-context.ts'),
       runtimeSource('packages/main/src/handlers/review-run.ts'),
@@ -452,6 +453,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION' } },
+      identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
       identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identitySite(
@@ -473,6 +475,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1'),
       identityMutationCase('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identityMutationCase('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop.incremental-review-basis.v1'),
@@ -486,11 +489,15 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     commands: Object.freeze(['review_inventory_finalize', 'certification_window_begin', 'certification_window_status']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/handlers/checklist.ts'),
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
       { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
       { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'comparison', expression: 'evidence.receipt.schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'export-const', name: 'VERIFICATION_RECEIPT_BUNDLE_V5' } },
+      identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5', undefined, undefined, undefined, undefined, { canonical: 8, retired: 0 }),
       identitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1", "proofbound.review-inventory-critic-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1", "proofbound.review-inventory-epoch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
@@ -503,6 +510,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1"),
@@ -1113,6 +1122,8 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
   'packages/main/src/core/evidence-freshness.ts': '2d02cb9a87a9059ad126c3715935a67d73b62d43102e7287b929211a64b5bdf6',
   'packages/main/src/core/review-inventory-epoch.ts': 'b3aad15f12f3058cbb5118a92a02da599ea0d80092006165d32edae22cde8635',
+  'packages/main/src/core/verification-execution-evidence.ts': 'b3f8ccac871af23b30b2406467ed9731aa60a7ab9bab32436ab2d6ab42c600c8',
+  'packages/main/src/handlers/checklist.ts': '37796c83e6256e37945463cef2ddd457cae46dcc2858298b3d77eac346018bc9',
 });
 
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
@@ -1177,6 +1188,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
   const sourceSnapshots = new Map<string, string>();
+  const executableSources = new Map<string, string>();
   for (const site of boundary.identitySites) {
     const registeredPath = boundary.paths.find((candidate) => candidate.sourcePath === site.sourcePath);
     if (!registeredPath) throw new Error(`${boundary.id}/${site.siteId}: identity-site owner is not registered`);
@@ -1189,7 +1201,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
     let sourceBytes = sourceSnapshots.get(absolute);
     if (sourceBytes === undefined) {
       sourceBytes = readFileSync(absolute, 'utf8');
-      assertIdentityExecutableSource(registeredPath.sourcePath, sourceBytes, boundary.id);
+      executableSources.set(registeredPath.sourcePath, sourceBytes);
       sourceSnapshots.set(absolute, sourceBytes);
     }
     const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, sourceBytes);
@@ -1224,6 +1236,11 @@ export function assertCanonicalActiveIdentityBoundary(input: {
         `expected exact ${site.canonical} and no ${site.retired}`,
       );
     }
+  }
+  // Exact value checks remain independently operative; the final syntax guard
+  // then catches live rewiring and decoys that keep those values unchanged.
+  for (const [sourcePath, sourceBytes] of executableSources) {
+    assertIdentityExecutableSource(sourcePath, sourceBytes, boundary.id);
   }
 }
 // B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.
