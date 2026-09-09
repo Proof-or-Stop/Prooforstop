@@ -62,9 +62,13 @@
     "commands": [
       {
         "command": "node",
-        "args": ["scripts/verify-lab-worktree.mjs"],
+        "args": [
+          "scripts/verify-lab-worktree.mjs"
+        ],
         "timeoutMs": 180000,
-        "focus": ["fast"],
+        "focus": [
+          "fast"
+        ],
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
@@ -2458,7 +2462,8 @@
       {
         "command": "node",
         "args": [
-          "packages/main/dist/tasks/provider-process-registry-smoke.js"
+          "packages/main/dist/tasks/provider-process-registry-smoke.js",
+          "--provider-launch-owner-admission-child"
         ],
         "timeoutMs": 600000
       },
@@ -2466,6 +2471,28 @@
         "command": "node",
         "args": [
           "packages/main/dist/tasks/semantic-scope-guard-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-host-run-smoke.js",
+          "--canonical-core"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/dispatch-run-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/provider-claude-smoke.js"
         ],
         "timeoutMs": 600000
       }

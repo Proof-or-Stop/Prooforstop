@@ -1832,26 +1832,30 @@ async function main(): Promise<void> {
     'cross-host snapshot cleanup is idempotent after a prior successful handler or GC cleanup',
   );
 
-  const realCallerBoundary = execFileSync(process.execPath, [fileURLToPath(new URL('./managed-host-run-e2e-smoke.js', import.meta.url))], { encoding: 'utf8' });
-  assert.match(realCallerBoundary, /managed-host-run-e2e-smoke PASS/, 'lifecycle smoke must execute the real caller-death and worker-crash boundary');
+  // Canonical validation schedules these contracts independently. The default
+  // standalone command retains its historical pinned combined proof.
+  if (!process.argv.includes('--canonical-core')) {
+    const realCallerBoundary = execFileSync(process.execPath, [fileURLToPath(new URL('./managed-host-run-e2e-smoke.js', import.meta.url))], { encoding: 'utf8' });
+    assert.match(realCallerBoundary, /managed-host-run-e2e-smoke PASS/, 'lifecycle smoke must execute the real caller-death and worker-crash boundary');
 
-  // F083: CHK-001:edge:0 is immutably pinned to this command. Execute the
-  // real-provider process suite here so the pin itself proves that a live,
-  // output-silent provider remains running across the production-injected
-  // legacy ten-minute observation boundary and repeated next touches.
-  const silenceBoundary = execFileSync(
-    process.execPath,
-    [fileURLToPath(new URL('./managed-host-run-process-smoke.js', import.meta.url))],
-    { encoding: 'utf8' },
-  );
-  assert.match(
-    silenceBoundary,
-    /managed-host-run-process-smoke PASS/,
-    'pinned managed-host-run smoke executes the real silent-provider observation boundary',
-  );
-  console.log('managed-host-run silence-boundary extension PASS');
+    // F083: CHK-001:edge:0 is immutably pinned to this command. Execute the
+    // real-provider process suite here so the pin itself proves that a live,
+    // output-silent provider remains running across the production-injected
+    // legacy ten-minute observation boundary and repeated next touches.
+    const silenceBoundary = execFileSync(
+      process.execPath,
+      [fileURLToPath(new URL('./managed-host-run-process-smoke.js', import.meta.url))],
+      { encoding: 'utf8' },
+    );
+    assert.match(
+      silenceBoundary,
+      /managed-host-run-process-smoke PASS/,
+      'pinned managed-host-run smoke executes the real silent-provider observation boundary',
+    );
+    console.log('managed-host-run silence-boundary extension PASS');
+  }
 
-  console.log('managed-host-run-smoke PASS');
+  console.log(process.argv.includes('--canonical-core') ? 'managed-host-run-core PASS' : 'managed-host-run-smoke PASS');
 }
 
 if (process.argv[2] === '--granted-no-identity-worker') {

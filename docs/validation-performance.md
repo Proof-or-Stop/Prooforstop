@@ -91,3 +91,16 @@ bounded prefix/suffix shown to users. Output beyond the 12,000-character selecto
 window produces a partial, non-reusable receipt; an exactly 12,000-character
 complete result remains eligible. The v2 complete-capture execution identity
 prevents earlier display-derived receipts from being consumed after this repair.
+
+### Provider contract scheduling
+
+Canonical validation invokes `provider-process-registry-smoke` with
+`--provider-launch-owner-admission-child` and `managed-host-run-smoke` with
+`--canonical-core`. Those entry variants execute their own contracts only;
+`host-run-usage`, `dispatch-run`, `provider-claude`, managed process cleanup and
+managed caller-death checks are independent configured commands. The original
+standalone invocations retain their complete combined proofs and selectors for
+existing pinned receipts. Canonical variants emit distinct core selectors.
+`verify-flat-provider-validation.mjs` observes real child-process boundaries and
+rejects a canonical entry launching another registered command; it also checks
+that every former nested provider contract remains independently scheduled.

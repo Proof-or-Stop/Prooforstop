@@ -724,7 +724,8 @@ async function main(): Promise<void> {
   }
   // Immutable verification receipts pin this selector. Emit it only after the
   // direct command has executed every production launch-owner admission proof.
-  console.log('provider-process-registry-smoke PASS');
+  console.log(process.argv.includes(PROVIDER_LAUNCH_OWNER_ADMISSION_CHILD_FLAG)
+    ? 'provider-process-registry-core PASS' : 'provider-process-registry-smoke PASS');
 }
 
 if (process.argv[2] === '--child') {
