@@ -1,6 +1,6 @@
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
-import { runScheduled } from '../packages/main/src/core/keyed-scheduler.ts';
+const { runScheduled } = await import('../packages/main/src/core/keyed-scheduler.ts');
 
 const entry = (name, key = '43127', access = 'exclusive') => ({ name,
   resources: [{ class: 'fixed-port', key, canonicalKey: `fixed-port:${key}`, access }] });
