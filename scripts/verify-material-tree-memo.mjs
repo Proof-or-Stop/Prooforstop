@@ -64,6 +64,12 @@ try {
     assert.equal(currentMaterialHash(root, originalHead), replacementHash, 'custom replacement namespace invalidates memo');
     git('update-ref', '-d', `refs/lab-replacements/${originalHead}`);
     assert.equal(currentMaterialHash(root, originalHead), originalHash);
+    process.env.GIT_REPLACE_REF_BASE = 'refs/lab-prefix';
+    git('update-ref', `refs/lab-prefix${originalHead}`, replacementHead);
+    assert.equal(currentMaterialHash(root, originalHead), replacementHash,
+      'U17: replacement prefix without slash must invalidate cached tree');
+    git('update-ref', '-d', `refs/lab-prefix${originalHead}`);
+    assert.equal(currentMaterialHash(root, originalHead), originalHash);
   } finally {
     if (oldBase === undefined) delete process.env.GIT_REPLACE_REF_BASE;
     else process.env.GIT_REPLACE_REF_BASE = oldBase;
