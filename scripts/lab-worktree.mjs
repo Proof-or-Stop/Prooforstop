@@ -340,9 +340,7 @@ async function main() {
     if (s.storyCarry && ['active', 'prepared'].includes(s.phase)) {
       const finishBaselineWitnesses = s.storyCarry.baselineWitnesses.map(previous => {
         const witness = runCaptured(mainRoot, previous.command);
-        if (passed(witness) || witness.status !== previous.sourceExitCode) {
-          fail(`Story baseline failure changed on latest main: ${previous.command.join(' ')}`);
-        }
+        if (witness.status === null || witness.signal || witness.error) fail(`Story baseline command could not run on latest main: ${previous.command.join(' ')}`);
         return {
           command: previous.command,
           sourceExitCode: previous.sourceExitCode,
@@ -358,6 +356,26 @@ async function main() {
       s.storyCarry.finishBaselineMainHead = sha(mainRoot);
       save(s);
     }
+    const checkStoryBaselineParity = (root, kind) => {
+      if (!s.storyCarry?.finishBaselineWitnesses) return;
+      const rows = s.storyCarry.finishBaselineWitnesses.map(expected => {
+        const observed = runCaptured(root, expected.command);
+        if (observed.status === null || observed.signal || observed.error || observed.status !== expected.mainExitCode) {
+          fail(`${kind} changed latest-main baseline outcome for: ${expected.command.join(' ')}`);
+        }
+        return {
+          command: expected.command,
+          expectedExitCode: expected.mainExitCode,
+          observedExitCode: observed.status,
+          outputDigest: hash(observed.output),
+          outputTail: outputTail(observed.output),
+          elapsedMs: observed.elapsedMs,
+          observedAt: observed.at,
+        };
+      });
+      s.history.push({ kind, rows });
+      save(s);
+    };
     const versions = await core('version-bump');
     const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const check = (root, kind) => {
@@ -408,7 +426,7 @@ async function main() {
       if (sha(mainRoot) === s.candidate) { s.phase = 'integrated'; save(s); }
       else {
         if (sha(mainRoot) !== s.releaseBase) fail('main moved after preparation; preserve candidate for explicit re-preparation.');
-        build(s.path); check(s.path, 'candidate-green');
+        build(s.path); checkStoryBaselineParity(s.path, 'candidate-story-baseline'); check(s.path, 'candidate-green');
         assertMainStable(); assertClean(s.path, s.override);
         if (sha(mainRoot) !== s.releaseBase || sha(s.path) !== s.candidate) fail('HEAD changed during verification; refusing merge.');
         if (git(mainRoot, 'branch', '--show-current') !== 'main') fail('The main checkout changed branches.');
@@ -418,7 +436,7 @@ async function main() {
     }
     if (s.phase === 'integrated') {
       if (sha(mainRoot) !== s.candidate) fail('main moved before post-merge verification; workspace retained for recovery.');
-      build(mainRoot); check(mainRoot, 'main-green');
+      build(mainRoot); checkStoryBaselineParity(mainRoot, 'main-story-baseline'); check(mainRoot, 'main-green');
       if (versions.readSyncedVersion(mainRoot) !== s.version) fail('main version drift after integration.');
       s.phase = 'verified'; save(s);
     }

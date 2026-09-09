@@ -86,8 +86,11 @@ This rule preserves evidence instead of treating a repository-wide FAIL as a
 PASS. It proves only that all remaining failed commands also fail on main at the
 time of capture; different failure output remains visible in the record and is
 not claimed to have the same root cause. Finish repeats those exact baseline
-commands against the latest main before integration and stops if any command
-passes or changes exit code.
+commands against the latest main and treats its current exit codes as the
+integration oracle. A failure fixed on main must remain fixed in the built
+candidate; a failure still present on main must retain the same exit code. The
+built candidate and post-merge main both replay every carried command, and any
+parity change stops the release.
 
 ## Explicit release and cleanup
 
