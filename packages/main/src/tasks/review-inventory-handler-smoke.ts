@@ -1164,12 +1164,12 @@ const raceRunId = raceStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(raceRunId);
 const [cancelRaceResult, findingRaceResult] = await Promise.all([
   cliAsync(cancelRace.root, 'review_inventory_cancel', { storyId, reason: 'concurrent late evidence recovery race' }),
-  cliAsync(cancelRace.root, 'finding_add', {
+  fixtureReviewCli(cancelRace, 'finding_add', {
     storyId, agent: raceLane, reviewRunId: raceRunId,
     desc: 'Concurrent finding is either durably before cancel or rejected after its boundary.',
     severity: 'high', category: 'adversarial', evidenceState: 'verified',
     files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-  }, { PROOF_OR_STOP_AGENT: raceLane, PROOF_OR_STOP_SESSION_ID: raceSession }),
+  }).then(output => ({ ok: true, output }), error => ({ ok: false, output: String(error) })),
 ]);
 assert.equal(cancelRaceResult.ok, true, cancelRaceResult.output);
 if (!findingRaceResult.ok) assert.match(findingRaceResult.output, /REVIEW_INVENTORY_EVIDENCE_SEALED/);
@@ -1249,17 +1249,23 @@ scopeDrift.store.writeScopeContract(storyId, {
   acknowledgements: [], createdAt: scopeNow, updatedAt: scopeNow,
 });
 cli(scopeDrift.root, 'review_inventory_begin', { storyId });
-cli(scopeDrift.root, 'scope_contract_acknowledge', {
+const beforeScopeAck = scopeDrift.store.readScopeContract(storyId)!;
+assert.throws(() => cli(scopeDrift.root, 'scope_contract_acknowledge', {
   storyId, paths: ['packages/main/src/consumer-a.ts'],
   reason: 'Expand the frozen review scope for deterministic drift coverage.',
-});
+}), /acceptance_amendment_propose/, 'scope acknowledgement cannot bypass independent amendment approval');
+assert.deepEqual(scopeDrift.store.readScopeContract(storyId), beforeScopeAck);
+// Simulate out-of-band scope drift in this disposable fixture after proving
+// the public writer refuses it. The inventory consumer must independently detect it.
+scopeDrift.store.writeScopeContract(storyId, { ...beforeScopeAck,
+  allowedModify: [...beforeScopeAck.allowedModify, 'packages/main/src/consumer-a.ts'] });
 const scopeDriftStatus = cli(scopeDrift.root, 'review_inventory_status', { storyId });
 assert.match(scopeDriftStatus, /State: INVALIDATED/);
 assert.match(scopeDriftStatus, /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
 assert.match(
   cli(scopeDrift.root, 'review_inventory_finalize', { storyId }),
   /State: FINALIZED[\s\S]*authorizesTest: false/,
-  'F035: begin -> scope acknowledgement invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
+  'F035: out-of-band scope drift invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
 
 const acceptanceDrift = setup();
