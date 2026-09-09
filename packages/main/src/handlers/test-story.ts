@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * test_story — Story-level tests
  *
@@ -81,7 +82,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       try {
         const checklist = ctx.store.readChecklist(storyId);
         storyItemIds = new Set(checklist.items.map(i => i.id));
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         throw new Error(`Cannot read checklist for story ${storyId}`);
       }
 

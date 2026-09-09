@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * @task B-9cec
  * @checklist CHK-001
@@ -802,7 +803,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
       { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
     );
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return result;
   }
   const rendered = renderVerificationCoverage(coverage, verificationPolicy);
@@ -2502,7 +2503,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
             return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
-          } catch {
+          } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }

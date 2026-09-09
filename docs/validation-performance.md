@@ -20,8 +20,8 @@ inputs must remain unchanged before consumption and publication. Failure,
 truncated output and worktree pollution cannot publish a reusable PASS. Tampered
 receipts are refused. A reused result records the original receipt and execution
 time, and is not counted as a new child execution. Dynamic validation retains
-its existing trace-based path; shared execution is enabled only with dynamic
-mode off. No existing command is automatically opted in.
+its existing trace-based path; shared execution uses dynamic mode off or an explicit
+validate.sharedExecution option independently of selection mode. No existing command is automatically opted in.
 
 `fullBaselineReusePolicy: forbidden`, `closurePolicy: never-reuse`, gate and
 validation-infrastructure risk classifications, and build-proof consumers or
@@ -158,3 +158,33 @@ all readers of the same resource. `resource-config.mjs` compares four actual
 assertion suites under the original and candidate declarations and checks that
 all audited readers still conflict with the writer barrier. This is a bounded
 command comparison, not a full-suite or whole-Story performance claim.
+
+## Governed revision and checkpoint recovery
+
+After the existing authorized rollback to INIT/PLAN, `checklist_update` may revise
+an amended item only within its ordinary phase, role, field and scope permissions.
+It requires a substantive `reason` for an acceptance change and appends a signed
+revision binding both intent states, both scope hashes, the prior signature,
+actual writer and owner generation. It retains every original amendment and resets
+the item to pending. This grants no exemption from PLAN review, scope checks,
+fresh coverage or final review. DEV cannot use this route to rewrite acceptance.
+Dispatched verification-intent writers retain their existing PLAN-only field scope.
+
+Every canonical write for an amended checklist first saves the exact signed
+checklist snapshot in an append-only checkpoint sequence under the repository's
+shared Git metadata (`proof-or-stop-intent-checkpoints`). Canonical reads reject
+a missing or different projection, including deletion of the entire history field.
+The latest checkpoint is selected from the contiguous immutable sequence; ordinary
+callers cannot supply a replacement signature or silently truncate old history.
+Typed integrity errors propagate through gate/roster/query fallbacks. A reordered
+JSON object is equivalent under canonical comparison.
+
+An interrupted projection is recovered by the current owner with
+`verification_intent_recover --storyId=B-example` (inspection, zero writes), then
+`verification_intent_recover` with `apply:true`, the returned
+`expectedCheckpointDigest`, and a substantive reason. Recovery restores exactly
+the signed snapshot; stale digests, foreign owners and terminal Stories are
+refused. It neither reruns commands nor re-attests evidence. The existing CLI
+command audit records the recovery invocation. The checkpoint and signing key
+are trusted local Git metadata: this is protection against mutable Story-file
+corruption and interrupted publication, not a hostile Git-administrator sandbox.

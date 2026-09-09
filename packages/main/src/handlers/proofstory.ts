@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * ProofStory handlers.
  *
@@ -157,7 +158,7 @@ function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }
 
 function readChecklistForTopology(ctx: HandlerContext, storyId: string): ChecklistData {
   try { return ctx.store.readChecklist(storyId); }
-  catch { return emptyChecklist(); }
+  catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); return emptyChecklist(); }
 }
 
 function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string, phaseBasis: 'plan' | 'pre_review' = 'plan', priorPlanBasisDigest?: string) {
@@ -371,7 +372,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   function readChecklistSafe(storyId: string): ChecklistData {
     try {
       return store.readChecklist(storyId);
-    } catch {
+    } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
       return emptyChecklist();
     }
   }

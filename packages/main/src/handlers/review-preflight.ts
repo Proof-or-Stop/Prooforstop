@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * review-preflight — CLI gate preflight for the REVIEW→TEST gate.
  *
@@ -233,7 +234,7 @@ function detectFastChannel(store: StoryStore, storyId: string): boolean {
     const itemCount = checklist?.items?.length ?? 0;
     const riskSignalCount = story.riskSignals?.length ?? 0;
     return !isNormalChannel({ itemCount, riskSignalCount });
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     // If we can't determine channel, fail-closed to "normal channel"
     // so the gate is enforced (safer default).
     return false;

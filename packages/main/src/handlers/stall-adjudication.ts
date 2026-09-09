@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * B-7813 CHK-002: stall_resolution_set — persist a signed, current-round-bound
  * stall-adjudication.json that clears the CHK-001 convergence-stall block for
@@ -155,7 +156,7 @@ function withdrawUnreachableChecklistItem(
     const checklist = store.readChecklist(storyId);
     const item = checklist.items.find(i => i.id === itemId);
     return item?.decisionRef ?? '';
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return '';
   }
 }

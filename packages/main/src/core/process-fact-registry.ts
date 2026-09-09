@@ -196,6 +196,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_intent_recover: ['signed-artifact','verification-policy','gate-evidence'],
   verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
@@ -442,6 +443,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'checklist_update',
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate',
   },
+  verification_intent_recover: {name:'checklist.json',path:'checklist.json',signed:false,signature:'exact repository-signed Git-metadata checkpoint is verified before projection recovery',producerCommand:'verification_intent_recover',consumerGate:'StoryStore canonical readers reject missing, stripped or mismatched checkpoint projections'},
   verification_intent_append: {name:'checklist.json',path:'checklist.json',signed:false,signature:'repository-local Ed25519 amendment chain binding owner, scope, before and after intent semantics',producerCommand:'verification_intent_append',consumerGate:'StoryStore.readChecklist and writeChecklist validate signatures before coverage and review consumers'},
   verification_evidence_add: {
     name: 'checklist.json',
@@ -1795,6 +1797,8 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_VALIDATION_EXECUTION = [{
+  name:'runtime:acceptance_history_checkpoint',kind:'runtime-behavior',semantics:['runtime-behavior','signed-artifact','gate-evidence','verification-policy'],level:'L4',producer:'core/verification-intent-checkpoint',producerSourceRefs:['packages/main/src/core/verification-intent-checkpoint.ts','packages/main/src/core/verification-intent-amendment.ts','packages/main/src/core/store.ts','packages/main/src/handlers/checklist.ts'],consumerGate:'canonical checklist reads, all gate callers and owner-only checkpoint recovery',rationale:'Authorized INIT/PLAN revisions append signed lineage without rewriting history or bypassing field authority. Revisions reopen planning; old gate evidence retains normal freshness checks. A signed write-ahead full checklist checkpoint in shared Git metadata detects history-field deletion and restores interrupted projection without rerunning commands. Typed integrity errors propagate instead of becoming empty checklists. The Git signing key and checkpoint metadata remain a local trust boundary, not hostile-host protection.',
+}, {
   name: 'runtime:execution_implementation_pin', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'workspace-binding', 'verification-policy'],
   level: 'L4', producer: 'core/execution-implementation',

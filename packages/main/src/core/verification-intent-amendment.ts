@@ -4,13 +4,25 @@ import { digestCanonicalJson } from './digest.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 
 const lanes = ['happy', 'edge', 'adversarial'] as const;
-export interface IntentAmendment {
-  schema: 'proof-or-stop.intent-amendment.v1';
+interface IntentChangeProvenance {
   id: string; storyId: string; itemId: string; reason: string;
   sessionId: string; leaseId: string; createdAt: string; headHash: string;
   scopeHash: string; beforeHash: string; afterHash: string;
-  beforeIntent: VerificationIntent; addition: Partial<VerificationIntent>;
+  beforeIntent: VerificationIntent;
   previousSignature: string | null; signature: string;
+}
+export type IntentAmendment = IntentChangeProvenance & ({
+  schema: 'proof-or-stop.intent-amendment.v1'; addition: Partial<VerificationIntent>;
+} | {
+  schema: 'proof-or-stop.intent-revision.v1'; afterIntent: VerificationIntent;
+  beforeScopeHash: string; phase: 'INIT' | 'PLAN'; actor: string;
+});
+
+export class IntentAmendmentIntegrityError extends Error {
+  constructor(readonly code: string, detail = '') { super(code + (detail ? ': ' + detail : '')); this.name = 'IntentAmendmentIntegrityError'; }
+}
+export function rethrowIntentAmendmentIntegrityError(error: unknown): void {
+  if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && error.code.startsWith('AMENDMENT_')) throw error;
 }
 /** Executor-owned pins are independent of the immutable acceptance semantics. */
 export function intentSemantics(intent: VerificationIntent): VerificationIntent {
@@ -60,21 +72,45 @@ export function createIntentAmendment(args: {
   };
   return {intent, amendment:{...payload,signature:signValidationArtifact(payload,args.gitCwd)}};
 }
+
+/** Called only after checklist_update has enforced its existing phase/role/scope rules. */
+export function createIntentRevision(args: {
+  before: ChecklistItem; after: ChecklistItem; storyId: string; phase: string;
+  reason?: string; actor: string; sessionId: string; leaseId: string; headHash: string; gitCwd: string;
+}): IntentAmendment {
+  if (args.phase !== 'INIT' && args.phase !== 'PLAN') throw new IntentAmendmentIntegrityError('AMENDMENT_REPLAN_REQUIRED', 'return through the authorized INIT/PLAN workflow before revising signed acceptance');
+  if (!args.reason || args.reason.trim().length < 30) throw new IntentAmendmentIntegrityError('AMENDMENT_REVISION_REASON_REQUIRED', 'provide reason with at least 30 characters');
+  if (!args.before.verificationIntent || !args.after.verificationIntent) throw new IntentAmendmentIntegrityError('AMENDMENT_REVISION_INTENT_REQUIRED');
+  assertIntentAmendments(args.before,args.storyId,args.gitCwd);
+  const payload = {
+    schema:'proof-or-stop.intent-revision.v1' as const, id:randomUUID(), storyId:args.storyId,itemId:args.before.id,
+    reason:args.reason.trim(),sessionId:args.sessionId,leaseId:args.leaseId,createdAt:new Date().toISOString(),headHash:args.headHash,
+    actor:args.actor,phase:args.phase as 'INIT' | 'PLAN',beforeScopeHash:acceptanceScopeHash(args.before),scopeHash:acceptanceScopeHash(args.after),
+    beforeHash:acceptanceIntentHash(args.before.verificationIntent),afterHash:acceptanceIntentHash(args.after.verificationIntent),
+    beforeIntent:intentSemantics(args.before.verificationIntent),afterIntent:intentSemantics(args.after.verificationIntent),
+    previousSignature:args.before.verificationIntentAmendments?.at(-1)?.signature ?? null,
+  };
+  return {...payload,signature:signValidationArtifact(payload,args.gitCwd)};
+}
 /** Every canonical checklist read/write validates the chain before gates consume it. */
 export function assertIntentAmendments(item: ChecklistItem, storyId: string, gitCwd: string): void {
   if (item.verificationIntentAmendments === undefined) return;
   const rows = item.verificationIntentAmendments;
-  if (!Array.isArray(rows) || !rows.length || !item.verificationIntent) throw new Error('AMENDMENT_INVALID_CHAIN');
+  if (!Array.isArray(rows) || !rows.length || !item.verificationIntent) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_CHAIN');
   let previous: IntentAmendment | undefined;
   for (const record of rows) {
+    if (!record || typeof record !== 'object') throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_CHAIN');
     const {signature,...payload} = record;
-    if (record.schema !== 'proof-or-stop.intent-amendment.v1' || record.storyId !== storyId || record.itemId !== item.id
-        || record.scopeHash !== acceptanceScopeHash(item) || !verifyValidationArtifact(payload,signature,gitCwd)
+    if (!['proof-or-stop.intent-amendment.v1','proof-or-stop.intent-revision.v1'].includes(record.schema) || record.storyId !== storyId || record.itemId !== item.id
+        || !verifyValidationArtifact(payload,signature,gitCwd)
         || record.previousSignature !== (previous?.signature ?? null)
         || (previous && record.beforeHash !== previous.afterHash)
-        || record.beforeHash !== acceptanceIntentHash(record.beforeIntent)
-        || record.afterHash !== acceptanceIntentHash(appendAcceptanceIntents(record.beforeIntent,record.addition))) throw new Error('AMENDMENT_INVALID_SIGNATURE_OR_BINDING');
+        || record.beforeHash !== acceptanceIntentHash(record.beforeIntent)) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_SIGNATURE_OR_BINDING');
+    if (record.schema === 'proof-or-stop.intent-amendment.v1') {
+      if ((previous && record.scopeHash !== previous.scopeHash) || record.afterHash !== acceptanceIntentHash(appendAcceptanceIntents(record.beforeIntent,record.addition))) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_APPEND');
+    } else if (!previous || !['INIT','PLAN'].includes(record.phase) || !record.actor || record.reason.trim().length < 30
+      || record.beforeScopeHash !== previous.scopeHash || record.afterHash !== acceptanceIntentHash(record.afterIntent)) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_REVISION');
     previous=record;
   }
-  if (previous!.afterHash !== acceptanceIntentHash(item.verificationIntent)) throw new Error('AMENDMENT_CURRENT_INTENT_MISMATCH');
+  if (previous!.scopeHash !== acceptanceScopeHash(item) || previous!.afterHash !== acceptanceIntentHash(item.verificationIntent)) throw new IntentAmendmentIntegrityError('AMENDMENT_CURRENT_INTENT_MISMATCH');
 }

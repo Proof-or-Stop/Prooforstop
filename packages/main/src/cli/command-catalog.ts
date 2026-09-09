@@ -553,6 +553,9 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
+  { name: 'verification_intent_recover', description: 'Owner-only recovery of the exact signed acceptance checkpoint after missing/corrupt history or interrupted canonical publication. Default inspects the checkpoint without writes; apply requires its current digest and a reason. No test runs or evidence re-attestation.', schema: {
+    storyId:z.string(), expectedCheckpointDigest:z.string().regex(/^[a-f0-9]{64}$/).optional(),reason:z.string().min(30).optional(),apply:z.boolean().optional(),
+  }},
   { name: 'verification_intent_append', description: 'Owner-only DEV repair: append signed must-level executable acceptance within an existing item scope. Original intents and scope remain unchanged; new coverage and fresh final review remain mandatory.', schema: {
     storyId: z.string(), itemId: z.string(), expectedIntentHash: z.string().regex(/^[a-f0-9]{64}$/),
     reason: z.string().min(30),

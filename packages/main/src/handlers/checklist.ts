@@ -1,4 +1,6 @@
-import { acceptanceIntentHash, createIntentAmendment } from '../core/verification-intent-amendment.js';
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
+import { readIntentCheckpoint } from '../core/verification-intent-checkpoint.js';
+import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
@@ -2435,6 +2437,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      const beforeIntentRevision = structuredClone(item);
+      if (item.verificationIntentAmendments?.length && args.status && args.status !== 'pending' && [args.title,args.context,args.userSees,args.excludes,args.files,args.verificationIntent].some(value=>value!==undefined)) throw new Error('AMENDMENT_REVISION_STATUS_REFUSED: revise acceptance before updating completion status');
       if (args.verificationIntent !== undefined) {
         const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
         const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
@@ -2554,6 +2558,24 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`status → ${args.status}`);
       }
 
+      if (beforeIntentRevision.verificationIntentAmendments?.length && (
+        acceptanceScopeHash(beforeIntentRevision) !== acceptanceScopeHash(item)
+        || acceptanceIntentHash(beforeIntentRevision.verificationIntent!) !== acceptanceIntentHash(item.verificationIntent!)
+      )) {
+        const gitCwd = resolveStoryGitCwd(args.storyId);
+        const lease = readOwnerLease(store.storyDirPath(args.storyId));
+        const owner = probeWriterLease(store.storyDirPath(args.storyId),gitCwd);
+        // The existing dispatched verification-intent role retains its PLAN-only field authority.
+        if (!owner.valid && !isDispatchedVerificationIntentWriter) throw new Error('AMENDMENT_OWNER_REQUIRED');
+        if (!lease?.leaseId || isLeaseStale(lease)) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
+        const revision = createIntentRevision({before:beforeIntentRevision,after:item,storyId:args.storyId,phase:story.phase,
+          reason:args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
+          headHash:currentGitHead(gitCwd) ?? '',gitCwd});
+        (item.verificationIntentAmendments ??= []).push(revision);
+        item.status = 'pending'; item.startTime = null; item.endTime = null;
+        results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
+      }
+
       store.writeChecklist(args.storyId, cl);
 
       // B-3511: append process events on status transitions
@@ -2592,7 +2614,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           `↻ Written and persistence confirmed: ${args.itemId} current status=${persistedStatus}. ` +
           `For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n`,
         );
-      } catch (e) {
+      } catch (e) { rethrowIntentAmendmentIntegrityError(e);
         // Reminder is advisory only — a read-back failure must never change the
         // write result or the stdout conclusion.
         console.warn(`[checklist_update] post-write reload reminder skipped for ${args.storyId}: ${(e as Error).message}`);
@@ -3229,6 +3251,21 @@ export function createChecklistHandlers(ctx: HandlerContext) {
      * intents are priority='should' so the backfill can never retroactively
      * weaponize the hard coverage gate. Refused in INIT/INIT_CHECK/terminal.
      */
+    verification_intent_recover(args: {storyId: string; expectedCheckpointDigest?: string; reason?: string; apply?: boolean}): string {
+      return withChecklistLock(ctx,args.storyId,()=>{
+        const story=assertChecklistMutationCwd(store,args.storyId);
+        if(['DONE','DISCARDED'].includes(story.phase))throw new Error('AMENDMENT_RECOVERY_ACTIVE_STORY_REQUIRED');
+        const gitCwd=resolveStoryGitCwd(args.storyId);
+        if(!probeWriterLease(store.storyDirPath(args.storyId),gitCwd).valid || resolveAgentMutationAuthority({command:'checklist_update'}).entry)throw new Error('AMENDMENT_OWNER_REQUIRED');
+        const checkpoint=readIntentCheckpoint(args.storyId,gitCwd);
+        if(!checkpoint)throw new Error('AMENDMENT_CHECKPOINT_MISSING');
+        if(!args.apply)return JSON.stringify({storyId:args.storyId,generation:checkpoint.generation,expectedCheckpointDigest:checkpoint.dataDigest,action:'restore-exact-signed-checklist',writes:0});
+        if(!args.reason || args.reason.trim().length<30)throw new Error('AMENDMENT_RECOVERY_REASON_REQUIRED');
+        store.restoreIntentCheckpoint(args.storyId,args.expectedCheckpointDigest??'');
+        return `Signed acceptance checkpoint restored for ${args.storyId}; digest=${checkpoint.dataDigest}; no command executed and no evidence re-attested.`;
+      });
+    },
+
     verification_intent_append(args: {
       storyId: string; itemId: string; expectedIntentHash: string; reason: string; addition: Partial<VerificationIntent>;
     }): string {

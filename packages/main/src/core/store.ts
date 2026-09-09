@@ -1,4 +1,6 @@
-import { assertIntentAmendments } from './verification-intent-amendment.js';
+import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
+import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint } from './verification-intent-checkpoint.js';
+import { digestCanonicalJson } from './digest.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -758,7 +760,11 @@ export class StoryStore {
   // ── Checklist ──
 
   readChecklist(storyId: string): ChecklistData {
-    const data = this.readJson<ChecklistData>(storyId, 'checklist.json');
+    const checkpoint = readIntentCheckpoint(storyId,this.storyDirPath(storyId));
+    let data: ChecklistData;
+    try {data = this.readJson<ChecklistData>(storyId, 'checklist.json');}
+    catch (error) {if(checkpoint)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKLIST_UNREADABLE','restore the signed checkpoint with verification_intent_recover');throw error;}
+    assertIntentCheckpointProjection(data,checkpoint);
     for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
     return data;
   }
@@ -768,15 +774,24 @@ export class StoryStore {
     // its field, its item, or a prefix of its history on a later metadata write.
     if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
       const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
+      assertIntentCheckpointProjection(previous,readIntentCheckpoint(storyId,this.storyDirPath(storyId)));
       for (const old of previous.items) {
         if (!old.verificationIntentAmendments?.length) continue;
         const next = data.items.find(item => item.id === old.id);
         const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
-        if (JSON.stringify(prefix) !== JSON.stringify(old.verificationIntentAmendments)) throw new Error('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+        if (digestCanonicalJson(prefix ?? null) !== digestCanonicalJson(old.verificationIntentAmendments)) throw new IntentAmendmentIntegrityError('AMENDMENT_HISTORY_REMOVAL_REFUSED');
       }
     }
     for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    writeIntentCheckpoint(storyId,data,this.storyDirPath(storyId));
     this.writeJson(storyId, 'checklist.json', data);
+  }
+
+  restoreIntentCheckpoint(storyId: string, expectedDigest: string): void {
+    const checkpoint=readIntentCheckpoint(storyId,this.storyDirPath(storyId));
+    if(!checkpoint || checkpoint.dataDigest!==expectedDigest)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_STALE_OR_MISSING');
+    // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
+    this.writeJson(storyId,'checklist.json',checkpoint.data);
   }
 
   // ── Bug ──

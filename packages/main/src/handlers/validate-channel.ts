@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * validate-channel — CLI gate: structured normal-channel evidence check
  *
@@ -480,7 +481,7 @@ export function checkCommitAuthor(
   let checklist;
   try {
     checklist = store.readChecklist(storyId);
-  } catch (e: any) {
+  } catch (e: any) { rethrowIntentAmendmentIntegrityError(e);
     return {
       provider: 'proof-or-stop-channel',
       status: 'fail',
