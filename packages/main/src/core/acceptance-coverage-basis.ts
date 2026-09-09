@@ -174,17 +174,56 @@ function canonicalRegistryTopologyPath(producerRef: string, consumerRef: string)
   return `path:process-fact:${producerName}->consumer:${producer.consumerGate}`;
 }
 
-function topologyPaths(contract: ProofStoryContractData | null): string[] {
+function canonicalStaticTopologyPath(
+  producer: AcceptanceVerificationTopologyV1['producerRefs'][number],
+  consumer: AcceptanceVerificationTopologyV1['consumerRefs'][number],
+  records: readonly PlannedCoveragePathV1[],
+  discoveredPaths: ReadonlySet<string>,
+): string | null {
+  const consumerValue = sourceRefValue(consumer);
+  if (!consumerValue?.startsWith('existing:basis-path:')) return null;
+  const basisRef = consumerValue.slice('existing:'.length);
+  if (!isAcceptanceBasisPathSourceRef(basisRef)) return null;
+  const path = basisRef.slice('basis-path:'.length);
+  const staticCall = /^path:static-call:([^#]+)#([^>]+)->consumer:([^#]+)#([^>]+)$/.exec(path);
+  // A topology reference never creates discovery evidence. This bounded
+  // projection handles current exact edges, not additional PLAN deferrals.
+  if (!staticCall || !discoveredPaths.has(path)) return null;
+  if (sourceRefValue(producer) === consumerValue) return path;
+
+  const sourceRef = producer.sourceRef;
+  if (sourceRef.refKind !== 'planned') return null;
+  const matchingRecords = records.filter(record => record.plannedPathDeclarationRef === sourceRef.plannedPathDeclarationRef);
+  if (matchingRecords.length !== 1) return null;
+  const endpoint = matchingRecords[0].producer;
+  // Preserve endpoint identity: a declaration-level match alone could bind a
+  // consumer endpoint, or a different producer, to this independently found call.
+  if (endpoint.id !== sourceRef.endpointRef || endpoint.role !== 'producer'
+    || endpoint.expectedFileRef !== staticCall[1]
+    || endpoint.expectedSymbolOrFact !== staticCall[2]) return null;
+  return path;
+}
+
+function topologyPaths(
+  contract: ProofStoryContractData | null,
+  records: readonly PlannedCoveragePathV1[],
+  discoveredPaths: ReadonlySet<string>,
+): string[] {
   const paths: string[] = [];
   for (const binding of contract?.acceptanceBindings ?? []) {
     const topology = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
     if (!topology) continue;
-    const producers = new Map(topology.producerRefs.map(producer => [producer.id, topologyPathEndpointValue(producer)]));
+    const producers = new Map(topology.producerRefs.map(producer => [producer.id, producer]));
     for (const consumer of topology.consumerRefs) {
       const consumerRef = topologyPathEndpointValue(consumer);
       for (const producerId of consumer.producerRefs ?? []) {
-        const producerRef = producers.get(producerId);
-        if (producerRef && consumerRef) paths.push(canonicalRegistryTopologyPath(producerRef, consumerRef) ?? `path:${producerRef}->${consumerRef}`);
+        const producer = producers.get(producerId);
+        const producerRef = topologyPathEndpointValue(producer);
+        if (producer && producerRef && consumerRef) paths.push(
+          canonicalStaticTopologyPath(producer, consumer, records, discoveredPaths)
+            ?? canonicalRegistryTopologyPath(producerRef, consumerRef)
+            ?? `path:${producerRef}->${consumerRef}`,
+        );
       }
     }
   }
@@ -509,7 +548,7 @@ export function reconcileTopologyWithCoverageBasis(
   basis: AcceptanceCoverageBasisV1,
   foundationalDecision: DecisionData | null = null,
 ): AcceptanceBasisDiagnostic[] {
-  const topology = new Set(topologyPaths(contract));
+  const topology = new Set(topologyPaths(contract, basis.plannedPathRecords, new Set(basis.enumeratedPathRefs)));
   const topologySourceRefs = stable((contract?.acceptanceBindings ?? []).flatMap(binding => {
     const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
     // Consumer process facts name the endpoint of a producer edge; they do not

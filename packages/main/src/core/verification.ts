@@ -3,6 +3,7 @@ import type {
   ChecklistItem,
   VerificationCoverageEntry,
   VerificationEvidence,
+  VerificationEvidenceReceipt,
   VerificationIntentItem,
   VerificationIntentType,
   VerificationCoverageReport,
@@ -21,6 +22,20 @@ import { createHash } from 'crypto';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
+
+export interface VerificationReceiptGateDecision {
+  allowed: boolean;
+  state?: 'current' | 'stale-needs-execution' | 'invalid';
+  code: string;
+  detail: string;
+}
+
+export type VerificationReceiptGateEvaluator = (input: {
+  intentRef: string;
+  selector: string;
+  command: string;
+  evidence: VerificationEvidence;
+}) => VerificationReceiptGateDecision;
 
 export function intentRef(itemId: string, lane: VerificationLane, index: number, intent?: VerificationIntentItem): string {
   return intent?.id || `${itemId}:${lane}:${index}`;
@@ -113,8 +128,10 @@ export function isExecutableIntentType(type: VerificationIntentType): boolean {
  *    recorded against an executable intent, or the audited escape). NEVER covers —
  *    this is what stops `type:manual` from being a universal bypass at the gate.
  *  - mechanical === undefined → legacy prose-only evidence written before B-ec67.
- *    Grandfathered: keeps its historical 'covered' status so in-flight stories do
- *    not hard-break. This is SAFE (not a bypass) because after B-ec67 F-006/F-007/F-001
+ *    The pure compatibility projection keeps its historical 'covered' status so
+ *    non-gating readers do not hard-break. Every lifecycle gate supplies the
+ *    authoritative receiptAdmissibility callback and therefore rejects it. After
+ *    B-ec67 F-006/F-007/F-001
  *    NO write path can mint mechanical:undefined for a NEW executable-intent write:
  *      - verification_evidence_add / _batch_add refuse an executable write that provides
  *        neither a selector (→ mechanical:true receipt) nor a nonMechanicalReason
@@ -124,23 +141,45 @@ export function isExecutableIntentType(type: VerificationIntentType): boolean {
  *      - verification_evidence_refresh_stale carries mechanical/receipt/nonMechanicalReason
  *        forward (and demotes a refreshed receipt to mechanical:false) instead of dropping
  *        them.
- *    So `mechanical === undefined` on an executable intent ⟺ genuinely pre-mechanism legacy
- *    data loaded from disk. Do NOT globally demote undefined here — that would hard-break
- *    every in-flight story's grandfathered prose evidence (the migration break).
+ *    So `mechanical === undefined` on an executable intent is genuinely pre-mechanism
+ *    legacy data loaded from disk. Do NOT globally demote it in compatibility-only
+ *    projections; gate-owned callbacks supply the fail-closed migration boundary.
  *
  * Non-executable (manual|docs) intents are unaffected and stay 'covered'.
  */
 function coverageStatusForCoveredEvidence(
   type: VerificationIntentType,
   evidence: VerificationEvidence,
-): VerificationCoverageEntry['status'] {
-  if (!isExecutableIntentType(type)) return 'covered';
+  intentRef: string,
+  selector: string,
+  command: string,
+  receiptAdmissibility?: VerificationReceiptGateEvaluator,
+): { status: VerificationCoverageEntry['status']; evidence: VerificationEvidence } {
+  if (!isExecutableIntentType(type) && !command) return { status: 'covered', evidence };
   if (evidence.mechanical === true) {
+    if (receiptAdmissibility) {
+      const decision = receiptAdmissibility({ intentRef, selector, command, evidence });
+      return decision.allowed
+        ? { status: 'covered', evidence }
+        : {
+            status: decision.state === 'stale-needs-execution' ? 'stale' : 'non_mechanical',
+            evidence: { ...evidence, nonMechanicalReason: decision.detail },
+          };
+    }
     const receipt = evidence.receipt;
-    return receipt && receipt.selectorMatched && receipt.exitCode === 0 ? 'covered' : 'non_mechanical';
+    return { status: receipt && receipt.selectorMatched && receipt.exitCode === 0 ? 'covered' : 'non_mechanical', evidence };
   }
-  if (evidence.mechanical === false) return 'non_mechanical';
-  return 'covered'; // mechanical === undefined → legacy grandfather
+  if (receiptAdmissibility) {
+    const decision = receiptAdmissibility({ intentRef, selector, command, evidence });
+    return decision.allowed
+      ? { status: 'covered', evidence }
+      : {
+          status: decision.state === 'stale-needs-execution' ? 'stale' : 'non_mechanical',
+          evidence: { ...evidence, nonMechanicalReason: decision.detail },
+        };
+  }
+  if (evidence.mechanical === false) return { status: 'non_mechanical', evidence };
+  return { status: 'covered', evidence }; // mechanical === undefined → legacy grandfather outside lifecycle gates
 }
 
 /**
@@ -198,7 +237,7 @@ export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
-  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions; factProvenance?: FactProvenanceOptions } = {},
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions; factProvenance?: FactProvenanceOptions; receiptAdmissibility?: VerificationReceiptGateEvaluator } = {},
 ): VerificationCoverageReport {
   const qualityProfile = options.evidenceQualityProfile ?? 'light';
   const entries: VerificationCoverageEntry[] = [];
@@ -213,23 +252,42 @@ export function buildVerificationCoverage(
     if (isWithdrawnChecklistStatus(item.status)) continue;
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
-      const evidence = pickEvidence(item, collected.ref);
+      let evidence = pickEvidence(item, collected.ref);
       let status: VerificationCoverageEntry['status'] = 'missing';
       if (evidence) {
         if (isDeferredGateEvidence(evidence)) status = 'deferred';
         else if (evidence.kind === 'waiver') status = 'waived';
         else if (evidence.result === 'fail') status = 'failed';
         else if (
-          currentHead &&
-          evidence.headHash &&
-          !headMatches(evidence.headHash, currentHead) &&
-          !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
+          currentHead
+          && !(options.receiptAdmissibility && (isExecutableIntentType(collected.intent.type) || collected.intent.verification?.command))
+          && evidence.headHash
+          && (isEvidenceFresh
+            ? !isEvidenceFresh(evidence.headHash, evidence)
+            : !headMatches(evidence.headHash, currentHead))
         ) status = 'stale';
         // B-ec67 CHK-004: an executable intent is 'covered' ONLY by an executed
         // receipt (or grandfathered legacy evidence); a non-mechanical attestation
         // is demoted to 'non_mechanical'. Lives HERE in the coverage gate — not only
         // in the write handler — so recording type:manual cannot bypass execution.
-        else status = coverageStatusForCoveredEvidence(collected.intent.type, evidence);
+        else {
+          const decision = coverageStatusForCoveredEvidence(
+            collected.intent.type,
+            evidence,
+            collected.ref,
+            collected.intent.verification?.selector || '',
+            collected.intent.verification?.command || '',
+            options.receiptAdmissibility,
+          );
+          status = decision.status;
+          evidence = decision.evidence;
+          // Authenticate before applying a consumer's independent Git cutoff.
+          // Invalid publication fields must not be mistaken for renewable drift.
+          if (status === 'covered' && currentHead && evidence.headHash
+            && (isEvidenceFresh ? !isEvidenceFresh(evidence.headHash, evidence) : !headMatches(evidence.headHash, currentHead))) {
+            status = 'stale';
+          }
+        }
 
         // Evidence quality classification (balanced: warning, strict: blocking)
         if (status === 'covered' && qualityProfile !== 'light') {
@@ -305,8 +363,13 @@ export function buildVerificationCoverage(
   };
 }
 
-export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string, evidenceQualityProfile?: EvidenceQualityProfile): string[] {
-  const coverage = buildVerificationCoverage(cl, currentHead, undefined, { evidenceQualityProfile });
+export function getBlockingVerificationEvidenceIssues(
+  cl: ChecklistData,
+  currentHead?: string,
+  evidenceQualityProfile?: EvidenceQualityProfile,
+  receiptAdmissibility?: VerificationReceiptGateEvaluator,
+): string[] {
+  const coverage = buildVerificationCoverage(cl, currentHead, undefined, { evidenceQualityProfile, receiptAdmissibility });
   const nonCoveredStatuses = evidenceQualityProfile === 'strict'
     ? (s: string) => !['covered', 'waived', 'deferred'].includes(s)  // 'weak' is blocking in strict
     : (s: string) => !['covered', 'waived', 'deferred', 'weak'].includes(s);
@@ -318,7 +381,7 @@ export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, current
   const issues = coverage.entries
     .filter(e => e.priority === 'must' && nonCoveredStatuses(e.status))
     .filter(e => e.status !== 'weak' || (!qualityIssueRefs.has(e.intentRef) && !attestationIssueRefs.has(e.intentRef) && !actorTrustIssueRefs.has(e.intentRef) && !factProvenanceIssueRefs.has(e.intentRef)))
-    .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
+    .map(e => `${e.intentRef} [${e.status}]${e.evidence?.nonMechanicalReason ? ` ${e.evidence.nonMechanicalReason} —` : ''} ${e.desc}`);
   // Include quality issue details for weak entries in strict mode
   if (coverage.qualityIssues) {
     for (const qi of coverage.qualityIssues) {
@@ -363,7 +426,7 @@ export function renderVerificationCoverage(report: VerificationCoverageReport, p
           ? '⚠'
           : '✗';
     const ev = e.evidence
-      ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${formatVerificationEvidenceVerdict(e.evidence.verdict)}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
+      ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${formatVerificationEvidenceVerdict(e.evidence.verdict)}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}${e.evidence.nonMechanicalReason ? ` diagnostic=${e.evidence.nonMechanicalReason}` : ''}`
       : '';
     lines.push(`  ${marker} ${e.intentRef} [${e.lane}/${e.priority}/${e.type}] ${e.status}${ev} — ${e.desc}`);
   }
@@ -431,18 +494,17 @@ export function makeEvidence(args: Omit<VerificationEvidence, 'timestamp' | 'hea
  *   1. no recorded receipt shows the new selector matching where the old did not
  *      (that would make it BROADER, not narrower);
  *   2. at least one recorded FAILING receipt, judged by the old selector and matched
- *      by it, does NOT contain the new selector in its retained tail; and
+ *      by it, does NOT contain the new selector in its complete authenticated output; and
  *   3. every recorded PASSING receipt DOES contain the new selector.
  * Receipts on both sides must share one recorded material binding, and each must
  * predate the request.
  *
- * Bounded absence: (2) is asserted within each receipt's retained `outputTail`, which
- * is a bounded tail of the run, NOT the whole run. A caller-facing acceptance must say
- * so; see {@link NARROWING_TAIL_BOUNDED_NOTE}.
+ * Every presence/absence decision uses complete authenticated artifact output.
+ * `outputTail` remains a bounded display projection and is never proof input.
  */
-export const NARROWING_TAIL_BOUNDED_NOTE =
-  'Absence of the new selector was asserted WITHIN each cited receipt retained outputTail, ' +
-  'which is a bounded tail of the captured output and not the whole recorded run.';
+export const NARROWING_COMPLETE_OUTPUT_NOTE =
+  'Presence and absence were evaluated over complete authenticated output artifacts; ' +
+  'outputTail is a bounded display-only projection.';
 
 /** The one audited movement an evidence pin admits (B-1482). */
 export const VERIFICATION_PIN_NARROW_COMMAND = 'verification_pin_narrow';
@@ -455,7 +517,7 @@ export const VERIFICATION_PIN_NARROW_COMMAND = 'verification_pin_narrow';
 export const VERIFICATION_PIN_NARROWING_PRECONDITION =
   'It moves the pin to a STRICTER selector on the same pinned command, and only when a recorded ' +
   'FAILING receipt of that command, which the current selector matched, lacks the new selector in ' +
-  'its retained output; a LOOSER selector and a different pinned command stay refused everywhere.';
+  'its complete authenticated output; a LOOSER selector and a different pinned command stay refused everywhere.';
 
 /**
  * An intentRef is either a custom intent id (which encodes nothing) or the
@@ -503,8 +565,8 @@ export interface RecordedPinnedReceipt {
   selector?: string;
   selectorMatched: boolean;
   exitCode: number;
-  /** Bounded tail of the captured output — see {@link NARROWING_TAIL_BOUNDED_NOTE}. */
-  outputTail: string;
+  /** Complete output returned by authoritative receipt/artifact validation. */
+  output: string;
   outputDigest: string;
   executedAt: string;
   /** Recorded material binding of the evidence row that owns the receipt. */
@@ -546,14 +608,31 @@ export function isUnboundMaterialKey(key: string): boolean {
  * equality already identifies the tuple, and a second identity field could only drift
  * from it.
  */
-export function collectRecordedPinnedReceipts(cl: ChecklistData, command: string): RecordedPinnedReceipt[] {
+export function collectRecordedPinnedReceipts(
+  cl: ChecklistData,
+  command: string,
+  readValidatedOutput: (input: {
+    itemId: string;
+    intentRef: string;
+    receipt: VerificationEvidenceReceipt;
+    evidence: VerificationEvidence;
+  }) => string,
+): RecordedPinnedReceipt[] {
   const wanted = command.trim();
   const receipts: RecordedPinnedReceipt[] = [];
   for (const item of cl.items ?? []) {
     for (const row of item.verificationEvidence ?? []) {
       const receipt = row.receipt;
       if (!receipt) continue;
-      if ((row.command ?? '').trim() !== wanted) continue;
+      const pinned = collectVerificationIntents(item).find(intent => intent.ref === row.intentRef)?.intent.verification?.command;
+      const signedCommand = 'executionReceipt' in receipt ? receipt.executionReceipt?.command : undefined;
+      if (row.command !== wanted && signedCommand !== wanted && pinned !== wanted) continue;
+      if (row.command !== wanted || signedCommand !== wanted || (pinned !== undefined && pinned !== wanted)) {
+        throw new Error('authenticated execution command mismatch [narrowing_recorded_receipt_not_authoritative]');
+      }
+      // The handler owns artifact IO and returns only complete authenticated output.
+      // There is no compatibility-tail fallback, including for legacy callers.
+      const output = readValidatedOutput({ itemId: item.id, intentRef: row.intentRef, receipt, evidence: row });
       receipts.push({
         receiptId: recordedPinnedReceiptId(item.id, row.intentRef, receipt),
         itemId: item.id,
@@ -562,7 +641,7 @@ export function collectRecordedPinnedReceipts(cl: ChecklistData, command: string
         ...(receipt.selector !== undefined ? { selector: receipt.selector } : {}),
         selectorMatched: receipt.selectorMatched === true,
         exitCode: receipt.exitCode,
-        outputTail: receipt.outputTail ?? '',
+        output,
         outputDigest: receipt.outputDigest ?? '',
         executedAt: receipt.executedAt ?? '',
         materialKey: recordedReceiptMaterialKey(row),
@@ -658,7 +737,7 @@ export function evaluateSelectorNarrowing(input: {
   //    is proof that the new selector is BROADER over recorded evidence. Checked first so
   //    a loosening request is named as loosening, instead of falling through to a
   //    missing-proof refusal that would read like a paperwork problem.
-  const broader = receipts.find(r => r.outputTail.includes(selector) && !r.outputTail.includes(previousSelector));
+  const broader = receipts.find(r => r.output.includes(selector) && !r.output.includes(previousSelector));
   if (broader) {
     return refuseNarrowing(
       'narrowing_selector_loosens',
@@ -666,7 +745,7 @@ export function evaluateSelectorNarrowing(input: {
     );
   }
 
-  // 2. A recorded FAILING render the OLD selector matched, whose retained tail lacks the
+  // 2. A recorded FAILING render the OLD selector matched, whose complete output lacks the
   //    new selector. That render is the only thing that shows the pinned selector was not
   //    discriminating and the requested one is.
   const failing = receipts.filter(r => r.exitCode !== 0);
@@ -690,11 +769,11 @@ export function evaluateSelectorNarrowing(input: {
       `no recorded FAILING receipt of ${command} was judged by the pinned selector ${JSON.stringify(previousSelector)} and matched by it, so nothing recorded shows this pin passing a failing run`,
     );
   }
-  const witnesses = judgedByPin.filter(r => !r.outputTail.includes(selector));
+  const witnesses = judgedByPin.filter(r => !r.output.includes(selector));
   if (witnesses.length === 0) {
     return refuseNarrowing(
       'narrowing_selector_not_discriminating',
-      `every recorded failing receipt the pinned selector matched (${judgedByPin.map(r => r.receiptId).join(', ')}) ALSO contains ${JSON.stringify(selector)} in its retained tail, so the requested selector separates nothing the pin does not already separate`,
+      `every recorded failing receipt the pinned selector matched (${judgedByPin.map(r => r.receiptId).join(', ')}) ALSO contains ${JSON.stringify(selector)} in its complete authenticated output, so the requested selector separates nothing the pin does not already separate`,
     );
   }
 
@@ -706,11 +785,11 @@ export function evaluateSelectorNarrowing(input: {
       `no recorded receipt of ${command} PASSED, so "matches every recorded passing receipt" would hold vacuously; record a passing run before narrowing`,
     );
   }
-  const absent = passing.filter(r => !r.outputTail.includes(selector));
+  const absent = passing.filter(r => !r.output.includes(selector));
   if (absent.length > 0) {
     return refuseNarrowing(
       'narrowing_selector_absent_from_passing_receipt',
-      `recorded PASSING receipt(s) ${absent.map(r => r.receiptId).join(', ')} do not contain ${JSON.stringify(selector)} in their retained tail, so the re-pin would start failing a run that genuinely passed`,
+      `recorded PASSING receipt(s) ${absent.map(r => r.receiptId).join(', ')} do not contain ${JSON.stringify(selector)} in their complete authenticated output, so the re-pin would start failing a run that genuinely passed`,
     );
   }
 

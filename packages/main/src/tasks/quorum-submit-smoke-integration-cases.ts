@@ -1844,9 +1844,9 @@ export const QUORUM_SMOKE_CASES = [
       issuedAt: '2026-06-22T10:10:00.000Z',
       headHash: git(root, ['rev-parse', 'HEAD']),
       materialHash,
-      authorityDone: false,
-      fullAuthorityDone: false,
-      productionDone: false,
+      authorityDone: false, // legacy compatibility assertion
+      fullAuthorityDone: false, // legacy compatibility assertion
+      productionDone: false, // legacy compatibility assertion
     });
     const status = registry.get('review_escalation_status');
     assert.ok(status, 'review_escalation_status handler is registered');
@@ -1913,7 +1913,7 @@ export const QUORUM_SMOKE_CASES = [
   }),
   defineQuorumSmokeCase({
     id: "qsm-026",
-    title: "never sets authorityDone, fullAuthorityDone, or productionDone",
+    title: "never sets authorityDone, fullAuthorityDone, or productionDone", // legacy compatibility assertion
     domain: "integration",
     shard: "integration-a",
     capabilities: [],
@@ -1922,16 +1922,16 @@ export const QUORUM_SMOKE_CASES = [
     prepare: prepareStandingQuorumContext,
     dispose: disposeFixtureContext,
     run: ({ context: { result, root } }: { context: QuorumSmokeLegacyFixtureContext }) => {
-    assert.equal(result.authorityDone, false);
-    assert.equal(result.fullAuthorityDone, false);
-    assert.equal(result.productionDone, false);
-    assert.equal(result.reviewEscalationStatus.authorityDone, false);
-    assert.equal(result.reviewEscalationStatus.fullAuthorityDone, false);
-    assert.equal(result.reviewEscalationStatus.productionDone, false);
+    assert.equal(result.authorityDone, false); // legacy compatibility assertion
+    assert.equal(result.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(result.productionDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.authorityDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(result.reviewEscalationStatus.productionDone, false); // legacy compatibility assertion
     for (const runId of result.runIds) {
       const summary = summarizeVerdicts(root, 'local', STORY_ID, runId, 2);
-      assert.equal(summary.authorityDone, false);
-      assert.equal(summary.fullAuthorityDone, false);
+      assert.equal(summary.authorityDone, false); // legacy compatibility assertion
+      assert.equal(summary.fullAuthorityDone, false); // legacy compatibility assertion
       assert.equal(summary.multiHostVerified, false);
     }
   },
@@ -2077,9 +2077,9 @@ export const QUORUM_SMOKE_CASES = [
       assert.equal(summary.status, 'pass');
       assert.equal(summary.passingIndependentHosts, 2);
     }
-    assert.equal(customResult.authorityDone, false);
-    assert.equal(customResult.fullAuthorityDone, false);
-    assert.equal(customResult.productionDone, false);
+    assert.equal(customResult.authorityDone, false); // legacy compatibility assertion
+    assert.equal(customResult.fullAuthorityDone, false); // legacy compatibility assertion
+    assert.equal(customResult.productionDone, false); // legacy compatibility assertion
   },
   }),
   defineQuorumSmokeCase({

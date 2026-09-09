@@ -30,7 +30,7 @@ import {
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry } from '../core/prompt-registry.js';
-import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleConditionalReviewPromptEnvelope,
@@ -98,8 +98,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.storyId) throw new Error('review_run_list: storyId is required');
       store.readStory(args.storyId);
-      const lane = args.lane?.trim();
-      if (args.lane !== undefined && !lane) throw new Error('review_run_list: lane must be nonblank when provided');
+      const laneInput = args.lane?.trim();
+      if (args.lane !== undefined && !laneInput) throw new Error('review_run_list: lane must be nonblank when provided');
+      const lane = laneInput ? canonicalAgentRoleId(laneInput) : undefined;
 
       // Recovery reader for a run that was durably published before a host timed
       // out while consuming the intentionally large assembled review prompt.

@@ -565,13 +565,13 @@ try {
     projectRoot: repo,
     causalInputHashes: baselineCausalInputHashes,
   });
+  // Direct handler tests bypass the CLI ownership gate; seed the same owner
+  // lease that both real story-scoped verifier commands acquire before their
+  // shared causal preflight probes writer availability.
+  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'done_required_validate', cwd: repo });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
-  // Direct handler tests bypass the CLI ownership gate; seed the same owner
-  // lease that a real story-scoped validate command would acquire before the
-  // causal preflight probes writer availability.
-  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'validate', cwd: repo });
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
   console.log('PASS canonical routine validation lineage recorded');

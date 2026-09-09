@@ -17,14 +17,18 @@ const RUNNER_RELATIVE_PATH = 'scripts/run-proofstory-acceptance-rollout-cohort.m
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
 const execFileAsync = promisify(execFile);
-const MAX_COHORT_JOBS = 12;
-export function parseCohortJobs(value = '3') {
+export const DEFAULT_COHORT_JOBS = 6;
+export const MAX_COHORT_JOBS = 12;
+export function parseCohortJobs(value = String(DEFAULT_COHORT_JOBS)) {
   if (!/^[1-9]\d*$/.test(value)) throw new Error(`PROOF_OR_STOP_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
   const parsed = Number(value);
   if (!Number.isSafeInteger(parsed) || parsed > MAX_COHORT_JOBS) throw new Error(`PROOF_OR_STOP_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
   return parsed;
 }
-const productionCaseLimit = parseCohortJobs(process.env.PROOF_OR_STOP_ROLLOUT_COHORT_JOBS ?? '3');
+export function resolveCohortJobs(env = process.env) {
+  return parseCohortJobs(env.PROOF_OR_STOP_ROLLOUT_COHORT_JOBS ?? String(DEFAULT_COHORT_JOBS));
+}
+const productionCaseLimit = resolveCohortJobs();
 let productionCasesActive = 0;
 const productionCaseWaiters = [];
 

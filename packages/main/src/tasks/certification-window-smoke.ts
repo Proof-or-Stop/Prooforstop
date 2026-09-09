@@ -31,6 +31,12 @@ import { createVerifierHandlers } from '../handlers/verifier.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
+  createCurrentVerificationAssertionReceipt,
+  captureVerificationFreshness,
+  createVerificationExecutionReceipt,
+} from '../core/verification-execution-evidence.js';
+import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
+import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
   INVENTORY_COMPLETENESS_AUTHORITY,
@@ -596,6 +602,26 @@ const headDriftRoot = makeGitRoot();
 const headDriftStoryId = 'B-cw24';
 const headDriftStore = makeStore(headDriftRoot, headDriftStoryId);
 const headDriftStoryFiles = currentStoryFilesHash(headDriftRoot, 'HEAD', headDriftRoot)!;
+const headDriftMaterial = currentMaterialHash(headDriftRoot, 'HEAD', headDriftRoot)!;
+const headDriftSelector = 'CERTIFICATION_COVERAGE_OK';
+const headDriftCommand = `node -e "console.log('${headDriftSelector}')"`;
+const headDriftFreshness = captureVerificationFreshness(headDriftRoot, headDriftRoot);
+const headDriftRun = await runSingleAllowlistedCommand(headDriftCommand, headDriftRoot, { cwd: headDriftRoot, timeoutMs: 120_000 });
+const headDriftExecution = createVerificationExecutionReceipt({
+  projectRoot: headDriftRoot,
+  storyId: headDriftStoryId,
+  command: headDriftCommand,
+  cwd: headDriftRoot,
+  run: headDriftRun,
+});
+const headDriftReceipt = createCurrentVerificationAssertionReceipt({
+  freshness: headDriftFreshness,
+  projectRoot: headDriftRoot,
+  storyId: headDriftStoryId,
+  executionReceipt: headDriftExecution,
+  intentRef: 'CHK-001:happy:0',
+  selector: headDriftSelector,
+});
 headDriftStore.writeChecklist(headDriftStoryId, {
   items: [{
     id: 'CHK-001',
@@ -605,23 +631,33 @@ headDriftStore.writeChecklist(headDriftStoryId, {
     startTime: null,
     endTime: null,
     verificationIntent: {
-      happy: [{ desc: 'mechanical coverage stays fresh', type: 'logic', priority: 'must' }],
+      happy: [{
+        desc: 'mechanical coverage stays fresh',
+        type: 'logic',
+        priority: 'must',
+        verification: { command: headDriftCommand, selector: headDriftSelector },
+      }],
       edge: [],
       adversarial: [],
     },
     verificationEvidence: [{
       intentRef: 'CHK-001:happy:0',
       kind: 'logic_test',
+      mechanical: true,
+      receipt: headDriftReceipt,
+      command: headDriftCommand,
       result: 'pass',
-      note: 'headHash-only drift fixture',
-      headHash: 'e'.repeat(40),
+      note: 'headHash-only drift fixture with authoritative V5 bundle and V3 execution component',
+      headHash: headDriftFreshness.headHash,
+      materialHash: headDriftMaterial,
       storyFilesHash: headDriftStoryFiles,
     }],
   }],
 });
+git(headDriftRoot, ['commit', '--allow-empty', '-m', 'actual metadata-only head drift after execution']);
 const headDriftMock = mockInventoryApis({
   storyId: headDriftStoryId,
-  materialHash: currentMaterialHash(headDriftRoot, 'HEAD', headDriftRoot)!,
+  materialHash: headDriftMaterial,
   storyFilesHash: headDriftStoryFiles,
 });
 setReviewInventoryAdmitApisForTest(headDriftMock.apis);

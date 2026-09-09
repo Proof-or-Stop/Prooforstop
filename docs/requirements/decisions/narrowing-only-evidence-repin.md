@@ -62,10 +62,11 @@ proof-or-stop verification_pin_narrow '{
 }'
 ```
 
-### Its only inputs are tool-recorded receipts
+### Its only proof witnesses are current signed V5 receipts
 
-The proof is drawn entirely from receipts this tool recorded for that pinned
-command. There is no transcript parameter, no output parameter and no receipt
+The proof is drawn entirely from current signed V5 receipts this tool recorded for
+that pinned command. Legacy receipt readability grants no proof authority. There is
+no transcript parameter, no output parameter and no receipt
 parameter, because a caller-supplied rendering of a run can be fabricated at zero
 cost. A request that carries such a field is refused BEFORE any proof is attempted
 (`narrowing_caller_output_not_admissible`), so an offered transcript can never be
@@ -78,7 +79,7 @@ record for attribution. It is never itself the proof.
 
 A narrowing is accepted only when, using recorded receipts alone:
 
-1. the candidate is ABSENT from the retained `outputTail` of at least one recorded
+1. the candidate is ABSENT from the complete authenticated output of at least one recorded
    receipt that the CURRENT selector matched while that run was FAILING, and
 2. the candidate is PRESENT in EVERY recorded passing receipt of the same pinned
    command, and
@@ -88,15 +89,28 @@ Condition 1 is what makes the candidate strictly stricter: it demonstrably fails
 run the current selector passed. Condition 2 is what stops a narrowing from breaking
 runs that genuinely succeeded. Condition 3 keeps the two sides comparable.
 
-Absence in condition 1 is asserted within the retained `outputTail`, which is
-BOUNDED — it is the tail of the captured output, not the whole run. The acceptance
-message says so in those terms rather than claiming the selector was absent from the
-entire output.
+All direction, absence, and presence checks use complete authenticated output from
+the immutable artifact, including selectors before the retained-tail boundary.
+`outputTail` is a bounded display-only projection, never a proof fallback. Its value
+must equal the canonical tail derived from that artifact; a mismatch is refused.
+The acceptance message identifies complete authenticated output as the proof source.
 
 Receipts on both sides survive intact. Nothing is back-filled or rewritten: the
 failing receipt keeps recording the selector it was actually judged against, and the
 old pin, the new pin, the reason, the cited receipt ids and the receipt-set digest
 are all retained on the intent and visible through `checklist_get`.
+
+Only a current, lifecycle-admissible `VerificationReceiptBundleV5` can be a narrowing
+witness. Its top-level compatibility selector is not trusted as unsigned prose: its
+SHA-256 must equal the selector digest in the independently signed
+`VerificationAssertionReceiptV2`. The narrowing consumer runs authoritative receipt
+validation before reading any projected witness fields and refuses a missing,
+substituted, malformed, or otherwise inconsistent split receipt or output artifact with
+`narrowing_recorded_receipt_invalid`. Legacy combined receipts and Bundle V2/V3/V4 remain
+readable for audit, but cannot authorize narrowing even if a plausible selector was
+added to them; they fail with `narrowing_recorded_receipt_not_authoritative`. The
+selector remains absent from the selector-free execution receipt. The validator's
+complete output is the only output supplied to the narrowing evaluator.
 
 ### The bound: one narrowing per recorded-receipt set
 
@@ -134,18 +148,20 @@ failing run that the already-narrowed selector still matched.
 | `narrowing_receipt_selector_unknown` | the witness receipt predates B-1482 and does not record which selector it was judged against; that is UNKNOWN, not re-derivable from the current pin |
 | `narrowing_receipt_material_mismatch` | the witness receipt was recorded against different story material than the passing receipts it is weighed against |
 | `narrowing_receipt_not_predating_request` | a receipt used by the proof carries no usable execution time, or claims to have run AFTER the request; only receipts recorded before the request can prove it |
+| `narrowing_recorded_receipt_invalid` | a persisted split receipt or complete-output artifact fails authoritative integrity/signature/cross-link validation, including a mismatched display tail, before it can become a narrowing witness |
+| `narrowing_recorded_receipt_not_authoritative` | a legacy combined or Bundle V2/V3/V4 receipt is readable for audit but lacks the current signed V5 authority required for a narrowing witness |
 
 ## What this does and does not bound
 
-Mechanically enforced: the witness must be a genuine tool-recorded receipt of the
-same pinned command, judged and matched by the current pin, recorded on the same
+Mechanically enforced: the witness must be a current signed, authoritative V5 receipt
+of the same pinned command, judged and matched by the current pin, recorded on the same
 story material as the compared passing receipts, and predating the request; the
 candidate must also match every recorded passing receipt; and the set is spent
 afterwards.
 
 Not bounded: an operator who can drive that command to fail on the same material,
 because no receipt records why a run failed. Such an operator can engineer a genuine
-failing receipt whose tail lacks the candidate, and that receipt satisfies every
+failing receipt whose complete output lacks the candidate, and that receipt satisfies every
 check above. This is recorded here as an **accepted limitation**, not as a bound. No
 part of this design, and no text describing it, may claim that case is prevented,
 detected or ruled out.
@@ -168,7 +184,7 @@ answers it.
 | PM-2 | A forged failing transcript is used as the narrowing proof | the proof accepts caller-supplied output | any selector could be justified | a transcript, output or receipt field is not an input; a request carrying one is refused before any proof is attempted (`narrowing_caller_output_not_admissible`) |
 | PM-3 | A pin whose selector never matched a failing run is re-pinned anyway, on the strength of a reason | the implementation falls back to the reason when no failing receipt exists | the refusal path becomes optional, which is the same as not having it | with no recorded failing render the re-pin is refused and the refusal names the missing side (`narrowing_no_recorded_failing_render`); the reason is retained for attribution and is never the proof |
 | PM-4 | An engineered failing receipt: the author drives a genuine run to fail so the desired selector is absent, then uses it as the proof | the proof cannot tell an incidental failure from one arranged to shape the evidence | a narrowing is accepted that serves the author rather than the check | bounded, not closed: the witness must predate the request and share the recorded story material with the compared passing receipts (`narrowing_receipt_not_predating_request`, `narrowing_receipt_material_mismatch`); the residue is recorded above as an accepted limitation and is never described as prevented |
-| PM-5 | The persisted selector is caller-injected onto a receipt earned under a different selector | the selector is added to a caller-facing schema rather than to the tool-owned receipt block | the audit record can be forged | the field lives inside the tool-owned receipt, which every caller-facing schema strips; a receipt whose recorded selector is unknown can never serve as the witness (`narrowing_receipt_selector_unknown`) |
+| PM-5 | The persisted selector is caller-injected onto a receipt earned under a different selector | the compatibility projection is consumed without binding it to the signed assertion, or readability of unsigned legacy evidence is mistaken for authority | the audit record can be forged | only current signed V5 can witness narrowing; V5 requires SHA-256 of the top-level selector to equal the independently signed assertion selector digest (`narrowing_recorded_receipt_invalid`), while legacy combined and Bundle V2/V3/V4 are refused regardless of any injected selector (`narrowing_recorded_receipt_not_authoritative`) |
 
 ## Alternatives rejected
 

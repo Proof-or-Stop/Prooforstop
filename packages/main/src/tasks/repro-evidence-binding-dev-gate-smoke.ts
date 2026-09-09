@@ -385,7 +385,10 @@ await check('malformed story-evidence-binding returns stale diagnostic instead o
       evidenceScope: 'evidence-candidate',
       subjectBinding: { storyId, candidateId: 'cand-malformed', probeId: 'probe-malformed' },
       producer: 'repro-intake-service',
-      payload: undefined as any,
+      // Publish a structurally valid immutable artifact whose domain payload is
+      // malformed. The production writer must never be asked to persist an
+      // envelope with an omitted payload merely to construct this negative.
+      payload: {} as any,
     });
     const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
     assert.equal(result.blocking, true);

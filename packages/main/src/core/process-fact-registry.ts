@@ -193,11 +193,11 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
-  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_pin_narrow: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
@@ -311,6 +311,8 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  'runtime:verification_execution_key_producer_lock': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:closeout_artifact_trust_boundary': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
@@ -448,7 +450,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_add',
-    consumerGate: 'validate verification coverage and freshness gates',
+    consumerGate: 'validate verification coverage and freshness gates; signed V5 currentness binds the actual invocation environment and child-cwd executable bytes separately from the absolute host runtime, and unprovable executable resolution fails closed',
   },
   verification_evidence_batch_add: {
     name: 'checklist.json',
@@ -462,7 +464,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; selector-free physical execution keys bind signed causal identity and receipt-keyed import checks, while assertion keys independently bind selector/type/kind/timeout provenance; actual child launch occurs inside the causal runner after its last-moment preflight, never before a post-run readiness check; an observation-only identifier prevents a real ordinary rerun from borrowing an older CAS observation and never enters physical grouping; V3 execution time projects the actual signed causal source, and V5 fan-out preserves its immutable bytes/time; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
@@ -1079,10 +1081,56 @@ function commandPolicy(name: string): CommandPolicy | undefined {
   return COMMAND_POLICIES[name as KnownCommandName] as CommandPolicy | undefined;
 }
 
+const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
+  producerSourceRefs: readonly string[];
+  consumerSourceRefs: readonly string[];
+}> = {
+  'verification_pin_narrow': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/verification.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:verification_execution_assertion_reuse_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/core/evidence-freshness.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/machine.ts',
+      'packages/main/src/core/lifecycle-readiness.ts',
+      'packages/main/src/handlers/phase-gates.ts',
+      'packages/main/src/handlers/verifier.ts',
+      'packages/main/src/handlers/done-prepare.ts',
+      'packages/main/src/handlers/certification-window.ts',
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/review-inventory-epoch.ts',
+    ],
+  },
+  'runtime:verification_execution_key_producer_lock': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+  },
+};
+
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
   .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
   .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
+  const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
@@ -1097,17 +1145,17 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
-    producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    producerSourceRefs: sourceRefs?.producerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
-      : undefined,
+      : undefined),
     consumerGate: entry.gateConsumer,
-    consumerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    consumerSourceRefs: sourceRefs?.consumerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
-      : undefined,
+      : undefined),
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -1286,7 +1334,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
     consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
-    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. Exact static topology projection requires a discovery-owned path and either identical existing refs or the uniquely resolved planned producer endpoint identity, role, file, and symbol; mismatched relationships and command-ref shortcuts remain outside the basis. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
   },
   {
     name: 'artifact:pre-review-check.json',

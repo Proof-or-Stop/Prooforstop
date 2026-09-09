@@ -34,6 +34,38 @@ const here = path.dirname(new URL(import.meta.url).pathname);
 const pkgRoot = path.resolve(here, '..');
 const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: pkgRoot, encoding: 'utf8' }).trim();
 
+const STRUCTURAL_PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)/;
+const STATE_DIR_VOLATILE = /^(?:\.proof-or-stop|\.lattice)\/(?:activity\.jsonl$|(?:runtime|locks|traces|usage|learning)\/|artifacts\/baseline\/|benchmarks\/memory-playbook\/|story\/actives\/[^/]+\/(?:activity\.jsonl$|owner-lease\.json$|takeover-count\.json$|gate-failure-counts\.json$|breaker-state\.json$|causal-evidence\/))/;
+const ROOT_VOLATILE = /^(?:docs\/story\/activity\.jsonl|\.proof-or-stop-serve\.json|proof-or-stop-debug\.log|browser-test\.log|\.proof-or-stop-tmp-[^/]+(?:\/.*)?)$/;
+const shouldPrune = (rel) => STRUCTURAL_PRUNED.test(rel) || STATE_DIR_VOLATILE.test(rel) || ROOT_VOLATILE.test(rel);
+
+/* Regression contract for the validator race seen while closing B-aa5f. These
+   files are runtime-owned and may change while this subprocess is running;
+   ordinary Story evidence, source, and ignored graph assets must remain measured. */
+const expectedRuntimePrunes = [
+  '.proof-or-stop/activity.jsonl',
+  '.proof-or-stop/runtime/validation-traces/B-aa5f.jsonl',
+  '.proof-or-stop/locks/validation-capacity.lock/heartbeat.json',
+  '.proof-or-stop/story/actives/B-aa5f/activity.jsonl',
+  '.proof-or-stop/story/actives/B-aa5f/owner-lease.json',
+  '.proof-or-stop/story/actives/B-aa5f/breaker-state.json',
+  '.lattice/story/actives/B-aa5f/gate-failure-counts.json',
+];
+const expectedMeasuredPaths = [
+  '.proof-or-stop/story/actives/B-aa5f/index.json',
+  '.proof-or-stop/dev-memory/experience.jsonl',
+  'packages/graph/assets/index.html',
+  'packages/main/src/index.ts',
+];
+const missedRuntime = expectedRuntimePrunes.filter((rel) => !shouldPrune(rel));
+const hiddenProject = expectedMeasuredPaths.filter((rel) => shouldPrune(rel));
+if (missedRuntime.length || hiddenProject.length) {
+  console.error('INVALID_PROJECT_WRITE_SNAPSHOT_BOUNDARY');
+  for (const rel of missedRuntime) console.error(`  volatile runtime path still measured: ${rel}`);
+  for (const rel of hiddenProject) console.error(`  project path incorrectly pruned: ${rel}`);
+  process.exit(1);
+}
+
 /* CONTENT digest, not git status entry states. `git status` compares entry STATES: a file
    already listed as ` M` stays ` M` when its bytes change during the scan, so the review
    host appended to an already-dirty CLAUDE.md and the previous version reported
@@ -47,30 +79,20 @@ const snapshot = () => {
      two adds ignored paths while pruning the dependency and build trees that are not part
      of the repository's meaningful state.
 
-     KNOWN BOUNDARY: a write under a pruned path (node_modules, dist, .git,
-     .proof-or-stop/runtime/validation-traces) is not detected. The review host confirmed
-     this and judged it acceptable rather than an overclaim: those paths are gitignored, so
-     they are invisible to the DONE clean-tree gate this guard exists to protect, and a
-     write there cannot sabotage it. Stated so the boundary is recorded rather than
-     discovered.
-
-     validation-traces is pruned for a second, sharper reason: it is not this repository's
-     meaningful state at all, it is the running validator's own sidecar. `proof-or-stop
-     validate` writes a trace per executed command, so when this guard runs as one of those
-     commands the surrounding run is concurrently appending to that directory. Hashing it
-     would attribute the validator's writes to the graph scan and fail a clean scan --
-     measured, not argued: a probe writing three files there during a scan produced
-     UNEXPECTED_PROJECT_WRITE naming exactly those files. The same exclusion is already
-     established in this repository at packages/main/src/handlers/story-aware-validation.ts,
-     which drops `.proof-or-stop/runtime/validation-traces/` from command residue because
-     the runtime artifact registry owns it. This prunes the identical path for the identical
-     reason rather than inventing a new exemption. */
+     KNOWN BOUNDARY: writes under dependency/build/VCS trees or paths classified as volatile
+     by packages/main/src/core/runtime-artifact-registry.ts are not detected. The latter
+     includes validator sidecars, locks, activity logs, owner leases, breaker counters and
+     causal-receipt caches under either accepted state-directory spelling. Those paths can
+     change while this command is running, so including them would attribute the surrounding
+     validator's heartbeat to the graph scan. They are also excluded from material hashes and
+     the DONE dirty-tree predicate; ordinary Story evidence remains measured. The executable
+     contract above pins both halves so this boundary cannot silently widen to Story evidence,
+     source, or ignored graph assets. */
   const run = (args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
     .split('\0').filter(Boolean);
-  const PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)|^\.proof-or-stop\/runtime\/validation-traces\//;
   const listed = [...new Set([
     ...run(['ls-files', '-z', '--cached', '--others', '--exclude-standard']),
-    ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']).filter(p => !PRUNED.test(p)),
+    ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']).filter(p => !shouldPrune(p)),
   ])];
   const hash = createHash('sha256');
   for (const rel of listed.sort()) {

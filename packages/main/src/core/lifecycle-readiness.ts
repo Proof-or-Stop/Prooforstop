@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
 import { tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
+import { createVerificationEvidenceGateEvaluator } from './proof-admissibility.js';
 import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checklist-status.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -315,7 +316,12 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
 
   const story = store.readStory(storyId);
   const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
-  const missingEvidence = getBlockingVerificationEvidenceIssues(checklist, undefined, policy.profile);
+  const missingEvidence = getBlockingVerificationEvidenceIssues(
+    checklist,
+    undefined,
+    policy.profile,
+    createVerificationEvidenceGateEvaluator(projectRoot, storyId),
+  );
   if (missingEvidence.length > 0) {
     rows.push(row({
       id: 'review.verification_evidence',

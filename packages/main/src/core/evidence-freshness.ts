@@ -1,8 +1,26 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { resolve as resolvePath } from 'path';
+import { lstatSync, readFileSync, realpathSync } from 'fs';
+import { isAbsolute, relative, resolve as resolvePath, sep } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
+import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import type {
+  VerificationDependencyManifestBindingV1,
+  VerificationDependencyManifestBindingV2,
+  VerifierDependencyManifestV1,
+  VerifierDependencyManifestV2,
+} from './types.js';
+import {
+  buildVerificationReuseCapsuleInvocation,
+  isExactVerificationReuseCapsuleInvocation,
+  VERIFICATION_DEPENDENCY_MANIFEST_BINDING_V2,
+  VERIFICATION_DEPENDENCY_MANIFEST_V2,
+  VERIFICATION_REUSE_CAPSULE_PROFILE,
+  VERIFICATION_REUSE_CAPSULE_POLICY_DIGEST,
+  verificationReuseCapsuleEnvironment,
+  verificationReuseCapsuleEnforcementSupported,
+} from './verification-reuse-capsule.js';
 import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
@@ -30,6 +48,14 @@ export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 // treat this empty-set value as no-signal and fall back to strict materialHash.
 export const EMPTY_STORY_FILES_HASH = createHash('sha256').update('').digest('hex');
 
+export function isCanonicalGitHeadHash(value: unknown): value is string {
+  return typeof value === 'string' && /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u.test(value);
+}
+
+export function isCanonicalSha256Hash(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/u.test(value);
+}
+
 export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
@@ -51,6 +77,229 @@ export type EvidenceFreshnessClassification =
   | 'LEGACY_UNBOUND'
   | 'RUNTIME_UNAVAILABLE'
   | 'UNCOMPARABLE';
+
+export const VERIFIER_DEPENDENCY_MANIFEST_VERSION = 'proof-or-stop.verifier-dependency-manifest.v1' as const;
+export const VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION = 'proof-or-stop.verifier-dependency-manifest-binding.v1' as const;
+
+export type VerifierReuseDenialReason =
+  | 'missing_dependency_manifest'
+  | 'malformed_dependency_manifest'
+  | 'incomplete_input_closure'
+  | 'dynamic_file_reads'
+  | 'network_inputs'
+  | 'undeclared_environment'
+  | 'side_effectful_command'
+  | 'unsafe_input_path'
+  | 'missing_input'
+  | 'non_regular_input'
+  | 'untrusted_dependency_manifest'
+  | 'unsupported_capsule_enforcement';
+
+export interface VerifierDependencyAssessment {
+  reusable: boolean;
+  reason: VerifierReuseDenialReason | null;
+  manifest: VerifierDependencyManifestV1 | VerifierDependencyManifestV2 | null;
+  manifestBinding: VerificationDependencyManifestBindingV1 | VerificationDependencyManifestBindingV2 | null;
+  environmentDigest: string;
+  evidenceInputDigest: string | null;
+  inputFiles: Array<{ path: string; digest: string }>;
+}
+
+function canonicalizeDigestValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeDigestValue);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => [key, canonicalizeDigestValue(child)]));
+  }
+  return value;
+}
+
+function digestCanonical(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(canonicalizeDigestValue(value))).digest('hex');
+}
+
+function denial(
+  reason: VerifierReuseDenialReason,
+  environmentDigest: string,
+  manifest: VerifierDependencyManifestV1 | VerifierDependencyManifestV2 | null = null,
+  manifestBinding: VerificationDependencyManifestBindingV1 | VerificationDependencyManifestBindingV2 | null = null,
+): VerifierDependencyAssessment {
+  return { reusable: false, reason, manifest, manifestBinding, environmentDigest, evidenceInputDigest: null, inputFiles: [] };
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(entry => typeof entry === 'string');
+}
+
+function escapesRoot(root: string, candidate: string): boolean {
+  const rel = relative(root, candidate);
+  return rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel);
+}
+
+/**
+ * Parse and hash an explicit dependency manifest. Reuse is denied unless the
+ * manifest enumerates the exact effective child-environment key set and a safe,
+ * regular, repository-contained file closure. Values are hashed, never stored.
+ */
+export function assessVerifierDependencyManifest(args: {
+  gitCwd: string;
+  manifestPath?: string;
+  processEnvironment?: NodeJS.ProcessEnv;
+  executable?: string;
+  argv?: readonly string[];
+}): VerifierDependencyAssessment {
+  const ordinaryEnvironment = effectiveValidationCommandEnvironment(
+    args.processEnvironment ?? process.env,
+    undefined,
+    args.gitCwd,
+  );
+  const ordinaryEnvironmentEntries = Object.entries(ordinaryEnvironment).sort(([left], [right]) => left.localeCompare(right));
+  const ordinaryEnvironmentDigest = digestCanonical(ordinaryEnvironmentEntries);
+  const manifestPath = args.manifestPath?.trim();
+  if (!manifestPath) return denial('missing_dependency_manifest', ordinaryEnvironmentDigest);
+  if (isAbsolute(manifestPath)) return denial('unsafe_input_path', ordinaryEnvironmentDigest);
+  const normalizedManifestPath = manifestPath.replace(/\\/g, '/').replace(/^\.\//, '');
+  if (normalizedManifestPath.split('/').includes('..')) return denial('unsafe_input_path', ordinaryEnvironmentDigest);
+  const absoluteManifestPath = resolvePath(args.gitCwd, normalizedManifestPath);
+  if (escapesRoot(args.gitCwd, absoluteManifestPath)) {
+    return denial('unsafe_input_path', ordinaryEnvironmentDigest);
+  }
+
+  let raw: unknown;
+  try {
+    const stat = lstatSync(absoluteManifestPath);
+    if (!stat.isFile() || stat.isSymbolicLink()) return denial('non_regular_input', ordinaryEnvironmentDigest);
+    if (escapesRoot(realpathSync(args.gitCwd), realpathSync(absoluteManifestPath))) {
+      return denial('unsafe_input_path', ordinaryEnvironmentDigest);
+    }
+    raw = JSON.parse(readFileSync(absoluteManifestPath, 'utf8')) as unknown;
+  } catch {
+    return denial('malformed_dependency_manifest', ordinaryEnvironmentDigest);
+  }
+  if (!raw || typeof raw !== 'object') return denial('malformed_dependency_manifest', ordinaryEnvironmentDigest);
+  const value = raw as Record<string, unknown>;
+  const legacyManifestKeys = [
+    'schemaVersion', 'fileClosure', 'files', 'environmentVariables', 'deterministic',
+    'dynamicFileReads', 'networkInputs', 'undeclaredEnvironment', 'sideEffects',
+  ];
+  if (value.schemaVersion === VERIFIER_DEPENDENCY_MANIFEST_VERSION) {
+    if (
+      Object.keys(value).some(key => !legacyManifestKeys.includes(key))
+      || Object.keys(value).length !== legacyManifestKeys.length
+    || (value.fileClosure !== 'complete' && value.fileClosure !== 'partial')
+    || !isStringArray(value.files)
+    || !isStringArray(value.environmentVariables)
+    || typeof value.deterministic !== 'boolean'
+    || typeof value.dynamicFileReads !== 'boolean'
+    || typeof value.networkInputs !== 'boolean'
+    || typeof value.undeclaredEnvironment !== 'boolean'
+    || typeof value.sideEffects !== 'boolean'
+    ) return denial('malformed_dependency_manifest', ordinaryEnvironmentDigest);
+
+    const legacyManifest: VerifierDependencyManifestV1 = {
+      schemaVersion: VERIFIER_DEPENDENCY_MANIFEST_VERSION,
+      fileClosure: value.fileClosure,
+      files: [...value.files],
+      environmentVariables: [...value.environmentVariables],
+      deterministic: value.deterministic,
+      dynamicFileReads: value.dynamicFileReads,
+      networkInputs: value.networkInputs,
+      undeclaredEnvironment: value.undeclaredEnvironment,
+      sideEffects: value.sideEffects,
+    };
+    const legacyBinding: VerificationDependencyManifestBindingV1 = {
+      schemaVersion: VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION,
+      path: normalizedManifestPath,
+      manifestDigest: digestCanonical(legacyManifest),
+    };
+    // v1 statements describe what the caller claims, not what the tool proved.
+    return denial('untrusted_dependency_manifest', ordinaryEnvironmentDigest, legacyManifest, legacyBinding);
+  }
+
+  const manifestKeys = ['schemaVersion', 'capsuleProfile', 'files'];
+  if (
+    Object.keys(value).some(key => !manifestKeys.includes(key))
+    || Object.keys(value).length !== manifestKeys.length
+    || value.schemaVersion !== VERIFICATION_DEPENDENCY_MANIFEST_V2
+    || value.capsuleProfile !== VERIFICATION_REUSE_CAPSULE_PROFILE
+    || !isStringArray(value.files)
+  ) return denial('malformed_dependency_manifest', ordinaryEnvironmentDigest);
+
+  const manifest: VerifierDependencyManifestV2 = {
+    schemaVersion: VERIFICATION_DEPENDENCY_MANIFEST_V2,
+    capsuleProfile: VERIFICATION_REUSE_CAPSULE_PROFILE,
+    files: [...value.files],
+  };
+  const closedEnvironment = verificationReuseCapsuleEnvironment(realpathSync(args.gitCwd));
+  const environmentEntries = Object.entries(closedEnvironment).sort(([left], [right]) => left.localeCompare(right));
+  const environmentDigest = digestCanonical(environmentEntries);
+  if (!verificationReuseCapsuleEnforcementSupported()) {
+    return denial('unsupported_capsule_enforcement', environmentDigest, manifest);
+  }
+  const manifestBinding: VerificationDependencyManifestBindingV2 = {
+    schemaVersion: VERIFICATION_DEPENDENCY_MANIFEST_BINDING_V2,
+    path: normalizedManifestPath,
+    manifestDigest: digestCanonical(manifest),
+    capsulePolicyDigest: VERIFICATION_REUSE_CAPSULE_POLICY_DIGEST,
+  };
+
+  const normalizedFiles = [...manifest.files]
+    .map(path => path.replace(/\\/g, '/').replace(/^\.\//, ''))
+    .sort((left, right) => left.localeCompare(right));
+  if (new Set(normalizedFiles).size !== normalizedFiles.length) {
+    return denial('incomplete_input_closure', environmentDigest, manifest, manifestBinding);
+  }
+  if (normalizedFiles.some((path, index) => path !== manifest.files[index])) {
+    return denial('malformed_dependency_manifest', environmentDigest, manifest, manifestBinding);
+  }
+  const inputFiles: Array<{ path: string; digest: string }> = [];
+  for (const path of normalizedFiles) {
+    if (!path || /[\0\r\n]/u.test(path) || isAbsolute(path) || path.split('/').includes('..')) {
+      return denial('unsafe_input_path', environmentDigest, manifest, manifestBinding);
+    }
+    const absolutePath = resolvePath(args.gitCwd, path);
+    if (escapesRoot(args.gitCwd, absolutePath)) {
+      return denial('unsafe_input_path', environmentDigest, manifest, manifestBinding);
+    }
+    try {
+      const stat = lstatSync(absolutePath);
+      if (!stat.isFile() || stat.isSymbolicLink()) return denial('non_regular_input', environmentDigest, manifest, manifestBinding);
+      if (escapesRoot(realpathSync(args.gitCwd), realpathSync(absolutePath))) {
+        return denial('unsafe_input_path', environmentDigest, manifest, manifestBinding);
+      }
+      inputFiles.push({ path, digest: createHash('sha256').update(readFileSync(absolutePath)).digest('hex') });
+    } catch {
+      return denial('missing_input', environmentDigest, manifest, manifestBinding);
+    }
+  }
+  const expectedInvocation = buildVerificationReuseCapsuleInvocation({
+    cwd: args.gitCwd,
+    manifestPath: normalizedManifestPath,
+    files: normalizedFiles,
+  });
+  if (!args.executable || !args.argv || !isExactVerificationReuseCapsuleInvocation({
+    executable: args.executable,
+    argv: args.argv,
+    expected: expectedInvocation,
+  })) {
+    return denial('untrusted_dependency_manifest', environmentDigest, manifest, manifestBinding);
+  }
+  return {
+    reusable: true,
+    reason: null,
+    manifest,
+    manifestBinding,
+    environmentDigest,
+    evidenceInputDigest: digestCanonical({
+      manifestDigest: manifestBinding.manifestDigest,
+      capsulePolicyDigest: manifestBinding.capsulePolicyDigest,
+      environmentDigest,
+      inputFiles,
+    }),
+    inputFiles,
+  };
+}
 
 /**
  * Canonical projection of the freshness reader result. Incremental eligibility
@@ -684,4 +933,68 @@ export function checkEvidenceFreshnessForGit(
       materialFiles: [],
     };
   }
+}
+
+/**
+ * Strict fallback for executions whose input closure is not tool-proven. HEAD
+ * may move for metadata-only commits, but both material digests must be present,
+ * canonical and equal to freshly computed values. Runtime uncertainty denies.
+ */
+export function checkStrictVerificationEvidenceFreshnessForGit(
+  gitCwd: string,
+  evidenceHeadHash: string | undefined,
+  evidenceMaterialHash: string | undefined,
+  metadataRoot: string = gitCwd,
+  evidenceStoryFilesHash: string | undefined,
+): EvidenceFreshness {
+  const malformed = !isCanonicalGitHeadHash(evidenceHeadHash)
+    || !isCanonicalSha256Hash(evidenceMaterialHash)
+    || !isCanonicalSha256Hash(evidenceStoryFilesHash);
+  if (malformed) {
+    return {
+      fresh: false,
+      reason: 'strict verification freshness requires canonical full headHash, materialHash, and storyFilesHash bindings',
+      changedFiles: [],
+      materialFiles: ['<malformed-or-partial-hash-binding>'],
+    };
+  }
+  const currentHead = currentGitHead(gitCwd);
+  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+  if (
+    !isCanonicalGitHeadHash(currentHead)
+    || !isCanonicalSha256Hash(currentMaterial)
+    || !isCanonicalSha256Hash(currentStoryFiles)
+  ) {
+    return {
+      fresh: false,
+      reason: 'strict verification freshness could not resolve canonical current git/material/story hashes',
+      changedFiles: [],
+      materialFiles: ['<freshness-runtime-unavailable>'],
+    };
+  }
+  if (currentMaterial !== evidenceMaterialHash || currentStoryFiles !== evidenceStoryFilesHash) {
+    return {
+      fresh: false,
+      reason: currentMaterial !== evidenceMaterialHash
+        ? 'strict verification freshness materialHash does not match current material state'
+        : 'strict verification freshness storyFilesHash does not match current story-owned state',
+      currentHead,
+      currentMaterialHash: currentMaterial,
+      currentStoryFilesHash: currentStoryFiles,
+      changedFiles: [],
+      materialFiles: [currentMaterial !== evidenceMaterialHash ? '<material-tree-changed>' : '<story-files-changed>'],
+    };
+  }
+  return {
+    fresh: true,
+    reason: currentHead === evidenceHeadHash
+      ? 'strict verification freshness full hash tuple matches current state'
+      : 'strict verification freshness material/story hashes match; metadata-only HEAD drift accepted',
+    currentHead,
+    currentMaterialHash: currentMaterial,
+    currentStoryFilesHash: currentStoryFiles,
+    changedFiles: currentHead === evidenceHeadHash ? [] : ['<metadata-only-head-drift>'],
+    materialFiles: [],
+  };
 }
