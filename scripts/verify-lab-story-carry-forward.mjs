@@ -112,6 +112,9 @@ try {
   invoke(repo, ['finish', 'carry', '--notes', notes, '--confirm'], 0, /worktree and branch removed/);
   assert.equal(readFileSync(join(repo, 'feature.txt'), 'utf8'), 'new\n');
   assert.equal(readFileSync(join(repo, 'unrelated-user-draft.txt'), 'utf8'), 'preserve me byte-for-byte\n');
+  const closed = JSON.parse(invoke(repo, ['status', 'carry']));
+  assert.equal(closed.storyCarry.finishBaselineWitnesses.length, 1);
+  assert.equal(closed.storyCarry.finishBaselineMainHead, closed.releaseBase);
   console.log('STORY_CARRY_FORWARD PASS');
 } finally {
   rmSync(temp, { recursive: true, force: true });

@@ -85,7 +85,9 @@ commits, restores, or copies those unrelated files.
 This rule preserves evidence instead of treating a repository-wide FAIL as a
 PASS. It proves only that all remaining failed commands also fail on main at the
 time of capture; different failure output remains visible in the record and is
-not claimed to have the same root cause.
+not claimed to have the same root cause. Finish repeats those exact baseline
+commands against the latest main before integration and stops if any command
+passes or changes exit code.
 
 ## Explicit release and cleanup
 

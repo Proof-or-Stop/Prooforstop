@@ -337,6 +337,27 @@ async function main() {
       }
     };
     assertMainStable();
+    if (s.storyCarry && ['active', 'prepared'].includes(s.phase)) {
+      const finishBaselineWitnesses = s.storyCarry.baselineWitnesses.map(previous => {
+        const witness = runCaptured(mainRoot, previous.command);
+        if (passed(witness) || witness.status !== previous.sourceExitCode) {
+          fail(`Story baseline failure changed on latest main: ${previous.command.join(' ')}`);
+        }
+        return {
+          command: previous.command,
+          sourceExitCode: previous.sourceExitCode,
+          mainExitCode: witness.status,
+          mainOutputDigest: hash(witness.output),
+          mainOutputTail: outputTail(witness.output),
+          mainElapsedMs: witness.elapsedMs,
+          observedAt: witness.at,
+        };
+      });
+      assertMainStable();
+      s.storyCarry.finishBaselineWitnesses = finishBaselineWitnesses;
+      s.storyCarry.finishBaselineMainHead = sha(mainRoot);
+      save(s);
+    }
     const versions = await core('version-bump');
     const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const check = (root, kind) => {
