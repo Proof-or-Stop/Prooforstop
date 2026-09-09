@@ -601,7 +601,11 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             reviewRound: story.currentReviewRound ?? '',
             cutoff,
           });
-          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt);
+          // A valid receipt may predate a failed optional observation write.
+          // Retry that observation, but never count a zero-wave compatibility receipt.
+          const progress = persisted.epoch.waves.length && persisted.epoch.requiredLanes.length
+            ? captureConvergenceProgress(ctx, args.storyId, persisted.epoch.epochId) : '';
+          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt) + progress;
         }
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
