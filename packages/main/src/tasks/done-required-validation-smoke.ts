@@ -24,7 +24,7 @@ import {
   MAX_NODE_TIMER_DELAY_MS,
   runValidationCommand,
 } from '../core/validation-executor.js';
-import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData, VerificationEvidence } from '../core/types.js';
+import type { ChecklistItem, DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData, VerificationEvidence } from '../core/types.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createDoneRequiredValidationHandlers as unownedcreateDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
@@ -173,16 +173,8 @@ function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): 
     endedAt: null,
   };
   store.writeStory(STORY_ID, story);
-  store.writeChecklist(STORY_ID, {
-    items: [{
-      id: 'CHK-001',
-      title: 'Synthetic item',
-      context: 'Synthetic context',
-      status: 'done',
-      startTime: now,
-      endTime: now,
-    }],
-  });
+  // Supplemental validation does not itself claim completed delivery work.
+  store.writeChecklist(STORY_ID, { items: [] });
   const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
   assert.ok(causalInputHashes, 'synthetic certification fixture must derive causal input hashes');
   persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root, causalInputHashes });
@@ -651,7 +643,7 @@ function assertDoneRequiredBlocked(
       { label: 'negative fallback', command: 'node', args: [], timeoutMs: -1 },
       { label: 'non-finite fallback', command: 'node', args: [], timeoutMs: Number.POSITIVE_INFINITY },
     ]), 840_000, 'invalid/non-positive timeout inputs use the bounded command default');
-    const configPath = join(root, 'lattice.config.json');
+    const configPath = join(root, 'proof-or-stop.config.json');
     const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
     config.validate = {
       commands: [
@@ -701,7 +693,13 @@ function assertDoneRequiredBlocked(
       'explicit max continues to override a derived batch evidence budget');
 
     const checklist = store.readChecklist(STORY_ID);
-    const item = checklist.items[0]!;
+    // Only this stale-pin fixture needs a checklist item; its actual intended
+    // pins and deliberately stale receipts are populated below before writing.
+    const item: ChecklistItem = {
+      id: 'CHK-001', title: 'Refresh the two stale executable pins', status: 'done',
+      startTime: '2026-06-20T00:00:00.000Z', endTime: '2026-06-20T00:00:00.000Z',
+    };
+    checklist.items.push(item);
     item.verificationIntent = {
       happy: [
         { id: 'REFRESH-A', desc: 'first stale executable pin', type: 'logic', priority: 'must', verification: { command: batchCommandA, selector: 'BATCH_A' } },

@@ -11,13 +11,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { KEYED_SCHEDULER_RUNTIME_POLICY, MACHINE_HEAVY_RESOURCE_POLICY } from './runtime-fact-registry.js';
+import { KEYED_SCHEDULER_RUNTIME_POLICY, MACHINE_HEAVY_RESOURCE_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 
-export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock' | 'machine-cpu' | 'machine-process';
+export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock' | 'machine-cpu' | 'machine-process' | 'machine-validation';
 export type ResourceAccess = 'shared' | 'exclusive';
 export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string; ownership?: 'runner-cleanable' }
 
-export const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock', 'machine-cpu', 'machine-process'];
+export const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock', 'machine-cpu', 'machine-process', 'machine-validation'];
 export const RESOURCE_ACCESSES: ResourceAccess[] = ['shared', 'exclusive'];
 export const OWNED_RESOURCE_CLASSES: ResourceClass[] = ['fixed-path', 'runtime-lock', 'main-write-lock'];
 export const MAX_JOBS = 64;
@@ -61,6 +61,7 @@ export function validateResourceClaims(claims: ResourceClaim[], owner: string): 
   for (const claim of claims) {
     if (!RESOURCE_CLASSES.includes(claim.class)) throw new Error(`unknown resource class for ${owner}: ${claim.class}`);
     if (!RESOURCE_ACCESSES.includes(claim.access)) throw new Error(`unknown resource access for ${owner}: ${claim.access}`);
+    if (claim.class === 'machine-validation' && (claim.key !== MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey || claim.access !== 'shared')) throw new Error(`invalid machine validation barrier for ${owner}`);
     if (claim.class === 'machine-cpu' || claim.class === 'machine-process') {
       const key = claim.class === 'machine-cpu' ? MACHINE_HEAVY_RESOURCE_POLICY.cpuKey : MACHINE_HEAVY_RESOURCE_POLICY.processKey;
       if (claim.key !== key || claim.access !== MACHINE_HEAVY_RESOURCE_POLICY.access) throw new Error(`invalid exclusive machine resource for ${owner}: ${claim.class}`);
@@ -123,7 +124,7 @@ export function canonicalizeEntries<TEntry extends SchedulableEntry>(entries: TE
       if (claim.class === 'fixed-port') {
         const port = parsePositiveInteger(claim.key, `${entry.name} fixed port`, 65_535);
         value = String(port);
-      } else if (claim.class === 'machine-cpu' || claim.class === 'machine-process') {
+      } else if (claim.class === 'machine-cpu' || claim.class === 'machine-process' || claim.class === 'machine-validation') {
         value = claim.key;
       } else if (claim.class === 'git-common-dir') {
         const repository = canonicalFilesystemPath(cwd, claim.key);

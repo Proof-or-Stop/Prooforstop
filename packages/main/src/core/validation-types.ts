@@ -77,6 +77,8 @@ export interface ValidationCommandResult {
   output: string;
   optional?: boolean;
   timedOut?: boolean;
+  /** Remaining child budget; timeoutMs is the invocation budget, capped by any caller deadline before admission. */
+  effectiveTimeoutMs?: number;
   timeoutMs?: number;
   failureKind?: ValidationFailureKind;
   durationMs: number;

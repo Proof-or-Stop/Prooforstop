@@ -157,7 +157,7 @@ void (async () => {
     const evidenceRoot = mkdtempSync(join(tmpdir(), 'lattice-evidence-timeout-'));
     const fastScript = "process.stdout.write('EVIDENCE_OVERRIDE_OK')";
     const hangScript = 'setInterval(() => {}, 1000)';
-    writeFileSync(join(evidenceRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(evidenceRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: {
         evidenceCommandTimeoutOverrides: [
           { command: 'node', args: ['-e', fastScript], timeoutMs: 1_200 },

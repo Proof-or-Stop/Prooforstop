@@ -98,6 +98,13 @@
         "args": [
           "scripts/run-precert-fast.mjs"
         ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ],
         "timeoutMs": 195000,
         "focus": [
           "fast"
@@ -222,6 +229,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -279,6 +287,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/validate-command-timeout-smoke.js"
         ],
         "focus": [
@@ -321,6 +330,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
         ],
         "focus": [
@@ -454,6 +464,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/done-required-validation-smoke.js"
         ],
         "resources": [
@@ -2074,6 +2085,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
         ],
         "timeoutMs": 180000,
@@ -2096,6 +2108,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/tests/validate-plan-scheduling.test.mjs"
         ],
         "timeoutMs": 180000,
@@ -2134,6 +2147,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -2153,6 +2167,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/tests/validate-pollution-attribution.test.mjs"
         ],
         "timeoutMs": 180000,
@@ -2221,6 +2236,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/tests/red/red-w2d-command-readonly.mjs",
           "--canonical-core"
         ],
@@ -2412,6 +2428,7 @@
         "label": "B-dc2e CHK-001: the validation protocol suite (validation executor, verifier discovery, managed-asset check/apply, runtime footprint, doctor, evidence freshness gates, tasks/ inventory sweep). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/validation-protocol-smoke.js"
         ],
         "timeoutMs": 180000,

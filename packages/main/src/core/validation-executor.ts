@@ -258,7 +258,7 @@ function formatTimeoutDiagnostics(
   const timeoutMs = result.timeoutMs ?? resolveCommandTimeoutMs(command);
   const timeout = `${timeoutMs}ms${explicit ? '' : ' (default)'}`;
   return [
-    `  timeout diagnostic: command ${commandIndex}/${totalCommands} "${command.label}" exceeded configured timeoutMs=${timeout} after elapsedMs=${result.durationMs}.`,
+    `  timeout diagnostic: command ${commandIndex}/${totalCommands} "${command.label}" reached its execution deadline; configured timeoutMs=${timeout}, effective timeoutMs=${result.effectiveTimeoutMs ?? timeoutMs}ms, elapsedMs=${result.durationMs}.`,
     `  command: ${command.command}`,
     `  args: ${JSON.stringify(command.args)}`,
     '  If this command legitimately needs longer, raise proof-or-stop.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
@@ -1352,20 +1352,41 @@ export function runValidationCommand(
  * runSingleAllowlistedCommand also consumes the complete bytes already held in memory so
  * receipt matching and digesting are not accidentally governed by the persistence window.
  */
-function runValidationCommandWithCompleteOutput(
+async function runValidationCommandWithCompleteOutput(
   command: ValidationCommand,
   projectRoot: string,
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<CapturedValidationCommandResult> {
-  if (!command.resources?.some(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process')) return captureValidationCommand(command, projectRoot, defaultTimeoutMs, options);
-  const deadlineAt = Math.min(options.deadlineAt ?? Infinity, Date.now() + resolveCommandTimeoutMs(command, defaultTimeoutMs));
-  return withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
-    resources: command.resources, abortSignal: options.abortSignal, deadlineAt,
-    deadlineError: options.deadlineError }, () => captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }));
+  const started = Date.now();
+  const configured = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  const reportedTimeoutMs = Math.min(configured, options.deadlineAt === undefined ? Infinity : Math.max(1, options.deadlineAt - started));
+  const deadlineAt = Math.min(options.deadlineAt ?? Infinity, started + configured);
+  let enteredCapture = false;
+  try {
+    return await withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
+    resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
+      deadlineError: options.deadlineError }, () => {
+        enteredCapture = true;
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs);
+      });
+  } catch (error) {
+    const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || (error instanceof Error && error.message === 'workspace validation capacity wait aborted'));
+    const expired = !options.deadlineError && error instanceof Error && error.message === 'workspace validation capacity wait deadline exceeded';
+    if (enteredCapture || (!aborted && !expired)) throw error;
+    // Preserve the command-result API without launching a child merely to abort
+    // it. A caller-supplied deadline error remains an exception above.
+    const output = `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    return { completeOutput: output, result: {
+      label: command.label, command: command.command, args: command.args,
+      ...(command.optional ? { optional: true } : {}),
+      code: 124, timedOut: true, failureKind: 'infra_failure', output,
+      timeoutMs: reportedTimeoutMs, effectiveTimeoutMs: 0, durationMs: Date.now() - started,
+    } };
+  }
 }
 
-function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions): Promise<CapturedValidationCommandResult> {
+function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
@@ -1445,7 +1466,8 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
         output: trimOutput(completeOutput),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
-        timeoutMs,
+        timeoutMs: reportedTimeoutMs,
+        effectiveTimeoutMs: timeoutMs,
         ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
         runtimeTrace: {
@@ -1478,7 +1500,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       emitValidationProgress(options.progress, validationProgressEvent('command_end', command, {
         commandIndex,
         totalCommands,
-        timeoutMs,
+        timeoutMs: reportedTimeoutMs,
         started,
         cwd,
         code,
@@ -1505,7 +1527,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
       commandIndex,
       totalCommands,
-      timeoutMs,
+      timeoutMs: reportedTimeoutMs,
       started,
       cwd,
     }));
@@ -1513,7 +1535,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       emitValidationProgress(options.progress, validationProgressEvent('heartbeat', command, {
         commandIndex,
         totalCommands,
-        timeoutMs,
+        timeoutMs: reportedTimeoutMs,
         started,
         cwd,
       }));
@@ -1550,7 +1572,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       emitValidationProgress(options.progress, validationProgressEvent('command_timeout', command, {
         commandIndex,
         totalCommands,
-        timeoutMs,
+        timeoutMs: reportedTimeoutMs,
         started,
         cwd,
         timedOut: true,

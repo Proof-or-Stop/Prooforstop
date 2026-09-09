@@ -72,6 +72,8 @@ const load = (rel) => import(pathToFileURL(join(distDir, rel)).href);
 const { attributeWorktreePollution, executeValidationPlan } = await load('core/validation-executor.js');
 const { isReusableCommandPass, summarizeRoutineCommandExecution } = await load('core/validation-evidence-reuse.js');
 const { StoryStore } = await load('core/store.js');
+const { persistSyntheticAdmittedWindowForTest } = await load('core/certification-window.js');
+const { deriveCertificationDomainInputHashes } = await load('handlers/certification-window.js');
 const cliPath = join(distDir, 'cli.js');
 
 let assertions = 0;
@@ -263,16 +265,15 @@ function runStoryValidateFixture(name, { dirty }) {
     currentReviewRound: now,
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
   });
-  store.writeChecklist(storyId, { items: [{
-    id: 'CHK-001',
-    title: 'handler wiring probe',
-    context: 'No required intents keeps current coverage complete.',
-    status: 'done',
-    startTime: now,
-    endTime: now,
-  }] });
+  // This pollution-attribution fixture claims no completed delivery work.
+  // Keep coverage empty without fabricating a done item lacking acceptance.
+  store.writeChecklist(storyId, { items: [] });
   git('add', '.proof-or-stop');
   git('commit', '-m', 'seed story metadata');
+  persistSyntheticAdmittedWindowForTest({
+    store, storyId, projectRoot: root,
+    causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root),
+  });
 
   const run = spawnSync(process.execPath, [cliPath, 'validate', `--story=${storyId}`, '--json'], {
     cwd: root,

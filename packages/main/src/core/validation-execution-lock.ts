@@ -656,21 +656,30 @@ export async function withMachineFixedPorts<T>(options: ValidationCapacityLockOp
 }
 
 export async function withMachineValidationResources<T>(options: ValidationCapacityLockOptions, fn: () => Promise<T> | T): Promise<T> {
-  const machineResources = (options.resources ?? []).filter(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process');
-  if (!machineResources.length) return await fn();
-  const claims = canonicalizeEntries([{ name: options.command, resources: machineResources }], options.workspaceRoot)[0]!.resources;
+  const declared = options.resources !== undefined;
+  if (declared && !Array.isArray(options.resources)) throw new Error('machine resources must be an array');
+  const normalized = declared ? canonicalizeEntries([{ name: options.command, resources: options.resources! }], options.workspaceRoot)[0]!.resources : [];
+  const machineResources = normalized.filter(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process');
   const home = userInfo().homedir;
   const lockKey = join(home, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
   mkdirSync(lockKey, { recursive: true, mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode });
   const metadata = lstatSync(lockKey);
   if (!metadata.isDirectory() || metadata.isSymbolicLink() || (process.platform !== 'win32' && (metadata.uid !== userInfo().uid || (metadata.mode & 0o077) !== 0))) throw new Error('machine resource lock root must be a private owned directory');
+  // Every classified executor participates in the same queue, even when its
+  // explicit machine footprint is empty. A null declaration is globally
+  // exclusive, including against tickets written by earlier runtimes.
+  const claims = declared ? canonicalizeEntries([{ name: options.command, resources: [
+    { class: 'machine-validation', key: MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey, access: 'shared' }, ...machineResources,
+  ] }], options.workspaceRoot)[0]!.resources : undefined;
   const nested = currentContextOwns(lockKey);
+  const held = nested ? activeCapacityDeclarations.get(validationLockOwnerStore.getStore()!.get(lockKey)!) : undefined;
   return withValidationCapacityQueue({ ...options, resources: claims, maxConcurrent: MAX_JOBS,
     deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs }, async () => {
     // A dead queue owner cannot prove its detached child released a socket.
     // Probe exclusive ports before any new heavy child; busy external listeners
     // fail closed too. Shared claims may intentionally consume an existing service.
-    if (!nested) for (const claim of claims.filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) {
+    for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) {
+      if (nested && held?.resources.some(prior => prior.canonicalKey === claim.canonicalKey && prior.access === 'exclusive')) continue;
       await probeMachineFixedPort(Number(claim.key));
       assertCapacityWaitActive(options);
     }
@@ -757,10 +766,10 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
       const tickets = activeCapacityCandidates(lockKey, '.ticket', staleMs)
         .sort((a, b) => a.name.localeCompare(b.name));
       if (choosing.length === 0 && capacityTicketAdmitted(tickets, ticketPath)) break;
-      if (rejectAncestorConflict && declaration) {
+      if (rejectAncestorConflict) {
         for (const candidate of tickets.filter(candidate => candidate.path !== ticketPath && candidate.holder?.hostname === hostname())) {
           const prior = readCapacityDeclaration(candidate.path);
-          if (prior && !claimsConflict({ name: command, resources: declaration.resources }, { name: 'prior', resources: prior.resources })) continue;
+          if (prior && declaration && !claimsConflict({ name: command, resources: declaration.resources }, { name: 'prior', resources: prior.resources })) continue;
           if (candidate.holder && candidate.holder.pid !== process.pid) {
             ancestors ??= machinePortAncestorPids();
             if (ancestors.has(candidate.holder.pid)) throw new Error('nested machine resource acquisition conflicts with an ancestor; declare machine resources on their actual leaf command only');

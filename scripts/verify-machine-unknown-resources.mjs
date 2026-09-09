@@ -11,4 +11,9 @@ try{
  const result=await runValidationCommand({label:'undeclared',command:process.execPath,args:['-e',`require('fs').writeFileSync(${JSON.stringify(marker)},'spawn')`],resources:[],timeoutMs:3000},b);
  const overlapped=!existsSync(end);console.log(JSON.stringify({code:result.code,contenderSpawned:existsSync(marker),heavyStillRunning:overlapped}));await done;
  assert.equal(overlapped,false,'RED unknown validation must wait behind machine heavy resource in another repo');
+ assert.equal(result.timeoutMs,3000,'configured invocation budget remains stable after queueing');
+ assert.ok(result.effectiveTimeoutMs>0&&result.effectiveTimeoutMs<result.timeoutMs,'queue waiting consumes the child budget');
 }finally{if(child?.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');rmSync(base,{recursive:true,force:true});}
+for (const script of ['verify-machine-unknown-boundaries.mjs', 'verify-machine-unknown-nested.mjs', 'verify-fixture-machine-environment.mjs', 'verify-precert-machine-admission.mjs', 'verify-configured-fixture-admission.mjs']) {
+  execFileSync(process.execPath, [join(repo, 'scripts', script), repo], { cwd: repo, stdio: 'inherit', timeout: 1800000 });
+}

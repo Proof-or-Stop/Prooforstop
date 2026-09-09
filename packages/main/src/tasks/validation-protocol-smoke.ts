@@ -83,7 +83,9 @@ function seedStoryScopedValidateFixture(root: string, storyId: string): StorySto
     endedAt: null,
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
   });
-  gitQuiet(root, ['add', `.proof-or-stop/story/actives/${storyId}/index.json`]);
+  // This argument-alias fixture claims no completed delivery items.
+  store.writeChecklist(storyId, { items: [] });
+  gitQuiet(root, ['add', `.proof-or-stop/story/actives/${storyId}/index.json`, `.proof-or-stop/story/actives/${storyId}/checklist.json`]);
   gitQuiet(root, ['commit', '-m', `seed ${storyId} validation story`]);
   persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
   acquireOwnerLease(store.storyDirPath(storyId), { command: 'fixture-owner', cwd: root });

@@ -599,13 +599,20 @@ export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { int
 export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
-  if (!entry.resources.some(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process')) return executeFullSuiteEntry(entry, cwd, npmCommand, onSpawn, state);
   const deadlineAt = Date.now() + (entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  // Invalid ownership declarations retain the executor's rejection contract;
+  // admission failures below are represented as command results.
+  cleanupManifestForEntry(entry, cwd);
+  let enteredExecutor = false;
   try {
     return await withMachineValidationResources({ root: cwd, workspaceRoot: cwd, command: entry.name, resources: entry.resources, deadlineAt,
       externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
-      () => executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state));
+      () => {
+        enteredExecutor = true;
+        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state);
+      });
   } catch (error) {
+    if (enteredExecutor) throw error;
     const reason = state.cancellationReason ?? state.interruptSignal ?? (error instanceof Error ? error.message : String(error));
     const status = state.cancellationReason || state.interruptSignal ? 'INTERRUPTED' : Date.now() >= deadlineAt ? 'TIMEOUT' : 'FAIL';
     return { ...cancelledFullSuiteResult(entry, reason), status, failureOutcome: { status, reason } };
