@@ -31,7 +31,8 @@ const fixtureModes = {
 for (const name of ['execFileSync', 'execFile', 'spawnSync', 'spawn']) {
   const original = cp[name];
   cp[name] = function(command, args, ...rest) {
-    const entryIndex = Array.isArray(args) ? args.findIndex(arg => typeof arg === 'string' && registered.has(resolve(arg))) : -1;
+    const nodeLauncher = typeof command === 'string' && ['node', basename(process.execPath)].includes(basename(command));
+    const entryIndex = nodeLauncher && Array.isArray(args) ? args.findIndex(arg => typeof arg === 'string' && registered.has(resolve(arg))) : -1;
     const entry = entryIndex >= 0 ? args[entryIndex] : undefined;
     // W2B intentionally executes two registered contracts against one removed
     // registration. Require the exact parent, loader shape and mutated bytes.
