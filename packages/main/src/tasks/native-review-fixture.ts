@@ -136,12 +136,14 @@ function fixtureInvocation(args: {
 }) {
   const story = args.store.readStory(args.storyId);
   if (!story?.currentReviewRound) throw new Error('native review fixture requires an active review round');
+  const run = args.store.readReviewRuns(args.storyId).runs.find(row => row.reviewRunId === args.reviewRunId);
   const dispatch = verifyCurrentReviewerDispatchBinding({
     store: args.store,
     storyId: args.storyId,
     lane: args.agent,
     reviewRound: story.currentReviewRound,
     projectRoot: args.root,
+    reviewPurpose: run?.reviewPurpose, inventoryBinding: run?.inventoryBinding,
   });
   if (!dispatch.ok) throw new Error(`native review fixture has no signed dispatch binding: ${dispatch.reason}`);
   const broker = nativeReviewFixtureBrokers().find(candidate => candidate.host === dispatch.binding.hostRenderHost);

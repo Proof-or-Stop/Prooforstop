@@ -1,3 +1,4 @@
+import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
 import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
@@ -1617,6 +1618,15 @@ export class StoryStore {
   }
 
   // ── Scope Contract (B-be27: story-scoped allowed-file contract) ──
+
+  readConvergenceProgress(storyId: string): ConvergenceProgressJournal | null {
+    try { return this.readJson<ConvergenceProgressJournal>(storyId, 'convergence-progress.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  writeConvergenceProgress(storyId: string, data: ConvergenceProgressJournal): void {
+    this.writeJson(storyId, 'convergence-progress.json', data);
+  }
 
   readAcceptanceAmendments(storyId: string): AcceptanceAmendmentJournal | null {
     try { return this.readJson<AcceptanceAmendmentJournal>(storyId, 'acceptance-amendments.json'); }

@@ -1,3 +1,4 @@
+import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers } from './reviewer-list.js';
@@ -47,6 +48,16 @@ function signedRoot(ctx: HandlerContext, storyId: string): { root: string; metad
   const root = workspace.signedWorkspaceRoot || workspace.snapshotRoot;
   if (!root) throw new Error(`review inventory: cannot resolve signed workspace for ${storyId}`);
   return { root, metadataRoot: workspace.metadataRoot || ctx.root };
+}
+
+/** Inventory completion remains valid if optional progress observation is unavailable. */
+function captureConvergenceProgress(ctx: HandlerContext, storyId: string, completedEpochId?: string): string {
+  try {
+    recordConvergenceProgressUnlocked(ctx.store, storyId, signedRoot(ctx, storyId).root, { completedEpochId });
+    return '';
+  } catch (error) {
+    return `\nConvergence progress unavailable: ${error instanceof Error ? error.message : String(error)}`;
+  }
 }
 
 function signEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'> | ReviewInventoryEpoch): ReviewInventoryEpoch {
@@ -472,7 +483,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const epoch = signEpoch(unsigned);
         data.epochs.push(epoch);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return candidateArtifactInvalid ? renderReviewInventoryStatus(epoch) : renderReviewInventoryBegin(epoch);
+        return (candidateArtifactInvalid ? renderReviewInventoryStatus(epoch) : renderReviewInventoryBegin(epoch)) + captureConvergenceProgress(ctx, args.storyId);
       });
     },
 
@@ -658,7 +669,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}`;
       });
     },
 

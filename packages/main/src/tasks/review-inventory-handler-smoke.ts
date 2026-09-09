@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
+import { readConvergenceProgress, recordConvergenceProgress } from '../core/convergence-progress-journal.js';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -87,6 +89,7 @@ function setup(author = { name: 'lattice-implementer', email: 'lattice-implement
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     ...(fullEnvelope ? { promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-topology-critic': 'full-envelope' } } } : {}),
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }));
   writeFileSync(join(root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
@@ -198,7 +201,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
       /OPEN review inventory requires signed readManifest plus mechanical readEvents\/readLog/,
       'F-001 pass-only finding normalization must enforce the same producer boundary');
       assert.equal(JSON.stringify(fixture.store.readReviewPasses(storyId)), beforeIncompletePass);
-      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId, note: 'Disposable required lane inspected the frozen inventory subject.', readManifest, readEvents }, laneEnv);
+      await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: lane, reviewRunId: reviewRunId, command: 'review_pass_set', payload: { storyId, agent: lane, reviewRunId, note: 'Disposable required lane inspected the frozen inventory subject.', readManifest, readEvents } });
     }
     const status = cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner'));
     assert.doesNotMatch(status, /REVIEW_INVENTORY_LANES_INCOMPLETE/);
@@ -281,7 +284,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     const beforeTerminal = JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId));
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /terminal|read|evidence/i);
     assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId)), beforeTerminal, 'missing terminal evidence cannot publish a critic receipt');
-    cli(fixture.root, 'review_pass_set', { storyId, agent: actor, reviewRunId, note: 'Independent disposable critic inspected every required lane and the empty exact finding set.', readManifest, readEvents }, criticEnv);
+    await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: actor, reviewRunId: reviewRunId, command: 'review_pass_set', payload: { storyId, agent: actor, reviewRunId, note: 'Independent disposable critic inspected every required lane and the empty exact finding set.', readManifest, readEvents } });
     assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /Completeness critic: complete/);
     assert.equal(git(fixture.root, ['log', '--format=%an <%ae>', '--', 'packages/main/src/subject.ts']), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
     console.log('B29BC_INVENTORY_PURPOSE PASS');
@@ -313,9 +316,10 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv), /OPEN|epoch|current/i);
     cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Finish disposable legacy-mode phase before full-envelope control.' }, env('main', 'b29bc-owner'));
     const configPath = join(fixture.root, 'proof-or-stop.config.json');
-    const config = { scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', promptEnvelope: {} as Record<string, unknown> };
+    const config = { nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() }, scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', promptEnvelope: {} as Record<string, unknown> };
     config.promptEnvelope = { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [actor]: 'full-envelope' } };
     writeFileSync(configPath, JSON.stringify(config));
+    resetConfigCache();
     git(fixture.root, ['add', 'proof-or-stop.config.json']);
     git(fixture.root, ['commit', '-m', 'Synthetic full-envelope inventory mode with ordinary contributor identity']);
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
@@ -326,7 +330,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
       const fullStarted = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
       const fullId = fullStarted.match(/Review run (\S+) started/)?.[1];
       assert.ok(fullId, fullStarted);
-      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId: fullId, note: 'Disposable second epoch required lane read evidence.', readManifest, readEvents }, laneEnv);
+      await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: lane, reviewRunId: fullId, command: 'review_pass_set', payload: { storyId, agent: lane, reviewRunId: fullId, note: 'Disposable second epoch required lane read evidence.', readManifest, readEvents } });
     }
     const fullPurpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: fullEpoch.epochId };
     const fullEnv = env(actor, 'b29bc-full-critic');
@@ -335,7 +339,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     const fullId = fullStarted.match(/Review run (\S+) started/)?.[1];
     assert.ok(fullId, fullStarted);
     assert.ok(fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === fullId)?.envelopeId, 'full-envelope purpose is carried by an actual durable envelope');
-    cli(fixture.root, 'review_pass_set', { storyId, agent: actor, reviewRunId: fullId, note: 'Full-envelope disposable critic read every frozen source.', readManifest, readEvents }, fullEnv);
+    await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: actor, reviewRunId: fullId, command: 'review_pass_set', payload: { storyId, agent: actor, reviewRunId: fullId, note: 'Full-envelope disposable critic read every frozen source.', readManifest, readEvents } });
     assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /Completeness critic: complete/);
     assert.equal(git(fixture.root, ['log', '-1', '--format=%an <%ae>']), 'Ordinary Contributor <ordinary@example.test>');
     console.log('B29BC_PURPOSE_FULL_ENVELOPE PASS');
@@ -353,9 +357,28 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'later dispatch preserves historical signed run');
     const fullData = fixture.store.readReviewInventoryEpochs(storyId);
     assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner')), /FINALIZED/);
+    const progress = readConvergenceProgress(fixture.store, storyId, fixture.root);
+    assert.ok(progress?.state.snapshot.completedEpochIds.includes(fullEpoch.epochId), 'U11 finalization captures actual independently completed epoch');
+    const progressPath = fixture.store.storyFilePath(storyId, 'convergence-progress.json');
+    const progressBytes = readFileSync(progressPath, 'utf8');
+    cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner'));
+    assert.equal(readFileSync(progressPath, 'utf8'), progressBytes, 'inventory status never signs or mutates progress');
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|FINALIZED/i);
     assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|sealed/i);
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /OPEN|epoch|sealed/i);
+    if (process.argv.includes('--progress-capture-fixture')) {
+      cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Cancel an unconsumed completed fixture epoch.' }, env('main', 'b29bc-owner'));
+      assert.doesNotThrow(() => readConvergenceProgress(fixture.store, storyId, fixture.root), 'U11 legitimate signed cancellation preserves observed history');
+      recordConvergenceProgress(fixture.store, storyId, fixture.root);
+      const cancelledProgress = readConvergenceProgress(fixture.store, storyId, fixture.root)!;
+      assert.deepEqual(cancelledProgress.state.snapshot.completedEpochIds, [fullEpoch.epochId]);
+      assert.deepEqual(cancelledProgress.state.stagnantEpochIds, [], 'revocation interrupts a consecutive stagnation claim');
+      cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
+      assert.ok(readConvergenceProgress(fixture.store, storyId, fixture.root));
+      return;
+    }
+    // The following independent mutation cells restore their pre-finalization fixture.
+    rmSync(progressPath, { force: true });
     fixture.store.writeReviewInventoryEpochs(storyId, fullData);
     const fullChecklist = fixture.store.readChecklist(storyId);
     fixture.store.writeChecklist(storyId, { ...fullChecklist, items: fullChecklist.items.map(row => ({ ...row, context: `${row.context} Changed accepted scope.` })) });
@@ -424,6 +447,10 @@ function criticDiscoveryRecovery(): void {
 }
 
 await inventoryPurposeRecovery();
+if (process.argv.includes('--progress-capture-fixture')) {
+  console.log('PASS U11 real inventory finalization captures verified progress');
+  process.exit(0);
+}
 criticDiscoveryRecovery();
 if (process.argv.includes('--purpose-only')) process.exit(0);
 

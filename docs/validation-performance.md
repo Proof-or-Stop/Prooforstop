@@ -145,3 +145,13 @@ within its trailing comparison window. A plateau followed by a decrease, such as
 `[2,2,1]`, no longer blocks DEV to REVIEW. Flat or rising counts retain the stall
 diagnostic. This bounded correction is not a substitute for signed completed-epoch
 progress accounting; activity counts and provider heartbeats do not prove progress.
+
+U-11 now records tool-owned progress observations at explicit review inventory
+begin and independent full-wave finalization. The signed journal binds completed
+epochs, current verifier-derived coverage and pass lanes, and authenticated
+Finding outcomes. Status comparisons do not write observations. Legacy unsigned
+Finding metadata and compatibility dismissal cannot prove repair. A later signed
+cancellation preserves the observed completion history and interrupts consecutive
+stagnation. Zero-wave compatibility receipts do not count as completed reviews.
+Unavailable progress is reported explicitly without undoing a valid inventory
+publication. This observation layer does not yet replace the legacy hard gates.

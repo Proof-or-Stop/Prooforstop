@@ -348,6 +348,7 @@ export const LIFECYCLE_ARTIFACTS = [
   // remediation receipts written by StoryStore and consumed by REVIEW -> DEV.
   'review-inventory-epochs.json',
   'acceptance-amendments.json',
+  'convergence-progress.json',
   'prompt-envelopes.json',
   'findings.json',
   // Signed append-only persistence carrier. Lifecycle classification is

@@ -1587,6 +1587,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Managed review submissions are idempotent by host/story/reviewRunId/lane, with the normalized submission digest sealed in the spec; conflicting inputs and archived or interrupted requests never launch replacements. The provider-owned immutable proposal is stored at the dynamic managed-run evidence-proposal.json path and is not gate evidence until an exact successful terminal seals it. The formal path accepts only one schema-valid bounded Codex agent_message or exact standalone Codex raw stdout envelope, or one Claude result final-result envelope after successful provider exit, and binds the exact run/review/provider tuple. Ordinary Codex progress agent messages are ignored; envelope-looking malformed/oversized attempts remain explicit failures, and multiple valid envelopes, tool-log, ordinary or mixed raw stdout, arbitrary streamed-output, or controller-authored input fails closed. The older signed-descriptor provider callback remains compatibility-only.',
   },
   {
+    name: 'artifact:convergence-progress.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'workspace-binding'],
+    level: 'L3',
+    producer: 'review_inventory_begin/review_inventory_finalize via core/convergence-progress-journal',
+    artifact: { name: 'convergence-progress.json', path: 'convergence-progress.json', signed: true, signature: 'signValidationArtifact/verifyValidationArtifact with the trusted Git common-directory key' },
+    consumerGate: 'evaluateConvergenceProgress read-only effective progress assessment',
+    rationale: 'Only independently validated completed review epochs enter signed completion history; zero-wave compatibility receipts do not. Repeated observations preserve bytes. Current coverage and admissible pass lanes come from existing verifiers. Finding decreases require authenticated ledger transitions, and unsigned legacy categories, heartbeats, run counts and metadata commits do not constitute progress. Signed later cancellation preserves observed completion history but interrupts consecutive stagnation. Missing or corrupt input is unavailable rather than fabricated progress. Gate enforcement is a separate consumer of this observation boundary.',
+  },
+  {
     name: 'artifact:acceptance-amendments.json',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'verification-policy', 'workspace-binding', 'gate-evidence'],

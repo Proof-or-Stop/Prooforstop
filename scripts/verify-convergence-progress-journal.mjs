@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
+import { signFinding } from '../packages/main/dist/core/finding-verify.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 const source = new URL('../packages/main/dist/core/convergence-progress-journal.js', import.meta.url);
 assert.ok(existsSync(source), 'U11 requires authoritative signed progress collection');
@@ -39,5 +40,27 @@ try {
   writeFileSync(store.storyFilePath(storyId, 'findings.json'), '{invalid');
   assert.throws(() => recordConvergenceProgress(store, storyId, root), /finding|JSON|invalid/i, 'a corrupt mirror must not appear as a net repair');
   assert.equal(readFileSync(path, 'utf8'), bytes);
+  const findingPath = store.storyFilePath(storyId, 'findings.json');
+  const finding = { id: 'F-001', desc: 'Real open regression', severity: 'high', category: 'missing',
+    status: 'open', evidenceState: 'verified', createdAt: now, reviewRound: '' };
+  finding._hash = signFinding(storyId, finding.id, finding.desc, finding.severity, now, '');
+  writeFileSync(findingPath, JSON.stringify({ findings: [finding] }));
+  recordConvergenceProgress(store, storyId, root);
+  const openBytes = readFileSync(path, 'utf8');
+  writeFileSync(findingPath, JSON.stringify({ findings: [{ ...finding, category: 'happy' }] }));
+  recordConvergenceProgress(store, storyId, root);
+  assert.equal(readFileSync(path, 'utf8'), openBytes, 'U11 unsigned legacy category is not effective progress');
+  for (const patch of [
+    { evidenceState: 'suspected', _hash: 'broken' },
+    { evidenceState: 'suspected' },
+    { status: 'resolved' },
+    { status: 'dismissed' },
+    { _hash: 'broken', recordId: 'invented', ledgerCommitReceiptId: 'invented' },
+  ]) {
+    writeFileSync(findingPath, JSON.stringify({ findings: [{ ...finding, ...patch }] }));
+    assert.throws(() => recordConvergenceProgress(store, storyId, root), /finding|authority/i,
+      'U11 must not certify a mirror downgrade or forged ledger marker as repair');
+    assert.equal(readFileSync(path, 'utf8'), openBytes);
+  }
   console.log('PASS U11 signed progress collection is read-only on status and rejects fabricated facts');
 } finally { rmSync(root, { recursive: true, force: true }); }

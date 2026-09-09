@@ -526,6 +526,7 @@ function issueDirectReviewAuthority(ctx: HandlerContext, run: ReviewRun) {
     storyId: run.storyId,
     lane: run.lane,
     reviewRound: run.reviewRound,
+    reviewPurpose: run.reviewPurpose, inventoryBinding: run.inventoryBinding,
     projectRoot: run.workspaceBinding?.metadataRoot ?? ctx.root,
   });
   if (!dispatch.ok) {

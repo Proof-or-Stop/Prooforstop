@@ -582,7 +582,7 @@ export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId
   }
 }
 
-function finalizedLiveAggregateError(store: StoryStore, pair: {
+export function finalizedLiveAggregateError(store: StoryStore, pair: {
   epoch: ReviewInventoryEpoch;
   receipt: ReviewInventoryReceipt;
 }): string | undefined {
