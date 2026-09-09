@@ -106,6 +106,10 @@ export type AgentDispatchMutationCommand =
   | 'review_inventory_critic_set'
   | 'managed_review_proposal_set'
   | 'delivery_check_set'
+  | 'acceptance_amendment_propose'
+  | 'acceptance_amendment_review'
+  | 'acceptance_amendment_approve'
+  | 'acceptance_amendment_cancel'
   | 'review_remediation_close'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The

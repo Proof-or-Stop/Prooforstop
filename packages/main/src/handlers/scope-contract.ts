@@ -1,3 +1,4 @@
+import { assertAcceptanceScopeReplacementAllowed } from '../core/acceptance-amendment-gates.js';
 import { projectScopeInventory } from '../core/scope-inventory-budget.js';
 import { validateFullTaskScopeContext } from '../core/prompt-contracts.js';
 /**
@@ -6,7 +7,7 @@ import { validateFullTaskScopeContext } from '../core/prompt-contracts.js';
  * scope_contract_set       — create or update the contract for a story
  * scope_contract_show      — display the current contract
  * scope_contract_check     — run the post-diff scope gate and return status
- * scope_contract_acknowledge — record an explicit out-of-scope change with reason
+ * scope_contract_acknowledge — record an acknowledgement for already declared paths with reason
  */
 
 import type { HandlerContext } from './context.js';
@@ -25,6 +26,7 @@ import {
 } from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
+  pathMatchesScopePattern,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from '../core/scope-path-classifier.js';
 import { buildScopeDiffPack, buildSemanticDegradationEvent } from '../core/scope-diff-pack.js';
@@ -136,6 +138,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       protectedAnchors?: string[];
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
+      return withReviewInventoryMutationLock(store, args.storyId, () => {
       // ensure story exists
       store.readStory(args.storyId);
 
@@ -195,6 +198,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         contract.astAnchorMode = astMode;
       }
       validateFullTaskScopeContext(projectScopeInventory(contract));
+      assertAcceptanceScopeReplacementAllowed(store, args.storyId, contract, resolveScopeGitCwd(args.storyId));
       store.writeScopeContract(args.storyId, contract);
       return [
         `Scope contract: configured`,
@@ -210,6 +214,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
         ...diagnostics,
       ].join('\n');
+      });
     },
 
     scope_contract_show(args: { storyId: string }): string {
@@ -301,6 +306,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       scopeChangeReason?: string;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
+      return withReviewInventoryMutationLock(store, args.storyId, () => {
       store.readStory(args.storyId);
       const checklist = store.readChecklist(args.storyId);
       const mode = validateMode(args.mode ?? 'enforce');
@@ -352,6 +358,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         );
       }
       validateFullTaskScopeContext(projectScopeInventory(contract));
+      assertAcceptanceScopeReplacementAllowed(store, args.storyId, contract, resolveScopeGitCwd(args.storyId));
       store.writeScopeContract(args.storyId, contract);
       return [
         'Scope contract initialized from PLAN files',
@@ -364,6 +371,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         ...[canonicalModify, canonicalCreate, canonicalTest, canonicalProtected, canonicalExcludes]
           .flatMap((entry) => entry.diagnostics),
       ].join('\n');
+      });
     },
 
     scope_contract_acknowledge(args: {
@@ -406,6 +414,12 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         phase = store.readStory(args.storyId).phase;
       } catch {
         phase = undefined;
+      }
+      if (phase && ['DEV', 'REVIEW', 'TEST', 'DONE'].includes(phase)) {
+        const allowed = [...contract.allowedModify, ...contract.allowedCreate, ...contract.allowedTest];
+        if (paths.some(path => /[*?[\]{}]/.test(path) ? !allowed.includes(path) : !allowed.some(pattern => pathMatchesScopePattern(path, pattern)))) {
+          throw new Error('Out-of-scope DEV paths require acceptance_amendment_propose; acknowledgement cannot substitute for independent approval');
+        }
       }
       const headHash = currentGitHead(root);
       const materialHash = currentMaterialHash(root, 'HEAD', root);

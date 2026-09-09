@@ -382,7 +382,7 @@ function nextActionForViolation(contract: ScopeContractData, violation: ScopeVio
     return 'Revert the excluded path or re-plan before continuing this work.';
   }
   if (contract.mode === 'enforce') {
-    return 'Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it.';
+    return 'Declare the path during PLAN, use acceptance_amendment_propose in DEV for independent approval, or revert it.';
   }
   return 'Treat as advisory now; acknowledge, declare scope, or revert before enforcing this contract.';
 }

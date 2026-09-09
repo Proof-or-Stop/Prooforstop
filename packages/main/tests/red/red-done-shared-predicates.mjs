@@ -285,6 +285,7 @@ function productionConsumers(machineSource, oracleSource, state) {
   const exported = {};
   const sandbox = {
     exports: exported, process: { cwd: () => 'ROOT' },
+    acceptanceCompletionBlocker: (inputStore, id, root) => { assert.equal(inputStore, store); assert.equal(id, 'B-probe'); assert.equal(root, 'GIT'); return state.amendment ?? null; },
     readDevMemoryFinishDecision: (root, id) => { calls.push(['finish', root, id]); return root === 'ROOT' && id === 'B-probe' ? state.finish : null; },
     evaluateDeliveryCheckFreshness: (id, inputStore, gitCwd, root) => { calls.push(['delivery', id, gitCwd, root]); return state.delivery; },
     evaluateOptionalLiveSmokeTranscript: () => state.live,
@@ -323,6 +324,8 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.deepEqual(checkSharedDoneAdapterSources(machineSource, oracleSource), []);
   const cases = [
     ['all-pass', () => {}, null, null],
+    ['amendment pending', f => { f.amendment = 'Acceptance amendment pending: AM-1 APPLYING'; }, 'acceptance-amendment', 'acceptance_amendment_blocked'],
+    ['amendment invalid', f => { f.amendment = 'Acceptance amendment signature invalid'; }, 'acceptance-amendment', 'acceptance_amendment_blocked'],
     ['test missing', f => { f.evidence = null; }, 'test-evidence', 'no test evidence'],
     ['test failed', f => { f.evidence.result = 'FAIL'; }, 'test-evidence', 'test FAIL'],
     ['bug open', f => { f.bugs.bugs = [{ id: 'BUG-1', status: 'open' }]; }, 'bugs-fixed', 'unfixed bug'],

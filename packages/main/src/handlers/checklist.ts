@@ -1,3 +1,5 @@
+import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
+import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -278,6 +280,7 @@ export function assertChecklistAddAllowed(
   if (!args.title) throw new Error('title is required');
 
   const story = assertChecklistMutationCwd(store, args.storyId);
+  if (['DEV', 'REVIEW', 'TEST', 'DONE'].includes(story.phase)) throw new Error('New acceptance after PLAN requires acceptance_amendment_propose in DEV');
   if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
     throw new Error('checklist_add in PLAN phase must provide reason ≥ 10 characters as a replan/scope audit signal, to prevent bypassing title/context freeze');
   }
@@ -2517,6 +2520,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         item.excludes = args.excludes;
         results.push(`excludes updated (${args.excludes.length})`);
       }
+      if (args.files !== undefined && ['DEV', 'REVIEW', 'TEST', 'DONE'].includes(store.readStory(args.storyId).phase)) {
+        for (const kind of ['modify', 'create', 'test'] as const) {
+          if ((args.files[kind] ?? []).some(path => !(item.files?.[kind] ?? []).includes(path))) throw new Error('DEV checklist file scope growth requires acceptance_amendment_propose');
+        }
+      }
       if (args.files !== undefined) {
         item.files = {
           modify: args.files.modify ?? [],
@@ -2554,6 +2562,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
+      if (args.status === 'done') {
+        const blocker = acceptanceAmendmentBlocker(store, args.storyId, resolveStoryGitCwd(args.storyId));
+        if (blocker) throw new Error(blocker);
+        if (missingAcceptance(item)) throw new Error('Cannot mark done: verification intent and evidence are both empty; propose an acceptance amendment');
+      }
       if (args.status) {
         item.status = args.status;
         if (args.status === 'in_progress' && !item.startTime) {

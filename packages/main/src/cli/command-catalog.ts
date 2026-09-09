@@ -2257,6 +2257,22 @@ Behavior:
     keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
+  { name: 'acceptance_amendment_propose', description: 'Propose additive DEV acceptance with frozen original scope, intents and topology; no acceptance is changed until independent approval.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1),
+    delta: z.object({ addItems: z.array(z.unknown()), appendIntents: z.array(z.unknown()),
+      scopeDelta: z.object({ modify: z.array(z.string()), create: z.array(z.string()), test: z.array(z.string()) }).strict(), topologyDelta: z.array(z.unknown()),
+    }).strict().describe('Exact additive delta; the domain validator refuses unknown fields, weakening, unbound scope and incomplete topology.'),
+  }},
+  { name: 'acceptance_amendment_review', description: 'Launch or recover one independent DEV intent-reviewer attempt with its worker key pinned before launch.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1), host: z.enum(['codex', 'claude']),
+  }},
+  { name: 'acceptance_amendment_approve', description: 'Consume the independently signed approve verdict and atomically journal additive acceptance application; retries recover interrupted writes.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1),
+  }},
+  { name: 'acceptance_amendment_cancel', description: 'Cancel an unapplied amendment with a reason, retaining its proposal and review history.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1), reason: z.string().min(5),
+  }},
+  { name: 'acceptance_amendment_show', description: 'Read and verify the signed acceptance amendment journal.', schema: { storyId: z.string().min(1) }},
   { name: 'review_remediation_close', description: 'Atomically close an inventory-bound repair set using current executed verification evidence; repeat the exact request to recover or replay.', schema: {
     storyId: z.string().min(1), repairSetId: z.string().min(1), epochId: z.string().min(1), repairCommit: z.string().regex(/^[a-f0-9]{40,64}$/),
     findings: z.array(z.object({ findingId: z.string().min(1), resolution: z.string().min(1),
@@ -2718,7 +2734,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON with status, violations, warnings'),
   }},
-  { name: 'scope_contract_acknowledge', description: 'Record an explicit out-of-scope change acknowledgement (requires reason ≥ 20 chars)', schema: {
+  { name: 'scope_contract_acknowledge', description: 'Record an acknowledgement for already declared paths (requires reason ≥ 20 chars)', schema: {
     storyId: z.string().describe('Story ID'),
     paths: z.array(z.string()).describe('Out-of-scope paths being acknowledged'),
     reason: z.string().min(20, 'reason must be ≥ 20 characters').describe('Why these out-of-scope paths are necessary (≥ 20 chars)'),

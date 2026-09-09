@@ -403,6 +403,9 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
       id: `CHK-${suffix}`,
       title: `Done item ${suffix}`,
       context: 'Synthetic checklist item.',
+      verificationIntent: { happy: [{ desc: 'The reviewer gate reports the required lane and current signed run binding.', type: 'manual' as const }], edge: [], adversarial: [] },
+      // Synthetic prerequisite only: each test below still executes its real lane/run assertions.
+      verificationEvidence: [{ intentRef: `CHK-${suffix}:happy:0`, kind: 'manual_transcript' as const, result: 'pass' as const, note: 'Synthetic acceptance prerequisite for the isolated reviewer gate fixture; this is not a product verification receipt.' }],
       status: 'done',
       startTime: now,
       endTime: now,
@@ -1809,7 +1812,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
     };
     const checklist: ChecklistData = {
-      items: [{ id: 'CHK-001', title: 'item', context: 'ctx', status: 'done', startTime: now, endTime: now }],
+      items: [{ id: 'CHK-001', title: 'item', context: 'ctx', status: 'done', startTime: now, endTime: now, verificationIntent: { happy: [{ desc: 'A fresh pass on an older current-round run remains valid while stale findings remain blocked.', type: 'manual' }], edge: [], adversarial: [] } }],
     };
     const store = new StoryStore(root);
     store.writeStory(storyId, story);

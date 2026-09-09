@@ -1,3 +1,4 @@
+import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 /**
@@ -1535,6 +1536,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const handlerGitCwd = args.story
         ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot, config: projectConfig })
         : (resolvedProjectGitRoot ?? projectRoot);
+      if (args.story) {
+        const amendment = acceptanceCompletionBlocker(ctx.store, args.story, handlerGitCwd);
+        if (amendment) throw new Error(amendment);
+      }
       return await withOfficialValidationExecution({
         root: projectRoot,
         storyId: args.story,

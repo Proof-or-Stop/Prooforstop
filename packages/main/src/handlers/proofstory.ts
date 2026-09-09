@@ -1,3 +1,4 @@
+import { canonicalDigest } from '../core/authority-signing.js';
 /**
  * ProofStory handlers.
  *
@@ -1010,6 +1011,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
+      return withReviewInventoryMutationLock(store, args.storyId, () => {
       const state = diagnosticInput(args.storyId);
       const existing = store.readProofStoryContract(args.storyId);
       const contract = buildProofStoryContract(
@@ -1030,6 +1032,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         },
         existing,
       );
+      if (['DEV', 'REVIEW', 'TEST', 'DONE'].includes(state.story.phase) && canonicalDigest(existing?.acceptanceBindings ?? []) !== canonicalDigest(contract.acceptanceBindings)) throw new Error('DEV topology growth requires acceptance_amendment_propose; frozen acceptance bindings cannot be rewritten');
       store.writeProofStoryContract(args.storyId, contract);
       if (args.json) return stringify(contract);
       return [
@@ -1039,6 +1042,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Acceptance bindings: ${contract.acceptanceBindings.length}`,
         `Diagnostic gaps: ${contract.diagnosticGaps.length}`,
       ].join('\n');
+      });
     },
 
     proofstory_contract_get(args: { storyId: string; json?: boolean }): string {

@@ -1,3 +1,4 @@
+import { createAcceptanceAmendmentHandlers } from './handlers/acceptance-amendment.js';
 /**
  * Handler Registry — Proof-or-Stop 的工具注册中心
  *
@@ -377,6 +378,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-be27: scope contract — scope_contract_set/show/check/acknowledge
   registry.registerBatch(createScopeContractHandlers(ctx));
+  registry.registerBatch(createAcceptanceAmendmentHandlers(ctx));
 
   // B-7287 M0-M2: ProofStory progressive intent hardening diagnostics only.
   // ProofStory handlers also own the registered acceptance-basis verifier

@@ -344,7 +344,7 @@ function renderScopeLifecycleRows(result: ScopeCheckResult, phase: StoryPhase): 
       const assurance = v.acknowledged ? ' assurance=acknowledged-expansion' : '';
       const hint = v.acknowledged
         ? ' hint=review acknowledged expansion before accepting lifecycle progress'
-        : ' hint=remove change or record an explicit scope_contract_acknowledge in DEV/REVIEW';
+        : ' hint=remove change or use acceptance_amendment_propose in DEV for independent approval';
       return `  [${scopeRowId(v)}] status=${status} blocking=${blocking} phase=${phase} source=scope-contract path=${v.path} rule=${v.rule}${anchor}${digest}${assurance}${hint}`;
     }),
   ].join('\n');
@@ -515,14 +515,14 @@ export function runScopeTransitionGate(
     throw new Error(
       `Cannot enter ${phase}: ${result.summary}\n\n` +
       renderedWithRows +
-      `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
+      `\n\n→ 修复 out-of-scope diff，或回到 DEV 用 acceptance_amendment_propose 提交必要扩展并取得独立批准后重跑 story_advance --phase=${phase}`,
     );
   }
   // CHK-004 B-a30e: advisory warning copy — name recovery path depending on phase.
   if (result.status === 'warn') {
     const recoveryHint = (phase === 'TEST' || phase === 'DONE')
-      ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to acknowledge via scope_contract_acknowledge, or verify via delivery reviewer.`
-      : `→ Scope warnings (advisory, not blocking) — acknowledge via scope_contract_acknowledge if the expansion is intentional, then proceed.`;
+      ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to propose necessary expansion via acceptance_amendment_propose, or revert the change.`
+      : `→ Scope warnings (advisory, not blocking) — use acceptance_amendment_propose in DEV if the expansion is intentional, or revert the change.`;
     return `\n\n${renderedWithRows}\n\n${recoveryHint}`;
   }
   return `\n\n${renderedWithRows}`;

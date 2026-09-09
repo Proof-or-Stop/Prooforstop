@@ -125,6 +125,7 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
       id,
       title: `Synthetic ${id}`,
       context: 'Synthetic context',
+      ...(phase === 'DEV' ? { verificationIntent: { happy: [{ desc: 'Concurrent checklist updates preserve both independently written item statuses.', type: 'manual' as const }], edge: [], adversarial: [] } } : {}),
       status: 'pending' as const,
       startTime: null,
       endTime: null,

@@ -1,3 +1,4 @@
+import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
@@ -450,6 +451,7 @@ export function evaluateDevMemoryPreflightGate(storyId: string, store: StoryStor
 }
 
 export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
+  if (acceptanceCompletionBlocker(context.store, context.storyId, context.gitCwd ?? context.projectRoot ?? process.cwd())) return false;
   const cl = context.store.readChecklist(context.storyId);
   // B-1909 CHK-002: advance when every item is TERMINAL (done OR withdrawn); a
   // withdrawn item is recorded-undeliverable and no longer outstanding. The
@@ -822,6 +824,8 @@ export interface ReviewVerdict {
 /** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
 export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdict {
   try {
+    const amendment = acceptanceCompletionBlocker(context.store, context.storyId, context.gitCwd ?? context.projectRoot ?? process.cwd());
+    if (amendment) return { ok: false, code: 'review_evidence_invalid', message: amendment };
     const loopRecords = context.store.readReviewLoopRecords(context.storyId);
     const activeLoops = listActiveLoops(loopRecords);
     if (activeLoops.length > 0) {
@@ -973,6 +977,8 @@ function donePredicate<T>(id: string, oracleRowId: string, value: T, failureReas
  */
 export function* evaluateDonePredicates(context: StoryMachineContext): Generator<DonePredicateResult> {
   const { storyId, store, projectRoot } = context;
+  const amendment = acceptanceCompletionBlocker(store, storyId, context.gitCwd ?? projectRoot ?? process.cwd());
+  yield donePredicate('acceptance-amendment', 'acceptance-amendment', amendment, amendment ? `[acceptance_amendment_blocked] ${amendment}` : null);
   const evidence = store.readTestEvidence(storyId);
   yield donePredicate('test-evidence', 'test-evidence', evidence,
     !evidence ? 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)'
@@ -1425,6 +1431,8 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'REVIEW') {
+    const amendment = acceptanceCompletionBlocker(store, storyId, gitCwd ?? projectRoot ?? process.cwd());
+    if (amendment) return amendment;
     const cl = store.readChecklist(storyId);
     // B-1909 CHK-002: withdrawn items are terminal, not outstanding.
     const pending = cl.items.filter(i => !isTerminalChecklistStatus(i.status));

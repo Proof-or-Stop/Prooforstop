@@ -8641,6 +8641,14 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
   'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
   const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  const amendmentGates = read('packages/main/src/core/acceptance-amendment-gates.ts');
+  assert(amendmentGates.includes('missingAcceptance') && amendmentGates.includes('acceptanceAmendmentBlocker'), 'amendment completion must reject pending and zero acceptance');
+  for (const path of ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/verifier.ts', 'packages/main/src/handlers/done-required-validation.ts', 'packages/main/src/handlers/certification-window.ts']) {
+    assert(read(path).includes('acceptanceCompletionBlocker'), `${path}: amendment completion gate missing`);
+  }
+  assert(read('packages/main/src/handlers/checklist.ts').includes("if (missingAcceptance(item)) throw"), 'checklist done must reject zero intent and zero evidence');
+  assert(read('packages/main/src/handlers/scope-contract.ts').includes('assertAcceptanceScopeReplacementAllowed'), 'DEV direct scope replacement must not bypass amendments');
+  assert(read('packages/main/src/handlers/proofstory.ts').includes('DEV topology growth requires acceptance_amendment_propose'), 'DEV topology cannot bypass additive approval');
   const amendmentJournal = read('packages/main/src/core/acceptance-amendment-journal.ts');
   assert(registrySource.includes('artifact:acceptance-amendments.json'), 'signed amendment application must be registered');
   for (const invariant of ['verifyValidationArtifact', 'deriveAcceptanceAmendment', 'onAcceptanceReviewKeyCreated', "state: 'APPLYING'", "state: 'APPROVED'", 'Acceptance amendment interrupted']) {

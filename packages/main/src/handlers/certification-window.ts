@@ -1,3 +1,4 @@
+import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { currentPrecertFastIdentity } from './validation-identity.js';
 import type { HandlerContext } from './context.js';
@@ -517,6 +518,8 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
     certification_window_begin(args: { storyId: string }): string {
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_begin: storyId is required');
+      const amendment = acceptanceCompletionBlocker(ctx.store, storyId, ctx.root);
+      if (amendment) throw new Error(amendment);
 
       const existing = refreshCertificationWindowLineage({
         store: ctx.store,

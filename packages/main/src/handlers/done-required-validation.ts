@@ -1,3 +1,4 @@
+import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -32,6 +33,8 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       if (!storyId) throw new Error('done_required_validate requires --storyId=<id>');
       assertCwdInWorktree(ctx.store, storyId);
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const amendment = acceptanceCompletionBlocker(ctx.store, storyId, gitCwd);
+      if (amendment) throw new Error(amendment);
       const policy = resolveDoneRequiredPolicy(ctx.root);
       if (policy.required) {
         requireCurrentHeavyCertificationWindow({

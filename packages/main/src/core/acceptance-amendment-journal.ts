@@ -95,7 +95,7 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
   };
   return {
     show(storyId: string) { return readJournal(store, storyId, root); },
-    propose(args: { storyId: string; amendmentId: string; delta: AcceptanceAmendmentDelta; submitterSessionId: string }) {
+    propose(args: { storyId: string; amendmentId: string; delta: AcceptanceAmendmentDelta; submitterSessionId: string }, onCreated?: () => void) {
       return locked(args.storyId, () => {
         requireDev(args.storyId);
         if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(args.amendmentId) || !args.submitterSessionId?.trim()) throw new Error('Acceptance amendment requires stable ID and submitter identity');
@@ -108,8 +108,10 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         if (journal.entries.some(pending)) throw new Error('Another acceptance amendment is pending; finish or cancel it first');
         const base = snapshot(store, args.storyId), next = deriveAcceptanceAmendment(base, args.delta);
         const baseDigest = canonicalDigest(base);
-        return save(journal, { schemaVersion: 'proofbound.acceptance_amendment.v1', ...args, state: 'PROPOSED', base,
+        const proposed = save(journal, { schemaVersion: 'proofbound.acceptance_amendment.v1', ...args, state: 'PROPOSED', base,
           baseDigest, amendmentDigest: canonicalDigest({ storyId: args.storyId, baseDigest, delta: args.delta }), nextDigest: canonicalDigest(next), requestDigest, signature: '' });
+        onCreated?.(); // The owner's optional metadata commit remains inside the same serialization boundary.
+        return proposed;
       });
     },
     async startReview(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' }, deps: ManagedHostRunSubmitDeps = {}) {
@@ -148,7 +150,7 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
           headHash: prepared.headHash, materialHash: prepared.materialHash, storyFilesHash: prepared.storyFilesHash } });
       }) });
     },
-    approve(args: { storyId: string; amendmentId: string }) {
+    approve(args: { storyId: string; amendmentId: string }, onChanged?: () => void) {
       return locked(args.storyId, () => {
         requireDev(args.storyId);
         let { journal, entry } = entryFor(args.storyId, args.amendmentId);
@@ -178,16 +180,20 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         store.writeProofStoryContract(args.storyId, next.proofStory);
         if (canonicalDigest(snapshot(store, args.storyId)) !== entry.nextDigest) throw new Error('Acceptance amendment application incomplete');
         assertReviewedSource();
-        return save(journal, { ...entry, state: 'APPROVED' });
+        const applied = save(journal, { ...entry, state: 'APPROVED' });
+        onChanged?.();
+        return applied;
       });
     },
-    cancel(args: { storyId: string; amendmentId: string; reason: string }) {
+    cancel(args: { storyId: string; amendmentId: string; reason: string }, onChanged?: () => void) {
       return locked(args.storyId, () => {
         requireDev(args.storyId);
         const { journal, entry } = entryFor(args.storyId, args.amendmentId);
         if (!args.reason?.trim() || ['APPLYING', 'APPROVED'].includes(entry.state)) throw new Error('Cannot cancel an applying or approved amendment; recover its application');
         if (entry.state === 'CANCELLED') return entry;
-        return save(journal, { ...entry, state: 'CANCELLED', cancellationReason: args.reason });
+        const cancelled = save(journal, { ...entry, state: 'CANCELLED', cancellationReason: args.reason });
+        onChanged?.();
+        return cancelled;
       });
     },
   };

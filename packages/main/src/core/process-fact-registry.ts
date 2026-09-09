@@ -1589,11 +1589,11 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:acceptance-amendments.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'verification-policy', 'workspace-binding'],
-    level: 'L3',
+    semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'verification-policy', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
     producer: 'core/acceptance-amendment-journal',
     artifact: { name: 'acceptance-amendments.json', path: 'acceptance-amendments.json', signed: true, signature: 'signValidationArtifact/verifyValidationArtifact with schema-separated acceptance claims and the trusted Git common-directory key' },
-    consumerGate: 'acceptanceAmendmentBlocker and exact application recovery',
+    consumerGate: 'acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates',
     rationale: 'Each amendment preserves a signed original scope/checklist/ProofStory snapshot and additive delta, deterministic next digest, submitter identity, and independent worker public key pinned before launch. Proposal and review leave acceptance untouched. Application verifies exact current base/source and approving provider receipt, then persists APPLYING before any acceptance artifact write and APPROVED only after complete exact readback. Interrupted application admits only original or exact derived artifact values and rechecks source; unknown drift is never overwritten. Exact retry preserves authority bytes; cancellation is audited and cannot discard an applying or approved change.',
   },
   {
@@ -1774,6 +1774,7 @@ export interface DonePreflightPredicateInventoryEntry {
  * semantic equivalence between arbitrary independently written predicates.
  */
 export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
+  { blockerCode: 'acceptance_amendment_blocked', processFactName: 'artifact:acceptance-amendments.json', oracleRowId: 'acceptance-amendment' },
   {
     blockerCode: 'delivery_check_tampered',
     processFactName: 'artifact:delivery-check.json',
