@@ -27,6 +27,7 @@ const {
   PRECERT_TEST_IDENTITY,
   PRECERT_VERIFIER_IDENTITY,
   setReviewInventoryAdmitApisForTest,
+  persistSyntheticAdmittedWindowForTest,
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
 );
@@ -2580,6 +2581,9 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
     git(['add', '.proof-or-stop']);
     git(['commit', '-m', 'seed validate-file story metadata']);
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'race fixture needs current certification domain identity');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
 
     const facts = {
       cli: { available: true, path: join(root, 'test-bin', 'npx') },
@@ -2615,6 +2619,8 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
     );
     assert.equal(existsSync(marker), false, 'the validate-file child is not launched after preflight drift');
     assert.ok(factCalls >= 2, 'validate-file branch performs the initial and atomic preflight probes');
+    assert.equal(store.readCertificationWindows(storyId).windows.at(-1).state, 'ADMITTED',
+      'pre-launch causal refusal must not consume the certification window');
 
     const stableHandlers = createVerifierHandlers({
       root,
