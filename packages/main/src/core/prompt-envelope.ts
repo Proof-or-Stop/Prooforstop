@@ -746,6 +746,14 @@ function isApprovedIndependentAxesInvariant(segment: string): boolean {
   return reviewTriageAuthorityViolation({ location: 'independent-axes-body', kind: 'story', text: body }) === null;
 }
 
+function isApprovedHistoricalRecallTriggerInventory(segment: string): boolean {
+  // A historical-recall trigger list names lookup dimensions; it does not relate
+  // severity to Story ownership. Keep this grammar deliberately closed so an
+  // authority verb (for example "severity decides owner") cannot ride the
+  // exemption merely by appearing after "recall for".
+  return /^(?:once\s+only\s+)?(?:non\s+gate\s+)?(?:historical\s+)?(?:recall|lookup|query)\s+for\s+(?:target\s+start|scope\s+match|severity|owner|closure|expiry|hash\s+runtime\s+triggers)(?:\s+(?:and\s+)?(?:target\s+start|scope\s+match|severity|owner|closure|expiry|hash\s+runtime\s+triggers))*(?:\s+while\s+preserving\s+legacy\s+finding\s+bytes)?$/u.test(segment);
+}
+
 function hasNothingButSeverityAuthority(text: string): boolean {
   // `but` is normally a clause boundary in Task Context segmentation, while
   // `nothing but <subject>` is one atomic exclusive-subject construction.
@@ -849,7 +857,8 @@ function classifyControlledTriageRelations(
     && !isApprovedNegativeCapabilityInventory(segment)
     && !isApprovedFailClosedOrEvidenceRouteFragment(segment)
     && !isApprovedOwnerDispositionInvariant(segment)
-    && !isApprovedIndependentAxesInvariant(segment));
+    && !isApprovedIndependentAxesInvariant(segment)
+    && !isApprovedHistoricalRecallTriggerInventory(segment));
 
   if (hasCrossSegmentDispositionAssignment(relevantSegments)) {
     return { family: 'signed-disposition-followup', state: 'unsafe' };
