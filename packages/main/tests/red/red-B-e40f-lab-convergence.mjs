@@ -167,8 +167,11 @@ async function main() {
   );
   assert.deepEqual(
     configRow.resources,
-    [{ class: 'git-common-dir', key: '.', access: 'shared' }],
-    'quorum validation resource claim remains missing or exclusive',
+    [
+      { class: 'git-common-dir', key: '.', access: 'shared' },
+      { class: 'fixed-path', key: '.proof-or-stop/runtime/validate-plan-barrier', access: 'exclusive' },
+    ],
+    'quorum keeps internal shard parallelism while isolating its protected-root observation from other validation writers',
   );
   for (const key of [
     'PROOF_OR_STOP_QUORUM_SMOKE_OWNED_TEMP_BASE',
