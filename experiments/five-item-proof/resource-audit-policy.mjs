@@ -6,6 +6,7 @@ export function verifyResourceAudit(config,audit){
   const command=config.validate.commands[entry.commandIndex];assert.equal([command.command,...command.args].join(' '),entry.argv,'AUDITED_COMMAND_DRIFT');
   const supersession=entry.supersededBy;
   if(supersession){assert.equal(supersession.classification,'exclusive-local-writer','RESOURCE_AUDIT_SUPERSESSION_INVALID');assert.ok(supersession.reference&&supersession.effectiveResources.some(barrier),'RESOURCE_AUDIT_SUPERSESSION_INVALID');supersededReaders++;}
+  if(supersession)for(const claim of entry.suggestedResources)assert.ok(supersession.effectiveResources.some(actual=>JSON.stringify(actual)===JSON.stringify(claim)),'RESOURCE_AUDIT_WITHDRAWN_CLAIM: '+entry.commandIndex);
   assert.deepEqual(command.resources,supersession?.effectiveResources??entry.suggestedResources,'RESOURCE_AUDIT_DRIFT: '+entry.commandIndex);
   if(!command.resources.some(barrier))effectivelySharedReaders++;
  }

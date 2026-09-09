@@ -270,3 +270,12 @@ storage error still refuses and provides no cross-process recovery guarantee.
 The historical resource audit now records six explicit supersessions and reports
 21 reviewed / 15 effectively shared / 6 retained local writers; exact claim guards
 reject both unapproved additional claims and removal of writer protection.
+
+Completed receipt publication has the same two-attempt transaction bound as
+complete-output publication. A transient first write retries the original signed
+receipt, preserving its timestamp/hash and one command execution; permanent
+storage failure still refuses. Superseded resource declarations must preserve
+every original audited claim even if both config and supersession metadata are
+edited together. Capacity aggregation removes only exact duplicate normalized
+claims (195 records become17 for the current routine configuration); access,
+ownership and resolved working directory remain part of the distinct claim.

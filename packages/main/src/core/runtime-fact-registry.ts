@@ -167,6 +167,7 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
 /** Conservative defaults consumed by official validation, independent of Lab. */
 export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   declaredInvocationCapacity: 2,
+  duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',

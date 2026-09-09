@@ -739,6 +739,15 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     return { key, receipt: existing, verdict, disposition: 'reused' };
   }
 
+  // These writes publish immutable evidence from an already-completed command.
+  // Retry the same transaction once; never re-enter the runner to retry storage.
+  const publishCompleted = (write: () => void): void => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try { write(); return; }
+      catch (error) { if (attempt === 1) throw error; }
+    }
+  };
+
   // Incomplete identities are intentionally never deduplicated: a legacy or
   // partial identity cannot turn a second selector into a cached PASS.
   const executeFresh = async (): Promise<CausalEvidenceReceipt> => {
@@ -796,24 +805,14 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         liveSelectorOutput.set(receipt, matchingOutput);
         // Publish complete bytes first. A receipt can never advertise an output
         // object whose write failed; an orphan output object grants no authority.
-        if (receipt.reusable) {
-          // Retry only publication of these already-captured immutable bytes.
-          // A permanent storage fault still refuses; it never launches a child.
-          for (let attempt = 0; attempt < 2; attempt++) {
-            try {
-              args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, matchingOutput);
-              break;
-            } catch (error) {
-              if (attempt === 1) throw error;
-            }
-          }
-        }
+        if (receipt.reusable) publishCompleted(() =>
+          args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, matchingOutput));
       }
       // A non-PASS result is an execution outcome, not a reusable CAS value.
       // Leaving it at this address would both turn a transient failure into a
       // cache hit and prevent the later PASS from being written immutably.
       if (args.receiptStore && receipt.reusable) {
-        args.receiptStore.writeCausalEvidenceReceipt(key.identity.storyId, receipt);
+        publishCompleted(() => args.receiptStore!.writeCausalEvidenceReceipt(key.identity.storyId, receipt));
       }
       return receipt;
   };

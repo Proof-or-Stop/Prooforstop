@@ -841,5 +841,8 @@ export function declaredValidationCapacity(
       access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
     });
   }
-  return { resources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
+  // Duplicate normalized claims carry no additional permission or capacity.
+  // Preserve access, ownership and resolved cwd; validate every input before dedup.
+  const distinctResources = [...new Map(resources.map(claim => [JSON.stringify(claim), claim])).values()];
+  return { resources: distinctResources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
 }
