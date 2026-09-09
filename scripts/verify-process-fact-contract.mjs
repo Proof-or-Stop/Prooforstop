@@ -6792,7 +6792,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(aggregateWitness.includes(obligation), `aggregate observation requires executable boundary coverage: ${obligation}`);
   }
   const hostRunText = read('packages/main/src/core/host-run.ts');
-  for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
+  for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required Codex proposal candidate classifier token missing: ${token}`);
   }
   const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
@@ -8641,6 +8641,15 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
   'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
   const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  const acceptanceReviewer = read('packages/main/src/core/managed-host-run.ts');
+  assert(registrySource.includes('artifact:acceptance-amendment-review-receipt'), 'DEV amendment review seal must be registered');
+  for (const invariant of ['parseAcceptanceReviewFinal', 'readManagedAcceptanceReviewReceipt', 'managedAcceptanceReviewPublicKey', 'verifyCanonical(claims, signature, expected.publicKey)']) {
+    assert(acceptanceReviewer.includes(invariant), `DEV amendment review requires ${invariant}`);
+  }
+  const acceptanceReviewWitness = read('scripts/verify-acceptance-review-receipt.mjs');
+  for (const invariant of ['recomputing every unsigned digest', 'GC preserves approval', 'DEV approval cannot become an old REVIEW final result']) {
+    assert(acceptanceReviewWitness.includes(invariant), `DEV amendment review needs witness: ${invariant}`);
+  }
   const remediationSource = read('packages/main/src/handlers/review-remediation.ts');
   for (const invariant of ['withAtomicFindingLedgerWrites', 'verifyReviewInventoryEpoch', 'verifyReviewInventoryReceipt',
     'verifyCausalEvidenceReceipt', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {

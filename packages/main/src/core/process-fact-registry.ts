@@ -1587,6 +1587,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Managed review submissions are idempotent by host/story/reviewRunId/lane, with the normalized submission digest sealed in the spec; conflicting inputs and archived or interrupted requests never launch replacements. The provider-owned immutable proposal is stored at the dynamic managed-run evidence-proposal.json path and is not gate evidence until an exact successful terminal seals it. The formal path accepts only one schema-valid bounded Codex agent_message or exact standalone Codex raw stdout envelope, or one Claude result final-result envelope after successful provider exit, and binds the exact run/review/provider tuple. Ordinary Codex progress agent messages are ignored; envelope-looking malformed/oversized attempts remain explicit failures, and multiple valid envelopes, tool-log, ordinary or mixed raw stdout, arbitrary streamed-output, or controller-authored input fails closed. The older signed-descriptor provider callback remains compatibility-only.',
   },
   {
+    name: 'artifact:acceptance-amendment-review-receipt',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'prompt-envelope', 'execution-evidence', 'schema-contract'],
+    level: 'L3',
+    producer: 'core/managed-host-run acceptance_amendment_reviewer worker',
+    artifact: { name: 'acceptance-amendment-review-receipt', path: 'acceptance-amendment-review-receipt', signed: true, signature: 'worker-private signCanonical; verifyCanonical against the review attempt pinned public key' },
+    consumerGate: 'readManagedAcceptanceReviewReceipt exact independently pinned worker-key intake only',
+    rationale: 'DEV acceptance amendment review uses a distinct provider final schema and worker-private Ed25519 seal over its exact amendment/base/submitter, prompt, spec, result, root, binding projection and actual normal child cleanup. One complete provider verdict is mandatory. The signed review attempt must pin the worker public key before consumption; a receipt key supplied by its own verdict is not authority. Retention archives preserve the seal and original pinned-key verification. This receipt alone is neither a Story REVIEW pass nor authority to mutate acceptance; the amendment journal owns current-base revalidation and one-time application.',
+  },
+  {
     name: 'artifact:managed-review-evidence-binding',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'prompt-envelope', 'reviewer-lane', 'freshness-policy', 'blocker-state', 'execution-evidence'],

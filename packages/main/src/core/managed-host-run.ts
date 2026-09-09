@@ -1,3 +1,4 @@
+import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
  * Durable, host-independent ownership boundary for cross-provider CLI runs.
  *
@@ -179,6 +180,7 @@ export interface ManagedHostRunSubmitArgs {
   profile?: string | null;
   /** Immutable formal-review tuple. Required by the managed-reviewer profile. */
   reviewBinding?: ManagedHostRunReviewBinding | null;
+  acceptanceReviewBinding?: AcceptanceReviewBinding | null;
   /** Optional one-shot environment used by redacted launch profiles. */
   environment?: NodeJS.ProcessEnv;
   /** Honest provider-progress observation capability; heartbeat remains a separate fact in either mode. */
@@ -505,6 +507,7 @@ interface ManagedHostRunSpec {
   projectRootHash: string;
   profile: string | null;
   reviewBinding: ManagedHostRunReviewBinding | null;
+  acceptanceReviewBinding?: AcceptanceReviewBinding;
 }
 
 export interface ManagedHostRunBindingProjection {
@@ -522,6 +525,7 @@ export interface ManagedHostRunBindingProjection {
   profile: string | null;
   promptDigest: string;
   reviewBinding: ManagedHostRunReviewBinding | null;
+  acceptanceReviewBinding?: AcceptanceReviewBinding;
 }
 
 interface ManagedHostRunOwner {
@@ -955,7 +959,7 @@ function assertManagedReviewScratchExecution(
 ): void {
   const scratch = spec.managedReviewScratch;
   if (!scratch) return;
-  if (spec.profile !== 'managed_reviewer'
+  if (!isIsolatedReviewerProfile(spec.profile)
     || spec.cwd !== scratch.cwd
     || canonicalManagedReviewScratchPath(spec.root) !== scratch.root
     || spec.reviewBinding?.headHash !== scratch.headHash) {
@@ -1392,7 +1396,7 @@ function readTerminal(paths: ManagedHostRunPaths): ManagedHostRunTerminal | null
  */
 function cleanupManagedClaudePromptForTerminal(paths: ManagedHostRunPaths): void {
   const { text: specText, value: spec } = readManagedHostRunSpec(paths);
-  if (spec.profile !== 'managed_reviewer' || spec.host !== 'claude') return;
+  if (!isIsolatedReviewerProfile(spec.profile) || spec.host !== 'claude') return;
 
   const owner = readManagedHostRunOwner(paths);
   if (
@@ -1590,6 +1594,7 @@ function liveBindingProjection(paths: ManagedHostRunPaths): ManagedHostRunBindin
     profile: spec.profile,
     promptDigest: owner.promptDigest,
     reviewBinding: spec.reviewBinding ?? null,
+    ...(spec.acceptanceReviewBinding ? { acceptanceReviewBinding: spec.acceptanceReviewBinding } : {}),
   };
 }
 
@@ -2099,7 +2104,16 @@ export async function submitManagedHostRun(
   if (args.reviewRunId && args.storyId && !args.reviewRunId.startsWith(`${args.storyId}:`)) {
     throw new Error(`managed host run: reviewRunId "${args.reviewRunId}" does not belong to story "${args.storyId}"`);
   }
-  if (args.profile === 'managed_reviewer') {
+  if (args.profile === ACCEPTANCE_REVIEW_PROFILE) {
+    assertAcceptanceReviewBinding(args.acceptanceReviewBinding);
+    if (args.phase !== 'DEV' || args.agentType !== ACCEPTANCE_REVIEW_LANE || args.lane !== ACCEPTANCE_REVIEW_LANE
+      || !args.reviewRunId || !args.storyId || !args.reviewBinding || args.isolateManagedReview !== true) {
+      throw new Error('acceptance amendment review requires an isolated DEV reviewer and exact subject');
+    }
+  } else if (args.acceptanceReviewBinding) {
+    throw new Error('acceptance amendment binding requires its dedicated reviewer profile');
+  }
+  if (isIsolatedReviewerProfile(args.profile)) {
     if (!args.storyId || !args.reviewRunId || !args.lane || args.agentType !== args.lane || !args.reviewBinding) {
       throw new Error('managed host run: managed_reviewer requires exact storyId/reviewRunId/lane/agentType/reviewBinding');
     }
@@ -2109,7 +2123,7 @@ export async function submitManagedHostRun(
     }
   }
   if (args.isolateManagedReview === true) {
-    if (args.profile !== 'managed_reviewer' || !args.reviewBinding) {
+    if (!isIsolatedReviewerProfile(args.profile) || !args.reviewBinding) {
       throw new Error('managed host run: managed-review isolation requires an exact managed_reviewer binding');
     }
     if (resolve(args.root) !== resolve(args.cwd)) {
@@ -2130,7 +2144,7 @@ export async function submitManagedHostRun(
   if (args.idempotencyKey !== undefined && (!args.idempotencyKey.trim() || args.idempotencyKey.length > 512)) {
     throw new Error('managed host run: idempotency key must contain 1 to 512 characters');
   }
-  const logicalIdentity = args.profile === 'managed_reviewer'
+  const logicalIdentity = isIsolatedReviewerProfile(args.profile)
     ? ['review', args.host, args.storyId, args.reviewRunId, args.lane]
     : args.idempotencyKey !== undefined
       ? ['request', args.idempotencyKey]
@@ -2187,7 +2201,7 @@ export async function submitManagedHostRun(
     throw error;
   }
 
-  const proposalInvocationKeys = args.profile === 'managed_reviewer' ? generateEd25519KeyPair() : null;
+  const proposalInvocationKeys = isIsolatedReviewerProfile(args.profile) ? generateEd25519KeyPair() : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
     ...(submissionDigest ? { submissionDigest } : {}),
@@ -2208,6 +2222,7 @@ export async function submitManagedHostRun(
     projectRootHash: args.projectRootHash,
     profile: args.profile ?? null,
     reviewBinding: args.reviewBinding ?? null,
+    ...(args.acceptanceReviewBinding ? { acceptanceReviewBinding: args.acceptanceReviewBinding } : {}),
   };
   try {
     atomicWrite(paths.spec, spec);
@@ -2564,6 +2579,7 @@ export async function runManagedHostRunWorker(
         phase: spec.phase,
         promptText,
         managedRunId: spec.runId,
+        ...(spec.profile === ACCEPTANCE_REVIEW_PROFILE ? { finalResultSchema: ACCEPTANCE_REVIEW_FINAL_SCHEMA } : {}),
         reviewRunId: spec.reviewRunId,
         lane: spec.lane,
         timeoutMs: Math.min(spec.timeoutMs, remainingMs),
@@ -2572,7 +2588,7 @@ export async function runManagedHostRunWorker(
         usageEnv: deps.env ?? process.env,
         ...(spec.profile === 'cross_host_review_codex'
           ? { launchProfile: 'cross_host_review_codex' as const }
-          : spec.profile === 'managed_reviewer'
+          : isIsolatedReviewerProfile(spec.profile)
             ? { launchProfile: 'managed_reviewer' as const }
             : {}),
         cwd: spec.cwd,
@@ -2661,7 +2677,7 @@ export async function runManagedHostRunWorker(
     // Re-check both the registration/HEAD and the clean material immediately
     // after provider exit, before accepting a compatibility proposal, parsing
     // final stdout, or sealing any completed terminal record.
-    if (spec.profile === 'managed_reviewer') {
+    if (isIsolatedReviewerProfile(spec.profile)) {
       try {
         assertManagedReviewScratchExecution(spec, { verifyBoundMaterial: true });
       } catch (error) {
@@ -2729,6 +2745,30 @@ export async function runManagedHostRunWorker(
         result,
         now(),
       );
+    }
+    if (spec.profile === ACCEPTANCE_REVIEW_PROFILE) {
+      try {
+        assertAcceptanceReviewBinding(spec.acceptanceReviewBinding);
+        if (!proposalInvocationPrivateKey) throw new Error('worker signing key unavailable');
+        const proposal = parseAcceptanceReviewFinal(result, { ...spec.acceptanceReviewBinding, runId: spec.runId, storyId: spec.storyId! });
+        const terminalResult = projectManagedHostRunTerminalResult('completed', result);
+        const claims = {
+          schemaVersion: 'proofbound.acceptance_amendment_review_receipt.v1' as const,
+          runId: spec.runId,
+          root: realpathSync(spec.root),
+          specDigest: owner.specDigest,
+          promptDigest: owner.promptDigest,
+          bindingProjectionDigest: bindingProjectionDigestOf(liveBindingProjection(paths)),
+          resultDigest: sha256(`${canonicalJson(terminalResult)}\n`),
+          processCleanup: result.processCleanup,
+          proposal,
+        };
+        if (!writeExclusive(paths.evidenceProposal, { ...claims, signature: signCanonical(claims, proposalInvocationPrivateKey) })) {
+          throw new Error('amendment proposal already exists');
+        }
+      } catch (error) {
+        return writeTerminal(paths, 'failed', `acceptance_review_invalid:${error instanceof Error ? error.message : String(error)}`, result.replacementSafe, result, now());
+      }
     }
     if (spec.profile === 'managed_reviewer') {
       const existingProposal = readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec);
@@ -4054,4 +4094,52 @@ export function pruneExpiredManagedHostRuns(
 /** Used only by bounded repair/cleanup code; never follows caller-provided paths. */
 export function removeManagedHostRunRuntime(root: string, runId: string): void {
   rmSync(managedHostRunDirectory(root, runId), { recursive: true, force: true });
+}
+
+
+function isIsolatedReviewerProfile(profile: string | null | undefined): boolean {
+  return profile === 'managed_reviewer' || profile === ACCEPTANCE_REVIEW_PROFILE;
+}
+
+/** Pin this key in the signed amendment review attempt before consuming any verdict. */
+export function managedAcceptanceReviewPublicKey(root: string, runId: string): string {
+  const paths = pathsFor(root, runId);
+  const { value: spec, text } = readManagedHostRunSpec(paths);
+  const owner = readManagedHostRunOwner(paths);
+  if (spec.profile !== ACCEPTANCE_REVIEW_PROFILE || spec.phase !== 'DEV' || owner.specDigest !== sha256(text)
+    || !owner.proposalInvocationPublicKey) throw new Error('acceptance amendment review key binding invalid');
+  return owner.proposalInvocationPublicKey;
+}
+
+/** Hash-only host receipts are insufficient: the independently pinned worker key seals the verdict and actual result. */
+export function readManagedAcceptanceReviewReceipt(root: string, runId: string,
+  expected: AcceptanceReviewBinding & { storyId: string; promptDigest: string; publicKey: string },
+): { proposal: AcceptanceReviewFinal; receipt: ManagedHostRunReceipt } {
+  assertAcceptanceReviewBinding({ amendmentId: expected.amendmentId, amendmentDigest: expected.amendmentDigest,
+    baseDigest: expected.baseDigest, submitterSessionId: expected.submitterSessionId });
+  const receipt = managedHostRunReceipt(root, runId);
+  const binding = readManagedHostRunBinding(root, runId);
+  const seal = readManagedReviewEvidenceProposal(root, runId) as unknown as {
+    schemaVersion: string; runId: string; root: string; specDigest: string; promptDigest: string;
+    bindingProjectionDigest: string; resultDigest: string; processCleanup: HostRunProcessCleanup;
+    proposal: AcceptanceReviewFinal; signature: string;
+  } | null;
+  if (!seal) throw new Error('acceptance amendment review proposal missing');
+  const { signature, ...claims } = seal;
+  if (!verifyCanonical(claims, signature, expected.publicKey)) throw new Error('acceptance amendment review signature invalid');
+  if (seal.schemaVersion !== 'proofbound.acceptance_amendment_review_receipt.v1' || seal.runId !== runId
+    || seal.root !== realpathSync(root) || seal.specDigest !== receipt.specDigest
+    || seal.promptDigest !== expected.promptDigest || binding.promptDigest !== expected.promptDigest
+    || seal.bindingProjectionDigest !== receipt.bindingProjectionDigest || seal.resultDigest !== receipt.resultDigest
+    || canonicalJson(seal.processCleanup) !== canonicalJson(receipt.processCleanup)
+    || receipt.state !== 'completed' || !receipt.replacementSafe || !receipt.processCleanup?.reaped || receipt.processCleanup.residualProcessGroup
+    || binding.profile !== ACCEPTANCE_REVIEW_PROFILE || binding.phase !== 'DEV' || binding.storyId !== expected.storyId
+    || binding.agentType !== ACCEPTANCE_REVIEW_LANE || binding.lane !== ACCEPTANCE_REVIEW_LANE
+    || seal.proposal.storyId !== expected.storyId || seal.proposal.runId !== runId
+    || ['amendmentId', 'amendmentDigest', 'baseDigest', 'submitterSessionId'].some(key =>
+      seal.proposal[key as keyof AcceptanceReviewBinding] !== expected[key as keyof AcceptanceReviewBinding]
+      || binding.acceptanceReviewBinding?.[key as keyof AcceptanceReviewBinding] !== expected[key as keyof AcceptanceReviewBinding])) {
+    throw new Error('acceptance amendment review receipt subject binding invalid');
+  }
+  return { proposal: seal.proposal, receipt };
 }

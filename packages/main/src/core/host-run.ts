@@ -1,3 +1,4 @@
+import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, acceptanceReviewJsonSchema } from './acceptance-amendment-review.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the host-run choke point.
  *
@@ -185,6 +186,7 @@ export interface HostRunSpawnPlan {
   promptFile?: string;
   /** The launcher host (lets the default runner pick the right usage-line scanner). */
   host?: HostRunHost;
+  finalResultSchema?: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA;
   /** Which complete lines to retain for usage parsing (bounded, last-wins). */
   retainUsageLine?: HostRunUsageLineRetainer;
   /** Prompt bytes written to child stdin and then closed (Codex uses `exec ... -`). */
@@ -338,6 +340,7 @@ export interface HostRunArgs {
   signal?: AbortSignal;
   /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
   launchProfile?: 'cross_host_review_codex' | 'managed_reviewer';
+  finalResultSchema?: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA;
   /**
    * Internal durable-run identity for the managed Claude prompt custody path.
    * It is deliberately not a public CLI argument: the managed worker supplies
@@ -1110,7 +1113,14 @@ export class FinalAssistantResultScanner {
   constructor(
     private readonly host: HostRunHost | undefined,
     private readonly cap: number = HOST_RUN_FINAL_ASSISTANT_RESULT_CAP,
+    private readonly schemaVersion: string = MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION,
   ) {}
+
+  private classification(text: string): { kind: string } {
+    if (this.schemaVersion === MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION) return classifyManagedReviewFinalEnvelope(text);
+    // Capture only this purpose; the worker validates the full bound schema before signing.
+    return { kind: text.includes(this.schemaVersion) ? 'candidate' : 'ordinary' };
+  }
 
   push(text: string): void {
     if ((this.host !== 'codex' && this.host !== 'claude') || text.length === 0) return;
@@ -1180,7 +1190,7 @@ export class FinalAssistantResultScanner {
    */
   private markOversizeCandidate(prefix: string): void {
     const looksCanonical = this.host === 'codex'
-      ? prefix.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+      ? prefix.includes(this.schemaVersion)
         && (!prefix.includes('"item.completed"') || prefix.includes('"agent_message"'))
       : prefix.includes('"type":"result"') || prefix.includes('"type": "result"');
     if (looksCanonical) {
@@ -1258,7 +1268,7 @@ export class FinalAssistantResultScanner {
     const candidate = raw.trim();
     if (candidate.length === 0) return;
     if (truncated) {
-      if (classifyManagedReviewFinalEnvelope(candidate).kind === 'ordinary') {
+      if (this.classification(candidate).kind === 'ordinary') {
         this.clearCodexCandidate();
       } else {
         this.candidateCount += 1;
@@ -1271,7 +1281,7 @@ export class FinalAssistantResultScanner {
   }
 
   private considerCodexCandidate(candidate: string): void {
-    const classification = classifyManagedReviewFinalEnvelope(candidate);
+    const classification = this.classification(candidate);
     if (classification.kind === 'ordinary') {
       // Codex may emit multiple assistant messages. Only the terminal one is
       // authoritative: later ordinary prose invalidates any earlier proposal
@@ -1479,7 +1489,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     // turn_failed(<digest>). The usage lane's own flag still feeds
     // retentionTruncated with ABSOLUTE priority (F-013/F-026 unchanged).
     const failureScanner = new UsageLineScanner(plan.retainFailureLine);
-    const finalResultScanner = new FinalAssistantResultScanner(plan.host);
+    const finalResultScanner = new FinalAssistantResultScanner(plan.host, HOST_RUN_FINAL_ASSISTANT_RESULT_CAP, plan.finalResultSchema);
     const stdoutDecoder = new StringDecoder('utf8');
     const startedAt = Date.now();
     let settled = false;
@@ -2009,7 +2019,7 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
         Math.max(0, argv.length - 1),
         0,
         '--permission-mode', 'bypassPermissions',
-        '--json-schema', managedReviewClaudeJsonSchema(args),
+        '--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args),
       );
     }
     return {
@@ -2154,6 +2164,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         signal: args.signal,
         promptFile: launch.promptFile,
         host: args.host,
+        finalResultSchema: args.finalResultSchema,
         retainUsageLine: usageLineRetainerFor(args.host),
         // B-3ddc: the second bounded failure lane (codex-only retainer).
         retainFailureLine: failureLineRetainerFor(args.host),
