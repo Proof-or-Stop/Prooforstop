@@ -791,6 +791,8 @@ assert.throws(
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length, 0, 'rejected finalize is side-effect free');
 const beforeEarlyFinalize = reloaded.readReviewInventoryEpochs(storyId);
 const beforeEarlyFindings = reloaded.readFindings(storyId);
+recordConvergenceProgress(reloaded, storyId, first.root);
+const beforeEarlyProgress = readConvergenceProgress(reloaded, storyId, first.root)!;
 const earlyFinalizeOutput = cli(first.root, 'review_inventory_finalize', {storyId,remediation:true});
 assert.match(earlyFinalizeOutput,/FINALIZED/);
 const earlyFinalized = reloaded.readReviewInventoryEpochs(storyId);
@@ -798,9 +800,10 @@ assert.equal(earlyFinalized.receipts.at(-1)?.authority,'review-remediation-only'
 assert.equal(earlyFinalized.receipts.at(-1)?.authorizesTest,false);
 assert.equal(earlyFinalized.epochs[0].waves.length,1);
 assert.deepEqual(reloaded.readFindings(storyId),beforeEarlyFindings,'early remediation preserves findings');
-// This store belongs to a disposable test fixture; reset only this snapshot so
-// the existing explicit saturation and hostile-evidence controls run unchanged.
+// Restore both real, signed fixture snapshots together. Restoring only inventory
+// would leave the completion journal bound to the discarded early-finalize branch.
 reloaded.writeReviewInventoryEpochs(storyId,beforeEarlyFinalize);
+reloaded.writeConvergenceProgress(storyId, beforeEarlyProgress);
 
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
