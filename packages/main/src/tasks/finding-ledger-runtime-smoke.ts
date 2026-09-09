@@ -3328,6 +3328,10 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
 
 if (process.argv[2] === '--ledger-worker') {
   appendUnderLock(JSON.parse(process.argv[3] ?? '{}') as WorkerSpec);
+} else if (process.argv[2] === '--historical-corpus-only') {
+  const scratch = mkdtempSync(join(tmpdir(), 'historical-finding-corpus-smoke-'));
+  try { runRealBfe8fLifecycleMigrationRegression(git(process.cwd(), ['rev-parse', '--show-toplevel']), scratch); }
+  finally { rmSync(scratch, { recursive: true, force: true }); }
 } else if (process.argv[2] === '--version-sync-only') {
   assertVersionSync(git(process.cwd(), ['rev-parse', '--show-toplevel']));
 } else if (process.argv[2] === '--proposal-envelope-only') {
