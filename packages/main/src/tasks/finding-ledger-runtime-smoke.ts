@@ -1,3 +1,4 @@
+import type { FindingLedgerReceipt } from '../core/types.js';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -1877,13 +1878,6 @@ function runRealBfe8fLifecycleMigrationRegression(repositoryRoot: string, scratc
     (recordsById.get(carrier.recordIds[0]!)!.payload as Record<string, string>).findingId
   ));
   assert.equal(historicalCarriers.length, 16, 'immutable B-fe8f corpus lost its 16 pre-upgrade lifecycle receipts');
-  assert.equal(
-    historicalFindingIds.every((findingId) => (
-      corpusStore.readFindings(storyId).findings.find((finding) => finding.id === findingId)?.status === 'open'
-    )),
-    true,
-    'pre-upgrade B-fe8f corpus did not reproduce the terminal projection loss',
-  );
   const historicalBytes = canonicalJson(historicalCarriers);
   const migrationLockDir = corpusStore.storyFilePath(storyId, 'findings.lock');
   const migrate = (): void => {
@@ -1905,6 +1899,44 @@ function runRealBfe8fLifecycleMigrationRegression(repositoryRoot: string, scratc
       lock.release();
     }
   };
+  const currentTrust = findingLedgerTrustFromWorkspace(corpusRoot);
+  const signedCarriers = before.receipts.filter((carrier) => Boolean(
+    (carrier as typeof carrier & { findingLedgerReceipt?: FindingLedgerReceipt }).findingLedgerReceipt,
+  ));
+  const entirelyForeign = signedCarriers.length > 0 && signedCarriers.every((carrier) => {
+    const receipt = (carrier as typeof carrier & { findingLedgerReceipt: FindingLedgerReceipt }).findingLedgerReceipt;
+    return typeof receipt.keyId === 'string' && receipt.keyId !== currentTrust.keyId;
+  });
+  if (entirelyForeign) {
+    // Git carries historical payloads, not another host's signing authority.
+    // Exercise the actual foreign corpus without re-signing it for this host.
+    const originalCarriers = canonicalJson(before.receipts);
+    assert.throws(() => corpusStore.readFindings(storyId), /FINDING_LEDGER_AUTHORITY_INVALID/,
+      'foreign historical Finding signatures must not become local authority');
+    try { migrate(); } catch (error) {
+      if ((error as { code?: string }).code === 'IMMUTABLE_BINDING_CONFLICT') {
+        assert.match((error as Error).message, /^immutable binding legacy-receipt-binding:[0-9a-f]{64} is already bound to different bytes$/);
+      } else {
+        assert.match((error as Error).message, /IDEMPOTENCY_CONFLICT/,
+          'foreign migration may refuse an existing differently signed exact transaction');
+      }
+    }
+    assert.throws(() => corpusStore.readFindings(storyId), /FINDING_LEDGER_AUTHORITY_INVALID/,
+      'legacy migration must not authorize foreign historical Findings');
+    const afterForeign = corpusStore.readFindingLedger<JsonValue>(storyId);
+    assert.equal(canonicalJson(afterForeign.receipts.filter(receipt =>
+      before.receipts.some(original => original.receiptId === receipt.receiptId))), originalCarriers,
+      'foreign corpus migration must preserve original carrier bytes');
+    console.log('finding.lifecycle_real_bfe8f_foreign_trust: PASS historical=16 foreignAuthority=refused immutableCarriers=true positiveMigration=requires-original-trusted-signer');
+    return;
+  }
+  assert.equal(
+    historicalFindingIds.every((findingId) => (
+      corpusStore.readFindings(storyId).findings.find((finding) => finding.id === findingId)?.status === 'open'
+    )),
+    true,
+    'pre-upgrade B-fe8f corpus did not reproduce the terminal projection loss',
+  );
   migrate();
   const after = corpusStore.readFindingLedger<JsonValue>(storyId);
   assert.equal(after.records.filter((record) => record.recordType === 'legacy_lifecycle_receipt_binding').length, 1);
