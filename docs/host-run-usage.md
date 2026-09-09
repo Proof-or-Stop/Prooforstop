@@ -76,7 +76,9 @@ projection is explicitly bounded: once the ceiling is reached, `--json` reports
 `truncated=true` on the `lattice.host_run.v1` result and text mode writes
 `truncated=true` to stderr; neither promises the omitted tail.
 `host_run_status --json` exposes the same flag as `output.truncated`. Worker
-heartbeat and `lastProviderProgressAt` are separate:
+heartbeat and `lastProviderProgressAt` are separate. Diagnostic heartbeat writes
+do not advance `generation` or wake a status waiter; actual provider output,
+state transitions and terminal receipts do:
 the former proves only that the supervisor can update state; the latter moves
 only when observable provider bytes arrive. `providerProgressMode=unobservable`
 is reported honestly when progress cannot be observed. A one-line usage summary

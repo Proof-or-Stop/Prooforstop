@@ -2431,7 +2431,8 @@ export async function runManagedHostRunWorker(
     try {
       updateSnapshot(paths, current => ({
         ...current,
-        generation: current.generation + 1,
+        // Generation wakes status/attach consumers. A worker liveness tick is
+        // diagnostic data, not a provider event or authorization to redispatch.
         workerHeartbeatAt: at,
         outputSequence,
         outputRetainedBytes,
