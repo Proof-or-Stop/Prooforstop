@@ -33,6 +33,8 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
+import { findValidateFile, validateFileDefaultTimeoutMs } from '../core/validation-file-entry.js';
+export { findValidateFile } from '../core/validation-file-entry.js';
 import { CONFIG_FILENAMES } from '../core/brand-paths.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import { validateResourceClaims, type ResourceClaim } from '../core/keyed-scheduler.js';
@@ -126,13 +128,6 @@ export interface ValidationSetupScan {
   warnings: string[];
 }
 
-export function findValidateFile(projectRoot: string): string | null {
-  const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
-  for (const f of candidates) {
-    if (existsSync(join(projectRoot, f))) return f;
-  }
-  return null;
-}
 
 /** Resolve Story-owned selection inputs instead of allowing an empty authority context. */
 function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
@@ -1437,10 +1432,6 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
   };
 }
 
-function validateFileDefaultTimeoutMs(): number | undefined {
-  const raw = Number(readBrandEnv('VALIDATE_FILE_TIMEOUT_MS'));
-  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
-}
 
 function decorateAndMaybePersistStoryValidation(
   ctx: HandlerContext,

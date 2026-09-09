@@ -6,6 +6,7 @@ import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
 import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from './pre-review-check.js';
 import { readBrandEnv } from './brand-env.js';
+import { findValidateFile, validateFileDefaultTimeoutMs } from './validation-file-entry.js';
 
 export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -288,7 +289,9 @@ export function commandCliMaxBudget(
   const derived = doneRequiredDerivedBudget(root);
   if (command === 'done_required_validate') return derived;
   if (command === 'validate' || (command === 'story_advance' && args.phase === 'TEST')) {
-    const commandBudgetMs = safeTimeoutSum(configuredRoutineCommands(root).map(command => resolveCommandTimeoutMs(command)));
+    const commandBudgetMs = findValidateFile(root)
+      ? resolveCommandTimeoutMs({ label: 'validate file', command: 'node', args: [], timeoutMs: validateFileDefaultTimeoutMs(env) })
+      : safeTimeoutSum(configuredRoutineCommands(root).map(command => resolveCommandTimeoutMs(command)));
     return {
       timeoutMs: Math.max(15 * 60_000, safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS])),
       source: 'derived-command-budget',
