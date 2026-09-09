@@ -2512,61 +2512,44 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   );
 });
 
-test('F-247: verifier-owned topology and pre-review checks are executable and current', () => {
-  const topology = runProofOrStopJson('acceptance_topology_check', { storyId: 'B-5a15', json: true });
-  const topologyCodes = Array.isArray(topology.diagnostics)
-    ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
-    : [];
-  const topologyRefreshBootstrap = topology.status === 'fail'
-    && [
-      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
-      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
-    ].includes(topologyCodes.join(','));
-  assert.ok(topology.status === 'pass' || topologyRefreshBootstrap, JSON.stringify(topology));
-  if (!topologyRefreshBootstrap) {
+test('F-247: verifier-owned topology and pre-review checks are executable and current', async () => {
+  const { withCurrentAcceptanceFixture } = await import('./helpers/current-acceptance-fixture.mjs');
+  await withCurrentAcceptanceFixture(async ({ storyId, store, cli }) => {
+    const topology = JSON.parse(cli('acceptance_topology_check', { storyId, json: true }));
+    assert.equal(topology.status, 'pass');
     assert.equal(topology.readOnly, true);
     assert.equal(topology.authority, 'diagnostic_only');
     assert.equal(topology.basisStatus, 'complete');
     assert.equal(topology.structuralPass, true);
     assert.deepEqual(topology.diagnostics, []);
-  }
 
-  const preReview = runProofOrStopJson('pre_review_check_read', { storyId: 'B-5a15', json: true });
-  assert.equal(preReview.readOnly, true);
-
-  // This bounded bootstrap exists only so the official stale-evidence refresh can
-  // re-execute the pinned command while its own receipts are being re-earned. It
-  // is neither a waiver nor covered evidence; after refresh this test must return
-  // to the strict PASS branch below.
-  const bootstrapCodes = ['PR_EVIDENCE_STALE', 'PR_POSITIVE_EVIDENCE_MISSING'];
-  const actualCodes = Array.isArray(preReview.codes) ? [...preReview.codes].sort() : [];
-  const isEvidenceRefreshBootstrap =
-    preReview.status === 'fail'
-    && preReview.ok === false
-    && ((actualCodes.length === bootstrapCodes.length
-      && actualCodes.every((code, index) => code === [...bootstrapCodes].sort()[index]))
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED'
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED'
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_CUTOFF_UNBOUND,PR_EVIDENCE_STALE,PR_POSITIVE_EVIDENCE_MISSING');
-  if (!isEvidenceRefreshBootstrap) {
+    const original = store.readPreReviewCheck(storyId);
+    const preReview = JSON.parse(cli('pre_review_check_read', { storyId, json: true }));
+    assert.equal(preReview.readOnly, true);
     assert.equal(preReview.status, 'pass');
     assert.equal(preReview.ok, true);
     assert.equal(preReview.executableEvidence, 'current');
+    // This asserts the verifier's interpretation of captured fixture case records.
+    // Production mutation execution is covered by the dedicated live-proof suite.
     assert.equal(preReview.mutations, 'biting');
     assert.equal(preReview.transcript, 'related');
     assert.equal(preReview.authority, 'admissible');
     assert.deepEqual(preReview.codes, []);
-  }
-  if (!topologyRefreshBootstrap && !isEvidenceRefreshBootstrap) {
-    emitIntentMarker(
-      'CHK-004:happy:2',
-      'acceptance_topology_check reports current complete structural PASS',
-    );
-    emitIntentMarker(
-      'CHK-004:happy:3',
-      'pre_review_check_read reports current admissible executable PASS',
-    );
-  }
+    assert.deepEqual(store.readPreReviewCheck(storyId), original, 'read does not refresh evidence');
+
+    // Corrupt only isolated test data. A PASS cannot survive a changed signature.
+    const tampered = structuredClone(original);
+    tampered.signature = 'invalid-fixture-signature';
+    store.writePreReviewCheck(storyId, tampered);
+    const rejected = JSON.parse(cli('pre_review_check_read', { storyId, json: true }));
+    assert.equal(rejected.ok, false);
+    assert.ok(rejected.codes.includes('PR_ARTIFACT_TAMPERED'));
+    assert.deepEqual(store.readPreReviewCheck(storyId), tampered, 'negative read does not repair its own input');
+    store.writePreReviewCheck(storyId, original);
+    assert.equal(JSON.parse(cli('pre_review_check_read', { storyId, json: true })).ok, true);
+    emitIntentMarker('CHK-004:happy:2', 'acceptance_topology_check reports current complete structural PASS');
+    emitIntentMarker('CHK-004:happy:3', 'pre_review_check_read reports current admissible executable PASS');
+  });
 });
 
 test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the causal preflight plan', async () => {
