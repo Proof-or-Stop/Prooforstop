@@ -9432,3 +9432,5 @@ assert(read('packages/main/src/core/review-run.ts').includes('!liveFreshness.cur
 
 assert(read('packages/main/src/core/process-fact-registry.ts').includes("name: 'managed-terminal-supervision'"), 'autonomous terminal supervision must remain a registered execution fact');
 assert(read('scripts/verify-managed-autonomous-supervisor.mjs').includes('orphaned worker must converge without status polling'), 'autonomous orphan recovery requires a no-status-polling witness');
+assert(/host_run_status: \{[^\n]*ownershipClass: 'readOnly'[^\n]*destructiveRisk: 'none'/.test(read('packages/main/src/core/command-policy.ts')), 'managed status must remain read-only without owner lease mutation');
+assert(read('scripts/verify-managed-status-readonly.mjs').includes('status observation must not write runtime files'), 'managed observation requires a filesystem non-mutation witness');

@@ -17,6 +17,7 @@ import {
   assertManagedHostRunPlatformSupported,
   cancelManagedHostRun,
   getManagedHostRunStatus,
+  recoverManagedHostRun,
   managedHostRunDirectory,
   readManagedHostRunResult,
   managedHostRunsRoot,
@@ -448,7 +449,7 @@ async function main(): Promise<void> {
   await eventually(async () => existsSync(silentReady), 'real silent provider child did not start');
   const legacyObservationNow = Date.now() + 11 * 60_000;
   for (let touch = 0; touch < 3; touch += 1) {
-    const oldAndSilent = await getManagedHostRunStatus({
+    const oldAndSilent = await recoverManagedHostRun({
       root: silentRoot,
       runId: silent.runId,
       waitMs: 0,
@@ -613,7 +614,7 @@ async function main(): Promise<void> {
   // Let the absolute deadline elapse now that the ambiguous identity is planted.
   await new Promise(resolve => setTimeout(resolve,
     Math.max(1, ambiguousSubmittedAt + ambiguousDeadlineMs + 60 - Date.now())));
-  const ambiguousTerminal = await getManagedHostRunStatus({
+  const ambiguousTerminal = await recoverManagedHostRun({
     root: ambiguousRoot,
     runId: ambiguous.runId,
     waitMs: 500,

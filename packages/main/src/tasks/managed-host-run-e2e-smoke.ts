@@ -15,6 +15,7 @@ import {
 import {
   cancelManagedHostRun,
   getManagedHostRunStatus,
+  recoverManagedHostRun,
   managedHostRunDirectory,
   managedHostRunReceipt,
   runManagedHostRunWorker,
@@ -346,7 +347,7 @@ async function main(): Promise<void> {
     assert.ok(Number.isFinite(crashedDeadlineAt), 'crashed worker exposes a parseable absolute deadline');
     assert.ok(crashedDeadlineAt - Date.now() > 10_000,
       'the synthetic status deadline probe must remain outside the worker deadline timer window');
-    const beforeCrashDeadline = await getManagedHostRunStatus({
+    const beforeCrashDeadline = await recoverManagedHostRun({
       root: crashedRoot,
       runId: crashed.runId,
       waitMs: 0,
@@ -354,14 +355,14 @@ async function main(): Promise<void> {
     });
     assert.equal(beforeCrashDeadline.run.runId, crashed.runId);
     assert.equal(beforeCrashDeadline.run.state, 'running', 'post-claim worker death before deadline preserves the original run identity instead of replacing it');
-    const deadlineGrace = await getManagedHostRunStatus({
+    const deadlineGrace = await recoverManagedHostRun({
       root: crashedRoot,
       runId: crashed.runId,
       waitMs: 0,
       now: () => crashedDeadlineAt,
     });
     assert.equal(deadlineGrace.run.state, 'running', 'the exact deadline begins the production cooperative cleanup grace');
-    await eventually(async () => (await getManagedHostRunStatus({
+    await eventually(async () => (await recoverManagedHostRun({
       root: crashedRoot,
       runId: crashed.runId,
       waitMs: 0,

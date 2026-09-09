@@ -13,6 +13,7 @@ import {
   cleanupManagedCrossHostReviewWorktree,
   defaultManagedHostRunWorkerLauncher,
   getManagedHostRunStatus,
+  recoverManagedHostRun,
   MANAGED_HOST_RUN_OUTPUT_RETENTION_MAX_BYTES,
   managedHostRunDirectory,
   readManagedHostRunOutput,
@@ -455,7 +456,7 @@ async function main(): Promise<void> {
     wait: async () => {},
   };
   const ambiguousDeadline = Date.parse(ambiguous.deadlineAt);
-  const ambiguousBeforeDeadline = await getManagedHostRunStatus({
+  const ambiguousBeforeDeadline = await recoverManagedHostRun({
     root: ambiguousIdentityRoot,
     runId: ambiguous.runId,
     now: () => ambiguousDeadline - 1,
@@ -463,13 +464,13 @@ async function main(): Promise<void> {
   });
   assert.equal(ambiguousBeforeDeadline.run.terminal, null,
     'the mismatched live identity is installed before deadline reconciliation');
-  await getManagedHostRunStatus({
+  await recoverManagedHostRun({
     root: ambiguousIdentityRoot,
     runId: ambiguous.runId,
     now: () => ambiguousDeadline,
     processGroupOps: ambiguousProcessGroupOps,
   });
-  const ambiguousTerminal = await getManagedHostRunStatus({
+  const ambiguousTerminal = await recoverManagedHostRun({
     root: ambiguousIdentityRoot,
     runId: ambiguous.runId,
     now: () => ambiguousDeadline + 300,
@@ -550,13 +551,15 @@ async function main(): Promise<void> {
     snapshot: recoveredSnapshot,
     event: recoveryEvent,
   })}\n`);
-  const recoveredTransitionStatus = await getManagedHostRunStatus({
+  await assert.rejects(getManagedHostRunStatus({root:completionCase, runId:submitted.runId}),
+    /snapshot\/event recovery pending/, 'readers report pending recovery without replaying the journal');
+  const recoveredTransitionStatus = await recoverManagedHostRun({
     root: completionCase,
     runId: submitted.runId,
     waitMs: 0,
   });
   assert.equal(recoveredTransitionStatus.run.generation, recoveredSnapshot.generation,
-    'the first reader completes the interrupted snapshot transition before returning status');
+    'the recovery owner completes the interrupted snapshot transition before returning status');
   assert.equal(existsSync(join(completionRunDir, 'snapshot-event-transition.json')), false,
     'a recovered snapshot/event transition leaves no replayable sidecar behind');
   const recoveredEventTypes = readFileSync(join(completionRunDir, 'events.jsonl'), 'utf8')
@@ -1033,7 +1036,7 @@ async function main(): Promise<void> {
   // Touch status while still inside the absolute deadline. This proves the
   // fixture reached the granted/null state before asking production to recover
   // an expired run without waiting for the independent worker timer.
-  const grantedWithoutIdentityBeforeDeadline = await getManagedHostRunStatus({
+  const grantedWithoutIdentityBeforeDeadline = await recoverManagedHostRun({
     root: grantedWithoutIdentityRoot,
     runId: grantedWithoutIdentity.runId,
     waitMs: 0,
@@ -1045,7 +1048,7 @@ async function main(): Promise<void> {
     'the pre-deadline status touch must not manufacture a terminal');
   // Advance only the status observer past the deadline with the provider still
   // wedged and its identity unpublished -- the exact state this case is about.
-  const grantedWithoutIdentityDeadlineTouched = await getManagedHostRunStatus({
+  const grantedWithoutIdentityDeadlineTouched = await recoverManagedHostRun({
     root: grantedWithoutIdentityRoot,
     runId: grantedWithoutIdentity.runId,
     waitMs: 0,
@@ -1055,7 +1058,7 @@ async function main(): Promise<void> {
     'the first post-deadline touch records cancellation and preserves the bounded cooperative window');
   assert.equal(grantedWithoutIdentityDeadlineTouched.run.terminal, null,
     'the first post-deadline touch must give the worker a chance to observe cancellation');
-  const grantedWithoutIdentityRecovered = await getManagedHostRunStatus({
+  const grantedWithoutIdentityRecovered = await recoverManagedHostRun({
     root: grantedWithoutIdentityRoot,
     runId: grantedWithoutIdentity.runId,
     waitMs: 0,
@@ -1298,12 +1301,12 @@ async function main(): Promise<void> {
   process.kill(grantedWorker!.pid!, 'SIGKILL');
   await grantedWorkerExit;
   const grantedDeadline = Date.parse(crashedGranted.deadlineAt);
-  await getManagedHostRunStatus({
+  await recoverManagedHostRun({
     root: crashedGrantedRoot,
     runId: crashedGranted.runId,
     now: () => grantedDeadline,
   });
-  const grantedTerminal = await getManagedHostRunStatus({
+  const grantedTerminal = await recoverManagedHostRun({
     root: crashedGrantedRoot,
     runId: crashedGranted.runId,
     now: () => grantedDeadline + 300,
@@ -1395,8 +1398,8 @@ async function main(): Promise<void> {
     wait: async () => {},
   };
   const exactCleanupDeadline = Date.parse(exactCleanup.deadlineAt);
-  await getManagedHostRunStatus({ root: exactCleanupRoot, runId: exactCleanup.runId, now: () => exactCleanupDeadline });
-  const exactCleanupTerminal = await getManagedHostRunStatus({
+  await recoverManagedHostRun({ root: exactCleanupRoot, runId: exactCleanup.runId, now: () => exactCleanupDeadline });
+  const exactCleanupTerminal = await recoverManagedHostRun({
     root: exactCleanupRoot,
     runId: exactCleanup.runId,
     now: () => exactCleanupDeadline + 300,
@@ -1472,19 +1475,19 @@ async function main(): Promise<void> {
     wait: async () => { await new Promise(resolve => setTimeout(resolve, 25)); },
   };
   const concurrentDeadline = Date.parse(concurrentReconcile.deadlineAt);
-  await getManagedHostRunStatus({
+  await recoverManagedHostRun({
     root: concurrentReconcileRoot,
     runId: concurrentReconcile.runId,
     now: () => concurrentDeadline,
   });
   const [firstConcurrentStatus, secondConcurrentStatus, attachedConcurrentStatus, concurrentCancel] = await Promise.all([
-    getManagedHostRunStatus({
+    recoverManagedHostRun({
       root: concurrentReconcileRoot,
       runId: concurrentReconcile.runId,
       now: () => concurrentDeadline + 300,
       processGroupOps: concurrentOps,
     }),
-    getManagedHostRunStatus({
+    recoverManagedHostRun({
       root: concurrentReconcileRoot,
       runId: concurrentReconcile.runId,
       now: () => concurrentDeadline + 300,
@@ -1499,8 +1502,6 @@ async function main(): Promise<void> {
       runId: concurrentReconcile.runId,
       afterGeneration: concurrentReconcile.generation,
       waitMs: 25,
-      now: () => concurrentDeadline + 300,
-      processGroupOps: concurrentOps,
     }),
     cancelManagedHostRun({
       root: concurrentReconcileRoot,

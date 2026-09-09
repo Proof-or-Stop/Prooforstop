@@ -11,6 +11,7 @@ import {
   boundedManagedHostRunStatusWaitMs,
   cancelManagedHostRun,
   getManagedHostRunStatus,
+  recoverManagedHostRun,
   inspectManagedHostRunFiles,
   MANAGED_HOST_RUN_OUTPUT_RETENTION_MAX_BYTES,
   managedHostRunDirectory,
@@ -552,7 +553,7 @@ async function main(): Promise<void> {
   const deadlineCancelRequestedAt = Date.parse(deadlineCancelRequest.run.cancelRequestedAt!);
   assert.ok(deadlineCancelRequestedAt + 300 < Date.parse(deadlineCancelRequest.run.deadlineAt),
     'fixture keeps the status clock before spec.deadlineAt so the cancel-reconcile branch is authoritative');
-  const deadlineCancelTerminal = await getManagedHostRunStatus({
+  const deadlineCancelTerminal = await recoverManagedHostRun({
     root: deadlineCancelRoot,
     runId: 'deadline-cancel-run',
     waitMs: 0,

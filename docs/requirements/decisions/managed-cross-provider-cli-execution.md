@@ -4,6 +4,14 @@ Status: Adopted
 Story: B-137a
 Date: 2026-08-14
 
+Lab maintenance update: status and aggregate wait only observe persisted state.
+They do not renew an owner lease, replay an interrupted snapshot/event transaction,
+send process signals, or publish a terminal. An independent supervisor is ready
+before the production worker starts and owns recovery. A pending transaction is
+reported as requiring supervisor recovery until its exact journal replay completes.
+The internal explicit recovery entry point supports recovery owners and process
+boundary tests; it is not invoked by status or output readers.
+
 ## Context
 
 When a Claude host started Codex (or a Codex host started Claude) with raw shell

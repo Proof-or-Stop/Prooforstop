@@ -1713,7 +1713,9 @@ function pidAlive(pid: number | null): boolean {
 }
 
 function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
-  recoverPendingSnapshotEventTransition(paths);
+  if (existsSync(paths.snapshotEventTransition)) {
+    throw new Error(`managed host run ${paths.expectedRunId}: snapshot/event recovery pending; supervisor recovery required`);
+  }
   const { text: specText, value: spec } = readManagedHostRunSpec(paths);
   if (!existsSync(paths.owner)) {
     throw new Error(`managed host run ${paths.expectedRunId}: partial runtime: owner.json missing`);
@@ -3222,6 +3224,7 @@ async function reconcileManagedHostRunUnlocked(
   now: number,
   processGroupOps: ManagedHostRunProcessGroupOps = DEFAULT_PROCESS_GROUP_OPS,
 ): Promise<void> {
+  recoverPendingSnapshotEventTransition(paths);
   // A terminal written by an older worker or a prior interrupted cleanup can
   // still have its cwd-local Claude leaf. Reconciliation is the durable owner
   // of that one-shot cleanup, not merely the worker's in-process finally.
@@ -3323,12 +3326,14 @@ export async function runManagedHostRunSupervisor(
 ): Promise<void> {
   const paths = pathsFor(request.root, request.runId);
   // Validate the immutable spec/owner binding before reporting launch readiness.
+  recoverPendingSnapshotEventTransition(paths);
   projectionFor(paths);
   onReady();
   while (existsSync(paths.spec)) {
     let terminal = false;
     try {
       terminal = await withManagedReconcileLock(paths, async () => {
+      recoverPendingSnapshotEventTransition(paths);
       const run = projectionFor(paths);
       if (run.terminal) {
         await reconcileManagedHostRunUnlocked(paths, Date.now());
@@ -3361,8 +3366,6 @@ export async function getManagedHostRunStatus(args: {
   maxWaitMs?: number;
   /** Internal process-smoke clock seam; production always uses Date.now. */
   now?: () => number;
-  /** Process-boundary seam used by executable cleanup-fact tests; production uses OS process groups. */
-  processGroupOps?: ManagedHostRunProcessGroupOps;
 }): Promise<ManagedHostRunStatusResult> {
   const paths = pathsFor(args.root, args.runId);
   if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${args.runId}`);
@@ -3375,7 +3378,6 @@ export async function getManagedHostRunStatus(args: {
   const now = args.now ?? Date.now;
   const deadline = now() + waitMs;
   while (true) {
-    await reconcileManagedHostRun(paths, now(), args.processGroupOps);
     run = projectionFor(paths);
     const changed = run.generation !== baseline || run.terminal !== null;
     if (changed || now() >= deadline || waitMs === 0) {
@@ -3388,6 +3390,26 @@ export async function getManagedHostRunStatus(args: {
     }
     await sleep(Math.min(50, Math.max(1, deadline - now())));
   }
+}
+
+/** Explicit recovery owner entry point; observation never invokes this operation. */
+export async function recoverManagedHostRun(args: {
+  root: string;
+  runId: string;
+  afterGeneration?: number;
+  waitMs?: number;
+  now?: () => number;
+  processGroupOps?: ManagedHostRunProcessGroupOps;
+}): Promise<ManagedHostRunStatusResult> {
+  const paths = pathsFor(args.root, args.runId);
+  if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${args.runId}`);
+  const deadline = Date.now() + boundedManagedHostRunStatusWaitMs(args.waitMs);
+  do {
+    await reconcileManagedHostRun(paths, (args.now ?? Date.now)(), args.processGroupOps);
+    if (readTerminal(paths) || Date.now() >= deadline) break;
+    await sleep(Math.min(50, Math.max(1, deadline - Date.now())));
+  } while (true);
+  return getManagedHostRunStatus({root:args.root, runId:args.runId, afterGeneration:args.afterGeneration});
 }
 
 export function boundedManagedHostRunStatusWaitMs(waitMs: number | undefined): number {
