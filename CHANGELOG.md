@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab b49df-runtime-topology-fixture-20260909 - v0.3.291 - 2026-09-09
+
+The focused B-49df regression test incorrectly reused the current checkout as
+the target of its foreign-runtime assertion. That happened to work from a Lab
+worktree but did not model a foreign runtime when the test ran on main.
+
+The test now creates an isolated Git main checkout plus a real linked worktree,
+then verifies every registry-derived Story writer against that stable topology.
+The prior source invariant recorded RED, and both the corrected invariant and
+the complete canonical-identity regression now pass without relying on the host
+repository's directory depth or current checkout role.
+
+Maintenance provenance: codex/lab-b49df-runtime-topology-fixture-20260909, repair 90d88bfb8b24d1a77e5035b80a53fe66d1e9aa08.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"packages/main/tests/lab-b49df-canonical-identity.mjs\",\"utf8\");if(s.includes(\"projectRoot: mainRoot\")){console.error(\"focused test reuses checkout as foreign target\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab story-evidence-carry-forward-log-correction - v0.3.290 - 2026-09-09
 
 Correct the final baseline-result sentence in the Story evidence carry-forward release log.
