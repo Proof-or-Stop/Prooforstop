@@ -27,7 +27,7 @@ import { promptRoleContract, promptRoleContractForSemanticDigest } from '../core
 import { computePromptEnvelopeId, verifyPromptEnvelopeIntegrity } from '../core/prompt-envelope.js';
 import { domainSeparatedDigest } from '../core/prompt-contracts.js';
 import { verifyHistoricalReviewerDispatchBinding, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
-import { signFinding } from '../core/finding-verify.js';
+import { signFinding, verifyFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createReviewRunHandlers } from '../handlers/review-run.js';
@@ -947,6 +947,8 @@ assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0]._hash, rece
 // consumer must still recompute the live aggregate and reject the old receipt.
 const findingsBeforeTamper = reloaded.readFindings(storyId);
 const sourceFinding = findingsBeforeTamper.findings.find(row => row.id === realFindingId)!;
+const sealedPass = reloaded.readReviewPasses(storyId).passes.find(row => row.reviewRunId === sealedRun.reviewRunId)!;
+assert.ok(sealedPass.nativeEvidenceBinding, 'late-write fixture uses the actual sealed-run broker authority');
 const lateId = `${storyId}:F-999`;
 const lateCreatedAt = new Date(Date.parse(receipt.issuedAt) + 1).toISOString();
 const lateDesc = 'Out-of-band late verified finding omitted from the finalized receipt.';
@@ -958,11 +960,20 @@ const lateFinding: Finding = {
   createdAt: lateCreatedAt,
   reviewRunId: sealedRun.reviewRunId,
   reviewRound,
+  recordId: undefined,
+  ledgerCommitReceiptId: undefined,
+  nativeEvidenceBinding: sealedPass.nativeEvidenceBinding,
   _hash: signFinding(
     storyId, lateId, lateDesc, sourceFinding.severity, lateCreatedAt, reviewRound,
     sealedRun.reviewRunId, sourceFinding.readManifest, sourceFinding.readLog, sourceFinding.readDiagnostics,
+    undefined, undefined, sealedPass.nativeEvidenceBinding, {
+      category: sourceFinding.category ?? '', evidenceState: sourceFinding.evidenceState ?? null,
+      uncertaintyReason: sourceFinding.uncertaintyReason ?? null, files: sourceFinding.files ?? [],
+    },
   ),
 };
+assert.equal(verifyFinding(storyId, lateFinding), true,
+  'synthetic crash-era row must have valid current-format integrity before testing aggregate drift');
 findingsBeforeTamper.findings.push(lateFinding);
 reloaded.writeFindings(storyId, findingsBeforeTamper);
 assert.throws(
