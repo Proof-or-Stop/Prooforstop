@@ -4,7 +4,7 @@ import { lstat, mkdir, open, readFile, realpath, unlink } from 'node:fs/promises
 import path from 'node:path';
 import { canonicalJson, digest, EXPERIMENT_ROOT, ReplayContractError } from './replay.mjs';
 
-export const LEDGER_SCHEMA = 'proofbound.role-prompt-ab.experiment-ledger.v1';
+export const LEDGER_SCHEMA = 'proof-or-stop.role-prompt-ab.experiment-ledger.v1';
 const FORBIDDEN_KEYS = new Set([
   'prompt', 'rawprompt', 'completion', 'rawcompletion', 'transcript', 'rawtranscript',
   'messages', 'toolarguments', 'toolargs', 'authorization', 'apikey', 'secret',
@@ -556,7 +556,7 @@ export function summarizeLedger(rows) {
         ? 'PROVIDER_INPUT_TOKENS_PARTIAL'
         : 'PROVIDER_INPUT_TOKENS_UNAVAILABLE';
   return {
-    schemaVersion: 'proofbound.role-prompt-ab.experiment-summary.v1',
+    schemaVersion: 'proof-or-stop.role-prompt-ab.experiment-summary.v1',
     gateEvidence: false,
     records: rows.length,
     attempts: attempts.length,

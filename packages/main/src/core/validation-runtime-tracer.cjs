@@ -21,9 +21,20 @@ const trace = {
   environmentKeys: [],
   events: ['tracer-loaded'],
 };
+// Preserve ordered trace arrays while avoiding a linear scan for every repeated
+// filesystem observation. Membership is private to each original array identity.
+const traceMembership = new WeakMap();
 const add = (list, value) => {
   if (typeof value !== 'string' || value.length === 0) return;
-  if (!list.includes(value)) list.push(value);
+  let members = traceMembership.get(list);
+  if (!members) {
+    members = new Set(list);
+    traceMembership.set(list, members);
+  }
+  if (!members.has(value)) {
+    members.add(value);
+    list.push(value);
+  }
 };
 const pathArg = value => typeof value === 'string' ? value : (value && typeof value.path === 'string' ? value.path : undefined);
 // npm's own CLI reads and mutates process.env using native assumptions that a

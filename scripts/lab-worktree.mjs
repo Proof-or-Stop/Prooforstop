@@ -203,13 +203,14 @@ async function main() {
       s.bump = shouldBuildDoneMainPackageForChangedPaths(paths);
       const currentVersion = versions.readSyncedVersion(mainRoot);
       if (versions.readSyncedVersion(s.path) !== currentVersion) fail('Version drift: leave version changes to finish, based on latest main.');
-      s.version = s.bump ? versions.applyPatchBump(s.path).to : currentVersion;
+      const versionBump = s.bump ? versions.applyPatchBump(s.path) : undefined;
+      s.version = versionBump?.to ?? currentVersion;
       s.notesHash = hash(notes);
       const changelog = join(s.path, 'CHANGELOG.md');
       const old = read(changelog);
       const release = `## Lab ${name} - v${s.version} - ${new Date().toISOString().slice(0, 10)}\n\n${notes}\n\nMaintenance provenance: ${s.branch}, repair ${sha(s.path)}.\nVerification command (replayed before integration and on main): \`${JSON.stringify(s.red.command).replace(/`/g, '')}\`.\nThis entry does not assert formal Story DONE or signed product-release credentials.\n\n`;
       writeFileSync(changelog, old.startsWith('# Changelog\n') ? '# Changelog\n\n' + release + old.slice('# Changelog\n'.length).trimStart() : release + old);
-      git(s.path, 'add', 'CHANGELOG.md', ...(s.bump ? versions.VERSION_SYNC_PATHS : []));
+      git(s.path, 'add', 'CHANGELOG.md', ...(versionBump?.files ?? []));
       git(s.path, 'commit', '-m', `chore: record Lab ${name} maintenance at ${s.version}`);
       s.candidate = sha(s.path); s.phase = 'prepared'; save(s);
     }

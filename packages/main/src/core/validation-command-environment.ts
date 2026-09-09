@@ -83,7 +83,7 @@ export function isValidationTransportEnvKey(
 /**
  * Host-launcher session identity that is NOT in the frozen list above.
  *
- * These are the same class of value as `LATTICE_SESSION_ID` -- per-process
+ * These are the same class of value as `PROOF_OR_STOP_SESSION_ID` -- per-process
  * identity injected by the coding-agent host or the terminal multiplexer it runs
  * under, carrying no validation-command
  * semantics -- but they are spelled by the host, not by Proof-or-Stop, so
@@ -155,3 +155,20 @@ export function effectiveValidationCommandEnvironment(
   }
   return effective;
 }
+
+export const VERIFICATION_REUSE_CAPSULE_ENVIRONMENT_KEYS = ['LANG', 'LC_ALL', 'PATH', 'PWD', 'TZ'] as const;
+
+/**
+ * Closed environment for the policy-owned deterministic reuse capsule. Ambient
+ * values and overlays (especially NODE_OPTIONS/loaders/preloads) never enter it.
+ */
+export function closedVerificationReuseCapsuleEnvironment(cwd: string): Record<string, string> {
+  return {
+    LANG: 'C',
+    LC_ALL: 'C',
+    PATH: dirname(process.execPath),
+    PWD: cwd,
+    TZ: 'UTC',
+  };
+}
+import { dirname } from 'node:path';

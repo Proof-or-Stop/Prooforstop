@@ -158,7 +158,7 @@ proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId fr
 proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Normal channel CHK-003/CHK-005/CHK-007 have no dispatch events in process-events.jsonl; main agent suspected of self-writing. Should be dispatched to proof-or-stop-implementer.","severity":"critical","category":"missing","agent":"proof-or-stop-review-channel"}'
 
 # Cross-repo meta-workflow (files contain out-of-repo absolute paths)
-proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Cross-repo meta-workflow detected: 9 of 10 CHKs have files pointing to out-of-repo absolute paths (/Users/.../lattice/...); dispatch evidence may be in an external repo; recommend manual confirmation instead of a mechanical violation call.","severity":"medium","category":"edge","agent":"proof-or-stop-review-channel"}'
+proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Cross-repo meta-workflow detected: 9 of 10 CHKs have files pointing to out-of-repo absolute paths (/Users/.../proof-or-stop/...); dispatch evidence may be in an external repo; recommend manual confirmation instead of a mechanical violation call.","severity":"medium","category":"edge","agent":"proof-or-stop-review-channel"}'
 
 # Express channel
 proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"proof-or-stop-review-channel","note":"Express channel (≤2 items, no riskSignals); main agent self-writing is compliant."}'

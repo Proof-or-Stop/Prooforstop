@@ -22,16 +22,16 @@ import { resolveSharedLockRoot } from './validation-execution-lock.js';
  * this API; the key, receipt, preflight, dependency, and metric rules live
  * here so a second caller cannot accidentally create a weaker identity.
  */
-export const CAUSAL_EVIDENCE_SCHEMA = 'proofbound.causal-evidence-receipt.v1' as const;
-export const CAUSAL_EXECUTION_KEY_SCHEMA = 'proofbound.causal-execution-key.v1' as const;
-export const CAUSAL_SELECTOR_POLICY_SCHEMA = 'proofbound.causal-selector-policy.v1' as const;
-export const CAUSAL_LEDGER_SCHEMA = 'proofbound.causal-evidence-ledger.v1' as const;
-export const CAUSAL_PREFLIGHT_SCHEMA = 'proofbound.causal-evidence-preflight.v1' as const;
-export const CAUSAL_DEPENDENCY_SCHEMA = 'proofbound.causal-dependency-decision.v1' as const;
+export const CAUSAL_EVIDENCE_SCHEMA = 'proof-or-stop.causal-evidence-receipt.v1' as const;
+export const CAUSAL_EXECUTION_KEY_SCHEMA = 'proof-or-stop.causal-execution-key.v1' as const;
+export const CAUSAL_SELECTOR_POLICY_SCHEMA = 'proof-or-stop.causal-selector-policy.v1' as const;
+export const CAUSAL_LEDGER_SCHEMA = 'proof-or-stop.causal-evidence-ledger.v1' as const;
+export const CAUSAL_PREFLIGHT_SCHEMA = 'proof-or-stop.causal-evidence-preflight.v1' as const;
+export const CAUSAL_DEPENDENCY_SCHEMA = 'proof-or-stop.causal-dependency-decision.v1' as const;
 export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
 export const CAUSAL_OUTPUT_DIRECTORY = 'causal-evidence/outputs';
 export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
-export const CAUSAL_AUTHORITY_KEY_FILE = 'lattice-causal-evidence-authority-v1.key';
+export const CAUSAL_AUTHORITY_KEY_FILE = 'proof-or-stop-causal-evidence-authority-v1.key';
 export const CAUSAL_OUTPUT_TAIL_CHARS = 4_000;
 export const CAUSAL_MAX_OUTPUT_CHARS = 12_000;
 export const CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES = 1024 * 1024;
@@ -1130,7 +1130,7 @@ export interface CausalDependencyDecisionIdentityBinding {
 }
 
 export interface CausalDependencyDecisionAuthorityBinding {
-  schemaVersion: 'proofbound.causal-dependency-authority.v1';
+  schemaVersion: 'proof-or-stop.causal-dependency-authority.v1';
   producer: 'core/causal-evidence';
   authority: 'proof-or-stop';
   signerPublicKey: PublicKeyBase64;
@@ -1138,7 +1138,7 @@ export interface CausalDependencyDecisionAuthorityBinding {
 }
 
 const CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA = Object.freeze({
-  schemaVersion: 'proofbound.causal-dependency-authority.v1',
+  schemaVersion: 'proof-or-stop.causal-dependency-authority.v1',
   producer: 'core/causal-evidence',
   authority: 'proof-or-stop',
 } as const);

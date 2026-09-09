@@ -6,6 +6,7 @@ import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './a
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
+import { assertCanonicalActiveIdentityBoundary } from './runtime-environment-checks.js';
 import {
   PROOF_OR_STOP_CONFIG_FILENAME as CANONICAL_CONFIG_FILENAME,
   CONFIG_FILENAMES,
@@ -166,9 +167,9 @@ export interface ProofOrStopConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
-  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
+  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles use the canonical full-envelope mode. */
   promptEnvelope?: {
-    version?: 'proof-or-stop.prompt-envelope-rollout.v1' | 'proofbound.prompt-envelope-rollout.v1';
+    version?: 'proof-or-stop.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
       | 'proof-or-stop-review-behavior'
       | 'proof-or-stop-review-concept'
@@ -180,20 +181,8 @@ export interface ProofOrStopConfig {
       | 'proof-or-stop-review-scope-plan'
       | 'proof-or-stop-implementer'
       | 'proof-or-stop-review-delivery'
-      | 'proof-or-stop-evaluator'
-      // Deprecated keys remain readable for pre-migration configurations.
-      | 'lattice-review-behavior'
-      | 'lattice-review-concept'
-      | 'lattice-review-docs'
-      | 'lattice-review-quality'
-      | 'lattice-review-test-coverage'
-      | 'lattice-review-topology-critic'
-      | 'lattice-review-story-init'
-      | 'lattice-review-scope-plan'
-      | 'lattice-implementer'
-      | 'lattice-review-delivery'
-      | 'lattice-evaluator',
-      'legacy-full-context' | 'full-envelope'
+      | 'proof-or-stop-evaluator',
+      'full-envelope'
     >>;
   };
   candidateSpecRouting?: {
@@ -926,6 +915,27 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
   }
 }
 
+function assertCurrentPromptEnvelopeConfig(config: unknown, projectRoot: string): void {
+  if (!config || typeof config !== 'object' || !('promptEnvelope' in config)) return;
+  const promptEnvelope = (config as { promptEnvelope?: unknown }).promptEnvelope;
+  if (promptEnvelope === undefined) return;
+  if (!promptEnvelope || typeof promptEnvelope !== 'object') {
+    throw new Error('promptEnvelope must be an object using the current Proof-or-Stop identity');
+  }
+  const version = (promptEnvelope as { version?: unknown }).version;
+  if (version !== undefined && version !== 'proof-or-stop.prompt-envelope-rollout.v1') {
+    // Config loading precedes command dispatch. Diagnose a corrupted validator
+    // here without adding boundary reads to the valid-config fast path.
+    try {
+      assertCanonicalActiveIdentityBoundary({ boundaryId: 'prompt-runtime', projectRoot });
+    } catch (error) {
+      // loadConfig must rethrow this failure, never treat it as malformed JSON.
+      throw new Error(`unsupported promptEnvelope.version: ${String(version)}; ${error instanceof Error ? error.message : String(error)}`);
+    }
+    throw new Error(`unsupported promptEnvelope.version: ${String(version)}`);
+  }
+}
+
 export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
@@ -953,7 +963,19 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
     assertNoDuplicatePromptEnvelopeRoleKeys(rawConfig);
     try {
       userConfig = JSON.parse(rawConfig);
-    } catch { /* ignore parse errors */ }
+      assertCurrentPromptEnvelopeConfig(userConfig, root);
+    } catch (error) {
+      if (
+        error instanceof Error
+        && (
+          error.message.startsWith('unsupported promptEnvelope.version:')
+          || error.message.startsWith('promptEnvelope must be an object')
+        )
+      ) {
+        throw error;
+      }
+      // Preserve the existing malformed-config fallback for unrelated JSON errors.
+    }
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 

@@ -33,7 +33,7 @@ import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 import { StoryStore } from '../core/store.js';
 
-const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+const reviewFindingTriageContractMarker = '<!-- proof-or-stop:review-finding-triage-contract:v1 -->';
 
 function occurrenceCount(content: string, needle: string): number {
   return content.split(needle).length - 1;
@@ -48,7 +48,7 @@ const fullRollout = {
   },
 } as const;
 const taskContext: FullTaskContext = {
-  schemaVersion: 'proofbound.full-task-context.v1',
+  schemaVersion: 'proof-or-stop.full-task-context.v1',
   storyId: 'B-envelope',
   title: 'Trusted envelope',
   description: 'Exercise trusted full-context assembly.',
@@ -624,9 +624,9 @@ const currentB9a49TaskContext: FullTaskContext = {
       {
         "id": "CHK-006",
         "title": "Resolve canonical and legacy Codex prompt asset roots in the live pre-review verifier",
-        "context": "The signed live transcript failed because proofstory-pre-review-check-smoke hard-coded the deprecated .lattice-codex/agents path while this repository tracks canonical .proof-or-stop-codex/agents assets. Use the shared canonical-first ADAPTER_DIR_NAMES migration contract, retain deprecated read fallback, and fail closed when neither exists.",
+        "context": "The signed live transcript failed because proofstory-pre-review-check-smoke used an unavailable adapter asset path. Use the canonical .proof-or-stop-codex/agents path and fail closed when that required asset is absent.",
         "status": "done",
-        "userSees": "The live proof emits `PROOFSTORY_PRE_REVIEW_PROOF=` instead of `ENOENT ... .lattice-codex/agents/lattice-implementer.md`.",
+        "userSees": "The live proof emits `PROOFSTORY_PRE_REVIEW_PROOF=` using the canonical adapter asset path.",
         "relatedDocs": [
           "docs/requirements/decisions/proof-or-stop-identity-migration.md",
           "docs/requirements/decisions/brand-rename-mapping.md"
@@ -642,7 +642,7 @@ const currentB9a49TaskContext: FullTaskContext = {
           "happy": [
             {
               "id": "CHK-006:happy:canonical-adapter-root",
-              "desc": "Build and run the full pre-review smoke in the current repository, where only the canonical .proof-or-stop-codex/agents asset root is tracked, and require the smoke to complete instead of reading the deprecated .lattice-codex path.",
+              "desc": "Build and run the full pre-review smoke in the current repository using the tracked canonical .proof-or-stop-codex/agents asset root.",
               "type": "logic",
               "priority": "must"
             }
@@ -650,7 +650,7 @@ const currentB9a49TaskContext: FullTaskContext = {
           "edge": [
             {
               "id": "CHK-006:edge:legacy-read-fallback",
-              "desc": "Prove the resolver probes accepted adapter directory names in canonical-first order and still reads a deprecated .lattice-codex/agents tree when the canonical tree is absent, preserving migration compatibility without writing the deprecated path.",
+              "desc": "Prove the resolver accepts the canonical adapter directory and rejects an absent canonical asset without using a retired adapter fallback.",
               "type": "logic",
               "priority": "must"
             }
@@ -1654,9 +1654,9 @@ assert.throws(
 );
 
 const reviewBasis: IncrementalReviewBasis = {
-  schemaVersion: 'proofbound.incremental-review-basis.v1',
+  schemaVersion: 'proof-or-stop.incremental-review-basis.v1',
   storyId: taskContext.storyId,
-  lane: 'lattice-review-quality',
+  lane: 'proof-or-stop-review-quality',
   priorPassRef: 'RP-001',
   priorReviewRunId: 'B-envelope:RR-000',
   priorEnvelopeId: '1'.repeat(64),
@@ -1678,7 +1678,7 @@ const conditionalCommon = {
   eligibilityDigest: '2'.repeat(64),
   eligibilityReasonCodes: reviewBasis.reReviewReasonCodes,
   freshnessClassification: 'CURRENT_MATERIAL',
-  impactPolicyVersion: 'proofbound.impact-classification.v1',
+  impactPolicyVersion: 'proof-or-stop.impact-classification.v1',
   priorPassRef: reviewBasis.priorPassRef,
   changedFilesDigest: '3'.repeat(64),
   impactedFilesDigest: '4'.repeat(64),
@@ -2022,7 +2022,7 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     eligibilityDigest: '2'.repeat(64),
     eligibilityReasonCodes: reviewBasis.reReviewReasonCodes,
     freshnessClassification: 'CURRENT_MATERIAL',
-    impactPolicyVersion: 'proofbound.impact-classification.v1',
+    impactPolicyVersion: 'proof-or-stop.impact-classification.v1',
     priorPassRef: reviewBasis.priorPassRef,
     changedFilesDigest: '3'.repeat(64),
     impactedFilesDigest: '4'.repeat(64),
@@ -2109,15 +2109,19 @@ assert.throws(
   /renderDigest does not match/,
 );
 
-assert.equal(resolvePromptEnvelopeRolloutMode(role.roleId, undefined), 'legacy-full-context');
+assert.equal(resolvePromptEnvelopeRolloutMode(role.roleId, undefined), 'full-envelope');
 assert.equal(resolvePromptEnvelopeRolloutMode(role.roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { [role.roleId]: 'full-envelope' },
 }), 'full-envelope');
+assert.throws(() => resolvePromptEnvelopeRolloutMode(role.roleId, {
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: { [role.roleId]: 'legacy-full-context' as never },
+}), /unsupported mode/);
 assert.throws(() => resolvePromptEnvelopeRolloutMode('implementation-reviewer', {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { 'implementation-reviewer': 'full-envelope' },
-}), /compatibility/);
+}), /unknown prompt role "implementation-reviewer"/);
 assert.throws(() => resolvePromptEnvelopeRolloutMode(role.roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { unknown: 'full-envelope' },
@@ -2247,7 +2251,7 @@ try {
   assert.equal(existsSync(mutantModuleRoot), false, 'the isolated mutant module tree leaves no residue');
 }
 
-const tempRoot = mkdtempSync(join(tmpdir(), 'proofbound-agent-prompt-envelope-'));
+const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-agent-prompt-envelope-'));
 try {
   writeFileSync(join(tempRoot, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.',
@@ -2324,15 +2328,16 @@ try {
     () => handlers.agent_prompt({ role: 'proof-or-stop-review-quality', storyId: 'B-envelope', envelopeId: 'forged' }),
     /unsupported caller-controlled field/,
   );
-  const legacyBody = resolvePromptRoleBody('proof-or-stop-implementer', {
+  const implementerBody = resolvePromptRoleBody('proof-or-stop-implementer', {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
     roles: { 'proof-or-stop-review-quality': 'full-envelope' },
   }).body;
-  assert.equal(
+  const implementerResponse = JSON.parse(
     handlers.agent_prompt({ role: 'proof-or-stop-implementer', storyId: 'B-envelope', format: 'json' }),
-    legacyBody,
-    'per-role rollback preserves exact legacy bytes even when Story args remain',
   );
+  assert.equal(implementerResponse.mode, 'full-envelope');
+  assert.equal('legacyBytesRestored' in implementerResponse, false, 'active API omits historical fallback metadata');
+  assert.match(implementerResponse.prompt, new RegExp(implementerBody.slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
 }

@@ -8,7 +8,6 @@
 import assert from 'node:assert/strict';
 import {
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
   isDoneRequiredEvidenceVersionedSchema,
 } from '../core/artifact-schema.js';
 import {
@@ -116,7 +115,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     artifactKind: 'authority-receipt-ref',
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.external_gate_decision.v1'),
+    checks: currentValidChecks('proof-or-stop.external_gate_decision.v1'),
   });
   assert.equal(result.allowed, true, 'external gate decision refs can be admissible evidence for the matching adapter consumer');
   assert.equal(result.scope, 'production-gate-decision', 'external gate decision refs use production-gate-decision scope');
@@ -128,7 +127,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     artifactKind: 'authority-receipt',
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.external_receipt.v1'),
+    checks: currentValidChecks('proof-or-stop.external_receipt.v1'),
   });
   assert.equal(receiptOnly.allowed, false, 'plain external receipts cannot satisfy production-completion without gate-decision policy');
   assert.equal(receiptOnly.productionDoneEligible, false, 'plain external receipts cannot set productionDone');
@@ -141,7 +140,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     artifactKind: 'legacy-authority-receipt-ref',
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+    checks: currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
   });
   assert.equal(result.allowed, false, 'legacy authority receipt ref is readable but cannot satisfy production-completion');
   assert.equal(result.overall, 'fail', 'legacy authority receipt ref stays out-of-core for release readiness');
@@ -155,7 +154,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
       strictShapeValid: null,
     }),
   });
@@ -170,7 +169,7 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
       strictShapeValid: value,
     }),
   });
@@ -185,7 +184,7 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
+      schemaVersion: 'proof-or-stop.legacy_authority_receipt_refs.v1',
       verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
       strictShapeValid: true,
       semanticDigestValid: true,
@@ -206,7 +205,7 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
       contractVersion: null,
     }),
   });
@@ -221,8 +220,8 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
-      contractVersion: 'lattice.proof_admissibility.v0',
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
+      contractVersion: 'proof-or-stop.proof_admissibility.v0',
     }),
   });
   assert.equal(wrongContractVersion.allowed, false, 'authority receipt production-completion with wrong contractVersion fails closed');
@@ -237,7 +236,7 @@ for (const value of [false, 'true', 1, 0]) {
     claim: 'production-completion',
     checks: runtimeChecks({
       contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
-      schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
+      schemaVersion: 'proof-or-stop.legacy_authority_receipt_refs.v1',
       strictShapeValid: true,
       semanticDigestValid: true,
       signatureOrReceiptBindingValid: true,
@@ -257,7 +256,7 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
       verifierVersion: null,
     }),
   });
@@ -272,8 +271,8 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
-      verifierVersion: 'lattice.proof_admissibility_verifier.v0',
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
+      verifierVersion: 'proof-or-stop.proof_admissibility_verifier.v0',
     }),
   });
   assert.equal(wrongVerifierVersion.allowed, false, 'authority receipt production-completion with wrong verifierVersion fails closed');
@@ -297,7 +296,6 @@ for (const value of [false, 'true', 1, 0]) {
 {
   for (const schemaVersion of [
     DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-    DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
   ]) {
     const doneRequired = evaluateProofAdmissibility({
       artifactKind: 'done-required-evidence',
@@ -320,6 +318,12 @@ for (const value of [false, 'true', 1, 0]) {
     expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', `${schemaVersion} production claim`);
   }
 
+  for (const retired of [['lat', 'tice.done_required_evidence.v1'].join(''), ['proof', 'bound.done_required_evidence.v1'].join('')]) {
+    const rejected = evaluateProofAdmissibility({ artifactKind: 'done-required-evidence', consumer: 'DONE_REQUIRED', claim: 'done-readiness', checks: currentValidChecks(retired) });
+    assert.equal(rejected.allowed, false, 'retired evidence identity is not current authority');
+    expectReason(rejected.reasons, 'unsupported_schema_version', 'retired evidence identity');
+  }
+
   const doneRequiredUnknown = evaluateProofAdmissibility({
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
@@ -336,7 +340,7 @@ for (const value of [false, 'true', 1, 0]) {
     consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: {
-      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
+      ...currentValidChecks('proof-or-stop.legacy_authority_receipt_refs.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -372,7 +376,7 @@ for (const value of [false, 'true', 1, 0]) {
     artifactKind: 'review-run',
     consumer: 'REVIEW',
     claim: 'review-pass',
-    checks: currentValidChecks('lattice.review_run.v1'),
+    checks: currentValidChecks('proof-or-stop.review_run.v1'),
   });
   assert.equal(localQuorum.allowed, true, 'local review quorum may satisfy local review');
   assert.equal(localQuorum.productionDoneEligible, false, 'local review quorum is never productionDone eligible');
@@ -381,7 +385,7 @@ for (const value of [false, 'true', 1, 0]) {
     artifactKind: 'review-run',
     consumer: 'DONE',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.review_run.v1'),
+    checks: currentValidChecks('proof-or-stop.review_run.v1'),
   });
   assert.equal(overread.allowed, false, 'local review quorum cannot satisfy release readiness');
   expectReason(overread.reasons, 'artifact_consumer_mismatch', 'local quorum overread');
@@ -415,7 +419,7 @@ for (const { artifactKind, expected } of negativeProductionControls) {
     artifactKind: 'repro-probe',
     consumer: 'STORY_INTAKE',
     claim: 'historical-failure',
-    checks: currentValidChecks('lattice.evidence.v1'),
+    checks: currentValidChecks('proof-or-stop.evidence.v1'),
   });
   assert.equal(candidateIntake.allowed, true, 'candidate repro probe can inform story intake');
   assert.equal(candidateIntake.productionDoneEligible, false, 'candidate repro probe is never productionDone eligible');
@@ -424,7 +428,7 @@ for (const { artifactKind, expected } of negativeProductionControls) {
     artifactKind: 'handoff-pack',
     consumer: 'HANDOFF',
     claim: 'diagnostic-status',
-    checks: currentValidChecks('lattice.handoff.v1'),
+    checks: currentValidChecks('proof-or-stop.handoff.v1'),
   });
   assert.equal(localDiagnosticStatus.allowed, true, 'local diagnostic status is allowed for diagnostic consumer');
   assert.equal(localDiagnosticStatus.productionDoneEligible, false, 'local diagnostic status is not production proof');

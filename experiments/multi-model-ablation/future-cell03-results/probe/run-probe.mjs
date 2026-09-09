@@ -10,7 +10,7 @@ const experimentRoot = path.join(repoRoot, "experiments/multi-model-ablation");
 const probeRoot = path.join(experimentRoot, "future-cell03-results/probe");
 const artifactWorkspaceRoot = path.join(probeRoot, "workspaces");
 const scratchWorkspaceRoot = process.env.B991D_CELL03_SCRATCH_ROOT ||
-  path.join(os.tmpdir(), "proofbound-b991d-cell03-probe");
+  path.join(os.tmpdir(), "proof-or-stop-b991d-cell03-probe");
 const rowsPath = path.join(probeRoot, "probe-rows.jsonl");
 const summaryPath = path.join(probeRoot, "probe-summary.json");
 
@@ -170,7 +170,7 @@ function taskPrompt(task) {
 
 function promptForCell(cell, task) {
   return [
-    "You are executing one Proofbound B-991d Cell 03 probe row.",
+    "You are executing one Proof-or-Stop B-991d Cell 03 probe row.",
     "Only solve the task in the current working directory.",
     "Create or modify only solution.mjs. Do not edit any other file.",
     "Do not run Cell 02, Cell 04, Cell 06, Phase 2, or any optional cell.",
@@ -189,7 +189,7 @@ function promptForCell(cell, task) {
 
 function reviewerPromptForCell(cell) {
   return [
-    "You are the independent same-family reviewer for one Proofbound B-991d Cell 03 A4 probe row.",
+    "You are the independent same-family reviewer for one Proof-or-Stop B-991d Cell 03 A4 probe row.",
     "Do not edit files. Review only the current working directory.",
     "Read prompt.md and solution.mjs. Decide whether the submitted solution should ship for this task.",
     "Return the first line exactly as either `VERDICT: SHIP` or `VERDICT: BLOCK`.",

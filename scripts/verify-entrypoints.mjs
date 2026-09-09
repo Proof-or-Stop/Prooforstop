@@ -188,14 +188,13 @@ function assertInitHelpDocumentsStarterAsOptional(help, label) {
 function assertManagedMarkerSync(content, expectedNeedle, staleNeedle, label) {
   const managedMarkerPairs = [
     ['<!-- proof-or-stop:start -->', '<!-- proof-or-stop:end -->'],
-    ['<!-- lattice:start -->', '<!-- lattice:end -->'],
   ];
   const hasManagedMarkerPair = managedMarkerPairs.some(([start, end]) =>
     content.includes(start) && content.includes(end),
   );
   assert(
     hasManagedMarkerPair,
-    `${label} missing a complete managed marker pair (canonical proof-or-stop or legacy lattice)`,
+    `${label} missing a complete managed marker pair (canonical proof-or-stop)`,
   );
   assertIncludes(content, expectedNeedle, label);
   if (staleNeedle) assertNotIncludes(content, staleNeedle, label);
@@ -639,8 +638,8 @@ checks.push(() => {
     );
 
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
-    assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
-    assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'lattice check --apply should report applied managed manifest');
+    assert(checkApply.ok === true, 'proof-or-stop check --apply should repair safe managed drift');
+    assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'proof-or-stop check --apply should report applied managed manifest');
     assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'proof-or-stop', 'proof-or-stop check --apply should restore Codex manifest');
     // B-cc10 F-044: MANIFEST_REL_PATH now writes only the canonical path, so asserting the
     // deprecated one could never pass — the assertion was checking for a file init stopped
@@ -775,10 +774,10 @@ checks.push(() => {
       });
       const output = `${result.stdout || ''}${result.stderr || ''}`;
       assertIncludes(output, '🐨 proof-or-stop serve', `proof-or-stop serve ${flag} should still start the normal launcher`);
-      assertIncludes(output, 'Waiting for project core to start (.lattice-serve.json)...', `lattice serve ${flag} should still boot the normal serve path`);
-      assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
-      assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);
-      assertNotIncludes(output, '--cli', `lattice serve ${flag} runtime output`);
+      assertIncludes(output, 'Waiting for project core to start (.proof-or-stop-serve.json)...', `proof-or-stop serve ${flag} should still boot the normal serve path`);
+      assertNotIncludes(output, 'Unknown option', `proof-or-stop serve ${flag} should not be rejected as an unknown option`);
+      assertNotIncludes(output, '--web', `proof-or-stop serve ${flag} runtime output`);
+      assertNotIncludes(output, '--cli', `proof-or-stop serve ${flag} runtime output`);
       assertExpectedBoundedExit(result, `proof-or-stop serve ${flag}`);
     }
   } finally {

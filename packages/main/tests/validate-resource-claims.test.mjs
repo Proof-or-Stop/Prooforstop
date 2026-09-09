@@ -294,8 +294,6 @@ async function observeOverlap(plan, jobs) {
   const PROVEN_UNSAFE_TO_SHARE = new Map([
     ['npm --prefix packages/main run build',
       'rewrites packages/main/dist, the artifact every other node command in this plan executes'],
-    ['node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js',
-      'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',

@@ -18,9 +18,9 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: checklist.ts's own source text invokes the shared
- *     resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (declared
- *     exactly once — no duplicated matching logic outside it); and a very large configured
+ *   - B-16df F-004: checklist.ts's own source text contains exactly 5 structural references
+ *     to resolvePinnedCommandTimeoutMs: one declaration and 4 approved production call sites
+ *     (no duplicated matching logic outside it); and a very large configured
  *     timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS
  *     (not an unbounded-timeout vector). B-16df's companion H-003 assertion — that
  *     validation-executor.ts and verifier.ts are byte-for-byte unmodified from main — is no
@@ -43,7 +43,7 @@
  * source state (REPO_ROOT, resolved from this file's own compiled location) rather than
  * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
  * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
- * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
+ * try/finally (B-16df F-001) so repeated `proof-or-stop validate` runs don't leak stray tmpdirs.
  * Registered in proof-or-stop.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
@@ -52,6 +52,7 @@
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import ts from 'typescript';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   MAX_NODE_TIMER_DELAY_MS,
@@ -71,7 +72,7 @@ import type { ValidationCommand, ValidationPlan } from '../core/validation-types
  * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to locate the
  * repo-root marker file and read checklist.ts's own source text. Section 12 no longer runs
  * `git diff` (see BUG-B16DF-BYTEPIN in section 12); the only two reads through REPO_ROOT are
- * now existsSync on proof-or-stop.config.json (with legacy lattice.config.json fallback;
+ * now existsSync on proof-or-stop.config.json (the canonical root marker;
  * section 12) and readFileSync on
  * packages/main/src/handlers/checklist.ts (section 13).
  */
@@ -192,7 +193,7 @@ void (async () => {
 
       // 6b. The real red->green assertion: exercises the actual fixed surface --
       //     checklist.ts's resolvePinnedCommandTimeoutMs combined with
-      //     runSingleAllowlistedCommand, mirroring exactly what the 4 real call sites do.
+      //     runSingleAllowlistedCommand, mirroring what the production call sites do.
       //     Dynamic import (not a static top-level import) so this file still compiles even
       //     before CHK-002 adds the export. Currently RED before CHK-002: the export does not
       //     exist yet, so runSingleAllowlistedCommand is never given the configured override and
@@ -407,38 +408,46 @@ void (async () => {
     //     review, both of which are evaluated per story against that story's declared
     //     boundary -- not to a suite command every later story is forced to satisfy.
     check(
-      'REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json or legacy lattice.config.json present there)',
-      existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')) || existsSync(join(REPO_ROOT, 'lattice.config.json')),
+      'REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json present there)',
+      existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')),
     );
 
-    // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
-    //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
-    //     helper — no duplicated matching logic living outside it. Structural check on
-    //     checklist.ts's own SOURCE text: count occurrences of the call-site invocation
-    //     shape `resolvePinnedCommandTimeoutMs(root, command)`. This is distinct from the
-    //     function's own declaration line (which carries type annotations —
-    //     `(root: string, command: string)` — and so never matches the call-site pattern),
-    //     so the two checks below independently confirm exactly one declaration and exactly
-    //     four call sites.
-    //     B-16df F-007: match via a regex tolerant of whitespace/formatting variance around
-    //     the call (e.g. reflowed args, extra spacing) rather than a rigid literal substring
-    //     -- a purely cosmetic future edit (reformatting, wrapping the call across lines)
-    //     would break an exact-literal check for a non-regression it did not actually cause,
-    //     while a coincidental comment containing the exact literal substring could mask a
-    //     real duplication regression; requiring the same two identifiers (root, command) in
-    //     the same order keeps the check meaningful either way.
+    // 13. B-16df F-004 (H-002): checklist.ts must route every production timeout lookup
+    //     through the ONE shared resolvePinnedCommandTimeoutMs helper — no duplicated
+    //     matching logic living outside it. The merged B-aa5f/B-1482 source has exactly five
+    //     structural references: one declaration plus four production calls. Pin BOTH the
+    //     total and the approved normalized argument shapes: merely raising the total would
+    //     otherwise let an accidental new semantic lookup replace a required existing one.
+    //     B-16df F-007: the scanner tolerates whitespace/reflow and ignores comments while
+    //     remaining deliberately structural rather than relying on one identifier spelling.
     const checklistSource = readFileSync(join(REPO_ROOT, 'packages/main/src/handlers/checklist.ts'), 'utf-8');
-    const CALL_SITE_RE = /resolvePinnedCommandTimeoutMs\s*\(\s*root\s*,\s*command\s*\)/g;
-    const callSiteCount = (checklistSource.match(CALL_SITE_RE) || []).length;
+    const checklistAst = ts.createSourceFile('checklist.ts', checklistSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const resolverCallArguments: string[] = [];
+    let resolverDeclarationCount = 0;
+    const visitResolverNodes = (node: ts.Node): void => {
+      if (ts.isFunctionDeclaration(node) && node.name?.text === 'resolvePinnedCommandTimeoutMs') {
+        resolverDeclarationCount += 1;
+      }
+      if (ts.isCallExpression(node)
+        && ts.isIdentifier(node.expression)
+        && node.expression.text === 'resolvePinnedCommandTimeoutMs') {
+        resolverCallArguments.push(node.arguments.map((arg) => arg.getText(checklistAst)).join(', '));
+      }
+      ts.forEachChild(node, visitResolverNodes);
+    };
+    visitResolverNodes(checklistAst);
     check(
-      'checklist.ts invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (all 4 runSingleAllowlistedCommand sites route through it, no accidental 5th)',
-      callSiteCount === 4,
+      'checklist.ts has exactly 5 structural resolvePinnedCommandTimeoutMs references (one declaration plus the 4 approved production calls; no accidental 6th semantic)',
+      resolverDeclarationCount + resolverCallArguments.length === 5,
     );
-    const DECLARATION_SNIPPET = 'export function resolvePinnedCommandTimeoutMs(root: string, command: string): number | undefined {';
-    const declarationCount = checklistSource.split(DECLARATION_SNIPPET).length - 1;
     check(
       'resolvePinnedCommandTimeoutMs is declared exactly once (a single shared helper, not duplicated matching logic)',
-      declarationCount === 1,
+      resolverDeclarationCount === 1,
+    );
+    check(
+      'resolvePinnedCommandTimeoutMs production calls retain the 4 approved timeout-binding argument shapes',
+      JSON.stringify(resolverCallArguments)
+        === JSON.stringify(['root, command', 'deps.projectRoot, pinCommand', 'root, pin.command', 'root, command']),
     );
 
     // 14. B-16df F-004 (A-003): a very large configured timeoutMs must be CLAMPED, not an

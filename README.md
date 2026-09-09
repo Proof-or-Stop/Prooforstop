@@ -88,12 +88,14 @@ Its job is narrow and expensive-to-skip: turn the costliest failure — *wrong c
 
 Proof-or-Stop ships as a CLI (`proof-or-stop`). Full command reference: **[docs/CLI.md](docs/CLI.md)**.
 
+Check the installed CLI with `proof-or-stop --version` before following version-specific instructions.
+
 ```bash
 proof-or-stop session_brief   # recover project state
 proof-or-stop validate        # run the gates
 ```
 
-> `proof-or-stop` is the CLI command name. The deprecated `lattice` npm alias and wrapper files were removed; use `proof-or-stop` for new scripts and recovery commands. Some persisted state paths (`.lattice/`), `LATTICE_*` environment variables, and signature salts remain readable for compatibility, while new agent role IDs use the `proof-or-stop-*` form.
+> `proof-or-stop` is the CLI command name. Use `PROOF_OR_STOP_*` for environment keys and the registry's canonical `proof-or-stop-*` agent roles. Retired command, role, environment, state/config lookup, and signing aliases are not supported. Historical bytes remain audit records; only the three explicitly contracted historical scope schemas retain bounded read/hash compatibility. See the [identity cutover decision](docs/requirements/decisions/proof-or-stop-identity-cutover.md).
 
 ## Paper
 

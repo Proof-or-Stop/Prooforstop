@@ -8,8 +8,8 @@ revocation ledger all bind to the same HEAD.
 
 ## Inventory and policy
 
-The inventory is discovered from canonical `proof-or-stop.config.json`, with
-legacy `lattice.config.json` as a fallback, and receives a stable command ID
+The inventory is discovered only from canonical `proof-or-stop.config.json`,
+without a retired-name fallback, and receives a stable command ID
 from command plus arguments. The root configuration now records the DYN-1
 policy tuple on every command, and the verifier materializes effective
 scheduler fields for legacy rows: 58 `full-only` /
@@ -36,7 +36,7 @@ Missing policy is recorded as `policySource=default` and cannot satisfy the
 enforcement ownership prerequisite. This makes an unregistered command fail
 closed instead of silently entering the reusable set. The two gate rows also
 declare `caseRegistryPath`, `runnerSourcePath`, and
-`LATTICE_VALIDATION_SHARD_ADAPTER` in both canonical and legacy config files;
+`PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER` in the canonical config file;
 the runner path is part of each gate row's source closure.
 
 ### Quorum-submit command boundary (B-e40f)

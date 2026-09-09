@@ -12,7 +12,7 @@ import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
 import { isStateDirPath } from '../core/brand-paths.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, checkStrictVerificationEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isCanonicalGitHeadHash, isCanonicalSha256Hash, isStoryMetadataPath } from '../core/evidence-freshness.js';
 import { closeoutArtifactPolicyFor, readCloseoutWriteReceipts } from '../core/closeout-trust.js';
 import { verifyReviewRun } from '../core/review-run.js';
 import { verifyReviewPass } from '../core/finding-verify.js';
@@ -20,6 +20,8 @@ import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import type { ProcessEvent } from '../core/types.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { verificationReceiptHasCurrentReuseAuthority, verificationReceiptLostCurrentReuseAuthority } from '../core/verification-execution-evidence.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import {
   classifyGitStatusRows,
   dirtyWorktreeClassifierOptionsForStory,
@@ -1186,10 +1188,27 @@ function classifyStaleEvidence(ctx: HandlerContext, storyId: string, gitCwd: str
   const coverage = buildVerificationCoverage(
     cl,
     headHash,
-    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root, evidence?.storyFilesHash).fresh,
-    { deferredGateEvidence: 'missing' },
+    (oldHeadHash, evidence) => {
+      if (verificationReceiptLostCurrentReuseAuthority(evidence?.receipt)) return false;
+      return (
+        verificationReceiptHasCurrentReuseAuthority(evidence?.receipt)
+        && isCanonicalGitHeadHash(oldHeadHash)
+        && isCanonicalSha256Hash(evidence?.materialHash)
+        && isCanonicalSha256Hash(evidence?.storyFilesHash)
+        ? checkEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root, evidence?.storyFilesHash)
+        : checkStrictVerificationEvidenceFreshnessForGit(gitCwd, oldHeadHash, evidence?.materialHash, ctx.root, evidence?.storyFilesHash)
+      ).fresh;
+    },
+    {
+      deferredGateEvidence: 'missing',
+      receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+    },
   );
   const stale = coverage.entries.filter((entry) => entry.status === 'stale' && entry.evidence);
+  const invalid = coverage.entries.filter(entry => entry.status === 'non_mechanical' && entry.evidence?.mechanical === true);
+  if (invalid.length > 0) {
+    throw new Error(`done_prepare: invalid verification evidence cannot be renewed implicitly: ${invalid.map(entry => `${entry.intentRef}: ${entry.evidence?.nonMechanicalReason}`).join('; ')}`);
+  }
   const safeRefresh: StaleEvidencePlan['safeRefresh'] = [];
   const rerunRequired: StaleEvidencePlan['rerunRequired'] = [];
   for (const entry of stale) {

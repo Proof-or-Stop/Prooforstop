@@ -60,8 +60,8 @@ const TEMPLATES: Record<string, string> = {
 };
 const TEMPLATE_FILES = Object.keys(TEMPLATES).sort((a, b) => a.localeCompare(b));
 const ROLE_BY_FILE: Record<string, string> = {
-  'lattice-implementer.md': 'proof-or-stop-implementer',
-  'lattice-review-concept.md': 'proof-or-stop-review-concept',
+  'proof-or-stop-implementer.md': 'proof-or-stop-implementer',
+  'proof-or-stop-review-concept.md': 'proof-or-stop-review-concept',
 };
 
 type Node =

@@ -50,6 +50,7 @@ import {
   readGitStatusLines,
 } from '../core/dirty-worktree-gate.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import {
   buildDoneChecklist,
   renderDoneChecklist,
@@ -634,7 +635,11 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
       ctx.root,
       evidence?.storyFilesHash,
     ).fresh,
-    { deferredGateEvidence: 'missing', evidenceQualityProfile: policy.profile },
+    {
+      deferredGateEvidence: 'missing',
+      evidenceQualityProfile: policy.profile,
+      receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+    },
   );
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }

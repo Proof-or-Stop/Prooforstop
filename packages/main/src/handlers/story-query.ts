@@ -118,7 +118,7 @@ interface IntentFixtureLocation {
 
 const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
   'proof-or-stop-review-story-init',
-  'product-reviewer',
+  'proof-or-stop-product-reviewer',
 ]);
 
 const STORY_LEVEL_SCOPE_FIELDS = ['title', 'description', 'source', 'depends'] as const;

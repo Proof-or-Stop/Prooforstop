@@ -22,7 +22,7 @@ At the start of a new or resumed session:
 1. run `proof-or-stop session_brief` first to recover the active story, phase,
    owner lease, checklist, findings, and next action;
 2. run `proof-or-stop aux_doc_list` before selecting related source documents;
-3. keep the existing `LATTICE_SESSION_ID` when the same owner is resuming, and
+3. keep the existing `PROOF_OR_STOP_SESSION_ID` when the same owner is resuming, and
    use the story's existing worktree rather than creating a second worktree;
 4. verify the story owner lease, canonical Git worktree, readable Git index,
    current material hashes, and writable evidence target before an expensive run;

@@ -14,7 +14,7 @@ import {
 import { ACTIVE_MODULAR_COMPLEX_ROLE_IDS } from '../core/prompt-role-contract-registry.js';
 
 export interface Story6ABReceipt {
-  schemaVersion: 'proofbound.story6-ab-receipt.v1';
+  schemaVersion: 'proof-or-stop.story6-ab-receipt.v1';
   roleId: string;
   arm: 'legacy' | 'modular';
   assembledPromptBytes: number;
@@ -35,7 +35,7 @@ export function buildStory6ABReceipts(taskContext: FullTaskContext, dispatchProm
     const role = promptRoleContract(roleId);
     const legacyBody = resolvePromptRoleBody(roleId, undefined).body;
     receipts.push({
-      schemaVersion: 'proofbound.story6-ab-receipt.v1',
+      schemaVersion: 'proof-or-stop.story6-ab-receipt.v1',
       roleId,
       arm: 'legacy',
       assembledPromptBytes: promptUtf8Bytes(legacyBody),
@@ -44,7 +44,7 @@ export function buildStory6ABReceipts(taskContext: FullTaskContext, dispatchProm
       outcome: 'INCONCLUSIVE',
     });
     const modularBody = resolvePromptRoleBody(roleId, {
-      version: 'proofbound.prompt-envelope-rollout.v1',
+      version: 'proof-or-stop.prompt-envelope-rollout.v1',
       roles: { [roleId]: 'full-envelope' },
     }).body;
     const assembly = assembleFullPromptEnvelope({
@@ -57,7 +57,7 @@ export function buildStory6ABReceipts(taskContext: FullTaskContext, dispatchProm
       createdAt: '2026-07-20T00:00:00.000Z',
     });
     receipts.push({
-      schemaVersion: 'proofbound.story6-ab-receipt.v1',
+      schemaVersion: 'proof-or-stop.story6-ab-receipt.v1',
       roleId,
       arm: 'modular',
       assembledPromptBytes: assembly.envelope.bytes,

@@ -201,7 +201,7 @@ English in this repository. Creation conservatively stops in INIT; it does not
 silently skip INIT or create the worktree.
 
 INIT to INIT_CHECK requires independent records from both
-`proof-or-stop-review-story-init` and `product-reviewer`; each reviewer persists
+`proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
 its result through `init_check_set`. The gate consumes six facts/artifacts:
 `init-check.json`, `scope-boundary.json`, `execution-boundary.json`,
 `scope-freeze-check.json`, `scope-extension-proposals.json`, and
@@ -633,9 +633,9 @@ A modern host-orchestrated reviewer example is conceptual, not a CLI command:
 4. Reviewer records finding_add or review_pass_set with current signed evidence.
 ```
 
-Legacy `test-intent` and `test-case-reviewer` role names remain compatibility
-aliases where the registry accepts them, but new planning uses the
-`verification-intent` role and new review uses the current named reviewer lanes.
+Planning uses the canonical `proof-or-stop-verification-intent` role, and
+review uses the current registry-selected canonical reviewer lanes. Retired
+role names are not dispatch aliases.
 The retired conversational test-intent mutation commands are unavailable and
 must not appear in runnable examples.
 
@@ -776,8 +776,6 @@ explicit classes. Bare silent catches are forbidden.
 
 写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
 
-<!-- lattice:end -->
-
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 
 **先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
@@ -864,4 +862,3 @@ inventory epoch, re-stale acceptance surfaces, and force another review round.
 
 One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
 false?** Yes → step 2. No → step 3.
-

@@ -2,8 +2,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
-export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'lattice.autopilot_policy.v1' as const;
-export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'lattice.autopilot_policy_check.v1' as const;
+export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'proof-or-stop.autopilot_policy.v1' as const;
+export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'proof-or-stop.autopilot_policy_check.v1' as const;
 
 export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot'; // legacy retired non-conservative modes are refused.
 export type AutopilotPolicyStatus = 'authorized' | 'supervised' | 'refused';

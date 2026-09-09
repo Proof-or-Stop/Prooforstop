@@ -1,5 +1,76 @@
 # Changelog
 
+## Lab b49df-main-topology-green-20260909 - v0.3.288 - 2026-09-09
+
+The B-49df canonical-identity regression test derived the main repository root by
+walking up a fixed number of directories. That worked inside a nested Lab
+worktree but failed after the candidate was integrated into the main checkout.
+
+The test now resolves Git's absolute common directory and derives the canonical
+main checkout from it. The focused source invariant changed from RED to GREEN,
+and the complete canonical-identity test passes from the Lab topology. This is a
+test-fixture portability repair only; it does not change product behavior or
+historical Story data.
+
+Maintenance provenance: codex/lab-b49df-main-topology-green-20260909, repair e3f56d74f3b9b3ba9447700383c0e5644c98dbfc.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"scripts/lab-worktree.mjs\",\"utf8\");if(s.includes(\"...(s.bump ? versions.VERSION_SYNC_PATHS : [])\")){console.error(\"dynamic version files are not staged\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-canonical-identity-20260909 - v0.3.287 - 2026-09-09
+
+# Canonical active Proof-or-Stop identity
+
+Problem: newly generated Story scope boundaries on local main still used the retired `lattice.scope_boundary.v1` schema, and active INIT/runtime surfaces retained legacy identity paths.
+
+Behavior change: active Story writers emit `proof-or-stop.scope_boundary.v1.1`; required INIT reviewer identities contain no lattice name; Story-scoped writers fail closed when invoked through a foreign self-host worktree runtime; the active validation shard adapter accepts only the canonical Proof-or-Stop environment name. Historical Story JSON and `.lattice` runtime records were deliberately excluded from this Lab integration.
+
+Verification: the Lab pinned `node packages/main/tests/lab-b49df-canonical-identity.mjs`. It recorded RED on main with actual `lattice.scope_boundary.v1`, then GREEN on the committed repair while also checking INIT identities, every registered Story writer's foreign-runtime rejection, and removal of the active legacy shard-adapter key.
+
+Maintenance provenance: codex/lab-b49df-canonical-identity-20260909, repair 73f03c5802ff216c846ed521b534bb36d0a2c2fd.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-b49df-canonical-identity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab baa5f-receipt-fanout - v0.3.286 - 2026-09-09
+
+Integrate the bounded verification-receipt repair developed and reviewed on local branch `story/B-aa5f` without importing formal Story state into the Lab release.
+
+Problem and measured impact:
+
+- Verification freshness was historically coupled to broad Story material, while selector-specific evidence and raw command execution were not represented as separate authenticated facts.
+- The original B-fe8f reproduction contained 71 verification intents backed by two executable command identities. Current main already shared the raw executions and produced the measured 2 subprocesses for 71 selectors, so the Lab correctly refused to record that already-green condition as a RED.
+- The remaining Lab RED reproduced the missing input-scoped path: latest main could not execute the policy-defined closed verifier capsule and therefore could not issue an auditable zero-execution reuse publication after unrelated Story drift.
+
+Repair:
+
+- Add authenticated, versioned ExecutionReceipt, AssertionReceipt, ReuseReceipt, and signed publication bindings while retaining read-only legacy compatibility.
+- Store complete verifier output as immutable content-addressed artifacts; selectors are evaluated independently against that complete output.
+- Scope reusable freshness to a policy-enforced dependency manifest and evidence input digest. Incomplete closures, dynamic or undeclared inputs, environment uncertainty, unsupported sandboxing, or integrity failures remain non-reusable and fail closed.
+- Bind live command, cwd, timeout, environment, Node/toolchain, input closure, output artifact, selector, intent, and publication context to the appropriate signed layer.
+- Serialize producers by raw execution identity, preserving one execution with independent assertion outcomes and preventing concurrent duplicate launches or receipt races.
+- Preserve broad material and Story hashes as audit/fallback bindings; old receipts are never silently rewritten.
+- Integrate the related lifecycle, admissibility, inventory-subject, narrowing, process-fact, runtime-fact, documentation, and validation updates required to consume the new receipt graph consistently.
+
+Fresh Lab evidence on the committed candidate:
+
+- Pinned Lab GREEN command: `npm run test:verification-run-and-guard-smoke`.
+- Fan-out: 71 intents, two command identities, exactly two subprocess executions, two ExecutionReceipts, 71 independent AssertionReceipts, and two immutable output artifacts.
+- Input-scoped freshness: unrelated drift produced zero subprocess executions and two authenticated ReuseReceipts; changing one verifier input produced one execution and one reuse publication.
+- Selector and failure isolation: selector verdicts remained independent; nonzero exit and timeout fan out failure to dependent assertions without manufacturing a passing receipt.
+- F-057 live environment and toolchain identity drift: PASS.
+- F-058 signed publication binding, legacy non-promotion, and tamper rejection: PASS.
+- F-062 authenticated command/selector narrowing witness and complete-output evaluation: PASS through `npm run test:narrowing-repin`.
+- F-063 authenticated review-inventory observation identity and same-output reexecution semantics: PASS through `npm run test:review-inventory-epoch`.
+- Process fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+- Runtime fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+
+Preserved source-branch audit context (not promoted as Lab or formal DONE credentials): branch `story/B-aa5f` at `15cf023860c8418e5681ac3b954e819de4448390` had 8/8 checklist items done, 29/29 required intents fresh, four current review lanes passing with zero findings, a 137/137 formal validation pass, and a 67/67 full-suite pass in approximately 1005 seconds. The signed Story artifacts remain on that branch; this Lab carries their implementation and human-readable provenance only.
+
+No remote push is performed by this Lab integration.
+
+Maintenance provenance: codex/lab-baa5f-receipt-fanout, repair a67e8fd6815d90ec5a636b3067b746011c40eace.
+Verification command (replayed before integration and on main): `["npm","run","test:verification-run-and-guard-smoke"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b-e40f-convergence-20260909 - v0.3.285 - 2026-09-09
 
 # B-e40f quorum smoke convergence

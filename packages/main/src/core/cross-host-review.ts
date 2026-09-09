@@ -15,7 +15,7 @@
 
 import type { Finding } from './adversarial-review.js';
 
-export const CROSS_HOST_DISAGREEMENT_SCHEMA = 'lattice.cross_host_disagreement.v1' as const;
+export const CROSS_HOST_DISAGREEMENT_SCHEMA = 'proof-or-stop.cross_host_disagreement.v1' as const;
 
 export type CrossHostDecision = 'pass' | 'fail' | 'blocked';
 

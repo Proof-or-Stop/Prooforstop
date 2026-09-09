@@ -56,7 +56,7 @@ Both official entrypoints and derived host-verdict binding use a shared workspac
 
 The checked-in regression/evidence contract exercises an exact-12 child-process stale/ABA cohort, distinct from the exact-12 in-process Promise cohort, and asserts `maxConcurrency=1`, zero overlap, zero child errors, and zero queue-artifact leaks. This does not promise a user-visible runtime concurrency level. The managed terminal pins remain exact: focused `validate-execution-lock workspace capacity contract passed: 15 assertion groups`; full `validate-execution-lock smoke passed: 26 assertion groups`.
 
-The coordination boundary is intentionally the Proofbound handlers. A bare `npm test` or direct full-suite process is outside the lease and must not run concurrently with `proof-or-stop validate` or `proof-or-stop done_required_validate`. This mechanism serializes execution only; it does not alter validation commands, timeout budgets, evidence bindings, freshness, or the routine/DONE-required split.
+The coordination boundary is intentionally the Proof-or-Stop handlers. A bare `npm test` or direct full-suite process is outside the lease and must not run concurrently with `proof-or-stop validate` or `proof-or-stop done_required_validate`. This mechanism serializes execution only; it does not alter validation commands, timeout budgets, evidence bindings, freshness, or the routine/DONE-required split.
 
 Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`. Its receipts must cover the effective policy commands exactly in order and match command, args, cwd, and shell identity; artifact-level PASS cannot substitute for per-receipt PASS results.
 
@@ -169,7 +169,7 @@ Process facts must be protected by two layers of code policy and gate, not only 
 | `done_required_validate` | Opt-in DONE-required validation entry point, writes `done-required-evidence.json`; advisory when no policy exists |
 | `checklist_update` | Records the checklist status, `verificationIntent`, and `verificationEvidence` in the DEV phase |
 | `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context; not gateEvidence, produces no validation evidence |
-| `verification_evidence_refresh_stale` | Re-stamps stale evidence freshness: a pinned verifier is re-executed (real pass keeps its receipt); otherwise a command-backed `result:pass` is demoted to a non-mechanical attestation and must be re-run + re-recorded via `verification_evidence_add` |
+| `verification_evidence_refresh_stale` | Refreshes stale evidence without copying hashes: a current V5 policy-owned deterministic capsule with a complete unchanged input closure and valid signed lineage may publish a signed `ReuseReceipt` with zero subprocesses; otherwise the pinned verifier is really run at most once per affected execution key, and uncertainty or failure fails closed by demoting dependent evidence |
 | `test_auto` | legacy/compat full fixture runner, used only when maintaining old fixtures |
 | `test_story` | legacy/compat story fixture runner |
 | `test_fixture` | legacy/compat single-fixture/chain runner |

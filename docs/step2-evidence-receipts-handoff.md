@@ -131,13 +131,17 @@ message is genuinely useful — as a SEATBELT, not the enforcement floor (that i
   policy mode. Do not hard-break stories mid-flight.
 - Manual/emergency overrides must be explicit, attributable, and visible to gates,
   or callers will route around an over-rigid schema.
-- `verification_evidence_refresh_stale` must NOT re-certify a pass without
-  re-execution (Step 1 / B-3b88 addresses the interim; once §2 exists, refresh
-  should re-run the pinned command).
+- `verification_evidence_refresh_stale` must not re-certify by copying freshness
+  fields. A current `VerificationReceiptBundleV5` from the policy-owned deterministic
+  capsule may publish a signed `ReuseReceipt` with zero subprocesses only when its
+  complete input closure, `evidenceInputDigest`, execution identity, and signed lineage
+  still validate. Otherwise affected rows are grouped by selector-free execution key,
+  the pinned command is really run at most once per affected execution key, and any
+  uncertainty or failed execution fails closed and demotes the dependent evidence.
 
 ## 7. How to start
 1. Read `docs/evidence-integrity-program-spec.md` §1 (M1) and §3 Step 2.
-2. `cd /Users/jek/Documents/Work/proofbound`; `proof-or-stop session_brief`; check for an
+2. `cd /Users/jek/Documents/GitHub/Prooforstop`; `proof-or-stop session_brief`; check for an
    existing story on this before creating (`proof-or-stop story_list`).
 3. `proof-or-stop story_create` (type=feature, this adds a schema field + new command;
    likely high-assurance → full cross-host quorum review). Background must cite

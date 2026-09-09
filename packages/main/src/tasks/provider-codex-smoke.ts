@@ -294,7 +294,7 @@ try {
   });
 
   const plan = (step: JsonObject, providerPolicy: JsonObject): JsonObject => ({
-    schemaVersion: 'lattice.job_plan.v1',
+    schemaVersion: 'proof-or-stop.job_plan.v1',
     plannerRunId: 'run-codex',
     storyId: 'B-codex',
     mode: 'local',

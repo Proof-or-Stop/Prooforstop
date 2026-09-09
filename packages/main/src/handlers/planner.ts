@@ -79,7 +79,7 @@ function saveRecord(ctx: HandlerContext, record: PlannerRunRecord): PlannerRunRe
 
 function draftRecord(draft: PlannerDraft): PlannerRunRecord {
   return {
-    schemaVersion: 'lattice.planner_run_record.v1',
+    schemaVersion: 'proof-or-stop.planner_run_record.v1',
     plannerRunId: draft.plannerRunId,
     draft,
     decisionReceiptDigests: [],
@@ -158,7 +158,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       const review = reviewPlannerDraft(draft);
       if (review.status !== 'pass') {
         const result = {
-          schemaVersion: 'lattice.planner_create_story.v1' as const,
+          schemaVersion: 'proof-or-stop.planner_create_story.v1' as const,
           status: 'blocked' as const,
           plannerRunId: draft.plannerRunId,
           issueCount: review.issueCount,
@@ -172,7 +172,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         try { record = readPlannerRun(ctx.root, draft.plannerRunId); } catch { /* no state */ }
         if (!record?.confirmationDigest) {
           const result = {
-            schemaVersion: 'lattice.planner_create_story.v1' as const,
+            schemaVersion: 'proof-or-stop.planner_create_story.v1' as const,
             status: 'blocked' as const,
             plannerRunId: draft.plannerRunId,
             blockedReason: 'confirmation required before Story creation',
@@ -217,7 +217,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         plannerDigest: draft.plannerDigest,
       });
       const result = {
-        schemaVersion: 'lattice.planner_create_story.v1' as const,
+        schemaVersion: 'proof-or-stop.planner_create_story.v1' as const,
         status: 'created' as const,
         plannerRunId: draft.plannerRunId,
         storyId,
@@ -235,7 +235,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       if (!storyId) throw new Error('storyId is required when no planner run has created a Story');
       const review = reviewPlannerDraft(draft);
       if (review.status !== 'pass') {
-        const result = { schemaVersion: 'lattice.job_plan.v1' as const, status: 'blocked' as const, storyId, plannerRunId: draft.plannerRunId, issues: review.issues };
+        const result = { schemaVersion: 'proof-or-stop.job_plan.v1' as const, status: 'blocked' as const, storyId, plannerRunId: draft.plannerRunId, issues: review.issues };
         return wantsJson(args) ? result : renderLines('Proof-or-Stop planner create-job (blocked)', result);
       }
       const jobPlan = buildJobPlan(draft, storyId, args.projectId, {
@@ -276,7 +276,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
     planner_status(args: { runId?: string } & JsonArgs = {}) {
       const result = args.runId
         ? readPlannerRun(ctx.root, args.runId)
-        : { schemaVersion: 'lattice.planner_status.v1' as const, runs: listPlannerRuns(ctx.root) };
+        : { schemaVersion: 'proof-or-stop.planner_status.v1' as const, runs: listPlannerRuns(ctx.root) };
       if (wantsJson(args)) return result;
       if ('runs' in result) return renderLines(`Proof-or-Stop planner status (${result.schemaVersion})`, { runs: result.runs.length });
       return renderLines(`Proof-or-Stop planner status (${result.schemaVersion})`, {
@@ -295,7 +295,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.finalStatus = record.confirmationDigest ? 'drafted' : 'paused';
       record.updatedAt = new Date().toISOString();
       saveRecord(ctx, record);
-      const result = { schemaVersion: 'lattice.planner_answer.v1' as const, plannerRunId: record.plannerRunId, answersDigest: record.answersDigest, confirmationDigest: record.confirmationDigest ?? null, status: record.finalStatus };
+      const result = { schemaVersion: 'proof-or-stop.planner_answer.v1' as const, plannerRunId: record.plannerRunId, answersDigest: record.answersDigest, confirmationDigest: record.confirmationDigest ?? null, status: record.finalStatus };
       return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner answer (${result.schemaVersion})`, result);
     },
 
@@ -306,7 +306,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.finalStatus = 'drafted';
       record.updatedAt = new Date().toISOString();
       saveRecord(ctx, record);
-      const result = { schemaVersion: 'lattice.planner_decision.v1' as const, plannerRunId: record.plannerRunId, decisionReceiptDigest: digest, status: record.finalStatus };
+      const result = { schemaVersion: 'proof-or-stop.planner_decision.v1' as const, plannerRunId: record.plannerRunId, decisionReceiptDigest: digest, status: record.finalStatus };
       return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner decision (${result.schemaVersion})`, result);
     },
 
@@ -317,7 +317,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         record.updatedAt = new Date().toISOString();
         saveRecord(ctx, record);
       }
-      const result = { schemaVersion: 'lattice.planner_resume.v1' as const, plannerRunId: record.plannerRunId, status: record.finalStatus, storyId: record.storyId ?? null, jobPlanDigest: record.jobPlan?.jobPlanDigest ?? null };
+      const result = { schemaVersion: 'proof-or-stop.planner_resume.v1' as const, plannerRunId: record.plannerRunId, status: record.finalStatus, storyId: record.storyId ?? null, jobPlanDigest: record.jobPlan?.jobPlanDigest ?? null };
       return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner resume (${result.schemaVersion})`, result);
     },
 
@@ -333,13 +333,13 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       if (review.status !== 'pass') {
         record.finalStatus = 'blocked';
         saveRecord(ctx, record);
-        const result = { schemaVersion: 'lattice.planner_run.v1' as const, status: 'blocked' as const, plannerRunId: draft.plannerRunId, review };
+        const result = { schemaVersion: 'proof-or-stop.planner_run.v1' as const, status: 'blocked' as const, plannerRunId: draft.plannerRunId, review };
         return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner run (${result.schemaVersion})`, result);
       }
       if (draft.status === 'paused') {
         record.finalStatus = 'paused';
         saveRecord(ctx, record);
-        const result = { schemaVersion: 'lattice.planner_run.v1' as const, status: 'paused' as const, plannerRunId: draft.plannerRunId, questions: draft.questions, requiredDecisions: draft.requiredDecisions };
+        const result = { schemaVersion: 'proof-or-stop.planner_run.v1' as const, status: 'paused' as const, plannerRunId: draft.plannerRunId, questions: draft.questions, requiredDecisions: draft.requiredDecisions };
         return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner run (${result.schemaVersion})`, { plannerRunId: draft.plannerRunId, status: 'paused', questions: draft.questions.length, requiredDecisions: draft.requiredDecisions.length });
       }
       const storyResult = handlers.planner_create_story({ runId: draft.plannerRunId, json: true }) as { status: string; storyId?: string };
@@ -371,7 +371,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       });
       const completed = execution.status === 'done';
       const completion = {
-        schemaVersion: 'lattice.local_planner_completion.v1' as const,
+        schemaVersion: 'proof-or-stop.local_planner_completion.v1' as const,
         completed,
         localDoneReady: completed,
         authorityDone: false,
@@ -397,7 +397,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       finalRecord.updatedAt = new Date().toISOString();
       saveRecord(ctx, finalRecord);
       const result = {
-        schemaVersion: 'lattice.planner_run.v1' as const,
+        schemaVersion: 'proof-or-stop.planner_run.v1' as const,
         status: plannerRunStatus,
         plannerRunId: draft.plannerRunId,
         storyId: storyResult.storyId,
@@ -419,7 +419,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       const excludedPaths = Array.isArray(args.excludedPaths) ? args.excludedPaths : typeof args.excludedPaths === 'string' ? args.excludedPaths.split(',').map(s => s.trim()).filter(Boolean) : [];
       const result = sourceManifestDigest(ctx.root, args.sourceRepo, includedPaths, excludedPaths);
       const artifactRef = writePlannerArtifact(ctx.root, `${PROOF_OR_STOP_DIR}/planner/source-manifests/${result.digest}.json`, result);
-      const output = { schemaVersion: 'lattice.planner_source_manifest.v1' as const, ...result, artifactRef };
+      const output = { schemaVersion: 'proof-or-stop.planner_source_manifest.v1' as const, ...result, artifactRef };
       return wantsJson(args) ? output : renderLines(`Proof-or-Stop planner source-manifest (${output.schemaVersion})`, { digest: result.digest, files: result.files.length, blocked: result.blocked, artifactRef });
     },
   };

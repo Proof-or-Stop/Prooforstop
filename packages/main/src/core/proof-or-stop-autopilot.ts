@@ -33,12 +33,12 @@ import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
 
-export const AUTOPILOT_RUN_SCHEMA_VERSION = 'lattice.autopilot_run.v1' as const;
-export const AUTOPILOT_WATCH_SCHEMA_VERSION = 'lattice.autopilot_watch.v1' as const;
-export const AUTOPILOT_CANCEL_SCHEMA_VERSION = 'lattice.autopilot_cancel.v1' as const;
-export const AUTOPILOT_REVIEW_SCHEMA_VERSION = 'lattice.autopilot_review.v1' as const;
-export const AUTOPILOT_RESUME_SCHEMA_VERSION = 'lattice.autopilot_resume.v1' as const;
-export const AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION = 'lattice.autopilot_checkpoint_ledger.v1' as const;
+export const AUTOPILOT_RUN_SCHEMA_VERSION = 'proof-or-stop.autopilot_run.v1' as const;
+export const AUTOPILOT_WATCH_SCHEMA_VERSION = 'proof-or-stop.autopilot_watch.v1' as const;
+export const AUTOPILOT_CANCEL_SCHEMA_VERSION = 'proof-or-stop.autopilot_cancel.v1' as const;
+export const AUTOPILOT_REVIEW_SCHEMA_VERSION = 'proof-or-stop.autopilot_review.v1' as const;
+export const AUTOPILOT_RESUME_SCHEMA_VERSION = 'proof-or-stop.autopilot_resume.v1' as const;
+export const AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION = 'proof-or-stop.autopilot_checkpoint_ledger.v1' as const;
 
 export const AUTOPILOT_STOP_REASONS = [
   'max_iterations',
@@ -604,7 +604,7 @@ function buildDispatchPolicyMaterialDigest(root: string, policyName: string): { 
     return {
       ok: true,
       digest: digest({
-        schema: 'lattice.dispatch_policy_material.v1',
+        schema: 'proof-or-stop.dispatch_policy_material.v1',
         policy: dispatchPolicyMaterial(check.normalizedPolicy),
       }),
     };
@@ -1097,8 +1097,8 @@ function classifyLocalAssuranceEvidenceCandidate(candidate: unknown, required: b
   const schemaVersion = stringField(candidate, 'schemaVersion');
   const status = stringField(candidate, 'status');
   if (
-    schemaVersion === 'lattice.handoff_receipt_submit.v1'
-    || schemaVersion === 'lattice.handoff_receipt.v1'
+    schemaVersion === 'proof-or-stop.handoff_receipt_submit.v1'
+    || schemaVersion === 'proof-or-stop.handoff_receipt.v1'
     || status === 'accepted-local'
     || status === 'diagnostic'
   ) {

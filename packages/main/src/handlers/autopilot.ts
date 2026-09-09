@@ -222,7 +222,7 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
       const status = buildAutopilotStatus(process.env, { cwd: ctx.root });
       const local = buildAutopilotRun(ctx.store, { mode: 'local', dryRun: true }, process.env, { cwd: ctx.root });
       const result = {
-        schemaVersion: 'lattice.autopilot_doctor.v1' as const,
+        schemaVersion: 'proof-or-stop.autopilot_doctor.v1' as const,
         ok: local.status !== 'fail',
         local,
         status,

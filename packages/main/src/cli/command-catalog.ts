@@ -65,8 +65,7 @@ import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.j
 import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
-// review_run_start accepts canonical reviewer lanes for new callers and the
-// historical lattice spellings for persisted/compatibility callers. Runtime
+// review_run_start accepts only canonical reviewer lanes. Runtime
 // phase and evidence eligibility checks remain in core/review-run.ts.
 const REVIEW_RUN_LANE_INPUTS = [
   'proof-or-stop-review-topology-critic',
@@ -77,14 +76,6 @@ const REVIEW_RUN_LANE_INPUTS = [
   'proof-or-stop-review-channel',
   'proof-or-stop-review-test-coverage',
   'proof-or-stop-review-delivery',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-channel',
-  'lattice-review-test-coverage',
-  'lattice-review-delivery',
 ] as const;
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
@@ -542,14 +533,14 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
-  { name: 'verification_pin_narrow', description: 'B-1482: NARROWING-ONLY re-pin of an executable intent\'s proof selector. The pinned COMMAND never changes and a broader selector is always refused; the proof is drawn ONLY from receipts this tool recorded for that pinned command (no transcript, output or receipt is an input), and a recorded-receipt set admits at most ONE narrowing', schema: {
+  { name: 'verification_pin_narrow', description: 'B-1482: NARROWING-ONLY re-pin of an executable intent\'s proof selector. The pinned COMMAND never changes and a broader selector is always refused. Only current signed authoritative VerificationReceiptBundleV5 receipts recorded by this tool for that pinned command may be proof witnesses; legacy combined and Bundle V2/V3/V4 receipts remain audit-readable but are rejected with narrowing_recorded_receipt_not_authoritative — record current signed V5 evidence first. All direction, presence, and absence checks use complete authenticated output artifacts; outputTail is display-only and a mismatched projection is rejected with narrowing_recorded_receipt_invalid. No transcript, output or receipt is an input, and a recorded-receipt set admits at most ONE narrowing.', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().describe('Checklist item ID owning the intent.'),
     intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Must already carry a verification pin.'),
-    selector: z.string().min(1, 'selector must be a non-empty string').describe('The NEW, stricter selector. Accepted only when recorded receipts prove it stricter: absent from at least one recorded FAILING render the current selector matched, and present in EVERY recorded passing receipt.'),
+    selector: z.string().min(1, 'selector must be a non-empty string').describe('The NEW, stricter selector. Accepted only when current signed authoritative VerificationReceiptBundleV5 witnesses prove it stricter: absent from the complete authenticated output of at least one recorded FAILING render the current selector matched, and present in EVERY recorded passing output artifact.'),
     reason: z.string().min(30, 'reason must be \u2265 30 characters').describe('Attributable justification for why the pinned selector is not discriminating. Retained on the narrowing record; never itself the proof.'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence: a pinned verifier is RE-EXECUTED (a real pass keeps its mechanical receipt); without a passing re-run a command-backed result:pass is demoted in place to a non-mechanical attestation with an audit reason, so it can never silently keep covering an executable intent — re-run and re-record via verification_evidence_add to re-earn a mechanical receipt', schema: {
+  { name: 'verification_evidence_refresh_stale', description: 'Safely refresh stale verificationEvidence by selector-free execution identity. A proven-unchanged policy-owned capsule may reuse immutable evidence with zero subprocesses; otherwise freshness fails closed to at most one real rerun per affected execution key. Timeout/nonzero failure demotes every dependent row, selector mismatch demotes only that row, and no independently passing assertion means no pass receipt.', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
@@ -687,6 +678,7 @@ Behavior:
   }},
   { name: 'certification_window_status', description: 'Inspect the current PRE_CERT CertificationWindow; prints State and exactly one Next command', schema: {
     storyId: z.string().min(1).describe('Story ID'),
+    refresh: z.boolean().optional().describe('Persist a signed INVALIDATED state when the read-only status preflight detects certification drift.'),
   }},
   { name: 'certification_window_cancel', description: 'Cancel a BLOCKED, ADMITTED, or RUNNING CertificationWindow without granting heavy-certification authority', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -695,7 +687,7 @@ Behavior:
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
-    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Omitted preserves topology admission; inventory requires a current signed OPEN epoch.'),
@@ -703,15 +695,7 @@ Behavior:
   }},
   { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
-    lane: z.enum([
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-behavior',
-      'lattice-review-docs',
-      'lattice-review-channel',
-      'lattice-review-topology-critic',
-    ]).optional().describe('Optional reviewer lane filter.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Optional canonical reviewer lane filter.'),
     latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
     json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
   }},

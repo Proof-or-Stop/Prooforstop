@@ -6,11 +6,11 @@
  * Layout:
  *   <root>/.proof-or-stop/evidence/
  *     objects/sha256/<digest>.json   — immutable canonical artifact JSON
- *     refs/by-id/<artifactId>.json   — mutable pointer to current digest
+ *     refs/by-id/<artifactId>.json   — immutable pointer to canonical digest
  *     ledger/observed.jsonl          — append-only event ledger
  */
 
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import {
   closeSync,
   constants,
@@ -22,6 +22,7 @@ import {
   existsSync,
   appendFileSync,
   fsyncSync,
+  linkSync,
   openSync,
   readdirSync,
   realpathSync,
@@ -307,7 +308,8 @@ function stableCanonicalize(value: unknown): unknown {
   return value;
 }
 
-function computeDigest(obj: unknown): string {
+/** Stable SHA-256 used by artifact and receipt identities. */
+export function computeCanonicalDigest(obj: unknown): string {
   return createHash('sha256')
     .update(JSON.stringify(stableCanonicalize(obj)))
     .digest('hex');
@@ -351,22 +353,206 @@ function generateArtifactId(kind: ArtifactKind): string {
   return `${prefix}-${ts}-${rand}`;
 }
 
-/** Write an artifact envelope to the object store and update the ref pointer. */
+const SAFE_ARTIFACT_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const ARTIFACT_ENVELOPE_KEYS = [
+  'artifactId',
+  'artifactKind',
+  'schemaVersion',
+  'createdAt',
+  'producer',
+  'evidenceScope',
+  'subjectBinding',
+  'payload',
+  'artifactDigest',
+] as const;
+const ARTIFACT_REF_KEYS = ['artifactId', 'artifactDigest', 'artifactKind'] as const;
+
+interface ArtifactRefRecord {
+  artifactId: string;
+  artifactDigest: string;
+  artifactKind: ArtifactKind;
+}
+
+interface ArtifactStoreDirectoryIdentity {
+  projectRootReal: string;
+  dirReal: string;
+  dev: number;
+  ino: number;
+}
+
+function assertSafeArtifactId(artifactId: string): void {
+  if (!SAFE_ARTIFACT_ID.test(artifactId)) {
+    throw new Error(`evidence-store: malformed artifact id: ${artifactId}`);
+  }
+}
+
+function captureArtifactStoreDirectoryIdentity(projectRoot: string, dir: string): ArtifactStoreDirectoryIdentity {
+  try {
+    const projectRootReal = realpathSync(projectRoot);
+    const logical = lstatSync(dir);
+    const dirReal = realpathSync(dir);
+    const rel = relative(projectRootReal, dirReal);
+    if (logical.isSymbolicLink() || !logical.isDirectory()
+      || !rel || rel === '..'
+      || rel.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
+      || isAbsolute(rel)) {
+      throw new Error('unsafe artifact-store directory');
+    }
+    const physical = statIdentity(dir);
+    return { projectRootReal, dirReal, dev: physical.dev, ino: physical.ino };
+  } catch (error) {
+    throw new Error(`evidence-store: unsupported storage directory: ${String(error)}`);
+  }
+}
+
+function assertArtifactStoreDirectoryIdentity(
+  projectRoot: string,
+  dir: string,
+  expected: ArtifactStoreDirectoryIdentity,
+): void {
+  try {
+    const logical = lstatSync(dir);
+    const current = statIdentity(dir);
+    if (logical.isSymbolicLink() || !logical.isDirectory()
+      || realpathSync(projectRoot) !== expected.projectRootReal
+      || realpathSync(dir) !== expected.dirReal
+      || current.dev !== expected.dev
+      || current.ino !== expected.ino) {
+      throw new Error('artifact-store directory identity changed');
+    }
+  } catch (error) {
+    throw new Error(`evidence-store: unsupported storage directory: ${String(error)}`);
+  }
+}
+
+function withArtifactStoreDirectory<T>(projectRoot: string, dir: string, action: () => T): T {
+  const expected = captureArtifactStoreDirectoryIdentity(projectRoot, dir);
+  const originalCwd = process.cwd();
+  try {
+    assertArtifactStoreDirectoryIdentity(projectRoot, dir, expected);
+    process.chdir(dir);
+    const held = statIdentity('.');
+    if (realpathSync('.') !== expected.dirReal || held.dev !== expected.dev || held.ino !== expected.ino) {
+      throw new Error('evidence-store: unsupported storage directory');
+    }
+    return action();
+  } finally {
+    process.chdir(originalCwd);
+  }
+}
+
+function fsyncCurrentDirectory(): void {
+  const descriptor = openSync('.', constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  try {
+    fsyncSync(descriptor);
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
+/** Publish complete bytes without ever replacing an existing destination. */
+function publishFileNoOverwrite(destination: string, bytes: Buffer): boolean {
+  const temporary = `.${destination}.${process.pid}.${randomUUID()}.tmp`;
+  let descriptor: number | undefined;
+  let created = false;
+  try {
+    descriptor = openSync(
+      temporary,
+      constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0),
+      0o600,
+    );
+    writeFileSync(descriptor, bytes);
+    fsyncSync(descriptor);
+    closeSync(descriptor);
+    descriptor = undefined;
+    try {
+      linkSync(temporary, destination);
+      created = true;
+    } catch (error: any) {
+      if (error?.code !== 'EEXIST') throw error;
+    }
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+    rmSync(temporary, { force: true });
+  }
+  if (created) fsyncCurrentDirectory();
+  return created;
+}
+
+function readJsonRegularFile(path: string, description: string): unknown {
+  let descriptor: number | undefined;
+  try {
+    descriptor = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    if (!fstatSync(descriptor).isFile()) throw new Error('not a regular file');
+    return JSON.parse(readFileSync(descriptor, 'utf8')) as unknown;
+  } catch (error) {
+    throw new Error(`evidence-store: malformed ${description}: ${String(error)}`);
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+  }
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function readAndVerifyArtifactEnvelope<TPayload>(path: string, expectedDigest: string): EvidenceArtifact<TPayload> {
+  const value = readJsonRegularFile(path, `artifact object for digest ${expectedDigest}`);
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || !hasExactKeys(value as Record<string, unknown>, ARTIFACT_ENVELOPE_KEYS)) {
+    throw new Error(`evidence-store: malformed artifact object for digest ${expectedDigest}`);
+  }
+  const artifact = value as EvidenceArtifact<TPayload>;
+  if (typeof artifact.artifactId !== 'string'
+    || !SAFE_ARTIFACT_ID.test(artifact.artifactId)
+    || artifact.schemaVersion !== EVIDENCE_SCHEMA_VERSION
+    || typeof artifact.createdAt !== 'string'
+    || !Number.isFinite(Date.parse(artifact.createdAt))
+    || typeof artifact.producer !== 'string'
+    || !artifact.producer
+    || (artifact.evidenceScope !== 'evidence-candidate' && artifact.evidenceScope !== 'local-gate-evidence')
+    || typeof artifact.subjectBinding !== 'object'
+    || artifact.subjectBinding === null
+    || Array.isArray(artifact.subjectBinding)
+    || artifact.artifactDigest !== expectedDigest
+    || !SHA256_HEX.test(expectedDigest)
+    || !verifyArtifactDigest(artifact, expectedDigest)) {
+    throw new Error(`evidence-store: artifact object integrity mismatch for digest ${expectedDigest}`);
+  }
+  return artifact;
+}
+
+function readAndVerifyArtifactRef(path: string, expected: ArtifactRefRecord): ArtifactRefRecord {
+  const value = readJsonRegularFile(path, `artifact ref ${expected.artifactId}`);
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || !hasExactKeys(value as Record<string, unknown>, ARTIFACT_REF_KEYS)) {
+    throw new Error(`evidence-store: malformed artifact ref ${expected.artifactId}`);
+  }
+  const ref = value as ArtifactRefRecord;
+  if (ref.artifactId !== expected.artifactId
+    || ref.artifactDigest !== expected.artifactDigest
+    || ref.artifactKind !== expected.artifactKind
+    || !SHA256_HEX.test(ref.artifactDigest)) {
+    throw new Error(`evidence-store: artifact ref integrity mismatch for ${expected.artifactId}`);
+  }
+  return ref;
+}
+
+/** Atomically publish an artifact envelope and its canonical by-id ref. */
 export function writeArtifact<TPayload>(
   projectRoot: string,
   opts: CreateArtifactOptions<TPayload>,
 ): EvidenceArtifact<TPayload> {
+  projectRoot = resolve(projectRoot);
   ensureDirs(projectRoot);
 
   const artifactId = generateArtifactId(opts.artifactKind);
   const createdAt = new Date().toISOString();
 
-  const artifactDigest = computeDigest(digestSubject(opts));
-  const objPath = join(objectsDir(projectRoot), `${artifactDigest}.json`);
-
-  if (existsSync(objPath)) {
-    return JSON.parse(readFileSync(objPath, 'utf8')) as EvidenceArtifact<TPayload>;
-  }
+  const artifactDigest = computeCanonicalDigest(digestSubject(opts));
+  const objectName = `${artifactDigest}.json`;
 
   const artifact: EvidenceArtifact<TPayload> = {
     artifactId,
@@ -380,18 +566,44 @@ export function writeArtifact<TPayload>(
     artifactDigest,
   };
 
-  // Write immutable object
-  writeFileSync(objPath, JSON.stringify(artifact, null, 2) + '\n', 'utf8');
+  // Publish the complete candidate through a same-directory hard link. link(2)
+  // never replaces an existing name: exactly one same-digest publisher wins,
+  // while every loser reads and validates that winner's canonical envelope.
+  const objectCreated = withArtifactStoreDirectory(projectRoot, objectsDir(projectRoot), () => {
+    return publishFileNoOverwrite(objectName, Buffer.from(JSON.stringify(artifact, null, 2) + '\n', 'utf8'));
+  });
+  const canonical = withArtifactStoreDirectory(projectRoot, objectsDir(projectRoot), () => {
+    return readAndVerifyArtifactEnvelope<TPayload>(objectName, artifactDigest);
+  });
 
-  // Write ref
-  const refPath = join(refsDir(projectRoot), `${artifactId}.json`);
-  writeFileSync(refPath, JSON.stringify({ artifactId, artifactDigest, artifactKind: opts.artifactKind }, null, 2) + '\n', 'utf8');
+  // The canonical object's id wins too. A publisher that crashes between the
+  // object link and this ref link can be safely completed by any later caller.
+  const canonicalRef: ArtifactRefRecord = {
+    artifactId: canonical.artifactId,
+    artifactDigest: canonical.artifactDigest,
+    artifactKind: canonical.artifactKind,
+  };
+  assertSafeArtifactId(canonicalRef.artifactId);
+  const refName = `${canonicalRef.artifactId}.json`;
+  withArtifactStoreDirectory(projectRoot, refsDir(projectRoot), () => {
+    publishFileNoOverwrite(refName, Buffer.from(JSON.stringify(canonicalRef, null, 2) + '\n', 'utf8'));
+    readAndVerifyArtifactRef(refName, canonicalRef);
+  });
 
   // Append ledger event
-  const event = { event: 'artifact_written', artifactId, artifactKind: opts.artifactKind, artifactDigest, evidenceScope: opts.evidenceScope, at: createdAt };
-  appendFileSync(ledgerPath(projectRoot), JSON.stringify(event) + '\n', 'utf8');
+  if (objectCreated) {
+    const event = {
+      event: 'artifact_written',
+      artifactId: canonical.artifactId,
+      artifactKind: canonical.artifactKind,
+      artifactDigest: canonical.artifactDigest,
+      evidenceScope: canonical.evidenceScope,
+      at: canonical.createdAt,
+    };
+    appendFileSync(ledgerPath(projectRoot), JSON.stringify(event) + '\n', 'utf8');
+  }
 
-  return artifact;
+  return canonical;
 }
 
 /** Read an artifact by ID (resolves via ref). */
@@ -399,21 +611,50 @@ export function readArtifact<TPayload>(
   projectRoot: string,
   artifactId: string,
 ): EvidenceArtifact<TPayload> {
-  const refPath = join(refsDir(projectRoot), `${artifactId}.json`);
-  if (!existsSync(refPath)) {
+  projectRoot = resolve(projectRoot);
+  assertSafeArtifactId(artifactId);
+  const refDirectory = refsDir(projectRoot);
+  if (!existsSync(join(refDirectory, `${artifactId}.json`))) {
     throw new Error(`evidence-store: artifact ref not found: ${artifactId}`);
   }
-  const ref = JSON.parse(readFileSync(refPath, 'utf8')) as { artifactDigest: string };
-  const objPath = join(objectsDir(projectRoot), `${ref.artifactDigest}.json`);
-  if (!existsSync(objPath)) {
+  const ref = withArtifactStoreDirectory(projectRoot, refDirectory, () => {
+    if (!existsSync(`${artifactId}.json`)) {
+      throw new Error(`evidence-store: artifact ref not found: ${artifactId}`);
+    }
+    const value = readJsonRegularFile(`${artifactId}.json`, `artifact ref ${artifactId}`);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      throw new Error(`evidence-store: malformed artifact ref ${artifactId}`);
+    }
+    const candidate = value as Partial<ArtifactRefRecord>;
+    if (typeof candidate.artifactDigest !== 'string' || !SHA256_HEX.test(candidate.artifactDigest)
+      || typeof candidate.artifactKind !== 'string') {
+      throw new Error(`evidence-store: malformed artifact ref ${artifactId}`);
+    }
+    return readAndVerifyArtifactRef(`${artifactId}.json`, {
+      artifactId,
+      artifactDigest: candidate.artifactDigest,
+      artifactKind: candidate.artifactKind as ArtifactKind,
+    });
+  });
+  const objectDirectory = objectsDir(projectRoot);
+  if (!existsSync(join(objectDirectory, `${ref.artifactDigest}.json`))) {
     throw new Error(`evidence-store: object not found for digest ${ref.artifactDigest} (artifact ${artifactId})`);
   }
-  return JSON.parse(readFileSync(objPath, 'utf8')) as EvidenceArtifact<TPayload>;
+  const artifact = withArtifactStoreDirectory(projectRoot, objectDirectory, () => {
+    if (!existsSync(`${ref.artifactDigest}.json`)) {
+      throw new Error(`evidence-store: object not found for digest ${ref.artifactDigest} (artifact ${artifactId})`);
+    }
+    return readAndVerifyArtifactEnvelope<TPayload>(`${ref.artifactDigest}.json`, ref.artifactDigest);
+  });
+  if (artifact.artifactId !== ref.artifactId || artifact.artifactKind !== ref.artifactKind) {
+    throw new Error(`evidence-store: artifact ref/object integrity mismatch for ${artifactId}`);
+  }
+  return artifact;
 }
 
 /** Verify that a stored artifact digest matches expected. */
 export function verifyArtifactDigest(artifact: EvidenceArtifact<unknown>, expectedDigest: string): boolean {
-  const recomputed = computeDigest(artifactDigestSubject({
+  const recomputed = computeCanonicalDigest(artifactDigestSubject({
     artifactKind: artifact.artifactKind,
     schemaVersion: artifact.schemaVersion,
     producer: artifact.producer,

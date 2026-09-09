@@ -19,7 +19,7 @@
  * no extra build step.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** Relative paths (from the repo root) of the three version sync points. */
@@ -40,8 +40,27 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
   VERSION_SYNC_FILES.brand,
 ];
 
+// Extension package versions are independent. Only their embedded core record
+// participates in this transaction. A present extension requires its lockfile;
+// minimal core-only repositories need not contain the extension packages.
+const EXTENSION_CORE_LOCK_PATHS = ['packages/lab/package-lock.json', 'packages/utils/package-lock.json'] as const;
+function extensionCoreLockPaths(root: string): string[] {
+  return EXTENSION_CORE_LOCK_PATHS.filter(path =>
+    existsSync(join(root, path)) || existsSync(join(root, path.replace('package-lock.json', 'package.json'))));
+}
+
+function readExtensionCoreLock(content: string, label: string): JsonRecord {
+  const parsed = JSON.parse(content) as JsonRecord;
+  const packages = parsed.packages;
+  if (!isRecord(packages) || !isRecord(packages['../main']) || packages['../main'].name !== '@proof-or-stop/core') {
+    throw new Error(`version-bump: ${label} must bind packages["../main"] to @proof-or-stop/core`);
+  }
+  readLockPackageVersion(parsed, '../main', label);
+  return parsed;
+}
+
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
-const ACCEPTED_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set(['proof-or-stop', 'lattice']);
+const ACCEPTED_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set(['proof-or-stop']);
 /**
  * Matches an EXPORTED PROOF_OR_STOP_CLI_VERSION declaration in proof-or-stop-brand.ts. Anchored to the
  * start of a line (`^[ \t]*` under `/m`) followed by `export const`, and applied to a
@@ -103,8 +122,8 @@ function readJsonPackageName(absPath: string, label: string): string {
 
 /**
  * Root package identity is a publish-level contract, not just display metadata.
- * Accept the pre-migration spelling while an older checkout is being read, but
- * fail closed when package.json and either root lockfile name disagree.
+ * Require the canonical package name and fail closed when package.json and
+ * either root lockfile name disagree.
  */
 function assertRootPackageIdentity(root: string): void {
   const packageName = readJsonPackageName(join(root, VERSION_SYNC_FILES.rootPackageJson), 'root package.json');
@@ -284,6 +303,10 @@ export function readSyncedVersion(root: string): string {
     { label: 'packages/main', version: readJsonVersion(join(root, VERSION_SYNC_FILES.mainPackageJson)) },
     ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.mainPackageLock), 'packages/main lockfile'),
     { label: 'proof-or-stop-brand', version: readBrandVersion(join(root, VERSION_SYNC_FILES.brand)) },
+    ...extensionCoreLockPaths(root).map(path => ({
+      label: `${path} packages["../main"]`,
+      version: readLockPackageVersion(readExtensionCoreLock(readFileSync(join(root, path), 'utf8'), path), '../main', path),
+    })),
   ];
   const [first] = versions;
   if (versions.some((entry) => entry.version !== first.version)) {
@@ -329,6 +352,7 @@ export function applyPatchBump(root: string, opts?: ApplyPatchBumpTestHooks): Pa
   const mainPkgPath = join(root, VERSION_SYNC_FILES.mainPackageJson);
   const mainLockPath = join(root, VERSION_SYNC_FILES.mainPackageLock);
   const brandPath = join(root, VERSION_SYNC_FILES.brand);
+  const extensionLocks = extensionCoreLockPaths(root);
 
   // Compute all three new contents in memory first; a structural problem throws here,
   // before a single byte is written.
@@ -338,6 +362,11 @@ export function applyPatchBump(root: string, opts?: ApplyPatchBumpTestHooks): Pa
     { path: mainPkgPath, next: bumpJsonVersionContent(readFileSync(mainPkgPath, 'utf-8'), from, to, 'packages/main package.json') },
     { path: mainLockPath, next: bumpPackageLockVersionContent(readFileSync(mainLockPath, 'utf-8'), from, to, 'packages/main package-lock.json') },
     { path: brandPath, next: bumpBrandContent(readFileSync(brandPath, 'utf-8'), from, to) },
+    ...extensionLocks.map(path => {
+      const parsed = readExtensionCoreLock(readFileSync(join(root, path), 'utf8'), path);
+      bumpRequiredLockPackageVersion(parsed, '../main', from, to, path);
+      return { path: join(root, path), next: `${JSON.stringify(parsed, null, 2)}\n` };
+    }),
   ];
 
   const originals = plan.map((p) => ({ path: p.path, content: readFileSync(p.path, 'utf-8') }));
@@ -369,7 +398,7 @@ export function applyPatchBump(root: string, opts?: ApplyPatchBumpTestHooks): Pa
     rollback();
     throw new Error(`version-bump: post-write verification failed (expected ${to}, read ${after}); rolled back to ${from}`);
   }
-  return { from, to, files: VERSION_SYNC_PATHS };
+  return { from, to, files: [...VERSION_SYNC_PATHS, ...extensionLocks] };
 }
 
 export type BumpGitRunner = (args: string[], cwd: string) => string;
@@ -405,7 +434,7 @@ export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
     const expectedPreBump = nextPatch(opts.preMergeVersion);
     const current = readSyncedVersion(opts.mainMergeRoot);
     if (current === expectedPreBump) {
-      return `✓ version bump already present ${opts.preMergeVersion} → ${current} across ${VERSION_SYNC_PATHS.length} sync points after DONE merge`;
+      return `✓ version bump already present ${opts.preMergeVersion} → ${current} across ${VERSION_SYNC_PATHS.length + extensionCoreLockPaths(opts.mainMergeRoot).length} sync points after DONE merge`;
     }
   }
 

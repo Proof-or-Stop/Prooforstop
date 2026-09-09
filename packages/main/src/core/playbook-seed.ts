@@ -47,15 +47,15 @@ import { buildMemoryFreshnessPack, type RuntimeConsumer } from './playbook-runti
 import { buildLearningSourceLineageAudit } from './source-lineage-audit.js';
 import { readCapabilityReleaseLedger } from './capability-release.js';
 
-export const PLAYBOOK_SEED_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-seed-observe.v1' as const;
-export const PLAYBOOK_SEED_PROPOSE_BATCH_SCHEMA_VERSION = 'proofbound.playbook-seed-propose-batch.v1' as const;
-export const PLAYBOOK_SEED_BACKFILL_SCHEMA_VERSION = 'proofbound.playbook-seed-backfill.v1' as const;
-export const PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-batch-manifest.v1' as const;
-export const PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION = 'proofbound.playbook-candidate-ingest.v1' as const;
-export const PLAYBOOK_RUNTIME_CONSUMPTION_VERIFY_SCHEMA_VERSION = 'proofbound.playbook-runtime-consumption-verify.v1' as const;
-export const PLAYBOOK_TRIAL_RUN_SCHEMA_VERSION = 'proofbound.playbook-trial-run.v1' as const;
-export const PLAYBOOK_PROMOTION_TIMER_SCHEMA_VERSION = 'proofbound.playbook-promotion-timer.v1' as const;
-export const PLAYBOOK_AUTO_PROMOTION_APPLY_SCHEMA_VERSION = 'proofbound.playbook-auto-promotion-apply.v1' as const;
+export const PLAYBOOK_SEED_OBSERVE_SCHEMA_VERSION = 'proof-or-stop.playbook-seed-observe.v1' as const;
+export const PLAYBOOK_SEED_PROPOSE_BATCH_SCHEMA_VERSION = 'proof-or-stop.playbook-seed-propose-batch.v1' as const;
+export const PLAYBOOK_SEED_BACKFILL_SCHEMA_VERSION = 'proof-or-stop.playbook-seed-backfill.v1' as const;
+export const PLAYBOOK_CANDIDATE_BATCH_MANIFEST_SCHEMA_VERSION = 'proof-or-stop.playbook-candidate-batch-manifest.v1' as const;
+export const PLAYBOOK_CANDIDATE_INGEST_SCHEMA_VERSION = 'proof-or-stop.playbook-candidate-ingest.v1' as const;
+export const PLAYBOOK_RUNTIME_CONSUMPTION_VERIFY_SCHEMA_VERSION = 'proof-or-stop.playbook-runtime-consumption-verify.v1' as const;
+export const PLAYBOOK_TRIAL_RUN_SCHEMA_VERSION = 'proof-or-stop.playbook-trial-run.v1' as const;
+export const PLAYBOOK_PROMOTION_TIMER_SCHEMA_VERSION = 'proof-or-stop.playbook-promotion-timer.v1' as const;
+export const PLAYBOOK_AUTO_PROMOTION_APPLY_SCHEMA_VERSION = 'proof-or-stop.playbook-auto-promotion-apply.v1' as const;
 
 const ID_SUFFIX_RE = /^PBP?-(\d+)$/;
 const SEED_SOURCE_KINDS: readonly PlaybookSeedSourceKind[] = ['dev_memory', 'finding_signal', 'done_experience', 'finding'] as const;
@@ -78,7 +78,7 @@ const RUNTIME_VERIFY_CONSUMERS: RuntimeConsumer[] = [
 ];
 
 const REVIEWED_EVIDENCE_ACTIVATION_POLICY_DOMAIN = {
-  policyId: 'proofbound.evidence-activated-advisory-playbook.v1',
+  policyId: 'proof-or-stop.evidence-activated-advisory-playbook.v1',
   reviewedBy: 'B-7ee1-plan-and-review',
   thresholds: {
     minDecisiveSamples: DEFAULT_PLAYBOOK_PROMOTION_CONFIG.minDecisiveSamples,
@@ -1659,7 +1659,7 @@ function buildTrialOutcomeEvent(
 ): PlaybookOutcomeEvent {
   const idempotencyKey = trialOutcomeKey(opts.storyId, playbook.id, consumer, playbookDigest);
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId: trialId('PBO-TRIAL', idempotencyKey),
     idempotencyKey,
     observedAt,
@@ -1700,7 +1700,7 @@ function buildTrialControlEvent(
     triggerClasses: trialTriggerClasses(playbook),
   };
   return {
-    schemaVersion: 'proofbound.playbook-trial-control.v1',
+    schemaVersion: 'proof-or-stop.playbook-trial-control.v1',
     controlId: trialId('PBC-TRIAL', idempotencyKey),
     idempotencyKey,
     observedAt,
@@ -1875,7 +1875,7 @@ function buildAutoPromotionRecommendActivateDecision(
   const playbookDigest = computePlaybookDigest(playbook);
   const idempotencyKey = promotionDecisionIdempotencyKey(aggregate, action);
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: autoPromotionDecisionId(idempotencyKey, playbookDigest),
     idempotencyKey,
     decidedAt,
@@ -2109,7 +2109,7 @@ export function buildPlaybookAutoPromotionApplyReport(
         policyDigest: activationPolicy.policyDigest,
       });
       activationEvents.push({
-        schemaVersion: 'proofbound.playbook-auto-activation.v1',
+        schemaVersion: 'proof-or-stop.playbook-auto-activation.v1',
         activationId,
         idempotencyKey: guard.activationIdempotencyKey,
         activatedAt,
@@ -2291,7 +2291,7 @@ function buildTimerPromotionDecisionRow(
   const playbookDigest = computePlaybookDigest(playbook);
   const idempotencyKey = promotionDecisionIdempotencyKey(aggregate, action);
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: timerPromotionDecisionId(idempotencyKey, playbookDigest),
     idempotencyKey,
     decidedAt,

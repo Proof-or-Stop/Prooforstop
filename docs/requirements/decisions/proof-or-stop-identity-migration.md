@@ -2,15 +2,11 @@
 
 Retires the six `lattice` identities that B-cdf6 deliberately left in place. B-cdf6 renamed the
 user-facing CLI surface; this story renames the **structural** identities: on-disk state
-directories, config/manifest filenames, workspace package identities, managed markers, the
-remote-push approval schema, and the deprecated bin aliases.
+directories, config/manifest filenames, the workspace package name, and the deprecated bin
+aliases.
 
-Scope source: the operator enumerated exactly six structural items. That scope remains the
-boundary for B-cc10; a later approved migration may supersede a freeze when its compatibility
-contract is explicit. B-5a88 supersedes the earlier agent-role freeze: canonical
-`proof-or-stop-*` role IDs are emitted for new writes, while `lattice-*` role IDs remain
-compatibility-only legacy reads. The package, managed-marker, and remote-approval migrations
-listed below are likewise current canonical writes with narrowly explicit legacy reads.
+Scope source: the operator enumerated exactly six items. Anything not in that list stays frozen,
+and each exclusion below carries its own basis rather than being a convenience.
 
 ## Per-identity verdicts
 
@@ -21,35 +17,26 @@ listed below are likewise current canonical writes with narrowly explicit legacy
 | `.lattice-codex/` → `.proof-or-stop-codex/` | **RENAMED with migration** | Operator item 3. Adapter resolves by exact name, so the resolver must own it. |
 | `lattice.config.json` → `proof-or-stop.config.json` | **RENAMED, read-both** | Operator item 4. Deprecated filename stays readable; only canonical is written. |
 | `lattice.json` → `proof-or-stop.json` | **RENAMED, read-both** | Operator item 5. Adapter manifest. |
-| `@lattice/core` → `@proof-or-stop/core` | **RENAMED, canonical-write plus legacy-read** | Package manifests and dependencies write `@proof-or-stop/core`; self-project checks and global package discovery still recognize `@lattice/core` as a deprecated read. No alias package is published. |
-| Root npm package `lattice` → `proof-or-stop` | **RENAMED, canonical-write plus legacy-read** | Root package and lockfile write `proof-or-stop`; runtime self-project detection accepts `lattice` only for older checkouts. |
-| Sibling npm packages `@lattice/utils`, `@lattice/lab` → `@proof-or-stop/utils`, `@proof-or-stop/lab` | **RENAMED** | Package manifests, lockfiles, dependencies, and source-facing references write the canonical names. No deprecated alias packages are published or read by the runtime. |
-| Managed markers `<!-- lattice:start/end -->` → `<!-- proof-or-stop:start/end -->` | **RENAMED, read-both** | Init/sync writes the Proof-or-Stop marker family; the structural parser reads exact legacy marker families so existing managed blocks can be migrated, and rejects mixed or malformed markers. |
-| `lattice.remote-push-approval.v1` → `proof-or-stop.remote-push-approval.v1` | **RENAMED, canonical-write plus legacy-read** | Approval creation writes the Proof-or-Stop schema; the pre-push hook accepts the exact legacy schema only for already-created approvals. |
+| `@lattice/core` → `@proof-or-stop/core` | **RENAMED** | Operator item 6. Its prior freeze is superseded — see Supersession 1. |
 
-## Historical values deliberately FROZEN — not active identity rows
+## Deliberately FROZEN — out of scope
 
 | Identity | Basis |
 |---|---|
-| 13 `lattice-*-integrity-v1` signature salts | Standalone string constants (`core/finding-verify.ts` + sibling verifiers), independent of any path or filename. Renaming would invalidate every historical signature. |
+| 8 `lattice-*-integrity-v1` signature salts | Standalone string constants (`core/finding-verify.ts` + 6 siblings), independent of any path or filename. Renaming would invalidate every historical signature. Verified by the INIT reviewer. |
+| 13 `lattice-*` agent role IDs | `subagent_type` values; owned by `proof-or-stop-agent-prompt-consolidation-execution-plan.md`. Renaming breaks spawning for in-flight stories. |
+| ROOT npm package name `lattice` | Not among the operator's six. `brand-rename-mapping.md:131`. Verified publishable (`package.json` has no `private: true`), so it is a registry-identity action for its own story. Raised as scope-plan **OQ-2** after being a silent omission. |
+| Managed-block markers `<!-- lattice:start/end -->` | `brand-rename-mapping.md:134` — "changing the marker orphans every existing managed block." |
+| `lattice.remote-push-approval.v1` schema literal | `brand-rename-mapping.md:135` — exact-match string compared in `core/release-push-approval.ts` and `.githooks/pre-push:78`; a one-sided rename breaks release approval. |
 | `LATTICE_*` env keys as STORED keys | Already read-both via `core/brand-env.ts` (B-cdf6). Not re-litigated here. |
 | `__LATTICE_WS_PORT`, `LATTICE_SHELL` | Hardcoded protocol identifiers across 5 source files; a protocol change, not a diagnostics edit. Disclosed B-cdf6 follow-up. |
 | Content inside archived story files | History MOVES via `git mv`; it is never edited. |
-
-## Agent-role verdict supersession (B-5a88)
-
-The earlier frozen verdict for the 13 `lattice-*` role IDs is superseded by the implemented
-role-identity migration. The canonical `proof-or-stop-*` role ID is the only spelling emitted by
-new prompt, dispatch, reviewer, and migration writes. The exact `lattice-*` aliases remain
-readable for historical in-flight records and are compatibility-only; unknown role spellings are
-not accepted by the role registry. Project-local Claude `--upgrade` removes only canonical role
-basenames and their known legacy aliases, preserving unrelated user-authored files.
 
 ## Two deliberate supersessions of prior FROZEN verdicts
 
 Recorded explicitly so a reader sees evidence-based overrides rather than ignored rows.
 
-**1. `@lattice/core` (scope-plan OQ-1).** The earlier mapping froze it because
+**1. `@lattice/core` (scope-plan OQ-1).** `brand-rename-mapping.md:130` froze it because
 `.githooks/pre-push` gated the recursive-tsc defence on `PKG_NAME = "@lattice/core"` and
 `exit 0`s on mismatch — renaming would **silently self-disarm** the hook. That premise is now
 **stale relative to the code**: the case statement reads
@@ -63,9 +50,9 @@ both the scope-plan reviewer and the intent-collision reviewer, each grepping th
 CHK-005 must still grep for OTHER exact-name consumers rather than assuming pre-push was the only
 one.
 
-**2. The bin aliases.** An earlier mapping documented that `bin/lattice.js` "keeps working" for
-multi-developer compatibility. The operator's item 1 says 移除 (remove). The explicit instruction
-superseded that documented guarantee. Handling: CHK-006 was sequenced **last**, required
+**2. The bin aliases.** `brand-rename-mapping.md:72` documents that `bin/lattice.js` "keeps
+working" for multi-developer compatibility. The operator's item 1 says 移除 (remove). The explicit
+instruction supersedes the documented guarantee. Handling: CHK-006 is sequenced **last**, requires
 a CHANGELOG entry naming both removed aliases and their replacements, and required PLAN to choose
 and record warn-then-remove vs immediate cut. **Decision recorded: immediate removal, with the
 CHANGELOG entry as the announcement** — the product reviewer judged a mandatory warn-then-remove
@@ -184,39 +171,34 @@ the same commit: `scripts/verify-runtime-fact-contract.mjs` and
 `PROMPT_REGISTRY_SOURCE` is package-name-derived and is compared by
 `scripts/verify-proof-or-stop-prompt-baseline.mjs`, so registry + baseline were updated together.
 
-### Migration status and historical boundaries
+### Out of scope, verified untouched
 
-- **ROOT `package.json` name is now `proof-or-stop`**, and the package identity migration test
-  binds the root manifest and lockfile to that canonical name. Runtime self-project detection
-  retains the deprecated `lattice` spelling as a bounded read for older checkouts.
-- **Sibling packages are now canonical**: `@proof-or-stop/utils` and `@proof-or-stop/lab`, with
-  canonical dependency and lockfile entries. There is no published alias-package contract for
-  their deprecated names.
-- **Managed assets and remote approvals are canonical-write migrations**: generated blocks use
-  `proof-or-stop` markers and approval creation uses `proof-or-stop.remote-push-approval.v1`;
-  exact legacy forms remain only at the readers named in the active rows above.
-- `CHANGELOG.md` records the release announcement for the root and the explicit sibling
-  package renames (`@proof-or-stop/utils` and `@proof-or-stop/lab`); it is historical
-  release documentation, not an unchanged-package exception.
+- **ROOT `package.json` name stays `lattice`** (OQ-2). Mechanically pinned by
+  `scripts/verify-core-package-rename.mjs`, which exits non-zero if the root is ever renamed —
+  so a future "finish the rename" sweep breaks the build instead of quietly crossing the boundary.
+- **Sibling package names `@lattice/utils` / `@lattice/lab` are NOT renamed.** The operator
+  enumerated `@lattice/core` specifically. Only their *dependency reference* to core moved.
+- `CHANGELOG.md` untouched (FROZEN, historical release record).
 
-### CHK-007 residue decision (resolved by B-5a88)
+### Known residual drift for CHK-007 (reported, deliberately not fixed here)
 
-`scripts/verify-lattice-residue.mjs` now uses the canonical
-`"import { devHost } from '@proof-or-stop/core/dev-host';"` fixture. The deprecated
-`@lattice/core` spelling is not a frozen runtime exception: CHK-007 forbids it at
-product decision sites, while the pre-push reader retains the explicitly documented
-legacy compatibility check.
+`scripts/verify-lattice-residue.mjs` holds a fixture asserting
+`"import { devHost } from '@lattice/core/dev-host';"` is **exempt**, commented
+"npm package name (FROZEN — pre-push hook gates on it)". That exemption rationale is now stale.
 ~~Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
 `debug.ts` example.~~ **RETRACTED (B-cc10 F-066):** that half was already false when written —
 `CLAUDE.md:192` reads `@proof-or-stop/core/dev-host` at this HEAD, renamed within this story's own
-diff. A reader following the claim would hunt a defect that does not exist. The residue-script
-fixture is now canonical as recorded above, while check 4 still forbids deprecated `@lattice/core`
-decision sites in product runtime source.
+diff. A reader following the claim would hunt a defect that does not exist. Only the residue-script
+fixture exemption above is genuinely still open, and it belongs to CHK-007, which owns flipping
+`@lattice/core` from exempt to **forbidden** in product runtime source.
 
-The F-066 note also records the related self-repo detection wording drift: `CLAUDE.md:1070` and
-the `.githooks/pre-push` header now describe the canonical `@proof-or-stop/core` name together
-with the bounded legacy read. The hook's name-set comparison remains intentional so a later rename
-cannot silently disarm the recursive tsc gate.
+Found while verifying F-066 (same drift class, different file): `CLAUDE.md:1070` and the
+`.githooks/pre-push` header comment both said the hook's self-repo check requires the name
+`@lattice/core`. The package is now `@proof-or-stop/core`, so as written they told a reader the
+hook no-ops on this repo. The hook itself is fine — B-cdf6 deliberately widened the comparison to
+a name SET so that a later rename could never silently disarm the recursive tsc gate, and B-cc10
+is exactly the rename it was hardened against. Prose corrected in both places; the code was
+already right.
 
 ## CHK-008 revert claim: RETRACTED (B-cc10 F-007)
 

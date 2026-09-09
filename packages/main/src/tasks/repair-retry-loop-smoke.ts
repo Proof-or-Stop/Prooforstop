@@ -228,7 +228,7 @@ const stopPolicy = (over: JsonObject = {}): JsonObject => ({
 });
 
 const jobPlanFor = (pp: JsonObject, rp: JsonObject, sp: JsonObject): JsonObject => ({
-  schemaVersion: 'lattice.job_plan.v1',
+  schemaVersion: 'proof-or-stop.job_plan.v1',
   plannerRunId: 'run-repair',
   storyId: 'B-repair',
   mode: 'local',

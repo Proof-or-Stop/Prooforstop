@@ -172,6 +172,27 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  // The B-aa5f runtime facts explicitly bind their real producer and lifecycle
+  // consumer sources. Synthetic repositories must contain bounded stand-ins for
+  // every registered source so the snapshot seal tests absence rather than
+  // inheriting files from this repository.
+  for (const file of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/verification-execution-evidence.ts',
+    'packages/main/src/core/proof-admissibility.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/certification-window.ts',
+  ]) write(root, file, 'export const verificationEvidenceContract = true;\n');
   // B-74b9 CHK-001: PROCESS_FACT_REGISTRY's artifact:acceptance-rollout-report.json entry lists
   // these two files as producerSourceRefs alongside handlers/proofstory.ts (stubbed above), so
   // buildBoundedSourceGraph pulls them into the required snapshot closure once that entry is
@@ -182,6 +203,12 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // bounded snapshot closure requires them once that entry is live.
   write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/evidence-freshness.ts', 'export const evidenceFreshness = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/material-path-policy.ts', 'export const materialPathPolicy = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/shared-validation-execution.ts', 'export const sharedValidationExecution = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-aware-validation.ts', 'export const storyAwareValidation = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-owner-lease.ts', 'export const storyOwnerLease = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/validation-execution-lock.ts', 'export const validationExecutionLock = "acceptance_basis";\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
   // Explicit structural fixtures for the current signed process-fact closure.
   // These contain no simulated runtime behavior; missing-source and incomplete-seal
@@ -270,6 +297,91 @@ try {
   };
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  // B-aa5f F-047: these are discovery-owned import/call paths, not invented
+  // endpoint names. Keep the original planned endpoints mapped while adding
+  // reference-only consumers at the two supported topology shapes.
+  {
+    const sourcePath = 'path:static-call:packages/main/src/producer.ts#produceBasis->consumer:packages/main/src/consumer.ts#produceBasis';
+    const existingSource = { refKind: 'existing' as const, canonicalSourceRef: `basis-path:${sourcePath}` };
+    const sameExisting = structuredClone(topology);
+    sameExisting.producerRefs.push({ id: 'P-STATIC', sourceRef: existingSource });
+    sameExisting.consumerRefs.push({ id: 'C-STATIC', sourceRef: existingSource, producerRefs: ['P-STATIC'] });
+    const mixed = structuredClone(topology);
+    mixed.producerRefs.push({ id: 'P-MIXED', sourceRef: structuredClone(topology.producerRefs[0].sourceRef) });
+    mixed.consumerRefs.push({ id: 'C-MIXED', sourceRef: existingSource, producerRefs: ['P-MIXED'] });
+    for (const phaseBasis of ['plan', 'pre_review'] as const) {
+      for (const [label, edgeTopology] of [['same-existing', sameExisting], ['planned-static', mixed]] as const) {
+        const derived = deriveAcceptanceCoverageBasis({
+          ...input, contract: contract(edgeTopology), phaseBasis,
+          ...(phaseBasis === 'pre_review' ? { priorPlanBasisDigest: first.basis.basisDigest } : {}),
+        });
+        assert.ok(derived.basis.enumeratedPathRefs.includes(sourcePath), `${label}: the real call must first be discovered`);
+        assert.equal(derived.basis.status, 'complete',
+          `F-047 ${label} ${phaseBasis}: exact discovered static edge must reconcile: ${JSON.stringify(derived.diagnostics)}`);
+        assert.deepEqual(derived.basis.blindSpots, [], `${label}: no hidden discovery gaps`);
+        assert.ok(!derived.basis.enumeratedPathRefs.some(path => path.includes('existing:basis-path:')),
+          `${label}: topology projection must not manufacture discovery paths`);
+      }
+    }
+
+    const control = deriveAcceptanceCoverageBasis({ ...input, contract: contract(mixed), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+    const rejects = (label: string, candidate: AcceptanceVerificationTopologyV1, basis = control.basis): void => {
+      assert.ok(reconcileTopologyWithCoverageBasis(contract(candidate), basis)
+        .some(issue => issue.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), `F-047 rejects ${label}`);
+    };
+    for (const endpointRef of ['EP-MISSING', declaration.consumers[0].id]) {
+      const candidate = structuredClone(mixed);
+      candidate.producerRefs.find(node => node.id === 'P-MIXED')!.sourceRef = {
+        refKind: 'planned', plannedPathDeclarationRef: 'INT-BASIS:VPP-BASIS', endpointRef,
+      };
+      rejects(`wrong producer endpoint ${endpointRef}`, candidate);
+    }
+    for (const [label, change] of [
+      ['producer file', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.expectedFileRef = declaration.consumers[0].expectedFileRef; }],
+      ['producer symbol', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.expectedSymbolOrFact = 'anotherProducer'; }],
+      ['producer role', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.role = 'consumer'; }],
+    ] as const) {
+      const changedBasis = structuredClone(control.basis);
+      change(changedBasis.plannedPathRecords[0]);
+      rejects(label, mixed, changedBasis);
+    }
+    for (const ref of [
+      `basis-path:${sourcePath.replace('#produceBasis->', '#anotherProducer->')}`,
+      `basis-path:${sourcePath.replace('src/producer.ts', 'src/missing.ts')}`,
+      `basis-path:${sourcePath.replace('src/producer.ts', 'src/../producer.ts')}`,
+      `basis-path:${sourcePath} `,
+      `consumer:${sourcePath}`,
+    ]) {
+      const candidate = structuredClone(mixed);
+      candidate.consumerRefs.find(node => node.id === 'C-MIXED')!.sourceRef = { refKind: 'existing', canonicalSourceRef: ref };
+      candidate.commandRefs.push({ refKind: 'existing', canonicalSourceRef: ref });
+      rejects('mismatched/malformed source even with commandRef', candidate);
+    }
+    const missingBasis = structuredClone(control.basis);
+    missingBasis.enumeratedPathRefs = missingBasis.enumeratedPathRefs.filter(path => path !== sourcePath);
+    rejects('missing discovered path despite unchanged commandRef', mixed, missingBasis);
+    rejects('missing identical-existing path despite unchanged commandRef', sameExisting, missingBasis);
+
+    const originalConsumer = bytes(pureRoot, declaration.consumers[0].expectedFileRef);
+    try {
+      const otherPath = sourcePath.replace(/#produceBasis$/, '#otherBasis');
+      write(pureRoot, declaration.consumers[0].expectedFileRef,
+        `${originalConsumer}import { produceBasis as otherBasis } from './producer.js'; export const invokeOtherBasis = () => otherBasis();\n`);
+      const twoPathsTopology = structuredClone(sameExisting);
+      twoPathsTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: `basis-path:${otherPath}` });
+      const twoPaths = deriveAcceptanceCoverageBasis({ ...input, contract: contract(twoPathsTopology), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+      assert.equal(twoPaths.basis.status, 'complete', 'two independently discovered path controls reconcile');
+      assert.ok([sourcePath, otherPath].every(path => twoPaths.basis.enumeratedPathRefs.includes(path)), 'both differently named import calls are source-proven');
+      const differentExisting = structuredClone(twoPathsTopology);
+      differentExisting.consumerRefs.find(node => node.id === 'C-STATIC')!.sourceRef = { refKind: 'existing', canonicalSourceRef: `basis-path:${otherPath}` };
+      rejects('two different discovered paths despite both commandRefs', differentExisting, twoPaths.basis);
+
+      write(pureRoot, declaration.consumers[0].expectedFileRef, 'export const verifyBasis = () => true; export const invokeBasis = () => verifyBasis();\n');
+      const deleted = deriveAcceptanceCoverageBasis({ ...input, contract: contract(mixed), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+      assert.ok(!deleted.basis.enumeratedPathRefs.includes(sourcePath), 'deleted call is absent from production discovery');
+      assert.ok(deleted.diagnostics.some(issue => issue.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'deleted call cannot be restored by topology text');
+    } finally { write(pureRoot, declaration.consumers[0].expectedFileRef, originalConsumer); }
+  }
   const registryEdgeTopology = structuredClone(topology);
   registryEdgeTopology.producerRefs.push({
     id: 'P-REGISTRY-BASIS-GENERATOR',
@@ -375,10 +487,14 @@ try {
   const policyRichConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(policyRichConfig.basis.status, 'complete', 'a policy-rich config above the former 64 KiB ceiling remains discoverable');
   assert.ok(!policyRichConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'an admitted policy-rich config has no bounded-read blind spot');
-  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(128 * 1024) }));
   const oversizedConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
+  const aboveCeilingConfig = deriveAcceptanceCoverageBasis(input);
+  assert.equal(aboveCeilingConfig.basis.status, 'partial', '129 KiB config padding remains rejected by the strict config snapshot cap');
+  assert.ok(aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), '129 KiB config padding produces a bounded-read blind spot');
   writeFileSync(configPath, configControl);
   const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
   try {
@@ -1313,6 +1429,26 @@ try {
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
   write(packageProfileRoot, 'packages/main/tsconfig.json', '{}\n');
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'scanRoot tsconfig activates the canonical TypeScript profile without a root tsconfig');
+  const representativeLargeConfig = JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    policyPadding: 'x'.repeat(70 * 1024),
+  });
+  assert.ok(
+    Buffer.byteLength(representativeLargeConfig, 'utf8') > 64 * 1024
+      && Buffer.byteLength(representativeLargeConfig, 'utf8') < 128 * 1024,
+    'representative grown project config stays between the legacy and corrected bounded caps',
+  );
+  write(packageProfileRoot, 'proof-or-stop.config.json', representativeLargeConfig);
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'valid project config above the legacy 64 KiB cap still activates discovery support');
+  const overBoundedConfig = JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    policyPadding: 'x'.repeat(128 * 1024),
+  });
+  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > 128 * 1024, 'oversize control exceeds the corrected bounded cap');
+  write(packageProfileRoot, 'proof-or-stop.config.json', overBoundedConfig);
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'config beyond the corrected bounded cap remains fail-closed');
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'escaping config cannot activate discovery support');
   rmSync(join(packageProfileRoot, 'proof-or-stop.config.json'));

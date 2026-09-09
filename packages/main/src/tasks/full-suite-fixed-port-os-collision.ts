@@ -9,7 +9,7 @@ const HOST = '127.0.0.1';
 const PORT = 43127;
 
 type CollisionReceipt = {
-  schema: 'lattice.fixed-port-os-collision.v1';
+  schema: 'proof-or-stop.fixed-port-os-collision.v1';
   host: typeof HOST;
   port: typeof PORT;
   capability: 'detected' | 'unsupported';
@@ -59,7 +59,7 @@ async function runCollisionProbe(): Promise<CollisionReceipt> {
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code ?? 'UNKNOWN';
     if (code !== 'EPERM' && code !== 'EACCES') throw error;
-    return { schema: 'lattice.fixed-port-os-collision.v1', host: HOST, port: PORT, capability: 'unsupported', normalBind: 'UNSUPPORTED', collision: { status: 'UNSUPPORTED', code }, cleanupRebind: 'UNSUPPORTED', mutationDetected: false, overallStatus: 'UNSUPPORTED' };
+    return { schema: 'proof-or-stop.fixed-port-os-collision.v1', host: HOST, port: PORT, capability: 'unsupported', normalBind: 'UNSUPPORTED', collision: { status: 'UNSUPPORTED', code }, cleanupRebind: 'UNSUPPORTED', mutationDetected: false, overallStatus: 'UNSUPPORTED' };
   }
 
   const contender = createServer();
@@ -73,7 +73,7 @@ async function runCollisionProbe(): Promise<CollisionReceipt> {
   const cleanup = createServer();
   await listen(cleanup);
   await close(cleanup);
-  return { schema: 'lattice.fixed-port-os-collision.v1', host: HOST, port: PORT, capability: 'detected', normalBind: 'PASS', collision: { status: 'TERMINAL_FAIL', code: collisionCode }, cleanupRebind: 'PASS', mutationDetected: true, overallStatus: 'PASS' };
+  return { schema: 'proof-or-stop.fixed-port-os-collision.v1', host: HOST, port: PORT, capability: 'detected', normalBind: 'PASS', collision: { status: 'TERMINAL_FAIL', code: collisionCode }, cleanupRebind: 'PASS', mutationDetected: true, overallStatus: 'PASS' };
 }
 
 async function main(): Promise<void> {

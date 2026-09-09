@@ -89,8 +89,8 @@ function gitFixture(name) {
   roots.push(root);
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
   git('init');
-  git('config', 'user.name', 'Proofbound Test');
-  git('config', 'user.email', 'test@example.test');
+  git('config', 'user.name', 'Harmonynet');
+  git('config', 'user.email', '26995688+Harmonynet@users.noreply.github.com');
   writeFileSync(join(root, 'README.md'), 'seed\n');
   git('add', '.');
   git('commit', '-m', 'seed pollution attribution fixture');
@@ -207,7 +207,7 @@ function handshakeCommand({ syncDir: dir, self, peers, writes = null, observes =
 }
 
 /**
- * A complete Proofbound project fixture (git repo + config + REVIEW-phase story)
+ * A complete Proof-or-Stop project fixture (git repo + config + REVIEW-phase story)
  * whose configured `validate.commands` are the two handshake probes above, then
  * ONE real `proof-or-stop validate --story=... --json` run against it. Returns the
  * handler's own JSON result and the test-evidence.json the handler persisted.

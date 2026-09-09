@@ -120,7 +120,7 @@ export interface HandoffPack extends HandoffPackHashInput {
 }
 
 export interface HandoffInspection {
-  schemaVersion: 'lattice.handoff_inspect.v1';
+  schemaVersion: 'proof-or-stop.handoff_inspect.v1';
   storyId: string;
   packId: string;
   packHash: string;
@@ -154,7 +154,7 @@ export interface HandoffInspection {
 }
 
 export interface HandoffAcceptProjection {
-  schemaVersion: 'lattice.handoff_accept.v1';
+  schemaVersion: 'proof-or-stop.handoff_accept.v1';
   processEvent: {
     type: 'handoff_accepted';
     action: 'accept';
@@ -194,7 +194,7 @@ export interface HandoffAcceptProjection {
 }
 
 export interface HandoffResumeProjection {
-  schemaVersion: 'lattice.handoff_resume.v1';
+  schemaVersion: 'proof-or-stop.handoff_resume.v1';
   processEvent: {
     type: 'handoff_resume_projected';
     action: 'resume';
@@ -237,7 +237,7 @@ export interface HandoffResumeProjection {
 export type HandoffScopeStatus = 'pass' | 'warn' | 'fail';
 
 export interface HandoffReceipt {
-  schemaVersion: 'lattice.handoff_receipt.v1';
+  schemaVersion: 'proof-or-stop.handoff_receipt.v1';
   storyId: string;
   host: string;
   packId: string;
@@ -264,7 +264,7 @@ export interface HandoffReceipt {
 }
 
 export interface HandoffReceiptSubmission {
-  schemaVersion: 'lattice.handoff_receipt_submit.v1';
+  schemaVersion: 'proof-or-stop.handoff_receipt_submit.v1';
   status: 'accepted-local' | 'diagnostic';
   storyId: string;
   host: string;
@@ -302,7 +302,7 @@ type NormalizedHandoffReceipt = HandoffReceipt & {
 };
 
 export interface HandoffWorktreeProjection {
-  schemaVersion: 'lattice.handoff_worktree_create.v1';
+  schemaVersion: 'proof-or-stop.handoff_worktree_create.v1';
   status: 'projected';
   constraintStatus: 'pass' | 'warn';
   storyId: string;
@@ -366,7 +366,7 @@ export interface HostDispatchPrefetchManifest {
 }
 
 export interface HostDispatchProjection {
-  schemaVersion: 'lattice.host_dispatch.v1';
+  schemaVersion: 'proof-or-stop.host_dispatch.v1';
   status: 'planned' | 'unavailable';
   mode: 'supervised';
   storyId: string;
@@ -801,8 +801,8 @@ export function readHandoffPack(file: string, options: HandoffAdmissibilityOptio
 
 export function readHandoffAcceptProjection(file: string, options: HandoffAdmissibilityOptions = {}): HandoffAcceptProjection {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffAcceptProjection;
-  if (parsed.schemaVersion !== 'lattice.handoff_accept.v1') {
-    throw new Error(`handoff_resume expected schemaVersion lattice.handoff_accept.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
+  if (parsed.schemaVersion !== 'proof-or-stop.handoff_accept.v1') {
+    throw new Error(`handoff_resume expected schemaVersion proof-or-stop.handoff_accept.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
   const admissibleProofRefs = normalizeMergedStrings(
     parsed.admissibleProofRefs,
@@ -839,7 +839,7 @@ export function readHandoffAcceptProjection(file: string, options: HandoffAdmiss
 
 export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
   return {
-    schemaVersion: 'lattice.handoff_inspect.v1',
+    schemaVersion: 'proof-or-stop.handoff_inspect.v1',
     storyId: pack.storyId,
     packId: pack.packId,
     packHash: pack.packHash,
@@ -910,7 +910,7 @@ export function buildHandoffAcceptProjection(
     receiptRefs: [] as [],
   };
   return {
-    schemaVersion: 'lattice.handoff_accept.v1',
+    schemaVersion: 'proof-or-stop.handoff_accept.v1',
     processEvent,
     storyId: pack.storyId,
     packId: pack.packId,
@@ -939,7 +939,7 @@ export function buildHandoffResumeProjection(
   source: HandoffPack | HandoffAcceptProjection,
   args: { resumeHost?: string } & HandoffAdmissibilityOptions = {},
 ): HandoffResumeProjection {
-  const isAccept = source.schemaVersion === 'lattice.handoff_accept.v1';
+  const isAccept = source.schemaVersion === 'proof-or-stop.handoff_accept.v1';
   const storyId = source.storyId;
   const fromHost = source.fromHost;
   const toHost = source.toHost;
@@ -978,7 +978,7 @@ export function buildHandoffResumeProjection(
     existingSummary: source.admissibilitySummary,
   }, args);
   return {
-    schemaVersion: 'lattice.handoff_resume.v1',
+    schemaVersion: 'proof-or-stop.handoff_resume.v1',
     processEvent,
     storyId,
     packId: isAccept ? source.packId : source.packId,
@@ -1179,8 +1179,8 @@ function validateReceiptHeadCommit(
 
 export function readHandoffReceipt(file: string, options: HandoffAdmissibilityOptions = {}): HandoffReceipt {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffReceipt;
-  if (parsed.schemaVersion !== 'lattice.handoff_receipt.v1') {
-    throw new Error(`handoff_receipt_submit expected schemaVersion lattice.handoff_receipt.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
+  if (parsed.schemaVersion !== 'proof-or-stop.handoff_receipt.v1') {
+    throw new Error(`handoff_receipt_submit expected schemaVersion proof-or-stop.handoff_receipt.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
   return normalizeHandoffReceipt(parsed, options);
 }
@@ -1237,7 +1237,7 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt, opti
     scopeStatus === 'pass' &&
     verdictValidation === 'pass';
   return {
-    schemaVersion: 'lattice.handoff_receipt_submit.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt_submit.v1',
     status: acceptedLocal ? 'accepted-local' : 'diagnostic',
     storyId: normalized.storyId,
     host: normalized.host,
@@ -1287,7 +1287,7 @@ export function buildHandoffWorktreeProjection(pack: HandoffPack): HandoffWorktr
   const constraintStatus = warnings.length > 0 ? 'warn' as const : 'pass' as const;
   const baseRef = pack.baseSha ?? 'HEAD';
   return {
-    schemaVersion: 'lattice.handoff_worktree_create.v1',
+    schemaVersion: 'proof-or-stop.handoff_worktree_create.v1',
     status: 'projected',
     constraintStatus,
     storyId: pack.storyId,
@@ -1333,7 +1333,7 @@ export function buildHostDispatchProjection(
     staleSignals: ['Host dispatch preflight was not computed.'],
   };
   return {
-    schemaVersion: 'lattice.host_dispatch.v1',
+    schemaVersion: 'proof-or-stop.host_dispatch.v1',
     status: planned ? 'planned' : 'unavailable',
     mode: 'supervised',
     storyId: pack.storyId,

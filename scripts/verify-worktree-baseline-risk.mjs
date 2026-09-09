@@ -37,16 +37,16 @@ function assertNotIncludes(text, needle, label) {
   }
 }
 
-const background = `## 触发事件
+const background = `## Trigger Event
 2026-05-13 baseline-risk smoke references B-risk and CHK-001 so story_create accepts the synthetic story. The goal is to verify that volatile runtime residue stays hidden while real user edits remain visible before worktree creation in this temporary repository.
 
-## 关键洞察
+## Key Insights
 The baseline warning should surface material files that a human would lose when relying on a fresh worktree, but it should hide volatile runtime noise such as files under .proof-or-stop/runtime/. This synthetic story needs only enough background structure to satisfy the current story_create gate without changing the verification intent.
 
-## 方案取舍
+## Solution Tradeoffs
 Keeping the background inline here is simpler than introducing a fixture file for a one-off smoke. The content stays deterministic, meets the four-section minimum, and keeps the script focused on baseline-risk semantics instead of broader story lifecycle setup.
 
-## 对话纹理
+## Conversational Texture
 This smoke mirrors how a maintainer would reason about a dirty main branch: one real config file should trigger the warning, one volatile runtime path should stay hidden, and the session brief should still notice that the story worktree no longer contains the updated main branch after the material change is committed.
 `;
 
@@ -84,7 +84,21 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   if (!storyId) throw new Error(`story id not found in output:\n${created}`);
   runProofOrStop('init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  runProofOrStop('init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
+  runProofOrStop('init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
+  runProofOrStop('scope_boundary_set', {
+    storyId,
+    mode: 'feature',
+    allowedScope: ['Create the story worktree for baseline-risk regression coverage'],
+    excludedScope: ['Unrelated source changes'],
+    userConfirmed: true,
+    confirmation: 'worktree baseline-risk smoke fixture',
+  });
+  runProofOrStop('execution_boundary_set', {
+    storyId,
+    allowedPaths: ['docs/story'],
+    notes: 'worktree baseline-risk smoke fixture',
+  });
+  runProofOrStop('scope_freeze_check', { storyId });
 
   mkdirSync(join(temp, 'experiments', 'configs'), { recursive: true });
   mkdirSync(join(temp, '.proof-or-stop', 'runtime'), { recursive: true });

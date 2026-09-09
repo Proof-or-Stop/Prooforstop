@@ -23,9 +23,9 @@ import {
   type QuantumVerifierAdapterOutput,
 } from '../claim-admissibility/quantum.js';
 
-export const EVIDENCE_ENVIRONMENT_CONTRACT_VERSION = 'lattice.evidence_environment.v1' as const;
-export const EVIDENCE_ENVIRONMENT_RECEIPT_VERSION = 'lattice.evidence_environment_receipt.v1' as const;
-export const EVIDENCE_ENVIRONMENT_ENVELOPE_VERSION = 'lattice.evidence_environment_envelope.v1' as const;
+export const EVIDENCE_ENVIRONMENT_CONTRACT_VERSION = 'proof-or-stop.evidence_environment.v1' as const;
+export const EVIDENCE_ENVIRONMENT_RECEIPT_VERSION = 'proof-or-stop.evidence_environment_receipt.v1' as const;
+export const EVIDENCE_ENVIRONMENT_ENVELOPE_VERSION = 'proof-or-stop.evidence_environment_envelope.v1' as const;
 
 export const CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID = 'code-runtime.policy-authorized-local-validation' as const;
 export const QUANTUM_ENVIRONMENT_DESCRIPTOR_ID = 'quantum.read-receipt-only' as const;
@@ -372,7 +372,7 @@ export const QUANTUM_ENVIRONMENT_DESCRIPTOR = frozenDescriptor({
   mode: 'read-receipt-only',
   roles: ['receipt-reader'],
   adapterId: 'quantum.receipt-normalizer',
-  adapterVersion: 'lattice.quantum_claim_admissibility_verifier.v1',
+  adapterVersion: 'proof-or-stop.quantum_claim_admissibility_verifier.v1',
   trustClass: 'diagnostic-only',
   reproducibilityClass: 'bounded-nondeterministic',
   supportedReceiptVersions: [EVIDENCE_ENVIRONMENT_RECEIPT_VERSION],
@@ -642,7 +642,7 @@ export function projectDoneRequiredReceiptToEnvironment(
 } {
   if (!receipt.commandSpec) {
     throw new Error(
-      'command_spec_mismatch: DONE-required receipt must carry an accepted versioned CommandSpec envelope (current lattice.command-spec.v2; legacy lattice.command-spec.v1 accepted for pre-existing receipts)',
+      'command_spec_mismatch: DONE-required receipt must carry an accepted versioned CommandSpec envelope (current proof-or-stop.command-spec.v2; legacy proof-or-stop.command-spec.v1 accepted for pre-existing receipts)',
     );
   }
   if (!isNonEmpty(receipt.effectiveEnvironmentDigest)) {
@@ -659,12 +659,12 @@ export function projectDoneRequiredReceiptToEnvironment(
       throw new Error('command_spec_mismatch: DONE-required CommandSpec cwd is required');
     }
     switch (receipt.commandSpec.schema) {
-      case 'lattice.command-spec.v2':
+      case 'proof-or-stop.command-spec.v2':
         // v2 owns a repo-relative logical cwd. The top-level receipt.cwd and
         // commandSpec.resolvedCwd are physical execution provenance and must
         // not enter the portable EEA invocation/command identity.
         return receipt.commandSpec.cwd;
-      case 'lattice.command-spec.v1':
+      case 'proof-or-stop.command-spec.v1':
         // Legacy v1 digested its absolute cwd. Preserve that identity exactly
         // for pre-existing receipts; v1 was never cross-root portable.
         return receipt.commandSpec.cwd;

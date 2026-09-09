@@ -2,7 +2,7 @@
 
 ## Decision
 
-`/Users/jek/Documents/Work/proofbound` is the canonical active checkout for new
+`/Users/jek/Documents/GitHub/Prooforstop` is the canonical active checkout for new
 Proof-or-Stop work.
 
 `/Users/jek/Documents/Work/Orchestrate` is a retired, read-only legacy evidence
@@ -17,7 +17,7 @@ A retired root is expressed in project config with:
 ```json
 {
   "retiredRoot": true,
-  "canonicalRoot": "/Users/jek/Documents/Work/proofbound"
+  "canonicalRoot": "/Users/jek/Documents/GitHub/Prooforstop"
 }
 ```
 
@@ -26,7 +26,7 @@ inspected. Mutating workflow commands fail before handler dispatch and print:
 
 ```text
 Proof-or-Stop root is retired: /Users/jek/Documents/Work/Orchestrate
-Use canonicalRoot: /Users/jek/Documents/Work/proofbound
+Use canonicalRoot: /Users/jek/Documents/GitHub/Prooforstop
 ```
 
 This behavior is Host-neutral and Agent-neutral. It belongs to the Proof-or-Stop

@@ -2,7 +2,7 @@
 
 /** Production-path integration seam for DYN-3/DYN-5. */
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -37,14 +37,39 @@ try {
   ]) + '\n');
   mkdirSync(join(root, 'packages/main/src/tasks'), { recursive: true });
   writeFileSync(join(root, adapterPath), adapterSource);
+  // Synthetic retired-only caller: a current adapter must reject it before
+  // creating even a shard directory or any case-evidence file.
+  const retiredShardDir = join(root, 'retired-env-rejection');
+  const retiredPrefix = ['LAT', 'TICE_VALIDATION_'].join('');
+  const retiredValues = {
+    SHARD_CASE_REGISTRY: join(root, caseRegistryPath),
+    SHARD_DIR: retiredShardDir,
+    SHARD_DOMAIN: 'review-pass',
+    SHARD_ID: 'retired-env-fixture',
+    SHARD_SENTINEL: 'review-pass:case-1',
+    SHARD_CASE_REGISTRY_DIGEST: 'a'.repeat(64),
+    SHARD_ADAPTER_DIGEST: 'b'.repeat(64),
+    SHARD_CASE_IDS: 'review-pass:case-1',
+    PROJECT_ROOT: root,
+  };
+  const retiredEnv = Object.fromEntries(Object.entries(process.env)
+    .filter(([key]) => !key.startsWith('PROOF_OR_STOP_VALIDATION_') && !key.startsWith(retiredPrefix)));
+  const retiredExecution = spawnSync(runtimeNode, [join(root, adapterPath)], {
+    cwd: root, encoding: 'utf8',
+    env: { ...retiredEnv, ...Object.fromEntries(Object.entries(retiredValues).map(([key, value]) => [`${retiredPrefix}${key}`, value])) },
+  });
+  assert.notEqual(retiredExecution.status, 0, 'retired-only adapter environment must fail closed');
+  assert.match(`${retiredExecution.stdout}${retiredExecution.stderr}`, /environment is incomplete/i);
+  assert.equal(existsSync(retiredShardDir), false, 'retired-only adapter environment must create no shard authority');
+  console.log('canonical-only dynamic adapter rejects retired env with zero mutation PASS');
   mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(root, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
       commands: [
         { command: runtimeNode, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build', assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
-        { command: runtimeNode, args: [adapterPath, 'review-pass'], label: 'review-pass-discard-smoke', env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' }, caseRegistryPath, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
-        { command: runtimeNode, args: [adapterPath, 'quorum'], label: 'quorum-submit-smoke', env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' }, caseRegistryPath, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
+        { command: runtimeNode, args: [adapterPath, 'review-pass'], label: 'review-pass-discard-smoke', env: { PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' }, caseRegistryPath, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
+        { command: runtimeNode, args: [adapterPath, 'quorum'], label: 'quorum-submit-smoke', env: { PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' }, caseRegistryPath, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
       ],
     },
   }, null, 2));
@@ -146,6 +171,31 @@ try {
   console.log('production shard receipts PASS');
   console.log('gate-owned authority fallback PASS');
 
+  // A valid canonical name is insufficient if the adapter bytes drift. The
+  // exact source binding must refuse a tampered adapter before case execution.
+  writeFileSync(join(root, adapterPath), `${adapterSource}\n// synthetic adapter tamper\n`);
+  try {
+    const tampered = await runStoryAwareDynamicValidation({
+      projectRoot: root, gitCwd: root, storyId: 'B-production-tamper',
+      baseHead: head, head, changedFiles: [], mode: 'enforce-low-risk', commands: configured,
+    });
+    assert.equal(tampered.authority.authoritative, false, 'tampered adapter must not grant dynamic authority');
+    const tamperedShardRoot = join(root, '.proof-or-stop/runtime/dynamic-validation/B-production-tamper/shards');
+    const tamperedFiles = readdirSync(tamperedShardRoot);
+    assert.equal(tamperedFiles.filter(name => name.startsWith('shard-receipt-')).length, 0,
+      'tampered adapter must create no shard receipt');
+    const tamperedAggregates = tamperedFiles.filter(name => name.endsWith('-aggregate.json'))
+      .map(name => JSON.parse(readFileSync(join(tamperedShardRoot, name), 'utf8')));
+    assert.equal(tamperedAggregates.length, 2);
+    assert.equal(tamperedAggregates.every(row => row.ok === false && row.errors.length > 0), true,
+      'both domains must reject unexecuted shard evidence');
+    assert.match(JSON.stringify(tampered.selectedResult), /registered case-aware adapter/,
+      'the public production result must identify the rejected adapter binding');
+    console.log('canonical dynamic adapter source tamper rejects all shard receipts PASS');
+  } finally {
+    writeFileSync(join(root, adapterPath), adapterSource);
+  }
+
   // A minimal local command with an explicit closure/environment declaration
   // proves the positive DYN-3 boundary as well as the fail-closed sharding
   // path above.  The baseline is produced by the complete executor, then the
@@ -156,7 +206,7 @@ try {
     writeFileSync(join(authorityRoot, 'packages/main/src/.keep'), '\n');
     mkdirSync(join(authorityRoot, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(authorityRoot, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
-    writeFileSync(join(authorityRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(authorityRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: { commands: [{
         command: runtimeNode, args: ['-e', 'process.stdout.write("authority-pass")'], label: 'build',
         assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',

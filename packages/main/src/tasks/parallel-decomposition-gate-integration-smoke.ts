@@ -44,7 +44,7 @@ function check(name: string, cond: boolean): void {
   console.log(`✓ ${name}`);
 }
 
-const REVIEW_SALT = 'lattice-review-integrity-v1';
+const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
 const SELF_ID = 'B-self';
 const PEER_ID = 'B-peer';
 const NOW = '2026-06-19T12:00:00.000Z';
@@ -192,7 +192,7 @@ function buildRepo(opts: {
   // observe missing_dev_memory_preflight_ack instead of the parallel-specific
   // block/message this file exists to test.
   store.writeDevMemoryPreflightAck(SELF_ID, {
-    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
     storyId: SELF_ID,
     packDigest: 'parallel-decomposition-gate-integration-smoke-synthetic-digest',
     topHitIds: [],

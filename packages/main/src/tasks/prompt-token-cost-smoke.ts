@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   isModularComplexRoleId,
+  isModularRoleId,
   isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   readPromptRegistry,
@@ -74,9 +75,6 @@ const compactQueryGuidancePhrases = [
   `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
   `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
-const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
-  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
-  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 const modularReviewerSafetyPhrases = [
   'proof-or-stop:modular-role-body:v1',
@@ -98,10 +96,9 @@ function readRepo(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function extractLatticeBlock(content: string): string {
-  const match = content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)
-    ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
-  assert.ok(match, 'expected lattice managed block');
+function extractCanonicalBlock(content: string): string {
+  const match = content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/);
+  assert.ok(match, 'expected canonical managed block');
   return match[0];
 }
 
@@ -138,14 +135,17 @@ function assertPromptReductions(): void {
     currentTotal += current;
 
     const roleId = file.replace(/\.md$/, '');
-    if (isModularReviewerRoleId(roleId)) {
+    if (isModularRoleId(roleId)) {
       assert.equal(
         content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/),
         null,
-        `${file} does not rematerialize the legacy runtime guide`,
+        `${file} does not rematerialize the historical runtime guide`,
       );
-      for (const phrase of modularReviewerSafetyPhrases) {
-        assert.ok(content.includes(phrase), `${file} keeps modular reviewer safety phrase: ${phrase}`);
+      assert.ok(content.includes('proof-or-stop:modular-role-body:v1'), `${file} keeps the canonical modular-body marker`);
+      if (isModularReviewerRoleId(roleId)) {
+        for (const phrase of modularReviewerSafetyPhrases) {
+          assert.ok(content.includes(phrase), `${file} keeps modular reviewer safety phrase: ${phrase}`);
+        }
       }
     } else if (isModularComplexRoleId(roleId)) {
       // Complex roles are assembled from the package registry. Their package
@@ -154,11 +154,9 @@ function assertPromptReductions(): void {
       assert.match(content, /<!-- proof-or-stop:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
       assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
-      const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'
-        ? LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
-        : LEGACY_LOAD_BEARING_PROMPT_SLICE;
+      const expectedLoadBearingSlice = LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE;
       assert.equal(
-        extractLatticeBlock(content),
+        extractCanonicalBlock(content),
         expectedLoadBearingSlice,
         `${file} uses the expected load-bearing prompt slice`,
       );

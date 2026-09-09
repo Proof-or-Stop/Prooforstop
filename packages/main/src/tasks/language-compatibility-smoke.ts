@@ -181,7 +181,7 @@ try {
     // identical operations + evidence schema, language ids as abstract strings.
     for (const target of ['rust', 'go']) {
       const result = cli(redevArgs(target, 'block'));
-      assert.equal(result.schemaVersion, 'lattice.planner_run.v1', `${target}: planner run schema`);
+      assert.equal(result.schemaVersion, 'proof-or-stop.planner_run.v1', `${target}: planner run schema`);
       assert.equal(result.status, 'done', `${target}: deterministic projection runs all steps to completion`);
       const exec = result.execution;
       assert.equal(exec.developmentWorkflow, 'source_aligned_redevelopment', `${target}: workflow tagged on execution`);

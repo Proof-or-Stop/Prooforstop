@@ -8,9 +8,11 @@ import {
 } from '../core/lifecycle-control/consumption/index.js';
 import {
   projectQueueGovernance,
+  QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION,
   setQueueException,
   type QueueExceptionSetInput,
 } from '../core/lifecycle-control/queue/index.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
   projectRuntimeClosure,
   type RuntimeClosureOptions,
@@ -114,6 +116,7 @@ function renderException(result: ReturnType<typeof setQueueException>): string {
 export function createLifecycleControlHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     global_control_status(args: ({ storyIds?: string[]; expanded?: boolean } & FormatArgs) = {}) {
+      assertActiveIdentityConsumerContract('lifecycle-control', QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION);
       assertReadOnlyStatusBoundary('global_control_status', args as Record<string, unknown>);
       const report = buildGlobalControlStatus(ctx.store, ctx.root, {
         storyIds: args.storyIds,

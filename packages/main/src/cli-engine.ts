@@ -25,7 +25,7 @@ import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isRuntimeActivityRoot } from './core/config.js';
-import { formatCommandLifecycleHint, isMemoryRetrievalCommand } from './core/command-policy.js';
+import { commandRequiresAuthoritativeRuntime, formatCommandLifecycleHint, getCommandPolicy, isMemoryRetrievalCommand } from './core/command-policy.js';
 import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
@@ -48,8 +48,16 @@ import {
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
-import { enforceRetiredRootGuard, enforceStoryOwnerLeaseGate, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, storyIdFromArgs } from './cli/ownership-gate.js';
+import {
+  ownerLeaseHelpBlock,
+  storyIdFromArgs,
+  enforceRetiredRootGuard,
+  enforceStoryOwnerLeaseGate,
+  resolveEffectiveOwnershipClass,
+  resolveRawRuntimeAdmissionOwnership,
+} from './cli/ownership-gate.js';
 import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
+import { enforceStoryRuntimeAdmission } from './cli/story-runtime-admission.js';
 import {
   resolveMainRootFromWorktreeRoot,
   resolveRoot,
@@ -72,6 +80,7 @@ import {
 import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
 import {
+  assertCanonicalActiveIdentityRuntime,
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
 } from './core/runtime-environment-checks.js';
@@ -760,7 +769,7 @@ export async function runCli(opts?: {
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
-    // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
+    // so `proof-or-stop proof-or-stop --version` resolves the canonical wrapper once.
   } else if (STRIPPABLE_BIN_TOKENS.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
@@ -777,16 +786,37 @@ export async function runCli(opts?: {
   // not trust the stale runtime's command catalog or schema. The sole exemption
   // remains explicit global-fallback session_brief.
   const root0 = resolveRootForCommand(cmd, rootOverride);
+  const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
+    ? loadConfig(root0)
+    : undefined;
+  const rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
+    cmd || 'help',
+    argv.slice(1),
+    externalAdmission.ownershipClasses,
+    { config: runtimeOwnershipConfig },
+  );
   const runtimeAuthority = classifyRuntimeEntrypointAuthority({
     command: cmd || 'help',
     commandArgs: argv.slice(1),
     projectRoot: root0,
     invokedEntrypoint: process.argv[1] ?? null,
     env: process.env,
-    requiresAuthoritativeRuntime: true,
+    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(cmd || 'help', rawRuntimeOwnership),
   });
   if (runtimeAuthority.status === 'blocked') {
     process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
+    process.exitCode = 1;
+    return;
+  }
+
+  // B-49df F-050: command-specific active identity boundaries are checked
+  // against the exact loaded runtime bytes before argument parsing, Story
+  // reads, hooks, handlers, activity/process events, or any other mutation.
+  // Historical artifacts remain outside this active runtime registry.
+  try {
+    assertCanonicalActiveIdentityRuntime({ command: cmd || 'help', projectRoot: root0 });
+  } catch (error: any) {
+    process.stderr.write(`Error: ${error.message}\n`);
     process.exitCode = 1;
     return;
   }
@@ -940,7 +970,7 @@ export async function runCli(opts?: {
     process.stderr.write(`[${elapsed}s] ${msg}\n`);
   };
 
-  const config0 = loadConfig(root);
+  const config0 = runtimeOwnershipConfig ?? loadConfig(root);
   const scanRoot = join(root, config0.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);
@@ -1252,7 +1282,7 @@ export async function runCli(opts?: {
     // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
     // so no post-command process-event surface can bypass the contract.
     const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
-    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses);
+    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
     if (eventOwnership === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
@@ -1370,7 +1400,7 @@ export async function runCli(opts?: {
     // before the owner lease gate, so a blocked command cannot trigger hooks
     // or acquire/mutate lease state.
     try {
-      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses);
+      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses, config0);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1397,8 +1427,33 @@ export async function runCli(opts?: {
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
     const commandStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
-    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses);
+    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    try {
+      enforceStoryRuntimeAdmission({
+        command: cmd,
+        commandArgs: argv.slice(1),
+        projectRoot: root,
+        effectiveOwnership,
+        invokedEntrypoint: process.argv[1] ?? null,
+        env: process.env,
+      });
+    } catch (e: any) {
+      clearInterval(watchdog);
+      log(`${cmd} failed: ${e.message}`);
+      process.stderr.write(`Error: ${e.message}\n`);
+      process.exitCode = 1;
+      return;
+    }
     const effectiveReadOnly = effectiveOwnership === 'readOnly' || isReadOnlyCommand(cmd, parsed);
+    // Some commands are read-only only after argument-aware ownership resolution
+    // (for example role-only agent_prompt and the release-ledger readers). Keep
+    // activity logging on the same effective boundary as hooks and Story process
+    // events: a rejected read must not create a runtime output merely because its
+    // command name is absent from the older static READ_ONLY_COMMANDS set. The
+    // explicit telemetry opt-in still records read-only invocations by design.
+    const shouldWriteEffectiveActivityLog = effectiveReadOnly
+      ? readBrandEnv('ACTIVITY_RECORD_READONLY') === '1'
+      : shouldWriteActivityLog(cmd, parsed);
     if (config0?.hooks?.preCommand && !effectiveReadOnly) {
       process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
@@ -1424,7 +1479,7 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, externalAdmission.ownershipClasses);
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, externalAdmission.ownershipClasses, config0);
       // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
       // (which owns the canonical-storyId / path-traversal guard and the ownership
       // check) so the breaker only ever derives a story path and writes state for a
@@ -1467,7 +1522,7 @@ export async function runCli(opts?: {
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
       const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
-      if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
+      if (shouldWriteEffectiveActivityLog || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: commandSucceeded, ...(!commandSucceeded ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
       const closesCanonicalTerminal = !structuredDoneFailure
@@ -1539,7 +1594,7 @@ export async function runCli(opts?: {
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
-      if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
+      if (shouldWriteEffectiveActivityLog || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
       // B-bbaf CHK-006: a FAILED story_advance is a phase-GATE rejection — bump

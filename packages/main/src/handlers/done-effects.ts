@@ -45,7 +45,7 @@ import { maybeTriggerAudit } from '../core/audit-trigger.js';
 import { randomUUID } from 'crypto';
 import { execFileSync, execSync, spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
-import { existsSync, rmSync } from 'fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { repairGlobalProofOrStopLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
@@ -229,6 +229,59 @@ function renderArtifactReleaseDoneLine(result: RecordArtifactReleaseResult): str
   return `✓ artifact release ${verb}: story=${result.record.storyId} commit=${result.record.mainCommit} artifactSetDigest=${result.record.artifactSetDigest} paths=${result.record.paths.length}`;
 }
 
+type LedgerBytesBeforeWrite = { path: string; bytes: Buffer | null };
+
+function captureLedgerBytes(root: string, relPath: string): LedgerBytesBeforeWrite {
+  const path = join(root, relPath);
+  return { path, bytes: existsSync(path) ? readFileSync(path) : null };
+}
+
+function restoreLedgerBytes(snapshot: LedgerBytesBeforeWrite): void {
+  if (snapshot.bytes === null) {
+    rmSync(snapshot.path, { force: true });
+    return;
+  }
+  writeFileSync(snapshot.path, snapshot.bytes);
+}
+
+/**
+ * Run the repository identity policy before the lifecycle persists phase=DONE.
+ * The post-append checks below remain necessary because they validate the newly
+ * produced release row; this earlier check closes the transition-wiring gap by
+ * ensuring an already-red identity tree leaves the Story in TEST.
+ */
+export function verifyIdentityCutoverBeforeDoneStateMutation(root: string): void {
+  const verifier = join(root, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs');
+  if (!existsSync(verifier)) return;
+  const result = spawnSync(process.execPath, [verifier], { cwd: root, encoding: 'utf8' });
+  if (result.status === 0) return;
+  throw new Error(
+    `DONE identity verification failed before phase mutation; story remains in TEST.\n` +
+    `${result.stdout ?? ''}${result.stderr ?? ''}`.trim(),
+  );
+}
+
+/**
+ * A release row is still uncommitted here. The repository identity verifier is
+ * therefore a pre-commit admission check: on failure the exact prior ledger
+ * bytes are restored, so DONE cannot persist an identity-red release commit.
+ * External consumer projects do not ship this repository-only policy script.
+ */
+function verifyIdentityCutoverBeforeLedgerCommit(
+  root: string,
+  snapshot: LedgerBytesBeforeWrite,
+): void {
+  const verifier = join(root, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs');
+  if (!existsSync(verifier)) return;
+  const result = spawnSync(process.execPath, [verifier], { cwd: root, encoding: 'utf8' });
+  if (result.status === 0) return;
+  restoreLedgerBytes(snapshot);
+  throw new Error(
+    `DONE release identity verification failed before commit; ledger bytes restored.\n` +
+    `${result.stdout ?? ''}${result.stderr ?? ''}`.trim(),
+  );
+}
+
 export function commitArtifactReleaseLedgerIfNeeded(
   mainMergeRoot: string,
   storyId: string,
@@ -278,6 +331,8 @@ export function runArtifactReleaseLedgerAfterDoneMergeDetailed(
   }
 
   const ledgerRoot = resolveArtifactReleaseLedgerRoot(mainMergeRoot);
+  const ledgerBefore = captureLedgerBytes(ledgerRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH);
+  verifyIdentityCutoverBeforeLedgerCommit(ledgerRoot, ledgerBefore);
   const artifactReleaseResult = recordArtifactReleaseForDoneMerge({
     root: ledgerRoot,
     gitCwd: mainMergeRoot,
@@ -287,6 +342,7 @@ export function runArtifactReleaseLedgerAfterDoneMergeDetailed(
     runtimeSemverChanged: opts.runtimeSemverChanged ?? shouldBuildDoneMainPackageForChangedPaths(changedPaths),
     isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
   });
+  verifyIdentityCutoverBeforeLedgerCommit(ledgerRoot, ledgerBefore);
   commitArtifactReleaseLedgerIfNeeded(ledgerRoot, storyId, artifactReleaseResult, opts.runGit);
   return { line: renderArtifactReleaseDoneLine(artifactReleaseResult), record: artifactReleaseResult.record };
 }
@@ -346,6 +402,8 @@ export function runCapabilityReleaseLedgerAfterDoneMerge(
 ): string | null {
   const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
   const ledgerRoot = resolveCapabilityReleaseLedgerRoot(mainMergeRoot);
+  const ledgerBefore = captureLedgerBytes(ledgerRoot, CAPABILITY_RELEASE_LEDGER_REL_PATH);
+  verifyIdentityCutoverBeforeLedgerCommit(ledgerRoot, ledgerBefore);
   const capabilityReleaseResult = recordCapabilityReleaseForDoneMerge({
     root: ledgerRoot,
     storyId,
@@ -357,6 +415,7 @@ export function runCapabilityReleaseLedgerAfterDoneMerge(
     isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
   });
   if (capabilityReleaseResult.status === 'skipped_empty') return null;
+  verifyIdentityCutoverBeforeLedgerCommit(ledgerRoot, ledgerBefore);
   commitCapabilityReleaseLedgerIfNeeded(ledgerRoot, storyId, capabilityReleaseResult, opts.runGit);
   return renderCapabilityReleaseDoneLine(capabilityReleaseResult);
 }
@@ -394,7 +453,7 @@ function appendDoneCandidateIngestHealth(
   return withLearningStoreLock(projectRoot, 'playbook-done-candidate-ingest-health', () => {
     const observedAt = new Date().toISOString();
     const result = appendPlaybookPromotionHealthEvent(projectRoot, {
-      schemaVersion: 'proofbound.playbook-promotion-health.v1',
+      schemaVersion: 'proof-or-stop.playbook-promotion-health.v1',
       eventId: `PBH-${randomUUID()}`,
       idempotencyKey: `post-done-candidate-ingest:${storyId}:${status}:${candidateHealthKeyPart(keyPart)}`,
       observedAt,
@@ -513,7 +572,7 @@ export function runPostDoneLearningSettlement(projectRoot: string, storyId: stri
     const settlement = withLearningStoreLock(projectRoot, 'playbook-done-settlement', () => {
       const observedAt = new Date().toISOString();
       const result = appendPlaybookPromotionHealthEvent(projectRoot, {
-        schemaVersion: 'proofbound.playbook-promotion-health.v1',
+        schemaVersion: 'proof-or-stop.playbook-promotion-health.v1',
         eventId: `PBH-${randomUUID()}`,
         idempotencyKey: `post-done-learning-settlement:${storyId}`,
         observedAt,
@@ -911,6 +970,7 @@ export async function runDonePreMergeGate(
   // B-c622 CL-006: autoSyncMain moved before actor.can() to fix TOCTOU.
 
   const rendered = runDoneOracleGate(storyId, store, root, actor, gitCwd);
+  verifyIdentityCutoverBeforeDoneStateMutation(gitCwd);
 
   // F-020 (B-9d95 Round 1 review): stray-file 检测提前到 phase=DONE 落盘
   // 之前。原实现（Step 2.5，line 632 附近）在 story.phase=DONE +

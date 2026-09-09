@@ -9,6 +9,8 @@ import {
 import { FLOW_FACT_POLICIES } from './flow-fact-policy.js';
 import { PROCESS_FACT_LEVELS, type ProcessFactLevel, type ProcessFactLevelEntry } from './process-fact-levels.js';
 
+export const CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION = 'proof-or-stop.candidate-spec-set.v1' as const;
+
 export type ProcessFactKind =
   | 'command'
   | 'runtime-behavior'
@@ -191,11 +193,11 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
-  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_pin_narrow: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   verification_intent_recover: ['signed-artifact','verification-policy','gate-evidence'],
   verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
@@ -311,6 +313,8 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  'runtime:verification_execution_key_producer_lock': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:closeout_artifact_trust_boundary': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
@@ -343,7 +347,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'certification-window.json',
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow',
-    producerCommand: 'certification_window_status',
+    producerCommand: 'certification_window_status --refresh=true (default status is read-only)',
     consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
   },
   certification_window_cancel: {
@@ -397,7 +401,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'prompt-envelopes.json',
     signed: false,
     producerCommand: 'agent_prompt/review_run_start',
-    consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates',
+    consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates. Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
   },
   closeout_write_receipt: {
     name: 'closeout-write-receipts.jsonl',
@@ -424,7 +428,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review.json',
     path: 'review.json',
     signed: true,
-    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:lattice-review-integrity-v1)',
+    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:proof-or-stop-review-integrity-v1)',
     producerCommand: 'story_review',
     consumerGate: 'storyMachine.canStartDev PLAN to DEV gate',
   },
@@ -432,7 +436,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'candidate-spec-set.json',
     path: 'candidate-spec-set.json',
     signed: true,
-    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings',
+    signature: `artifactDigest over ${CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION} canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings`,
     producerCommand: 'candidate_spec_route',
     consumerGate: 'scope_check_save, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate',
   },
@@ -450,7 +454,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_add',
-    consumerGate: 'validate verification coverage and freshness gates',
+    consumerGate: 'validate verification coverage and freshness gates; signed V5 currentness binds the actual invocation environment and child-cwd executable bytes separately from the absolute host runtime, and unprovable executable resolution fails closed',
   },
   verification_evidence_batch_add: {
     name: 'checklist.json',
@@ -464,7 +468,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; selector-free physical execution keys bind signed causal identity and receipt-keyed import checks, while assertion keys independently bind selector/type/kind/timeout provenance; actual child launch occurs inside the causal runner after its last-moment preflight, never before a post-run readiness check; an observation-only identifier prevents a real ordinary rerun from borrowing an older CAS observation and never enters physical grouping; V3 execution time projects the actual signed causal source, and V5 fan-out preserves its immutable bytes/time; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
@@ -644,7 +648,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures. Explicit critic reviewPurpose and inventoryBinding use a versioned signature suffix; absent legacy fields retain their old signature domain but never authorize a new inventory receipt. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. In full-envelope mode promptHash equals the exact assembledPrompt domain digest and envelopeId signs the immutable run-start finding projection.',
+    signature: 'signReviewRun/verifyReviewRun; Explicit critic reviewPurpose and inventoryBinding use a versioned signature suffix; absent fields never authorize a new inventory receipt. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and Prompt Envelope envelopeId are folded into new review-run signatures. Active ReviewRun, scopeBinding, and workspaceBinding objects use exact-field allowlists before signature verification, so an unknown or mixed nested identity cannot hide outside the signed domain. promptHash equals the exact assembledPrompt domain digest, so the delivered bytes are mechanically bound and compared to canonical proof-or-stop.* runtime/role/task assembly by REVIEW consumers. Rows from the retired identity family are inert historical bytes and current REVIEW admission rejects them without a compatibility fallback.',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -730,7 +734,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'execution-boundary.json',
     path: 'execution-boundary.json',
     signed: true,
-    signature: 'stable execution boundary _hash over schemaVersion/storyId/allowedCommands/allowedTools/excludedCommands/excludedTools',
+    signature: 'stable execution boundary _hash over schemaVersion/storyId/allowedCommands/allowedTools/excludedCommands/excludedTools; canonical new-write schema proof-or-stop.execution_boundary.v1.1 with exact signed historical lattice.execution_boundary.v1 read compatibility',
     producerCommand: 'execution_boundary_set',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
@@ -738,7 +742,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'scope-freeze-check.json',
     path: 'scope-freeze-check.json',
     signed: true,
-    signature: 'stable scope freeze _hash plus freshnessHash over bounded story/checklist projection and boundary hashes',
+    signature: 'stable scope freeze _hash plus freshnessHash over bounded story/checklist projection and boundary hashes; canonical new-write schema proof-or-stop.scope_freeze_check.v1.1 with exact signed historical lattice.scope_freeze_check.v1 read compatibility',
     producerCommand: 'scope_freeze_check',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
@@ -1081,10 +1085,56 @@ function commandPolicy(name: string): CommandPolicy | undefined {
   return COMMAND_POLICIES[name as KnownCommandName] as CommandPolicy | undefined;
 }
 
+const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
+  producerSourceRefs: readonly string[];
+  consumerSourceRefs: readonly string[];
+}> = {
+  'verification_pin_narrow': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/verification.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:verification_execution_assertion_reuse_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/core/evidence-freshness.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/machine.ts',
+      'packages/main/src/core/lifecycle-readiness.ts',
+      'packages/main/src/handlers/phase-gates.ts',
+      'packages/main/src/handlers/verifier.ts',
+      'packages/main/src/handlers/done-prepare.ts',
+      'packages/main/src/handlers/certification-window.ts',
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/review-inventory-epoch.ts',
+    ],
+  },
+  'runtime:verification_execution_key_producer_lock': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+  },
+};
+
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
   .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
   .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
+  const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
@@ -1099,17 +1149,17 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
-    producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    producerSourceRefs: sourceRefs?.producerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
-      : undefined,
+      : undefined),
     consumerGate: entry.gateConsumer,
-    consumerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    consumerSourceRefs: sourceRefs?.consumerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
-      : undefined,
+      : undefined),
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -1137,6 +1187,17 @@ export const PROCESS_FACT_REVIEWER_LANES = PROCESS_FACT_REVIEWER_LANE_DEFINITION
 })) as readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_ARTIFACTS = [
+  {
+    name: 'artifact:.proof-or-stop/capability-releases.jsonl',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'normalization-policy'],
+    level: 'L1',
+    gateEvidence: false,
+    producer: 'core/capability-release buildCapabilityReleaseRecord and appendCapabilityReleaseRecord',
+    consumerGate: 'Post-DONE identity audit and read-only capability lineage inspection; never gate evidence',
+    artifact: { name: 'capability-releases.jsonl', path: '.proof-or-stop/capability-releases.jsonl', signed: false },
+    rationale: 'Current writes require changedPathsScope=capability-material, an actual classifier subset, and recomputed capabilityDigest before idempotency. Unmarked canonical v1 remains historical read-only data; retired schemas remain rejected.',
+  },
   {
     name: 'artifact:index.json',
     kind: 'artifact',
@@ -1277,7 +1338,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
     consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
-    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. Exact static topology projection requires a discovery-owned path and either identical existing refs or the uniquely resolved planned producer endpoint identity, role, file, and symbol; mismatched relationships and command-ref shortcuts remain outside the basis. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
   },
   {
     name: 'artifact:pre-review-check.json',
@@ -1325,7 +1386,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'topology_critic_receipt_check CLI verification only',
     consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
-    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Partial or unsupported discovery remains non-pass.',
+    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
   },
   {
     name: 'artifact:milestone-ledger.json',
@@ -1454,7 +1515,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1464,7 +1525,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical assembledPrompt bytes delivered by review_run_start.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and the exact canonical proof-or-stop.* assembledPrompt bytes delivered by review_run_start. Exact-field allowlists and nested scope/workspace binding verification reject mixed or unsigned identity-bearing extensions. Runs from the retired identity family remain inert historical bytes; verifyReviewRun and current REVIEW gates reject them without a compatibility fallback.',
   },
   {
     name: 'artifact:review-inventory-epochs.json',
@@ -1532,7 +1593,7 @@ export const PROCESS_FACT_ARTIFACTS = [
       path: 'finding-ledger.json',
       signed: true,
       signature: 'FindingLedgerReceipt covers each immutable finding_projection record and its exact source-record/current-chain CAS binding',
-      producerCommand: 'audit/gap_log/finding_cluster/finding_list/validate/signature_backfill',
+      producerCommand: 'audit/gap_log/finding_cluster/validate/signature_backfill',
       consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     },
     rationale: 'Legacy live mutation surfaces gain durable exactly-once current-state authority only through a current-key exact-signed source-bound projection; unsigned findings.json changes remain non-authoritative.',
@@ -1674,9 +1735,9 @@ export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
     kind: 'runtime-behavior',
     semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
     level: 'L4',
-    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory readDevMemoryFinishDecision',
+    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory inspectDevMemoryFinishDecision',
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
-    rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate. A missing or malformed record yields missing_dev_memory_finish_decision; the projection reads but never creates or repairs the record.',
+    rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate from one inspection. Only the byte-exact proof-or-stop.dev-memory-finish-decision.v1 schema is admitted; a parsed unsupported schema yields unsupported_identity with its artifact site and bounded JSON-safe value, never a missing-record claim. A missing or malformed record yields missing_dev_memory_finish_decision; the record-only reader retains null compatibility and the projection never creates or repairs the record.',
   },
   {
     name: 'runtime:done_phase_agnostic_reviewer_verdict',
@@ -1722,6 +1783,11 @@ export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
   },
   {
     blockerCode: 'missing_dev_memory_finish_decision',
+    processFactName: 'runtime:done_finish_decision_presence',
+    oracleRowId: 'dev-memory-finish-decision',
+  },
+  {
+    blockerCode: 'unsupported_identity',
     processFactName: 'runtime:done_finish_decision_presence',
     oracleRowId: 'dev-memory-finish-decision',
   },

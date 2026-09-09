@@ -12,15 +12,8 @@ const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
-    // B-cc10 F-077: accept EITHER config filename. This probe pinned the deprecated name,
-    // which this story renamed — so in this worktree the check failed at the real root and
-    // the loop walked UP into the parent checkout, silently resolving repoRoot to the
-    // unmerged main clone. Every subsequent path (adapter agents dirs, docs) was then read
-    // from the wrong tree, which is what produced the ENOENT on
-    // `.proof-or-stop-codex/agents`. A root probe must recognise both spellings for exactly
-    // as long as read-both support exists, or it walks out of the tree it is meant to find.
     if (
-      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'proof-or-stop.config.json')))
+      existsSync(join(dir, 'proof-or-stop.config.json'))
       && existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;
@@ -36,14 +29,7 @@ function read(path: string): string {
 }
 
 function agentFiles(dir: string): string[] {
-  // B-cc10 F-077: tolerate an ABSENT directory instead of throwing ENOENT. The list below
-  // deliberately names BOTH adapter spellings (read-both), and by construction only one of
-  // them exists in any given checkout: this worktree has the canonical dir and no deprecated
-  // one, while an unmerged main has the deprecated dir and no canonical one. An unguarded
-  // readdirSync therefore throws in BOTH directions — it made the read-both list itself
-  // unusable. Returning [] for a missing dir is correct here; the F-055 concern (a renamed
-  // root silently yielding zero files) is still covered because the OTHER spelling supplies
-  // the files, and the assertion below fails if the combined set is empty.
+  // An optional managed-agent directory may be absent in registry-backed thin mode.
   const absolute = join(repoRoot, dir);
   if (!existsSync(absolute)) return [];
   return readdirSync(absolute)
@@ -56,8 +42,6 @@ const targetDocs = [
   'packages/main/src/cli-prompts.ts',
   ...agentFiles('packages/main/templates/agents'),
   ...agentFiles('.claude/agents'),
-  // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
-  ...agentFiles('.proof-or-stop-codex/agents'),
   ...agentFiles('.proof-or-stop-codex/agents'),
 ];
 
@@ -105,7 +89,11 @@ assert.match(
   /`proof-or-stop` is the current command entry point and the only active product command/i,
   'guide states the canonical active command entry',
 );
-assert.match(projectVision, /`proof-or-stop` is the 0\.3\.5 active product entry/, 'project vision states proof-or-stop as active product entry');
+assert.match(
+  projectVision,
+  /`proof-or-stop` is the active product entry[\s\S]{0,160}do not accept the retired pre-cutover command as a compatibility alias/i,
+  'project vision states the canonical-only active product entry without pinning an obsolete release number',
+);
 assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
 
 for (const file of targetDocs) {
@@ -172,8 +160,9 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('proof-or-stop-session-brief-legacy-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-bash-');
   try {
+    mkdirSync(join(root, '.git'));
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
@@ -190,18 +179,25 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('proof-or-stop-session-brief-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-retired-command-');
   try {
+    mkdirSync(join(root, '.git'));
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
-    writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
-      tool: 'Bash',
-      detail: 'proof-or-stop session_brief',
-      args: { command: 'proof-or-stop session_brief' },
-      endTime: new Date().toISOString(),
-    }) + '\n');
-    const result = runHook(root, JSON.stringify({ cwd: root }));
-    assert.equal(result.status, 0);
-    assert.equal(result.output, '');
+    const retiredCommands = [
+      [['lat', 'tice'].join(''), 'session_brief'].join(' '),
+      ['node bin/', 'lat', 'tice.js session_brief'].join(''),
+    ];
+    for (const command of retiredCommands) {
+      writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
+        tool: 'Bash',
+        detail: command,
+        args: { command },
+        endTime: new Date().toISOString(),
+      }) + '\n');
+      const result = runHook(root, JSON.stringify({ cwd: root }));
+      assert.equal(result.status, 0);
+      assert.match(result.output, new RegExp(reminder), `${command} must not count as a fresh canonical heartbeat`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -210,6 +206,7 @@ function tmpRoot(prefix: string): string {
 {
   const root = tmpRoot('proof-or-stop-session-brief-story-bash-');
   try {
+    mkdirSync(join(root, '.git'));
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',

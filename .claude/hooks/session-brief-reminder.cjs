@@ -8,12 +8,6 @@ const path = require('path');
 
 const DEFAULT_FRESH_MINUTES = 60;
 const REMINDER = 'Suggest running proof-or-stop session_brief first to restore context';
-const PROOF_OR_STOP_STATE_DIR = '.proof-or-stop';
-const PROOF_OR_STOP_CONFIG_FILENAME = 'proof-or-stop.config.json';
-// Legacy names are read-only compatibility fallbacks. New state is written by
-// the CLI under the canonical Proof-or-Stop names above.
-const LEGACY_STATE_DIR = '.lattice';
-const LEGACY_CONFIG_FILENAME = 'lattice.config.json';
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -47,8 +41,6 @@ function parseHookInput(raw) {
 function freshnessThresholdMs() {
   const configured = Number(
     process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
-      || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
-      || process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
       || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
       || DEFAULT_FRESH_MINUTES,
   );
@@ -149,17 +141,9 @@ function containsSessionBriefCommand(value) {
   const end = '(?:$|[\\s;&|()])';
   const envPrefix = '(?:[\\w.-]+=\\S+\\s+)*';
 
-  // Canonical command forms are checked first. This includes the local
-  // canonical wrappers and the built CLI used by repository-local hooks.
-  if (
-    new RegExp(`${boundary}${envPrefix}proof-or-stop\\s+session_brief${end}`).test(command)
+  // Recognize only canonical command forms, including local wrappers and the
+  // built CLI used by repository-local hooks.
+  return new RegExp(`${boundary}${envPrefix}proof-or-stop\\s+session_brief${end}`).test(command)
     || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?bin\\/proof-or-stop(?:-codex)?\\.js\\s+session_brief${end}`).test(command)
-    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?packages\\/main\\/dist\\/cli\\.js\\s+session_brief${end}`).test(command)
-  ) {
-    return true;
-  }
-
-  // Explicit legacy read-only fallback for pre-migration command records.
-  return new RegExp(`${boundary}${envPrefix}lattice\\s+session_brief${end}`).test(command)
-    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?bin\\/lattice\\.js\\s+session_brief${end}`).test(command);
+    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?packages\\/main\\/dist\\/cli\\.js\\s+session_brief${end}`).test(command);
 }

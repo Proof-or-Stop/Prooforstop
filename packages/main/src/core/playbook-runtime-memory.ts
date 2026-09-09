@@ -5,6 +5,7 @@ import { digestCanonicalJson, digestText } from './digest.js';
 import {
   attachSupersessionStatus,
   buildSupersessionProjection,
+  containsRetiredMemoryIdentity,
   readGlobalMemoryEntries,
   readProjectMemoryEntries,
   resolveGlobalMemoryReadPaths,
@@ -69,7 +70,7 @@ export type RuntimePrimaryFailureSignal =
   | 'explicitly-substituted';
 
 export interface MemoryFreshnessPack {
-  schemaVersion: 'proofbound.memory-pack.v1';
+  schemaVersion: 'proof-or-stop.memory-pack.v1';
   generatedAt: string;
   projectRoot: string;
   query: string;
@@ -191,7 +192,8 @@ interface PlaybookMatch {
   confidence: 'high' | 'medium' | 'low';
 }
 
-const SCHEMA_VERSION = 'proofbound.memory-pack.v1' as const;
+export const MEMORY_PACK_SCHEMA_VERSION = 'proof-or-stop.memory-pack.v1' as const;
+const SCHEMA_VERSION = MEMORY_PACK_SCHEMA_VERSION;
 const DEFAULT_MAX_ENTRIES = 5;
 const DEFAULT_MAX_PLAYBOOKS = 5;
 const RENDER_MAX_LINES = 60;
@@ -291,6 +293,7 @@ function selectDevMemoryEntries(
   selected: DevMemoryEntry[];
   suppressed: DevMemoryEntry[];
 } {
+  entries = entries.filter(entry => !containsRetiredMemoryIdentity(entry));
   const projection = buildSupersessionProjection(entries);
   const raw = query.trim()
     ? searchEntries(entries, { query, limit: Math.max(entries.length, maxEntries) })
@@ -443,6 +446,7 @@ export function runtimeMemoryTopHits(pack: MemoryFreshnessPack, limit = 8): Runt
 }
 
 export function renderMemoryFreshnessPackSummary(pack: MemoryFreshnessPack): string {
+  if (containsRetiredMemoryIdentity(pack)) return 'Memory omitted: noncanonical identity';
   const hits = runtimeMemoryTopHits(pack);
   return [
     `memoryPackDigest: ${pack.packDigest}`,
@@ -873,6 +877,7 @@ export function classifyMemoryFreshnessPack(
 }
 
 export function renderMemoryFreshnessPack(pack: MemoryFreshnessPack): string {
+  if (containsRetiredMemoryIdentity(pack)) return 'Memory omitted: noncanonical identity';
   const lines = buildRenderLines(pack);
   const maxLines = Math.min(RENDER_MAX_LINES, Math.max(1, pack.render.maxLines));
   if (lines.length <= maxLines) return lines.join('\n');
@@ -893,7 +898,7 @@ export function renderMemoryFreshnessPack(pack: MemoryFreshnessPack): string {
 export type FinishDecision = 'captured' | 'no-reusable-lesson' | 'defer-with-reason';
 
 export interface FinishDecisionRecord {
-  schemaVersion: 'proofbound.dev-memory-finish-decision.v1';
+  schemaVersion: 'proof-or-stop.dev-memory-finish-decision.v1';
   storyId?: string;
   decision: FinishDecision;
   reason: string;
@@ -916,26 +921,35 @@ export function finishDecisionPath(root: string, pathSegment: string): string {
 
 const FINISH_DECISION_VALUES: readonly FinishDecision[] = ['captured', 'no-reusable-lesson', 'defer-with-reason'];
 
-/**
- * Reads the finish-decision record for `storyId`, or `null` on missing/
- * corrupt/malformed input (fail-closed for the DONE gate's purposes — a
- * corrupt record is treated exactly the same as no record at all). Never
- * throws.
- */
-export function readDevMemoryFinishDecision(root: string, storyId: string): FinishDecisionRecord | null {
+/** Inspect once so lifecycle consumers retain unsupported-schema attribution. */
+export function inspectDevMemoryFinishDecision(root: string, storyId: string): {
+  record: FinishDecisionRecord | null;
+  unsupportedIdentity?: string;
+} {
   try {
     const path = finishDecisionPath(root, storyId);
-    if (!existsSync(path)) return null;
+    if (!existsSync(path)) return { record: null };
     const raw: unknown = JSON.parse(readFileSync(path, 'utf-8'));
-    if (!raw || typeof raw !== 'object') return null;
+    if (!raw || typeof raw !== 'object') return { record: null };
     const record = raw as Partial<FinishDecisionRecord>;
-    if (!FINISH_DECISION_VALUES.includes(record.decision as FinishDecision)) return null;
+    if (record.schemaVersion !== 'proof-or-stop.dev-memory-finish-decision.v1') {
+      const rendered = JSON.stringify(record.schemaVersion) ?? 'undefined';
+      const value = rendered.length > 180 ? JSON.stringify(`${rendered.slice(0, 160)}…`) : rendered;
+      return { record: null, unsupportedIdentity: `unsupported identity at ${path}#schemaVersion: ${value}` };
+    }
+    if (!FINISH_DECISION_VALUES.includes(record.decision as FinishDecision)) return { record: null };
     // Cross-story artifact reuse defense: the path is already namespaced by
     // storyId, but if the record itself names a DIFFERENT storyId, reject it
     // rather than trust a hand-crafted/copied file.
-    if (typeof record.storyId === 'string' && record.storyId !== storyId) return null;
-    return record as FinishDecisionRecord;
+    if (typeof record.storyId === 'string' && record.storyId !== storyId) return { record: null };
+    return { record: record as FinishDecisionRecord };
   } catch {
-    return null;
+    // Missing, unreadable or malformed records retain fail-closed absence.
+    return { record: null };
   }
+}
+
+/** Compatibility record-only API: rejected input remains null and never throws. */
+export function readDevMemoryFinishDecision(root: string, storyId: string): FinishDecisionRecord | null {
+  return inspectDevMemoryFinishDecision(root, storyId).record;
 }

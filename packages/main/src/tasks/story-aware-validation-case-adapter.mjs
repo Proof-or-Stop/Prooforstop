@@ -13,13 +13,9 @@ import { resolve } from 'node:path';
 import { validationChildEnvironment } from './validation-child-environment.mjs';
 
 const env = process.env;
-// B-45a0 F-447: read BOTH spellings, preferring the canonical PROOF_OR_STOP_*
-// name, per brand-rename-mapping.md's rule for LATTICE_* env vars ("Read both
-// names, preferring the new one. Never require the new name."). The producer in
-// handlers/story-aware-validation.ts now emits the canonical names; the
-// deprecated spelling stays readable so an already-exported env keeps working.
-const readShardEnv = (suffix) =>
-  env[`PROOF_OR_STOP_VALIDATION_${suffix}`] ?? env[`LATTICE_VALIDATION_${suffix}`];
+// Current shard authority requires the canonical environment contract. An
+// obsolete caller must fail before a directory or evidence file is created.
+const readShardEnv = (suffix) => env[`PROOF_OR_STOP_VALIDATION_${suffix}`];
 const registryPath = readShardEnv('SHARD_CASE_REGISTRY');
 const shardDir = readShardEnv('SHARD_DIR');
 const domain = readShardEnv('SHARD_DOMAIN');

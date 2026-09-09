@@ -229,7 +229,7 @@ function realClaudePolicy(opts: {
   allowRealHostSubprocess?: boolean;
 }): DispatchPolicyWithRealHost {
   return {
-    schemaVersion: 'lattice.dispatch_policy.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy.v1',
     policy: opts.policy,
     allowedHosts: ['claude-code'],
     allowedPaths: opts.allowedPaths,
@@ -290,7 +290,7 @@ try {
     allowAutoMerge: false,
     allowProductionDone: false,
   });
-  assert.equal(policy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policy.schemaVersion, 'proof-or-stop.dispatch_policy.v1');
   assert.equal(policy.policy, 'unattended-safe');
   assert.deepEqual(policy.allowedHosts, ['fake']);
   assert.equal(policy.allowAutoMerge, false, 'policy must not allow auto-merge');
@@ -298,7 +298,7 @@ try {
   assertAuthorityFalse(policy, 'policy');
 
   const policyCheck = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'unattended-safe' });
-  assert.equal(policyCheck.schemaVersion, 'lattice.dispatch_policy_check.v1');
+  assert.equal(policyCheck.schemaVersion, 'proof-or-stop.dispatch_policy_check.v1');
   assert.equal(policyCheck.authorized, true, 'bounded policy must be authorized');
   assert.equal(policyCheck.status, 'authorized');
   assert.equal(policyCheck.reasons.length, 0, 'authorized policy must have no denial reasons');
@@ -312,7 +312,7 @@ try {
 
   const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
   assert.equal(claudeProbe.host, 'claude-code');
-  assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.equal(claudeProbe.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
   // Structured capability fields are always present
   assert.ok(
     ['detected', 'unavailable', 'unknown'].includes(claudeProbe.versionStatus),
@@ -376,8 +376,8 @@ try {
     allowedPaths: ['packages/main/src/generated/unattended-parallel.txt'],
     objective: 'CHK-008 unattended fake parallel flow',
   });
-  assert.equal(autoResult.schemaVersion, 'lattice.dispatch_auto.v1',
-    'dispatch_auto must return lattice.dispatch_auto.v1 schema');
+  assert.equal(autoResult.schemaVersion, 'proof-or-stop.dispatch_auto.v1',
+    'dispatch_auto must return proof-or-stop.dispatch_auto.v1 schema');
   assert.equal(autoResult.status, 'accepted_local',
     'authorized fake dispatch_auto must reach accepted_local');
   assert.equal(autoResult.policy, 'fake', 'dispatch_auto result must echo policy name');
@@ -387,8 +387,8 @@ try {
   // ── Step 4: dispatch_watch reports lifecycle/runner status ────────────────────
 
   const watchResult = run<DispatchWatchResult>('dispatch_watch', { dispatchId: autoResult.dispatchId });
-  assert.equal(watchResult.schemaVersion, 'lattice.dispatch_watch.v1',
-    'dispatch_watch must return lattice.dispatch_watch.v1 schema');
+  assert.equal(watchResult.schemaVersion, 'proof-or-stop.dispatch_watch.v1',
+    'dispatch_watch must return proof-or-stop.dispatch_watch.v1 schema');
   assert.equal(watchResult.dispatchId, autoResult.dispatchId,
     'dispatch_watch dispatchId must match');
   assert.equal(watchResult.storyId, 'B-unattended',
@@ -858,7 +858,7 @@ try {
   {
     const timeoutCommand = 'node -e "setTimeout(function () {}, 200)"';
     writeDispatchPolicy(root, {
-      schemaVersion: 'lattice.dispatch_policy.v1',
+      schemaVersion: 'proof-or-stop.dispatch_policy.v1',
       policy: 'chk008-timeout',
       allowedHosts: ['fake'],
       allowedPaths: ['packages/main/src/generated/timeout.txt'],

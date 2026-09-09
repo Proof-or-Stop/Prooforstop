@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { canonicalJsonStringify } from '../../packages/main/dist/core/prompt-contracts.js';
 import { validateExperiment } from './lib/replay.mjs';
 import { deriveClaudeCompatibleSchema } from './lib/story6-schema-compat.mjs';
+import { assertCanonicalStory6Provenance, isCanonicalStory6Provenance } from './lib/story6-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_RUNTIME = path.join(HERE, 'runtime', 'story6');
@@ -36,23 +37,24 @@ function sha256(value) {
 
 function boundDigest(domain, value) {
   return createHash('sha256')
-    .update(`proofbound.story6-ab.v1\0${domain}\0`, 'utf8')
+    .update(`proof-or-stop.story6-ab.v1\0${domain}\0`, 'utf8')
     .update(typeof value === 'string' ? value : canonicalJsonStringify(value), 'utf8')
     .digest('hex');
 }
 
 function parseArgs(argv) {
-  const options = { campaignId: null, adjudication: null, runtimeDir: DEFAULT_RUNTIME, output: null, verify: null };
+  const options = { campaignId: null, adjudication: null, runtimeDir: DEFAULT_RUNTIME, output: null, verify: null, provenanceSelfcheck: null };
   for (const arg of argv) {
     if (arg.startsWith('--campaign-id=')) options.campaignId = arg.slice(14);
     else if (arg.startsWith('--adjudication=')) options.adjudication = path.resolve(arg.slice(15));
     else if (arg.startsWith('--runtime-dir=')) options.runtimeDir = path.resolve(arg.slice(14));
     else if (arg.startsWith('--output=')) options.output = path.resolve(arg.slice(9));
     else if (arg.startsWith('--verify=')) options.verify = path.resolve(arg.slice(9));
+    else if (arg.startsWith('--provenance-selfcheck=')) options.provenanceSelfcheck = path.resolve(arg.slice(23));
     else throw new Error(`unknown argument: ${arg}`);
   }
-  if (!options.campaignId || !options.adjudication) throw new Error('--campaign-id and --adjudication are required');
-  if (Boolean(options.output) === Boolean(options.verify)) throw new Error('choose exactly one of --output or --verify');
+  if (!options.provenanceSelfcheck && (!options.campaignId || !options.adjudication)) throw new Error('--campaign-id and --adjudication are required');
+  if (!options.provenanceSelfcheck && Boolean(options.output) === Boolean(options.verify)) throw new Error('choose exactly one of --output or --verify');
   return options;
 }
 
@@ -94,14 +96,14 @@ function aggregateMetric(values) {
 }
 
 function merkleRoot(entries) {
-  let level = entries.map(entry => sha256(`proofbound.story6-receipt-leaf.v1\0${entry.cellId}\0${entry.sha256}`));
+  let level = entries.map(entry => sha256(`proof-or-stop.story6-receipt-leaf.v1\0${entry.cellId}\0${entry.sha256}`));
   if (level.length === 0) throw new Error('cannot compute an empty receipt Merkle root');
   while (level.length > 1) {
     const next = [];
     for (let index = 0; index < level.length; index += 2) {
       const left = level[index];
       const right = level[index + 1] ?? left;
-      next.push(sha256(`proofbound.story6-receipt-node.v1\0${left}\0${right}`));
+      next.push(sha256(`proof-or-stop.story6-receipt-node.v1\0${left}\0${right}`));
     }
     level = next;
   }
@@ -121,7 +123,7 @@ function validateSummaryPolicy(summary) {
 
 async function buildReport(options) {
   const protocol = JSON.parse(await readFile(path.join(HERE, 'protocol.json'), 'utf8'));
-  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.json'), 'utf8'));
+  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.current.json'), 'utf8'));
   const identity = validateExperiment(protocol, corpus);
   const canonicalSchemaText = await readFile(path.join(HERE, 'story6-output.schema.json'), 'utf8');
   const canonicalSchema = JSON.parse(canonicalSchemaText);
@@ -143,7 +145,7 @@ async function buildReport(options) {
     const raw = await readFile(path.join(options.runtimeDir, file));
     const row = JSON.parse(raw.toString('utf8'));
     const sample = corpus.samples.find(candidate => candidate.id === expectedCell.sampleId);
-    if (row.schemaVersion !== 'proofbound.story6-live-ab-receipt.v1'
+    if (row.schemaVersion !== 'proof-or-stop.story6-live-ab-receipt.v1'
         || row.campaignId !== options.campaignId
         || row.cell?.cellId !== expectedCell.cellId
         || row.cell?.sampleId !== expectedCell.sampleId
@@ -152,19 +154,7 @@ async function buildReport(options) {
         || row.cell?.host !== expectedCell.host
         || row.cell?.arm !== expectedCell.arm
         || row.cell?.repeat !== expectedCell.repeat
-        || row.provenance?.kind !== 'production-provider-dispatch'
-        || row.provenance?.producer !== 'agent_prompt'
-        || row.provenance?.producerMode !== (expectedCell.arm === 'modular' ? 'full-envelope' : 'legacy-full-context')
-        || typeof row.provenance?.producerResponseDigest !== 'string'
-        || !/^[a-f0-9]{64}$/.test(row.provenance.producerResponseDigest)
-        || (expectedCell.arm === 'modular'
-          ? typeof row.provenance?.envelopeId !== 'string'
-            || !/^[a-f0-9]{64}$/.test(row.provenance.envelopeId)
-            || row.provenance?.eventBinding?.promptEnvelopeId !== row.provenance.envelopeId
-            || typeof row.provenance?.eventBinding?.assembledPromptDigest !== 'string'
-            || !/^[a-f0-9]{64}$/.test(row.provenance.eventBinding.assembledPromptDigest)
-          : row.provenance?.envelopeId !== null || row.provenance?.eventBinding !== null)
-        || row.provenance?.gateEvidence !== false
+        || !isCanonicalStory6Provenance(row.provenance)
         || row.gateEvidence !== false
         || typeof row.observedAt !== 'string'
         || Number.isNaN(Date.parse(row.observedAt))
@@ -190,7 +180,7 @@ async function buildReport(options) {
     return [host, values[0]];
   }));
   const protocolBinding = {
-    schemaVersion: 'proofbound.story6-live-ab.v1',
+    schemaVersion: 'proof-or-stop.story6-live-ab.v1',
     protocolDigest: identity.protocolDigest,
     corpusDigest: identity.corpusDigest,
     hosts: EXPECTED_HOSTS,
@@ -213,7 +203,7 @@ async function buildReport(options) {
 
   const adjudicationRaw = await readFile(options.adjudication);
   const adjudication = JSON.parse(adjudicationRaw.toString('utf8'));
-  if (adjudication.schemaVersion !== 'proofbound.story6-independent-adjudication.v1'
+  if (adjudication.schemaVersion !== 'proof-or-stop.story6-independent-adjudication.v1'
       || adjudication.campaignId !== options.campaignId
       || typeof adjudication.adjudicatorId !== 'string'
       || ['main', 'main-agent', 'proof-or-stop-implementer'].includes(adjudication.adjudicatorId.trim())
@@ -255,7 +245,7 @@ async function buildReport(options) {
   const legacy = distributions.legacy;
   const modular = distributions.modular;
   const report = {
-    schemaVersion: 'proofbound.story6-content-addressed-summary.v1',
+    schemaVersion: 'proof-or-stop.story6-content-addressed-summary.v1',
     campaignId: options.campaignId,
     status: 'INCONCLUSIVE',
     reasonCodes: ['RECALL_REGRESSION_OBSERVED', 'FALSE_POSITIVES_INCREASED', 'COMMAND_MISUSE_PARTIAL_OBSERVATION', 'STORY7_NOT_IMPLEMENTED'],
@@ -310,6 +300,13 @@ async function buildReport(options) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (options.provenanceSelfcheck) {
+    const probes = JSON.parse(await readFile(options.provenanceSelfcheck, 'utf8'));
+    if (!Array.isArray(probes) || probes.length !== 2) throw new Error('provenance selfcheck requires exactly two arm probes');
+    for (const probe of probes) assertCanonicalStory6Provenance(probe?.provenance, `report/${probe?.arm}`);
+    process.stdout.write(`story6-report provenance selfcheck: PASS arms=${probes.length}\n`);
+    return;
+  }
   const report = await buildReport(options);
   if (options.output) {
     await mkdir(path.dirname(options.output), { recursive: true });

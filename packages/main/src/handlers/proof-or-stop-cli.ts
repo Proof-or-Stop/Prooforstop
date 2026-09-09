@@ -214,7 +214,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
   ];
   const ok = checks.every(check => check.ok);
   return {
-    schemaVersion: 'lattice.config_doctor.v1' as const,
+    schemaVersion: 'proof-or-stop.config_doctor.v1' as const,
     product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: PROOF_OR_STOP_CLI_VERSION },
     ok,
     status: ok ? 'pass' as const : 'warn' as const,
@@ -362,7 +362,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const configPath = picked.path;
   const configFilename = picked.filename;
   const base = {
-    schemaVersion: 'lattice.config_repair.v1' as const,
+    schemaVersion: 'proof-or-stop.config_repair.v1' as const,
     product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: PROOF_OR_STOP_CLI_VERSION },
     metadataRoot: canonicalFsPath(metadataRoot),
     gitRoot: verifiedTarget.relativePath,
@@ -437,7 +437,7 @@ function renderConfigRepairText(result: ReturnType<typeof buildConfigRepair>): s
 export function buildConduitStatus(
 ) {
   return {
-    schemaVersion: 'lattice.conduit_status.v1' as const,
+    schemaVersion: 'proof-or-stop.conduit_status.v1' as const,
     product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: PROOF_OR_STOP_CLI_VERSION },
     conduitAvailable: true as const,
     conduitRole: 'cli-diagnostics-and-handoff' as const,
@@ -514,7 +514,7 @@ function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>):
 function buildConduitExplain() {
   return {
     ...buildConduitStatus(),
-    schemaVersion: 'lattice.conduit_explain.v1' as const,
+    schemaVersion: 'proof-or-stop.conduit_explain.v1' as const,
     explanation: [
       'Proof-or-Stop 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
@@ -529,7 +529,7 @@ function renderConduitExplainText(result: ReturnType<typeof buildConduitExplain>
     `${formatProofOrStopProductLine()} conduit explain (${result.schemaVersion})`,
     ...result.explanation,
     '',
-    renderConduitStatusText({ ...result, schemaVersion: 'lattice.conduit_status.v1' }),
+    renderConduitStatusText({ ...result, schemaVersion: 'proof-or-stop.conduit_status.v1' }),
   ].join('\n');
 }
 

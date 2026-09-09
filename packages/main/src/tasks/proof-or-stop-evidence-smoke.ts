@@ -165,7 +165,7 @@ function assertEvidenceRefSemantics(refs: EvidenceInspection['evidenceRefs']): v
 }
 
 function assertManifestFresh(manifest: EvidenceManifest, headHash: string, materialHash: string): void {
-  assert.equal(manifest.schemaVersion, 'lattice.evidence_manifest.v1');
+  assert.equal(manifest.schemaVersion, 'proof-or-stop.evidence_manifest.v1');
   assert.equal(manifest.storyId, 'B-evidence');
   assert.equal(manifest.sourceHost, 'codex');
   assert.equal(manifest.headHash, headHash);
@@ -192,7 +192,7 @@ function assertManifestFresh(manifest: EvidenceManifest, headHash: string, mater
 }
 
 function assertInspectionStale(inspection: EvidenceInspection, driftHead: string): void {
-  assert.equal(inspection.schemaVersion, 'lattice.evidence_inspect.v1');
+  assert.equal(inspection.schemaVersion, 'proof-or-stop.evidence_inspect.v1');
   assert.equal(inspection.storyId, 'B-evidence');
   assert.equal(inspection.sourceHost, 'codex');
   assert.equal(inspection.headHash, driftHead);

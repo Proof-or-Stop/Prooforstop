@@ -274,14 +274,14 @@ export function buildNextSteps(
         activeLine = renderActiveReviewersText(active);
         finalReviewLine = renderFinalReviewRoster(roster, storyId);
         agentLines = roster.requiredReviewers.map(r =>
-          `  Agent({ subagent_type: "${r.lane}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
+          `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "${r.lane}", prompt: "<owner-produced standard prompt> (${r.reason})" })`,
         ).join('\n');
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
-        agentLines = `  Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}' to get the standard story-level prompt, then follow it" })
-  Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
+        agentLines = `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "<owner-produced standard prompt>" })
+  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "<owner-produced standard prompt>" })`;
       }
       let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
-→ launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
+→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}

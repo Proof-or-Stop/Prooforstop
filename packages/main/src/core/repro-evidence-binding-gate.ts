@@ -184,6 +184,11 @@ function materialPolicyErrorResult(
   });
 }
 
+function isArtifactIntegrityFailure(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /^evidence-store: (?:malformed artifact (?:object|ref)|artifact (?:object|ref) integrity mismatch)/.test(message);
+}
+
 function isCandidateArtifact(artifact: EvidenceArtifact<unknown>, kind: string, details: string[]): boolean {
   let ok = true;
   if (artifact.artifactKind !== kind) {
@@ -456,6 +461,17 @@ export function evaluateStoryEvidenceBindingGate(
       .filter(artifact => artifact.payload?.storyId === storyId || artifact.subjectBinding?.storyId === storyId);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    if (isArtifactIntegrityFailure(err)) {
+      return resultFor({
+        ok: mode !== 'enforce',
+        required: true,
+        mode,
+        reasonCode: 'stale_story_evidence_binding',
+        details: [`story-evidence-binding artifact failed integrity validation: ${message}`],
+        requirementReason: classification.reason,
+        requirementDetails: classification.details,
+      });
+    }
     return resultFor({
       ok: true,
       required: true,

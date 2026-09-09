@@ -266,7 +266,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     }
 
     const data: DevMemoryPreflightAckData = {
-      schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+      schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
       storyId,
       packDigest,
       topHitIds,

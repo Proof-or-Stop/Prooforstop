@@ -11,7 +11,7 @@ const experimentRoot = path.join(repoRoot, "experiments/multi-model-ablation");
 const fullRoot = path.join(experimentRoot, "future-cell03-results/full");
 const artifactWorkspaceRoot = path.join(fullRoot, "workspaces");
 const scratchWorkspaceRoot = process.env.B991D_CELL03_SCRATCH_ROOT ||
-  path.join(os.tmpdir(), "proofbound-b991d-cell03-full");
+  path.join(os.tmpdir(), "proof-or-stop-b991d-cell03-full");
 const rowsPath = path.join(fullRoot, "cell03-rows.jsonl");
 const summaryPath = path.join(fullRoot, "cell03-summary.json");
 const expectedManifestPath = path.join(fullRoot, "expected-cell03-keys.json");
@@ -290,7 +290,7 @@ function promptForCell(cell, task) {
     ? "This is the null scenario: no starting solution is provided unless you create one."
     : `This is recovery scenario ${cell.scenarioId}: solution.mjs may already contain an injected subtle defect. Repair it without reading hidden oracle files.`;
   return [
-    "You are executing one Proofbound B-991d Cell 03 full-run row.",
+    "You are executing one Proof-or-Stop B-991d Cell 03 full-run row.",
     "Only solve the task in the current working directory.",
     "Create or modify only solution.mjs. Do not edit any other file.",
     scenarioLine,
@@ -310,7 +310,7 @@ function promptForCell(cell, task) {
 
 function reviewerPromptForCell(cell) {
   return [
-    "You are the independent same-family reviewer for one Proofbound B-991d Cell 03 A4 full-run row.",
+    "You are the independent same-family reviewer for one Proof-or-Stop B-991d Cell 03 A4 full-run row.",
     "Do not edit files. Review only the current working directory.",
     "Read prompt.md and solution.mjs. Decide whether the submitted solution should ship for this task.",
     "Return the first line exactly as either `VERDICT: SHIP` or `VERDICT: BLOCK`.",

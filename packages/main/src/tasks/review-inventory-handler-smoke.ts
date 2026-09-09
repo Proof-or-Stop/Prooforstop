@@ -28,29 +28,49 @@ import {
   verifyPostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
 import { computeFinalReviewRoster, renderFinalReviewRoster, type ActiveReviewer } from '../handlers/reviewer-list.js';
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { getSessionId } from '../core/owner-session.js';
 
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
 const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', import.meta.url));
 const repositoryRoot = fileURLToPath(new URL('../../../../', import.meta.url));
+const isolatedFixtureRoots = new Set<string>();
+
+function releaseCompletedFixtureOwner(root: string, expectedSessionId: string): void {
+  assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
+  const storyDir = new StoryStore(root).storyDirPath(storyId);
+  const lease = readOwnerLease(storyDir);
+  if (lease?.sessionId === expectedSessionId) {
+    assert.equal(releaseOwnerLease(storyDir), true, 'completed matching fixture owner releases its lease');
+    assert.equal(readOwnerLease(storyDir), null);
+  }
+}
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function cli(root: string, command: string, payload: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): string {
-  return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
-    cwd: root,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: {
-      ...process.env,
-      PROOF_OR_STOP_AGENT: 'main',
-      PROOF_OR_STOP_SESSION_ID: 'inventory-handler-fixture-owner',
-      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-      ...env,
-    },
-  }).trim();
+  const actor = env.PROOF_OR_STOP_AGENT ?? 'main';
+  const task = env.PROOF_OR_STOP_SESSION_ID ?? 'review-inventory-owner';
+  try {
+    return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...process.env,
+        ...env,
+        PROOF_OR_STOP_AGENT: actor,
+        ...adapterSessionEnv(task, actor),
+      },
+    }).trim();
+  } finally {
+    // The child has completed. Release only its own verified fixture lease.
+    releaseCompletedFixtureOwner(root, adapterSessionId(root, task, actor));
+  }
 }
 
 function cliAsync(root: string, command: string, payload: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): Promise<{ ok: boolean; output: string }> {
@@ -59,10 +79,9 @@ function cliAsync(root: string, command: string, payload: Record<string, unknown
     encoding: 'utf8',
     env: {
       ...process.env,
-      PROOF_OR_STOP_AGENT: 'main',
-      PROOF_OR_STOP_SESSION_ID: 'inventory-handler-fixture-owner',
-      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
       ...env,
+      PROOF_OR_STOP_AGENT: env.PROOF_OR_STOP_AGENT ?? 'main',
+      ...adapterSessionEnv(env.PROOF_OR_STOP_SESSION_ID ?? 'review-inventory-owner', env.PROOF_OR_STOP_AGENT ?? 'main'),
     },
   }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
 }
@@ -75,8 +94,9 @@ function waitForFile(path: string, timeoutMs = 5_000): void {
   }
 }
 
-function setup(author = { name: 'lattice-implementer', email: 'lattice-implementer@noreply.local' }) {
+function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }) {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
+  isolatedFixtureRoots.add(root);
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
@@ -112,7 +132,7 @@ function setup(author = { name: 'lattice-implementer', email: 'lattice-implement
   // story_advance DEV assertions observe inventory/cutoff behavior, not
   // missing_dev_memory_preflight_ack.
   store.writeDevMemoryPreflightAck(storyId, {
-    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
     storyId,
     packDigest: 'review-inventory-handler-smoke-synthetic-digest',
     topHitIds: [],
@@ -128,7 +148,17 @@ function setup(author = { name: 'lattice-implementer', email: 'lattice-implement
       'packages/main/tests/isolated.test.ts',
     ] },
   ] } as never);
-  return { root, store, handlers: createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store }) };
+  const handlers = createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store });
+  return { root, store, handlers: new Proxy(handlers, {
+    get(target, key, receiver) {
+      const handler = Reflect.get(target, key, receiver);
+      if (typeof handler !== 'function') return handler;
+      return (...args: unknown[]) => {
+        try { return Reflect.apply(handler, target, args); }
+        finally { releaseCompletedFixtureOwner(root, getSessionId()); }
+      };
+    },
+  }) };
 }
 
 function rewriteCandidateArtifact(
@@ -255,7 +285,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
         `actual dispatch carrier mutation refused: ${JSON.stringify(mutation)}`);
     }
     for (const variant of [inventoryEvent, { ...inventoryEvent, reviewPurpose: undefined, inventoryBinding: undefined },
-      { ...inventoryEvent, reviewPurpose: 'topology', agentType: 'lattice-review-topology-critic' }]) {
+      { ...inventoryEvent, reviewPurpose: 'topology', agentType: actor }]) {
       assert.throws(() => deriveRoleProvenance({ ...provenanceArgs, sessionId: String(variant.sessionId), events: [variant] }), /no current registered dispatch provenance/);
     }
     console.log('B29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS');
@@ -268,9 +298,9 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.equal(listed.runs.find((row: { reviewRunId: string }) => row.reviewRunId === reviewRunId)?.signatureValid, true);
     const runReader = createReviewRunHandlers({ root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), store: fixture.store });
     const canonicalList = JSON.parse(runReader.review_run_list({ storyId, lane: actor, latest: true, json: true }));
-    const aliasList = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, lane: 'lattice-review-topology-critic', latest: true, json: true }, criticEnv));
-    assert.deepEqual(aliasList.runs, canonicalList.runs, 'registered alias and canonical reader select the same signed latest run');
-    assert.equal(aliasList.runs.length, 1);
+    const publicList = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, lane: actor, latest: true, json: true }, criticEnv));
+    assert.deepEqual(publicList.runs, canonicalList.runs, 'public and direct canonical readers select the same signed latest run');
+    assert.equal(publicList.runs.length, 1);
     assert.throws(() => cli(fixture.root, 'review_run_list', { storyId, lane: 'unknown-lane', json: true }, criticEnv), /invalid|expected/i);
     const beforeTerminal = JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId));
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /terminal|read|evidence/i);
@@ -279,10 +309,11 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /Completeness critic: complete/);
     assert.equal(git(fixture.root, ['log', '--format=%an <%ae>', '--', 'packages/main/src/subject.ts']), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
     console.log('B29BC_INVENTORY_PURPOSE PASS');
-    const alias = 'lattice-review-topology-critic';
+    const alias = ['lat', 'tice-review-topology-critic'].join('');
     const aliasEnv = env(alias, 'b29bc-alias-critic');
-    assert.match(cli(fixture.root, 'dispatch', { storyId, agentType: alias, ...purpose }, aliasEnv), /inventory-completeness/);
-    assert.match(cli(fixture.root, 'review_run_start', { storyId, agent: alias, ...purpose }, aliasEnv), /Review run/);
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: alias, ...purpose }, aliasEnv), /invalid|unknown|expected|unsupported/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: alias, ...purpose }, aliasEnv), /invalid|unknown|expected|unsupported/i);
+    assert.throws(() => cli(fixture.root, 'review_run_list', { storyId, lane: alias, latest: true, json: true }, criticEnv), /invalid|unknown|expected|unsupported/i);
     // A second ordinary identity is read from Git rather than matched by name.
     git(fixture.root, ['config', 'user.name', 'Ordinary Contributor']);
     git(fixture.root, ['config', 'user.email', 'ordinary@example.test']);
@@ -290,7 +321,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, reviewPurpose: 'topology' }, criticEnv), /implementation|author|provenance/i);
     console.log('B29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS');
     const ready = join(fixture.root, 'inventory-purpose-publication-ready');
-    const raceEnv = { ...env(actor, 'b29bc-second-identity'), NODE_ENV: 'test', LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS: '1000', LATTICE_INTERNAL_REVIEW_RUN_READY_FILE: ready };
+    const raceEnv = { ...env(actor, 'b29bc-second-identity'), NODE_ENV: 'test', PROOF_OR_STOP_INTERNAL_REVIEW_RUN_HOLD_MS: '1000', PROOF_OR_STOP_INTERNAL_REVIEW_RUN_READY_FILE: ready };
     const publication = cliAsync(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, raceEnv);
     waitForFile(ready);
     const cancellation = cliAsync(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Disposable locked inventory-purpose publication interleaving.' }, env('main', 'b29bc-owner'));
@@ -305,7 +336,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId)), afterCancel, 'cancelled replay cannot issue authority');
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv), /OPEN|epoch|current/i);
-    cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Finish disposable legacy-mode phase before full-envelope control.' }, env('main', 'b29bc-owner'));
+    cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Finish disposable default-mode phase before explicit full-envelope control.' }, env('main', 'b29bc-owner'));
     const configPath = join(fixture.root, 'proof-or-stop.config.json');
     const config = { scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', promptEnvelope: {} as Record<string, unknown> };
     config.promptEnvelope = { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [actor]: 'full-envelope' } };
@@ -424,7 +455,7 @@ const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'p
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
 const listedCriticRuns = JSON.parse(cli(first.root, 'review_run_list', {
   storyId,
-  lane: 'lattice-review-topology-critic',
+  lane: 'proof-or-stop-review-topology-critic',
   latest: true,
   json: true,
 })) as { latest: boolean; runs: Array<{ reviewRunId: string; signatureValid: boolean }> };
@@ -656,8 +687,8 @@ assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), before
 const finalizeReady = join(first.root, 'review-inventory-finalize.ready');
 const finalizeDuringShrinkRace = cliAsync(first.root, 'review_inventory_finalize', { storyId }, {
   NODE_ENV: 'test',
-  LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS: '1000',
-  LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE: finalizeReady,
+  PROOF_OR_STOP_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS: '1000',
+  PROOF_OR_STOP_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE: finalizeReady,
 });
 waitForFile(finalizeReady);
 const shrinkAfterFinalizeChecks = cliAsync(first.root, 'scope_shrinkage_decision_set', {
@@ -937,7 +968,7 @@ let recoveryData = finalizedRecovery.store.readReviewInventoryEpochs(storyId);
 const recoveryEpoch = recoveryData.epochs[0];
 const recoveryIssuedAt = new Date().toISOString();
 const recoveryReceiptUnsigned = {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1' as const,
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1' as const,
   receiptId: `${recoveryEpoch.epochId}:RCP-001`, epochId: recoveryEpoch.epochId, storyId,
   reviewRound, cutoff: recoveryEpoch.cutoff, scopeDigest: recoveryEpoch.scopeDigest,
   requiredLanes: recoveryEpoch.requiredLanes, waveCount: 1,
@@ -1058,7 +1089,7 @@ let finalizedProofData = finalizedProofStoryDrift.store.readReviewInventoryEpoch
 const finalizedProofEpoch = finalizedProofData.epochs[0];
 const finalizedProofAt = new Date().toISOString();
 const finalizedProofReceiptUnsigned = {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1' as const,
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1' as const,
   receiptId: `${finalizedProofEpoch.epochId}:RCP-001`, epochId: finalizedProofEpoch.epochId, storyId,
   reviewRound, cutoff: finalizedProofEpoch.cutoff, scopeDigest: finalizedProofEpoch.scopeDigest,
   requiredLanes: finalizedProofEpoch.requiredLanes, waveCount: 1,
@@ -1271,8 +1302,8 @@ const runPublication = cliAsync(publicationRace.root, 'review_run_start', { stor
   PROOF_OR_STOP_AGENT: publicationLane,
   PROOF_OR_STOP_SESSION_ID: publicationSession,
   NODE_ENV: 'test',
-  LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS: '1000',
-  LATTICE_INTERNAL_REVIEW_RUN_READY_FILE: publicationReady,
+  PROOF_OR_STOP_INTERNAL_REVIEW_RUN_HOLD_MS: '1000',
+  PROOF_OR_STOP_INTERNAL_REVIEW_RUN_READY_FILE: publicationReady,
 });
 waitForFile(publicationReady);
 const cancelPublication = cliAsync(publicationRace.root, 'review_inventory_cancel', {
@@ -1310,8 +1341,8 @@ const firstLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
   note: 'Long live-holder pass remains authoritative beyond ten seconds.', readManifest, readEvents,
 }, {
   PROOF_OR_STOP_AGENT: longLanes[0], PROOF_OR_STOP_SESSION_ID: firstLong.sessionId, NODE_ENV: 'test',
-  LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS: '11000',
-  LATTICE_INTERNAL_REVIEW_PASS_READY_FILE: readyFile,
+  PROOF_OR_STOP_INTERNAL_REVIEW_PASS_HOLD_MS: '11000',
+  PROOF_OR_STOP_INTERNAL_REVIEW_PASS_READY_FILE: readyFile,
 });
 waitForFile(readyFile);
 const secondLongPromise = cliAsync(longHolder.root, 'review_pass_set', {

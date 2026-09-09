@@ -89,7 +89,11 @@ try {
   const objectPath = `.proof-or-stop/evidence/objects/sha256/${artifact.artifactDigest}.json`;
   const corrupted = { ...artifact, payload: { output: 'tampered' } };
   writeFileSync(join(root, objectPath), JSON.stringify(corrupted));
-  assert.equal(store.verifyArtifactDigest(store.readArtifact(root, artifact.artifactId), artifact.artifactDigest), false);
+  assert.throws(
+    () => store.readArtifact(root, artifact.artifactId),
+    /artifact object integrity mismatch/,
+    'the strict artifact reader must reject tampered object bytes before a consumer can inspect them',
+  );
   assert.equal(store.verifyArtifactDigest({ ...artifact, subjectBinding: { candidateId: 'wrong-subject' } }, artifact.artifactDigest), false);
   const tamperedHead = commit({ ...fixture.base, ...outputs, [objectPath]: JSON.stringify(corrupted) }, published);
   assert.equal(M.currentMaterialHash(root, tamperedHead), M.currentMaterialHash(root, published));

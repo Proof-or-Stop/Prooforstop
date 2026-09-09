@@ -365,7 +365,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the one canonical stale-evidence refresh writer. Compatibility symbols and
   // their approved call shapes remain independently checked above. Repinned
   // again when main's proof-or-stop rename merged into that same file.
-  ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
+  ['packages/main/src/core/closeout-trust.ts', 'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
@@ -400,7 +400,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776'],
+  // B-aa5f RI-020: repinned after moving the existing owner-lease seed before
+  // both direct verifier handlers. The approved legacy delivery calls and
+  // occurrence counts above remain unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'bcf68b8796e04d0e0416864b171e8609ed4b04575459e12d85d43eaca8ba2946'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -475,16 +478,18 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  // Lab reapproval: the last approved loader source predates both the strict
-  // identity entry and its adjacent single-scan output reuse. The complete
-  // nine-line insertion leaves both dynamic import sites and initPath unchanged.
-  ['packages/main/src/cli-engine.ts', '90001d2bbfc38f27f9bc06d59883b15439a72551aa8eba4a67313139c703326d'],
+  ['packages/main/src/cli-engine.ts', '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
+  // B-49df: this test executes the fixed repository-local tracer's asserted private
+  // kernel, never an environment/CLI/network payload. This is a WHOLE exact test-file
+  // exemption via the existing early return, not a call-site-only exemption. The
+  // per-entry executable-drift negative below must invalidate this approval.
+  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', 'b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4'],
   // B-022e re-attestation: only verifier runtime identity tokens changed;
   // the exact-file exemption remains narrow and mutation-sensitive.
   ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
@@ -793,9 +798,12 @@ const typeProgramInstrumentation = {
 // AST candidate, so that previously prefilter-skipped file now reaches full
 // dynamic analysis too. Every other file B-1482 touches under the scanned
 // directories was already counted, so the ceiling moved by exactly two.
+// B-aa5f CHK-002 added core/verification-execution-evidence.ts, whose tool-owned
+// signing-key helpers call execFileSync; it adds one repo-source build. The
+// prior split was synthetic=419 plus repo=393, total 812.
 // B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
-// Evidence Integrity sources, so the merged inventory moves from 811 to 816.
-const DYNAMIC_BINDING_BUILD_CEILING = 816;
+// Evidence Integrity sources. Retaining both source sets gives a ceiling of 817.
+const DYNAMIC_BINDING_BUILD_CEILING = 817;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
@@ -1701,7 +1709,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-8a40 current-Story admission: this is a single test-only call site, not a
   // general loader exemption. Executable drift revokes it; the provenance
   // controls below also reject rebinding/widening even under a refreshed hash.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '895187c6121e3be076bc1528950ad147452dd89da922ca43cd02be2923d5cb50'],
+  // B-49df keeps the independently reviewed active-identity mutation controls
+  // while the main receipt-fanout merge leaves this loader call site unchanged.
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '96360e090f024bc7f7edbef940306c1deea141ed381ea6daf42da95eecd739b0'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -4723,7 +4733,7 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    12,
+    13,
     // origin/main merge: was 9. BOTH exemption maps had a slot whose occupant differed
     // between the two parents -- origin pinned packages/main/src/cli.ts, our main pinned
     // packages/main/src/handlers/graph.ts -- and the merged tree carries both features,
@@ -4735,7 +4745,7 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     // report as unresolved-nested-member. B-8a40 adds one test-only benign-loader
     // pin, with separate producer provenance controls: twelve exact source entries,
     // still zero patterns and no dynamic-code exemption for the mutation smoke.
-    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
@@ -5881,36 +5891,49 @@ function assertCommandCatalog(): Violation[] {
   return violations;
 }
 
-function runCli(args: string[]): string {
+function runCli(root: string, args: string[]): string {
   const cliPath = join(pkgRoot, 'dist', 'cli.js');
-  return execFileSync(process.execPath, [cliPath, ...args], {
-    cwd: repoRoot,
+  return execFileSync(process.execPath, [cliPath, '--root', root, ...args], {
+    cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
       PROOF_OR_STOP_NO_HOOKS: '1',
+      PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '0',
     },
   });
 }
 
 function assertGeneratedHelp(): Violation[] {
-  const outputs = [
-    ['help'],
-    ['done_closure', '--help'],
-    ['dispatch_policy_create', '--help'],
-    ['observability_snapshot', '--help'],
-    ['evidence_plan', '--help'],
-    ['lifecycle_orchestrate', '--help'],
-    ['live_smoke_transcript', '--help'],
-    ['delivery_context_pack', '--help'],
-    ['reviewer_batch', '--help'],
-    ['init_preflight', '--help'],
-    ['host_probe', '--help'],
-    ['conduit_status', '--help'],
-    ['story_export', '--help'],
-  ];
-  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-retired-help-'));
+  try {
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2));
+    const outputs = [
+      ['help'],
+      ['done_closure', '--help'],
+      ['dispatch_policy_create', '--help'],
+      ['observability_snapshot', '--help'],
+      ['evidence_plan', '--help'],
+      ['lifecycle_orchestrate', '--help'],
+      ['live_smoke_transcript', '--help'],
+      ['delivery_context_pack', '--help'],
+      ['reviewer_batch', '--help'],
+      ['init_preflight', '--help'],
+      ['host_probe', '--help'],
+      ['conduit_status', '--help'],
+      ['story_export', '--help'],
+    ];
+    return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(root, args)));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // Explicit Lab proof scope. The configured no-argument entry below still runs

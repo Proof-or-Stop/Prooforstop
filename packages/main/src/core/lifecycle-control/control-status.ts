@@ -264,7 +264,7 @@ export interface RuntimeClosureRow {
 }
 
 export interface RuntimeClosureReport {
-  readonly schemaVersion: 'lattice.runtime_closure_status.v1';
+  readonly schemaVersion: 'proof-or-stop.runtime_closure_status.v1';
   readonly readOnly: true;
   readonly generatedAt: string;
   readonly projectRoot: string;
@@ -290,7 +290,7 @@ export interface AdmissibilityWaterlineRow {
 }
 
 export interface AdmissibilityWaterlineReport {
-  readonly schemaVersion: 'lattice.admissibility_waterline.v1';
+  readonly schemaVersion: 'proof-or-stop.admissibility_waterline.v1';
   readonly readOnly: true;
   readonly diagnosticOnly: true;
   readonly generatedAt: string;
@@ -310,7 +310,7 @@ export interface AdmissibilityWaterlineReport {
 
 export interface QueueExceptionRecord {
   readonly exceptionId: string;
-  readonly policyVersion: 'proofbound.queue_exception.v1';
+  readonly policyVersion: 'proof-or-stop.queue_exception.v1';
   readonly class: 'experiment-batch-exception';
   readonly experimentBatchId: string;
   readonly storyIds: readonly string[];
@@ -337,7 +337,7 @@ export interface QueueGovernanceRow {
 }
 
 export interface QueueGovernanceReport {
-  readonly schemaVersion: 'lattice.queue_governance_status.v1';
+  readonly schemaVersion: 'proof-or-stop.queue_governance_status.v1';
   readonly readOnly: true;
   readonly generatedAt: string;
   readonly projectRoot: string;
@@ -368,7 +368,7 @@ export interface QueueGovernanceReport {
 }
 
 export interface QueueExceptionSetResult extends QueueExceptionRecord {
-  readonly schemaVersion: 'lattice.queue_exception_set.v1';
+  readonly schemaVersion: 'proof-or-stop.queue_exception_set.v1';
   readonly written: true;
   readonly auditEvent: {
     readonly type: 'queue_exception_set';

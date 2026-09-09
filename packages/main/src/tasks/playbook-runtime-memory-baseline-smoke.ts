@@ -216,8 +216,8 @@ function assertRequestedProfileMismatchWouldFail(): void {
 }
 
 function assertGeneratorRefusesNonEmptyOutputDir(): void {
-  const unrelatedDir = mkdtempSync(join(tmpdir(), 'proofbound-baseline-nonempty-'));
-  const targetFileDir = mkdtempSync(join(tmpdir(), 'proofbound-baseline-target-file-'));
+  const unrelatedDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-nonempty-'));
+  const targetFileDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-baseline-target-file-'));
   try {
     writeFileSync(join(unrelatedDir, 'unrelated.txt'), 'occupied\n', 'utf8');
     assert.throws(

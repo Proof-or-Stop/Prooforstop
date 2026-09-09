@@ -62,7 +62,7 @@ const FIXTURES = [
 function stubRecord(fixtureId, arm, overrides) {
   const fx = FIXTURES.find((f) => f.fixtureId === fixtureId);
   return {
-    schemaVersion: 'proofbound.experience-ablation-score.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-score.v1',
     experimentId: EXP_ID,
     taskId: `${fixtureId}::${arm}`,
     pairId: fixtureId,
@@ -120,7 +120,7 @@ function stubScoreRecordsText(records = stubRecords()) {
 }
 
 const STUB_M7_DECISION = {
-  schemaVersion: 'proofbound.experience-ablation-m7-decision.v1',
+  schemaVersion: 'proof-or-stop.experience-ablation-m7-decision.v1',
   experimentId: EXP_ID,
   decision: 'skip_powered_study',
   decidedBy: 'stub user via explicit option selection',
@@ -130,12 +130,12 @@ const STUB_M7_DECISION = {
 };
 
 const STUB_LIVE_READOUT = {
-  schemaVersion: 'proofbound.experience-ablation-live-readout.v1',
+  schemaVersion: 'proof-or-stop.experience-ablation-live-readout.v1',
   experimentId: EXP_ID,
   noOverclaim: {
     heading: 'No-overclaim',
     disallowedClaims: [
-      '"Proofbound agents became smarter."',
+      '"Proof-or-Stop agents became smarter."',
       '"Memory proves DONE."',
       '"The experience layer eliminates defects."',
       '"The experience layer generalizes to failure modes it has no lessons for."',
@@ -163,7 +163,7 @@ function makeRoot(base, name, { omit = [], scoreText, nFreezeOverrides } = {}) {
   }
 
   const payload = {
-    schemaVersion: 'proofbound.experience-ablation-protocol.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-protocol.v1',
     experimentId: EXP_ID,
     taskClasses: { inStore: ['stale-doc'], heldOut: ['tool-hallucination'], clean: ['clean'] },
     perPopulation: {
@@ -197,7 +197,7 @@ function makeRoot(base, name, { omit = [], scoreText, nFreezeOverrides } = {}) {
   write('score-records.jsonl', scoreText ?? stubScoreRecordsText());
 
   const nFreeze = {
-    schemaVersion: 'proofbound.experience-ablation-n-freeze.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-n-freeze.v1',
     experimentId: EXP_ID,
     protocolHash,
     pilotInputs: { controlInStoreFaultRuns: 3, controlInStoreFaultDefects: 1, scoreRecordsDigestPrefix: 'feedfacecafebeef', replayByteIdentical: true, voidedRecords: 1 },
@@ -304,7 +304,7 @@ try {
   const claims = payload?.noOverclaim?.disallowedClaims ?? [];
   check('no-overclaim: all four plan-15 disallowed claims present in json + md',
     claims.length === 4 &&
-    ['Proofbound agents became smarter', 'Memory proves DONE', 'The experience layer eliminates defects', 'generalizes to failure modes it has no lessons for']
+    ['Proof-or-Stop agents became smarter', 'Memory proves DONE', 'The experience layer eliminates defects', 'generalizes to failure modes it has no lessons for']
       .every((c) => claims.some((k) => k.includes(c)) && md.includes(c)));
   check('verdict: exact INCONCLUSIVE line in json + md',
     payload?.finalSummary?.verdict === VERDICT_LINE && md.includes(`\n${VERDICT_LINE}\n`));

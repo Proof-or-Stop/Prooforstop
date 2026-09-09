@@ -24,7 +24,7 @@ import type { StoryStore } from './store.js';
 import type { DocsPromise, RealMachineTest, ClosingSelfCheck } from './types.js';
 import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
 
-export const DELIVERY_CHECK_SALT = 'lattice-delivery-check-integrity-v1';
+export const DELIVERY_CHECK_SALT = 'proof-or-stop-delivery-check-integrity-v1';
 
 /**
  * Signing function (deterministic: same input yields same output).

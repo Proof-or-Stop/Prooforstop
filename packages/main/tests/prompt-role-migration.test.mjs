@@ -21,13 +21,16 @@ const manifest = registryModule.promptRegistryManifest();
 assert.equal(manifest.schemaVersion, 'proof-or-stop.prompt-registry.v1', 'new prompt manifests use the canonical schema');
 assert.equal(
   registryModule.canonicalPromptRegistrySchemaVersion('lattice.prompt-registry.v1'),
-  'proof-or-stop.prompt-registry.v1',
-  'legacy prompt-registry manifests remain readable through the canonicalizer',
+  null,
+  'retired prompt-registry manifests fail closed',
 );
-assert.equal(registryModule.normalizePromptRegistryManifest({
-  ...manifest,
-  schemaVersion: 'lattice.prompt-registry.v1',
-}).schemaVersion, 'proof-or-stop.prompt-registry.v1', 'legacy manifest records normalize without rewriting their stored bytes');
+for (const schemaVersion of ['lattice.prompt-registry.v1', 'proofbound.prompt-registry.v1']) {
+  const retired = { ...manifest, schemaVersion };
+  const before = JSON.stringify(retired);
+  assert.equal(registryModule.normalizePromptRegistryManifest(retired), null);
+  assert.equal(JSON.stringify(retired), before, 'rejected manifest input remains byte-equivalent');
+}
+assert.equal(registryModule.normalizePromptRegistryManifest(manifest).schemaVersion, manifest.schemaVersion);
 assert.equal(
   registryModule.normalizePromptRegistryManifest({ ...manifest, source: 'lattice.prompt-registry' }),
   null,
@@ -89,14 +92,16 @@ for (const legacyRole of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-
 for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
   assert.throws(
     () => dispatch.validateAgentDispatchRequest({ agentType: legacyType, phase: 'PLAN', itemId: 'CHK-001' }),
-    /legacy read-side identity.*proof-or-stop-verification-intent/,
+    legacyType.startsWith('proof-or-stop-')
+      ? /legacy read-side identity.*proof-or-stop-verification-intent/
+      : /unknown agentType/,
     `${legacyType} must fail closed for new PLAN dispatch`,
   );
 }
 assert.equal(
   identity.canonicalizeAgentRoleText('test-intentional product-reviewerish lattice-review-quality@host'),
-  'test-intentional product-reviewerish proof-or-stop-review-quality@host',
-  'role canonicalization respects identifier boundaries while retaining role suffixes',
+  'test-intentional product-reviewerish lattice-review-quality@host',
+  'role text is not silently rewritten into current authority',
 );
 for (const roleId of registryModule.MODULAR_COMPLEX_ROLE_IDS) {
   const entry = registry.agents.find(candidate => candidate.agentId === roleId);
@@ -105,8 +110,8 @@ for (const roleId of registryModule.MODULAR_COMPLEX_ROLE_IDS) {
     const rendered = registryModule.renderPromptEntryForHost(entry, host);
     assert.match(
       rendered,
-      /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/,
-      `${roleId}/${host} default writer emits canonical managed markers`,
+      /<!-- proof-or-stop:modular-role-body:v1 -->/,
+      `${roleId}/${host} default writer emits the canonical modular body`,
     );
     assert.doesNotMatch(
       rendered,
@@ -114,42 +119,34 @@ for (const roleId of registryModule.MODULAR_COMPLEX_ROLE_IDS) {
       `${roleId}/${host} default writer does not emit legacy managed markers`,
     );
   }
-  const historical = contracts.resolvePromptRoleBody(roleId, {
+  const historicalConfig = {
     version: contracts.PROMPT_ENVELOPE_ROLLOUT_VERSION,
     roles: { [roleId]: 'legacy-full-context' },
-  });
-  assert.match(
-    historical.body,
-    /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
-    `${roleId} compatibility read retains the historical marker projection`,
-  );
+  };
+  const before = JSON.stringify(historicalConfig);
+  assert.throws(() => contracts.resolvePromptRoleBody(roleId, historicalConfig), /unsupported mode/);
+  assert.equal(JSON.stringify(historicalConfig), before, 'rejected rollout input remains unchanged');
 }
 
-const legacy = contracts.resolvePromptRoleBody('lattice-review-quality', undefined);
-assert.equal(legacy.roleId, 'proof-or-stop-review-quality');
-assert.equal(legacy.mode, 'legacy-full-context');
-assert.equal(legacy.legacyBytesRestored, true);
-assert.ok(legacy.bodyDigest.length > 0);
-
-const modular = contracts.resolvePromptRoleBody('lattice-review-quality', {
+for (const retiredRole of ['lattice-review-quality', 'proofbound-review-quality', 'verification-intent']) {
+  assert.throws(() => contracts.resolvePromptRoleBody(retiredRole, undefined), /unknown prompt role/);
+  assert.equal(contracts.isPromptRoleEligibleForReviewEvidence(retiredRole), false);
+}
+const modular = contracts.resolvePromptRoleBody('proof-or-stop-review-quality', {
   version: contracts.PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { 'proof-or-stop-review-quality': 'full-envelope' },
 });
 assert.equal(modular.roleId, 'proof-or-stop-review-quality');
 assert.equal(modular.mode, 'full-envelope');
-assert.equal(modular.legacyBytesRestored, false);
-assert.notEqual(modular.bodyDigest, legacy.bodyDigest);
-assert.equal(contracts.isPromptRoleEligibleForReviewEvidence('lattice-review-quality'), true);
+assert.equal(modular.bodyDigest.length, 64);
+assert.equal(contracts.isPromptRoleEligibleForReviewEvidence(modular.roleId), true);
 assert.throws(
-  () => contracts.resolvePromptEnvelopeRolloutMode('lattice-review-quality', {
+  () => contracts.resolvePromptEnvelopeRolloutMode(modular.roleId, {
     version: contracts.PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: {
-      'lattice-review-quality': 'full-envelope',
-      'proof-or-stop-review-quality': 'legacy-full-context',
-    },
+    roles: { 'lattice-review-quality': 'full-envelope' },
   }),
-  /duplicate logical role/,
-  'canonical and legacy keys for one logical role fail closed',
+  /unknown role/,
+  'retired configuration keys cannot acquire a canonical lane',
 );
 for (const role of [
   'story-init',
@@ -164,20 +161,15 @@ for (const role of [
     ? 'lattice-implementer'
     : `lattice-review-${role}`;
   assert.equal(budget.isBudgetedComplexRole(canonical), true, `${canonical} is budgeted`);
-  assert.equal(budget.isBudgetedComplexRole(legacy), true, `${legacy} remains readable for budget observation`);
+  assert.equal(budget.isBudgetedComplexRole(legacy), false, `${legacy} is not an active budgeted role`);
   const canonicalObservation = budget.observeComplexRolePromptBudget({
     roleId: canonical,
     contextMode: 'full',
     bytes: 100,
     estimatedTokens: 25,
   });
-  const legacyObservation = budget.observeComplexRolePromptBudget({
-    roleId: legacy,
-    contextMode: 'full',
-    bytes: 100,
-    estimatedTokens: 25,
-  });
-  assert.deepEqual(legacyObservation, canonicalObservation, `${legacy} and ${canonical} have equivalent budget observations`);
+  assert.equal(canonicalObservation.roleId, canonical);
+  assert.equal(canonicalObservation.withinBudget, true);
 }
 
 console.log('prompt-role migration test passed');

@@ -39,7 +39,7 @@ export type VerdictDecision = 'pass' | 'fail' | 'blocked';
 export type DisagreementBehavior = 'block' | 'repair_then_reverify';
 
 export interface HostVerdict {
-  schemaVersion: 'lattice.host_verdict.v1';
+  schemaVersion: 'proof-or-stop.host_verdict.v1';
   verdictId: string;
   mode: VerdictMode;
   storyId?: string;
@@ -61,7 +61,7 @@ export interface HostVerdict {
 }
 
 export interface VerdictSummary {
-  schemaVersion: 'lattice.verdict_summary.v1';
+  schemaVersion: 'proof-or-stop.verdict_summary.v1';
   mode: VerdictMode;
   storyId?: string;
   jobId?: string;
@@ -108,7 +108,7 @@ export interface VerdictRunSummary {
 }
 
 export interface VerdictRunDiagnostics {
-  schemaVersion: 'lattice.verdict_run_diagnostics.v1';
+  schemaVersion: 'proof-or-stop.verdict_run_diagnostics.v1';
   mode: VerdictMode;
   storyId?: string;
   jobId?: string;
@@ -236,7 +236,7 @@ export function submitVerdict(root: string, args: VerdictSubmitArgs, now = new D
   const decision = merged.decision || 'blocked';
   const materialDigest = merged.materialDigest || merged.validationDigest || merged.gateInputDigest || 'missing-material-digest';
   const base = {
-    schemaVersion: 'lattice.host_verdict.v1' as const,
+    schemaVersion: 'proof-or-stop.host_verdict.v1' as const,
     mode,
     storyId: merged.storyId,
     jobId: merged.jobId,
@@ -377,7 +377,7 @@ export function summarizeVerdicts(
     }
   }
   return {
-    schemaVersion: 'lattice.verdict_summary.v1',
+    schemaVersion: 'proof-or-stop.verdict_summary.v1',
     mode,
     storyId: mode === 'local' ? id : undefined,
     jobId: mode === 'authority' ? id : undefined,
@@ -465,7 +465,7 @@ export function summarizeVerdictRuns(
     .slice(0, latestLimit);
 
   return {
-    schemaVersion: 'lattice.verdict_run_diagnostics.v1',
+    schemaVersion: 'proof-or-stop.verdict_run_diagnostics.v1',
     mode,
     ...(mode === 'local' ? { storyId: id } : { jobId: id }),
     selectedRunId: selectedRunId || 'default-run',
@@ -666,7 +666,7 @@ export interface AuthorityCertificationInput {
 }
 
 export interface AuthorityCertificationView {
-  schemaVersion: 'lattice.authority_certification.v1';
+  schemaVersion: 'proof-or-stop.authority_certification.v1';
   /** Per-run authority DONE: a verified native gate_decision receipt for this run. */
   authorityDone: boolean;
   receiptVerified: boolean;
@@ -762,7 +762,7 @@ export function reconcileAuthorityCertification(
   }
 
   return {
-    schemaVersion: 'lattice.authority_certification.v1',
+    schemaVersion: 'proof-or-stop.authority_certification.v1',
     authorityDone,
     receiptVerified: authorityDone,
     receiptId: input.receiptId,

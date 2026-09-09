@@ -157,7 +157,7 @@ const doneReceiptValid = receiptCheck(Boolean(doneReceiptText), `DONE-required r
 const jobs3 = readJsonReceipt(process.env.B9812_JOBS3_RECEIPT ?? '/tmp/b9812-final-v3-jobs3.json');
 const jobs5 = readJsonReceipt(process.env.B9812_JOBS5_RECEIPT ?? '/tmp/b9812-final-v3-jobs5.json');
 const fixedPortOs = readJsonReceipt(process.env.B9812_FIXED_PORT_OS_RECEIPT ?? '/tmp/b9812-final-v3-fixed-port-os.json');
-const fixedPortOsValid = receiptCheck(fixedPortOs?.schema === 'lattice.fixed-port-os-collision.v1', 'fixed-port OS collision receipt schema missing')
+const fixedPortOsValid = receiptCheck(fixedPortOs?.schema === 'proof-or-stop.fixed-port-os-collision.v1', 'fixed-port OS collision receipt schema missing')
   && receiptCheck(fixedPortOs.host === '127.0.0.1' && fixedPortOs.port === 43127, 'fixed-port OS collision endpoint mismatch')
   && receiptCheck(fixedPortOs.capability === 'detected' && fixedPortOs.normalBind === 'PASS', 'fixed-port OS normal bind was not demonstrated')
   && receiptCheck(fixedPortOs.collision?.status === 'TERMINAL_FAIL' && fixedPortOs.collision?.code === 'EADDRINUSE' && fixedPortOs.mutationDetected === true, 'prebound fixed port did not produce terminal EADDRINUSE')

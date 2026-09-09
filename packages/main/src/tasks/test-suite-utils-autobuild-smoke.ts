@@ -28,14 +28,14 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start: string): string {
   let dir = start;
-  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'proof-or-stop.config.json')) && dir !== dirname(dir)) {
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && dir !== dirname(dir)) {
     dir = dirname(dir);
   }
   return dir;
 }
 
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
-assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (proof-or-stop.config.json; legacy lattice.config.json is read as fallback)');
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')), 'could not locate canonical repo root configuration');
 
 const read = (rel: string): string => {
   const abs = join(repoRoot, rel);

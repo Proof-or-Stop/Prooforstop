@@ -142,7 +142,7 @@ export function getGuardFailureReason(
             reasons.push('story_review not passed (no review record)');
           } else {
             const lastRound = review.reviews[review.reviews.length - 1];
-            const REVIEW_SALT = 'lattice-review-integrity-v1';
+            const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
             const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
             const expectedHash = createHash('sha256').update(hashInput).digest('hex');
             if (!lastRound._hash || lastRound._hash !== expectedHash) {
