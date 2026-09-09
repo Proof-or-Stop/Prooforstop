@@ -68,7 +68,7 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
-import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, commandCliMaxBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
 import {
   classifyRuntimeEntrypointAuthority,
@@ -1066,6 +1066,12 @@ export async function runCli(opts?: {
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
   const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
+  const timeoutBudget = {
+    effectiveMs: effectiveMaxBudget.timeoutMs,
+    derivedMs: effectiveMaxBudget.source === 'explicit-max-env'
+      ? commandCliMaxBudget(root, cmd, parsed).timeoutMs : effectiveMaxBudget.timeoutMs,
+    source: effectiveMaxBudget.source,
+  };
   const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
     ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
     : (5 * 60 * 1000);
@@ -1075,7 +1081,7 @@ export async function runCli(opts?: {
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
-  if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
+  if (cmd === 'done_prepare' || cmd === 'done_required_validate' || cmd === 'validate' || (cmd === 'story_advance' && parsed.phase === 'TEST')) {
     // B-cdf6 delivery review: this diagnostic named the deprecated env var, so a
     // user copying it back would set the pre-rename name. The resolver reads both
     // (brand-env.ts), but new user-visible output must teach the canonical form.
@@ -1202,6 +1208,7 @@ export async function runCli(opts?: {
         status: entry.success ? 'ok' : 'fail',
         result: entry.success ? null : undefined,
         error: entry.error || null,
+        timeoutBudget,
         storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory, {
           command: entry.command,
           projectRoot: effectiveRoot,
