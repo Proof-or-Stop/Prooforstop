@@ -297,3 +297,11 @@ signal. Other platforms retain the observed SID check; failed process queries,
 missing leaders and identity drift remain no-signal outcomes. Supervisor lock
 contention retries, and an already written terminal still triggers the existing
 post-terminal prompt/scratch cleanup recovery before the supervisor exits.
+
+The supervisor regression set also executes early-exit and readiness-timeout
+faults before worker launch, a real worker SIGKILL immediately after terminal
+publication, and a production mutation that skips terminal cleanup. Recovery
+removes the registered scratch without changing terminal bytes; the mutation
+leaves it behind. The watchdog CLI regression uses a real live provider and its
+actual deadline, so cancellation ordering is never inferred from a future
+injected timestamp compared against a real child-close timestamp.
