@@ -12,14 +12,14 @@
  * as a doc error.
  *
  * B-cdf6 CHK-005 — vacuous-pass hardening. `<bin>` used to be the single hardcoded literal
- * `lattice`. Once the docs were rewritten to the renamed bin (`proof-or-stop <cmd>`), that regex
+ * a retired bin. Once the docs used the canonical bin (`proof-or-stop <cmd>`), that regex
  * matched NOTHING: the loop body never ran, zero drifts were returned, and the gate reported a
  * PASS. That is strictly worse than a loud failure — a doc could reference a nonexistent command
  * forever undetected, which is the exact drift class this scanner exists to catch. Two fixes:
  *
- *   1. The extractor now accepts EVERY bin token the CLI answers to (`PROOF_OR_STOP_BIN_NAMES`:
- *      canonical `proof-or-stop` plus the deprecated `lattice` alias), so mixed-token docs stay
- *      covered for the whole transition rather than only after a flag day.
+ *   1. The extractor detects canonical bin tokens (`PROOF_OR_STOP_BIN_NAMES`) and
+ *      the exact retired audit token. Detection of a stale documented invocation
+ *      does not make that spelling a runnable CLI alias.
  *   2. `extractedCommands` is reported alongside `drifts`, so callers can tell "scanned N
  *      documented commands, all clean" apart from "extracted nothing at all". An empty extraction
  *      is a scanner-blindness signal, NOT evidence of a clean scan.
@@ -34,7 +34,6 @@ import {
 } from '../handlers/validate-docs-drift.js';
 import {
   PROOF_OR_STOP_BIN_NAMES,
-  PROOF_OR_STOP_DEPRECATED_BIN,
   PROOF_OR_STOP_PRIMARY_BIN,
 } from './proof-or-stop-brand.js';
 
@@ -68,12 +67,13 @@ export interface AuditReport {
 }
 
 /**
- * Every bin token a doc may legitimately instruct the user to run, canonical first.
+ * Canonical bin tokens plus one exact retired spelling for audit detection only.
  * B-cdf6 CHK-005: sourced from `PROOF_OR_STOP_BIN_NAMES` rather than a local literal, so adding or
  * retiring a bin alias in proof-or-stop-brand.ts cannot silently desync the drift extractor from the
  * names the CLI actually answers to.
  */
-const BIN_TOKEN_ALTERNATION = [...new Set([...PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_DEPRECATED_BIN])]
+const RETIRED_AUDIT_BIN_TOKEN = 'lattice'; // Detection only; not a runnable bin alias.
+const BIN_TOKEN_ALTERNATION = [...new Set([...PROOF_OR_STOP_BIN_NAMES, RETIRED_AUDIT_BIN_TOKEN])]
   // Longest first: alternation is ordered, so an entry that is a prefix of another
   // (`proof-or-stop` of `proof-or-stop-codex`, `proof-or-stop` of `proof-or-stop-codex`) must not
   // get first refusal. Backtracking would recover here, but relying on it is fragile —
@@ -139,12 +139,20 @@ const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
   'audit_config_set',
 ]);
 
+function retiredBinDrift(sectionPath: string, symbol: string): DriftCandidate {
+  return {
+    sectionPath, symbol, driftType: 'missing-command', severity: 'medium',
+    desc: `Documented invocation \`${symbol}\` uses a retired executable; use the canonical Proof-or-Stop bin.`,
+    evidence: 'retired-bin: canonical help success cannot authorize a removed executable',
+  };
+}
+
 /**
  * scanCommandDrift: extract command names of the form `<bin> <cmd>` from md;
  * for each one not in the ignore list, run `<bin> <cmd> --help`, exit≠0 → drift.
  *
- * B-cdf6 CHK-005: `<bin>` is any token in `PROOF_OR_STOP_BIN_NAMES` (canonical `proof-or-stop` plus the
- * deprecated `proof-or-stop` alias), not a single hardcoded literal. Also returns `extractedCommands`
+ * Canonical bins are probed; the exact retired audit token is rejected before any
+ * ignore, YAGNI, de-duplication, or help-success branch. Also returns `extractedCommands`
  * so an empty extraction is distinguishable from a clean scan.
  */
 export function scanCommandDrift(
@@ -168,6 +176,15 @@ export function scanCommandDrift(
     while ((m = re.exec(line))) {
       const bin = m[1];
       const cmd = m[2];
+      if (bin === RETIRED_AUDIT_BIN_TOKEN) {
+        const symbol = `${bin} ${cmd}`;
+        if (!seen.has(symbol)) {
+          seen.add(symbol);
+          extractedCommands.push(cmd);
+          drifts.push(retiredBinDrift(`${mdPath}#${headingFor(i, headings)}`, symbol));
+        }
+        continue;
+      }
       if (COMMAND_SCAN_IGNORE.has(cmd)) continue;
       if (seen.has(cmd)) continue;
       seen.add(cmd);
@@ -234,6 +251,14 @@ export function scanFlagDrift(
     while ((cm = cmdRe.exec(line))) {
       const bin = cm[1];
       const cmd = cm[2];
+      if (bin === RETIRED_AUDIT_BIN_TOKEN) {
+        const symbol = `${bin} ${cmd}`;
+        if (!seen.has(symbol)) {
+          seen.add(symbol);
+          drifts.push(retiredBinDrift(`${mdPath}#${headingFor(i, headings)}`, symbol));
+        }
+        continue;
+      }
       if (COMMAND_SCAN_IGNORE.has(cmd)) continue;
       const tail = cm[3] || '';
       const flagRe = /--([a-z][a-z0-9-]*)/g;
@@ -385,7 +410,8 @@ export function runMechanicalAudit(
     for (const cmd of c.extractedCommands) extractedCommandSet.add(cmd);
 
     const f = scanFlagDrift(md, rel, { runHelp: opts.runHelp });
-    drifts.push(...f.drifts);
+    drifts.push(...f.drifts.filter(candidate => !c.drifts.some(command =>
+      command.symbol === candidate.symbol && command.driftType === candidate.driftType)));
     skipped.push(...f.skipped);
 
     const p = scanPathDrift(md, rel, repoRoot, { grepLiteral: opts.grepLiteral, pathExists: opts.pathExists });

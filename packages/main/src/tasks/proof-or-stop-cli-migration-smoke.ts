@@ -112,17 +112,17 @@ const storyCreateHelp = runCli(['story_create', '--help']);
 // B-cdf6 (F-030): help examples must teach the canonical bin and must not
 // regress to the deprecated bin.
 assert.match(storyCreateHelp, /proof-or-stop story_create with checklist/);
-assert.doesNotMatch(storyCreateHelp, /proof-or-stop story_create with checklist/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_create with checklist/);
 assert.match(storyCreateHelp, /proof-or-stop story_advance phase=INIT_CHECK/);
-assert.doesNotMatch(storyCreateHelp, /proof-or-stop story_advance phase=INIT_CHECK/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
 assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses proof-or-stop-prefixed commands');
 assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses proof-or-stop checklist_add');
 
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
 assert.match(storyAdvanceHelp, /proof-or-stop story_review/);
-assert.doesNotMatch(storyAdvanceHelp, /proof-or-stop story_review/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_review/);
 assert.match(storyAdvanceHelp, /proof-or-stop story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
-assert.doesNotMatch(storyAdvanceHelp, /proof-or-stop story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
 assert.match(storyAdvanceHelp, /Try proof-or-stop story_advance/);
 assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses proof-or-stop-prefixed commands');
 
@@ -150,7 +150,7 @@ assert.match(hostInstallHelp, /does not execute the side-effect path|no third-pa
 
 // Flat commands and supported command aliases both return parseable JSON.
 const hostList = runJson<any>(['host_list', '--format=json']);
-assert.equal(hostList.schemaVersion, 'lattice.host_list.v1');
+assert.equal(hostList.schemaVersion, 'proof-or-stop.host_list.v1');
 assert.equal(hostList.product.version, PROOF_OR_STOP_CLI_VERSION);
 assert.equal(hostList.migration.macAppRequired, false);
 assert.equal(hostList.authority.productionDone, false);
@@ -187,33 +187,33 @@ assert.equal(
 );
 
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);
-assert.equal(hostListAlias.schemaVersion, 'lattice.host_list.v1', 'host list alias works');
+assert.equal(hostListAlias.schemaVersion, 'proof-or-stop.host_list.v1', 'host list alias works');
 
-const hostProbe = runJson<any>(['host_probe', '--host=codex', '--format=json']);
-assert.equal(hostProbe.schemaVersion, 'lattice.host_probe.v1');
-assert.equal(hostProbe.probe.host, 'codex');
-assert.equal(hostProbe.productionDone, false);
-assert.equal(hostProbe.receiptVerified, false);
+const hostProbeAlias = runJson<any>(['proof-or-stop', 'host', 'probe', '--host=codex', '--format=json']);
+assert.equal(hostProbeAlias.schemaVersion, 'proof-or-stop.host_probe.v1');
+assert.equal(hostProbeAlias.probe.host, 'codex');
+assert.equal(hostProbeAlias.productionDone, false);
+assert.equal(hostProbeAlias.receiptVerified, false);
 for (const [category, authorityImpact] of [
   ['browser-automation', 'verification-evidence-limited'],
   ['evidence-submit', 'evidence-local-only'],
   ['receipt-verify', 'local-assurance-required'],
 ] as const) {
-  assert.equal(capabilityByCategory(hostProbe.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
-  const degradation = degradationByCategory(hostProbe.probe.degradations, category);
+  assert.equal(capabilityByCategory(hostProbeAlias.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
+  const degradation = degradationByCategory(hostProbeAlias.probe.degradations, category);
   assert.equal(degradation.visible, true, `codex ${category} degradation is visible`);
   assert.equal(degradation.authorityImpact, authorityImpact, `codex ${category} authority impact is explicit`);
 }
-assertNoProductionOverclaim(hostProbe, 'host_probe');
+assertNoProductionOverclaim(hostProbeAlias, 'host_probe');
 
-const hostStatus = runJson<any>(['host_status', '--host=claude-code', '--json']);
-assert.equal(hostStatus.schemaVersion, 'lattice.host_status.v1');
-assert.equal(hostStatus.host, 'claude-code');
-assert.equal(hostStatus.overflowReady, true);
-assertNoProductionOverclaim(hostStatus, 'host_status');
+const hostStatusAlias = runJson<any>(['proof-or-stop', 'host', 'status', '--host=claude-code', '--json']);
+assert.equal(hostStatusAlias.schemaVersion, 'proof-or-stop.host_status.v1');
+assert.equal(hostStatusAlias.host, 'claude-code');
+assert.equal(hostStatusAlias.overflowReady, true);
+assertNoProductionOverclaim(hostStatusAlias, 'proof-or-stop host status');
 
 const desktopProbe = runJson<any>(['host_probe', '--host=desktop-app', '--format=json']);
-assert.equal(desktopProbe.schemaVersion, 'lattice.host_probe.v1');
+assert.equal(desktopProbe.schemaVersion, 'proof-or-stop.host_probe.v1');
 assert.equal(desktopProbe.probe.host, 'desktop-app');
 assert.match(desktopProbe.probe.profile.summary, /dashboard\/archive/i);
 for (const category of ['file-edit', 'test-execution', 'evidence-submit', 'receipt-verify'] as const) {
@@ -225,15 +225,15 @@ assert.equal(degradationByCategory(desktopProbe.probe.degradations, 'receipt-ver
 assertNoProductionOverclaim(desktopProbe, 'desktop-app host probe');
 
 const install = runJson<any>(['host_install', '--host=desktop-app', '--format=json']);
-assert.equal(install.schemaVersion, 'lattice.host_install.v1');
+assert.equal(install.schemaVersion, 'proof-or-stop.host_install.v1');
 assert.equal(install.dryRun, true);
 assert.equal(install.executed, false);
 assert.equal(install.thirdPartyInstallsExecuted, false);
 assert.match(install.summary, /optional dashboard\/archive/i);
 assertNoProductionOverclaim(install, 'host_install');
 
-const configDoctor = runJson<any>(['lattice_config_doctor', '--format=json']);
-assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
+const configDoctor = runJson<any>(['proof-or-stop', 'config', 'doctor', '--format=json']);
+assert.equal(configDoctor.schemaVersion, 'proof-or-stop.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
 // B-cdf6:F-046 / B-cc10:F-196 — the package-bin check must protect the
@@ -243,10 +243,10 @@ assert.ok(
   'package-bin-aliases check confirms the package exposes only proof-or-stop',
 );
 assert.equal(configDoctor.versions.expected, PROOF_OR_STOP_CLI_VERSION);
-assertNoProductionOverclaim(configDoctor, 'lattice_config_doctor');
+assertNoProductionOverclaim(configDoctor, 'proof_or_stop_config_doctor');
 
-const rollout = runJson<any>(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
-assert.equal(rollout.schemaVersion, 'lattice.rollout_check.v1');
+const rollout = runJson<any>(['proof-or-stop', 'rollout', 'check', `--projects=${repoRoot}`, '--format=json']);
+assert.equal(rollout.schemaVersion, 'proof-or-stop.rollout_check.v1');
 assert.equal(rollout.readOnly, true);
 assert.equal(rollout.macAppRequired, false);
 assert.equal(rollout.summary.total, 1);
@@ -264,7 +264,7 @@ assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
 assertNoProductionOverclaim(rollout, 'rollout_check');
 
 const conduit = runJson<any>(['conduit_status', '--format=json']);
-assert.equal(conduit.schemaVersion, 'lattice.conduit_status.v1');
+assert.equal(conduit.schemaVersion, 'proof-or-stop.conduit_status.v1');
 assert.equal(conduit.runnerProvisioned, false);
 assert.equal(conduit.modelRunnerCreated, false);
 assert.equal(conduit.productionDone, false);
@@ -272,8 +272,8 @@ assert.equal(conduit.receiptVerified, false);
 assert.equal(conduit.authorityChanged, false);
 assertNoProductionOverclaim(conduit, 'conduit_status');
 
-const conduitExplain = runJson<any>(['conduit_explain', '--format=json']);
-assert.equal(conduitExplain.schemaVersion, 'lattice.conduit_explain.v1');
+const conduitExplain = runJson<any>(['proof-or-stop', 'conduit', 'explain', '--format=json']);
+assert.equal(conduitExplain.schemaVersion, 'proof-or-stop.conduit_explain.v1');
 assert.ok(conduitExplain.explanation.some((line: string) => /not a model runner/i.test(line)));
 assertNoProductionOverclaim(conduitExplain, 'conduit_explain');
 

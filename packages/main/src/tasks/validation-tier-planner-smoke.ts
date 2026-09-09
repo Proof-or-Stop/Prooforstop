@@ -500,7 +500,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
   // 129-entry inventory form a 132-entry union without losing either side;
   // B-e256 then adds its global launcher row for the 133-entry merged inventory.
-  assert.equal(real.commandSetDigest, '6f6a4fa01f9ae975a04c754c17d1ca31df1066ba6c4967b4ed2f35f7a5452e24', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // Main v0.3.284 contributes the current validation resource/receipt command,
+  // producing the 134-entry inventory pinned below.
+  assert.equal(real.commandSetDigest, '8498217e988d3736ee7dd1bafc35f7465cf6d135fd7d2e3010e83cabb8933210', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
@@ -1173,7 +1175,7 @@ testCase('a malformed commandId is rejected at the resolver entry, not silently 
 // ---------------------------------------------------------------------------
 
 const FIXTURE_HEAD_SNAPSHOT: EvidenceHashSnapshot = {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+  schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v1',
   headHash: 'head0000000000000000000000000000000000000',
   materialHash: 'material00000000000000000000000000000000',
   storyFilesHash: 'storyfiles000000000000000000000000000000',

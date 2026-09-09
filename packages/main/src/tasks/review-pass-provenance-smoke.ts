@@ -10,9 +10,10 @@
  *      provenanceFlag=same_session_write plus a stderr warning naming BOTH ids;
  *   3. enforce mode (opt-in config) rejects the owner-session pass naming both
  *      ids and persists nothing — while a distinct session still passes;
- *   4. a REAL pre-change record (copied verbatim from
+ *   4. a REAL retired-domain pre-change record (copied verbatim from
  *      tmp/bf458-forensics-2026-07-14/story-metadata/review-passes.json) without
- *      writerSessionId still verifies via the legacy domain;
+ *      writerSessionId is rejected, while a current-domain record without
+ *      writer provenance remains valid;
  *   5. absent / invalid config resolves the mode to warn (hardcoded fallback);
  *   6. tampering the persisted writerSessionId (or stripping provenance fields)
  *      breaks signature verification — and (F-002) so does tampering the
@@ -27,7 +28,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,10 +56,15 @@ const SESSION_ENV_KEYS = [
   'PROOF_OR_STOP_ACTIVITY_SESSION',
   'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER',
   'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE',
   'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY',
+  'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED',
   'CLAUDE_CODE_SESSION_ID',
   'CLAUDE_SESSION_ID',
   'CODEX_SESSION_ID',
+  'CODEX_THREAD_ID',
   'OPENAI_SESSION_ID',
   'TERM_SESSION_ID',
   'ANTIGRAVITY_SESSION_ID',
@@ -198,8 +204,23 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string, sessionEnv: Record<string, string> = {}): Promise<string> {
-  const result = await runProofOrStop(root, 'review_run_start', { storyId, agent }, sessionEnv);
+  const activityEnv = { PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', ...sessionEnv };
+  const leasePath = join(new StoryStore(root).storyDirPath(storyId), 'owner-lease.json');
+  const ownerSessionId = existsSync(leasePath)
+    ? (JSON.parse(readFileSync(leasePath, 'utf8')) as { sessionId?: string }).sessionId
+    : undefined;
+  const dispatchEnv = ownerSessionId
+    ? { ...activityEnv, PROOF_OR_STOP_SESSION_ID: ownerSessionId }
+    : { ...activityEnv, PROOF_OR_STOP_SESSION_ID: 'sess-review-provenance-bootstrap' };
+  const dispatched = await runProofOrStop(root, 'dispatch', { storyId, agentType: agent }, dispatchEnv);
+  assert.equal(dispatched.code, 0, `dispatch should succeed: ${dispatched.stderr}`);
+  if (!ownerSessionId) rmSync(leasePath, { force: true });
+  const reviewRunEnv = ownerSessionId
+    ? activityEnv
+    : { ...activityEnv, PROOF_OR_STOP_SESSION_ID: 'sess-review-provenance-bootstrap' };
+  const result = await runProofOrStop(root, 'review_run_start', { storyId, agent }, reviewRunEnv);
   assert.equal(result.code, 0, `review_run_start should succeed: ${result.stderr}`);
+  if (!ownerSessionId) rmSync(leasePath, { force: true });
   return extractReviewRunId(result.stdout);
 }
 
@@ -388,11 +409,11 @@ async function assertDefaultModeResolvesToWarn(): Promise<void> {
   }
 }
 
-// ── 4: REAL pre-change fixture without writerSessionId verifies via legacy domain ──
-function assertLegacyFixtureStillVerifies(): void {
+// ── 4: retired signing domains fail closed; current no-provenance records remain valid ──
+function assertRetiredDomainRejectedAndCurrentPreProvenanceVerifies(): void {
   const legacy = JSON.parse(LEGACY_FIXTURE_JSON) as ReviewPass;
   assert.equal(legacy.writerSessionId, undefined, 'fixture is genuinely pre-provenance');
-  assert.equal(verifyReviewPass(LEGACY_FIXTURE_STORY_ID, legacy), true, 'real pre-change record verifies via legacy domain');
+  assert.equal(verifyReviewPass(LEGACY_FIXTURE_STORY_ID, legacy), false, 'retired-domain fixture is rejected by the active reader');
 
   // Synthetic pre-change signing path (no provenance argument) also still verifies.
   const syntheticLegacy: ReviewPass = {
@@ -412,8 +433,8 @@ function assertLegacyFixtureStillVerifies(): void {
     syntheticLegacy.reviewRound!,
     syntheticLegacy.reviewRunId,
   );
-  assert.equal(verifyReviewPass('B-old', syntheticLegacy), true, 'synthetic legacy-domain record verifies');
-  console.log('  ✓ legacy records without writerSessionId verify via the legacy domain (real + synthetic fixtures)');
+  assert.equal(verifyReviewPass('B-old', syntheticLegacy), true, 'current-domain record without writer provenance verifies');
+  console.log('  ✓ retired signing domains fail closed while current-domain records without writer provenance still verify');
 }
 
 // ── 6: tampering writerSessionId / stripping provenance breaks verification ──
@@ -522,7 +543,7 @@ function assertTamperBreaksSignature(): void {
 
 async function main(): Promise<void> {
   console.log('review-pass-provenance-smoke (B-3b05 CHK-002)');
-  assertLegacyFixtureStillVerifies();
+  assertRetiredDomainRejectedAndCurrentPreProvenanceVerifies();
   assertTamperBreaksSignature();
   await assertDefaultModeResolvesToWarn();
   await assertNonOwnerSessionRecordsIdentityWithoutFlag();

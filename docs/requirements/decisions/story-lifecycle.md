@@ -65,15 +65,15 @@ The numbering is used only for observable state, not to judge whether something 
 
 ### INIT_CHECK Controlled Fallback Without Subagent (B-95d8)
 
-On the normal path, `INIT → INIT_CHECK` requires an independent INIT reviewer (`proof-or-stop-review-story-init` + `product-reviewer`) to write the signed `init-check.json` via `init_check_set`. Environments that cannot spawn a subagent (CI sandbox / no subagent runner) previously had no legal exit, so the story was permanently stuck at `[missing_init_check]`.
+On the normal path, `INIT → INIT_CHECK` requires the independent INIT reviewers `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer` to write the signed `init-check.json` via `init_check_set`. Environments that cannot spawn a subagent (CI sandbox / no subagent runner) previously had no legal exit, so the story was permanently stuck at `[missing_init_check]`.
 
 `proof-or-stop init_check_repair` provides an **explicit, auditable fallback that does not weaken the signature** (INIT phase, `ownershipClass: storyScopedMutating`, an owner-gated manual override, not a reviewer-lane write):
 
 - **Disabled by default**: missing `acknowledge:true` or a `fallbackReason` shorter than 30 characters is rejected, producing no file and not changing the phase.
 - **Reuses `signInitCheck`**: the same signature domain as an ordinary `init_check_set`, so nothing about the fallback is signed more weakly. Since B-8df9 CHK-002 that domain also covers the reviewer verdict, so it is storyId / background.md / title / description / checklist / reviewRound / `agentResults` + `issues` — modifying any of them after signing still triggers `[init_check_tampered]`. `describeInitCheckSignatureDomain()` renders the live list; do not restate it from memory.
-- **Does not relax the gate**: the required reviewer coverage is recorded as `<required>@fallback` (`initCheckAgentMatches` recognizes the prefix), which both satisfies validation and is mechanically distinguishable from an independent reviewer; manually attested high/critical issues still self-block via `blockingInitCheckIssues`.
+- **Does not relax the gate**: `initCheckAgentMatches` accepts only the exact bare required identity or exact `<required>@fallback`; it rejects `<required>@operator` and `<required>@fallback-extra`. The fallback record therefore satisfies required coverage while remaining mechanically distinguishable from an independent reviewer; manually attested high/critical issues still self-block via `blockingInitCheckIssues`.
 - **Audit**: writes `init-check.json.fallback` (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) + an `init_check_fallback` process event; `story_get` exposes `initCheckAttestation` (`fallback`/`independent`) + the `initCheckFallback` block so the dashboard/report can distinguish them.
-- Does not introduce mechanical `agentId` validation (EXP-001 has falsified caller mechanical distinguishability).
+- `init_check_set` mechanically validates `agentId` as a byte-exact registered actor before authority resolution. The separate fallback handler emits the exact `<required>@fallback` identity; callers cannot submit arbitrary suffixes through `init_check_set`.
 
 For the canonical command template and design constraints, see the "INIT→INIT_CHECK hard gate" section of CLAUDE.md.
 

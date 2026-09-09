@@ -168,7 +168,7 @@ function readinessRow(host: CanonicalReviewHost, ready: boolean, overrides: Reco
 
 function readinessProbe(rows: ReturnType<typeof readinessRow>[]): ProcessEvent {
   return {
-    schemaVersion: 'lattice.review_host_availability_probe.v2',
+    schemaVersion: 'proof-or-stop.review_host_availability_probe.v2',
     type: 'review_host_availability_probe',
     command: 'review_host_availability_probe',
     timestamp: '2026-07-09T10:01:00.000Z',
@@ -391,7 +391,7 @@ try {
     assert.equal(wrongTypeRecord.valid, false);
     assert.match(wrongTypeRecord.reasons.join('\n'), /retired completion flag must be false/);
 
-    const wrongSchemaVersion = { ...event, schemaVersion: 'lattice.review_host_availability_probe.v1' };
+    const wrongSchemaVersion = { ...event, schemaVersion: 'proof-or-stop.review_host_availability_probe.v1' };
     const wrongSchemaRecord = reviewHostAvailabilityProbeRecordFromEvent(wrongSchemaVersion, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(wrongSchemaRecord.valid, false);
     assert.match(wrongSchemaRecord.reasons.join('\n'), /retired completion flag must be false/);

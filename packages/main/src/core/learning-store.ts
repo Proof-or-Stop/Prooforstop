@@ -795,7 +795,7 @@ export function deleteProposal(projectRoot: string, id: string): boolean {
 
 // ── B-dddd M0-M2: playbook outcome ledger ────────────────────────────────────
 
-const PLAYBOOK_OUTCOME_SCHEMA_VERSION = 'proofbound.playbook-outcome.v1';
+const PLAYBOOK_OUTCOME_SCHEMA_VERSION = 'proof-or-stop.playbook-outcome.v1';
 const PLAYBOOK_EXPOSURE_MODES = new Set(['candidate-inspection', 'active-advisory', 'none']);
 const PLAYBOOK_OUTCOME_VERDICTS = new Set(['helped', 'neutral', 'dismissed', 'harmful', 'unknown']);
 const STRUCTURED_VERDICT_SOURCE_RE = /^[A-Za-z][A-Za-z0-9_.:-]{1,79}$/;
@@ -1003,7 +1003,7 @@ export function appendPlaybookOutcomeEvent(projectRoot: string, event: PlaybookO
 
 // ── B-5f5b: matched-control trial ledger ───────────────────────────────────
 
-const PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION = 'proofbound.playbook-trial-control.v1';
+const PLAYBOOK_TRIAL_CONTROL_SCHEMA_VERSION = 'proof-or-stop.playbook-trial-control.v1';
 
 export function validatePlaybookTrialControlEvent(raw: unknown): {
   ok: true;
@@ -1125,11 +1125,11 @@ export function appendPlaybookTrialControlEvent(projectRoot: string, event: Play
 
 // ── B-6241 M3-M6: promotion worker learning metadata ────────────────────────
 
-const PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION = 'proofbound.playbook-promotion-decision.v1';
-const PLAYBOOK_AUTO_ACTIVATION_SCHEMA_VERSION = 'proofbound.playbook-auto-activation.v1';
-const NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION = 'proofbound.non-deducible-sources.v1';
-const PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION = 'proofbound.playbook-promotion-health.v1';
-const NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION = 'proofbound.non-deducible-source.v1';
+const PLAYBOOK_PROMOTION_DECISION_SCHEMA_VERSION = 'proof-or-stop.playbook-promotion-decision.v1';
+const PLAYBOOK_AUTO_ACTIVATION_SCHEMA_VERSION = 'proof-or-stop.playbook-auto-activation.v1';
+const NON_DEDUCIBLE_SOURCES_SCHEMA_VERSION = 'proof-or-stop.non-deducible-sources.v1';
+const PLAYBOOK_PROMOTION_HEALTH_SCHEMA_VERSION = 'proof-or-stop.playbook-promotion-health.v1';
+const NON_DEDUCIBLE_SOURCE_ROW_SCHEMA_VERSION = 'proof-or-stop.non-deducible-source.v1';
 
 const PLAYBOOK_PROMOTION_ACTIONS = new Set([
   'recommend_activate',
@@ -1702,7 +1702,7 @@ export function appendPlaybookAutoActivationEvent(projectRoot: string, event: Pl
   return atomicAppendCanonicalJsonLine(resolvePlaybookAutoActivationsPath(projectRoot), validated.event);
 }
 
-const PLAYBOOK_PROMOTION_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-promotion-observe.v1';
+const PLAYBOOK_PROMOTION_OBSERVE_SCHEMA_VERSION = 'proof-or-stop.playbook-promotion-observe.v1';
 const RELATIVE_OBSERVE_SINCE_RE = /^([1-9][0-9]*)([smhdw])$/i;
 const RELATIVE_OBSERVE_UNITS_MS: Record<string, number> = {
   s: 1000,

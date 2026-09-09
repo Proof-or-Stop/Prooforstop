@@ -910,8 +910,8 @@ export class StoryStore {
     const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
     withMkdirLock(indexLockPath, () => {
       const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-      let index: { schemaVersion: 'proofbound.causal-evidence-index.v1'; receipts: Record<string, string> } = {
-        schemaVersion: 'proofbound.causal-evidence-index.v1',
+      let index: { schemaVersion: 'proof-or-stop.causal-evidence-index.v1'; receipts: Record<string, string> } = {
+        schemaVersion: 'proof-or-stop.causal-evidence-index.v1',
         receipts: {},
       };
       if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
@@ -1059,7 +1059,7 @@ export class StoryStore {
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) {
         return {
-          schemaVersion: 'lattice.decision_doc_proposals.v1',
+          schemaVersion: 'proof-or-stop.decision_doc_proposals.v1',
           storyId,
           updatedAt: '',
           proposals: [],

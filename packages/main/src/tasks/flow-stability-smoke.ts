@@ -75,6 +75,7 @@ import {
 } from '../core/lifecycle-registry.js';
 import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, isTerminalReviewerFindingStatus, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { CURRENT_PROMPT_IDENTITIES, domainSeparatedDigest } from '../core/prompt-contracts.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -91,6 +92,7 @@ import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
@@ -161,7 +163,7 @@ function localCliPath(): string {
 
 function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string): Finding {
   const id = `${storyId}:F-${idSuffix}`;
-  const createdAt = `2026-04-27T12:00:${idSuffix}.000Z`;
+  const createdAt = new Date(Date.UTC(2099, 3, 27, 12, 0, Number(idSuffix))).toISOString();
   const desc = `${agent} clean finding`;
   const severity = 'low';
   return {
@@ -177,6 +179,8 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
     _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, reviewRunId),
   };
 }
+
+const reviewEnvelopeIds = new Map<string, string>();
 
 function makeLegacyFindingWithoutRun(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
   const id = `${storyId}:F-${idSuffix}`;
@@ -198,8 +202,11 @@ function makeLegacyFindingWithoutRun(storyId: string, agent: string, reviewRound
 
 function makeReviewPass(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string) {
   const id = `${storyId}:RP-${idSuffix}`;
-  const createdAt = `2026-04-27T12:10:${idSuffix}.000Z`;
+  const createdAt = new Date(Date.UTC(2099, 3, 27, 12, 10, Number(idSuffix))).toISOString();
   const note = `${agent} checked the story and found no blocking issue`;
+  const envelopeId = reviewEnvelopeIds.get(reviewRunId) ?? reviewRunId;
+  const writerSessionId = `session-${agent}`;
+  const sessionSource = 'explicit-env';
   return {
     id,
     agent,
@@ -207,7 +214,23 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
     createdAt,
     reviewRound,
     reviewRunId,
-    _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound, reviewRunId),
+    envelopeId,
+    writerSessionId,
+    sessionSource,
+    _hash: signReviewPass(
+      storyId,
+      id,
+      agent,
+      note,
+      createdAt,
+      reviewRound,
+      reviewRunId,
+      undefined,
+      undefined,
+      undefined,
+      { writerSessionId, sessionSource },
+      envelopeId,
+    ),
   };
 }
 
@@ -226,43 +249,62 @@ function makeLegacyReviewPassWithoutRun(storyId: string, agent: string, reviewRo
 }
 
 function seedReviewRuns(root: string, store: StoryStore, storyId: string, reviewRound: string, agents: string[]): Map<string, string> {
-  const headHash = currentGitHead(root) || `head-${reviewRound}`;
-  const materialHash = currentMaterialHash(root) || `material-${reviewRound}`;
-  const runs: ReviewRun[] = agents.map((agent, index) => {
-    const reviewRunId = `${storyId}:RR-${String(index + 1).padStart(3, '0')}`;
-    const startedAt = `2026-04-27T11:${String(index).padStart(2, '0')}:00.000Z`;
-    return {
-      reviewRunId,
-      storyId,
-      agent,
-      lane: agent,
-      reviewRound,
-      startedAt,
-      headHash,
-      materialHash,
-      promptHash: legacyPromptHash(agent),
-      _hash: signReviewRun(
-        storyId,
-        reviewRunId,
-        agent,
-        agent,
-        reviewRound,
-        startedAt,
-        headHash,
-        materialHash,
-        legacyPromptHash(agent),
-      ),
-    };
-  });
-  store.writeReviewRuns(storyId, { runs });
-  return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
+  if (!currentGitHead(root)) {
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'review-seed@example.test']);
+    git(root, ['config', 'user.name', 'review-seed-smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'review seed baseline']);
+  }
+  const context = { store, root, scanRoot: join(root, 'packages/main') };
+  const dispatchHandlers = createStoryDispatchHandlers(context);
+  const reviewRunHandlers = createReviewRunHandlers(context);
+  const result = new Map<string, string>();
+  for (const agent of agents) {
+    dispatchHandlers.dispatch({ storyId, agentType: agent });
+    const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+    const previousCwd = process.cwd();
+    process.env.PROOF_OR_STOP_AGENT = agent;
+    process.chdir(root);
+    try {
+      reviewRunHandlers.review_run_start({ storyId, agent });
+    } finally {
+      process.chdir(previousCwd);
+      if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+    }
+    const run = [...store.readReviewRuns(storyId).runs].reverse().find(candidate => candidate.agent === agent);
+    assert.ok(run, `production review_run_start should persist ${agent}`);
+    assert.equal(run.reviewRound, reviewRound);
+    assert.ok(run.envelopeId, `production review run for ${agent} should bind a Prompt Envelope`);
+    reviewEnvelopeIds.set(run.reviewRunId, run.envelopeId);
+    result.set(agent, run.reviewRunId);
+  }
+  return result;
 }
 
 function legacyPromptHash(agent: string): string {
   return hashReviewPrompt(resolvePromptRoleBody(agent, {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [agent]: 'legacy-full-context' },
+    roles: { [agent]: 'full-envelope' },
   }).body);
+}
+
+function currentPromptEnvelopeBinding(agent: string, envelopeId: string): {
+  assembledPrompt: string;
+  promptHash: string;
+  envelopeId: string;
+} {
+  const assembledPrompt = [
+    JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.roleContract, agent }),
+    JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.fullTaskContext }),
+    JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment }),
+  ].join('\n');
+  return {
+    assembledPrompt,
+    promptHash: domainSeparatedDigest('assembled-prompt.raw-utf8.v1', assembledPrompt),
+    envelopeId,
+  };
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
@@ -617,6 +659,11 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-dispatch-author-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'dispatch-author@example.test']);
+    git(root, ['config', 'user.name', 'dispatch-author-smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'dispatch author baseline']);
     const dispatch = createStoryDispatchHandlers({
       store,
       root,
@@ -1348,39 +1395,52 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
       'proof-or-stop-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+    const conceptFinding = makeFinding(
+      storyId,
+      'proof-or-stop-review-concept',
+      reviewRound,
+      '061',
+      runIds.get('proof-or-stop-review-concept')!,
+    );
+    const qualityFinding = makeFinding(
+      storyId,
+      'proof-or-stop-review-quality',
+      reviewRound,
+      '062',
+      runIds.get('proof-or-stop-review-quality')!,
+    );
+    const initialTestCoveragePass = makeReviewPass(
+      storyId,
+      'proof-or-stop-review-test-coverage',
+      reviewRound,
+      '063',
+      runIds.get('proof-or-stop-review-test-coverage')!,
+    );
+    store.writeFindings(storyId, { findings: [conceptFinding, qualityFinding] });
+    store.writeReviewPasses(storyId, { passes: [initialTestCoveragePass] });
 
-    const runsData = store.readReviewRuns(storyId);
-    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'proof-or-stop-review-test-coverage');
-    assert.ok(previousTestCoverageRun, 'test-coverage run fixture should exist');
-    const latestTestCoverageRunId = `${storyId}:RR-004`;
-    const latestStartedAt = '2026-04-27T11:03:00.000Z';
-    runsData.runs.push({
-      ...previousTestCoverageRun,
-      reviewRunId: latestTestCoverageRunId,
-      startedAt: latestStartedAt,
-      _hash: signReviewRun(
-        storyId,
-        latestTestCoverageRunId,
-        previousTestCoverageRun.agent,
-        previousTestCoverageRun.lane,
-        reviewRound,
-        latestStartedAt,
-        previousTestCoverageRun.headHash,
-        previousTestCoverageRun.materialHash,
-        previousTestCoverageRun.promptHash,
-      ),
-    });
-    store.writeReviewRuns(storyId, runsData);
+    const lane = 'proof-or-stop-review-test-coverage';
+    const context = { store, root, scanRoot: join(root, 'packages/main') };
+    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: lane });
+    const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+    process.env.PROOF_OR_STOP_AGENT = lane;
+    try {
+      createReviewRunHandlers(context).review_run_start({ storyId, agent: lane });
+    } finally {
+      if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+    }
+    const latestTestCoverageRun = store.readReviewRuns(storyId).runs.at(-1);
+    assert.ok(latestTestCoverageRun?.envelopeId, 'latest test-coverage run must bind a Prompt Envelope');
+    const latestTestCoverageRunId = latestTestCoverageRun.reviewRunId;
+    reviewEnvelopeIds.set(latestTestCoverageRunId, latestTestCoverageRun.envelopeId);
 
     store.writeFindings(storyId, {
-      findings: [
-        makeFinding(storyId, 'proof-or-stop-review-concept', reviewRound, '061', runIds.get('proof-or-stop-review-concept')!),
-        makeFinding(storyId, 'proof-or-stop-review-quality', reviewRound, '062', runIds.get('proof-or-stop-review-quality')!),
-      ],
+      findings: [conceptFinding, qualityFinding],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '063', runIds.get('proof-or-stop-review-test-coverage')!),
+        initialTestCoveragePass,
         makeReviewPass(storyId, 'proof-or-stop-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
       ],
     });
@@ -1479,28 +1539,16 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // the lane ends up with NO valid evidence — the precondition that used to
     // withhold forgiveness.
     const laneAgent = 'proof-or-stop-review-test-coverage';
-    const runsData = store.readReviewRuns(storyId);
-    const previousLaneRun = runsData.runs.find(run => run.lane === laneAgent);
-    assert.ok(previousLaneRun, 'test-coverage run fixture should exist');
-    const newerLaneRunId = `${storyId}:RR-090`;
-    const newerStartedAt = '2026-04-27T11:59:00.000Z';
-    runsData.runs.push({
-      ...previousLaneRun,
-      reviewRunId: newerLaneRunId,
-      startedAt: newerStartedAt,
-      _hash: signReviewRun(
-        storyId,
-        newerLaneRunId,
-        previousLaneRun.agent,
-        previousLaneRun.lane,
-        reviewRound,
-        newerStartedAt,
-        previousLaneRun.headHash,
-        previousLaneRun.materialHash,
-        previousLaneRun.promptHash,
-      ),
-    });
-    store.writeReviewRuns(storyId, runsData);
+    const context = { store, root, scanRoot: join(root, 'packages/main') };
+    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: laneAgent });
+    const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+    process.env.PROOF_OR_STOP_AGENT = laneAgent;
+    try {
+      createReviewRunHandlers(context).review_run_start({ storyId, agent: laneAgent });
+    } finally {
+      if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+    }
 
     const laneRunId = runIds.get(laneAgent)!;
     const resolvedFinding: Finding = {
@@ -1630,32 +1678,6 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
 // the id-recency + freshness authorities, not split-root workspace resolution, so
 // the run stays workspace-binding-exempt (validateRunWorkspaceBinding passes when
 // run.workspaceBinding is absent), matching a metadata-git-root reviewer run.
-function signedReviewRunOverHead(
-  root: string,
-  storyId: string,
-  agent: string,
-  reviewRound: string,
-  reviewRunId: string,
-  startedAt: string,
-): ReviewRun {
-  const headHash = currentGitHead(root)!;
-  const materialHash = currentMaterialHash(root)!;
-  const storyFilesHash = currentStoryFilesHash(root) ?? undefined;
-  return {
-    reviewRunId,
-    storyId,
-    agent,
-    lane: agent,
-    reviewRound,
-    startedAt,
-    headHash,
-    materialHash,
-    promptHash: legacyPromptHash(agent),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, undefined, storyFilesHash),
-  };
-}
-
 function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-run-binding-race-'));
   try {
@@ -1706,15 +1728,36 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     store.writeStory(storyId, story);
     store.writeChecklist(storyId, checklist);
 
-    // Two review runs on ONE lane, SAME round + SAME material tree: run1 (older)
-    // then run2 (newer). This is the concurrent/retried review_run_start race.
-    const run1Id = `${storyId}:RR-001`;
-    const run2Id = `${storyId}:RR-002`;
-    const run1 = signedReviewRunOverHead(root, storyId, agent, reviewRound, run1Id, '2026-06-24T11:00:00.000Z');
-    const run2 = signedReviewRunOverHead(root, storyId, agent, reviewRound, run2Id, '2026-06-24T11:05:00.000Z');
+    // Two production review runs on ONE lane, SAME round + SAME material tree:
+    // run1 (older) then run2 (newer). This is the concurrent/retried
+    // review_run_start race, with current Prompt Envelopes rather than a
+    // caller-authored legacy signature.
+    const context = { store, root, scanRoot: join(root, 'packages/main') };
+    const dispatchHandlers = createStoryDispatchHandlers(context);
+    const reviewRunHandlers = createReviewRunHandlers(context);
+    const startRun = (): ReviewRun => {
+      dispatchHandlers.dispatch({ storyId, agentType: agent });
+      const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+      const previousCwd = process.cwd();
+      process.env.PROOF_OR_STOP_AGENT = agent;
+      process.chdir(root);
+      try {
+        reviewRunHandlers.review_run_start({ storyId, agent });
+      } finally {
+        process.chdir(previousCwd);
+        if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+        else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+      }
+      return store.readReviewRuns(storyId).runs.at(-1)!;
+    };
+    const run1 = startRun();
+    const run2 = startRun();
+    const run1Id = run1.reviewRunId;
     assert.notEqual(run1.storyFilesHash, EMPTY_STORY_FILES_HASH, 'story-branch run must carry a non-empty storyFilesHash');
     assert.ok(run1.storyFilesHash, 'story-branch run must carry a storyFilesHash');
-    store.writeReviewRuns(storyId, { runs: [run1, run2] });
+    assert.notEqual(run1.reviewRunId, run2.reviewRunId, 'retry should mint a distinct current ReviewRun');
+    reviewEnvelopeIds.set(run1.reviewRunId, run1.envelopeId!);
+    reviewEnvelopeIds.set(run2.reviewRunId, run2.envelopeId!);
 
     // CORE: a PASS bound to the NON-latest run1 (material+scope fresh) is ACCEPTED.
     // Pre-fix this threw "is not the current latest reviewer run".
@@ -1752,31 +1795,11 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     );
     store.writeFindings(storyId, { findings: [] });
 
-    // GUARD B: an empty-set-storyFilesHash run on a drifted material tree must
-    // STILL hard-reject — the EMPTY_STORY_FILES_HASH no-signal guard must not let
-    // the drift advisory ride an empty story diff. Build run3 against the CURRENT
-    // (pre-drift) head but with the empty-set storyFilesHash (the value a HEAD==main
-    // run carries), so after the material drift below its material is stale while
-    // its storyFilesHash carries no real vouching signal. Constructed before the
-    // drift commit so its headHash/materialHash match the captured tree.
-    const emptyRunId = `${storyId}:RR-003`;
+    // GUARD B: an empty-set storyFilesHash on a drifted material tree must still
+    // hard-reject at the shared freshness layer; current ReviewRuns cannot be
+    // caller-authored with a contradictory Prompt Envelope.
     const emptyHead = currentGitHead(root)!;
     const emptyMaterial = currentMaterialHash(root)!;
-    const emptyRun: ReviewRun = {
-      reviewRunId: emptyRunId,
-      storyId,
-      agent,
-      lane: agent,
-      reviewRound,
-      startedAt: '2026-06-24T11:10:00.000Z',
-      headHash: emptyHead,
-      materialHash: emptyMaterial,
-      promptHash: legacyPromptHash(agent),
-      storyFilesHash: EMPTY_STORY_FILES_HASH,
-      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, legacyPromptHash(agent), undefined, undefined, EMPTY_STORY_FILES_HASH),
-    };
-    assert.equal(emptyRun.storyFilesHash, EMPTY_STORY_FILES_HASH, 'empty-signal run must carry the empty-set storyFilesHash');
-    store.writeReviewRuns(storyId, { runs: [run1, run2, emptyRun] });
 
     // GUARD A: genuine material drift makes both run1 (real story diff) AND the
     // empty-signal run3 stale → hard-reject, never advisory. Committing the story
@@ -1791,10 +1814,10 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       /stale/i,
       'a genuinely material-drifted run1 (non-empty storyFilesHash) must still hard-reject',
     );
-    assert.throws(
-      () => assertCurrentReviewRunForEvidence(store, story2, root, agent, emptyRunId),
-      /stale/i,
-      'an empty-set-storyFilesHash run on a drifted material tree must still hard-reject (EMPTY no-signal guard)',
+    assert.equal(
+      checkEvidenceFreshnessForGit(root, emptyHead, emptyMaterial, root, EMPTY_STORY_FILES_HASH).fresh,
+      false,
+      'an empty-set storyFilesHash must not downgrade stale material into an advisory',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1842,6 +1865,7 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
       materialHash,
     });
     assert.equal(workspaceBinding.storyFilesHash, storyFilesHash, 'workspace binding must capture storyFilesHash when computable');
+    const promptBinding = currentPromptEnvelopeBinding(agent, createHash('sha256').update(reviewRunId).digest('hex'));
 
     const run: ReviewRun = {
       reviewRunId,
@@ -1852,9 +1876,23 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
       startedAt,
       headHash,
       materialHash,
-      promptHash: legacyPromptHash(agent),
+      ...promptBinding,
       workspaceBinding,
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, workspaceBinding.bindingHash),
+      _hash: signReviewRun(
+        storyId,
+        reviewRunId,
+        agent,
+        agent,
+        reviewRound,
+        startedAt,
+        headHash,
+        materialHash,
+        promptBinding.promptHash,
+        undefined,
+        workspaceBinding.bindingHash,
+        undefined,
+        promptBinding.envelopeId,
+      ),
     };
     assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
 
@@ -2048,7 +2086,7 @@ function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
   }
 }
 
-function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
+function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvisory(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-preflight-story-files-hash-'));
   try {
     write(root, 'proof-or-stop.config.json', JSON.stringify({
@@ -2075,18 +2113,12 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
     const storyId = 'B-smoke';
     const reviewRound = '2026-06-19T12:00:00.000Z';
     const agent = 'proof-or-stop-review-quality';
-    const reviewRunId = `${storyId}:RR-001`;
-    const startedAt = '2026-06-19T12:01:00.000Z';
-    const recordedHead = currentGitHead(root)!;
-    const recordedMaterial = currentMaterialHash(root)!;
-    const recordedStoryFiles = currentStoryFilesHash(root)!;
 
     git(root, ['checkout', 'main']);
     write(root, 'packages/main/src/unrelated.ts', 'export const unrelated = 1;\n');
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'unrelated main file']);
     git(root, ['checkout', 'story/B-smoke']);
-    git(root, ['merge', 'main', '--no-edit']);
 
     const store = new StoryStore(root);
     store.writeStory(storyId, {
@@ -2104,44 +2136,53 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
     });
     store.writeChecklist(storyId, {
-      items: [{
-        id: 'CHK-001',
-        title: 'Fast-channel item',
-        context: 'Keep the preflight smoke on the express path.',
+      items: ['001', '002', '003'].map(suffix => ({
+        id: `CHK-${suffix}`,
+        title: `Reviewer drift item ${suffix}`,
+        context: 'Keep reviewer freshness visible to the normal preflight path.',
         status: 'done',
         startTime: reviewRound,
         endTime: reviewRound,
-      }],
+      })),
     });
-    const run: ReviewRun = {
-      reviewRunId,
-      storyId,
-      agent,
-      lane: agent,
-      reviewRound,
-      startedAt,
-      headHash: recordedHead,
-      materialHash: recordedMaterial,
-      storyFilesHash: recordedStoryFiles,
-      promptHash: legacyPromptHash(agent),
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, legacyPromptHash(agent), undefined, undefined, recordedStoryFiles),
-    };
-    store.writeReviewRuns(storyId, { runs: [run] });
+    resetConfigCache();
+    const context = { store, root, scanRoot: join(root, 'packages/main') };
+    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: agent });
+    const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+    const previousCwd = process.cwd();
+    process.env.PROOF_OR_STOP_AGENT = agent;
+    process.chdir(root);
+    try {
+      createReviewRunHandlers(context).review_run_start({ storyId, agent });
+    } finally {
+      process.chdir(previousCwd);
+      if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+    }
+    const run = store.readReviewRuns(storyId).runs.at(-1);
+    assert.ok(run?.envelopeId, 'production review run should bind the current Prompt Envelope');
+    reviewEnvelopeIds.set(run.reviewRunId, run.envelopeId);
     store.writeReviewPasses(storyId, {
-      passes: [makeReviewPass(storyId, agent, reviewRound, '099', reviewRunId)],
+      passes: [makeReviewPass(storyId, agent, reviewRound, '099', run.reviewRunId)],
     });
+    git(root, ['merge', 'main', '--no-edit']);
 
     const preflight = runReviewCliGates(storyId, {
       store,
       projectRoot: root,
       registryNames: new Set(),
     });
-    assert.equal(preflight.ok, true, 'storyFilesHash reviewer drift advisory must be non-blocking');
+    assert.equal(preflight.ok, true, 'express preflight should remain non-blocking');
     const advisoryGate = preflight.gates.find(gate => gate.name === 'reviewer-evidence');
-    assert.equal(advisoryGate?.status, 'warn');
+    assert.equal(advisoryGate, undefined, 'Prompt Envelope drift must not be mislabeled as unrelated material drift');
+    const evidenceState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      evidenceState.invalid.some(issue => issue.code === 'prompt_envelope_tampered' || issue.code === 'prompt_envelope_mismatch'),
+      true,
+      'main drift that invalidates the current Prompt Envelope must require reviewer re-attestation',
+    );
     const rendered = renderPreflight(preflight);
-    assert.match(rendered, /reviewer-evidence freshness: warn/);
-    assert.match(rendered, /whole-tree materialHash drift/);
+    assert.doesNotMatch(rendered, /reviewer-evidence freshness: warn/);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
@@ -2441,9 +2482,10 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
 
     assert.match(
       output,
-      /Active reviewers: proof-or-stop-review-concept \(legacy alias: lattice-review-concept\), proof-or-stop-review-quality \(legacy alias: lattice-review-quality\), proof-or-stop-review-test-coverage \(legacy alias: lattice-review-test-coverage\)/,
+      /Active reviewers: proof-or-stop-review-concept, proof-or-stop-review-quality, proof-or-stop-review-test-coverage/,
     );
     assert.doesNotMatch(output, /lattice-review-channel/);
+    assert.doesNotMatch(output, /legacy alias:/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {
     process.chdir(oldCwd);
@@ -4152,8 +4194,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     // Git identity before it enters the capacity queue. Seed only that identity
     // so this fixture still reaches, and is classified by, configured exit 5.
     git(failRoot, ['init']);
-    git(failRoot, ['config', 'user.email', 'proofOrStop@example.test']);
-    git(failRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(failRoot, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
+    git(failRoot, ['config', 'user.name', 'Harmonynet']);
     git(failRoot, ['checkout', '-B', 'main']);
     git(failRoot, ['commit', '--allow-empty', '-m', 'base']);
     const store = new StoryStore(failRoot);
@@ -4283,7 +4325,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     );
     // The REVIEW entry depends on opt-in routing; it must at least surface the
     // reviewer Agent call lines and the liveness reminder unchanged.
-    assert.match(nextSteps.REVIEW, /launch the above reviewers in parallel to review code/);
+    assert.match(nextSteps.REVIEW, /launches the reviewers in parallel/);
     assert.match(nextSteps.REVIEW, /reviewer liveness: each reviewer should first output REVIEW_START after starting/);
     assert.match(nextSteps.REVIEW, /Host-native task liveness policy/);
     assert.match(nextSteps.REVIEW, /foreground, running, or background/);
@@ -4775,6 +4817,13 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     ) => {
       const reviewRunId = `${storyId}:RR-${suffix}`;
       const agent = 'proof-or-stop-review-quality';
+      const assembledPrompt = [
+        JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.roleContract }),
+        JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.fullTaskContext }),
+        JSON.stringify({ schemaVersion: CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment }),
+      ].join('\n');
+      const promptHash = domainSeparatedDigest('assembled-prompt.raw-utf8.v1', assembledPrompt);
+      const envelopeId = `PE-${suffix}`;
       const run: ReviewRun = {
         reviewRunId,
         storyId,
@@ -4785,11 +4834,13 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         headHash: currentGitHead(root)!,
         materialHash: binding.materialHash ?? attemptMaterial,
         storyFilesHash: binding.storyFilesHash ?? attemptStoryFiles,
-        promptHash: 'prompt',
+        promptHash,
+        envelopeId,
+        assembledPrompt,
       };
       run._hash = signReviewRun(
         storyId, reviewRunId, agent, agent, round, startedAt, run.headHash, run.materialHash,
-        run.promptHash, undefined, undefined, run.storyFilesHash,
+        run.promptHash, undefined, undefined, run.storyFilesHash, envelopeId,
       );
       const pass = {
         id: `RP-${suffix}`,
@@ -5206,7 +5257,7 @@ assertReviewRunBindingRejectsInvalidEvidence();
 assertReviewRunStoryFilesHashBindingIsSigned();
 assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift();
 assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness();
-assertReviewPreflightSurfacesStoryFilesHashAdvisories();
+assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvisory();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
 assertReviewRunBindingRaceAcceptsNonLatestFreshPass();

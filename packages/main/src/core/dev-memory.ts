@@ -268,19 +268,34 @@ export function readEntriesFromPaths(filePaths: string[]): DevMemoryEntry[] {
 }
 
 export function readProjectMemoryEntries(projectRoot?: string): DevMemoryEntry[] {
-  return readEntriesFromPaths(resolveProjectMemoryReadPaths(projectRoot));
+  return readEntriesFromPaths(resolveProjectMemoryReadPaths(projectRoot)).filter(entry => !containsRetiredMemoryIdentity(entry));
 }
 
 export function readGlobalMemoryEntries(): DevMemoryEntry[] {
-  return readEntriesFromPaths(resolveGlobalMemoryReadPaths());
+  return readEntriesFromPaths(resolveGlobalMemoryReadPaths()).filter(entry => !containsRetiredMemoryIdentity(entry));
+}
+
+/** Product-token boundaries, not arbitrary substrings; audit bytes stay readable. */
+export function containsRetiredMemoryIdentity(value: unknown): boolean {
+  if (typeof value === 'string') return /(?:^|[^a-z0-9])(?:lattice|proofbound)(?=$|[^a-z0-9])/iu.test(value);
+  if (Array.isArray(value)) return value.some(containsRetiredMemoryIdentity);
+  if (value && typeof value === 'object') return Object.entries(value).some(([key, item]) =>
+    containsRetiredMemoryIdentity(key) || containsRetiredMemoryIdentity(item));
+  return false;
+}
+
+function assertCanonicalMemoryIdentity(value: unknown): void {
+  if (containsRetiredMemoryIdentity(value)) throw new Error('Dev-memory writes require canonical Proof-or-Stop identities');
 }
 
 export function appendEntry(filePath: string, entry: DevMemoryEntry): void {
+  assertCanonicalMemoryIdentity(entry);
   ensureDir(filePath);
   appendFileSync(filePath, JSON.stringify(entry) + '\n', 'utf-8');
 }
 
 export function writeEntries(filePath: string, entries: DevMemoryEntry[]): void {
+  assertCanonicalMemoryIdentity(entries);
   ensureDir(filePath);
   writeFileSync(filePath, entries.map(e => JSON.stringify(e)).join('\n') + (entries.length > 0 ? '\n' : ''), 'utf-8');
 }
@@ -392,6 +407,7 @@ function generateId(input: CaptureInput, now: string): string {
 }
 
 export function createEntry(input: CaptureInput): DevMemoryEntry {
+  assertCanonicalMemoryIdentity(input);
   const now = new Date().toISOString();
   const id = generateId(input, now);
   return {
@@ -625,6 +641,9 @@ export function formatEntryShort(
 }
 
 export function formatPreflightPack(result: PreflightResult, query?: string): string {
+  if (containsRetiredMemoryIdentity(result) || containsRetiredMemoryIdentity(query)) {
+    return 'Dev Memory Preflight\n  (memory omitted: noncanonical identity)\n';
+  }
   if (result.entries.length === 0) {
     return 'Dev Memory Preflight\n  (no relevant entries found)\n';
   }

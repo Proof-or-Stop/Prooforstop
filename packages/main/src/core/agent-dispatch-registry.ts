@@ -18,16 +18,12 @@ function roleAliases(canonical: CanonicalAgentRoleId, extra: readonly string[] =
 /**
  * Canonical dispatch authority table.
  *
- * Consumers must resolve aliases through this table; role privilege must never
- * be inferred from a name prefix. Legacy verification names intentionally map
- * to verification-intent and therefore cannot inherit implementer authority.
+ * Consumers must resolve roles through this table; role privilege must never
+ * be inferred from a name prefix. Retired names do not acquire authority.
  */
 // Keep the exported table's public view at the contract level instead of
-// preserving each row's literal canonicalName. Historical smoke/audit code
-// still compares persisted lattice lane values against this table; widening
-// the view keeps those comparisons expressible while the runtime rows below
-// remain proof-or-stop canonical strings and aliases are still resolved to
-// those rows.
+// preserving each row's literal canonicalName. The type view also represents
+// historical smoke/audit inputs, while current runtime rows remain canonical.
 export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
   {
     canonicalName: 'proof-or-stop-implementer',
@@ -606,8 +602,25 @@ export function resolveAgentMutationAuthority(args: {
   payloadActors?: readonly (string | undefined | null)[];
   envActor?: string | undefined | null;
 }): ResolvedAgentMutationAuthority {
-  const envActor = (args.envActor === undefined ? readBrandEnv('AGENT') : args.envActor)?.trim() || undefined;
-  const payloadActors = (args.payloadActors || [])
+  const rawEnvActor = args.envActor === undefined ? readBrandEnv('AGENT') : args.envActor;
+  if (
+    args.command === 'init_check_set'
+    && typeof rawEnvActor === 'string'
+    && rawEnvActor.length > 0
+    && rawEnvActor !== rawEnvActor.trim()
+  ) {
+    throw new Error(`${args.command} refused: dispatched agent identity must be byte-exact. [agent_dispatch_identity_noncanonical]`);
+  }
+  const envActor = rawEnvActor?.trim() || undefined;
+  const rawPayloadActors = args.payloadActors || [];
+  if (args.command === 'init_check_set') {
+    for (const actor of rawPayloadActors) {
+      if (typeof actor === 'string' && actor.length > 0 && actor !== actor.trim()) {
+        throw new Error(`${args.command} refused: payload agent identity must be byte-exact. [agent_dispatch_identity_noncanonical]`);
+      }
+    }
+  }
+  const payloadActors = rawPayloadActors
     .map((actor) => actor?.trim())
     .filter((actor): actor is string => !!actor);
   const payloadActor = payloadActors[0];

@@ -63,7 +63,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-export const READOUT_SCHEMA_VERSION = 'proofbound.experience-ablation-live-readout.v1';
+export const READOUT_SCHEMA_VERSION = 'proof-or-stop.experience-ablation-live-readout.v1';
 export const EXPLORATORY_LABEL = '[exploratory-only]';
 export const CONTROLLED_HEADING = 'Controlled causal (seeded pilot)';
 export const LIVE_HEADING =
@@ -72,7 +72,7 @@ export const NO_OVERCLAIM_HEADING = 'No-overclaim';
 
 /** Plan section 15 essence: claims this study must never emit. */
 export const DISALLOWED_CLAIMS = [
-  '"Proofbound agents became smarter."',
+  '"Proof-or-Stop agents became smarter."',
   '"Memory proves DONE."',
   '"The experience layer eliminates defects."',
   '"The experience layer generalizes to failure modes it has no lessons for." (the held-out contrast was not powered, so no generalization claim is available)',

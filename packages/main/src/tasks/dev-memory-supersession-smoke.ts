@@ -42,7 +42,7 @@ const globalFixtureEntries: DevMemoryEntry[] = [
     trigger: 'physical cleanup smoke fixture',
     lesson: 'Keep current Proof-or-Stop host taxonomy memory without retired brand references.',
     reusePrompt: 'Use current Proof-or-Stop host taxonomy memory as advisory context only.',
-    tags: ['proofbound', 'proof-or-stop', 'host-policy'],
+    tags: ['proof-or-stop', 'host-policy'],
     gateEvidence: false,
     authority: 'non_authoritative',
   },
@@ -56,7 +56,7 @@ const globalFixtureEntries: DevMemoryEntry[] = [
     trigger: 'physical cleanup smoke fixture',
     lesson: 'Keep current ProofOrStop stale-doc lessons available without retired brand references.',
     reusePrompt: 'Use current ProofOrStop stale-doc lessons as advisory context only.',
-    tags: ['proofbound', 'proof-or-stop', 'stale-doc'],
+    tags: ['proof-or-stop', 'stale-doc'],
     gateEvidence: false,
     authority: 'non_authoritative',
   },
@@ -128,7 +128,8 @@ function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
 function assertCurrentProjectMemory(entry: DevMemoryEntry): void {
   const guidance = [entry.summary, entry.trigger, entry.lesson, entry.reusePrompt].join(' ');
   assert.match(guidance, /Proof-or-Stop|ProofOrStop/, `${entry.id} should use current product names`);
-  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
+  assert(projectCurrentIds.includes(entry.id), 'historical tag lineage applies only to the five pre-cutover project records');
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} preserves historical raw tag lineage, not current identity authority`);
   assert(entry.tags?.some(tag => tag === 'proof-or-stop' || tag.includes('proof-or-stop')), `${entry.id} should keep ProofOrStop tags`);
   assert(entry.tags?.some(tag => tag.startsWith('supersedes-')), `${entry.id} should keep supersession id context`);
   assertNonAuthoritative('project', entry);
@@ -143,7 +144,7 @@ function assertHostPolicyMemory(entry: DevMemoryEntry): void {
 function assertCurrentGlobalMemory(entry: DevMemoryEntry): void {
   assert.equal(entry.scope, 'global', `${entry.id} should be a global memory row`);
   assert.match(entryJson(entry), /Proof-or-Stop|ProofOrStop/, `${entry.id} should use current product names`);
-  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
+  assert(entry.tags?.every(tag => !tag.includes('proofbound')), `${entry.id} must not emit retired tags in a newly generated global fixture`);
   assert(entry.tags?.some(tag => tag === 'proof-or-stop' || tag.includes('proof-or-stop')), `${entry.id} should keep ProofOrStop tags`);
   assertNonAuthoritative('global', entry);
 }

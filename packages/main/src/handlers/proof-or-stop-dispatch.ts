@@ -303,7 +303,7 @@ export function createProofOrStopDispatchHandlers(ctx: HandlerContext): Record<s
       });
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return ('schemaVersion' in result && result.schemaVersion === 'lattice.dispatch_plan.v1'
+      return ('schemaVersion' in result && result.schemaVersion === 'proof-or-stop.dispatch_plan.v1'
         ? renderDispatchPlanText(result)
         : renderDispatchRunText(result)) + outputNote;
     },

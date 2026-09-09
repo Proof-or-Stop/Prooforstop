@@ -1,32 +1,8 @@
 /**
- * Runtime-artifact registry — the single source for "which paths are runtime
- * state" (materialHash exclusion, volatility, gitignore patterns, repairability).
- *
- * B-cc10 CHK-007: every state-directory path below is DERIVED from
- * `core/brand-paths.ts` instead of spelling `.proof-or-stop/` literally, and each
- * derivation expands to BOTH accepted spellings.
- *
- * WHY THIS IS A CORRECTNESS FIX, NOT A COSMETIC ONE
- * -------------------------------------------------
- * `listRuntimeArtifactIgnorePatterns()` is what generates the managed
- * `# proof-or-stop runtime artifacts (managed)` block in `.gitignore`. While every
- * entry here was pinned to the DEPRECATED spelling, the runtime wrote to the
- * CANONICAL directory that no pattern covered. Measured before this fix:
- *
- *     git check-ignore .proof-or-stop/locks/x        -> ignored (.gitignore:28)
- *     git check-ignore .proof-or-stop/locks/x  -> NOT ignored
- *
- * so `validate-execution-lock-smoke` failed with `unexpected_dirty_files=2` on
- * `.proof-or-stop/locks/validation-capacity.lock/...`: the capacity lock is
- * runtime state that the dirty-tree classifier could no longer recognize. The
- * same latent break applied to materialHash exclusion — a runtime write under
- * the canonical directory would have been INCLUDED in the digest, silently
- * changing what an evidence hash means (the exact hazard `core/brand-paths.ts`
- * documents for `isStoryMetadataPath`).
- *
- * Deriving BOTH spellings is deliberate and mirrors the read-both contract: an
- * un-migrated checkout still has runtime state under the deprecated directory,
- * so dropping that spelling would strand it as unexplained dirt.
+ * Runtime-artifact registry: shared classification for material hashing,
+ * volatility, ignore patterns, and tracked-artifact repair. Canonical runtime
+ * paths derive from brand-paths. Explicit retired generated-cache entries are
+ * deny-only inventory: they never authorize old runtime reads or Story hiding.
  */
 import {
   PROOF_OR_STOP_STATE_DIR,
@@ -39,8 +15,7 @@ export type RuntimeArtifactPathMatcher =
   | { kind: 'regexp'; value: RegExp };
 
 /**
- * Expand a state-dir-relative tail into one `exact` matcher per accepted
- * spelling, canonical first.
+ * Expand a state-dir-relative tail into canonical `exact` matchers.
  *
  * Callers never write the directory name, so a future rename cannot leave a
  * matcher recognizing only one spelling — the F-065/F-061 shape that
@@ -56,11 +31,7 @@ function stateDirPrefix(tail: string): RuntimeArtifactPathMatcher[] {
 }
 
 /**
- * Ignore patterns for a state-dir-relative tail, one per accepted spelling.
- *
- * Both spellings are emitted into `.gitignore` on purpose: git silently ignores
- * a pattern for a directory that does not exist, so listing the deprecated name
- * costs nothing on a migrated checkout while still covering an unmigrated one.
+ * Ignore patterns for canonical state-directory-relative runtime paths.
  */
 function stateDirIgnore(tail: string): string[] {
   return STATE_DIR_NAMES.map((dir) => `${dir}/${tail}`);
@@ -86,6 +57,48 @@ function rx(value: string): RegExp {
 export const LAB_MAINTENANCE_GIT_DIR = 'lab-maintenance';
 
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
+  {
+    id: 'retired-generated-cache-deny-only',
+    description: 'Audited historical generated caches: ignore and classify only; never read, migrate, or treat as current authority. See b-49df-main-integration-provenance.md.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/runtime/host-runs/' },
+      { kind: 'prefix', value: '.lattice/learning/runtime-memory-pack-cache/' },
+      ...[
+        '.lattice/runtime/framework-audit/state.json',
+        '.lattice/learning/finding-signals.json',
+        '.lattice/learning/playbook-promotion-health.jsonl',
+        '.lattice/learning/playbooks.json',
+        '.lattice/learning/signature-registry.json',
+      ].map(value => ({ kind: 'exact' as const, value })),
+    ],
+    ignorePatterns: [
+      '.lattice/runtime/host-runs/',
+      '.lattice/learning/runtime-memory-pack-cache/',
+      '.lattice/runtime/framework-audit/state.json',
+      '.lattice/learning/finding-signals.json',
+      '.lattice/learning/playbook-promotion-health.jsonl',
+      '.lattice/learning/playbooks.json',
+      '.lattice/learning/signature-registry.json',
+    ],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
+  },
+  {
+    id: 'retired-root-import-residue-deny-only',
+    description: 'Exact obsolete root files imported from the audited main integration: ignore and classify only; never read, migrate, repair, or treat as current authority. See b-49df-main-integration-provenance.md.',
+    matchers: [
+      { kind: 'exact', value: 'lattice.config.json' },
+      { kind: 'exact', value: '.remember-scratch-readmanifest.json' },
+    ],
+    ignorePatterns: [
+      '/lattice.config.json',
+      '/.remember-scratch-readmanifest.json',
+    ],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
+  },
   {
     id: 'lab-maintenance-git-records',
     description: 'Local Lab command records, output and key in the Git common directory; not Story evidence.',
@@ -143,7 +156,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // gate depend on a verification retry.
     id: 'runtime-causal-evidence-receipts',
     description: 'Story-scoped CausalEvidence CAS receipt bytes and execution-key index.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)(?:\.lattice|\.proof-or-stop)/story/actives/[^/]+/causal-evidence(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence(?:/|$)`) }],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)\.proof-or-stop/story/actives/[^/]+/causal-evidence(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence(?:/|$)`) }],
     ignorePatterns: ['**/causal-evidence/'],
     materialHash: 'exclude',
     volatile: true,

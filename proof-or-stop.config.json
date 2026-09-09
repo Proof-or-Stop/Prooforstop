@@ -15,11 +15,11 @@
       "proof-or-stop-review-quality": "full-envelope",
       "proof-or-stop-review-test-coverage": "full-envelope",
       "proof-or-stop-review-topology-critic": "full-envelope",
-      "proof-or-stop-review-story-init": "legacy-full-context",
-      "proof-or-stop-review-scope-plan": "legacy-full-context",
-      "proof-or-stop-implementer": "legacy-full-context",
-      "proof-or-stop-review-delivery": "legacy-full-context",
-      "proof-or-stop-evaluator": "legacy-full-context"
+      "proof-or-stop-review-story-init": "full-envelope",
+      "proof-or-stop-review-scope-plan": "full-envelope",
+      "proof-or-stop-implementer": "full-envelope",
+      "proof-or-stop-review-delivery": "full-envelope",
+      "proof-or-stop-evaluator": "full-envelope"
     }
   },
   "candidateSpecRouting": {
@@ -193,7 +193,6 @@
           "NODE_OPTIONS",
           "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
-          "LATTICE_VALIDATION_SHARD_ADAPTER",
           "CI",
           "TMPDIR",
           "TMP",
@@ -932,7 +931,6 @@
           "NODE_OPTIONS",
           "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
-          "LATTICE_VALIDATION_SHARD_ADAPTER",
           "CI",
           "TMPDIR",
           "TMP",
@@ -2634,6 +2632,37 @@
           {
             "class": "fixed-path",
             "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "Canonical identity-cutover public-operation regression: exact active identity inventory, canonical production controls, retired-family rejection, and zero-mutation guarantees",
+        "command": "node",
+        "args": [
+          "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+          "--group=identity-cutover"
+        ],
+        "timeoutMs": 2700000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-b49df-identity-cutover-regression",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
             "access": "shared"
           },
           {

@@ -61,17 +61,17 @@ function writeConfig(root: string): void {
     promptEnvelope: {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: {
-        'proof-or-stop-review-quality': 'legacy-full-context',
-        'proof-or-stop-review-concept': 'legacy-full-context',
+        'proof-or-stop-review-quality': 'full-envelope',
+        'proof-or-stop-review-concept': 'full-envelope',
       },
     },
   }, null, 2));
 }
 
-function legacyPromptHash(agent: string): string {
+function canonicalRolePromptHash(agent: string): string {
   return hashReviewPrompt(resolvePromptRoleBody(agent, {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [agent]: 'legacy-full-context' },
+    roles: { [agent]: 'full-envelope' },
   }).body);
 }
 
@@ -85,7 +85,7 @@ function makeRun(args: {
   materialHash: string;
   storyFilesHash?: string;
 }): ReviewRun {
-  const promptHash = legacyPromptHash(args.agent);
+  const promptHash = canonicalRolePromptHash(args.agent);
   return {
     reviewRunId: args.reviewRunId,
     storyId: args.storyId,

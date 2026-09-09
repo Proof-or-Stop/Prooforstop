@@ -207,7 +207,7 @@ const admittedStoryId = 'B-cw02';
 const admittedStore = makeStore(root, admittedStoryId);
 const admittedData = emptyCertificationWindowData();
 const admittedWindow: CertificationWindow = withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${admittedStoryId}:CW-001`,
   storyId: admittedStoryId,
   state: 'ADMITTED',
@@ -217,7 +217,7 @@ const admittedWindow: CertificationWindow = withSignedCertificationWindow({
   receiptId: nextPrecertReceiptId(admittedData, admittedStoryId),
 });
 const admittedReceipt: PrecertReceipt = withSignedPrecertReceipt({
-  schemaVersion: 'proofbound.precert_receipt.v1',
+  schemaVersion: 'proof-or-stop.precert_receipt.v1',
   receiptId: admittedWindow.receiptId!,
   windowId: admittedWindow.windowId,
   storyId: admittedStoryId,
@@ -248,7 +248,7 @@ const inventoryAsWindowStoryId = 'B-cw03';
 const inventoryStore = makeStore(root, inventoryAsWindowStoryId);
 const inventoryData = emptyCertificationWindowData();
 inventoryData.windows.push(withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${inventoryAsWindowStoryId}:CW-001`,
   storyId: inventoryAsWindowStoryId,
   state: 'BLOCKED',
@@ -281,7 +281,7 @@ const tamperStoryId = 'B-cw04';
 const tamperStore = makeStore(root, tamperStoryId);
 const tamperData = emptyCertificationWindowData();
 const signed = withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${tamperStoryId}:CW-001`,
   storyId: tamperStoryId,
   state: 'ADMITTED',
@@ -911,8 +911,14 @@ const replayDone = createDoneRequiredValidationHandlers({
 const admittedHeavy = await caught(() => replayDone.done_required_validate({ storyId: replayStoryId }));
 assert.doesNotMatch(admittedHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
 assert.equal(existsSync(join(replayRoot, heavyMarker)), true, 'admitted window may start the official heavy command');
+const beforeRunningStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
 const runningStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(runningStatus, 'RUNNING');
+assert.deepEqual(
+  replayStore.readCertificationWindows(replayStoryId),
+  beforeRunningStatus,
+  'no-drift certification status must stay read-only',
+);
 const runningWindow = replayStore.readCertificationWindows(replayStoryId).windows.at(-1);
 const runningReceipt = replayStore.readCertificationWindows(replayStoryId).receipts.at(-1);
 assert.ok(runningWindow && runningReceipt, 'admitted heavy must keep a signed receipt');
@@ -965,7 +971,7 @@ assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: sel
 writeFileSync(join(selectiveRoot, 'packages/main/src/core/app.ts'), 'export const n = 2;\n');
 git(selectiveRoot, ['add', 'packages/main/src/core/app.ts']);
 git(selectiveRoot, ['commit', '-m', 'story source change']);
-assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'INVALIDATED');
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId, refresh: true }), 'INVALIDATED');
 
 mkdirSync(join(replayRoot, 'src'), { recursive: true });
 mkdirSync(join(replayRoot, 'tests'), { recursive: true });
@@ -973,7 +979,18 @@ writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
 writeFileSync(join(replayRoot, 'tests', 'app.test.ts'), 'export const t = 1;\n');
 git(replayRoot, ['add', 'src/app.ts', 'tests/app.test.ts']);
 git(replayRoot, ['commit', '-m', 'source and test change']);
-const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+const beforeDriftStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
+const driftStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+assertStatusSurface(driftStatus, 'RUNNING');
+assert.match(driftStatus, /^Blocker: \[pre_cert_window_invalidated\]$/m);
+assert.match(driftStatus, /^Observed drift: /m);
+assert.match(driftStatus, new RegExp(`^Next: proof-or-stop certification_window_status --storyId=${replayStoryId} --refresh=true$`, 'm'));
+assert.deepEqual(
+  replayStore.readCertificationWindows(replayStoryId),
+  beforeDriftStatus,
+  'default drift status must report without persisting INVALIDATED',
+);
+const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId, refresh: true });
 assertStatusSurface(invalidatedStatus, 'INVALIDATED');
 assert.match(invalidatedStatus, /^Next: proof-or-stop story_advance .* --phase=REVIEW$/m);
 const afterReceipt = replayStore.readCertificationWindows(replayStoryId).receipts.at(-1);

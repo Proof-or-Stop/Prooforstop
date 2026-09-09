@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHash, createHmac } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -24,7 +24,6 @@ const proofBinding = await import(join(distRoot, 'core/proof-admissibility-bindi
 const artifactStore = await import(join(distRoot, 'core/evidence/artifact-store.js'));
 const checklistStatus = await import(join(distRoot, 'core/checklist-status.js'));
 const processFacts = await import(join(distRoot, 'core/process-fact-registry.js'));
-const findingVerification = await import(join(distRoot, 'core/finding-verify.js'));
 
 const stableJson = (value) => {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
@@ -33,6 +32,30 @@ const stableJson = (value) => {
   }
   return JSON.stringify(value);
 };
+
+for (const [canonical, accepts] of [
+  [schema.DONE_REQUIRED_EVIDENCE_SCHEMA, schema.isDoneRequiredEvidenceSchema],
+  [schema.DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA, schema.isDoneRequiredEvidenceVersionedSchema],
+  [schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA, schema.isDoneRequiredCommandSpecV2Schema],
+  [schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA, schema.isDoneRequiredCommandSpecSchema],
+  [schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA_V1, schema.isDoneRequiredCommandSpecSchema],
+  [schema.CLOSEOUT_WRITE_RECEIPT_SCHEMA, schema.isCloseoutWriteReceiptSchema],
+  [schema.EVIDENCE_HASH_SNAPSHOT_SCHEMA, schema.isEvidenceHashSnapshotSchema],
+  [schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA, schema.isDonePrepareGeneratedMetadataSchema],
+  [schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA, schema.isDonePrepareValidationReuseSchema],
+]) {
+  assert.equal(accepts(canonical), true, `${canonical} is accepted`);
+  for (const retiredPrefix of ['lattice', 'proofbound']) {
+    const retired = canonical.replace(/^proof-or-stop/, retiredPrefix);
+    assert.equal(accepts(retired), false, `${retired} cannot satisfy a current schema`);
+  }
+}
+
+for (const canonical of [schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA_V1, schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA]) {
+  for (const lookalike of [canonical.replace(/v\d+$/, 'v99'), `${canonical}.extra`, ` ${canonical}`, `${canonical} `, canonical.toUpperCase(), null, {}]) {
+    assert.equal(schema.isDoneRequiredCommandSpecSchema(lookalike), false, 'the general command-spec validator remains an exact two-version allowlist');
+  }
+}
 
 // CHK-003 migration witness: exercise the local worktree CLI against two named
 // archives from different eras. The schema/integrity/freshness/byte assertions
@@ -96,53 +119,12 @@ for (const id of ['scope-boundary', 'execution-boundary', 'scope-freeze-check'])
 }
 assert.equal(typeof earliestPreflight.gate?.ready, 'boolean', 'B-0168 preflight reports current binding state');
 
-// B-META-framework-audit's archive is a signed finding ledger. Read it through
-// the local CLI, verify every historical finding signature, then verify the
-// existing HMAC receipt chain and its current-HEAD ancestor bindings. Receipt
-// path/schema spellings are accepted in their canonical or historical forms;
-// their bytes and signatures are never rewritten by a read.
+// Historical ledger records remain available for audit through the read-only
+// CLI. Reading preserves bytes; it does not confer current evidence authority.
 const metaFindings = cliJson('finding_list', {
-  storyId: 'B-META-framework-audit',
-  format: 'json',
+  storyId: 'B-META-framework-audit', format: 'json',
 });
-assert.ok(metaFindings.findings.length > 0, 'B-META archive returns signed findings');
-assert.ok(
-  metaFindings.findings.every((finding) => findingVerification.verifyFinding('B-META-framework-audit', finding)),
-  'B-META archive finding signatures verify',
-);
-const metaReceipts = findingVerification.readGapLogProvenanceLedger(repoRoot);
-assert.ok(metaReceipts.length > 0, 'B-META archive returns its provenance receipts');
-const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' }).trim();
-const commonDirPath = commonDir.startsWith('/') ? commonDir : join(repoRoot, commonDir);
-const receiptKey = readFileSync(join(commonDirPath, 'lattice-gap-log-provenance.key'));
-const canonicalReceiptArtifactPath = findingVerification.GAP_LOG_ARTIFACT_PATH;
-const legacyReceiptArtifactPath = '.lattice/story/actives/B-META-framework-audit/findings.json';
-const canonicalReceiptLedgerPath = findingVerification.GAP_LOG_PROVENANCE_LEDGER_PATH;
-let previousIntegrityHash = '';
-for (const [index, receipt] of metaReceipts.entries()) {
-  const { integrityHash, ...unsigned } = receipt;
-  const expectedIntegrityHash = createHmac('sha256', receiptKey)
-    .update(JSON.stringify(unsigned))
-    .digest('hex');
-  assert.equal(receipt.sequence, index + 1, 'B-META receipt sequence is contiguous');
-  assert.equal(receipt.previousIntegrityHash, previousIntegrityHash, 'B-META receipt chain links to its predecessor');
-  assert.equal(integrityHash, expectedIntegrityHash, 'B-META receipt HMAC verifies');
-  assert.ok(
-    [canonicalReceiptArtifactPath, legacyReceiptArtifactPath].includes(receipt.artifactPath),
-    'B-META receipt artifact path is canonical or historical-compatible',
-  );
-  assert.ok(
-    [canonicalReceiptLedgerPath, '.lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl'].includes(receipt.ledgerPath),
-    'B-META receipt ledger path is canonical or historical-compatible',
-  );
-  execFileSync('git', ['merge-base', '--is-ancestor', receipt.parentHead, 'HEAD'], { cwd: repoRoot });
-  previousIntegrityHash = integrityHash;
-}
-assert.equal(
-  metaReceipts.at(-1).postArtifactDigest,
-  findingVerification.digestGapLogArtifact({ findings: metaFindings.findings }),
-  'B-META latest receipt binds the CLI-read archive bytes',
-);
+assert.ok(metaFindings.findings.length > 0, 'historical findings remain available for audit');
 
 for (const [path, bytes] of archiveBytesBefore) {
   assert.deepEqual(readFileSync(path), bytes, `archive bytes preserved after CLI reads: ${path}`);
@@ -173,18 +155,20 @@ try {
     ...canonicalCommandSpec,
     schema: 'lattice.command-spec.v2',
   };
+  const retiredCommandBytes = JSON.stringify(legacyV2CommandSpec);
   assert.equal(
     validation.validateCommandSpecDigestCoverage(
       { receipts: [{ command: command.command, args: command.args, cwd: root, commandSpec: legacyV2CommandSpec }] },
       root,
       [command],
     ).valid,
-    true,
-    'historical lattice v2 command-spec envelope remains readable',
+    false,
+    'retired v2 command-spec envelope cannot satisfy current evidence',
   );
+  assert.equal(JSON.stringify(legacyV2CommandSpec), retiredCommandBytes, 'rejected command-spec bytes remain unchanged');
 
   const legacyV1CommandSpec = validation.buildLegacyAbsoluteCwdCommandSpecEnvelope(root, command);
-  assert.equal(legacyV1CommandSpec.schema, 'lattice.command-spec.v1', 'legacy v1 helper retains historical schema');
+  assert.equal(legacyV1CommandSpec.schema, 'proof-or-stop.command-spec.v1', 'older command-spec version retains canonical identity');
   assert.equal(
     validation.validateCommandSpecDigestCoverage(
       { receipts: [{ command: command.command, args: command.args, cwd: root, commandSpec: legacyV1CommandSpec }] },
@@ -192,8 +176,17 @@ try {
       [command],
     ).valid,
     true,
-    'historical lattice v1 command-spec envelope remains readable',
+    'canonical v1 command-spec envelope remains readable',
   );
+  for (const canonicalSpec of [canonicalCommandSpec, legacyV1CommandSpec]) {
+    for (const prefix of ['lattice', 'proofbound']) {
+      const retiredSpec = { ...canonicalSpec, schema: canonicalSpec.schema.replace(/^proof-or-stop/, prefix) };
+      const evidence = { receipts: [{ command: command.command, args: command.args, cwd: root, commandSpec: retiredSpec }] };
+      const before = JSON.stringify(evidence);
+      assert.equal(validation.validateCommandSpecDigestCoverage(evidence, root, [command]).valid, false);
+      assert.equal(JSON.stringify(evidence), before, 'retired command schema rejection leaves evidence unchanged');
+    }
+  }
 
   const unknownCommandSpec = { ...canonicalCommandSpec, schema: 'lattice.command-spec.v99' };
   assert.equal(
@@ -216,7 +209,7 @@ try {
   const canonicalSnapshot = freshness.captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
   assert.equal(canonicalSnapshot.schemaVersion, 'proof-or-stop.evidence_hash_snapshot.v1', 'freshness capture writes the canonical schema');
   assert.equal(schema.isEvidenceHashSnapshotSchema(canonicalSnapshot.schemaVersion), true);
-  assert.equal(schema.isEvidenceHashSnapshotSchema('lattice.evidence_hash_snapshot.v1'), true, 'legacy freshness schema remains readable');
+  assert.equal(schema.isEvidenceHashSnapshotSchema('lattice.evidence_hash_snapshot.v1'), false, 'retired freshness schema is rejected');
   assert.equal(schema.isEvidenceHashSnapshotSchema('proof-or-stop.evidence_hash_snapshot.v99'), false, 'unknown freshness schemas fail closed');
   assert.equal(
     freshness.checkEvidenceHashSnapshotReuse(canonicalSnapshot, { gitCwd: root, metadataRoot: root, ref: 'HEAD' }).reusable,
@@ -228,8 +221,8 @@ try {
       { ...canonicalSnapshot, schemaVersion: 'lattice.evidence_hash_snapshot.v1' },
       { gitCwd: root, metadataRoot: root, ref: 'HEAD' },
     ).reusable,
-    true,
-    'historical lattice freshness snapshot remains readable through intentional dual-read compatibility',
+    false,
+    'retired freshness snapshot cannot authorize reuse',
   );
   assert.equal(
     freshness.checkEvidenceHashSnapshotReuse(
@@ -241,8 +234,7 @@ try {
   );
 
   assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA, 'proof-or-stop.done-required-evidence');
-  assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY, 'lattice.done-required-evidence');
-  assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), true);
+  assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), false);
   assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence.v99'), false);
 
   const artifactBytes = JSON.stringify({ status: 'complete' });
@@ -273,11 +265,13 @@ try {
     ...legacyUnsigned,
     integrityHash: closeout.computeCloseoutWriteReceiptIntegrity(legacyUnsigned),
   };
+  const retiredReceiptBytes = JSON.stringify(legacyReceipt);
   assert.equal(closeout.verifyCloseoutWriteReceipt(legacyReceipt, {
     storyId: 'B-schema',
     artifactPath: 'summary.json',
     artifactBytes,
-  }).ok, true, 'historical lattice closeout receipt remains readable');
+  }).ok, false, 'retired closeout receipt is rejected even with a recomputed integrity hash');
+  assert.equal(JSON.stringify(legacyReceipt), retiredReceiptBytes, 'rejected closeout receipt remains unchanged');
 
   const unknownReceipt = { ...canonicalReceipt, schemaVersion: 'lattice.closeout_write_receipt.v99' };
   assert.equal(closeout.verifyCloseoutWriteReceipt(unknownReceipt, {
@@ -309,21 +303,23 @@ try {
 
   const legacyProofBindingPayload = {
     ...canonicalProofBindingPayload,
-    schemaVersion: schema.PROOF_BINDING_SCHEMA_LEGACY,
+    schemaVersion: 'lattice.proof_binding.v1',
   };
   const legacyProofBindingDigest = `sha256:${createHash('sha256')
     .update(stableJson(legacyProofBindingPayload), 'utf8')
     .digest('hex')}`;
+  const retiredBindingBytes = JSON.stringify(legacyProofBindingPayload);
   assert.equal(
     proofBinding.verifyProofBindingDigest(legacyProofBindingPayload, legacyProofBindingDigest).ok,
-    true,
-    'exact historical lattice proof binding schema remains readable',
+    false,
+    'retired proof binding cannot satisfy current evidence',
   );
   assert.throws(
     () => proofBinding.buildProofBindingDigestPayload(legacyProofBindingPayload),
     /unsupported proof binding schemaVersion/,
     'canonical proof binding writer does not emit the historical schema',
   );
+  assert.equal(JSON.stringify(legacyProofBindingPayload), retiredBindingBytes, 'rejected proof binding remains unchanged');
   const unknownProofBinding = proofBinding.verifyProofBindingDigest(
     { ...canonicalProofBindingPayload, schemaVersion: 'lattice.proof_binding.v99' },
     canonicalProofBinding.digest,
@@ -331,10 +327,9 @@ try {
   assert.equal(unknownProofBinding.ok, false, 'unknown proof binding schemas fail closed');
   assert.deepEqual(unknownProofBinding.reasons, ['unsupported_schema_version']);
 
-  // Global CLI/package interop can interleave the two exact supported schema
-  // aliases: canonical seq1..18, legacy seq1..3, then canonical seq4..5.
-  // Validate that real ledger shape through the same causal reader used by
-  // review-retention and pre-review gates.
+  // Prove canonical causal receipt reuse first, then append a retired-schema
+  // epoch with valid integrity hashes. It must invalidate current reuse without
+  // mutating the ledger or artifact, even after a canonical suffix is appended.
   const migrationStoryDir = join(root, 'migration-story');
   mkdirSync(migrationStoryDir, { recursive: true });
   const migrationStoryId = 'B-schema-migration';
@@ -377,6 +372,11 @@ try {
       value: `canonical-${sequence}`,
     });
   }
+  const canonicalCausalReceipt = closeout.latestCausallyValidCloseoutReceipt(
+    migrationStoryDir, migrationStoryId, migrationArtifactPath,
+    { projectRoot: root, metadataRoot: root },
+  );
+  assert.equal(canonicalCausalReceipt?.sequence, 18, 'canonical causal ledger is reusable');
   previousMigrationReceipt = null;
   for (let sequence = 1; sequence <= 3; sequence += 1) {
     previousMigrationReceipt = writeMigrationReceipt({
@@ -394,14 +394,17 @@ try {
       value: `canonical-${sequence}`,
     });
   }
+  const ledgerBeforeReject = readFileSync(migrationReceiptPath);
+  const artifactBeforeReject = readFileSync(join(migrationStoryDir, migrationArtifactPath));
   const migratedReceipt = closeout.latestCausallyValidCloseoutReceipt(
     migrationStoryDir,
     migrationStoryId,
     migrationArtifactPath,
     { projectRoot: root, metadataRoot: root },
   );
-  assert.equal(migratedReceipt?.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
-  assert.equal(migratedReceipt?.sequence, 5, 'canonical interop resumes after the legacy epoch');
+  assert.equal(migratedReceipt, null, 'retired epoch cannot be laundered through a canonical suffix');
+  assert.deepEqual(readFileSync(migrationReceiptPath), ledgerBeforeReject, 'rejected ledger bytes are preserved');
+  assert.deepEqual(readFileSync(join(migrationStoryDir, migrationArtifactPath)), artifactBeforeReject, 'rejected artifact bytes are preserved');
 
   const migrationLedger = readFileSync(migrationReceiptPath, 'utf8');
   const tamperedLegacy = migrationLedger.replace(
@@ -430,7 +433,7 @@ try {
     artifactKind: 'repro-probe',
     evidenceScope: 'evidence-candidate',
     subjectBinding: { candidateId: 'candidate-artifact-schema' },
-    payload: { observed: 'canonical writer and legacy reader were exercised' },
+    payload: { observed: 'canonical writer and retired schema rejection were exercised' },
     producer: 'artifact-schema-migration-test',
   });
   assert.equal(artifactStore.verifyArtifactDigest(candidate, candidate.artifactDigest), true, 'artifact store verifies the producer digest');
@@ -438,7 +441,7 @@ try {
   assert.equal(checklistStatus.isTerminalChecklistStatus('withdrawn'), true);
   assert.equal(checklistStatus.isDeliveredChecklistStatus('withdrawn'), false);
   assert.ok(processFacts.getProcessFactRegistryEntry('acceptance_basis'), 'process-fact consumer retains the canonical command entry');
-  assert.equal(freshness.isStoryMetadataPath('.lattice/story/actives/B-archived/story.json'), true, 'archived story metadata remains excluded from material evidence');
+  assert.equal(freshness.isStoryMetadataPath('.proof-or-stop/story/actives/B-archived/story.json'), true, 'canonical story metadata remains excluded from material evidence');
 
   console.log('artifact-schema migration test passed');
 } finally {

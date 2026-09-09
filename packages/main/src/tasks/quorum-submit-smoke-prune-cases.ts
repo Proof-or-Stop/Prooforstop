@@ -255,7 +255,7 @@ export const QUORUM_SMOKE_CASES = [
       assert.doesNotMatch(combined, /is not available in REVIEW phase/, 'quorum_prune is NOT phase-refused: the DEFAULT_PHASE_TOOLS entry is live');
       assert.equal(dryRun.status, 0, `quorum_prune executes through the built CLI: ${combined}`);
       const payload = JSON.parse(dryRun.stdout.trim()) as { schemaVersion: string; duplicateGroups: unknown[]; dryRun: boolean };
-      assert.equal(payload.schemaVersion, 'lattice.quorum_prune.v1', 'the real handler ran end-to-end through catalog + policy + phase gate');
+      assert.equal(payload.schemaVersion, 'proof-or-stop.quorum_prune.v1', 'the real handler ran end-to-end through catalog + policy + phase gate');
       assert.equal(payload.dryRun, true);
       assert.equal(payload.duplicateGroups.length, 6, 'the dispatched handler actually projected the poisoned groups');
     });

@@ -57,9 +57,9 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'advisory',
     checker: 'resolveEntrypointAuthority',
     outputKey: 'runtimeEntrypointAuthority',
-    rationale: 'A self-host story worktree must execute the runtime that belongs to that worktree, not a stale global launcher linked to the main checkout.',
-    driftMessage: 'The active CLI runtime is not authoritative for the current self-host worktree.',
-    repairHint: 'From the story worktree, retry the same command with `node bin/proof-or-stop.js`.',
+    rationale: 'Every command in the command-policy-derived actual Story-write capability registry must execute the runtime belonging to the target self-project checkout, independent of owner/reviewer/dangerous/shared ownership class. Admitted extensions with intrinsic effective storyScopedMutating or reviewerWrite ownership share the same raw and final admission predicate without requiring a built-in command name. The command-bound active identity registry also rejects retired protocol bytes in each corresponding loaded producer/consumer before handlers or writes. An invalid prompt-envelope version checks its loaded boundary before the early config error, preserves the unsupported-version rejection prefix, and never falls back to defaults; valid config keeps its fast path. Eager role-policy rejection preserves unknown-role ordering and derives only missing canonical source sites from the independent package snapshot, never alias normalization. Argument-aware read-only variants remain diagnostic-only.',
+    driftMessage: 'The active CLI runtime is not authoritative for the target self-project checkout.',
+    repairHint: 'From the target checkout, retry the same command with `node bin/proof-or-stop.js`.',
   },
   {
     id: 'cli-entrypoint',

@@ -44,7 +44,7 @@ const STATPAL={open:"--ph-review",resolved:"--pass",dismissed:"--disc"};
 const SEVR={critical:9,high:7,medium:5.5,low:4.2};
 
 const esc=t=>String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const lane=v=>String(v||"").replace(/^lattice-review-|^proof-or-stop-review-|^lattice-|^proof-or-stop-/,"");
+const lane=v=>String(v||"").replace(/^proof-or-stop-review-|^proof-or-stop-/,"");
 const T=v=>{const d=D(v);return d?d.getTime():null};
 function dur2(msv){
   if(msv==null||!isFinite(msv)||msv<0)return"";

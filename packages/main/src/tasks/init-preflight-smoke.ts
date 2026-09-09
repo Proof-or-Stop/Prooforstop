@@ -199,7 +199,7 @@ function writeGoodInitCheck(root: string, store: StoryStore): void {
     issues: [],
     agentResults: [
       { agentId: 'proof-or-stop-review-story-init', checkedAt: NOW, issues: [] },
-      { agentId: 'product-reviewer', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-product-reviewer', checkedAt: NOW, issues: [] },
     ],
     _hash: '',
   } as InitCheckData;
@@ -226,7 +226,7 @@ function writeTamperedInitCheck(root: string, store: StoryStore): void {
     issues: [],
     agentResults: [
       { agentId: 'proof-or-stop-review-story-init', checkedAt: NOW, issues: [] },
-      { agentId: 'product-reviewer', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-product-reviewer', checkedAt: NOW, issues: [] },
     ],
     _hash: 'deadbeef',
   } as InitCheckData;

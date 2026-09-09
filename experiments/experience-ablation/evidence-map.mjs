@@ -64,7 +64,7 @@ import {
 } from './protocol.mjs';
 import { DISALLOWED_CLAIMS, parseScoreRecordsText, summarizeRecords } from './live-readout.mjs';
 
-export const EVIDENCE_MAP_SCHEMA_VERSION = 'proofbound.experience-ablation-evidence-map.v1';
+export const EVIDENCE_MAP_SCHEMA_VERSION = 'proof-or-stop.experience-ablation-evidence-map.v1';
 export const UNPOWERED_LABEL = '[unpowered/exploratory]';
 export const VERDICT_LINE = 'Causal impact: INCONCLUSIVE';
 export const CLAIM_MAP_HEADING = 'Claim-to-artifact map (plan section 18 definition of done)';

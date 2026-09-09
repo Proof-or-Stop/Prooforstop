@@ -109,7 +109,7 @@ function scenarioEvidenceFixture(baselineId: string, track: string, runId: strin
     'NL-REPAIR-1': { initialFailureObserved: true, repairApplied: true, retryPassed: true },
   };
   return {
-    schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+    schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
     baselineId,
     runId,
     track,
@@ -138,7 +138,7 @@ function redevelopmentArtifacts(track: string): Record<string, string> {
 
 function authorityPassReport(baselineId: string, track: string, weight: number, runId = 'run-001'): FinalReportFixture {
   return {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId,
     runId,
     track,
@@ -189,7 +189,7 @@ function authorityPassReport(baselineId: string, track: string, weight: number, 
 
 function expectedBlockReport(baselineId: string, track: string, weight: number, runId = 'run-001'): FinalReportFixture {
   return {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId,
     runId,
     track,
@@ -233,7 +233,7 @@ function expectedBlockReport(baselineId: string, track: string, weight: number, 
 
 function invalidHarnessReport(): FinalReportFixture {
   return {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId: 'NL-CLI-1',
     runId: 'run-invalid-harness',
     track: 'natural-language',
@@ -280,7 +280,7 @@ function writeRun(root: string, report: FinalReportFixture) {
     const hostVerdicts = typeof artifacts?.hostVerdicts === 'string' ? artifacts.hostVerdicts : null;
     const scenarioEvidence = typeof artifacts?.scenarioEvidence === 'string' ? artifacts.scenarioEvidence : null;
     if (gateReceipt) writeFileSync(join(dir, gateReceipt), JSON.stringify(gateReceiptFixture(report.baselineId, report.runId), null, 2) + '\n', 'utf8');
-    if (typeof artifacts?.authorityStatus === 'string') writeFileSync(join(dir, artifacts.authorityStatus), JSON.stringify({ schemaVersion: 'lattice.baseline.authority-status.v1', ...(report.authority as Record<string, unknown>) }, null, 2) + '\n', 'utf8');
+    if (typeof artifacts?.authorityStatus === 'string') writeFileSync(join(dir, artifacts.authorityStatus), JSON.stringify({ schemaVersion: 'proof-or-stop.baseline.authority-status.v1', ...(report.authority as Record<string, unknown>) }, null, 2) + '\n', 'utf8');
     if (scenarioEvidence) writeFileSync(join(dir, scenarioEvidence), JSON.stringify(scenarioEvidenceFixture(report.baselineId, String(report.track), report.runId), null, 2) + '\n', 'utf8');
   }
   const artifactsForFiles = report.artifacts as Record<string, unknown> | undefined;
@@ -315,7 +315,7 @@ function writeRun(root: string, report: FinalReportFixture) {
     }).filter((item): item is { key: string; path: string; digest: string; ref: string } => item !== null);
     const evidenceRefs = evidenceArtifacts.map(item => item.ref).sort();
     if (evidenceIndex) writeFileSync(join(dir, evidenceIndex), JSON.stringify({
-      schemaVersion: 'lattice.baseline.evidence-index.v1',
+      schemaVersion: 'proof-or-stop.baseline.evidence-index.v1',
       baselineId: report.baselineId,
       runId: report.runId,
       evidenceCount: evidenceRefs.length,
@@ -356,7 +356,7 @@ function writeProjectConfig(root: string): void {
       root,
       generatedAt: '2026-06-08T00:00:00.000Z',
     });
-    assert.equal(report.schemaVersion, 'lattice.baseline.suite-report.v1');
+    assert.equal(report.schemaVersion, 'proof-or-stop.baseline.suite-report.v1');
     assert.equal(report.suiteStatus, 'PASS');
     assert.equal(report.maturityStage, 'Beta', 'single-repeat minimum suite can reach Beta but not Release Candidate');
     assert.equal(report.counts.totalReportCount, 7);
@@ -509,11 +509,11 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'final-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
     writeFileSync(join(dir, 'gate-receipt.json'), JSON.stringify({
-      schemaVersion: 'lattice.baseline.gate-receipt.v1',
+      schemaVersion: 'proof-or-stop.baseline.gate-receipt.v1',
       receiptVerified: true,
     }, null, 2) + '\n', 'utf8');
     writeFileSync(join(dir, 'host-verdicts.json'), JSON.stringify({
-      schemaVersion: 'lattice.baseline.host-verdicts.v1',
+      schemaVersion: 'proof-or-stop.baseline.host-verdicts.v1',
       satisfiedReviewWaves: 3,
       requiredReviewWaves: 3,
       serverBackedVerdictsAccepted: true,

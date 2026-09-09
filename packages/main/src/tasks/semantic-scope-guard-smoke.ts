@@ -699,7 +699,7 @@ function seedScopeRuns(
     const materialHash = `material-${index}`;
     const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-      roles: { [agent]: 'legacy-full-context' },
+      roles: { [agent]: 'full-envelope' },
     }).body);
     return {
       reviewRunId,

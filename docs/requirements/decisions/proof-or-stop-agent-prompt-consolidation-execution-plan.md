@@ -33,13 +33,15 @@ boundaries have drifted across lifecycle generations:
 The goal is to make the 16 prompts easier for agents to drive correctly without
 weakening any process fact, evidence, reviewer, or DONE gate.
 
-Naming note: all canonical agent role IDs in the target state use the
-**`proof-or-stop-*` prefix**. Current package filenames, host shims, reviewer
-lanes, and in-flight evidence may still contain legacy role IDs such as
-`lattice-*`, `product-reviewer`, `implementation-reviewer`, `test-intent`, or
-`test-case-reviewer` until the implementation migration lands. Those names are
-treated as transitional aliases only. CLI commands such as `proof-or-stop validate`
-and `proof-or-stop agent_prompt` remain command names and are not renamed by this
+Naming note: current runtime role identities are admitted byte-exactly. Renamed
+roles use the **`proof-or-stop-*` prefix**; a retired `lattice-*` spelling is
+never an alias, lookup key, normalization input, reviewer lane, or authority for
+a new write. Frozen pre-cutover artifacts may retain those bytes for historical
+inspection only, without converting them into current evidence. The current
+product INIT role is `proof-or-stop-product-reviewer`; unprefixed
+former role labels below are historical labels or rejection examples, not
+aliases. CLI commands such as `proof-or-stop validate` and
+`proof-or-stop agent_prompt` remain command names and are not renamed by this
 document.
 
 ## Three-Host Review Consensus
@@ -52,7 +54,7 @@ requirements instead of prose intentions.
 Consensus blockers folded into this revision:
 
 - The `proof-or-stop-*` rename cannot be documentation-only. The migration must
-  update or alias prompt registry entries, template filenames/frontmatter, host
+  update prompt registry entries, template filenames/frontmatter, host
   shims, Codex manifests, reviewer lane parsing, review-run signatures, quorum
   consumers, and process-fact registry entries.
 - `proof-or-stop-product-reviewer` cannot be folded or downgraded until the INIT
@@ -77,11 +79,11 @@ and the resulting judgment.
 | Suggestion | Project evidence | Judgment for this plan |
 |---|---|---|
 | Split gates into hard gates, reviewer gates, and advisory lanes. | `packages/main/src/core/machine.ts` has phase guards for INIT_CHECK, DEV entry, REVIEW entry, REVIEW->TEST, and DONE. `packages/main/src/handlers/transition-orchestrator.ts` additionally runs REVIEW->TEST CLI preflight, `proof-or-stop validate`, and DONE pre-merge gates. | Accepted with correction: do not list only four hard gates. DEV->REVIEW is also a hard checklist/evidence gate. |
-| Treat reviewer output as lane-scoped only after `review_run_start`. | `packages/main/src/core/review-run.ts` restricts `REVIEW_RUN_LANES`; `packages/main/src/handlers/finding.ts` only treats `agent.startsWith('lattice-review-')` as reviewer evidence; `packages/main/src/core/reviewer-quorum.ts` maps active reviewers to lanes. | Accepted. This is exactly why M0.5 must normalize role IDs across review-run, finding/pass, quorum, and process-fact readers before new prompt writes. |
+| Treat reviewer output as lane-scoped only after `review_run_start`. | The pre-cutover implementation used a retired-prefix predicate; the current `packages/main/src/core/review-run.ts`, finding/pass handlers, and quorum readers require registered byte-exact canonical lanes. | Accepted. M0.5 must make every active producer and consumer use the same canonical role ID while retaining old bytes only in bounded historical fixtures. |
 | Keep evaluator/product/implementation advisory unless they have a structured sink. | `packages/main/src/handlers/evaluate.ts` already has `evaluate_save`, and `packages/main/src/core/done-oracle.ts` consumes `eval-evidence.json` when workflow policy requires evaluator evidence. `proof-or-stop-product-reviewer` is required by INIT via `REQUIRED_INIT_CHECK_AGENTS` in `packages/main/src/core/init-check-gate.ts`. `proof-or-stop-implementation-reviewer` is not in `REVIEW_RUN_LANES`. | Partially accepted. Raw evaluator JSON remains advisory; `evaluate_save` evidence can be gate-consumed by policy. Product reviewer cannot be downgraded until INIT is migrated. Implementation reviewer should be folded/retired for Proof-or-Stop rather than kept as a third code-review lane. |
 | Add artifact schema / writer / reader / freshness table. | `packages/main/src/cli/command-schemas.ts`, `packages/main/src/handlers/checklist.ts`, `packages/main/src/handlers/delivery-check.ts`, `packages/main/src/core/evidence-freshness.ts`, and `packages/main/src/core/delivery-check-hash.ts` already define real fields and freshness behavior. | Accepted. The plan now documents current writer/reader/freshness contracts and marks gaps where implementation must harden them. |
-| Split M0.5/M1/M2/M3/M4 into smaller rollback points. | M0.5 touches registry, host adapters, review-run lanes, process-fact registry, and in-flight evidence readers. M4 touches direct file access, CLI read APIs, writers, INIT self-check, channel retirement, and static scans. | Accepted. The plan now requires read-path aliasing before canonical writes, and direct-write bans before read replacement / INIT self-check changes. |
-| Add alias sunset policy. | `packages/main/src/handlers/agent-prompt.ts` currently exact-matches template basenames; `packages/main/src/core/prompt-registry.ts` uses filename-derived `agentId`; process-fact registry still lists legacy lanes. | Accepted. Compatibility is read-only/legacy-write-forbidden and must have a removal condition. |
+| Split M0.5/M1/M2/M3/M4 into smaller rollback points. | M0.5 touches registry, host adapters, review-run lanes, process-fact registry, historical provenance inspection, and active evidence readers. M4 touches direct file access, CLI read APIs, writers, INIT self-check, channel retirement, and static scans. | Accepted. The plan requires canonical producer/consumer cutover as one fail-closed boundary, followed by direct-write bans before read replacement / INIT self-check changes. |
+| Define the historical provenance boundary. | `agent_prompt` exact-matches registered templates and active process facts now use canonical lanes. | Accepted. Frozen pre-cutover bytes remain inspectable, but no runtime lookup or gate reader normalizes them into current authority. |
 | Move speed metrics earlier than M9. | `packages/main/src/handlers/reviewer-list.ts` computes baseline reviewers and routing reasons today; M3/M6/M8 can measure reviewer count and full-scan decisions before E2E rollout. | Accepted. M1/M3/M6/M8 now include measurable speed/routing exit criteria, with M9 retaining final comparison. |
 | Add a bounded search / memory budget before broad spec scans. | Current `session_brief` renders Memory Runtime Preflight as `authority=non_authoritative` and `gateEvidence=false`; this story's 3x2 review also recorded that an initial in-repo Codex run was interrupted for over-broad scanning. M6 already narrows full decisions-directory scans. | Accepted with boundary. Memory/playbook preflight is advisory only; agents must build a `candidateSpecSet` before broad scan; full `decisions/*.md` scan remains available only as a recorded escalation path. |
 
@@ -101,14 +103,14 @@ they are supported by current project code or CLI documentation.
 
 | Optimization / finding | 3x2 source | Decision | Applied document change | Reason and evidence |
 |---|---|---|---|---|
-| Name the exact reviewer-lane prefix risk instead of saying "readers" generically. | Codex A/B, Claude B, Agy B. | Accepted. | M0.5 now calls out `REVIEW_RUN_LANES`, `isReviewerAgent`, `resolveReviewRunLane`, and the mirrored `agent.startsWith('lattice-review-')` classification. | `packages/main/src/core/review-run.ts` currently accepts only `lattice-review-*` lanes; missing this predicate would make new `proof-or-stop-*` reviewer writes inadmissible. |
-| Add INIT required-agent normalization to the rename scope. | Codex A, Claude B, Agy B. | Accepted. | M0.5 and artifact tables now include `REQUIRED_INIT_CHECK_AGENTS` / `init-check-gate.ts`. | `packages/main/src/core/init-check-gate.ts` currently requires `lattice-review-story-init` and `product-reviewer`; product reviewer cannot be folded before this is migrated. |
-| Clarify retired channel reviewer behavior. | Claude B, Codex B. | Accepted. | Channel is now explicitly legacy-read-compatible during the alias window, not an active route or new-write lane. | `lattice-review-channel` is still in `REVIEW_RUN_LANES`; removing routing without read compatibility could break in-flight evidence. |
+| Name the exact reviewer-lane prefix risk instead of saying "readers" generically. | Codex A/B, Claude B, Agy B. | Accepted. | M0.5 calls out `REVIEW_RUN_LANES`, `isReviewerAgent`, `resolveReviewRunLane`, and the retired-prefix classification as a historical defect pattern. | Current review-run, finding/pass, quorum, and process-fact consumers must all require the same registered canonical lane; any retired-prefix acceptance is a regression. |
+| Add INIT required-agent normalization to the rename scope. | Codex A, Claude B, Agy B. | Accepted. | M0.5 and artifact tables now include `REQUIRED_INIT_CHECK_AGENTS` / `init-check-gate.ts`. | `packages/main/src/core/init-check-gate.ts` currently requires `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; retired reviewer ids remain historical evidence only and are not admitted by new writes. |
+| Clarify retired channel reviewer behavior. | Claude B, Codex B. | Accepted. | The retired channel role may appear only in frozen historical evidence or an exact rejection fixture; it is neither an active route nor an admitted lane. | Channel enforcement belongs to the CLI gate, and historical bytes cannot authorize a current review fact. |
 | Align planning ledger state with the real milestone UX. | Claude A, Codex A. | Accepted. | The milestone vocabulary now uses the six UX row states from `milestone_status`; prompt routing status is separated from milestone row status. | `docs/CLI.md` defines Done, In Progress, Pending Review, Not Started, Blocked, and Failed; the prior `not_applicable` planning state had no renderer contract. |
 | Clarify progress UX for reviewer pass/finding changes. | Codex A, Agy A. | Accepted with scope boundary. | Mandatory Progress UX now says `finding_add` / `review_pass_set` are not currently auto-appended and require either host follow-up or a later CLI auto-append/status aggregation story. | `packages/main/src/cli-engine.ts` auto-appends milestone status for checklist/evidence/story/delivery/summary commands, not reviewer pass/finding commands; `milestone_status` reads story/checklist/ledger/summary. |
 | Add DONE-required evidence to final-gate contracts. | Agy A. | Accepted. | Artifact schema and delivery contract now mention `done_required_validate` / `done-required-evidence.json` when project policy configures DONE-required commands. | AGENTS and CLI docs require fresh DONE-required evidence only when `doneRequiredCommands` / policy are configured; prompts must not invent it otherwise. |
 | Treat `scope-check.openQuestions` as non-tamper-evident until hardened. | Codex B, Agy A. | Accepted as warning; code change deferred. | The scope artifact row now says prompts must not rely on unsigned `openQuestions` as tamper-evident blockers unless resolved through a structured command or signature-domain update. | `scope-check.ts` passes `openQuestions` through outside the signature domain; process-fact registry records that choice. |
-| Split M0.5 into smaller, rollback-safe implementation stories. | Claude A, Agy B. | Accepted. | Added a story breakdown and parallel execution plan with 27 recommended stories: 26 prompt-consolidation stories plus one independent CLI lifecycle story, with explicit serial/parallel boundaries. | M0.5 touches registry, host shims, review-run lanes, init gate, process-fact registry, and legacy evidence readers; one giant story would be hard to review or revert. |
+| Split M0.5 into smaller, rollback-safe implementation stories. | Claude A, Agy B. | Accepted. | Added a story breakdown and parallel execution plan with 27 recommended stories: 26 prompt-consolidation stories plus one independent CLI lifecycle story, with explicit serial/parallel boundaries. | M0.5 touches registry, host shims, review-run lanes, init gate, process-fact registry, and historical provenance inspection; one giant story would be hard to review or revert. |
 | Add bounded search / memory budget for broad scans. | User follow-up, owner analysis. | Accepted. | Added a Search / Memory Budget Contract and expanded M6 around `candidateSpecSet`, full-scan escalation reasons, and token/search metrics. | Memory Runtime Preflight is explicitly non-authoritative and not gate evidence; over-broad scanning was already observed as a review execution risk. The plan now keeps full scan as an escalation path instead of a default. |
 | Immediately update runtime code in this story. | Agy A/B. | Rejected for this story. | No runtime code changes are included here. | B-2861 scope is a document review and optimization story; code changes belong in the later implementation stories described by the plan. |
 
@@ -119,8 +121,9 @@ they are supported by current project code or CLI documentation.
 - Assign each repeated check to one owner prompt or one CLI gate.
 - Prefer CLI gates for mechanical facts; prompts should route to gates and
   record structured evidence, not re-implement gate logic in prose.
-- Keep legacy prompts available only when they are explicitly marked legacy or
-  migrated to the current verification model.
+- Keep retired prompt material non-routable and available only as bounded
+  historical provenance, or replace it with a separately registered current
+  prompt using the current verification model.
 - Avoid direct story-file reads/writes in prompts where a CLI command exists.
 - Make reviewer output machine-consumable: `review_run_start`,
   `finding_add`, `review_pass_set`, `scope_check_save`, `init_check_set`, or
@@ -135,7 +138,7 @@ current machine and transition code rather than from prompt prose.
 | Tier | What belongs here | Current code evidence | Rule |
 |---|---|---|---|
 | Hard lifecycle gates | INIT->INIT_CHECK, DEV entry, DEV->REVIEW, REVIEW->TEST, TEST->DONE. | `core/machine.ts` `getGuardFailureReason`; `handlers/transition-orchestrator.ts` phase gate calls; `core/done-oracle.ts` DONE checklist rows. | These gates consume CLI/store facts only. Prompt text, raw transcripts, and free-form summaries cannot satisfy them. |
-| Reviewer gates | Current-round reviewer findings/passes bound to `review_run_start`. | `core/review-run.ts`, `handlers/finding.ts`, `core/reviewer-quorum.ts`. | A finding/pass counts only for its normalized lane and current signed review run. |
+| Reviewer gates | Current-round reviewer findings/passes bound to `review_run_start`. | `core/review-run.ts`, `handlers/finding.ts`, `core/reviewer-quorum.ts`. | A finding/pass counts only for its byte-exact registered lane and current signed review run. |
 | Advisory or policy-gated lanes | Raw evaluator JSON, product review prose, implementation-review prose, medium/low INIT issues, routing hints. | `handlers/evaluate.ts` raw `evaluate` is L0; `evaluate_save` is L4; `core/init-check-gate.ts` distinguishes required agents and blocking severities. | Advisory outputs may guide humans. They become gate evidence only through an explicit structured writer and policy consumer. |
 
 ## Mandatory Progress UX Contract
@@ -249,7 +252,7 @@ The consolidated system should present the 16 prompts as four classes:
 | Core lifecycle workers | `proof-or-stop-review-story-init`, `proof-or-stop-review-scope-plan`, `proof-or-stop-implementer`, `proof-or-stop-review-test-coverage`, `proof-or-stop-review-delivery` | Keep, update to current lifecycle and CLI-mediated evidence. |
 | REVIEW specialist lanes | Default: `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`; conditional-active: `proof-or-stop-review-concept` | Keep, narrow responsibilities and remove duplicated doc-promise checks. Do not route concept review by default without a rename/removal trigger. |
 | Product/evaluator/fold lanes | `proof-or-stop-evaluator`, `proof-or-stop-evaluator-cli`, `proof-or-stop-product-reviewer`, `proof-or-stop-implementation-reviewer` | Keep only with explicit advisory versus gate-evidence boundary; migrate or retire overlaps. |
-| Legacy compatibility prompts | `proof-or-stop-test-intent`, `proof-or-stop-test-case-reviewer`, `proof-or-stop-review-channel` | Mark legacy/retired or migrate to current `verificationIntent` / CLI-gate model. |
+| Historical or retired prompts | `proof-or-stop-test-intent`, `proof-or-stop-test-case-reviewer`, `proof-or-stop-review-channel` | Keep non-routable for provenance inspection or replace with current `verificationIntent` / CLI-gate roles; do not provide aliases from retired identities. |
 
 ## Agent Purpose And Overlap Table
 
@@ -262,15 +265,15 @@ The consolidated system should present the 16 prompts as four classes:
 | `proof-or-stop-review-quality` | REVIEW reviewer for dead code, type safety, maintainability, I/O shell isolation, and proof metadata consistency. | Catches maintainability and narrow correctness risks not covered by lint. | Duplicates `proof-or-stop-implementation-reviewer`. Repeats docs-promise reverse checks. | Keep. Own maintainability and code-quality risks. Retire or fold `proof-or-stop-implementation-reviewer` into this lane. Remove docs-promise check. |
 | `proof-or-stop-review-docs` | REVIEW reviewer for code/documentation drift around changed symbols. | Catches stale docs, bad command examples, schema mismatch, and docs/code disagreement. | Shares docs-promise checks with several other reviewers and overlaps with `delivery` docsPromises. Symbol extraction can miss behavior/config changes. | Keep. Make this the single REVIEW owner of doc-code drift and docs-promised-code-missing checks. Add non-symbol anchors for CLI commands/config/env changes. |
 | `proof-or-stop-review-concept` | REVIEW reviewer for concept deletion/replacement residue. | Prevents retired terminology or old concepts from lingering after a rename/removal. | Concept residue scan can overlap with docs review and quality cleanup. It also carries docs-promise self-check unrelated to concept cleanup. | Keep as conditional/CLI-triggered lane. Own only concept residue. Remove docs-promise check. |
-| `proof-or-stop-review-channel` | REVIEW reviewer for normal-channel dispatch evidence using `process-events.jsonl`. | Originally prevented main-agent self-writing in normal channel. | Top-level docs say this LLM agent is retired in favor of `proof-or-stop validate --channel`. It reads `docs/story/.../process-events.jsonl` directly and duplicates the channel CLI gate. | Retire as active reviewer. Keep only as historical compatibility prompt, or replace body with "use `proof-or-stop validate --channel`". |
+| `proof-or-stop-review-channel` | Historical REVIEW reviewer for normal-channel dispatch evidence using `process-events.jsonl`. | Originally prevented main-agent self-writing in normal channel. | The role is retired in favor of `proof-or-stop validate --channel`; a prompt-body redirect would still make the retired role look runnable. | Remove it from active lookup/routing. Preserve only bounded historical material; current users invoke the CLI gate directly. |
 | `proof-or-stop-review-test-coverage` | REVIEW reviewer for `verificationIntent` to `verificationEvidence` coverage. | Current replacement for legacy TEST_CASE_REVIEW value. | Correct high-level role, but must be stricter about starting with `review_run_start`, using current CLI shape, and never resurrecting legacy phases. | Keep. Make it the sole owner of verification coverage review. |
 | `proof-or-stop-review-delivery` | TEST/DONE-adjacent delivery reviewer that verifies docs promises, real machine tests, and closing self-check. | Prevents green engineering checks from becoming false product delivery. | Overlaps with `proof-or-stop-review-docs` on docs promises and with `proof-or-stop-product-reviewer` on user-value closure. | Keep. Own final delivery artifact (`delivery_check_set`) only. Consume docs-review output when available; do not duplicate all REVIEW doc drift checks unless no docs reviewer ran. |
 | `proof-or-stop-evaluator` | Browser/product evaluator using browser API. | Exercises UI like a user and scores functionality/usability. | Overlaps with `behavior` and `proof-or-stop-product-reviewer`; output is JSON text, not structured Proof-or-Stop evidence. | Keep as optional evaluator. Clarify advisory status or add a structured evidence sink if it should gate. |
 | `proof-or-stop-evaluator-cli` | CLI/core evaluator using bridge API and optional CLI shell. | Exercises CLI/core behavior through user-facing interfaces. | Missing canonical load-bearing runtime guide. Overlaps with `proof-or-stop-evaluator`, behavior review, and delivery evidence. | Keep. Add canonical runtime guide and clarify whether output is advisory or gate evidence. |
-| `proof-or-stop-product-reviewer` | Reviews final user-facing transcript and product closure. | Catches "engineering done but user still does not see completion". | Legacy alias `product-reviewer` mentions `testIntent`. Overlaps strongly with `proof-or-stop-review-delivery` and evaluator prompts. Mostly text output except INIT compatibility. | Either fold into `proof-or-stop-review-delivery` or mark as advisory product lane after INIT-gate compatibility is resolved. Remove `testIntent` wording. |
-| `proof-or-stop-implementation-reviewer` | Reviews implementation risks, edge conditions, and maintainability. | Lightweight code review for behavior and maintainability risks. | Legacy alias `implementation-reviewer` duplicates `proof-or-stop-review-quality` and `proof-or-stop-review-behavior`; uses text output rather than structured findings and is not in current `REVIEW_RUN_LANES`. | Retire/fold into quality/behavior for Proof-or-Stop. Do not retain as a third active code reviewer in this lifecycle. |
-| `proof-or-stop-test-intent` | Legacy checklist split reviewer and `testIntent` writer. | Old flow acceptance-intent generation. | Legacy alias `test-intent` conflicts with current `verificationIntent` flow and overlaps with scope-plan. | Migrate to a `proof-or-stop-verification-intent` role or mark legacy-only. Do not advertise for new stories. |
-| `proof-or-stop-test-case-reviewer` | Legacy reviewer for fixture coverage of `testIntent`. | Old TEST_CASE_REVIEW coverage check. | Legacy alias `test-case-reviewer` conflicts with current `proof-or-stop-review-test-coverage`; directly reads fixture JSON; tied to legacy phase. | Mark legacy-only or replace with alias to `proof-or-stop-review-test-coverage`. |
+| `proof-or-stop-product-reviewer` | Reviews final user-facing transcript and product closure. | Catches "engineering done but user still does not see completion". | The current INIT identity is `proof-or-stop-product-reviewer`; the broader product role overlaps with delivery and evaluator prompts. | Preserve this byte-exact required INIT identity. Any later consolidation into delivery or advisory work requires an explicit gate migration; it is not an existing alias. Remove legacy `testIntent` wording. |
+| `proof-or-stop-implementation-reviewer` | Reviews implementation risks, edge conditions, and maintainability. | Lightweight code review for behavior and maintainability risks. | The historical label `implementation-reviewer` duplicates quality/behavior and is not a current reviewer lane. | Retire/fold into quality/behavior for Proof-or-Stop. The historical label must not resolve to the canonical role. |
+| `proof-or-stop-test-intent` | Historical checklist split reviewer and `testIntent` writer. | Old flow acceptance-intent generation. | The historical label `test-intent` conflicts with current `verificationIntent` flow and overlaps with scope-plan. | Replace with a newly registered `proof-or-stop-verification-intent` role or keep historical-only. Do not advertise or alias it for new stories. |
+| `proof-or-stop-test-case-reviewer` | Historical reviewer for fixture coverage of `testIntent`. | Old TEST_CASE_REVIEW coverage check. | The historical label `test-case-reviewer` conflicts with current `proof-or-stop-review-test-coverage`; it is tied to a legacy phase. | Keep historical-only; current routing names `proof-or-stop-review-test-coverage` directly, never through an alias. |
 
 ## Detailed 16-Agent Migration Specification
 
@@ -403,6 +406,10 @@ Required prompt changes:
   Budget Contract.
 - Keep structured reviewer flow: `review_run_start`, then `finding_add` or
   `review_pass_set`.
+- Keep dispatch ownership explicit: the Story owner runs `proof-or-stop dispatch`
+  and passes its returned prompt unchanged to the reviewer; the reviewer does
+  not self-dispatch and independently begins its reviewerWrite lifecycle with
+  `review_run_start`.
 - Do not own UX scoring; evaluator/product/delivery lanes handle that.
 
 Lifecycle impact:
@@ -630,7 +637,8 @@ Lifecycle impact:
 Purpose:
 
 - Reviews whether final user-facing output closes the loop.
-- Legacy alias: `product-reviewer`.
+- Current required INIT identity: `proof-or-stop-product-reviewer`, admitted
+  byte-exactly; unprefixed former labels are not aliases.
 
 Problem it solves:
 
@@ -659,7 +667,8 @@ Lifecycle impact:
 Purpose:
 
 - Lightweight implementation risk reviewer.
-- Legacy alias: `implementation-reviewer`.
+- Historical predecessor label, rejected by current lookup:
+  `implementation-reviewer`.
 
 Problem it solves:
 
@@ -684,7 +693,7 @@ Lifecycle impact:
 Purpose:
 
 - Legacy checklist split reviewer and `testIntent` writer.
-- Legacy alias: `test-intent`.
+- Historical predecessor label, rejected by current lookup: `test-intent`.
 
 Problem it solved:
 
@@ -703,12 +712,6 @@ Required prompt changes:
 - Keep adversarial stance, but route scope coverage to
   `proof-or-stop-review-scope-plan`.
 
-Selected implementation (B-5a88/F-445): `proof-or-stop-verification-intent` is
-the active PLAN dispatch role and may write only `verificationIntent` through
-`checklist_update`. The historical role values remain readable compatibility
-identities with no new mutation or evidence ownership; explicit new-story
-dispatch of those identities fails closed with migration guidance.
-
 Lifecycle impact:
 
 - PLAN intent generation becomes compatible with current gates.
@@ -719,7 +722,8 @@ Lifecycle impact:
 Purpose:
 
 - Legacy reviewer for fixture/test coverage of `testIntent`.
-- Legacy alias: `test-case-reviewer`.
+- Historical predecessor label, rejected by current lookup:
+  `test-case-reviewer`.
 
 Problem it solved:
 
@@ -729,15 +733,11 @@ Problem it solved:
 Required prompt changes:
 
 - Do not use as-is for new stories.
-- Replace with an alias to `proof-or-stop-review-test-coverage` or mark legacy-only.
+- Keep historical-only; route current callers directly to
+  `proof-or-stop-review-test-coverage`.
 - Remove instruction paths tied to TEST_CASE_REVIEW for new flow.
 - Do not instruct direct fixture JSON reading unless a legacy fixture
   maintenance story explicitly needs it.
-
-Selected implementation (B-5a88/F-445): retain this role and its short prompt
-asset only as a read-side compatibility identity. New REVIEW coverage uses
-`proof-or-stop-review-test-coverage`; the legacy identity cannot author new
-verification intent or evidence.
 
 Lifecycle impact:
 
@@ -817,18 +817,19 @@ Important ledger rule:
 | `proof-or-stop-product-reviewer` | INIT/TEST/DONE advisory or folded | User-value closure and possible INIT compatibility review. | Catches "engineering done but user still wonders what happened"; may satisfy current INIT compatibility until migrated. | `storyId`, intake or outcome transcript, summary, optional transcript diff. | Text today; target is folded delivery input or structured product pass/finding if retained. | Advisory/fold candidate, INIT dependency unresolved. | Routing metadata marks advisory/folded unless converted to structured artifact or folded into delivery; INIT dependency blocks downgrade. | Must not duplicate delivery or evaluator ownership. |
 | `proof-or-stop-implementation-reviewer` | REVIEW folded/retired | Lightweight implementation risk review. | Finds concrete code risks outside fixture/product concerns. | Checklist, implementation files, test/reviewer hints. | Text today; no current structured Proof-or-Stop reviewer lane. | Fold/retire target. | Routing metadata marks folded/retired for new Proof-or-Stop flow; no milestone row should imply it ran. | Fold into behavior/quality; do not keep a third active code-review lane. |
 | `proof-or-stop-test-intent` | PLAN legacy | Legacy `testIntent` authoring and checklist split review. | Old acceptance-intent generation. | Story description, checklist id/title/context. | Legacy `checklist_update testIntent`; target migration is `verificationIntent`. | Legacy-migrate candidate. | Routing metadata marks legacy-only for new flow; migration story tracks replacement. | Replace with `proof-or-stop-verification-intent` authoring or legacy-only banner. |
-| `proof-or-stop-test-case-reviewer` | Legacy TEST_CASE_REVIEW | Legacy fixture coverage review for `testIntent`. | Old fixture-vs-intent assurance. | Checklist/testIntent, fixture files, legacy testintent records. | Legacy `testintent_record` and `testintent_check`. | Legacy/replace candidate. | Routing metadata marks legacy-only for new flow; coverage state comes from `proof-or-stop-review-test-coverage`. | Must not run in new flow; alias or legacy-only. |
+| `proof-or-stop-test-case-reviewer` | Historical TEST_CASE_REVIEW | Historical fixture coverage review for `testIntent`. | Old fixture-vs-intent assurance. | Checklist/testIntent, fixture files, historical testintent records. | Historical `testintent_record` and `testintent_check`. | Retired/replace candidate. | Routing metadata marks it non-routable; current coverage state comes directly from `proof-or-stop-review-test-coverage`. | Must not run in new flow and must not resolve through an alias. |
 
 ### Exact Contract Summary
 
 These contracts are implementation requirements, not explanatory prose. If a
-prompt emits a gate-consumed fact, the CLI must accept the canonical
-`proof-or-stop-*` role and normalize any legacy alias before writing or reading
-that fact.
+prompt emits a gate-consumed fact, the CLI must accept only the registered,
+byte-exact canonical role for that operation. Frozen pre-cutover records may be
+inspected as historical provenance, but a reader must not normalize a retired
+identity into current authority or let it satisfy a current gate.
 
 | Prompt | Trigger | Required first command | Allowed writes | Required output | Canonical agent/lane | Blocking semantics |
 |---|---|---|---|---|---|---|
-| `proof-or-stop-review-story-init` | INIT before INIT_CHECK. | `proof-or-stop story_get` plus `proof-or-stop checklist_get`, or a future `proof-or-stop init_context_get`. | `init_check_set` only. | Signed INIT pass/issues; equivalent fresh-context fence if `init-self-check.json` is removed. | `proof-or-stop-review-story-init`; legacy `lattice-review-story-init` accepted read-only during alias window. | High/critical INIT issues block INIT_CHECK. Missing fresh-context fence blocks if the current gate requires it. |
+| `proof-or-stop-review-story-init` | INIT before INIT_CHECK. | `proof-or-stop story_get` plus `proof-or-stop checklist_get`, or a future `proof-or-stop init_context_get`. | `init_check_set` only. | Signed INIT pass/issues; equivalent fresh-context fence if `init-self-check.json` is removed. | `proof-or-stop-review-story-init`; retired reviewer ids may remain inspectable in immutable historical evidence but are never accepted for a new reviewer write. | High/critical INIT issues block INIT_CHECK. Missing fresh-context fence blocks if the current gate requires it. |
 | `proof-or-stop-review-scope-plan` | PLAN before DEV. | `proof-or-stop story_get` plus `proof-or-stop checklist_get`, or a future `proof-or-stop scope_context_get`. | `scope_check_save` only. | Requirement coverage map with `covered`, `excluded`, `gap`, `orphan-suspect`, and open questions. | `proof-or-stop-review-scope-plan`. | Open gaps/questions block PLAN->DEV unless explicitly waived by the gate policy. |
 | `proof-or-stop-implementer` | DEV when channel policy, risk, or owner dispatch requires worker evidence. | `proof-or-stop checklist_get` or assigned plan/context command. | Code/docs commits, checklist status, `verification_evidence_add`; `checklist_update verificationEvidence` is compatibility only. | Implemented checklist item plus concrete verification evidence bound to the intent. | `proof-or-stop-implementer`. | Missing required evidence blocks DEV->REVIEW/TEST through coverage and validation gates. Implementer never advances phase. |
 | `proof-or-stop-review-behavior` | REVIEW when behavior/user-visible code changed. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | Behavior finding/pass bound to current review run. | `proof-or-stop-review-behavior`. | Verified open critical/high findings block REVIEW->TEST; suspected findings are advisory by evidenceState policy. |
@@ -847,13 +848,13 @@ inventing new required fields where the CLI already has a schema.
 
 | Artifact | Writer | Required/current schema facts | Reader / gate consumer | Freshness or anti-forgery rule | Plan action |
 |---|---|---|---|---|---|
-| `init-check.json` | `init_check_set`; controlled fallback `init_check_repair`. | `storyId`, `checkedAt`, `reviewRound`, `agentId`, `issues`, `agentResults`, `_hash`; required agent set currently includes `lattice-review-story-init` and `product-reviewer`. | INIT->INIT_CHECK in `core/machine.ts`; process-fact registry reviewer lanes. | `_hash` is `signInitCheck` over the domain declared once as data in `INIT_CHECK_SIGNATURE_DOMAIN` (`packages/main/src/core/init-check-gate.ts`); read the live list from `describeInitCheckSignatureDomain()` rather than a hand-written field list here. Since B-8df9 CHK-002 the domain also binds the reviewer verdict (`agentResults` + `issues`, via `computeInitCheckVerdictHash`), so a hand-edited verdict no longer stays signature-valid. `INIT_CHECK_SALT` / `signInitCheck` are exported source, so this buys tamper-evidence, not trustworthy reviewer coverage. High/critical issues block; fallback is marked with `@fallback`. | Preserve this fence while renaming to `proof-or-stop-*`; do not remove `product-reviewer` until required-agent migration passes tests. |
+| `init-check.json` | `init_check_set`; controlled fallback `init_check_repair`. | `storyId`, `checkedAt`, `reviewRound`, `agentId`, `issues`, `agentResults`, `_hash`; required agent set currently includes `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`. | INIT->INIT_CHECK in `core/machine.ts`; process-fact registry reviewer lanes. | `_hash` is `signInitCheck` over the domain declared once as data in `INIT_CHECK_SIGNATURE_DOMAIN` (`packages/main/src/core/init-check-gate.ts`); read the live list from `describeInitCheckSignatureDomain()` rather than a hand-written field list here. Since B-8df9 CHK-002 the domain also binds the reviewer verdict (`agentResults` + `issues`, via `computeInitCheckVerdictHash`), so a hand-edited verdict no longer stays signature-valid. `INIT_CHECK_SALT` / `signInitCheck` are exported source, so this buys tamper-evidence, not trustworthy reviewer coverage. High/critical issues block; fallback is marked with `@fallback`. | Preserve this fence and its byte-exact `proof-or-stop-*` identities; do not remove `proof-or-stop-product-reviewer` until a required-agent migration passes tests. |
 | `scope-check.json` | `scope_check_save`. | `features[]`, five-tier `status`, `summary`, optional `openQuestions`, `_hash`. | PLAN scope review / story review consumers. | `_hash` covers storyId/timestamp/gaps/covered/reviewRound; `openQuestions` are currently outside signature domain. | M1/M4 must decide whether `openQuestions` need stronger gate binding before prompts rely on them as blockers. Until then, prompts must treat open questions as review context or require `scope_question_resolve` / a signature-domain update before claiming tamper-evident blocker status. |
 | `milestone-ledger.json` | Owner/CLI via PLAN-only `milestone_ledger_set` / `milestone_ledger_add`. | `proofstory.milestone_ledger.v1`, `storyId`, candidate/confirmed `state`, `ledgerHash`, optional accepted-intent binding, milestone rows, timestamps. | ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates. | Writers compute `ledgerHash` from normalized rows, but current store reads and DONE/read consumers do not recompute it as anti-forgery validation. An arbitrary embedded hash is not tamper-proof today. | Scope-defining metadata with two current gaps: `LIFECYCLE_ARTIFACTS` omits the path, and readers trust the embedded hash. M4.C1 (or its independent CLI lifecycle story) must register the path and schema-validate/recompute `ledgerHash` before using it as a trust boundary or review-retention digest input. |
 | `slice-plan.json` | Owner/CLI via PLAN-only `slice_plan_set`. | `proofstory.slice_plan.v1`, `storyId`, current `ledgerHash`, complete `slices[]`, `planHash`, timestamps. | ProofStory DEV admission and DONE intent-equivalence gates. | The writer checks milestone coverage and computes `planHash`, but current store reads and DONE/read consumers do not recompute `planHash` from the embedded ledger hash and slices. | Scope-defining metadata with two current gaps: `LIFECYCLE_ARTIFACTS` omits the path, and readers trust the embedded hash. M4.C1 (or its independent CLI lifecycle story) must register the path and schema-validate/recompute the plan and ledger binding before treating it as trusted scope. |
 | `parent-ledger-rollup.json` | Owner/CLI via `parent_ledger_rollup_set`, currently allowed in PLAN/DEV/REVIEW/TEST. | `proofstory.parent_ledger_rollup.v1`, `storyId`, `ledgerHash`, optional `slicePlanHash`, child coverage/evidence refs, `rollupHash`, timestamps. | ProofStory DONE intent-equivalence gate. | The writer computes `rollupHash`. Current `parentRollupCoversSlicePlan` does not consume or recompute it; it compares the embedded ledger/slice hashes and checks child coverage plus non-empty evidence refs. Those comparisons are consistency checks, not anti-forgery proof. | Closeout metadata with two current gaps: lifecycle classification omits the path, and DONE does not validate `rollupHash`. M4.C1 (or its independent CLI lifecycle story) must fix classification/order and schema-validate/recompute the roll-up before it can be a trust boundary. Do not hand-write or scope-acknowledge this artifact. |
-| `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | Acknowledgement paths are consumed by the path scope gate today. Review scope binding separately uses `digestScopeContract`. | `digestScopeContract` hashes mode, allow/create/test paths, protected files, explicit excludes, file rules, and protected anchors; it explicitly excludes runtime acknowledgements. Acknowledgements therefore do not change the current review-binding digest. | `scope-contract.json` is already recognized by the scope classifier through `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES`, despite not being in the base `LIFECYCLE_ARTIFACTS` array; there is no current path-classification gap for it. The semantic gap is that acknowledgement content/provenance is absent from review binding. M4.C1 must add a planned composite scope-defining digest/re-attestation contract covering semantically relevant acknowledgements plus milestone ledger and slice plan. Do not broaden acknowledgement to TEST. |
-| Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code only accepts `lattice-review-*` lanes. | M0.5 must normalize canonical `proof-or-stop-*` roles before new reviewer evidence writes. |
+| `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | Acknowledgement paths are consumed by the path scope gate today. Review scope binding separately uses `digestScopeContract`. | `digestScopeContract` hashes mode, allow/create/test paths, protected files, explicit excludes, file rules, and protected anchors; it explicitly excludes runtime acknowledgements. Acknowledgements therefore do not change the current review-binding digest. | `scope-contract.json` is already recognized by the scope classifier through `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES`, despite not being in the base `LIFECYCLE_ARTIFACTS` array; there is no current path-classification gap for it. The semantic gap is that acknowledgement content/provenance is absent from review binding. M4.C1 must add a planned composite scope-defining digest/re-attestation contract covering semantically relevant acknowledgements plus milestone ledger and slice plan. Do not broaden acknowledgement to TEST. |
+| Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code accepts only registered canonical `proof-or-stop-review-*` lanes; retired role IDs fail closed. | Preserve byte-exact canonical role admission for every new reviewer evidence write. |
 | Finding / review pass | `finding_add`, `review_pass_set`. | Signed finding/pass with `agent`, `reviewRunId`, severity/category or note; `evidenceState` defaults to verified. | REVIEW->TEST in `core/machine.ts`; review escalation/floor downstream. | Reviewer evidence must pass signature/run binding; suspected/disproven findings are advisory. | Keep pass-only `finding_add` normalization, but ensure canonical role IDs are written after M0.5. |
 | `verificationEvidence` | `verification_evidence_add`; legacy compatibility through `checklist_update verificationEvidence`. | `intentRef`, `kind`, `note`, optional `file`, `command`, `result`, `verdict`, `waiverType`, `attestation`, `actorTrust`, `factProvenance`; writer auto-stamps `headHash`, `materialHash`, `storyFilesHash`, `timestamp`. | DEV->REVIEW evidence gate, REVIEW coverage, `proof-or-stop validate`, DONE stale-evidence hints. | `checkEvidenceFreshnessForGit` compares current material/story files; storyFilesHash match can downgrade whole-tree drift to re-attestation advisory. | Prefer `verification_evidence_add`; document minimum fields from the existing schema, not a new ad hoc schema. |
 | `test-evidence.json` | `proof-or-stop validate`. | PASS/FAIL plus head/material binding. | DONE gate and DONE pre-check. | DONE verifies PASS and recorded snapshot/material binding. | No prompt writes. Keep as CLI-owned validation evidence. |
@@ -883,7 +884,7 @@ claim the bug is fixed. Current code reproduces the mismatch:
   writers/consumers for the first three, so the registries disagree about
   lifecycle classification.
 - This omission does not apply to `scope-contract.json`:
-  `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` already recognizes it as canonical
+  `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES` already recognizes it as canonical
   lifecycle metadata even though the base `LIFECYCLE_ARTIFACTS` array does not.
   There is no current scope-contract path-classification gap.
 
@@ -1001,7 +1002,7 @@ CLI hints/spawn guidance after the registry knows each prompt's status.
 | Situation | Required prompts | Conditional prompts | Optional prompts | Retired / CLI-only |
 |---|---|---|---|---|
 | INIT intake for a new story | `proof-or-stop-review-story-init` | `proof-or-stop-product-reviewer` only while INIT compatibility depends on it. | None. | No direct story-file edits. |
-| PLAN scope review | `proof-or-stop-review-scope-plan` | `proof-or-stop-test-intent` only for legacy stories, or future `proof-or-stop-verification-intent` if created. | None. | Legacy `test-intent` alias warns and routes away for new stories. |
+| PLAN scope review | `proof-or-stop-review-scope-plan` | A future separately registered `proof-or-stop-verification-intent`, if created. | None. | Historical `test-intent` does not resolve; legacy story bytes remain audit-only. |
 | DEV normal/risk-signaled work | `proof-or-stop-implementer` when channel policy requires worker evidence. | None. | Main-agent DEV for express/fast paths if `express-exempt` policy allows it. | No phase advancement by implementer. |
 | DEV express/fast trivial work | Main agent plus CLI evidence, if policy allows. | `proof-or-stop-implementer` if risk signals, owner policy, or channel gate requires it. | None. | Express exemption must be a structured policy fact, not prompt prose. |
 | REVIEW baseline for code stories | `proof-or-stop-review-test-coverage`, plus `proof-or-stop-review-behavior` and/or `proof-or-stop-review-quality` according to touched files. | `proof-or-stop-review-docs` when docs/public commands/config/schemas may drift; `proof-or-stop-review-concept` when rename/removal trigger exists. | None for implementation-reviewer; its useful checks are folded into behavior/quality. | `proof-or-stop-review-channel` replaced by `proof-or-stop validate --channel`. |
@@ -1009,7 +1010,7 @@ CLI hints/spawn guidance after the registry knows each prompt's status.
 | REVIEW concept deletion/rename | `proof-or-stop-review-concept`. | `proof-or-stop-review-docs` for docs/code drift caused by the rename. | None. | Concept lane is `not_routed` with a reason when no trigger exists. |
 | TEST validation | CLI `proof-or-stop validate`. | `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` when UI/CLI user exercise is needed. | Evaluator raw JSON is advisory; persisted `eval-evidence.json` is policy-gated. | Legacy TEST_CASE prompts not used. |
 | DONE closeout | `proof-or-stop-review-delivery` plus CLI `done_prepare` / DONE-required policy when configured. | `proof-or-stop-product-reviewer` only if not folded and structured. | Evaluator transcript may be consumed, not invented. | Free-text product approval is not gate evidence. |
-| Legacy story already in legacy phase | Existing legacy aliases accepted under compatibility policy. | Canonical prefixed legacy prompts show legacy-only banner. | None. | New stories must not route to legacy phases. |
+| Historical story already in a legacy phase | Frozen records remain inspectable without identity normalization. | No retired role becomes runnable; maintenance uses an explicitly registered current operation if one exists. | None. | New stories must not route to legacy phases, and old identity bytes cannot authorize a new mutation. |
 
 ## Milestone Plan
 
@@ -1057,104 +1058,72 @@ Exit criteria:
 - No prompt content is edited in M0 except tests/docs required to record the
   baseline.
 
-### M0.5 - Role Rename Compatibility And Dual-Prefix Window
+### M0.5 - Role Rename Clean Break And Historical Provenance Boundary
 
-**Goal:** Make `proof-or-stop-*` the canonical role namespace without breaking
-in-flight stories or legacy evidence that still records `lattice-*` or
-unprefixed role IDs.
+**Goal:** Make current role admission unambiguously canonical without rewriting
+or deleting frozen pre-cutover evidence.
 
 Subprojects:
 
-- M0.5.1 Define the canonical 16 role IDs:
-  `proof-or-stop-review-story-init`, `proof-or-stop-review-scope-plan`,
-  `proof-or-stop-implementer`, `proof-or-stop-review-behavior`,
-  `proof-or-stop-review-quality`, `proof-or-stop-review-docs`,
-  `proof-or-stop-review-concept`, `proof-or-stop-review-channel`,
+- M0.5.1 Define the byte-exact current role IDs used by active operations,
+  including `proof-or-stop-review-story-init`,
+  `proof-or-stop-review-scope-plan`, `proof-or-stop-implementer`,
+  `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`,
+  `proof-or-stop-review-docs`, `proof-or-stop-review-concept`,
   `proof-or-stop-review-test-coverage`, `proof-or-stop-review-delivery`,
-  `proof-or-stop-evaluator`, `proof-or-stop-evaluator-cli`,
-  `proof-or-stop-product-reviewer`, `proof-or-stop-implementation-reviewer`,
-  `proof-or-stop-test-intent`, and `proof-or-stop-test-case-reviewer`.
-- M0.5.2a Add legacy-alias **read path** normalization first. `agent_prompt`,
-  reviewer evidence readers, quorum readers, delivery/floor consumers, and
-  process-fact registry checks must keep reading existing `lattice-*` /
-  unprefixed evidence.
-- This read-path subproject must explicitly cover the current hardcoded role
-  choke points:
-  `REVIEW_RUN_LANES`, `isReviewerAgent`, `resolveReviewRunLane`,
-  `finding_add` / pass-only finding reviewer classification,
-  `REQUIRED_INIT_CHECK_AGENTS`, reviewer quorum/floor consumers, delivery
-  consumers, and process-fact registry entries. A duplicated
-  `agent.startsWith('lattice-review-')` check is a bug unless it delegates to
-  the same normalization function.
-- M0.5.2b Switch **new writes** to canonical `proof-or-stop-*` roles only.
-  `review_run_start`, `finding_add`, `review_pass_set`, `init_check_set`, and
-  `delivery_check_set` must not create new evidence under legacy names. This
-  switch is blocked until M0.5.2a proves canonical roles are accepted by all
-  read/gate consumers.
-- M0.5.2c Rename or alias template files, YAML frontmatter, prompt registry
-  entries, host shims, Codex manifests, and package prompt registry records so
-  `proof-or-stop agent_prompt --role=proof-or-stop-review-quality` resolves the
-  canonical prompt body.
-- M0.5.3 Add role normalization for `agent_prompt`, `review_run_start`,
-  `finding_add`, `review_pass_set`, pass-only finding normalization, quorum
-  readers, delivery/floor consumers, and process-fact registry checks.
-- M0.5.4 Keep in-flight legacy evidence readable: old `lattice-review-*`,
-  `product-reviewer`, `implementation-reviewer`, `test-intent`, and
-  `test-case-reviewer` values map to canonical roles for read/gate purposes
-  during the compatibility window, while new writes use canonical
-  `proof-or-stop-*` roles.
-- M0.5.4a Treat `lattice-review-channel` as legacy read-compatible while
-  in-flight evidence exists, but do not route it as an active reviewer and do
-  not create new channel reviewer evidence. Channel enforcement belongs to the
-  CLI gate.
-- M0.5.5 Add a `lattice-residue` compatibility allowlist for static scans so
-  expected legacy aliases are tracked intentionally and all other active prompt
-  residues fail CI.
+  `proof-or-stop-evaluator`, and `proof-or-stop-evaluator-cli`. Keep
+  `proof-or-stop-product-reviewer` as the exact required INIT identity while that gate
+  requires it. A proposed new role is not current until it has one canonical
+  registry entry and its complete producer/consumer contract.
+- M0.5.2 Cut over every active producer and consumer atomically. The prompt
+  registry, template frontmatter, host shims, Codex manifests,
+  `REVIEW_RUN_LANES`, `isReviewerAgent`, `resolveReviewRunLane`, finding/pass
+  classification, `REQUIRED_INIT_CHECK_AGENTS`, quorum/floor readers, delivery
+  consumers, and process-fact registry must compare the same byte-exact IDs.
+- M0.5.3 Make all new writes canonical. `review_run_start`, `finding_add`,
+  `review_pass_set`, `init_check_set`, and `delivery_check_set` reject a retired
+  or confusable identity before generating output. A current writer must not
+  depend on a normalization step in a later reader.
+- M0.5.4 Keep frozen pre-cutover records byte-stable and inspectable as
+  historical provenance. Historical inspection reports the recorded identity
+  as recorded; it does not map that identity to a current lane, prompt, signer,
+  or gate fact and cannot authorize a new mutation.
+- M0.5.5 Keep retired identity literals only in bounded historical documents and
+  exact negative/rejection fixtures. A machine-owned inventory pins each such
+  occurrence and fails on unreviewed additions, duplication, or movement into
+  active prompts/configuration/runtime data.
 - M0.5.6 Add host-resolve golden fixtures for Codex, Claude Code, and
-  Antigravity (`agy`) so all three resolve the same canonical role IDs before
-  prompt body rewrites begin.
-- M0.5.7 Define alias sunset policy:
-  - legacy aliases are allowed while any non-terminal story references old role
-    IDs;
-  - terminal stories remain readable forever as historical evidence;
-  - after migration scan reports zero non-terminal legacy role references and
-    two CLI patch releases have shipped, legacy writes become hard errors;
-  - `agent_prompt --role=<legacy>` moves from warn+resolve to fail with a
-    replacement role.
-- M0.5.8 Machine-define the migration scan scope used by M0.5.7:
-  - include all non-terminal story artifact stores: review runs, review passes,
-    findings, init-check, delivery-check, checklist verification evidence,
-    test evidence, evaluator evidence, process events, and any configured story
-    artifact store;
-  - include prompt registry metadata, prompt frontmatter, package prompt
-    registry, host manifests / adapter manifests, reviewer lane registry, INIT
-    required-agent registry, quorum / host-verdict readers, process-fact
-    registry, and static prompt assets under Codex / Claude / package templates;
-  - exclude terminal DONE / DISCARDED story evidence from blocking sunset
-    decisions. Terminal story evidence remains read-only historical evidence and
-    must stay readable through legacy alias normalization.
+  Antigravity (`agy`) so all three resolve the same current role IDs. Add
+  negative fixtures proving every retired spelling, case/whitespace variant,
+  suffix extension, and confusable lookalike fails lookup and dispatch.
+- M0.5.7 Define the clean-break release boundary: canonical registry, readers,
+  writers, gates, host adapters, and tests land together. Rollback reverts that
+  complete set; there is no dual-prefix window and no release-count-based alias
+  sunset.
+- M0.5.8 Machine-define historical scan scope across terminal and non-terminal
+  artifact stores, prompt/frontmatter registries, host manifests, lane and INIT
+  registries, quorum readers, process-fact records, and prompt assets. The scan
+  distinguishes immutable provenance from runtime admission; finding an old
+  byte never makes it an accepted role.
 
 Exit criteria:
 
 - `proof-or-stop agent_prompt --role=proof-or-stop-review-quality` works.
-- `proof-or-stop agent_prompt --role=lattice-review-quality` warns and resolves as a
-  legacy alias, or fails with a precise replacement if no compatibility is
-  needed.
-- New review/finding/pass evidence is written with `proof-or-stop-*` lanes.
-- Negative tests prove a `proof-or-stop-review-*` finding/pass is accepted only
-  after a current signed review run, and a non-reviewer role cannot count as
-  reviewer evidence.
-- INIT tests prove both legacy required-agent evidence and canonical
-  `proof-or-stop-review-story-init` / product-reviewer alias evidence are read
-  during the compatibility window.
-- Existing legacy lane evidence remains readable until the related story reaches
-  terminal state.
-- `lattice-review-channel` is either retained as read-only compatibility or
-  removed with a migration note proving no non-terminal story still needs it.
+- `proof-or-stop agent_prompt --role=lattice-review-quality` fails with a precise
+  canonical replacement and generates no prompt/evidence output.
+- New review/finding/pass and INIT evidence use only their registered current
+  identities.
+- Negative tests prove a canonical reviewer finding/pass is accepted only after
+  a current signed review run and every retired role is rejected at each public
+  producer and consumer boundary.
+- Historical fixtures retain their exact pre-cutover bytes and remain auditable,
+  but cannot satisfy current INIT, REVIEW, quorum, delivery, or DONE gates.
+- The retired channel-reviewer spelling is present only in an exact historical
+  or rejection fixture; channel enforcement is the current CLI gate.
 - Host golden fixtures prove Codex, Claude Code, and Antigravity route to the
   same canonical roles.
-- The alias sunset policy is encoded in tests or a machine-readable migration
-  note, not only in prose.
+- The bounded historical-occurrence inventory and clean-break assertions are
+  encoded in tests or machine-readable policy, not only in prose.
 
 ### M1 - Role Taxonomy And Registry Metadata
 
@@ -1163,7 +1132,8 @@ conditional, advisory, or legacy.
 
 Subprojects:
 
-- M1.1 Extend prompt registry metadata with `canonicalRole`, `legacyAliases`,
+- M1.1 Extend prompt registry metadata with `canonicalRole`,
+  `historicalPredecessorLabels` (display/audit only, never lookup aliases),
   `lifecyclePhase`, `evidenceMode`, `status`, `ownerArtifact`, and
   `blockingSemantics`.
 - M1.2 Classify active lifecycle prompts:
@@ -1194,7 +1164,7 @@ Exit criteria:
   exposes it to callers.
 - `proof-or-stop reviewer_list` and routing docs stop treating retired prompts as
   default reviewer lanes.
-- Unknown or legacy role usage produces guidance pointing to the active
+- Unknown or retired role usage fails and produces guidance pointing to the active
   `proof-or-stop-*` role.
 - Evaluator gate/advisory status is fixed before routing or prompt rewrites rely
   on evaluator output.
@@ -1211,9 +1181,9 @@ Subprojects:
   - a new `proof-or-stop-verification-intent` prompt that writes
     `verificationIntent`, or
   - a legacy-only prompt with a hard banner saying it is not for new stories.
-- M2.2 Rewrite `proof-or-stop-test-case-reviewer` as either:
-  - an alias/compatibility wrapper for `proof-or-stop-review-test-coverage`, or
-  - a legacy-only prompt usable only for old stories already in legacy phases.
+- M2.2 Keep `proof-or-stop-test-case-reviewer` historical-only, and route current
+  coverage work directly to `proof-or-stop-review-test-coverage`. Do not add a
+  wrapper or lookup alias between the roles.
 - M2.3 Update `proof-or-stop-product-reviewer` and
   `proof-or-stop-implementation-reviewer` to remove casual `testIntent`
   references.
@@ -1227,7 +1197,7 @@ Subprojects:
 Exit criteria:
 
 - New-story prompt routing never names `proof-or-stop-test-intent`,
-  `proof-or-stop-test-case-reviewer`, or their legacy aliases.
+  `proof-or-stop-test-case-reviewer`, or historical predecessor labels.
 - Active prompts describe `verificationIntent` / `verificationEvidence`.
 - Legacy prompts cannot be mistaken for active lifecycle prompts.
 - Express/fast paths still require the configured evidence facts and do not
@@ -1318,8 +1288,8 @@ Exit criteria:
 - Prompt tests fail on new direct story writes.
 - The INIT self-check replacement is either demonstrably unnecessary or
   preserved by a CLI-mediated artifact consumed by the same gate.
-- Static scans distinguish allowed legacy aliases from accidental active
-  `lattice-*` role residue.
+- Static scans distinguish exact historical/rejection fixtures from accidental
+  active retired-role residue.
 - The lifecycle artifact registry and process-fact writer provenance agree on
   scope-defining and closeout-evidence paths. A canonical TEST
   `parent_ledger_rollup_set` write does not itself force TEST->DEV->REVIEW, while
@@ -1460,9 +1430,8 @@ Subprojects:
 
 - M8.1 Update `proof-or-stop reviewer_list` or equivalent routing output to show
   active, conditional, advisory, retired, and legacy roles.
-- M8.2 Update `proof-or-stop agent_prompt --role=<legacy>` to print a clear legacy
-  warning before body content and point to the canonical `proof-or-stop-*`
-  role.
+- M8.2 Make `proof-or-stop agent_prompt --role=<retired>` fail before emitting a
+  body, name the canonical replacement, and prove zero generated output.
 - M8.3 Update `session_brief`, phase hints, and docs to route:
   - INIT to `proof-or-stop-review-story-init`
   - PLAN scope to `proof-or-stop-review-scope-plan`
@@ -1483,7 +1452,8 @@ Exit criteria:
 - A fresh agent can discover the right prompt from CLI hints.
 - Retired/legacy roles are not listed as normal active choices.
 - Prompt routing matches actual gates.
-- Help output documents legacy alias behavior and the compatibility window.
+- Help output documents byte-exact retired-role rejection and the
+  historical-provenance-only boundary.
 - Routing output includes enough status to explain speed decisions.
 - Skipped reviewer output is explicit enough that faster routing cannot be
   mistaken for silent assurance removal.
@@ -1510,7 +1480,7 @@ Subprojects:
   frequency, sample-story token/time baseline, and evaluator opt-in cost.
 - M9.8 If CLI/runtime behavior changed, bump the CLI patch version, sync
   package/lock/version constants, rebuild, and verify `proof-or-stop --version`.
-- M9.9 Run `node bin/lattice.js verify_codex` when Codex prompt assets,
+- M9.9 Run `proof-or-stop codex verify` when Codex prompt assets,
   manifests, wrappers, or telemetry/gate code changed.
 - M9.10 Add the TEST parent-roll-up regression: a canonical
   `parent_ledger_rollup_set` write with unchanged product/material diff,
@@ -1529,8 +1499,8 @@ Exit criteria:
 - `proof-or-stop-*` canonical roles work in prompt registry, host adapters,
   reviewer lanes, review/finding/pass writes, quorum readers, and process-fact
   checks.
-- Legacy aliases are warning/compatibility only and do not create new evidence
-  under old names.
+- Retired identities fail public lookup, dispatch, and evidence writes; frozen
+  historical records remain inspectable without becoming current authority.
 - Canonical TEST parent roll-up closeout does not create a synthetic scope
   expansion or review round, while real product/material/scope changes remain
   blocking and route back through DEV/REVIEW.
@@ -1543,7 +1513,7 @@ Exit criteria:
 |---|---|
 | Legacy `testIntent` resurfaces in new flow | Static scan active prompts; sample story uses `verificationIntent` only. |
 | `proof-or-stop-*` rename is only documentation | Prompt registry, host adapters, reviewer lanes, review/finding/pass writes, quorum readers, and process-fact tests all use canonical roles. |
-| In-flight legacy evidence breaks after rename | Alias-normalization tests read legacy `lattice-*` and unprefixed role evidence while new writes use `proof-or-stop-*`. |
+| Historical evidence is mistaken for current authority after rename | Historical-byte tests preserve a frozen pre-cutover record exactly, while public lookup, dispatch, gate, and writer tests reject its retired identity and generate no output. |
 | INIT self-check fence is accidentally removed | Gate test proves an equivalent CLI-mediated fresh-context artifact exists, or proves the old artifact is no longer consumed. |
 | Duplicate doc findings overwhelm REVIEW | One injected docs-promise defect creates one owner finding from `proof-or-stop-review-docs`. |
 | Retired channel reviewer still blocks or duplicates CLI gate | `reviewer_list` excludes `proof-or-stop-review-channel`; `validate --channel` remains authoritative. |
@@ -1561,7 +1531,7 @@ Exit criteria:
 | Memory/playbook recall is mistaken for proof | Tests or prompt snapshots assert memory/playbook preflight is labeled advisory, non-authoritative, and `gateEvidence=false`; no lifecycle gate consumes it as evidence. |
 | Memory no-hit causes unbounded scan | PLAN/REVIEW fixtures simulate no memory/playbook hit and require a bounded `candidateSpecSet` plus skip/escalation reason before any full decisions scan is allowed. |
 | Search budget silently expands | Fixture or snapshot asserts the default `candidateSpecSet <= 8`, `rg` query count `<= 10`, full-scan yes/no, `scanEscalationReason`, metric sink, and evaluator opt-in cost accounting are emitted. |
-| Alias sunset scan misses legacy evidence | Migration scan fixture includes non-terminal story artifact stores plus prompt registry/frontmatter, host manifests, reviewer/init/process-fact registries, package templates, and confirms terminal story evidence remains read-only historical evidence. |
+| Historical-role inventory misses old evidence or admits it as current | Inventory fixture covers terminal and non-terminal artifact stores plus prompt registry/frontmatter, host manifests, reviewer/init/process-fact registries, and proves old bytes remain historical-only while every active boundary rejects them. |
 | Sample flow stops at TEST and misses closeout ordering | M9 E2E reaches DONE through blocker enumeration, canonical roll-up when required, validation, configured DONE-required policy, delivery, summary, `done_prepare`, and only then `story_advance --phase=DONE`. |
 
 ## Suggested Final Prompt Set
@@ -1606,15 +1576,15 @@ logically owned by M4 and does not add a twelfth milestone.
 | Milestone area | Story count | Story boundary | Parallelism |
 |---|---:|---|---|
 | M0 baseline | 2 | Baseline/hash inventory; legacy/direct-write scan baselines. | Serial first, because later stories compare against this inventory. |
-| M0.5 role rename compatibility | 5 | Alias read path; canonical new-write path; prompt/template/registry/host-shim aliasing; three-host golden fixtures; alias sunset and residue allowlist. | Mostly serial. Read path must land before canonical writes; host fixtures can run after read path and before broad rewrites. |
-| M1 registry metadata | 3 | Metadata schema/status fields; evaluator `evidenceMode`; reviewer/routing status output. | Can partly parallelize after M0.5 read compatibility exists. |
+| M0.5 role rename clean break | 5 | Canonical boundary inventory; atomic producer/consumer cutover; historical-byte inspection; three-host golden fixtures; bounded provenance/rejection inventory. | Mostly serial. Active registry/readers/writers/gates land atomically; historical inspection and host fixtures can follow without adding aliases. |
+| M1 registry metadata | 3 | Metadata schema/status fields; evaluator `evidenceMode`; reviewer/routing status output. | Can partly parallelize after the M0.5 clean break exists. |
 | M2 legacy verification migration | 3 | `testIntent` prompt migration or legacy banners; active prompt vocabulary scans; express/fast evidence-policy examples. | Parallel with M3/M5 after M1 status fields exist. |
 | M3 duplicate responsibility split | 3 | Docs owner split; behavior/quality/concept cleanup and implementation-reviewer fold; delivery fallback contract. | Parallel with M2/M5/M6 once M1 status metadata exists. |
 | M4 CLI-mediated artifact discipline | 5 | Early independent CLI lifecycle classification/order fix; direct-write ban; direct-read replacement APIs; INIT self-check migration; channel retirement/static scans. | The lifecycle classification/order story is serial immediately after M0. The remaining four M4 stories stay at the normal M4 position and mostly serial; they can run beside M2/M3 if they do not touch the same prompt bodies. |
 | M5 runtime guide consistency | 2 | Guide insertion/sync; prompt registry smoke tests. | Parallel with M2/M3 after M1 metadata exists. |
 | M6 scope/spec scan narrowing | 1 | Candidate spec set, bounded memory/playbook preflight, default search budgets, skip reasons, token/search metrics, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
 | M7 product/delivery/evaluator boundary | 1 | Product-reviewer fold/advisory decision and evaluator transcript boundary. | Parallel after evaluator `evidenceMode` is decided in M1. |
-| M8 routing/help/spawn guidance | 1 | Human and host routing output, skipped reviewer reasons, legacy alias guidance. | Late serial merge point after M2-M7 semantics stabilize. |
+| M8 routing/help/spawn guidance | 1 | Human and host routing output, skipped reviewer reasons, and retired-role rejection guidance. | Late serial merge point after M2-M7 semantics stabilize. |
 | M9 E2E regression and rollout | 1 | Prompt registry, process-fact, adapter, sample lifecycle, speed metrics, and release/version checks if runtime changed. | Final serial closure. |
 | **Total** | **27** |  |  |
 
@@ -1622,8 +1592,8 @@ Critical path:
 
 1. M0 baseline.
 2. M4.C1 independent CLI lifecycle classification/order prerequisite.
-3. M0.5 read compatibility.
-4. M0.5 canonical write compatibility.
+3. M0.5 canonical producer/consumer clean break.
+4. M0.5 historical-provenance inspection and negative fixtures.
 5. M1 registry metadata and evaluator evidence mode.
 6. Parallel lanes M2, M3, remaining M4 prompt/artifact discipline, M5, M6,
    and M7, with local conflict checks.
@@ -1643,8 +1613,8 @@ Recommended execution order:
 1. M0 baseline inventory.
 2. M4.C1 independent CLI lifecycle classification/order fix as the early serial
    prerequisite; do not change prompt bodies in this story.
-3. M0.5 role rename compatibility: legacy read path first, canonical writes
-   second, host golden fixtures third.
+3. M0.5 role rename clean break: canonical producers/consumers/gates together,
+   historical inspection second, host golden and rejection fixtures third.
 4. M1 registry metadata and evaluator evidenceMode decision.
 5. M2 legacy verification migration.
 6. M3 duplicate responsibility split.
@@ -1661,9 +1631,10 @@ remaining M4 work returns to its normal position. The plan still has the same
 
 M4.C1 must land immediately after M0 so closeout metadata is classified before
 later stories depend on TEST/DONE ordering. M0.5 must land before broad prompt
-rewrites, because every later artifact should write canonical
-`proof-or-stop-*` role IDs while still reading in-flight legacy evidence. The
-read-path and write-path parts of M0.5 should remain separately revertible. M1
+rewrites, because every later artifact must use byte-exact canonical
+`proof-or-stop-*` role IDs while frozen older evidence remains provenance only.
+The active cutover and historical-inspection parts are separately testable, but
+no intermediate release may accept both namespaces. M1
 must decide evaluator evidenceMode before M7 describes evaluator semantics. M2
 and M3 should land before large body rewrites; they remove the biggest semantic
 ambiguity first. The remaining M4 work and M5 should land before host adapter
@@ -1678,8 +1649,9 @@ intermediate state.
 - Do not make prompt-only statements count as gate evidence.
 - Do not push story branches or remote feature branches as part of prompt
   consolidation.
-- Do not delete legacy prompts until routing and compatibility behavior are
-  explicit.
+- Do not rewrite or delete frozen historical prompt evidence. Remove retired
+  roles from active lookup/routing, and retain old tokens only in bounded
+  historical records or exact rejection fixtures.
 - Do not use `.omx` for plans, logs, baselines, or runtime artifacts.
 
 ## Open Decisions
@@ -1712,8 +1684,9 @@ This execution plan is complete only when:
 - Every canonical agent role uses the `proof-or-stop-*` prefix in prompt
   registry metadata, frontmatter, host shims, Codex manifests, routing output,
   reviewer lanes, and new evidence writes.
-- Legacy role IDs are accepted only as warning/compatibility aliases and do not
-  create new evidence under old names.
+- Retired role IDs are rejected by active lookup, dispatch, routing, lane/gate
+  readers, and new evidence writers. Frozen pre-cutover bytes remain available
+  only for bounded historical inspection and exact rejection fixtures.
 - New-story routing never points to legacy `testIntent` prompts.
 - Duplicate docs-promise checks are removed from non-owner reviewers.
 - Active prompts use current process-fact vocabulary and structured evidence

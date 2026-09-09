@@ -197,7 +197,7 @@ try {
   );
   check(
     'CHK-002 envelope is schema v2 with a repo-relative logical cwd',
-    envMain.schema === 'lattice.command-spec.v2' && envMain.cwd === '.' && envWorktree.cwd === '.',
+    envMain.schema === 'proof-or-stop.command-spec.v2' && envMain.cwd === '.' && envWorktree.cwd === '.',
     `${envMain.schema} cwd=${envMain.cwd}/${envWorktree.cwd}`,
   );
 
@@ -216,7 +216,7 @@ try {
   });
   check(
     'CHK-002 legacy envelope is schema v1 with an absolute cwd',
-    legacyEnv.schema === 'lattice.command-spec.v1' && legacyEnv.cwd.startsWith(worktreeRoot),
+    legacyEnv.schema === 'proof-or-stop.command-spec.v1' && legacyEnv.cwd.startsWith(worktreeRoot),
     `${legacyEnv.schema} cwd=${legacyEnv.cwd}`,
   );
   const legacyReceipt: DoneRequiredCommandReceipt = {

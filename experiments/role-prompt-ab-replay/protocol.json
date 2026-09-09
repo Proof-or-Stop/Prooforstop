@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "proofbound.role-prompt-ab.protocol.v1",
+  "schemaVersion": "proof-or-stop.role-prompt-ab.protocol.v1",
   "status": "frozen",
   "experimentName": "story-3-role-prompt-ab-replay",
   "algorithms": {
-    "canonicalSerialization": "proofbound.canonical-json.code-point-keys.v1",
+    "canonicalSerialization": "proof-or-stop.canonical-json.code-point-keys.v1",
     "digest": "sha256.domain-separated-utf8.v1",
     "bytes": "utf8-bytes.v1",
     "lines": "lf-logical-lines.v1",
@@ -44,7 +44,7 @@
   "model": {
     "provider": "offline-replay",
     "modelId": "historical-observation-only.v1",
-    "contractVersion": "proofbound.story-dispatch.v1"
+    "contractVersion": "proof-or-stop.story-dispatch.v1"
   },
   "sampling": {
     "repeats": 3,

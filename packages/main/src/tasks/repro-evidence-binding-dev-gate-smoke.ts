@@ -119,7 +119,7 @@ const noFileChecklist: ChecklistData = {
 // block/message this file exists to test.
 function ackDevMemoryPreflight(store: StoryStore, storyId: string): void {
   store.writeDevMemoryPreflightAck(storyId, {
-    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
     storyId,
     packDigest: 'repro-evidence-binding-dev-gate-smoke-synthetic-digest',
     topHitIds: [],

@@ -39,7 +39,7 @@ export interface GlobalControlStoryRow {
 }
 
 export interface GlobalControlStatusReport {
-  readonly schemaVersion: 'lattice.global_control_status.v1';
+  readonly schemaVersion: 'proof-or-stop.global_control_status.v1';
   readonly readOnly: true;
   readonly generatedAt: string;
   readonly projectRoot: string;
@@ -185,7 +185,7 @@ export function buildGlobalControlStatus(
   };
 
   return {
-    schemaVersion: 'lattice.global_control_status.v1',
+    schemaVersion: 'proof-or-stop.global_control_status.v1',
     readOnly: true,
     generatedAt: now,
     projectRoot: root,

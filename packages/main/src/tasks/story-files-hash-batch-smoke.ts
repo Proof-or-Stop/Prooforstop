@@ -71,7 +71,7 @@ function expectedStoryHash(root: string, base: string, ref = 'HEAD'): string {
 }
 
 function withRepo(fn: (root: string) => void): void {
-  const root = mkdtempSync(join(tmpdir(), 'proofbound-story-files-hash-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-files-hash-'));
   try {
     git(root, ['init', '-q']);
     write(root, 'README.md', 'base\n');

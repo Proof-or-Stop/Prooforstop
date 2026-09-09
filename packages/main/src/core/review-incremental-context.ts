@@ -46,8 +46,9 @@ import {
   type ImpactClassification,
 } from './impact-classification-policy.js';
 import {
-  domainSeparatedDigest,
+  CURRENT_PROMPT_IDENTITIES,
   FULL_TASK_CONTEXT_LIMITS,
+  domainSeparatedDigest,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
   type PromptEnvelope,
@@ -72,7 +73,7 @@ import {
 } from './review-inventory-epoch.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
-export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v1' as const;
+export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v1' as const;
 
 export type PostRemediationSelectionReason =
   | 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE'
@@ -881,7 +882,7 @@ export function reviewIncrementalContext(
         return fullStoryDiffContext(overflowReasons, args.prior);
       }
       reviewBasis = {
-        schemaVersion: 'proof-or-stop.incremental-review-basis.v1',
+        schemaVersion: CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis,
         storyId,
         lane: role,
         priorPassRef: args.prior.pass.id,

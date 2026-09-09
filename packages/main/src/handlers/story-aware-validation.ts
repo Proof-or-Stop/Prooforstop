@@ -636,12 +636,9 @@ async function executeShardedEntry(args: {
   const receipts: ValidationShardReceipt[] = [];
   const results: ValidationResult[] = [];
   const residue: string[] = [];
-  // B-45a0 F-447: read BOTH names, preferring the canonical one, per
-  // brand-rename-mapping.md's rule for LATTICE_* env vars. The writer below emits
-  // the canonical PROOF_OR_STOP_* names; the deprecated spelling stays readable so
-  // an existing caller that already exports it keeps working.
-  const shardAdapter = baseCommand.env?.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER
-    ?? baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
+  // Dynamic validation shard execution is canonical-only: the active runtime reads
+  // PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER and does not accept the retired spelling.
+  const shardAdapter = baseCommand.env?.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER;
   const adapter = registeredShardAdapter(args.projectRoot, baseCommand, shardAdapter);
   if (!adapter) {
     const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
@@ -984,8 +981,8 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     resources: entry.resources,
   }));
   const schedulerCapacity = {
-    workerCapacity: Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
-    cpuCapacity: Number(process.env.LATTICE_VALIDATE_CPU) || Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
+    workerCapacity: Number(process.env.PROOF_OR_STOP_VALIDATE_JOBS) || 4,
+    cpuCapacity: Number(process.env.PROOF_OR_STOP_VALIDATE_CPU) || Number(process.env.PROOF_OR_STOP_VALIDATE_JOBS) || 4,
   };
   const scheduled = buildValidationSchedule(scheduleEntries, schedulerCapacity);
   const scheduleCheck = verifyValidationSchedule(scheduled, scheduleEntries, schedulerCapacity);

@@ -363,7 +363,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the one canonical stale-evidence refresh writer. Compatibility symbols and
   // their approved call shapes remain independently checked above. Repinned
   // again when main's proof-or-stop rename merged into that same file.
-  ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
+  ['packages/main/src/core/closeout-trust.ts', 'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
@@ -397,7 +397,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '21a08fc0372cf29cfa9c5defbcb27e0e48652c82eac23fb2471f0a731cd92aa7'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -472,13 +472,18 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271'],
+  ['packages/main/src/cli-engine.ts', 'b03c095a373bbbad19811ffc40e280800a92dbc67489dcc82e06fe00a57c2473'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
+  // B-49df: this test executes the fixed repository-local tracer's asserted private
+  // kernel, never an environment/CLI/network payload. This is a WHOLE exact test-file
+  // exemption via the existing early return, not a call-site-only exemption. The
+  // per-entry executable-drift negative below must invalidate this approval.
+  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', 'b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4'],
   // B-022e re-attestation: only verifier runtime identity tokens changed;
   // the exact-file exemption remains narrow and mutation-sensitive.
   ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
@@ -1690,7 +1695,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-8a40 current-Story admission: this is a single test-only call site, not a
   // general loader exemption. Executable drift revokes it; the provenance
   // controls below also reject rebinding/widening even under a refreshed hash.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '3c932df7aa37d3f489dacf3bb8696e2c895dfeee625033d595a5aa9275d26633'],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '96360e090f024bc7f7edbef940306c1deea141ed381ea6daf42da95eecd739b0'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -4707,7 +4712,7 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    12,
+    13,
     // origin/main merge: was 9. BOTH exemption maps had a slot whose occupant differed
     // between the two parents -- origin pinned packages/main/src/cli.ts, our main pinned
     // packages/main/src/handlers/graph.ts -- and the merged tree carries both features,
@@ -4719,7 +4724,7 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     // report as unresolved-nested-member. B-8a40 adds one test-only benign-loader
     // pin, with separate producer provenance controls: twelve exact source entries,
     // still zero patterns and no dynamic-code exemption for the mutation smoke.
-    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],

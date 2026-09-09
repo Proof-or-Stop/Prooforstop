@@ -81,7 +81,7 @@ Every runtime consumption point emits or records a bounded pack:
 
 ```ts
 interface MemoryFreshnessPack {
-  schemaVersion: 'proofbound.memory-pack.v1';
+  schemaVersion: 'proof-or-stop.memory-pack.v1';
   generatedAt: string;
   projectRoot: string;
   query: string;

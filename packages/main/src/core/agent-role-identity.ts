@@ -2,9 +2,8 @@
  * Canonical agent-role identity for the proof-or-stop migration.
  *
  * The role id is an on-disk and cross-host contract.  New records and prompts
- * must use the canonical proof-or-stop spelling, while readers must accept the
- * historical lattice spelling (and the pre-registry verification aliases).
- * Keep this mapping as the only place that knows the rename relationship.
+ * use the canonical proof-or-stop spelling. Retired roles are not registered
+ * aliases and therefore cannot resolve or acquire current authority.
  */
 
 export const CANONICAL_AGENT_ROLE_IDS = [
@@ -32,29 +31,10 @@ export const CANONICAL_AGENT_ROLE_IDS = [
 
 export type CanonicalAgentRoleId = typeof CANONICAL_AGENT_ROLE_IDS[number];
 
-/** Canonical role → accepted historical spellings, in no-authority order. */
-export const LEGACY_AGENT_ROLE_ALIASES: Readonly<Record<CanonicalAgentRoleId, readonly string[]>> = Object.freeze({
-  'proof-or-stop-implementation-reviewer': ['implementation-reviewer'],
-  'proof-or-stop-evaluator': ['lattice-evaluator'],
-  'proof-or-stop-evaluator-cli': ['lattice-evaluator-cli'],
-  'proof-or-stop-implementer': ['lattice-implementer'],
-  'proof-or-stop-review-behavior': ['lattice-review-behavior'],
-  'proof-or-stop-review-channel': ['lattice-review-channel'],
-  'proof-or-stop-review-concept': ['lattice-review-concept'],
-  'proof-or-stop-review-delivery': ['lattice-review-delivery'],
-  'proof-or-stop-review-docs': ['lattice-review-docs'],
-  'proof-or-stop-review-quality': ['lattice-review-quality'],
-  'proof-or-stop-review-scope-plan': ['lattice-review-scope-plan'],
-  'proof-or-stop-review-story-init': ['lattice-review-story-init'],
-  'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
-  'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
-  'proof-or-stop-product-reviewer': ['product-reviewer'],
-  'proof-or-stop-verification-intent': ['verification-intent'],
-  'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
-  'proof-or-stop-test-intent': ['test-intent'],
-  'proof-or-stop-finding-repair': ['lattice-finding-repair'],
-  'proof-or-stop-cluster-repair': ['lattice-cluster-repair'],
-});
+/** No retired role spelling is admitted by the current registry. */
+export const LEGACY_AGENT_ROLE_ALIASES: Readonly<Record<CanonicalAgentRoleId, readonly string[]>> = Object.freeze(
+  Object.fromEntries(CANONICAL_AGENT_ROLE_IDS.map(role => [role, Object.freeze([])])) as unknown as Record<CanonicalAgentRoleId, readonly string[]>,
+);
 
 const CANONICAL_BY_ALIAS = new Map<string, CanonicalAgentRoleId>();
 for (const canonical of CANONICAL_AGENT_ROLE_IDS) {

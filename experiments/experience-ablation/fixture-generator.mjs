@@ -6,7 +6,7 @@
 // fixtures in the recovery-runner corpus layout, per plan S13 M1:
 //   <out>/<fixtureId>/
 //     prompt.md        — the host-facing task (machine-checkable answer format)
-//     task.json        — proofbound.experience-ablation-fixture.v1 metadata
+//     task.json        — proof-or-stop.experience-ablation-fixture.v1 metadata
 //     workspace/       — leakage-stripped synthetic tree the host operates on
 //     acceptance.mjs   — visible sanity check (answer-file format only)
 //     oracle.mjs       — HIDDEN ground truth (plan S6.1 outcomes; M4 contract)
@@ -34,7 +34,7 @@ import {
   pick,
 } from './trap-templates.mjs';
 
-export const FIXTURE_SCHEMA_VERSION = 'proofbound.experience-ablation-fixture.v1';
+export const FIXTURE_SCHEMA_VERSION = 'proof-or-stop.experience-ablation-fixture.v1';
 
 // --- seeded PRNG (xmur3 + mulberry32), the local pattern shared with
 // pair-ledger.mjs / run-driver.mjs -------------------------------------------

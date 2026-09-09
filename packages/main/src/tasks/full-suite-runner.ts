@@ -151,7 +151,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
   // B-9f2c: added to test:serial-reference by this story. RESOURCE_POLICY is a THIRD
   // membership authority beyond root package.json's test:serial-reference and
-  // lattice.config.json's validate.commands -- entriesFromSerialReference fails closed
+  // proof-or-stop.config.json's validate.commands -- entriesFromSerialReference fails closed
   // on any serial-reference member with no policy entry, aborting the whole suite rather
   // than skipping the member, so this entry is mandatory rather than optional. The task
   // only reads the repo and spawns the CLI against temporary directories; it binds no
@@ -655,7 +655,7 @@ async function main(): Promise<void> {
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (jsonOutput) writeResultArtifact(jsonOutput, {
-    schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
+    schemaVersion: 'proof-or-stop.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
     performanceBudgetMs: FULL_SUITE_BUDGET_MS, performanceBudgetApplied, budgetBreached,
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
     maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs),

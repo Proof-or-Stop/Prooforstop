@@ -6,12 +6,11 @@
  * - Normal channel: first require each checklist item with non-main-agent Owner to have dispatch or
  *   subagent_result process-event evidence. commit author is only a legacy fallback:
  *   only when process-event is missing and all implementation commits have author ==
- *   "proof-or-stop-implementer" (with "lattice-implementer" accepted for legacy history)
- *   or are metadata-only proof-or-stop/lattice commits can it pass.
+ *   "proof-or-stop-implementer" or are metadata-only proof-or-stop commits can it pass.
  *
  * Output structure:
  *   {
- *     provider: "lattice-channel",
+ *     provider: "proof-or-stop-channel",
  *     status: "pass" | "fail" | "skipped",
  *     summary: string,
  *     details: string[],
@@ -168,8 +167,8 @@ export function isNormalChannelWithStory(
 
 /**
  * Determine whether a single commit can serve as legacy fallback.
- * - author == "proof-or-stop-implementer" passes (legacy "lattice-implementer" also passes)
- * - subject prefixed with "proof-or-stop:" or "lattice:" and only touches story metadata passes
+ * - author == "proof-or-stop-implementer" passes
+ * - canonical CLI subject prefix and only touches story metadata passes
  * - otherwise cannot serve as fallback; but if dispatch/subagent_result structured evidence is complete, author no longer hard-blocks
  */
 export function isStoryMetadataPath(file: string): boolean {
@@ -177,11 +176,9 @@ export function isStoryMetadataPath(file: string): boolean {
 }
 
 const CANONICAL_IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer';
-const LEGACY_IMPLEMENTER_AUTHOR = 'lattice-implementer';
-
-/** Canonical-first author check; the legacy name remains readable for old commits. */
+/** Current author fallback never promotes a retired agent spelling. */
 function isImplementerAuthor(author: string): boolean {
-  return author === CANONICAL_IMPLEMENTER_AUTHOR || author === LEGACY_IMPLEMENTER_AUTHOR;
+  return author === CANONICAL_IMPLEMENTER_AUTHOR;
 }
 
 // B-cdf6:F-053 — READ-BOTH, and this one gates a transition. This matched only the
@@ -607,10 +604,10 @@ export function checkCommitAuthor(
     const summary = allItemsOwnedByMain && offenders.length > 0
       ? `Normal channel: ${commits.length} commits explicitly exempted by plan.md Owner=main-agent; dispatch/subagent_result evidence coverage complete`
       : authorEvidenceCoversMissing
-        ? `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer (legacy lattice-implementer accepted) or metadata-only proof-or-stop/lattice CLI; commit author as direct-dispatch execution evidence`
+        ? `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer or metadata-only proof-or-stop CLI; commit author as direct-dispatch execution evidence`
         : offenders.length > 0
           ? `Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal`
-          : `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer (legacy lattice-implementer accepted) or metadata-only proof-or-stop/lattice CLI; dispatch/subagent_result evidence coverage complete`;
+          : `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer or metadata-only proof-or-stop CLI; dispatch/subagent_result evidence coverage complete`;
     return {
       provider: 'proof-or-stop-channel',
       status: 'pass',
@@ -627,7 +624,7 @@ export function checkCommitAuthor(
           ? ['plan.md Owner=main-agent author exemption: all checklist items']
           : []),
         ...(authorEvidenceCoversMissing
-          ? ['commit author=proof-or-stop-implementer fallback (legacy lattice-implementer accepted): no dispatch/subagent_result process event required for direct Agent execution']
+          ? ['commit author=proof-or-stop-implementer fallback: no dispatch/subagent_result process event required for direct Agent execution']
           : []),
         ...evidence.details,
       ],
@@ -645,7 +642,7 @@ export function checkCommitAuthor(
   if (!authorFallbackOk) {
     summaryParts.push(`${offenders.length}/${commits.length} commits cannot be used as author fallback`);
     failDetails.push('commit author is only a legacy fallback; normal channel primary evidence must be dispatch/subagent_result process-events');
-    failDetails.push('author fallback accepts author="proof-or-stop-implementer" (legacy author="lattice-implementer" also accepted) or metadata-only subject="proof-or-stop:*" / "lattice:*" commits');
+    failDetails.push('author fallback accepts author="proof-or-stop-implementer" or metadata-only subject="proof-or-stop:*" commits');
     failDetails.push('offenders:');
     for (const c of offenders) {
       failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);

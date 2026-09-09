@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
 
-export const QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.quantum_claim_admissibility.v1' as const;
-export const QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.quantum_claim_admissibility_verifier.v1' as const;
-export const QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION = 'lattice.quantum_verifier_adapter_output.v1' as const;
-export const QUANTUM_CLAIM_GATE_POLICY_SCHEMA_VERSION = 'lattice.quantum_claim_gate_policy.v1' as const;
-export const QUANTUM_CLAIM_BENCHMARK_SCHEMA_VERSION = 'lattice.quantum_claim_benchmark.v1' as const;
-export const QUANTUM_CLAIM_REPORT_SCHEMA_VERSION = 'lattice.quantum_claim_report.v1' as const;
+export const QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'proof-or-stop.quantum_claim_admissibility.v1' as const;
+export const QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'proof-or-stop.quantum_claim_admissibility_verifier.v1' as const;
+export const QUANTUM_VERIFIER_ADAPTER_OUTPUT_VERSION = 'proof-or-stop.quantum_verifier_adapter_output.v1' as const;
+export const QUANTUM_CLAIM_GATE_POLICY_SCHEMA_VERSION = 'proof-or-stop.quantum_claim_gate_policy.v1' as const;
+export const QUANTUM_CLAIM_BENCHMARK_SCHEMA_VERSION = 'proof-or-stop.quantum_claim_benchmark.v1' as const;
+export const QUANTUM_CLAIM_REPORT_SCHEMA_VERSION = 'proof-or-stop.quantum_claim_report.v1' as const;
 
 export const QUANTUM_RUNTIME_STATUS =
   'Quantum claim-admissibility runtime status: local diagnostic M0-M5 implemented.' as const;

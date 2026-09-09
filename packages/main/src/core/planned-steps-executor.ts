@@ -110,7 +110,7 @@ export interface PlannedStepExecution {
 }
 
 export interface PlannedStepsExecutionResult {
-  schemaVersion: 'lattice.planned_steps_execution.v1';
+  schemaVersion: 'proof-or-stop.planned_steps_execution.v1';
   plannerRunId: string;
   storyId: string;
   mode: JobPlan['mode'];
@@ -1096,7 +1096,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
   }
 
   const result: PlannedStepsExecutionResult = {
-    schemaVersion: 'lattice.planned_steps_execution.v1',
+    schemaVersion: 'proof-or-stop.planned_steps_execution.v1',
     plannerRunId: options.jobPlan.plannerRunId,
     storyId: options.jobPlan.storyId,
     mode: options.jobPlan.mode,

@@ -823,7 +823,7 @@ Exceptions must be explicit and machine-readable.
 ```json
 {
   "exceptionId": "tier-c-provider-execution-receipt-verification",
-  "policyVersion": "proofbound.queue_exception.v1",
+  "policyVersion": "proof-or-stop.queue_exception.v1",
   "class": "experiment-batch-exception",
   "subject": {
     "kind": "experiment-batch",

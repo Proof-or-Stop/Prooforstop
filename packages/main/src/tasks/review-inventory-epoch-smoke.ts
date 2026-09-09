@@ -29,6 +29,7 @@ import {
   type ReviewInventoryEvaluation,
 } from '../core/review-inventory-epoch.js';
 import { signReviewRun } from '../core/review-run.js';
+import { CURRENT_PROMPT_IDENTITIES, domainSeparatedDigest } from '../core/prompt-contracts.js';
 import { signReviewPass, signFinding, verifyReviewPass, verifyFinding } from '../core/finding-verify.js';
 import type {
   Finding,
@@ -46,7 +47,7 @@ import { acquireMkdirLock, MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js'
 const storyId = 'B-cdf6-replay';
 const reviewRound = '2026-08-14T00:00:00.000Z';
 const cutoff = { headHash: 'a'.repeat(40), materialHash: 'b'.repeat(64), storyFilesHash: 'c'.repeat(64) };
-const requiredLanes = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
+const requiredLanes = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage'];
 
 const reusedPidRoot = mkdtempSync(join(tmpdir(), 'review-lock-reused-pid-'));
 const reusedPidLockDir = join(reusedPidRoot, 'metadata.lock');
@@ -67,7 +68,7 @@ reusedPidLock.release();
 
 function epoch(unsignedOverrides: Partial<Omit<ReviewInventoryEpoch, '_hash'>> = {}): ReviewInventoryEpoch {
   const unsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
-    schemaVersion: 'proofbound.review_inventory_epoch.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_epoch.v1',
     epochId: `${storyId}:RI-001`,
     storyId,
     reviewRound,
@@ -86,6 +87,12 @@ function epoch(unsignedOverrides: Partial<Omit<ReviewInventoryEpoch, '_hash'>> =
 }
 
 function run(lane: string, id: number, startedAt = `2026-08-14T00:0${id + 1}:00.000Z`): ReviewRun {
+  // Synthetic unit input for inventory classification, never persisted reviewer authority.
+  const assembledPrompt = JSON.stringify([
+    { schemaVersion: CURRENT_PROMPT_IDENTITIES.roleContract },
+    { schemaVersion: CURRENT_PROMPT_IDENTITIES.fullTaskContext },
+    { schemaVersion: CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment },
+  ]);
   const row: ReviewRun = {
     reviewRunId: `${storyId}:RR-${String(id).padStart(3, '0')}`,
     storyId,
@@ -94,11 +101,13 @@ function run(lane: string, id: number, startedAt = `2026-08-14T00:0${id + 1}:00.
     reviewRound,
     startedAt,
     ...cutoff,
-    promptHash: reviewInventoryDigest({ lane, id }),
+    assembledPrompt,
+    envelopeId: reviewInventoryDigest({ lane, id }),
+    promptHash: domainSeparatedDigest('assembled-prompt.raw-utf8.v1', assembledPrompt),
   };
   row._hash = signReviewRun(
     row.storyId, row.reviewRunId, row.agent, row.lane, row.reviewRound, row.startedAt,
-    row.headHash, row.materialHash, row.promptHash, undefined, undefined, row.storyFilesHash,
+    row.headHash, row.materialHash, row.promptHash, undefined, undefined, row.storyFilesHash, row.envelopeId,
   );
   return row;
 }
@@ -165,7 +174,7 @@ function criticEvidence(
   terminalAt: string,
   findingDispositions: ReviewInventoryFindingDisposition[] = [],
 ): { run: ReviewRun; pass: ReviewPass; receipt: ReviewInventoryCriticReceipt } {
-  const criticRun = run('lattice-review-topology-critic', id, terminalAt);
+  const criticRun = run('proof-or-stop-review-topology-critic', id, terminalAt);
   criticRun.reviewPurpose = 'inventory-completeness';
   criticRun.inventoryBinding = reviewInventoryPurposeBinding(subjectEpoch);
   criticRun._hash = signReviewRun(criticRun.storyId, criticRun.reviewRunId, criticRun.agent, criticRun.lane,
@@ -173,7 +182,7 @@ function criticEvidence(
     undefined, undefined, criticRun.storyFilesHash, undefined, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
   const criticPass = pass(criticRun, id);
   const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
-    schemaVersion: 'proofbound.review_inventory_critic_receipt.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
     criticReceiptId: `${subjectEpoch.epochId}:CRIT-${String(subjectEpoch.waves.length + 1).padStart(2, '0')}`,
     epochId: subjectEpoch.epochId,
     storyId,
@@ -182,7 +191,7 @@ function criticEvidence(
     cutoff,
     aggregateFindingSetDigest: reviewInventoryDigest(reviewInventoryAggregateFamilies(subjectEpoch, evaluation)),
     requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
-    criticLane: 'lattice-review-topology-critic',
+    criticLane: 'proof-or-stop-review-topology-critic',
     reviewRunId: criticRun.reviewRunId,
     reviewPurpose: 'inventory-completeness',
     inventoryBinding: criticRun.inventoryBinding,
@@ -224,7 +233,7 @@ const emptyEvaluation = evaluateReviewInventoryWave({ epoch: initial, runs: [], 
 const statusText = renderReviewInventoryStatus(initial, { evaluation: emptyEvaluation });
 for (const lane of requiredLanes) assert.match(statusText, new RegExp(`Lane ${lane}: pending`));
 assert.match(statusText, /Blockers: REVIEW_INVENTORY_LANES_INCOMPLETE/);
-assert.match(statusText, /Next: proof-or-stop dispatch .*lattice-review-concept/);
+assert.match(statusText, /Next: proof-or-stop dispatch .*proof-or-stop-review-concept/);
 assert.equal((statusText.match(/^Next:/gm) ?? []).length, 1, 'status exposes exactly one next command');
 
 const firstRuns = requiredLanes.map((lane, index) => run(lane, index + 1));
@@ -466,8 +475,8 @@ const conflictingDisposition = evaluateReviewInventoryWave({
 assert.deepEqual(conflictingDisposition.invalidDispositionIds, [historical.id], 'one finding cannot carry competing critic dispositions');
 assert.equal(conflictingDisposition.families.length, 0);
 const lanesCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: rawDiscovery });
-assert.match(lanesCompleteStatus, /Lane lattice-review-concept: finding/);
-assert.match(lanesCompleteStatus, /Lane lattice-review-quality: pass/);
+assert.match(lanesCompleteStatus, /Lane proof-or-stop-review-concept: finding/);
+assert.match(lanesCompleteStatus, /Lane proof-or-stop-review-quality: pass/);
 assert.match(lanesCompleteStatus, /Verified findings: 0/);
 assert.match(lanesCompleteStatus, /New verified findings: 0/);
 assert.match(lanesCompleteStatus, /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/);
@@ -579,7 +588,7 @@ assert.equal(validateReviewInventoryCriticReceipt({
 
 const issuedAt = '2026-08-14T00:20:00.000Z';
 const unsignedReceipt: Omit<ReviewInventoryReceipt, '_hash'> = {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1',
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1',
   receiptId: `${storyId}:RI-001:RCP-001`,
   epochId: initial.epochId,
   storyId,
@@ -603,7 +612,7 @@ assert.equal(receipt.authorizesTest, false, 'inventory receipt never authorizes 
 
 const finalized = epoch({ state: 'FINALIZED', waves: [firstWave, buildWave(secondEpoch, saturated, issuedAt)], receiptId: receipt.receiptId, updatedAt: issuedAt });
 const finalizedData: ReviewInventoryEpochData = {
-  schemaVersion: 'proofbound.review_inventory_epochs.v1',
+  schemaVersion: 'proof-or-stop.review_inventory_epochs.v1',
   epochs: [finalized],
   receipts: [receipt],
   criticReceipts: [firstCritic.receipt, secondCritic.receipt],
@@ -641,14 +650,14 @@ const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
 assert.equal(reviewInventoryRemediationGate(mockStore as never, storyId, 'wrong-round').ok, false);
 const absentGate = reviewInventoryRemediationGate({
-  readReviewInventoryEpochs: () => ({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [], criticReceipts: [] }),
+  readReviewInventoryEpochs: () => ({ schemaVersion: 'proof-or-stop.review_inventory_epochs.v1', epochs: [], receipts: [], criticReceipts: [] }),
 } as never, storyId, reviewRound);
 assert.equal(absentGate.ok, false, 'artifact absence cannot bypass mandatory REVIEW to remediation DEV gate');
 assert.match(absentGate.nextCommand ?? '', /review_inventory_begin/);
 
 function completenessMemoryStore() {
   let data: ReviewInventoryEpochData = {
-    schemaVersion: 'proofbound.review_inventory_epochs.v1',
+    schemaVersion: 'proof-or-stop.review_inventory_epochs.v1',
     epochs: [],
     receipts: [],
     criticReceipts: [],
@@ -742,7 +751,7 @@ function replay(): Record<string, number> {
   events.push({ type: 'baseline-first-finding' });
   ['RR-047', 'RR-048', 'RR-049', 'RR-050', 'RR-051'].forEach((reason, index) => events.push({ type: 'baseline-redispatch', host: hosts[index % hosts.length], reason }));
 
-  const attackStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [initial], receipts: [], criticReceipts: [] });
+  const attackStore = memoryStore({ schemaVersion: 'proof-or-stop.review_inventory_epochs.v1', epochs: [initial], receipts: [], criticReceipts: [] });
   try {
     assertReviewInventoryCutoff(attackStore as never, storyId, { materialHash: 'f'.repeat(64), storyFilesHash: cutoff.storyFilesHash });
     events.push({ type: 'open-mutation', accepted: true });
@@ -825,10 +834,11 @@ function replay(): Record<string, number> {
     passes: firstPasses,
     findings: [],
   });
-  assert.ok(duplicate.duplicateIdentities.length > 0, 'duplicate reviewer identity is rejected');
-  assert.match(renderReviewInventoryStatus(initial, { evaluation: duplicate }), /Next: proof-or-stop review_inventory_cancel/);
+  assert.equal(duplicate.missingLanes.length, requiredLanes.length,
+    'a shared non-reviewer agent is rejected by current ReviewRun identity validation before inventory saturation');
+  assert.match(renderReviewInventoryStatus(initial, { evaluation: duplicate }), /Next: proof-or-stop dispatch/);
   const cancelled = epoch({ state: 'CANCELLED', cancelledAt: issuedAt, cancelReason: 'operator cancelled bounded review' });
-  const cancelledStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [cancelled], receipts: [], criticReceipts: [] });
+  const cancelledStore = memoryStore({ schemaVersion: 'proof-or-stop.review_inventory_epochs.v1', epochs: [cancelled], receipts: [], criticReceipts: [] });
   assert.equal(reviewInventoryRemediationGate(cancelledStore as never, storyId, reviewRound).ok, false, 'cancel cannot grant DEV');
   assert.match(renderReviewInventoryStatus(cancelled), /Next: proof-or-stop review_inventory_begin/);
   const exhausted = epoch({ waves: [firstWave, firstWave, firstWave], maxWaves: 3 });

@@ -2,14 +2,14 @@
 /**
  * @task B-9b76
  * @checklist CHK-002
- * @title Prompt registry compatibility smoke
+ * @title Prompt registry canonical-render smoke
  * @type feature
  * @priority high
  * @description
  * Verifies that the package prompt registry enumerates and renders all agent
- * prompt templates without changing legacy Claude/Codex content.
+ * prompt templates through the current Claude/Codex rendering contract.
  * @changes
- * - [CHK-002] Cover registry metadata, hashes, and host render compatibility.
+ * - [CHK-002] Cover registry metadata, hashes, and canonical host rendering.
  */
 
 import assert from 'node:assert/strict';
@@ -27,7 +27,6 @@ import {
   readPromptRegistry,
   renderPromptEntryForHost,
   resolvePromptTemplateBody,
-  restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
 import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
 import {
@@ -68,7 +67,7 @@ const qualityProofMetadataPhrases = [
   'client-controlled or stale metadata cannot satisfy',
   'not receipt-backed production proof',
 ];
-const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+const reviewFindingTriageContractMarker = '<!-- proof-or-stop:review-finding-triage-contract:v1 -->';
 const reviewFindingTriageProposalPath = 'docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md';
 const dynamicFindingExecutionPlanPath = 'docs/requirements/decisions/dynamic-finding-system-execution-plan.md';
 const approvedReviewFindingTriageProposalSha256 = '73290169c7b859fe6b5ca85ac964d89a8234f57a5bbf90f118ebcab852560705';
@@ -76,7 +75,7 @@ const approvedReviewFindingTriageProposalSha256 = '73290169c7b859fe6b5ca85ac964d
 // the smoke instead of the generated prompt baseline: changing the production
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
-const approvedReviewFindingTriageContractSha256 = '599b099e7a1128c26336c97e64eef34a3cef53791579ebf29cbc7683a56216ac';
+const approvedReviewFindingTriageContractSha256 = 'defa062cfb8dae1f12bd1bdcea502bdc4ca09f745d59b04406d3e213ded1e0b4';
 const approvedReviewFindingTriageHeadings = [
   reviewFindingTriageContractMarker,
   '## REVIEW Finding Triage and Routing Contract',
@@ -128,24 +127,17 @@ const approvedReviewFindingTriageNormativeLines = [
   '- Distinguish `disproven` (evidence refutes the observation), `duplicate` (another tracked Finding owns the same defect), and `not_reproduced_under_current_witness` (fresh target-bound negative witness evidence does not reproduce an older claim). Do not collapse any of them, or `defer_with_proof`, into resolved.',
   '- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.',
 ] as const;
-const frozenReviewerLegacyReconstructionDigests = {
-  'proof-or-stop-review-behavior': 'bbb6815ba8131f9fa7b25fd2fa82a9d91890dc56f1c5e43b814cba8b55e4e582',
-  'proof-or-stop-review-concept': '960bf0df46737570bbf55ebaefa3776272fe25b302f76bbde5c57e289a5db70c',
-  'proof-or-stop-review-docs': 'e26caaf232929404a9ddd6e772e743ef87d5d67fdaedcde75123e6ed58f027c5',
-  'proof-or-stop-review-quality': 'f8122f08bef477636732a450148dd567bf835c22636c842881a9162d1265b031',
-  'proof-or-stop-review-test-coverage': '1d3e1705db33a4c801cc516f242bca3b2665dd94d8157801beaa2e07b208310a',
-} as const;
 // Independent approval for the complete modular reviewer body that precedes the
 // injected contract. Terminal-contract validation alone cannot see contradictory
 // prose inserted before the marker, and generated registry/baseline digests are
 // refreshable. These pins make any prefix change require deliberate semantic-test
 // review instead of allowing a baseline refresh to approve it implicitly.
 const approvedReviewerModularPrefixDigests = {
-  'proof-or-stop-review-behavior': 'dee2bd93fbe8914aa1ca96ffad2ac2e632739137dffefb330cb18a556aa10f34',
-  'proof-or-stop-review-concept': '4a620ff64aec0b19cf13ef9f15f6d49a0597c1fef3a7a373685ab228b15ed3cf',
-  'proof-or-stop-review-docs': 'bbc444a5536e3bad297d016469c6850a3ddc1d580d679e351a8c66b083bccc0d',
-  'proof-or-stop-review-quality': 'd1377e890b30e837f1aaccc689bfd757095c4893faa545d8ab4d0f9b6781ffe3',
-  'proof-or-stop-review-test-coverage': 'bc9eef6284186ff8909c93915824839b4524b796ace4acd48c96aa222e6ee360',
+  'proof-or-stop-review-behavior': 'bace10d2cc39323652e1cf917c8cb9accf5c18764e7d2b19574e0f7f0b7a4f50',
+  'proof-or-stop-review-concept': '2c281adff48c0dd7f020b4c9a2cdeb9179dedffa6cab73764bdccfc286d90fd0',
+  'proof-or-stop-review-docs': '6d71b234530c0f4d85437eff77d4bdc49f467fb4cc554185ada903562ccdc873',
+  'proof-or-stop-review-quality': 'c9ce66df6ba1e86d813c27f4f08f4697c426eeb91fbf82b41630633febf40a05',
+  'proof-or-stop-review-test-coverage': 'a71f47db3186b949aef77dfaefb8e5ef1d56e02c10b8595e6f138ff3a1071569',
 } as const;
 const approvedEmptyReviewerPrefixSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const requiredReviewFindingTriagePhrases = [
@@ -538,7 +530,7 @@ function assertReviewFindingTriageMutationFailures(): void {
   }
   for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
-    for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
+    for (const mode of ['full-envelope'] as const) {
       const completeBody = resolvePromptTemplateBody(entry, mode);
       const markerIndex = completeBody.indexOf(reviewFindingTriageContractMarker);
       const approvedPrefix = completeBody.slice(0, markerIndex).trimEnd();
@@ -569,33 +561,7 @@ function extractProofOrStopBlock(content: string): string | null {
   return content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)?.[0] ?? null;
 }
 
-// The existing pins were approved before the managed marker branding migration.
-// Project only exact marker lines; all semantic bytes remain subject to the pins.
-function historicalMarkerProjection(body: string, modular: boolean): string {
-  const lines = body.split('\n');
-  if (modular) {
-    const marker = '<!-- proof-or-stop:modular-role-body:v1 -->';
-    assert.equal(lines.filter(line => line === marker).length, 1);
-    assert.equal((body.match(/modular-role-body:v1/g) ?? []).length, 1);
-    return lines.map(line => line === marker ? '<!-- proofbound:modular-role-body:v1 -->' : line).join('\n');
-  }
-  const managed = lines.filter(line => /<!--.*(?:lattice|proofOrStop|proof-or-stop):(?:start|end).*-->/.test(line));
-  if (managed.length === 0) return body; // The coverage legacy body has no managed block.
-  assert.deepEqual(managed, ['<!-- lattice:start -->', '<!-- lattice:end -->']);
-  return lines.map(line => line === '<!-- lattice:start -->' ? '<!-- proofOrStop:start -->' : line === '<!-- lattice:end -->' ? '<!-- proofOrStop:end -->' : line).join('\n');
-}
-
 function assertReviewFindingTriageDelivery(): void {
-  const modularMarkerControl = '<!-- proof-or-stop:modular-role-body:v1 -->\nunchanged semantic body';
-  assert.equal(historicalMarkerProjection(modularMarkerControl, true), '<!-- proofbound:modular-role-body:v1 -->\nunchanged semantic body');
-  for (const invalid of [modularMarkerControl.replace('proof-or-stop:', 'proofbound:'), `${modularMarkerControl}\n${modularMarkerControl}`, modularMarkerControl.replace(' -->', '  -->')]) {
-    assert.throws(() => historicalMarkerProjection(invalid, true), /AssertionError/);
-  }
-  const legacyMarkerControl = '<!-- lattice:start -->\nunchanged semantic body\n<!-- lattice:end -->';
-  assert.equal(historicalMarkerProjection(legacyMarkerControl, false), '<!-- proofOrStop:start -->\nunchanged semantic body\n<!-- proofOrStop:end -->');
-  for (const invalid of [legacyMarkerControl.replace('lattice:end', 'proofOrStop:end'), `${legacyMarkerControl}\n${legacyMarkerControl}`, legacyMarkerControl.replace('<!-- lattice:end -->', '')]) {
-    assert.throws(() => historicalMarkerProjection(invalid, false), /AssertionError/);
-  }
   assert.doesNotMatch(
     REVIEW_FINDING_TRIAGE_CONTRACT,
     /[\u3400-\u9fff]/u,
@@ -610,21 +576,13 @@ function assertReviewFindingTriageDelivery(): void {
   for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     const entry = registry.agents.find(candidate => candidate.agentId === roleId);
     assert.ok(entry, `${roleId} is registered`);
-    const frozenLegacyReconstruction = restoreLegacyPromptTemplate(entry);
-    assert.equal(occurrenceCount(frozenLegacyReconstruction, reviewFindingTriageContractMarker), 0, `${roleId} frozen reconstruction excludes the appended contract`);
-    assert.equal(
-      createHash('sha256').update(historicalMarkerProjection(frozenLegacyReconstruction, false)).digest('hex'),
-      frozenReviewerLegacyReconstructionDigests[roleId],
-      `${roleId} frozen legacy reconstruction digest remains byte-for-byte unchanged`,
-    );
-    const frozenLegacyPrefixDigest = createHash('sha256').update(frozenLegacyReconstruction.trimEnd()).digest('hex');
     const modularSource = readFileSync(entry.sourcePath, 'utf8');
     assert.equal(
-      createHash('sha256').update(historicalMarkerProjection(modularSource, true).trimEnd()).digest('hex'),
+      createHash('sha256').update(modularSource.trimEnd()).digest('hex'),
       approvedReviewerModularPrefixDigests[roleId],
       `${roleId} modular reviewer prefix requires independent semantic approval`,
     );
-    for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
+    for (const mode of ['full-envelope'] as const) {
       const body = resolvePromptTemplateBody(entry, mode);
       assert.equal(occurrenceCount(body, reviewFindingTriageContractMarker), 1, `${roleId}/${mode} receives one contract`);
       assert.ok(body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId}/${mode} receives canonical contract bytes`);
@@ -632,25 +590,19 @@ function assertReviewFindingTriageDelivery(): void {
         body,
         `${roleId}/${mode}`,
         approvedReviewFindingTriageContractSha256,
-        mode === 'legacy-full-context' ? frozenLegacyPrefixDigest : createHash('sha256').update(modularSource.trimEnd()).digest('hex'),
+        approvedReviewerModularPrefixDigests[roleId],
       );
     }
   }
   for (const entry of registry.agents) {
     if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) continue;
-    for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
+    for (const mode of ['full-envelope'] as const) {
       assert.equal(occurrenceCount(resolvePromptTemplateBody(entry, mode), reviewFindingTriageContractMarker), 0, `${entry.agentId}/${mode} receives no REVIEW contract`);
     }
   }
-  for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
-    const roles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map((roleId, index) => [
-      roleId,
-      (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
-    ]));
-    const config = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles };
-    for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
-      assert.equal(occurrenceCount(resolvePromptRoleBody(roleId, config).body, reviewFindingTriageContractMarker), 1, `mixed rollout mask ${mask} delivers one contract to ${roleId}`);
-    }
+  for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
+    assert.equal(occurrenceCount(resolvePromptRoleBody(roleId, undefined).body, reviewFindingTriageContractMarker), 1, `canonical default delivers one contract to ${roleId}`);
+    assert.throws(() => resolvePromptRoleBody(roleId, { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [roleId]: 'legacy-full-context' } }), /unsupported mode/);
   }
   assertReviewFindingTriageMutationFailures();
 }
@@ -889,28 +841,18 @@ for (const entry of registry.agents) {
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
     assert.equal(occurrenceCount(expectedClaude, reviewFindingTriageContractMarker), 0, `${entry.file} Claude bootstrap does not duplicate the runtime role contract`);
     assert.equal(occurrenceCount(expectedCodex, reviewFindingTriageContractMarker), 0, `${entry.file} Codex bootstrap does not duplicate the runtime role contract`);
-    assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
-    assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
+    assert.doesNotMatch(expectedClaude, /proof-or-stop:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
+    assert.doesNotMatch(expectedCodex, /proof-or-stop:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
   } else if (!isComplexRole) {
     assert.equal(expectedClaude, canonicalSource, `${entry.file} Claude render matches canonical template output`);
   }
   if (isComplexRole) {
-    const legacy = restoreLegacyPromptTemplate(entry);
-    const canonicalLegacy = legacy
-      .replace('<!-- lattice:start -->', '<!-- proof-or-stop:start -->')
-      .replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->');
-    assert.equal(expectedClaude, canonicalLegacy, `${entry.file} default full-context Claude render canonicalizes historical markers`);
-    assert.equal(expectedCodex, renderCodexAgentContent(canonicalLegacy), `${entry.file} default full-context Codex render canonicalizes historical markers`);
-    assert.match(legacy, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/, `${entry.file} retains legacy markers only in historical reconstruction`);
-    assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
-    assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
-    assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);
-  } else if (!ACTIVE_MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number])) {
-    assert.equal(expectedCodex, renderCodexAgentContent(canonicalSource), `${entry.file} Codex render matches canonical transform`);
-  }
-  if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
-    assert.equal(occurrenceCount(expectedClaude, reviewFindingTriageContractMarker), 0, `${entry.file} Claude render receives no REVIEW triage contract`);
-    assert.equal(occurrenceCount(expectedCodex, reviewFindingTriageContractMarker), 0, `${entry.file} Codex render receives no REVIEW triage contract`);
+    assert.equal(expectedClaude, source, `${entry.file} defaults Claude to canonical package bytes`);
+    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} defaults Codex to canonical package bytes`);
+    assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} canonical Claude render remains explicit`);
+    assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} canonical Codex render remains explicit`);
+  } else if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
     // proof-or-stop-review-channel is retired and independently byte-pinned by
@@ -956,40 +898,21 @@ const fullRoles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map(roleId => [ro
 const fullConfig = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: fullRoles };
 for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
   const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
-  const legacy = resolvePromptRoleBody(roleId, {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [roleId]: 'legacy-full-context' },
-  });
   const modular = resolvePromptRoleBody(roleId, fullConfig);
-  const frozenLegacyBody = restoreLegacyPromptTemplate(entry);
-  const modularSourceBody = readFileSync(entry.sourcePath, 'utf8');
-  assert.ok(legacy.body.startsWith(frozenLegacyBody.trimEnd()), `${roleId} rollback preserves frozen bytes before the appended contract`);
-  assert.equal(occurrenceCount(frozenLegacyBody, reviewFindingTriageContractMarker), 0, `${roleId} frozen legacy reconstruction digest remains unchanged`);
-  assert.equal(occurrenceCount(legacy.body, reviewFindingTriageContractMarker), 1, `${roleId} legacy path appends one triage contract`);
-  assert.ok(legacy.body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId} legacy path appends canonical contract bytes`);
-  assert.equal(legacy.legacyBytesRestored, true);
   assert.equal(modular.mode, 'full-envelope');
-  assert.equal(modular.legacyBytesRestored, false);
-  assert.ok(Buffer.byteLength(modular.body) < Buffer.byteLength(legacy.body), `${roleId} modular body is smaller`);
-  assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
-  assert.ok(modular.body.startsWith(modularSourceBody.trimEnd()), `${roleId} package asset precedes the appended contract`);
-  assert.equal(occurrenceCount(modularSourceBody, reviewFindingTriageContractMarker), 0, `${roleId} package asset does not duplicate the injected contract`);
-  assert.equal(occurrenceCount(modular.body, reviewFindingTriageContractMarker), 1, `${roleId} full-envelope path appends one triage contract`);
-  assert.ok(modular.body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId} full-envelope path appends canonical contract bytes`);
-  assertReviewFindingTriageSemantics(
-    legacy.body,
-    `${roleId} legacy path`,
-    approvedReviewFindingTriageContractSha256,
-    createHash('sha256').update(frozenLegacyBody.trimEnd()).digest('hex'),
-  );
-  assertReviewFindingTriageSemantics(
-    modular.body,
-    `${roleId} full-envelope path`,
-    approvedReviewFindingTriageContractSha256,
-    createHash('sha256').update(modularSourceBody.trimEnd()).digest('hex'),
-  );
-  assert.equal(extractProofOrStopBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
-  assert.ok(modular.body.includes('proof-or-stop:modular-role-body:v1'), `${roleId} keeps the canonical reconstruction anchor`);
+  const approvedSourcePrefix = `${readFileSync(entry.sourcePath, 'utf8').trimEnd()}\n\n`;
+  assert.equal(occurrenceCount(approvedSourcePrefix, reviewFindingTriageContractMarker), 0,
+    `${roleId} raw source must not contain an injected triage contract`);
+  assert.equal(modular.body.slice(0, modular.body.indexOf(reviewFindingTriageContractMarker)), approvedSourcePrefix,
+    `${roleId} modular body preserves the complete package source prefix`);
+  assert.equal(occurrenceCount(modular.body, reviewFindingTriageContractMarker), 1,
+    `${roleId} modular body contains exactly one triage contract`);
+  assert.ok(modular.body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`),
+    `${roleId} modular body ends with the independently approved triage contract`);
+  assertReviewFindingTriageSemantics(modular.body, `${roleId} approved assembled body`,
+    approvedReviewFindingTriageContractSha256, approvedReviewerModularPrefixDigests[roleId]);
+  assert.equal(extractProofOrStopBlock(modular.body), null, `${roleId} modular body contains no embedded historical Runtime Guide`);
+  assert.ok(modular.body.includes('proof-or-stop:modular-role-body:v1'), `${roleId} keeps the canonical modular-body anchor`);
   for (const host of ['claude', 'codex'] as const) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
     assert.equal(identity.rolloutMode, 'full-envelope');
@@ -1005,27 +928,19 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
   for (const otherRoleId of MODULAR_REVIEWER_ROLE_IDS) {
     assert.equal(
       resolvePromptEnvelopeRolloutMode(otherRoleId, oneRoleConfig),
-      otherRoleId === roleId ? 'full-envelope' : 'legacy-full-context',
+      'full-envelope',
       `${roleId} rollout flag does not bleed into ${otherRoleId}`,
     );
   }
 }
-for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
-  const roles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map((roleId, index) => [
-    roleId,
-    (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
-  ]));
-  const config = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles };
-  for (const [roleId, expected] of Object.entries(roles)) {
-    assert.equal(resolvePromptEnvelopeRolloutMode(roleId, config), expected, `mixed rollout mask ${mask} keeps ${roleId}`);
-    assert.equal(
-      occurrenceCount(resolvePromptRoleBody(roleId, config).body, reviewFindingTriageContractMarker),
-      1,
-      `mixed rollout mask ${mask} delivers one triage contract to ${roleId}`,
-    );
-  }
-}
-assert.equal(resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', undefined), 'legacy-full-context');
+assert.equal(resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', undefined), 'full-envelope');
+assert.throws(
+  () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { 'proof-or-stop-review-concept': 'legacy-full-context' as never },
+  }),
+  /unsupported mode/,
+);
 for (const roles of [
   { 'proof-or-stop-review-channel': 'full-envelope' },
   { 'implementation-reviewer': 'full-envelope' },
@@ -1041,22 +956,22 @@ for (const roles of [
 }
 for (const [source, expected] of [
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proof-or-stop.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proof-or-stop.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proof-or-stop.prompt-envelope-rollout.v1","roles":{},"roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope\.roles key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope","proof-or-stop-review-quality":"legacy-full-context"}}}',
+    '{"promptEnvelope":{"version":"proof-or-stop.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope","proof-or-stop-review-quality":"legacy-full-context"}}}',
     /duplicate promptEnvelope\.roles\.proof-or-stop-review-quality key/,
   ],
 ] as const) {
   assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
 }
 for (const malformed of [
-  { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
+  { version: 'proof-or-stop.prompt-envelope-rollout.v0', roles: {} },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'proof-or-stop-review-quality': 'unknown-mode' } },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
 ]) {

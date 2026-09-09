@@ -12,7 +12,7 @@ One run directory = one arm-run of one fixture (one `armRunId` from
 node score.mjs --fixture=<fixtureDir> --run=<runDir> [--out=<file>]
 ```
 
-and emits one `proofbound.experience-ablation-score.v1` record (plan section
+and emits one `proof-or-stop.experience-ablation-score.v1` record (plan section
 10). Any contract violation exits nonzero with exactly one actionable line
 starting `score: `.
 

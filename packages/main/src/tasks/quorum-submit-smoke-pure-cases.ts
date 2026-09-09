@@ -212,7 +212,7 @@ export const QUORUM_SMOKE_CASES = [
     assert.equal(actual.keyId, keyId);
     assert.equal(actual.keyId, deriveCanonicalHostKeyId(STORY_ID, 'host-vector'));
     assert.equal(actual.validationDigest, canonicalDigest({
-      schemaVersion: 'lattice.quorum_submit.validation_digest.v1',
+      schemaVersion: 'proof-or-stop.quorum_submit.validation_digest.v1',
       storyId: STORY_ID,
       headHash: 'head-vector',
       materialDigest: 'material-vector',
@@ -220,7 +220,7 @@ export const QUORUM_SMOKE_CASES = [
       testEvidence: vector.testEvidence,
     }));
     assert.equal(actual.promptDigest, canonicalDigest({
-      schemaVersion: 'lattice.quorum_submit.prompt_digest.v1',
+      schemaVersion: 'proof-or-stop.quorum_submit.prompt_digest.v1',
       purpose: 'local voluntary 3x2 review quorum after signed reviewer passes',
       storyId: STORY_ID,
       hostId: 'host-vector',
@@ -230,8 +230,8 @@ export const QUORUM_SMOKE_CASES = [
       materialDigest: 'material-vector',
       storyFilesHash: 'story-files-vector',
     }));
-    assert.equal(HOST_VERDICT_VALIDATION_DIGEST_SCHEMA, 'lattice.quorum_submit.validation_digest.v1');
-    assert.equal(HOST_VERDICT_PROMPT_DIGEST_SCHEMA, 'lattice.quorum_submit.prompt_digest.v1');
+    assert.equal(HOST_VERDICT_VALIDATION_DIGEST_SCHEMA, 'proof-or-stop.quorum_submit.validation_digest.v1');
+    assert.equal(HOST_VERDICT_PROMPT_DIGEST_SCHEMA, 'proof-or-stop.quorum_submit.prompt_digest.v1');
     assert.equal(HOST_VERDICT_PROMPT_PURPOSE, 'local voluntary 3x2 review quorum after signed reviewer passes');
   },
   }),
@@ -254,7 +254,7 @@ export const QUORUM_SMOKE_CASES = [
     };
     const absent = deriveHostVerdictBindings({ ...base, testEvidence: null });
     assert.equal(absent.validationDigest, canonicalDigest({
-      schemaVersion: 'lattice.quorum_submit.validation_digest.v1',
+      schemaVersion: 'proof-or-stop.quorum_submit.validation_digest.v1',
       storyId: STORY_ID,
       headHash: undefined,
       materialDigest: 'material-vector',

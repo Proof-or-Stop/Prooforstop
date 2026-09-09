@@ -1,4 +1,5 @@
 import {
+  CURRENT_PROMPT_IDENTITIES,
   PROMPT_CONTRACT_ALGORITHMS,
   PROMPT_MEASUREMENT_SCHEMA,
   RUNTIME_CONTRACT_SCHEMA,
@@ -42,7 +43,7 @@ const BASELINE_PROMPT_ENVELOPE_ROLLOUT = Object.freeze({
 });
 
 const runtimeSemanticValue = {
-  schemaVersion: RUNTIME_CONTRACT_SCHEMA,
+  schemaVersion: CURRENT_PROMPT_IDENTITIES.runtimeContract,
   lifecycleVersion: 'proof-or-stop.lifecycle.init-to-done.v2',
   ownershipVersion: 'proof-or-stop.story-owner-boundaries.v1',
   evidenceVersion: 'proof-or-stop.signed-process-facts.v1',
@@ -117,7 +118,7 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     combinedPrompts.push(text);
     const estimatedTokens = estimatePromptTokens(text);
     const record: PromptMeasurementRecord = {
-      schemaVersion: PROMPT_MEASUREMENT_SCHEMA,
+      schemaVersion: CURRENT_PROMPT_IDENTITIES.measurement,
       roleId: entry.agentId,
       runtimeContractVersion: BASELINE_RUNTIME_CONTRACT.schemaVersion,
       runtimeSemanticDigest: BASELINE_RUNTIME_CONTRACT.semanticDigest,

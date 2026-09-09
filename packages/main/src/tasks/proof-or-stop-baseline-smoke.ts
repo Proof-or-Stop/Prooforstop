@@ -485,7 +485,7 @@ function finalReportSeed(
 ): JsonObject {
   const runId = `${baselineId.toLowerCase()}-seed`;
   return {
-    schemaVersion: 'lattice.baseline.final_report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final_report.v1',
     layer,
     baselineId,
     runId,
@@ -674,7 +674,7 @@ function loopOutcomeFor(baselineId: string): 'PASS' | 'EXPECTED_BLOCK' {
 
 function loopArtifactContent(root: string, baselineId: string, fileName: string): string {
   const base = {
-    schemaVersion: 'lattice.loop_engineering_smoke_artifact.v1',
+    schemaVersion: 'proof-or-stop.loop_engineering_smoke_artifact.v1',
     baselineId,
     suiteRunId: LOOP_FORMAL_SUITE_RUN_ID,
     claimTarget: LOOP_FORMAL_CLAIM_TARGET,
@@ -687,7 +687,7 @@ function loopArtifactContent(root: string, baselineId: string, fileName: string)
     const host = fileName === 'host-verdict-claude.json' ? 'claude' : 'codex';
     return `${JSON.stringify({
       ...base,
-      schemaVersion: 'lattice.host_verdict.v1',
+      schemaVersion: 'proof-or-stop.host_verdict.v1',
       host,
       source: host,
       verdict: 'pass',
@@ -717,7 +717,7 @@ function baselineRunnerStubContent(
   claimTarget: string,
 ): string {
   const common = {
-    schemaVersion: 'lattice.baseline.stub.v1',
+    schemaVersion: 'proof-or-stop.baseline.stub.v1',
     generatedAt,
     layer: 'loop-engineering',
     baselineId,
@@ -747,7 +747,7 @@ function baselineRunnerStubContent(
   if (fileName === 'host-verdict-claude.json' || fileName === 'host-verdict-codex.json') {
     const host = fileName === 'host-verdict-claude.json' ? 'claude' : 'codex';
     return `${JSON.stringify({
-      schemaVersion: 'lattice.host_verdict.v1',
+      schemaVersion: 'proof-or-stop.host_verdict.v1',
       host,
       source: host,
       verdict: 'pass',
@@ -793,7 +793,7 @@ function loopFinalReport(root: string, baselineId: string, patch: JsonObject = {
     'verification-evidence.json',
   ]);
   const report: JsonObject = {
-    schemaVersion: 'lattice.baseline.final_report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final_report.v1',
     generatedAt: new Date().toISOString(),
     layer: 'loop-engineering',
     baselineId,
@@ -915,7 +915,7 @@ function writeSuiteReport(root: string, layer: string, patch: JsonObject = {}): 
   const layerRoot = join(root, '.proof-or-stop', 'artifacts', 'baseline', layer);
   mkdirSync(layerRoot, { recursive: true });
   writeFileSync(join(layerRoot, 'baseline-suite-report.json'), JSON.stringify({
-    schemaVersion: 'lattice.baseline_suite_report.v1',
+    schemaVersion: 'proof-or-stop.baseline_suite_report.v1',
     layer,
     suiteStatus: 'PASS',
     authorization: 'authorized',
@@ -1061,7 +1061,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   try {
     writeFinalReport(root, 'engineering', 'ENG-BUGFIX-1', 'malformed', '{ "schemaVersion": ');
     writeFinalReport(root, 'engineering', 'ENG-MULTI-FILE-1', 'mixed-schema', finalReportSeed(root, 'production-safety', 'AUTH-RECEIPT-1', {
-      schemaVersion: 'lattice.baseline.foreign_report.v0',
+      schemaVersion: 'proof-or-stop.baseline.foreign_report.v0',
       expectedOutcome: 'PASS',
       outcome: 'PASS',
     }));

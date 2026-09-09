@@ -9,7 +9,7 @@
  * REVIEW, TEST, DONE, Authority, or production-gate claims.
  */
 
-export const EVIDENCE_SCHEMA_VERSION = 'lattice.evidence.v1' as const;
+export const EVIDENCE_SCHEMA_VERSION = 'proof-or-stop.evidence.v1' as const;
 export type EvidenceSchemaVersion = typeof EVIDENCE_SCHEMA_VERSION;
 
 /** Candidate-only scope — pre-story artifacts that cannot satisfy production gates. */

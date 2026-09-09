@@ -19,7 +19,7 @@ import {
   type ScoreableMemoryLayer,
 } from './memory-benchmark.js';
 
-export const MEMORY_BENCHMARK_REAL_DATA_SCHEMA_VERSION = 'lattice.memory_benchmark_real_data.v1';
+export const MEMORY_BENCHMARK_REAL_DATA_SCHEMA_VERSION = 'proof-or-stop.memory_benchmark_real_data.v1';
 export const MEMORY_BENCHMARK_REAL_DATA_NOTE =
   'Real-data baseline export is non-authoritative: it is not Proof-or-Stop lifecycle gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.';
 
