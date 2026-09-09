@@ -72,6 +72,7 @@ async function main() {
     check(read(root, file).includes('MANAGED_BURN_RUNTIME_POLICY'), `${file} must consume registered managed burn policy`);
   }
   check(read(root, 'packages/main/src/core/managed-burn-guard.ts').includes('assessConvergenceProgressGate'), 'burn stop must consume shared verified progress authority');
+  check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('if (providerClosed || abort.signal.aborted'), 'burn cannot cancel a provider after its actual close');
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
   const doctorSource = read(root, 'packages/main/src/handlers/doctor.ts');

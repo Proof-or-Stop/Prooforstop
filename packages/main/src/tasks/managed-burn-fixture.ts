@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { defaultHostRunRunner } from '../core/host-run.js';
-import { submitManagedHostRun, runManagedHostRunWorker, type ManagedHostRunTerminal } from '../core/managed-host-run.js';
+import { submitManagedHostRun, runManagedHostRunWorker, managedHostRunDirectory, type ManagedHostRunTerminal } from '../core/managed-host-run.js';
 
 /** Real isolated provider process; canonical progress authority comes from the enclosing inventory fixture. */
 export async function runManagedBurnFixture(root: string, storyId: string, stalled: boolean, mode: 'running' | 'closed' | 'sealed-limit' = 'running'): Promise<void> {
@@ -22,7 +24,11 @@ export async function runManagedBurnFixture(root: string, storyId: string, stall
     environment: { ...process.env, PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT: mode === 'sealed-limit' ? '200' : '100' },
     deadlineMs: 15000, timeoutMs: 15000 }, { launchWorker: async value => { worker = execute(value); return { pid: process.pid }; } });
   const terminal = await worker;
-  if (mode === 'closed') assert.equal(terminal.state, 'completed', 'U15 burn after actual provider close must not override completed result');
+  if (mode === 'closed') {
+    assert.equal(terminal.state, 'completed', 'U15 burn after actual provider close must not override completed result');
+    assert.equal(existsSync(join(managedHostRunDirectory(root, submitted.runId), 'cancel-request.json')), false,
+      'close must prevent the late cancellation itself, including crash-recovery input');
+  }
   const expectStop = stalled && mode === 'running';
   assert.equal(terminal.state, expectStop ? 'cancelled' : 'completed', 'U15 verified stagnant high-burn run must stop while converging high-burn run continues');
   if (expectStop) assert.equal(terminal.reason, 'burn_without_effective_progress');

@@ -183,5 +183,6 @@ progress authority used by convergence gates. Only two verified complete stagnan
 epochs authorize `cancelled / burn_without_effective_progress`. Current net progress,
 missing history, projectless execution, or unavailable progress yields an advisory;
 no independent review requirement is waived. Normal TERM/KILL/reap and replacement
-safety still apply. Explicit startup/total/absolute deadlines remain finite and
+safety still apply. Actual child close fences further burn requests before any
+asynchronous descendant cleanup completes. Explicit startup/total/absolute deadlines remain finite and
 retain their distinct terminal reasons. A burn stop never redispatches a replacement.

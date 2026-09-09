@@ -180,4 +180,5 @@ export const MANAGED_BURN_RUNTIME_POLICY = {
   terminalReason: 'burn_without_effective_progress',
   unknownProgress: 'advisory',
   usageAuthority: 'bounded-provider-stdout-event',
+  closeAuthority: 'provider-child-close-before-cleanup',
 } as const;

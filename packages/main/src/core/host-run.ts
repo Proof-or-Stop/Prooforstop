@@ -195,6 +195,8 @@ export interface HostRunSpawnPlan {
   stdinText?: string;
   /** Called exactly once after a successful spawn and identity capture. */
   onSpawn?: (identity: HostRunProcessIdentity) => void;
+  /** Authoritative child close, before any asynchronous descendant cleanup. */
+  onClose?: (closedAt: string) => void;
   /**
    * Managed-review adapter seam. The worker holds the signing key in memory;
    * the runner exposes only this signed, identity-bound payload on child fd 3.
@@ -381,6 +383,8 @@ export interface HostRunDeps {
   passthrough?: HostRunPassthrough;
   /** Durable supervisor hook for provider pid/pgid/fingerprint persistence. */
   onProcessSpawn?: (identity: HostRunProcessIdentity) => void;
+  /** Supervisor fence; closing the provider does not yet prove descendant cleanup. */
+  onProcessClose?: (closedAt: string) => void;
   reviewInvocationPayload?: (identity: HostRunProcessIdentity) => string;
 }
 
@@ -1875,6 +1879,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       closeObserved = true;
       closeObservedAt = new Date().toISOString();
       fenceDeadlineAfterClose();
+      try { plan.onClose?.(closeObservedAt); }
+      catch (error) { passthroughError ??= `provider close observer: ${error instanceof Error ? error.message : String(error)}`; }
       runtime.onChildCloseObserved?.();
       if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
         failureKind = preferredHostFailure(failureKind, classifyHostExecutionFailure({
@@ -2195,6 +2201,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
           providerSpawnObserved = true;
         },
         reviewInvocationPayload: deps.reviewInvocationPayload,
+        onClose: deps.onProcessClose,
         onChunk,
       });
     } finally {

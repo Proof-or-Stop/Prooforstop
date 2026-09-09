@@ -2490,10 +2490,11 @@ export async function runManagedHostRunWorker(
   // Maximum per-event lower bound avoids double counting repeated/cumulative usage
   // events. This is deliberately not a sum of transcript or provider session history.
   let liveUsage: LiveProviderUsage | null = null;
+  let providerClosed = false;
   let nextBurnCheckAt = 0;
   let lastBurnDecision: string | null = null;
   const checkBurn = (): void => {
-    if (abort.signal.aborted || !liveUsage || now() < nextBurnCheckAt) return;
+    if (providerClosed || abort.signal.aborted || !liveUsage || now() < nextBurnCheckAt) return;
     const limit = spec.burnTokenLimit ?? MANAGED_BURN_RUNTIME_POLICY.defaultTokenLimit;
     if (liveUsage.tokens <= limit) return;
     nextBurnCheckAt = now() + MANAGED_BURN_RUNTIME_POLICY.progressCheckIntervalMs;
@@ -2638,6 +2639,9 @@ export async function runManagedHostRunWorker(
         onProviderUsage: usage => {
           if (!liveUsage || usage.tokens > liveUsage.tokens) liveUsage = usage;
         },
+        // This fact arrives before asynchronous process-group cleanup. Do not
+        // manufacture a new burn cancellation after the provider already closed.
+        onProcessClose: () => { providerClosed = true; },
         onProcessSpawn: identity => {
           const published = updateSnapshotAndAppendEvent(
             paths,
