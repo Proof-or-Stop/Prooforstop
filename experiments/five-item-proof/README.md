@@ -1,16 +1,41 @@
-# Five-item Lab followthrough: current reproduction guide
+# Five-item Lab candidate: reproduction and evidence boundaries
 
-Base main: `cf21df09c273074d7aa3227a5f436c6f5badf47a` / 0.3.284. This is a retained local Lab candidate for user inspection: no Story, release, push or main integration. Local repair commits and native Lab RED/GREEN records are engineering provenance; they are not formal Story DONE or release approval.
+Base: `cf21df09c273074d7aa3227a5f436c6f5badf47a`, version 0.3.284.
+This is the user's retained local Lab. Do not create a Story, integrate into main,
+run Lab finish, bump a version, or publish. Local commits are engineering provenance,
+not signed Story DONE or release approval. The final artifact report and package
+manifest identify each measured revision; do not relabel older measurements as a
+later source revision.
 
-Install dependencies and build only in this Lab or a new private reproduction checkout. The repository full CLI-surface check also requires packages/lab/dist; ensure-dist currently prepares only main and utils, so explicitly build the Lab package before verification. Never share writable dist with main or another worktree. Node 26 is the measured runtime. Do not rebuild while other verification processes consume this checkout's dist. Do not run Lab finish or publish commands.
+Prepare dependencies and build **only in this Lab or a private reproduction
+checkout**, before freezing a runtime for an experiment:
 
 ```sh
 node scripts/ensure-dist.mjs
 npm --prefix packages/lab run build
+node packages/main/dist/cli.js --root . lab create --help
+node packages/main/tests/validate-resource-claims.test.mjs
+```
+
+The explicit Lab package build and real help probe are required. A previous private
+copy omitted its 19 JavaScript extension files and failed the complete CLI-surface
+check. `freeze-runtime.py` in the evidence package now copies Lab dist too. Do not
+rebuild a runtime while another experiment or auditor consumes it. A full validation
+plan includes writers/builds: give it independent writable dist and a private Git
+baseline-authority worktree. Never use main's writable build output or mutate the
+real main checkout to satisfy a fixture's layout.
+
+Focused correctness controls (run from this Lab):
+
+```sh
 node scripts/verify-hash-accuracy.mjs
 node experiments/five-item-proof/last-closure.mjs
 node experiments/five-item-proof/acceptance-revision.mjs
 node experiments/five-item-proof/acceptance-checkpoint.mjs
+node experiments/five-item-proof/checkpoint-audit-controls.mjs
+node experiments/five-item-proof/checkpoint-owner-recovery.mjs
+node experiments/five-item-proof/signature-key-controls.mjs
+node experiments/five-item-proof/signature-batch-controls.mjs
 node experiments/five-item-proof/publication-restart.mjs
 node experiments/five-item-proof/evidence-implementation.mjs
 node experiments/five-item-proof/complete-output-adversarial.mjs
@@ -18,47 +43,73 @@ node experiments/five-item-proof/output-retention-contract.mjs
 node experiments/five-item-proof/exit-legacy-output.mjs
 node experiments/five-item-proof/capacity-config.mjs
 node experiments/five-item-proof/shared-config.mjs
+node experiments/five-item-proof/quorum-plan-controls.mjs
+node experiments/five-item-proof/quorum-runtime-controls.mjs
 node scripts/verify-process-fact-contract.mjs
 node scripts/verify-runtime-fact-contract.mjs
-FIVE_ITEM_PROOF_OUTPUT=/tmp/five-item-current node experiments/five-item-proof/verify.mjs
-FIVE_ITEM_PAIRS=1 FIVE_ITEM_PROOF_OUTPUT=/tmp/five-item-real-suite node experiments/five-item-proof/real-suite-consumers.mjs
 ```
 
-Use fresh output directories. verify.mjs exercises a real batch handler and a real 2.1-second child while scaling the parent clock and heartbeat interval by 1000; it is not a 51-minute OS stress test. The real-suite comparison can take several minutes. It invokes two actual handlers in separate processes with persistent receipts, but synthetic isolated fixture admission grants no Story authority. One heavy regression suite is intentionally present in both fixture consumers. The real root DONE policy does not contain that same heavy command: this is a conditional reuse experiment, not evidence of duplicate full-suite work in the root inventory. Benchmark RED means the baseline policy, which may pass while repeating work; native functional RED requires an actual failing target assertion.
+`CHECKPOINT_TEST_RUNTIME=/absolute/private/runtime` selects the frozen dist for the
+checkpoint/signature controls. Keep outputs in new directories with
+`FIVE_ITEM_PROOF_OUTPUT=/absolute/new/output`. These controls use private fixtures,
+including deliberately damaged data; do not target real Story directories.
 
-| Item | Current Lab implementation and evidence | Boundary |
-|---|---|---|
-| Hash / execution identity | Existing independent 27-case hash oracle; bootstrap-helper, dependency and Node/entrypoint pins; automatic loaded implementation binding for shared and checklist receipts; changed bytes refuse stale results. | Every unrelated currently running owner/reviewer is not migrated by this Lab. Scanner and local trust root are not a hostile-host sandbox. Hash correctness does not itself imply faster hashing. |
-| Bounded review | Existing production first-wave remediation authority and final-certification rejection controls; independent Claude wave observations are preserved in the external experiment package. | Core rule was already on main. A repeated unchanged review wave has measurable cost, but this does not prove whole-Story lead time or unchanged defect recall for every omitted wave. |
-| Shared execution | Observe-compatible explicit sharing; root candidate enables exactly the measured eligible heavy routine command (1/134); DONE 0/2 deliberately retains build/full-suite exclusions. Complete redacted selector objects, 1 MiB bound, safe legacy refusal, retry joining and same-selector fallback correctness retain evidence truth. | Root actual inventories do not duplicate this heavy suite. Short workloads can be slower; no broad percentage is inferred. Above-bound or legacy-store single-selector fallback is non-reusable. |
-| Lease / publication / acceptance | Same-owner heartbeat and fencing in real single/batch handlers; same bytes/receipt write retries; new-process publication recovery without another test child; signed DEV acceptance append and PLAN revision; durable trusted-Git checkpoints detect lost canonical history and support owner recovery. | Permanent failure with no durable receipt cannot guarantee recovery. A local administrator deleting both canonical history and trusted checkpoint storage defeats this local trust model. Scope changes still require scope authority. |
-| Resources / decomposition | All 134 routine and both DONE commands declare resources. Eleven routine local writer barriers and both DONE barriers remain. Historical audit is 21 reviewed / 15 effectively shared / 6 superseded. Exact normalized claims deduplicate 195 to 17. Graph verifier uses owned ephemeral servers and readiness instead of fixed waits. | Four-suite cross-worktree tests measure actual shared capacity. Full 134-command resource comparison and raw failures are in the external package. Generic decomposition was slower in the earlier equal-scope automated sample and is not offered as a speed improvement. |
+`checkpoint-owner-recovery.mjs` includes actual second-rename EIO injection,
+byte-preserving quarantine, intact trusted anchor, a successful governed retry,
+and empty/partial duplicate cleanup. Unknown or corrupt remnants are retained.
+All history signatures, predecessor relationships, current-intent bindings and
+trusted-key changes remain checked; batching is not a cross-call trusted cache.
 
-The original prototype acceptance.mjs and small arithmetic consumers/decomposition experiments remain historical controls. They are superseded for current acceptance claims by real handler, signed revision, checkpoint and publication tests. Do not describe prototypes as production authority.
-
-Graph controls:
+To recheck the retained real Claude calibration without calling the model again:
 
 ```sh
-node experiments/five-item-proof/graph-ephemeral.mjs
-node experiments/five-item-proof/graph-missing-control.mjs
-GRAPH_VERIFY_PORT=0 node packages/graph/scripts/verify-serves.mjs
-node packages/graph/scripts/verify-json-no-listener.mjs
-GRAPH_VERIFY_PORT=0 node packages/graph/scripts/verify-missing-assets-fail.mjs
+python3 -O experiments/five-item-proof/review-roster-check.py /absolute/package/evidence/review-benchmark /absolute/new/roster.json
+node experiments/five-item-proof/score-reviews-v2.mjs /absolute/package/evidence/review-benchmark
 ```
 
-Each graph verifier owns and terminates only its private server process group. The missing-assets recovery verifier temporarily manipulates this Lab's graph asset and restores it; do not run another build or graph consumer concurrently. The separate failure-before-listen negative control is part of the Lab experiments, not silently added to graph npm check.
+The scorer writes new `roster-verified-v2.json` and `scored-results-v2.json` alongside
+the supplied evidence. It checks the actual owner, all 20 complete reviewer identity
+objects and first-Bash CLI exit witnesses. Its original scoring oracle was post-hoc;
+this retrospective fix does not convert the finite fixture into a preregistered
+trial or prove universal defect recall. Earlier and current runtime identities
+are separate recorded observations, not one migrated production roster.
 
-The external followthrough package contains native RED/GREEN logs, source-bound timing pairs, original Claude request-changes findings and later focused verification, full inventory results, replay scripts, patch/bundle and checksums. Earlier reports are historical; use the latest report and explicit source bindings. Never add stage percentages or claim overall 48% / all-Story closure from these experiments.
+Performance experiments in the external evidence package:
 
-The final Graph approval has a bounded native Lab RED/GREEN entry:
+- `benchmark-identity.py` / `identity-timing/`: strict identity output, same fresh
+  inventory; not general CLI or material-hash speed.
+- `quorum-paired-results.json`: two alternating full73 serial/parallel pairs.
+  `node packages/main/dist/tasks/quorum-submit-smoke.js --jobs=1` and `--jobs=4`
+  retain all callbacks and the 13-case atomic dependency group. Root config enables
+  the bounded four-worker variant while retaining the parent exclusive barrier.
+- `basis-paired-results.json`: full suite with `--probe-jobs=1` / `--probe-jobs=4`;
+  all 58 real CLI refusal probes and existing handler/atomicity assertions remain.
+- `root-command-repeat-complete.mjs`: the exact eligible root command, two actual
+  routine handlers, two paired orders. Shared execution off/on is the intervention.
+  The private admission fixture confers no Story authority. DONE build/full-suite
+  have no exact overlap with this command and remain excluded from sharing.
+- `full-complete-comparison.mjs`: actual `executeValidationPlan`, all134 commands,
+  original timeouts and jobs4. Same repaired source, old resource declarations plus
+  serial internal pools versus audited declarations plus two internal pools. This
+  isolates scheduling activation, not all repairs or Story lead time.
+- `long-51-minute-RED/` and `long-51-minute-GREEN/`: actual 3060-second child runs.
+  The short `verify.mjs` clock-scaled fixture remains historical and is not a
+  substitute for this real long-duration result.
 
-```sh
-node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js --lab-graph-loader-proof
-```
+The external scripts retain original absolute runtime paths for provenance. On
+another host, generate new private runtime JSON/pinned CLI paths with the supplied
+freeze helper and point scripts at new output directories. The old snapshots and
+signed records are evidence to inspect, not credentials to import into a Story.
 
-It runs the existing dynamic-code positive/drift controls and all 14 Graph loader
-provenance mutants, including mutants given a refreshed fingerprint. It emits a
-distinct Lab marker. The configured no-argument entry remains unchanged and runs
-every original guard; a pre-existing prompt-full-context-envelope fingerprint
-failure is preserved in the baseline and final full-entry logs. The focused
-proof is not evidence that the complete guard or the 134-command inventory passed.
+Do not select only successful trials. Earlier short-task sharing and arbitrary
+same-scope decomposition were slower; the first full candidate had two preparation/
+assertion failures, and one root-command trial timed out under co-load. The final
+report preserves and classifies them separately. No stage percentages may be added,
+and no 48% or universal Story-speed conclusion is supported.
+
+POSIX process cleanup is tested for owned cooperating Node workers and descendants,
+including real failure/SIGINT/SIGTERM. Independent audit retains an unreproduced PGID
+reuse race and no internal post-signal deadline for a standalone never-close case;
+these are not labeled fixed. Hostile process-group escape, an uninterruptible kernel
+process, and destruction of all signing keys/trusted history are outside this local
+trust model. The actual validation command retains its configured wallclock ceiling.
