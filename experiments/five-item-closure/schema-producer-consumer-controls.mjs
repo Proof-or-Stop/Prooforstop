@@ -16,6 +16,10 @@ const fixture = mkdtempSync(join(tmpdir(), 'auditor-neighbour-'));
 const pkg = join(fixture, 'packages/main');
 mkdirSync(pkg, { recursive: true });
 cpSync(join(root, 'packages/main/dist'), join(pkg, 'dist'), { recursive: true });
+cpSync(join(root, 'packages/main/templates'), join(pkg, 'templates'), { recursive: true });
+cpSync(join(root, 'packages/main/package.json'), join(pkg, 'package.json'));
+cpSync(join(root, 'package.json'), join(fixture, 'package.json'));
+try {
 
 symlinkSync(join(root, 'node_modules'), join(fixture, 'node_modules'), 'dir');
 const publicHandler = () => {
@@ -76,10 +80,11 @@ run('N5-alias-module-rewire', 'review-incremental-context',
     : t);
 
 console.log(JSON.stringify({ rows }, null, 2));
-rmSync(fixture, { recursive: true, force: true });
 for(const row of rows){
  const refuse=!['N3-comment-only-edit-in-fingerprinted-module','N4-whitespace-only-edit-in-fingerprinted-module'].includes(row.name);
  assert.equal(row.refused,refuse,'LIVE_SCHEMA_PRODUCER_CONSUMER_UNBOUND: '+row.name);
  if(row.handlerMutation) assert.equal(row.handlerMutation.identityRefused,refuse,'PUBLIC_SCHEMA_CONSUMER_GATE_UNBOUND: '+row.name);
 }
 console.log('LIVE_SCHEMA_PRODUCER_CONSUMER_GREEN');
+
+} finally { rmSync(fixture, { recursive: true, force: true }); }
