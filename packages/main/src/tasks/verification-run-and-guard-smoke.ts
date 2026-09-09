@@ -830,6 +830,78 @@ async function partE(): Promise<{ subprocessExecutionCount: number; assertionRec
   }
 }
 
+// Lab RED for the remaining B-aa5f behavior. This deliberately constructs the
+// public capsule argv without importing the not-yet-present production module,
+// so the baseline can execute the verifier normally and fail on missing reuse
+// authority rather than on a missing source dependency.
+const LAB_CAPSULE_SOURCE = [
+  "const f=require('node:fs'),p=require('node:path'),m=process.argv[1],a=process.argv.slice(2),v=JSON.parse(f.readFileSync(m,'utf8')),e=v.files.map(x=>p.resolve(process.cwd(),x)),k=Object.keys(v).sort().join(',');",
+  "const d=[v.schemaVersion!=='proof-or-stop.verifier-dependency-manifest.v2',v.capsuleProfile!=='proof-or-stop.verification-reuse-capsule.v1',k!=='capsuleProfile,files,schemaVersion',JSON.stringify(a)!==JSON.stringify(e),!process.permission,!a.every(x=>process.permission.has('fs.read',x)),process.permission.has('fs.read',process.cwd()),['fs.write','child','worker','addons','wasi','inspector','net','ffi'].some(x=>process.permission.has(x,process.cwd()))];if(d.some(Boolean)){process.stderr.write('verification reuse capsule policy denied:'+d.map(Number).join('')+'\\n');process.exit(70);}",
+  "for(const x of a)process.stdout.write(f.readFileSync(x));",
+].join('');
+
+function labQuoteToken(value: string): string {
+  if (/^[A-Za-z0-9_./:=+,-]+$/u.test(value)) return value;
+  return `"${value.replace(/\\/gu, '\\\\').replace(/"/gu, '\\"')}"`;
+}
+
+function labCapsuleCommand(root: string, manifestPath: string, files: string[]): string {
+  const manifestAbsolutePath = resolve(root, manifestPath);
+  const inputAbsolutePaths = files.map(path => resolve(root, path));
+  const argv = [
+    '--permission',
+    `--allow-fs-read=${manifestAbsolutePath}`,
+    ...inputAbsolutePaths.map(path => `--allow-fs-read=${path}`),
+    '-e',
+    LAB_CAPSULE_SOURCE,
+    '--',
+    manifestAbsolutePath,
+    ...inputAbsolutePaths,
+  ];
+  return ['node', ...argv].map(labQuoteToken).join(' ');
+}
+
+async function partFLabInputScopedReuseRed(): Promise<void> {
+  const env = makeEnv('B-aa5f-lab-input-scoped-reuse', [intent('INT-LAB-REUSE', 'cli')]);
+  try {
+    const input = 'packages/main/src/lab-reuse-input.txt';
+    const manifest = 'packages/main/lab-reuse.verification-dependencies.json';
+    write(env.root, input, 'LAB_REUSE_OK\n');
+    write(env.root, manifest, `${JSON.stringify({
+      schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2',
+      capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1',
+      files: [input],
+    }, null, 2)}\n`);
+    git(env.root, ['add', input, manifest]);
+    git(env.root, ['commit', '-m', 'add closed verifier input']);
+    const command = labCapsuleCommand(env.root, manifest, [input]);
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-LAB-REUSE',
+      kind: 'integration_test',
+      command,
+      selector: 'LAB_REUSE_OK',
+      result: 'pass',
+      note: 'seed closed verifier receipt',
+      file: manifest,
+    });
+    commitRefreshDrift(env, 'unrelated-to-closed-input');
+    await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+    const receipt = findEvidence(env, 'INT-LAB-REUSE')?.receipt as unknown as Record<string, any> | undefined;
+    assert.equal(
+      receipt?.schemaVersion,
+      'proof-or-stop.verification-receipt-bundle.v5',
+      'B-aa5f Lab RED: unrelated input drift must issue an auditable reuse receipt',
+    );
+    assert.equal(receipt?.publicationMode, 'reused', 'B-aa5f Lab RED: publication must identify zero-execution reuse');
+    assert.ok(receipt?.reuseReceipt, 'B-aa5f Lab RED: reuse must be independently authenticated');
+    console.log('B-aa5f Lab input-scoped reuse PASS');
+  } finally {
+    cleanup(env);
+  }
+}
+
 // ── Runner ──
 (async () => {
   await partA();
@@ -838,6 +910,7 @@ async function partE(): Promise<{ subprocessExecutionCount: number; assertionRec
   await partC();
   const codexNote = await partD();
   const fanout = await partE();
+  await partFLabInputScopedReuseRed();
   if (codexNote) console.log(codexNote);
   console.log(
     `PASS verification-run-and-guard-smoke subprocessExecutionCount=${fanout.subprocessExecutionCount} ` +
