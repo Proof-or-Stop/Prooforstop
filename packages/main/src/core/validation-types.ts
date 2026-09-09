@@ -67,6 +67,15 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** Observed by the executor, never inferred from a successful exit code. */
+  sourceProvenance?: {
+    schemaVersion: string;
+    gitCwd: string;
+    headBefore: string | null;
+    headAfter: string | null;
+    cleanBefore: boolean;
+    cleanAfter: boolean;
+  };
   executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
   label: string;
   command: string;

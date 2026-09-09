@@ -9,6 +9,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { readStoryGitBytes } from './story-git-bytes.js';
+import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
@@ -23,7 +25,7 @@ import { signValidationArtifact, verifyValidationArtifact } from './validation-a
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
-export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v1' as const;
+export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2' as const;
 export const VALIDATION_SHARD_RECEIPT_SCHEMA = 'proof-or-stop.validation-shard-receipt.v1' as const;
 export const VALIDATION_SELECTION_SCHEMA = 'proof-or-stop.validation-selection.v1' as const;
 export const VALIDATION_CLOSURE_SCHEMA = 'proof-or-stop.validation-closure-certificate.v1' as const;
@@ -713,6 +715,7 @@ export interface ValidationSelectionManifest {
 }
 export interface DynamicValidationContext {
   storyId: string; baseHead: string; head: string; inventory: ValidationInventory | ValidationInventoryCommand[];
+  projectRoot?: string;
   catalog: ValidationCatalogEntry[]; changes: StoryChangeManifest;
   closures?: Map<string, ValidationClosureCertificate> | Record<string, ValidationClosureCertificate>;
   receipts?: ValidationCommandReceipt[]; baselineEpochId?: string; revocationLedger?: ReceiptRevocationLedger;
@@ -737,9 +740,43 @@ function singletonUnion(contributions: ValidationSingletonContribution[]): Set<s
   return new Set(contributions.flatMap(row => row.commandIds));
 }
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
-  if (!sourceHead || sourceHead === currentHead) return true;
+  if (!sourceHead) return false;
+  if (sourceHead === currentHead) return true;
   try { execFileSync('git', ['merge-base', '--is-ancestor', sourceHead, currentHead], { cwd: gitCwd, stdio: 'ignore' }); return true; } catch { return false; }
 }
+/** Bind declared values to the same ambient/overlay normalization as execution. */
+function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+  const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
+  const cwd = resolve(projectRoot, entry.cwd || '.');
+  const effective = effectiveValidationCommandEnvironment(process.env, entry.env, cwd);
+  const keys = [...new Set((entry.declaredEnvironmentKeys || Object.keys(entry.env || {})).map(key => process.platform === 'win32' ? key.toUpperCase() : key))].sort();
+  return stableDigest(keys.map(key => Object.prototype.hasOwnProperty.call(effective, key)
+    ? [key, 'present', effective[key]] : [key, 'absent']));
+}
+
+/** A receipt-relative proof independent of the cumulative Story/base diff. */
+function certifiedTreesEqual(gitCwd: string, source: string, current: string, entry: ValidationCatalogEntry, closure: ValidationClosureCertificate): boolean {
+  if (closure.certifiedPaths.length === 0) return false;
+  const projection = (head: string): string[] => {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', '--full-tree', head], {
+      cwd: gitCwd, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const result: string[] = [];
+    for (const row of raw.split('\0')) {
+      if (!row) continue;
+      const tab = row.indexOf('\t');
+      if (tab < 0 || !/^[0-7]{6} (?:blob|commit) [0-9a-f]+$/.test(row.slice(0, tab)) || !row.slice(tab + 1)) throw new Error('malformed committed tree row');
+      const path = row.slice(tab + 1);
+      if (entry.closurePolicy === 'whole-repository' || matchesPath(path, closure.certifiedPaths)) result.push(row);
+    }
+    return result.sort();
+  };
+  try {
+    const before = projection(source), after = projection(current);
+    return before.length === after.length && before.every((row, index) => row === after[index]);
+  } catch { return false; }
+}
+
 function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry: ValidationCatalogEntry, closure: ValidationClosureCertificate, ctx: DynamicValidationContext, inputDigest: string): boolean {
   if (!receipt || receipt.commandId !== entry.id || receipt.inputDigest !== inputDigest) return false;
   if (!verifyValidationCommandReceipt(receipt, ctx.now || Date.now()).ok || isReceiptRevoked(receipt, ctx.revocationLedger)) return false;
@@ -756,9 +793,19 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   }
   if (ctx.gitCwd) {
     try {
+      if (!/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(receipt.sourceHead || '')) return false;
+      // Replacement refs can reinterpret an old signed SHA without changing it.
+      // A custom namespace is unknown authority; force real execution instead.
+      if (Object.prototype.hasOwnProperty.call(process.env, 'GIT_REPLACE_REF_BASE')) return false;
+      if (execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim()) return false;
+      const actualHead = execFileSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
+      if (actualHead !== ctx.head) return false;
+      const sourceHead = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${receipt.sourceHead}^{commit}`], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
+      if (sourceHead !== receipt.sourceHead || !isTrustedAncestor(sourceHead, actualHead, ctx.gitCwd)) return false;
       const status = execFileSync('git', ['status', '--porcelain'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
-      const cleanTreeDigest = stableDigest({ head: ctx.head, storyId: ctx.storyId, status: status ? 'dirty' : 'clean-at-command-start' });
+      const cleanTreeDigest = stableDigest({ head: receipt.sourceHead, storyId: ctx.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
       if (status || receipt.cleanTreeDigest !== cleanTreeDigest) return false;
+      if (!certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)) return false;
     } catch {
       return false;
     }
@@ -842,6 +889,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const paths = closure ? closure.certifiedPaths : entry.inputRoots;
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
+      environmentDigest: declaredEnvironmentDigest(entry, ctx),
       catalogDigest: stableDigest(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -863,6 +911,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const paths = closure ? closure.certifiedPaths : entry.inputRoots;
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
+      environmentDigest: declaredEnvironmentDigest(entry, ctx),
       catalogDigest: stableDigest(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,

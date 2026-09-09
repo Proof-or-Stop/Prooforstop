@@ -260,3 +260,6 @@ export const MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY = {
 
 /** Shared contract with the CJS preloader, checked by runtime contract verification. */
 export const VALIDATION_RUNTIME_TRACE_POLICY = { schemaVersion: 'validation-runtime-trace.physical-read.v2', readIdentity: 'call-time-physical-path-observation' } as const;
+
+/** Executor-owned before/after source observations required for reusable receipts. */
+export const VALIDATION_SOURCE_PROVENANCE_SCHEMA = 'validation-source-provenance.v1' as const;

@@ -1,4 +1,4 @@
-import { VALIDATION_RUNTIME_TRACE_POLICY } from '../core/runtime-fact-registry.js';
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 /**
  * Runtime adapter for story-aware validation.
  *
@@ -102,7 +102,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 3, executor: 'validation-executor' });
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 4, executor: 'validation-executor' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -337,6 +337,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     }));
   }
   const context: DynamicValidationContext = {
+    projectRoot: args.projectRoot,
     storyId: args.storyId,
     baseHead: args.baseHead,
     head,
@@ -814,8 +815,12 @@ function receiptForResult(args: {
   revocationLedger: ReceiptRevocationLedger;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  const provenance = args.result.sourceProvenance;
+  if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA
+    || !provenance.cleanBefore || !provenance.cleanAfter
+    || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const outputDigest = stableDigest(args.result.output);
-  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start' });
+  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
   const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({

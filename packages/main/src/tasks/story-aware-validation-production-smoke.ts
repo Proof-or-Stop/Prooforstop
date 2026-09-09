@@ -39,7 +39,7 @@ try {
   writeFileSync(join(root, adapterPath), adapterSource);
   mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(root, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
       commands: [
         { command: runtimeNode, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build', assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
@@ -156,7 +156,7 @@ try {
     writeFileSync(join(authorityRoot, 'packages/main/src/.keep'), '\n');
     mkdirSync(join(authorityRoot, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(authorityRoot, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
-    writeFileSync(join(authorityRoot, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(authorityRoot, 'proof-or-stop.config.json'), JSON.stringify({
       validate: { commands: [{
         command: runtimeNode, args: ['-e', 'process.stdout.write("authority-pass")'], label: 'build',
         assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',

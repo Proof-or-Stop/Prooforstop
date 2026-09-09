@@ -59,6 +59,7 @@ async function importDist(root, relPath) {
 async function main() {
   const root = findRepoRoot(process.cwd());
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
   const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
   check(registrySource.includes(physicalTraceVersion) && read(root, 'packages/main/src/core/validation-runtime-tracer.cjs').includes(physicalTraceVersion), 'CJS tracer and runtime policy schema must agree');
   check(registrySource.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS'), 'Lab optional runtime requirements must be registered');

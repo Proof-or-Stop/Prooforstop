@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,realpathSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {resolve,join} from 'node:path';
+import {execFileSync} from 'node:child_process';
+const repo=resolve(process.env.U09_REPO||process.argv[2]||process.cwd());
+const load=p=>import(join(repo,'packages/main/dist',p));
+const {executeValidationPlan}=await load('core/validation-executor.js');
+const {configuredValidationCommands}=await load('handlers/verifier.js');
+const {persistCanonicalFullBaseline,runStoryAwareDynamicValidation,prepareStoryAwareValidation}=await load('handlers/story-aware-validation.js');
+const {createValidationCommandReceipt,verifyValidationCommandReceipt,stableDigest}=await load('core/story-aware-validation.js');
+const root=realpathSync(mkdtempSync(join(tmpdir(),'u09-provenance-'))),old=process.cwd(),results=[];
+const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const write=(p,v)=>{mkdirSync(join(root,p,'..'),{recursive:true});writeFileSync(join(root,p),v);};
+const storyId='B-u09-provenance';
+try{
+ write('packages/main/src/core/validation-runtime-tracer.cjs',readFileSync(join(repo,'packages/main/dist/core/validation-runtime-tracer.cjs')));
+ write('tests/unaffected.json','{"input":1,"expected":1}');write('notes.txt','initial\n');
+ write('.gitignore','.proof-or-stop/runtime/\n.proof-or-stop/locks/\n');
+ const commands=['build','unaffected'].map(label=>({label,command:process.execPath,args:label==='build'?['-e',"console.log('build marker')"]:['-e',"const a=require('node:assert/strict');const f=require('./tests/unaffected.json');a.equal(f.input,f.expected);console.log('unaffected marker')",'tests/unaffected.json'],assurance:'story-selectable',riskTier:'local',closurePolicy:'static-and-traced',fullBaselineReusePolicy:'not-applicable',declaredEnvironmentKeys:['FORCE_COLOR','PROOF_OR_STOP_RUNTIME_TRACE_FILE']}));
+ write('proof-or-stop.config.json',JSON.stringify({scanRoot:'packages/main',rootDir:'src',validate:{dynamic:{mode:'enforce-low-risk'},commands}}));
+ git('init','-q','-b','main');git('config','user.name','Audit');git('config','user.email','audit@example.invalid');git('add','.');git('commit','-qm','actual baseline');process.chdir(root);
+ const head=git('rev-parse','HEAD'),configured=configuredValidationCommands(root);
+ const baseline=await executeValidationPlan({provider:'full-baseline',commands:configured,warnings:[]},root,head,storyId);
+ assert.equal(baseline.allPass,true);assert.ok(persistCanonicalFullBaseline({projectRoot:root,sourceHead:head,result:baseline,commands:configured}));
+ const warm=await runStoryAwareDynamicValidation({projectRoot:root,gitCwd:root,storyId,baseHead:head,head,mode:'enforce-low-risk',commands:configured});
+ assert.equal(warm.authority.authoritative,true);assert.equal(warm.dynamicAllPass,true);
+ const target=warm.catalog.find(c=>c.label==='unaffected'),genuine=warm.receipts.find(r=>r.commandId===target.id);
+ assert.ok(genuine);assert.equal(verifyValidationCommandReceipt(genuine).ok,true);
+
+ const prepare=(receipt,current)=>prepareStoryAwareValidation({projectRoot:root,gitCwd:root,storyId,baseHead:head,head:current,mode:'enforce-low-risk',commands:configured,receipts:[receipt],revocationLedger:warm.revocationLedger,buildProofDigest:receipt.buildProofDigest});
+ const row=p=>p.manifest.rows.find(r=>r.commandId===target.id);
+ assert.equal(row(prepare(genuine,head)).disposition,'reuse','same-head real receipt positive');
+ git('commit','--allow-empty','-qm','unrelated descendant');
+ const descendant=git('rev-parse','HEAD');
+ const unchanged=row(prepare(genuine,descendant));
+ console.log(JSON.stringify({case:'unchanged-descendant',disposition:unchanged.disposition,reasons:unchanged.reasons}));
+ write('tests/unaffected.json','{"input":2,"expected":2}');git('add','tests/unaffected.json');git('commit','-qm','different passing certified content');
+ const source=git('rev-parse','HEAD');
+ const executed=await runStoryAwareDynamicValidation({projectRoot:root,gitCwd:root,storyId,baseHead:head,head:source,mode:'enforce-low-risk',commands:configured});
+ assert.equal(executed.dynamicAllPass,true);
+ assert.ok(executed.selectedResult.commands.some(c=>c.label==='unaffected'&&c.code===0),'source receipt must come from an actually executed command');
+ const sourceReceipt=executed.receipts.find(r=>r.commandId===target.id&&r.sourceHead===source);
+ assert.ok(sourceReceipt);assert.equal(sourceReceipt.sourceHead,source);assert.equal(verifyValidationCommandReceipt(sourceReceipt).ok,true);
+ write('tests/unaffected.json','{"input":1,"expected":1}');git('add','tests/unaffected.json');git('commit','-qm','revert certified content to baseline');
+ const current=git('rev-parse','HEAD');
+ assert.equal(git('diff','--name-only',head+'..'+current),'','cumulative Story diff actually empty');
+ assert.equal(git('diff','--name-only',source+'..'+current),'tests/unaffected.json','receipt-relative certified content actually changed');
+ const selection=prepare(sourceReceipt,current),selected=row(selection);
+ console.log(JSON.stringify({case:'revert-to-base',source,current,changedFiles:selection.manifest.changedFiles,disposition:selected.disposition,reasons:selected.reasons,actualExecutedSourceReceipt:true}));
+ assert.equal(selected.disposition,'execute','a receipt for different certified bytes must not survive reverting the Story to its base');
+}finally{process.chdir(old);rmSync(root,{recursive:true,force:true});}

@@ -334,7 +334,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
   'runtime:story_aware_dynamic_selection_manifest': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
-  // Closure evidence binds call-time physical reads; legacy and unknown observations cannot certify reuse.
+  // Closure evidence binds call-time physical reads. v2 command receipts additionally bind executor-observed clean start/end, receipt-relative trees and effective declared environment; legacy/unknown evidence cannot certify reuse.
   'runtime:story_aware_dynamic_closure_receipt': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'verification-policy', 'gate-evidence'],
   'runtime:story_aware_dynamic_shard_aggregate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'workspace-binding', 'execution-evidence', 'verification-policy', 'gate-evidence'],
   // Iteration selection cannot replace explicit full or TEST/DONE canonical execution.

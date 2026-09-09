@@ -213,3 +213,8 @@ function runAsOfRunEligibilityRegression() {
 }
 
 runAsOfRunEligibilityRegression();
+for (const script of ['verify-historical-receipt-provenance.mjs','verify-revert-receipt.mjs','verify-declared-environment-receipt.mjs','verify-replacement-receipt.mjs']) execFileSync(process.execPath,[fileURLToPath(new URL('./'+script,import.meta.url))],{stdio:'inherit',env:{...process.env,U09_REPO}});
+
+execFileSync(process.execPath,['--import',fileURLToPath(new URL('./lab/u09-expose-core-proofs.mjs',import.meta.url)),fileURLToPath(new URL('./verify-validation-reuse-proof-boundaries.mjs',import.meta.url)),U09_REPO],{stdio:'inherit'});
+
+execFileSync(process.execPath,[fileURLToPath(new URL('./verify-declared-environment-receipt.mjs',import.meta.url)),U09_REPO,'--overlay'],{stdio:'inherit',env:{...process.env,U09_REPO}});

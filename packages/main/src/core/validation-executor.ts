@@ -1,7 +1,7 @@
-import { VALIDATION_RUNTIME_TRACE_POLICY } from './runtime-fact-registry.js';
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
-import { execSync, spawn } from 'node:child_process';
+import { execFileSync, execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig, type EvidenceCommandTimeoutOverrideConfig } from './config.js';
@@ -1097,6 +1097,13 @@ export function formatValidationProgressEvent(event: ValidationProgressEvent): s
 // accusation on its own: executeValidationPlan cross-checks every command's
 // observation against every other's (attributeWorktreePollution) before any of
 // it is reported or gate-consumed.
+function readValidationSourceHead(gitCwd: string): string | null {
+  try {
+    const head = execFileSync('git', ['rev-parse', '--verify', 'HEAD^{commit}'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    return /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(head) ? head : null;
+  } catch { return null; }
+}
+
 function readGitStatus(gitCwd: string): string[] | null {
   try {
     const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {
@@ -1419,6 +1426,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
   } catch {
     statusGitCwd = projectRoot;
   }
+  const headBefore = readValidationSourceHead(statusGitCwd);
   const statusBefore = readGitStatus(statusGitCwd);
   const tracer = runtimeTracerPath(projectRoot);
   const traceFile = tracer
@@ -1458,12 +1466,19 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
+      const headAfter = readValidationSourceHead(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       const completeOutput = stripAnsi(output);
       const traceFragments: ReturnType<typeof readRuntimeTraceFragments> = traceFile
         ? readRuntimeTraceFragments(traceFile)
         : { files: [], malformed: false };
       const result: ValidationCommandResult = {
+        sourceProvenance: {
+          schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA,
+          gitCwd: statusGitCwd, headBefore, headAfter,
+          cleanBefore: statusBefore !== null && statusBefore.length === 0,
+          cleanAfter: statusAfter !== null && statusAfter.length === 0,
+        },
         label: command.label,
         command: command.command,
         args: command.args,
