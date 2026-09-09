@@ -319,3 +319,12 @@ History reads batch the repository-key resolution while verifying every checkpoi
 After successful owner recovery, leftover generated replacement directories are removed only when every contained file is an exact duplicate of a verified retained generation. Empty generated directories and partial sets containing only verified duplicates are deliberately removable: the complete authority has already been restored. Quarantine evidence, symlinks, unknown files and corrupt remnants are preserved. Complete authoritative anchors still refuse newer or conflicting signed mirrors; the extended-lineage migration exception is limited to the prior parentless anchor format and requires explicit owner confirmation of the latest snapshot digest.
 
 The first root precheck holds an explicit local exclusive barrier even though its fixture work is read-only. This preserves the configured precheck/build prefix: a later compiled consumer cannot overtake the queued exclusive build. A mutual-exclusion resource claim alone does not impose producer-before-consumer order. The standalone build-order regression runs the actual executor with the first three configured resource rows, stale/missing output and failed/unguarded build controls. The prior prepared-dist full run is not proof of this sequencing condition. Of the original 21 shared-reader recommendations, the replaced quorum row is preserved only as historical evidence. The other twenty resolve to fourteen effective readers, five local writers and one build-order precheck; original claims remain preserved for these matching implementations.
+
+Current integration adds two admission-reader supersessions to that historical
+review: the original claims stay present, and the same real-root admission mutex
+is now declared by all eight verified takers. The quorum coordinator still uses
+its internal jobs=2 workers, but its outer validation row holds the local-plan
+barrier because its protected-root observer must not see another command's trace
+writes. Resource coverage is 141/141 routine and 2/2 DONE at main 0.3.292. These
+coordination repairs are correctness evidence, not a fresh full-workload speedup
+measurement. The earlier successful 134-command A/B remains separately scoped.

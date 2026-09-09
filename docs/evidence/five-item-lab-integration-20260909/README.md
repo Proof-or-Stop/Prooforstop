@@ -48,3 +48,20 @@ the external raw evidence and original local commit remain available.
 `claude-initial-audit.md` and `.json` are the unmodified independent Claude CLI
 review of source 3b55ae70. Its F-1/F-2/F-3 require explicit disposition in the final
 integration report. Later fixes and rechecks do not alter that original verdict.
+
+## Current managed integration
+
+The integration now incorporates main 1300d7ad83 (0.3.292), all 141 current
+routine commands and both DONE exclusions. Read `integration-report.md` for
+the final code scope, adverse trials, unchanged baseline refusals and audit
+dispositions. `claude-final-disposition.md` and `.json` are the unmodified
+independent resolution of the remaining actionable audit findings at3da2f2f4.
+The complete current derived-registration control is26/26, and the actual
+73-case quorum run passes with internal jobs=2 and outer protected-root isolation.
+
+`current-integration-evidence.tar.gz` preserves the current logs and source
+bindings with a per-file SHA256 manifest. Its companion verification JSON records
+an independent unpack/checksum check. Failed/cancelled trials remain explicit.
+The native25-control RED/GREEN command and native finish status are separate
+local maintenance records; no global141-command PASS or Story-wide speedup is
+claimed. The Lab finish framework itself is unchanged.

@@ -16,7 +16,7 @@ A missing dependency is never accepted as the target RED.
 
 Keep current main's modular quorum implementation and its existing regression
 contracts. Migrate resource declarations by command identity, not old row numbers.
-Do not represent historical 134-command results as current 135-command results.
+Do not represent historical 134-command results as current 141-command results.
 Preserve adverse trials and performance limitations in the evidence archive.
 New source requires new verification and an independent Claude CLI audit.
 
@@ -39,3 +39,39 @@ The historical sequential-consumer experiments used broader reuse assumptions. T
 original source and results remain archived. Current controls exercise a real batch's
 shared execution, failed-publication recovery and deliberate ordinary reexecution
 separately; counts from these different scenarios must not be conflated.
+
+## Final integration against main 0.3.292
+
+The current source incorporates main 1300d7ad83d3bf7629755adf36a59c91f1be7741.
+The regression command now runs 25 checks. The root retains all 141 routine
+commands and two DONE commands, their existing timeouts, one eligible measured
+shared routine command, and both DONE exclusions. Resource declarations cover
+141/141 and 2/2. Eight real-root admission takers share an explicit exclusive
+admission claim. The quorum row preserves jobs=2 within its isolated workers
+and takes an outer local-plan barrier: otherwise unrelated validation trace
+writes trip its protected-root mutation observation. The protection stays strict.
+
+Three standalone handler fixtures now provide their own test session/provider
+so they remain valid under the executor's intentionally sanitized environment.
+The material/signature/provider production predicates are unchanged. The
+complete-output regression and its process-contract markers agree; the frozen
+73-case catalog retains every ID and domain.
+
+Resource review retains the original 20 audited command identities and claims:
+14 remain effective readers, six use local barriers, and two of those readers
+add explicit admission coordination. Eight original recommendations therefore
+have recorded supersessions. Coordinated removal from both config and review
+metadata is rejected, and removing the current admission claim from two readers
+reproduces their unsafe scheduler overlap.
+
+Prepare dependencies from both `npm ci` and `npm --prefix packages/main ci`,
+then prepare utils/main/lab/graph builds before freezing an independent runtime.
+A copied dist directory alone does not prove that a clean checkout can rebuild.
+Do not export fixture signing keys when packaging evidence.
+
+The complete 42a735b8 trial was 130/141 and remains a failed trial. Failed rows
+are rechecked separately after repairs; that cumulative evidence is not renamed
+a single all-green full run. The identity-cutover campaign has baseline failures
+reproduced on untouched main (exact context pin and historical ancestry). Its
+source, test and runtime-context bytes are identical in main and this candidate.
+See the evidence report for logs, audit dispositions and the native Lab status.
