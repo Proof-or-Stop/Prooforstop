@@ -197,3 +197,9 @@ metadata; review gates, incremental eligibility and managed reviewer launch use
 `readReviewPrompt` to load and hash-check the body. Envelope and canonical assembly
 verification remain required. Missing, corrupt or conflicting references fail
 closed. Legacy inline records remain readable and are not migrated by a read.
+
+The owner can run `review_prompt_gc --storyId=B-xxxx` in DEV, REVIEW or TEST
+to reclaim orphan prompt bodies. Collection shares publication locks, retains
+all historical run/envelope references, and refuses corrupt metadata, missing
+referenced bodies or dangling terminal references before deleting anything.
+It never prunes signed metadata or migrates legacy inline history.

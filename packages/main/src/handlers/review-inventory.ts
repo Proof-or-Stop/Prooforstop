@@ -1,4 +1,5 @@
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
+import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers } from './reviewer-list.js';
@@ -407,6 +408,11 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
 
 export function createReviewInventoryHandlers(ctx: HandlerContext) {
   return {
+    review_prompt_gc(args: { storyId: string }): string {
+      ctx.store.readStory(args.storyId);
+      const result = collectOrphanPromptBodies(ctx.store, args.storyId);
+      return `Review prompt GC: removed=${result.removed} retained=${result.retained}; signed metadata unchanged`;
+    },
     review_inventory_begin(args: { storyId: string; maxWaves?: number }): string {
       return inventoryLock(ctx, args.storyId, () => {
         const story = ctx.store.readStory(args.storyId);

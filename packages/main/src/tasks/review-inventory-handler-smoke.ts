@@ -372,6 +372,28 @@ async function inventoryPurposeRecovery(): Promise<void> {
       assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, false, 'native gate refuses corrupt referenced bytes');
       assert.throws(() => resolveManagedReviewerBasePrompt(fixture.root, fullRun), /digest mismatch/, 'managed launch cannot replace missing original bytes with a current template');
       writeFileSync(bodyPath, body);
+      if (process.argv.includes('--prompt-gc-fixture')) {
+        const orphanBody = 'unreferenced publication from interrupted fixture';
+        const orphanHash = domainSeparatedDigest('assembled-prompt.raw-utf8.v1', orphanBody);
+        fixture.store.writeReviewPromptBody(storyId, orphanBody, orphanHash);
+        const orphanPath = fixture.store.storyFilePath(storyId, `prompt-bodies/${orphanHash}.txt`);
+        const runData = fixture.store.readReviewRuns(storyId);
+        const envelopeData = fixture.store.readPromptEnvelopes(storyId);
+        fixture.store.writeReviewRuns(storyId, { runs: runData.runs.map(row => row.reviewRunId === fullId ? { ...row, promptHash: orphanHash, assembledPromptRef: orphanHash } : row) });
+        fixture.store.writePromptEnvelopes(storyId, { envelopes: envelopeData.envelopes.map(row => row.envelopeId === fullRun.envelopeId ? { ...row, assembledPromptDigest: orphanHash } : row) });
+        assert.throws(() => cli(fixture.root, 'review_prompt_gc', { storyId }, env('main', 'b29bc-owner')), /prompt GC refused/);
+        assert.ok(existsSync(bodyPath)); assert.ok(existsSync(orphanPath));
+        fixture.store.writeReviewRuns(storyId, runData);
+        fixture.store.writePromptEnvelopes(storyId, envelopeData);
+        assert.match(cli(fixture.root, 'review_prompt_gc', { storyId }, env('main', 'b29bc-owner')), /removed=1/);
+        assert.equal(existsSync(orphanPath), false);
+        for (const retainedRun of runData.runs) {
+          if (retainedRun.assembledPromptRef) assert.ok(fixture.store.readReviewPrompt(retainedRun));
+        }
+        assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true);
+        assert.equal(resolveManagedReviewerBasePrompt(fixture.root, fullRun), body);
+        console.log('PASS U12 actual GC refuses jointly tampered signed references and preserves every historical body and current gate');
+      }
       console.log('PASS U12 actual reviewer run stores a body reference and retains native review authority');
       return;
     }

@@ -1501,7 +1501,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'review_run_start via StoryStore.writeReviewPromptBody',
     consumerGate: 'verifyReviewRunPromptEnvelope and managed reviewer launch hydrate exact signed promptHash references',
     artifact: { name: 'prompt-bodies', path: 'prompt-bodies', signed: false },
-    rationale: 'Immutable content-addressed exact UTF-8 bodies are published before signed run references. Existing objects are verified, never overwritten. Body bytes alone grant no authority; signed run promptHash, envelope integrity and assembly verification remain required. Ordinary review-run reads carry references without reading the body, while missing, corrupted or conflicting bodies fail closed at authority consumers.',
+    rationale: 'Immutable content-addressed exact UTF-8 bodies are published before signed run references. Existing objects are verified, never overwritten. Body bytes alone grant no authority; signed run promptHash, envelope integrity and assembly verification remain required. Ordinary review-run reads carry references without reading the body, while missing, corrupted or conflicting bodies fail closed at authority consumers. review_prompt_gc uses the same inventory then review metadata locks as publication, strictly reads every run/envelope/pass/finding reference, retains all history, and refuses deletion on corruption or dangling references.',
   },
   {
     name: 'artifact:review-inventory-epochs.json',

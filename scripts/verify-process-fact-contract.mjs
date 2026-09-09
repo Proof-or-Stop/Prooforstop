@@ -9416,3 +9416,6 @@ assert(read('packages/main/src/handlers/review-run.ts').includes('assembledPromp
 for (const path of ['packages/main/src/core/review-run.ts', 'packages/main/src/core/review-incremental-context.ts', 'packages/main/src/core/managed-review-evidence.ts']) {
   assert(read(path).includes('.readReviewPrompt('), `${path}: prompt authority must explicitly hydrate body references`);
 }
+
+assert(read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewInventoryMutationLock') && read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewMetadataTicketLock'), 'prompt GC must serialize with prompt publication');
+assert(read('packages/main/src/handlers/review-inventory.ts').includes('collectOrphanPromptBodies'), 'prompt GC must have a registered production consumer');

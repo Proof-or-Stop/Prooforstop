@@ -707,6 +707,9 @@ Behavior:
     latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
     json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
   }},
+  { name: 'review_prompt_gc', description: 'Reclaim only orphan prompt bodies under producer locks. Preserve every historical run/envelope reference; refuse corrupt metadata or dangling gate references.', schema: {
+    storyId: z.string().min(1).describe('Story whose prompt storage should be collected.'),
+  }},
   { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
