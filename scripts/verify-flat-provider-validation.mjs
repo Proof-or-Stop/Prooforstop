@@ -9,7 +9,8 @@ const scratch = mkdtempSync(join(tmpdir(), 'flat-provider-validation-'));
 try {
   const commands = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'))).validate.commands;
   const registered = commands.flatMap(command => command.args.filter(arg => /\.(?:mjs|js)$/.test(arg)).map(arg => resolve(root, arg)));
-  const roots = process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
+  const roots = process.argv.includes('--receipts-only') ? ['red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs']
+    : process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
     'red-w2b-wiring-contract.mjs'];
   const trace = join(scratch, 'trace.mjs');
@@ -92,5 +93,7 @@ syncBuiltinESMExports();
     assert.ok(registered.includes(resolve(root, 'packages/main/dist/tasks', filename)),
       `canonical coverage union must retain ${filename}`);
   }
+  assert.ok(registered.includes(resolve(root, 'packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs')),
+    'canonical coverage union must retain independent v1 invariance');
   console.log('PASS U18 flat-provider-validation');
 } finally { rmSync(scratch, { recursive: true, force: true }); }
