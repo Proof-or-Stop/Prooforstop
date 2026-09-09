@@ -198,6 +198,12 @@ function runAsOfRunEligibilityRegression() {
         const scopeReasons=classifyIncrementalBindingReasons({priorEnvelopePresent:true,runtimeContractMatches:true,roleContractMatches:true,executionEnvironmentMatches:true,assemblerMatches:true,dispatchProtocolMatches:true,scopePolicyMatches:false,taskSemanticDigestMatches:true,freshnessClassification:'CURRENT_MATERIAL',pureFixtureDrift:false});
         assert.ok(scopeReasons.includes('FULL_SCOPE_OR_POLICY_CHANGED'));
         console.log('U09_ESCALATION_BOUNDARIES_PASS');
+        // Persist only the actual reviewer records in this temporary fixture.
+        // Validation requires a clean tree independently of prompt eligibility.
+        git(root, ['add', '.proof-or-stop/story/actives/B-asof-run']);
+        git(root, [...COMMIT_ENV, 'commit', '-m', 'persist actual comparison review records']);
+        assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), {ok:true});
+        assert.deepEqual(verifyReviewRunPromptEnvelope(store, runFull), {ok:true});
         execFileSync(process.execPath,[fileURLToPath(U09_HELPER),root,'compare'],{stdio:'inherit',env:{...process.env,U09_REPO}});
     }
     finally {
