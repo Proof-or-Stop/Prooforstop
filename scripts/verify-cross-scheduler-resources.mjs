@@ -41,4 +41,22 @@ assert.equal((await successor)[0].status, 'PASS', 'executor rejection releases c
 
 await assert.rejects(runScheduled([entry('sync-throw')], 1, () => { throw new Error('sync failure'); }, options), /sync failure/);
 assert.equal((await runScheduled([entry('after-sync-throw')], 1, async item => pass(item), options))[0].status, 'PASS');
+
+let freeOwner, ownerStarted;
+const ownerReady = new Promise(resolve => { ownerStarted = resolve; });
+const ownerHold = new Promise(resolve => { freeOwner = resolve; });
+const owner = runScheduled([entry('owner')], 1, async item => { ownerStarted(); await ownerHold; return pass(item); }, options);
+await ownerReady;
+let cancelled = false, cancelledLaunches = 0;
+const waiting = runScheduled([entry('cancelled-waiter')], 1, async item => { cancelledLaunches++; return pass(item); }, {
+  ...options, externalCancellation: () => cancelled ? 'user cancelled' : undefined,
+  cancelledResult: (item, reason) => ({ name: item.name, status: 'INTERRUPTED', reason }),
+});
+cancelled = true;
+const cancellationDeadline = setTimeout(() => { throw new Error('blocked scheduler failed to observe cancellation'); }, 2000);
+try {
+  assert.equal((await waiting)[0].status, 'INTERRUPTED');
+  assert.equal(cancelledLaunches, 0, 'cancelled waiter never executes or steals another owner claim');
+} finally { clearTimeout(cancellationDeadline); freeOwner(); }
+assert.equal((await owner)[0].status, 'PASS', 'waiter cancellation does not cancel owner');
 console.log('PASS U08 cross-scheduler resources, shared access, independent failures and release');

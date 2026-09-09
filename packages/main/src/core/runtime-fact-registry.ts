@@ -172,6 +172,13 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   receiptReusePolicy: 'exact-inputs',
 } as const;
 
+/** In-process scheduler coordination does not replace machine-wide leases. */
+export const KEYED_SCHEDULER_RUNTIME_POLICY = {
+  resourceOwnership: 'shared-within-module-instance',
+  cancellationOwnership: 'per-invocation',
+  blockedCancellationPollMs: 50,
+} as const;
+
 /** Sealed at managed submit; provider text cannot change these supervisor limits. */
 export const MANAGED_BURN_RUNTIME_POLICY = {
   tokenLimitEnvironment: 'PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT',

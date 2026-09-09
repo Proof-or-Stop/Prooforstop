@@ -3,14 +3,15 @@
  * validate. Admission control is declaration-driven: an entry may only run
  * concurrently with entries whose canonical resource keys do not conflict.
  *
- * Every mutable run fact lives in a per-call closure. Two schedulers running in
- * the same process therefore never observe each other's cancellation.
+ * Resource ownership is shared across scheduler calls in this process. Results
+ * and cancellation remain per-call; this is not a cross-process lock.
  */
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { KEYED_SCHEDULER_RUNTIME_POLICY } from './runtime-fact-registry.js';
 
 export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
 export type ResourceAccess = 'shared' | 'exclusive';
@@ -138,6 +139,23 @@ export function claimsConflict(left: SchedulableEntry, right: SchedulableEntry):
   return false;
 }
 
+// Reserve before invoking user code, and release even if it throws synchronously.
+// Waiters observe only availability, never another batch's result or rejection.
+const processResourceOwners = new Set<SchedulableEntry>();
+const resourceWaiters = new Set<() => void>();
+function waitForProcessResources(pollCancellation: boolean): Promise<void> {
+  return new Promise(resolveWait => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const wake = () => {
+      if (timer) clearTimeout(timer);
+      resourceWaiters.delete(wake);
+      resolveWait();
+    };
+    resourceWaiters.add(wake);
+    if (pollCancellation) timer = setTimeout(wake, KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs);
+  });
+}
+
 export async function runScheduled<TEntry extends SchedulableEntry, TResult extends SchedulableResult>(
   entries: TEntry[],
   jobs: number,
@@ -152,7 +170,7 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
   if (cancellable && !options.cancelledResult) throw new Error('cancelledResult is required when cancellation can occur');
   for (const entry of entries) for (const claim of entry.resources) if (!claim.canonicalKey) throw new Error(`uncanonicalized resource for ${entry.name}`);
 
-  // Per-run state. Nothing below is file-scoped, so concurrent runs stay isolated.
+  // Results and cancellation belong only to this invocation.
   const pending = entries.map((entry, index) => ({ entry, index })).sort((a, b) => (b.entry.priority ?? 0) - (a.entry.priority ?? 0) || a.index - b.index).map(({ entry }) => entry);
   const running = new Map<Promise<void>, TEntry>();
   const resourceBlockedAt = new Map<string, number>();
@@ -161,12 +179,14 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
   let cancellationReason: string | undefined;
 
   const cancelCompleted = options.cancelCompletedResult ?? ((result: TResult, reason: string) => ({ ...result, status: 'INTERRUPTED' as const, reason }) as TResult);
-  const compatible = (entry: TEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
+  const compatible = (entry: TEntry) => [...processResourceOwners].every((other) => !claimsConflict(entry, other));
   const launch = (entry: TEntry) => {
     const blockedAt = resourceBlockedAt.get(entry.name);
     const lockWaitMs = blockedAt === undefined ? 0 : performance.now() - blockedAt;
+    const reservation = { name: entry.name, resources: entry.resources.map(claim => ({ ...claim })) };
+    processResourceOwners.add(reservation);
     let task!: Promise<void>;
-    task = execute(entry).then((result) => {
+    task = Promise.resolve().then(() => execute(entry)).then((result) => {
       if (!result || result.name !== entry.name || !SCHEDULED_STATUSES.includes(result.status)) throw new Error(`missing or invalid terminal result for ${entry.name}`);
       const effective = terminalFailureName && result.status === 'PASS'
         ? cancelCompleted(result, `cancelled after terminal failure ${terminalFailureName}`)
@@ -177,7 +197,11 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
         cancellationReason = `cancelled after terminal failure ${result.name}`;
         options.onCancellation?.(cancellationReason, result);
       }
-    }).finally(() => { running.delete(task); });
+    }).finally(() => {
+      running.delete(task);
+      processResourceOwners.delete(reservation);
+      for (const wake of [...resourceWaiters]) wake();
+    });
     running.set(task, entry);
   };
   while (pending.length || running.size) {
@@ -190,7 +214,7 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
       launch(pending.splice(index, 1)[0]!); launched = true;
     }
     if (running.size) await Promise.race(running.keys());
-    else if (!launched && pending.length) throw new Error(`resource scheduler deadlock at ${pending[0]!.name}`);
+    else if (!launched && pending.length) await waitForProcessResources(Boolean(options.externalCancellation));
   }
   const byName = new Map(results.map((result) => [result.name, result]));
   return entries.map((entry) => byName.get(entry.name)!).filter(Boolean);
