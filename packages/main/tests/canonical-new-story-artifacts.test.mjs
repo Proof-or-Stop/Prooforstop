@@ -15,6 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { identityCutoverReviewedContexts } from '../../../scripts/verify-proof-or-stop-identity-cutover.mjs';
 import ts from 'typescript';
+import { assertActiveIdentityOperationOwnership } from './support/active-identity-operation-ownership.mjs';
 import { assertHistoricalImplementationSource } from '../dist/tasks/historical-implementation-fixture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -3423,11 +3424,7 @@ await check(['identity-cutover', 'identity-policy', 'identity-policy-boundary', 
 await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-boundary', 'f050', 'round24'], 'CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation', () => {
   const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
     .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
-  assert.equal(
-    new Set(registeredOperationPaths).size,
-    registeredOperationPaths.length,
-    'each active identity source path must have exactly one public-operation owner',
-  );
+  assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
   assert.deepEqual(
     [...IDENTITY_CUTOVER_REQUIRED_PATHS].filter((path) => !registeredOperationPaths.includes(path)),
     [],
