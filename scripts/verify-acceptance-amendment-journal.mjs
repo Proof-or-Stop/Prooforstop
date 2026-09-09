@@ -13,10 +13,17 @@ const { createAcceptanceAmendmentController, acceptanceAmendmentBlocker } = awai
 const root = mkdtempSync(join(tmpdir(), 'amendment-journal-'));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
 const workers = [];
+const scopeBudgetCase = process.argv.includes('--scope-budget');
 try {
   git('init', '-q', '-b', 'main'); git('config', 'user.name', 'Lab witness'); git('config', 'user.email', 'lab@example.invalid');
   writeFileSync(join(root, '.gitignore'), '.proof-or-stop/runtime/\n.proof-or-stop/locks/\n');
   writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
+  if (scopeBudgetCase) writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives',
+    storyScopeBudget: {schemaVersion:'story-scope-budget.v1',mode:'enforce',
+      limits:{responsibilityDomains:10,hostAdapters:10,processFacts:100,publicCommands:100,acceptanceTopology:100,devScopeDelta:0,validationGroups:100},
+      responsibilities:[{id:'addition',paths:['src/**','tests/**'],hostAdapters:[],validationGroups:[]}]},
+  }));
   const store = new StoryStore(root), storyId = base.storyId;
   store.writeStory(storyId, { storyId, name: 'amendment', title: 'Acceptance addition', phase: 'DEV', priority: 'medium', createdAt: new Date().toISOString(), events: [] });
   store.writeChecklist(storyId, base.checklist); store.writeScopeContract(storyId, base.scope); store.writeProofStoryContract(storyId, base.proofStory);
@@ -61,6 +68,16 @@ try {
   }, claimPollMs: 5, claimTimeoutMs: 2000 };
   await controller.startReview({ storyId, amendmentId: 'AM-1', host: 'codex' }, launch);
   await Promise.all(workers);
+  if (scopeBudgetCase) {
+    const beforeBudget = [store.readChecklist(storyId), store.readScopeContract(storyId), store.readProofStoryContract(storyId), store.readAcceptanceAmendments(storyId)];
+    assert.throws(() => controller.approve({storyId,amendmentId:'AM-1'}), /Scope budget.*devScopeDelta/,
+      'independent approval cannot bypass the configured semantic delta budget');
+    assert.deepEqual([store.readChecklist(storyId), store.readScopeContract(storyId), store.readProofStoryContract(storyId), store.readAcceptanceAmendments(storyId)], beforeBudget,
+      'over-budget approval changes neither acceptance nor the signed application journal');
+    assert.equal(store.readAcceptanceAmendments(storyId).entries.find(entry=>entry.amendmentId==='AM-1').state,'REVIEWING',
+      'budget rejection precedes the APPLYING marker');
+    console.log('PASS U06 reviewed amendment cannot apply over semantic budget');
+  } else {
   const changed = store.readChecklist(storyId); changed.items[0].title += ' changed'; store.writeChecklist(storyId, changed);
   assert.throws(() => controller.approve({ storyId, amendmentId: 'AM-1' }), /base|drift/);
   store.writeChecklist(storyId, base.checklist);
@@ -85,4 +102,5 @@ try {
   assert.match(acceptanceAmendmentBlocker(store, storyId, root), /signature|invalid/);
   assert.throws(() => controller.approve({ storyId, amendmentId: 'AM-1' }), /signature|invalid/);
   console.log('PASS U05 signed amendment application and interrupted recovery');
+  }
 } finally { await Promise.allSettled(workers); rmSync(root, { recursive: true, force: true }); }

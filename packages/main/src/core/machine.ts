@@ -1,5 +1,6 @@
 import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
 import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
+import { storyScopeBudgetBlocker } from './story-scope-budget.js';
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
@@ -686,6 +687,7 @@ function formatParallelDecompositionBlock(
 }
 
 export function canStartDevGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
     const config = loadConfig(context.projectRoot);
@@ -749,6 +751,7 @@ export function canReopenToInitGuard(context: StoryMachineContext): boolean {
 }
 
 export function canSkipPlanGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
   try {
     const config = loadConfig(context.projectRoot);
@@ -785,6 +788,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
  * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   let inventoryStory: StoryInfo | undefined;
   try {
     inventoryStory = context.store.readStory(context.storyId);
@@ -1301,6 +1305,8 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'DEV') {
+    const budgetBlocker = storyScopeBudgetBlocker(store, projectRoot ?? process.cwd(), storyId);
+    if (budgetBlocker) return budgetBlocker;
     // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
     // B-a7c5 CHK-001: dev-memory preflight ack, checked before any door-specific

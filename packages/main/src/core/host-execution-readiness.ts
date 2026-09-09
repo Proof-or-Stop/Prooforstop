@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
-export type CanonicalReviewHost = 'codex' | 'claude' | 'agy';
+export const CANONICAL_REVIEW_HOSTS = ['codex', 'claude', 'agy'] as const;
+export type CanonicalReviewHost = typeof CANONICAL_REVIEW_HOSTS[number];
 
 export type HostExecutionProgressMode =
   | 'jsonl'

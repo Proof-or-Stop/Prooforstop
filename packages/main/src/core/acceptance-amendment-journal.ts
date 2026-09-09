@@ -1,5 +1,6 @@
 /** Acceptance owns proposal derivation and recoverable application; reviewers own only their verdict. */
 import { createHash } from 'node:crypto';
+import { storyScopeBudgetBlocker } from './story-scope-budget.js';
 import { projectPromptAsset } from './prompt-registry.js';
 import { realpathSync } from 'node:fs';
 import type { StoryStore } from './store.js';
@@ -155,6 +156,8 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         if (!['REVIEWING', 'APPLYING'].includes(entry.state)) throw new Error('Acceptance amendment is not approved for application');
         const next = deriveAcceptanceAmendment(entry.base, entry.delta);
         if (canonicalDigest(next) !== entry.nextDigest) throw new Error('Acceptance amendment derivation drift');
+        const budgetBlocker = storyScopeBudgetBlocker(store, root, args.storyId, next, entry.base);
+        if (budgetBlocker) throw new Error(budgetBlocker);
         const assertReviewedSource = () => {
           if (captureEvidenceHashSnapshot({ gitCwd: root }).materialDirtyFiles.length) throw new Error('Acceptance review source drift: uncommitted material changed');
           if (currentGitHead(root) !== entry.review!.headHash || currentMaterialHash(root) !== entry.review!.materialHash

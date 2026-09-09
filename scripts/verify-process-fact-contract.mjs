@@ -8651,6 +8651,17 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/handlers/scope-contract.ts').includes('assertAcceptanceScopeReplacementAllowed'), 'DEV direct scope replacement must not bypass amendments');
   assert(read('packages/main/src/handlers/proofstory.ts').includes('DEV topology growth requires acceptance_amendment_propose'), 'DEV topology cannot bypass additive approval');
   const amendmentJournal = read('packages/main/src/core/acceptance-amendment-journal.ts');
+  assert(registrySource.includes("name: 'runtime:story_scope_budget'"), 'semantic scope budget process fact must be registered');
+  const budgetMachine = read('packages/main/src/core/machine.ts');
+  for (const guard of ['canStartDevGuard', 'canSkipPlanGuard', 'canReenterDevGuard']) {
+    assert(budgetMachine.includes(`export function ${guard}(context: StoryMachineContext): boolean {\n  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;`),
+      `${guard} must check semantic budget outside legacy fail-open handling`);
+  }
+  const amendmentBudgetOffset = amendmentJournal.indexOf('storyScopeBudgetBlocker(store, root, args.storyId, next, entry.base)');
+  assert(amendmentBudgetOffset >= 0 && amendmentBudgetOffset
+    < amendmentJournal.indexOf("if (entry.state !== 'APPLYING')"), 'amendment budget must be checked before apply and during recovery');
+  assert(read('packages/main/src/handlers/story-review.ts').includes("type: 'scope_budget', severity: 'blocker'"),
+    'planning review guidance must expose the mechanical semantic budget blocker');
   assert(registrySource.includes('artifact:acceptance-amendments.json'), 'signed amendment application must be registered');
   for (const invariant of ['verifyValidationArtifact', 'deriveAcceptanceAmendment', 'onAcceptanceReviewKeyCreated', "state: 'APPLYING'", "state: 'APPROVED'", 'Acceptance amendment interrupted']) {
     assert(amendmentJournal.includes(invariant), `amendment journal requires ${invariant}`);

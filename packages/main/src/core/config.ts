@@ -158,6 +158,8 @@ export interface EvidenceCommandTimeoutOverrideConfig {
 }
 
 export interface ProofOrStopConfig {
+  /** Explicit semantic budgets and responsibility map; malformed opt-in policy fails closed. */
+  storyScopeBudget?: import('./story-scope-budget.js').StoryScopeBudgetPolicy;
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
    * commands are blocked before handler dispatch and should be rerun from
@@ -438,6 +440,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
     'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase
     'validation_plan', // B-a745 CHK-005: read-only Story-relevance validation planner (explain-only), any phase; executes no validation command and writes nothing
+    'scope_budget_check', // Read-only semantic scope projection, available at every phase.
     'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
     'story_draft_list',
     'story_draft_discard',

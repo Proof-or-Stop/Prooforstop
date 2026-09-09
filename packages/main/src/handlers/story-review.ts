@@ -1,3 +1,4 @@
+import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
 /**
  * @task B-ef9c
  * @checklist CHK-001
@@ -170,6 +171,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
+      const scopeBudgetBlocker = storyScopeBudgetBlocker(store, ctx.root, args.storyId);
+      if (scopeBudgetBlocker) issues.push({ type: 'scope_budget', severity: 'blocker', message: scopeBudgetBlocker,
+        repairCommand: `proof-or-stop scope_budget_check --storyId=${args.storyId} --json` });
 
       // 0. checklist split quality static check
       // 0.1 Abnormal count

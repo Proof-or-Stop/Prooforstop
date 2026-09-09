@@ -2260,6 +2260,9 @@ Behavior:
     keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
+  { name: 'scope_budget_check', description: 'Read semantic scope budget dimensions, unknown mappings and required decomposition before DEV. No approval or state mutation.', schema: {
+    storyId: z.string().min(1), json: z.boolean().optional(),
+  }},
   { name: 'acceptance_amendment_propose', description: 'Propose additive DEV acceptance with frozen original scope, intents and topology; no acceptance is changed until independent approval.', schema: {
     storyId: z.string().min(1), amendmentId: z.string().min(1),
     delta: z.object({ addItems: z.array(z.unknown()), appendIntents: z.array(z.unknown()),
