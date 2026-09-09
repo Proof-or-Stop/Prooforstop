@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {resolve} from 'node:path';
+const root=resolve(import.meta.dirname,'../..');
+const command=['packages/main/dist/tasks/quorum-submit-smoke.js','--grep=LAB_INTENTIONALLY_UNKNOWN_CASE_734920'];
+const p=spawnSync(process.execPath,command,{cwd:root,encoding:'utf8',timeout:30000});
+assert.ok(p.status!==null,'Selection refusal must finish normally, not time out');
+assert.notEqual(p.status,0,'EMPTY_QUORUM_SELECTION_ACCEPTED: no selected checks must not emit a passing suite');
+assert.match(p.stdout+p.stderr,/EMPTY_QUORUM_SELECTION/);
+console.log('QUORUM_EMPTY_SELECTION_REFUSED');
