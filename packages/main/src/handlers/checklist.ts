@@ -1,3 +1,4 @@
+import { executionImplementationIdentity } from '../core/execution-implementation.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { readIntentCheckpoint } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
@@ -1145,6 +1146,7 @@ async function enforceAndStampEvidence(
     timeoutMs,
     ...(deps.executionSemanticsKey ? { executionSemanticsKey: deps.executionSemanticsKey } : {}),
   };
+  const implementationDigest = executionImplementationIdentity().digest;
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -1158,6 +1160,7 @@ async function enforceAndStampEvidence(
       materialHash: hashes.materialHash ?? null,
       timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
       preflightFacts: initialPreflightFacts,
+      implementationDigest,
       ...(deps.executionSemanticsKey
         ? { verificationExecutionSemanticsKey: deps.executionSemanticsKey }
         : {}),
@@ -1185,9 +1188,12 @@ async function enforceAndStampEvidence(
     // is invoked. Compare the complete probe snapshot, not just the three
     // freshness hashes, so a changed CLI/worktree/index/lease/capability/resource/
     // evidence-target/side-channel fact refuses before any child launch.
-    revalidateBeforeRun: preflightFactsUnchanged,
+    revalidateBeforeRun: () => preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
     run: async () => {
       const run = await deps.runCommand(pinCommand, deps.cwd, timeoutMs);
+      if (executionImplementationIdentity().digest !== implementationDigest) {
+        throw new Error('Verification implementation changed during execution; no receipt published [execution_implementation_changed]');
+      }
       return {
         code: run.code,
         output: run.output,
@@ -1970,6 +1976,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         return { currentHashes, preflightByInput: new Map(), valid: false };
       }
 
+      const currentImplementationDigest = executionImplementationIdentity().digest;
       const preflightByInput = new Map<string, CachedCausalPreflight>();
       for (const { causalPreflight, causalReceipt: sourceReceipt } of usable) {
         if (!causalPreflight || !sourceReceipt) continue;
@@ -1987,6 +1994,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           && !Array.isArray(sourceReceipt.identity.inputs)
           ? sourceReceipt.identity.inputs as Record<string, unknown>
           : {};
+        if (recordedInputs.implementationDigest !== currentImplementationDigest) {
+          return { currentHashes, preflightByInput, valid: false };
+        }
         const identity: CausalExecutionIdentityInput = {
           storyId,
           cwd: input.cwd,
@@ -3136,6 +3146,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // every failure leaves every grouped row absent so all take the demotion path.
       const reexecByKey = new Map<string, ReexecStamp>();
       const rawProcessResults = new Map<string, Promise<SingleCommandExecutionResult>>();
+      const rawImplementationDigest = executionImplementationIdentity().digest;
       const rawExecutionContext = causalCanonical({
         schemaVersion: 1,
         storyId: args.storyId,
@@ -3181,6 +3192,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               candidate.input,
               {
                 runCommand: (command, cwd, timeoutMs) => {
+                  if (executionImplementationIdentity().digest !== rawImplementationDigest) {
+                    throw new Error('Verification refresh implementation changed [execution_implementation_changed]');
+                  }
                   const effectiveTimeoutMs = timeoutMs
                     ?? resolvePinnedCommandTimeoutMs(root, command)
                     ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;

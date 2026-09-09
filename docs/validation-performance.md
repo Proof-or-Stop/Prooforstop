@@ -199,3 +199,11 @@ Independent processes can reuse the original successful execution. Output that i
 missing or changed is refused, with no automatic rerun or replacement evidence.
 The output object is process evidence, not a disposable runtime cache. Legacy
 receipts are not silently upgraded, and this repair grants no Story-wide speedup.
+
+Checklist verification receipts automatically bind the executing implementation,
+including bootstrap helpers, dependencies and Node, even without a caller-supplied
+transport pin. An equal version string cannot reuse a different implementation's
+receipt. The handler checks bytes before launch, after execution and at canonical
+publication. Mutation during execution refuses receipt publication; stale-refresh
+raw-process fanout also refuses implementation drift. This does not claim that
+unrelated running owner/reviewer sessions have adopted a common CLI installation.

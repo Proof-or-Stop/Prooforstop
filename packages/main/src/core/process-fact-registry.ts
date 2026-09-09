@@ -1803,8 +1803,8 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   semantics: ['runtime-behavior', 'workspace-binding', 'verification-policy'],
   level: 'L4', producer: 'core/execution-implementation',
   producerSourceRefs: ['packages/main/src/core/execution-implementation.ts', 'packages/main/src/cli-engine.ts', 'bin/bootstrap-runner.js', 'scripts/build-lock-target.mjs'],
-  consumerGate: 'CLI dispatch when an explicit implementation transport pin is required',
-  rationale: 'An opt-in host transport pin compares actual implementation, bin bootstrap helpers, the build-lock helper and dependency bytes plus Node before dispatch; package version equality is not an implementation proof. Missing required pins and mismatches refuse. Unpinned invocations retain compatibility and are not claimed pinned.',
+  consumerGate: 'CLI dispatch when an explicit implementation transport pin is required; automatic checklist execution and canonical import implementation binding',
+  rationale: 'An opt-in host transport pin compares actual implementation, bin bootstrap helpers, the build-lock helper and dependency bytes plus Node before dispatch; package version equality is not an implementation proof. Missing required pins and mismatches refuse. Unpinned invocations retain compatibility and are not claimed pinned. Checklist receipts automatically bind actual implementation bytes; same-version drift executes anew, mutation during a command cannot publish a receipt, and canonical import rechecks the current implementation.',
 }, {
   name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
