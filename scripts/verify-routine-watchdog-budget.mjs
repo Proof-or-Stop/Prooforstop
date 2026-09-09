@@ -21,5 +21,9 @@ try {
   assert.equal(commandCliMaxBudget(root, 'story_advance', { phase: 'PLAN' }).timeoutMs, 900_000);
   assert.equal(resolveCommandTimeoutMs({ command: 'node', args: [] }), 270_000);
   assert.equal(effectiveCommandCliMaxBudget(root, 'validate', {}, { PROOF_OR_STOP_MAX_TIMEOUT_MS: '1800000' }).source, 'explicit-max-env');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), '{}');
+  writeFileSync(join(root, 'validate.ts'), 'console.log("PASS")');
+  assert.equal(commandCliMaxBudget(root, 'validate', {}, { PROOF_OR_STOP_VALIDATE_FILE_TIMEOUT_MS: '1200000' }).timeoutMs,
+    1_230_000, 'U16: validate-file watchdog must outlive its configured child');
   console.log('PASS U16 routine-watchdog-budget');
 } finally { rmSync(root, { recursive: true, force: true }); }
