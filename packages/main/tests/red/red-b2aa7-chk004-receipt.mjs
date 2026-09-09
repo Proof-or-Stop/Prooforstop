@@ -69,6 +69,7 @@ const DIST = join(pkgRoot, 'dist');
 // design. On a tree without the fix its markers are SUPPOSED to be withheld, so
 // the replay's expected outcome is a NON-ZERO exit naming them — which is the
 // negative control stated positively, not a contradiction of it.
+const canonicalCore = process.argv.includes('--canonical-core');
 const REQUIRED_MARKERS = new Map([
   ['WELL_FORMED_ARTIFACT_LOADS_UNCHANGED',
     'a well-formed artifact no longer round-trips byte-identically through the read boundary, or it grew a quarantine '
@@ -83,6 +84,11 @@ const REQUIRED_MARKERS = new Map([
     + 'longer fully enforced, or a blank observedFailure is no longer legacy-tolerated per D-5, or an envelope fault is '
     + 'misattributed as a record fault, or array / prototype-inherited records are no longer rejected'],
 ]);
+
+if (canonicalCore) {
+  REQUIRED_MARKERS.delete('WELL_FORMED_ARTIFACT_LOADS_UNCHANGED');
+  REQUIRED_MARKERS.set('CANONICAL_WELL_FORMED_ARTIFACT', 'well-formed artifact roundtrip and malformed-record negative control must hold');
+}
 
 const emitted = new Set();
 /**
@@ -220,8 +226,8 @@ const CLEAN = observe(() => writeEnvelope([satisfying]));
 //    match is a direct pre-fix/post-fix comparison, not a self-report.
 // ════════════════════════════════════════════════════════════════════════════
 const V1_VERDICT_DIGEST = '2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec';
-const invariance = spawnSync(process.execPath, [join(here, 'red-w2c-v1-verdict-invariance.mjs')], { encoding: 'utf8' });
-const invarianceOut = `${invariance.stdout ?? ''}${invariance.stderr ?? ''}`;
+const invariance = canonicalCore ? null : spawnSync(process.execPath, [join(here, 'red-w2c-v1-verdict-invariance.mjs')], { encoding: 'utf8' });
+const invarianceOut = `${invariance?.stdout ?? ''}${invariance?.stderr ?? ''}`;
 
 const cleanEnvelopeOnDisk = { schemaVersion: 'proofstory.red_evidence.v1', storyId, records: [satisfying], createdAt: NOW, updatedAt: NOW };
 const clean = observe(() => writeEnvelope([satisfying]));
@@ -236,9 +242,12 @@ const loadsUnchanged =
   && clean.readValue.malformedRecords === undefined
   && Array.isArray(clean.codes) && clean.codes.length === 0
   && canon(controlDirty.readValue) !== canon(cleanEnvelopeOnDisk);
-const verdictIdenticalToPreFix = invariance.status === 0 && invarianceOut.includes(V1_VERDICT_DIGEST);
+const verdictIdenticalToPreFix = invariance?.status === 0 && invarianceOut.includes(V1_VERDICT_DIGEST);
 
-if (loadsUnchanged && verdictIdenticalToPreFix) {
+if (canonicalCore && loadsUnchanged) {
+  emit('CANONICAL_WELL_FORMED_ARTIFACT (byte-identical clean roundtrip, satisfied gate, malformed negative control; invariance scheduled independently)');
+}
+if (!canonicalCore && loadsUnchanged && verdictIdenticalToPreFix) {
   emit(
     `WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; `
     + `the pre-fix-pinned five-scenario digest ${V1_VERDICT_DIGEST} still reproduces; control=one malformed record appended is discriminated)`,

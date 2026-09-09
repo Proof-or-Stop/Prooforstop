@@ -78,6 +78,14 @@ syncBuiltinESMExports();
   const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
   assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
   assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
+  if (filename === 'red-b2aa7-chk004-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_WELL_FORMED_ARTIFACT/);
+    assert.doesNotMatch(child.stdout, /WELL_FORMED_ARTIFACT_LOADS_UNCHANGED/);
+  }
+  if (filename === 'red-b2aa7-chk005-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_WELL_FORMED_VERDICTS/);
+    assert.doesNotMatch(child.stdout, /WELL_FORMED_VERDICTS_UNCHANGED/);
+  }
   if (filename === 'host-run-usage-smoke.js') {
     assert.match(child.stdout, /host-run usage canonical core passed/);
     assert.match(child.stdout, /candidate overflow boundary checked/);

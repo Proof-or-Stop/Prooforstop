@@ -235,3 +235,11 @@ registered managed watchdog contract to its own canonical entry. The no-argument
 command still runs both evidence-mapping boundaries and emits its original
 83/85-check compatibility selectors; canonical mode emits only a distinct core
 selector and never represents itself as that full historical receipt.
+
+CHK004 and CHK005 canonical receipts retain their own clean-input controls,
+envelope/quarantine checks, direct-injection totality and historical minimal-guard
+comparison. Their ordinary v1 invariance child runs once as its independent
+canonical command. Distinct required canonical markers cover each retained
+clean-input assertion, so skipping the child cannot manufacture its digest or
+its legacy combined receipt. No-argument receipts retain the original digest
+execution and all pinned markers.
