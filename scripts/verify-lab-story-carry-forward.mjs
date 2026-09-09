@@ -34,6 +34,22 @@ const invoke = (cwd, args, expected = 0, match) => {
   return result.stdout || '';
 };
 
+const implementation = readFileSync(script, 'utf8');
+const requiredHardening = [
+  'createVerificationEvidenceGateEvaluator',
+  'currentMaterialHash',
+  'currentStoryFilesHash',
+  'integrationWitnesses',
+  'failureIdentity',
+  "['node', 'scripts/ensure-dist.mjs']",
+  'Story evidence authenticity or hash binding is invalid',
+];
+const missingHardening = requiredHardening.filter(token => !implementation.includes(token));
+if (missingHardening.length) {
+  console.error(`STORY_CARRY_ADMISSION_HARDENING_MISSING ${missingHardening.join(',')}`);
+}
+assert.deepEqual(missingHardening, [], 'Story carry-forward must authenticate evidence, build main, and replay impacted commands');
+
 try {
   const repo = join(temp, 'repo');
   mkdirSync(repo);
