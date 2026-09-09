@@ -2212,7 +2212,7 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
+    '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
     'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
