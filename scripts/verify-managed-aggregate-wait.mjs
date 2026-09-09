@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { submitManagedHostRun, runManagedHostRunWorker } from '../packages/main/dist/core/managed-host-run.js';
+import { submitManagedHostRun, runManagedHostRunWorker, getManagedHostRunStatus } from '../packages/main/dist/core/managed-host-run.js';
 import { storyIdFromArgs } from '../packages/main/dist/cli/ownership-gate.js';
 import { createHostRunHandlers } from '../packages/main/dist/handlers/host-run.js';
 const root = mkdtempSync(join(tmpdir(), 'managed-aggregate-wait-'));
@@ -44,6 +44,19 @@ try {
   releases[0](); await workers[0];
   const terminal = await handlers.host_run_status({ targets: cursors(progress), waitMs: 500, json: true });
   assert.ok(terminal.runs[0].receipt, 'aggregate terminal retains signed authoritative receipt');
+  const singleTerminal = await getManagedHostRunStatus({ root, runId: runs[0].runId,
+    afterGeneration: progress.runs[0].run.generation, waitMs: 150 });
+  assert.equal(singleTerminal.changed, true, 'new terminal generation wakes a single-run observer');
+  assert.ok(singleTerminal.receipt);
+  const firstTerminal = await getManagedHostRunStatus({ root, runId: runs[0].runId, waitMs: 150 });
+  assert.equal(firstTerminal.changed, true, 'first terminal observation without a cursor remains actionable');
+  const acknowledgedTerminal = await getManagedHostRunStatus({ root, runId: runs[0].runId,
+    afterGeneration: singleTerminal.run.generation, waitMs: 150 });
+  assert.equal(acknowledgedTerminal.changed, false,
+    'U13 acknowledged terminal generation must not repeatedly notify the same observer');
+  assert.deepEqual(acknowledgedTerminal.receipt, singleTerminal.receipt,
+    'acknowledging delivery preserves the authoritative terminal receipt');
+
   const resumed = await handlers.host_run_status({ targets: cursors(terminal), waitMs: 150, json: true });
   assert.equal(resumed.changed, false, 'an acknowledged terminal does not repeatedly wake a resumed owner');
   await assert.rejects(() => handlers.host_run_status({ targets: [cursors(resumed)[0], cursors(resumed)[0]], json: true }), /duplicate/i);
