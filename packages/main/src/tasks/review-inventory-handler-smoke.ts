@@ -601,6 +601,10 @@ function criticDiscoveryRecovery(): void {
   } finally { rmSync(fixture.root, { recursive: true, force: true }); }
 }
 
+if (process.argv.includes('--discovery-only')) {
+  criticDiscoveryRecovery();
+  process.exit(0);
+}
 await inventoryPurposeRecovery();
 if (process.argv.includes('--progress-capture-fixture')) {
   console.log('PASS U11 real inventory finalization captures verified progress');
