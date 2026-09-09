@@ -50,7 +50,8 @@ syncBuiltinESMExports();
   }
   for (const filename of ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'host-run-usage-smoke.js', 'dispatch-run-smoke.js', 'provider-claude-smoke.js',
-    'managed-host-run-e2e-smoke.js', 'managed-host-run-process-smoke.js']) {
+    'managed-host-run-e2e-smoke.js', 'managed-host-run-process-smoke.js',
+    'lifecycle-registry-contract.js', 'command-ownership-contract.js']) {
     assert.ok(registered.includes(resolve(root, 'packages/main/dist/tasks', filename)),
       `canonical coverage union must retain ${filename}`);
   }

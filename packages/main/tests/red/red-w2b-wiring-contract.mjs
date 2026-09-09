@@ -110,8 +110,11 @@ function runContract(label, cmd, args) {
   assert.equal(r.status, 0,
     `${label} must pass with ${COMMAND} fully wired (exit 0); got status=${r.status}\nSTDOUT:\n${r.stdout}\nSTDERR:\n${r.stderr}`);
 }
-runContract('lifecycle-registry-contract', 'node', [join(DIST, 'tasks', 'lifecycle-registry-contract.js')]);
-runContract('command-ownership-contract', 'node', [join(DIST, 'tasks', 'command-ownership-contract.js')]);
+const canonicalCore = process.argv.includes('--canonical-core');
+if (!canonicalCore) {
+  runContract('lifecycle-registry-contract', 'node', [join(DIST, 'tasks', 'lifecycle-registry-contract.js')]);
+  runContract('command-ownership-contract', 'node', [join(DIST, 'tasks', 'command-ownership-contract.js')]);
+}
 runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')]);
 
 // ── ADVERSARIAL (CHK-006:adversarial:0 + CHK-008:adversarial:0): remove ONE ──
@@ -248,4 +251,6 @@ try {
   for (const dir of scratchDirs) rmSync(dir, { recursive: true, force: true });
 }
 
-console.log('red-w2b-wiring-contract: OK (13 wiring points present; lifecycle-registry / command-ownership / verify-process-fact contracts all pass; and removing the ONE command-policy.ts registration point makes all three fail with a divergence naming red_evidence_binding_set — working tree untouched)');
+console.log('red-w2b-wiring-contract: OK (13 wiring points present; ' + (canonicalCore
+  ? 'canonical core and process-fact contract pass; registry contracts scheduled independently; '
+  : 'lifecycle-registry / command-ownership / verify-process-fact contracts all pass; ') + 'and removing the ONE command-policy.ts registration point makes all three fail with a divergence naming red_evidence_binding_set — working tree untouched)');

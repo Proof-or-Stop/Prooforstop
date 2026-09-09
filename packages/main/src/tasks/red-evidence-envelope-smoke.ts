@@ -618,8 +618,11 @@ try {
     const result = spawnSync(cmd, args, { cwd: repoRoot, encoding: 'utf8' });
     assert.equal(result.status, 0, `${label} must pass (exit 0); status=${result.status}\n${result.stdout}\n${result.stderr}`);
   };
-  runContract('lifecycle-registry-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'lifecycle-registry-contract.js')]);
-  runContract('command-ownership-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'command-ownership-contract.js')]);
+  const canonicalCore = process.argv.includes('--canonical-core');
+  if (!canonicalCore) {
+    runContract('lifecycle-registry-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'lifecycle-registry-contract.js')]);
+    runContract('command-ownership-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'command-ownership-contract.js')]);
+  }
   runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs'), '--quiet']);
 
   console.log(
@@ -634,7 +637,9 @@ try {
     'a byte-identical .proof-or-stop tree with no gate verdict change — byte-identical here meaning NET across the ' +
     'batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a ' +
     'manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not ' +
-    'recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.',
+    'recorded), and with the CLI entrypoint not exercised — ' + (canonicalCore
+      ? 'canonical core and process-fact contract pass; registry contracts scheduled independently.'
+      : 'and all three registry contracts pass.'),
   );
 } finally {
   for (const root of roots) rmSync(root, { recursive: true, force: true });

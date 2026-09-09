@@ -220,3 +220,11 @@ signed run commit. Later material changes do not rewrite that historical choice.
 Current reviewer admission still checks live material and scope independently;
 requested-full envelope verification also retains its explicit live-material
 check. Historical replay is never a substitute for current gate admissibility.
+
+Canonical RED target-binding, envelope, and W2B wiring validation use
+`--canonical-core` to retain their own assertions while independently scheduled
+lifecycle-registry and command-ownership commands cover the ordinary registry
+checks. The W2B private-copy registration-removal probes still run both contracts:
+those executions prove mutation detectability, not repeated baseline validation.
+No-argument invocations retain their complete legacy receipts. Canonical output
+explicitly identifies the narrower execution instead of claiming the full receipt.
