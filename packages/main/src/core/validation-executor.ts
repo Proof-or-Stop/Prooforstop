@@ -272,9 +272,10 @@ function commandCwd(projectRoot: string, cwd?: string): string {
   return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
 }
 
-function trimOutput(output: string): string {
+function trimOutput(output: string, retainFailureTail: boolean): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   const omitted = output.length - MAX_OUTPUT_CHARS;
+  if (!retainFailureTail) return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
   const headLength = Math.ceil(MAX_OUTPUT_CHARS / 2);
   // Keep the initial command context and the terminal assertion/timeout cause.
   // Complete output still supplies execution receipts; this is only presentation.
@@ -1436,7 +1437,7 @@ function runValidationCommandWithCompleteOutput(
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
-        output: trimOutput(completeOutput),
+        output: trimOutput(completeOutput, code !== 0),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs,

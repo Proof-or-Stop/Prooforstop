@@ -365,6 +365,7 @@ including neighbouring identity sites in those modules. Merely keeping a
 canonical declaration or a dead comparison is insufficient. Comments/formatting
 alone do not revoke this syntax binding. Intentional executable changes require
 reviewed pin updates; there is no automatic refresh or hostile-host guarantee.
-Validation diagnostics preserve both the command-output prefix and terminal
-failure context within the existing character budget; execution receipts continue
-to consume the complete captured output.
+Failed-command diagnostics preserve both the output prefix and terminal failure
+context within the existing character budget. Successful commands retain their
+existing bounded prefix presentation. Execution receipts continue to consume the
+complete captured output.
