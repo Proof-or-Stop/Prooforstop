@@ -3,7 +3,7 @@
 /** Production-path integration seam for DYN-3/DYN-5. */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
@@ -144,6 +144,33 @@ try {
   assert.deepEqual(aggregates.find((row) => row.coveredCaseIds.some((id: string) => id.startsWith('quorum:')))?.coveredCaseIds.sort(), ['quorum:case-1', 'quorum:case-2', 'quorum:case-3', 'quorum:case-4']);
   console.log('story-aware validation production path PASS');
   console.log('production shard receipts PASS');
+  // Byte registration is still a trust boundary, including harmless text edits.
+  writeFileSync(join(root, adapterPath), adapterSource + '\n// unregistered adapter bytes\n');
+  const tampered = await runStoryAwareDynamicValidation({
+    projectRoot: root, gitCwd: root, storyId: 'B-production-tampered',
+    baseHead: head, head, changedFiles: [], mode: 'enforce-low-risk', commands: configured,
+  });
+  assert.equal(tampered.selectedResult.commands.length, 0, 'unregistered adapter bytes must not launch shard commands');
+  assert.equal(tampered.dynamicAllPass, false);
+  const tamperedRoot = join(root, '.proof-or-stop/runtime/dynamic-validation/B-production-tampered/shards');
+  assert.equal(readdirSync(tamperedRoot).filter(name => name.startsWith('shard-receipt-')).length, 0,
+    'unregistered adapter bytes must not mint shard receipts');
+  writeFileSync(join(root, adapterPath), adapterSource);
+  console.log('unregistered adapter bytes refused before shard launch PASS');
+  const externalRegistryRoot = mkdtempSync(join(tmpdir(), 'proof-external-case-registry-'));
+  try {
+    writeFileSync(join(externalRegistryRoot, 'cases.json'), readFileSync(join(root, caseRegistryPath)));
+    symlinkSync(join(externalRegistryRoot, 'cases.json'), join(root, 'external-case-registry.json'));
+    const external = await runStoryAwareDynamicValidation({
+      projectRoot: root, gitCwd: root, storyId: 'B-production-external-registry',
+      baseHead: head, head, changedFiles: [], mode: 'enforce-low-risk',
+      commands: configured.map(command => command.caseRegistryPath
+        ? {...command, caseRegistryPath: 'external-case-registry.json'} : command),
+    });
+    assert.equal(external.selectedResult.commands.length, 0, 'external registry symlink must be refused before shard launch');
+    assert.equal(external.dynamicAllPass, false);
+    console.log('external registry symlink refused before shard launch PASS');
+  } finally { rmSync(externalRegistryRoot, {recursive:true, force:true}); }
   console.log('gate-owned authority fallback PASS');
 
   // A minimal local command with an explicit closure/environment declaration

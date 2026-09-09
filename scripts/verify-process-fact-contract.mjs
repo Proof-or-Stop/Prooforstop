@@ -8319,6 +8319,8 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2'"), 'dynamic reuse must reject legacy receipts without executor source observations');
   assert(validationText.includes('certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)') && validationText.includes('environmentDigest: declaredEnvironmentDigest(entry, ctx)'), 'cross-commit reuse must bind receipt-relative trees and effective declared environment');
   assert(handlerText.includes('!provenance.cleanBefore || !provenance.cleanAfter') && handlerText.includes('provenance.headBefore !== args.head || provenance.headAfter !== args.head'), 'receipt issuance requires executor-observed unchanged clean source at both boundaries');
+  const registeredAdapterDigest = handlerText.match(/sourceDigest: '([a-f0-9]{64})'/)?.[1];
+  assert(registeredAdapterDigest === createHash('sha256').update(JSON.stringify(read('packages/main/src/tasks/story-aware-validation-case-adapter.mjs'))).digest('hex'), 'registered shard adapter digest must match audited source bytes');
 
   assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
   assert(signingText.includes('ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:'), 'dynamic validation provenance must retain its Ed25519 signature prefix');

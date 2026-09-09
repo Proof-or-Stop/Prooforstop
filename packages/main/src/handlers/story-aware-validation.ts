@@ -102,7 +102,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 4, executor: 'validation-executor' });
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 5, executor: 'validation-executor' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -501,7 +501,7 @@ const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string
       contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker', 'case-evidence-files'],
     }),
     entrypoint: DYN5_ADAPTER_ENTRYPOINT,
-    sourceDigest: '905fddfcc5599656dc4c5c4c5b6d9ea140142b2ad64d06575bbd769ffd4126b0',
+    sourceDigest: '23e5676be5e9258a14ad20c528b58a082c185c1d844d1297a39c723152f50c30',
   },
 };
 
@@ -533,11 +533,13 @@ function registeredShardAdapter(projectRoot: string, command: ValidationCommand,
 
 function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntry, domain: string): { cases: ValidationCase[]; path: string; digest: string } | undefined {
   if (!entry.caseRegistryPath) return undefined;
-  const path = isAbsolute(entry.caseRegistryPath) ? resolve(entry.caseRegistryPath) : resolve(projectRoot, entry.caseRegistryPath);
-  const root = resolve(projectRoot);
-  const rel = relative(root, path);
-  if (rel.startsWith('../') || rel === '..') return undefined;
   try {
+    // Resolve before execution so the runtime observation and containment check
+    // name the same physical registry, including /var aliases and symlinks.
+    const path = realpathSync(resolve(projectRoot, entry.caseRegistryPath));
+    const root = realpathSync(projectRoot);
+    const rel = relative(root, path);
+    if (!rel || rel.startsWith('../') || rel === '..' || isAbsolute(rel)) return undefined;
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as unknown;
     if (!Array.isArray(parsed)) return undefined;
     const cases = parsed.filter((row): row is ValidationCase => Boolean(row && typeof row === 'object'
