@@ -9434,3 +9434,5 @@ assert(read('packages/main/src/core/process-fact-registry.ts').includes("name: '
 assert(read('scripts/verify-managed-autonomous-supervisor.mjs').includes('orphaned worker must converge without status polling'), 'autonomous orphan recovery requires a no-status-polling witness');
 assert(/host_run_status: \{[^\n]*ownershipClass: 'readOnly'[^\n]*destructiveRisk: 'none'/.test(read('packages/main/src/core/command-policy.ts')), 'managed status must remain read-only without owner lease mutation');
 assert(read('scripts/verify-managed-status-readonly.mjs').includes('status observation must not write runtime files'), 'managed observation requires a filesystem non-mutation witness');
+assert(read('scripts/verify-managed-provider-missing.mjs').includes("process.kill(workerPid,'SIGSTOP')"), 'missing-provider diagnostics require a real live-worker disappearance witness');
+assert(read('packages/main/src/core/managed-host-run.ts').includes("type:'provider_closed'"), 'provider close must be a durable event before asynchronous finalization');

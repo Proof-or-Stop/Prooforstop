@@ -82,6 +82,8 @@ import { getSessionIdentity } from './owner-session.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
+import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
+  type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
@@ -329,6 +331,9 @@ export interface ManagedHostRunProjection {
   profile: string | null;
   state: ManagedHostRunState;
   generation: number;
+  stage: ManagedRunStage;
+  supervisionDiagnostic: ManagedSupervisionDiagnostic | null;
+  providerClosedAt: string | null;
   createdAt: string;
   deadlineAt: string;
   workerPid: number | null;
@@ -559,6 +564,8 @@ interface ManagedHostRunSnapshot {
   providerProgressMode: 'output-observable' | 'unobservable';
   providerLaunchState: 'pending' | 'granted' | 'spawned' | 'revoked';
   providerIdentity: HostRunProcessIdentity | null;
+  providerClosedAt?: string | null;
+  supervisionDiagnostic?: ManagedSupervisionDiagnostic | null;
   outputSequence: number;
   outputRetainedBytes: number;
   outputTruncated: boolean;
@@ -1764,6 +1771,10 @@ function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
     profile: spec.profile,
     state: terminal?.state ?? snapshot.state,
     generation: terminal?.generation ?? snapshot.generation,
+    stage: managedRunStage({terminal:terminal !== null,state:snapshot.state,
+      providerStarted:snapshot.providerIdentity !== null,providerClosed:!!snapshot.providerClosedAt}),
+    supervisionDiagnostic: terminal ? null : snapshot.supervisionDiagnostic ?? null,
+    providerClosedAt: snapshot.providerClosedAt ?? null,
     createdAt: spec.createdAt,
     deadlineAt: spec.deadlineAt,
     workerPid: snapshot.workerPid,
@@ -1816,7 +1827,7 @@ function updateSnapshot(
  */
 function updateSnapshotAndAppendEvent(
   paths: ManagedHostRunPaths,
-  update: (current: ManagedHostRunSnapshot) => ManagedHostRunSnapshot,
+  update: (current: ManagedHostRunSnapshot) => ManagedHostRunSnapshot | null,
   event: ManagedHostRunEvent,
 ): boolean {
   assertArtifactRunId(paths, 'event', event.runId);
@@ -1825,6 +1836,7 @@ function updateSnapshotAndAppendEvent(
     const current = readManagedHostRunSnapshot(paths);
     if (readTerminal(paths)) return false;
     const next = update(current);
+    if (!next) return false;
     assertArtifactRunId(paths, 'snapshot', next.runId);
     atomicWrite(paths.snapshotEventTransition, {
       schemaVersion: 'lattice.managed_host_run_snapshot_event_transition.v1',
@@ -2690,7 +2702,13 @@ export async function runManagedHostRunWorker(
         },
         // This fact arrives before asynchronous process-group cleanup. Do not
         // manufacture a new burn cancellation after the provider already closed.
-        onProcessClose: () => { providerClosed = true; },
+        onProcessClose: closedAt => {
+          providerClosed = true;
+          updateSnapshotAndAppendEvent(paths, current => current.providerClosedAt ? null : ({
+            ...current, generation:current.generation+1, providerClosedAt:closedAt, supervisionDiagnostic:null,
+          }), {schemaVersion:MANAGED_HOST_RUN_SCHEMA_VERSION, runId:spec.runId,
+            at:closedAt, type:'provider_closed', detail:{stage:'finalizing_result'}});
+        },
         onProcessSpawn: identity => {
           const published = updateSnapshotAndAppendEvent(
             paths,
@@ -2972,6 +2990,7 @@ export interface ManagedHostRunProcessGroupRow {
   /** Darwin ps exposes an opaque session pointer, not a POSIX SID. */
   sessionIdSource?: 'darwin-session-unavailable';
   start: string;
+  processState?: string;
 }
 
 export interface ManagedHostRunProcessGroupOps {
@@ -2983,19 +3002,19 @@ export interface ManagedHostRunProcessGroupOps {
 function processGroupRows(pgid: number): ManagedHostRunProcessGroupRow[] | null {
   if (process.platform === 'win32') return null;
   try {
-    const output = execFileSync('ps', ['-axo', 'pid=,pgid=,sess=,lstart='], {
+    const output = execFileSync('ps', ['-axo', 'pid=,pgid=,sess=,stat=,lstart='], {
       encoding: 'utf8',
       timeout: 1_000,
       stdio: ['ignore', 'pipe', 'ignore'],
     });
     return output
       .split('\n')
-      .map(line => /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.+?)\s*$/.exec(line))
+      .map(line => /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(.+?)\s*$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
       .map(match => ({ pid: Number(match[1]), pgid: Number(match[2]),
         sessionId: process.platform === 'darwin' ? null : Number(match[3]),
         ...(process.platform === 'darwin' ? { sessionIdSource: 'darwin-session-unavailable' as const } : {}),
-        start: match[4]! }))
+        processState:match[4]!, start: match[5]! }))
       .filter(row => row.pgid === pgid);
   } catch {
     return null;
@@ -3336,6 +3355,7 @@ export async function runManagedHostRunSupervisor(
   // Validate the immutable spec/owner binding before reporting launch readiness.
   recoverAndProjectManagedHostRun(paths);
   onReady();
+  let abnormal: {code:ManagedSupervisionCode; since:number} | null = null;
   while (existsSync(paths.spec)) {
     let terminal = false;
     try {
@@ -3351,6 +3371,41 @@ export async function runManagedHostRunSupervisor(
       // Reuse the existing launch fence, fingerprint-bound TERM/KILL/reap and
       // exclusive terminal writer. Never signal a bare worker PID.
       await reconcileManagedHostRunUnlocked(paths, Date.now());
+      if (!readTerminal(paths)) {
+        const observed = readManagedHostRunSnapshot(paths);
+        const now = Date.now();
+        let code: ManagedSupervisionCode | null = null;
+        if (observed.providerClosedAt) {
+          if (now-Date.parse(observed.providerClosedAt) >= MANAGED_SUPERVISOR_RUNTIME_POLICY.stalledStageMs) {
+            code = 'result_finalization_stalled';
+          }
+        } else if (observed.providerIdentity) {
+          const identity = observed.providerIdentity;
+          const rows = identity.pgid === null ? null : processGroupRows(identity.pgid);
+          const leader = rows?.find(row => row.pid === identity.pid);
+          if (rows === null) code = 'provider_probe_unavailable';
+          else if (!leader || leader.processState?.startsWith('Z')) code = 'provider_missing';
+          else if (!identity.startFingerprint || leader.start !== identity.startFingerprint) code = 'provider_identity_changed';
+        } else if (now-Date.parse(observed.createdAt) >= MANAGED_SUPERVISOR_RUNTIME_POLICY.stalledStageMs) {
+          code = 'provider_launch_stalled';
+        }
+        if (!code) abnormal = null;
+        else if (abnormal?.code !== code) abnormal = {code,since:now};
+        const diagnostic = abnormal && now-abnormal.since >= MANAGED_SUPERVISOR_RUNTIME_POLICY.diagnosticGraceMs
+          ? {code:abnormal.code,observedAt:new Date(abnormal.since).toISOString(),action:managedSupervisionAction(abnormal.code)}
+          : null;
+        if ((observed.supervisionDiagnostic?.code ?? null) !== (diagnostic?.code ?? null)) {
+          updateSnapshotAndAppendEvent(paths, current => {
+            // A provider close or new identity observed during ps invalidates
+            // this sample; it must not overwrite the worker's newer stage.
+            if (current.providerClosedAt !== observed.providerClosedAt
+              || canonicalJson(current.providerIdentity) !== canonicalJson(observed.providerIdentity)
+              || (current.supervisionDiagnostic?.code ?? null) === (diagnostic?.code ?? null)) return null;
+            return {...current,generation:current.generation+1,supervisionDiagnostic:diagnostic};
+          }, {schemaVersion:MANAGED_HOST_RUN_SCHEMA_VERSION,runId:request.runId,
+            at:new Date(now).toISOString(),type:'supervision_diagnostic',detail:{diagnostic}});
+        }
+      }
       return readTerminal(paths) !== null;
       });
     } catch (error) {

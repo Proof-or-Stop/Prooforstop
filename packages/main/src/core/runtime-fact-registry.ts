@@ -187,6 +187,8 @@ export const MANAGED_BURN_RUNTIME_POLICY = {
 export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
   readyTimeoutMs: 5_000,
   pollIntervalMs: 1_000,
+  diagnosticGraceMs: 5_000,
+  stalledStageMs: 30_000,
   orphanReason: 'worker_orphaned',
   launchOrder: 'supervisor-ready-before-worker',
   cleanupAuthority: 'recorded-provider-process-identity',

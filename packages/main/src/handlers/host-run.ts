@@ -834,7 +834,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           maxWaitMs: options.statusWaitCapMs });
         if (wantsJson(args)) return result;
         return result.runs.map(({ run, changed }) =>
-          `${run.runId} state=${run.state} generation=${run.generation} changed=${changed}`).join('\n');
+          `${run.runId} state=${run.state} stage=${run.stage.number}/${run.stage.total}:${run.stage.name} generation=${run.generation} changed=${changed}${run.supervisionDiagnostic ? ` diagnostic=${run.supervisionDiagnostic.code}: ${run.supervisionDiagnostic.action}` : ''}`).join('\n');
       }
       const runId = normalizeString(args.runId);
       if (!runId) throw new Error('host_run_status: --runId is required');
@@ -862,7 +862,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         ? ` terminal=${status.run.terminal.state}:${status.run.terminal.reason}`
         : '';
       const receipt = status.receipt ? ` receiptId=${status.receipt.receiptId}` : '';
-      return `${status.run.runId} state=${status.run.state} generation=${status.run.generation} deadlineAt=${status.run.deadlineAt} workerHeartbeatAt=${status.run.workerHeartbeatAt ?? 'none'} providerProgressMode=${status.run.providerProgressMode} lastProviderProgressAt=${status.run.lastProviderProgressAt ?? 'none'} replacementSafe=${status.run.replacementSafe}${terminal}${receipt}`;
+      return `${status.run.runId} state=${status.run.state} stage=${status.run.stage.number}/${status.run.stage.total}:${status.run.stage.name} generation=${status.run.generation} deadlineAt=${status.run.deadlineAt} workerHeartbeatAt=${status.run.workerHeartbeatAt ?? 'none'} providerProgressMode=${status.run.providerProgressMode} lastProviderProgressAt=${status.run.lastProviderProgressAt ?? 'none'} replacementSafe=${status.run.replacementSafe}${status.run.supervisionDiagnostic ? ` diagnostic=${status.run.supervisionDiagnostic.code}: ${status.run.supervisionDiagnostic.action}` : ''}${terminal}${receipt}`;
     },
 
     async host_run_cancel(args: HostRunCancelCommandArgs) {

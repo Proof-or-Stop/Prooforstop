@@ -12,6 +12,16 @@ reported as requiring supervisor recovery until its exact journal replay complet
 The internal explicit recovery entry point supports recovery owners and process
 boundary tests; it is not invoked by status or output readers.
 
+The supervisor reports persistent provider absence (including an unreaped zombie),
+identity mismatch, and unavailable OS inspection after a five-second observation
+grace. Provider startup and result finalization stalled beyond thirty seconds use
+the same bounded diagnostic path. These are actionable observations, never PASS,
+exit receipts or permission to redispatch. Provider close is journaled before
+asynchronous cleanup, so the five-stage projection distinguishes accepted,
+starting provider, provider execution, result finalization and terminal. Worker
+heartbeat never advances provider progress. Historical ETA and user notification
+latency acceptance remain separate from these runtime stage facts.
+
 ## Context
 
 When a Claude host started Codex (or a Codex host started Claude) with raw shell

@@ -1911,7 +1911,7 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
     level: 'L3',
     producer: 'core/managed-host-run + cli/managed-host-run-supervisor',
     consumerGate: 'managed_review_evidence_import successful-terminal intake only',
-    rationale: 'An independent detached supervisor is ready before provider-worker launch. Worker death triggers fingerprint-bound provider cleanup and one failed terminal without status polling. Status and aggregate wait are read-only observations, including interrupted journal diagnostics; explicit recovery owns transaction replay and terminal cleanup. Existing launch fencing and exclusive terminal digests remain authoritative; an orphan failure cannot grant review PASS or replacement safety without proven reap.',
+    rationale: 'An independent detached supervisor is ready before provider-worker launch. Worker death triggers fingerprint-bound provider cleanup and one failed terminal without status polling. A continuously missing, zombie, unverifiable or changed provider identity produces a bounded actionable diagnostic and semantic generation change, never replacement authority. Provider close is persisted before asynchronous result cleanup and is distinct from worker heartbeat and provider output progress. Status and aggregate wait are read-only observations, including interrupted journal diagnostics; explicit recovery owns transaction replay and terminal cleanup. Existing launch fencing and exclusive terminal digests remain authoritative; an orphan failure cannot grant review PASS or replacement safety without proven reap.',
   },
 ] as const satisfies readonly ProcessFactRegistryEntry[];
 
