@@ -198,7 +198,7 @@ async function main() {
       // Recheck after incorporating main, before writing any release content.
       check(s.path, 'synced-green');
       s.releaseBase = sha(mainRoot);
-      const paths = git(s.path, 'diff', '--name-only', 'main...HEAD').split('\n');
+      const paths = git(s.path, 'diff', '--name-only', '-z', 'main...HEAD').split('\0').filter(Boolean);
       if (paths.some(p => p === 'AGENTS.override.md' || /^\.proof-or-stop\/story\//.test(p))) fail('Lab override or real Story state cannot be released through Lab.');
       s.bump = shouldBuildDoneMainPackageForChangedPaths(paths);
       const currentVersion = versions.readSyncedVersion(mainRoot);
