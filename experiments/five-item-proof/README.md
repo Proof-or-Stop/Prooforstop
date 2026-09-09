@@ -49,3 +49,16 @@ GRAPH_VERIFY_PORT=0 node packages/graph/scripts/verify-missing-assets-fail.mjs
 Each graph verifier owns and terminates only its private server process group. The missing-assets recovery verifier temporarily manipulates this Lab's graph asset and restores it; do not run another build or graph consumer concurrently. The separate failure-before-listen negative control is part of the Lab experiments, not silently added to graph npm check.
 
 The external followthrough package contains native RED/GREEN logs, source-bound timing pairs, original Claude request-changes findings and later focused verification, full inventory results, replay scripts, patch/bundle and checksums. Earlier reports are historical; use the latest report and explicit source bindings. Never add stage percentages or claim overall 48% / all-Story closure from these experiments.
+
+The final Graph approval has a bounded native Lab RED/GREEN entry:
+
+```sh
+node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js --lab-graph-loader-proof
+```
+
+It runs the existing dynamic-code positive/drift controls and all 14 Graph loader
+provenance mutants, including mutants given a refreshed fingerprint. It emits a
+distinct Lab marker. The configured no-argument entry remains unchanged and runs
+every original guard; a pre-existing prompt-full-context-envelope fingerprint
+failure is preserved in the baseline and final full-entry logs. The focused
+proof is not evidence that the complete guard or the 134-command inventory passed.
