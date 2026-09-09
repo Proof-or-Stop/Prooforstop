@@ -142,5 +142,13 @@ try {
   const record = join(guarded, '.git/lab-maintenance/guard.json'); const envelope = JSON.parse(readFileSync(record)); envelope.payload.phase = 'verified'; writeFileSync(record, JSON.stringify(envelope));
   cmd(guarded, ['status', 'guard'], 1, /Invalid Lab record/);
   assert.ok(existsSync(guardLab));
+  execFileSync(process.execPath, [join(root, 'scripts/verify-lab-story-carry-forward.mjs')], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: 'inherit',
+    timeout: 120000,
+    env: { ...process.env, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
+  });
+  checks++;
   console.log(`Lab worktree verification passed (${checks} command checks plus state, version and cleanup assertions).`);
 } finally { rmSync(dir, { recursive: true, force: true }); }
