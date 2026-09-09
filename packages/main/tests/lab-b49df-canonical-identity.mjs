@@ -2,18 +2,14 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
 const repoRoot = resolve(packageRoot, '..', '..');
-const mainRoot = dirname(execFileSync(
-  'git',
-  ['rev-parse', '--path-format=absolute', '--git-common-dir'],
-  { cwd: repoRoot, encoding: 'utf8' },
-).trim());
 
 const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
   cwd: repoRoot,
@@ -44,15 +40,36 @@ const storyWriters = Object.entries(COMMAND_POLICIES)
   .filter(([, policy]) => policy.ownershipClass === 'storyScopedMutating')
   .map(([command]) => command);
 assert.ok(storyWriters.length > 0);
-const admitted = storyWriters.filter((command) => classifyRuntimeEntrypointAuthority({
-  command,
-  commandArgs: ['{"storyId":"B-lab"}'],
-  projectRoot: mainRoot,
-  invokedEntrypoint: join(repoRoot, 'bin', 'proof-or-stop.js'),
-  loadedCorePackageRoot: packageRoot,
-  env: {},
-}).status !== 'blocked');
-assert.deepEqual(admitted, [], `foreign runtime admitted Story writers: ${admitted.join(', ')}`);
+const topologyContainer = mkdtempSync(join(tmpdir(), 'proof-or-stop-b49df-focused-topology-'));
+try {
+  const targetRoot = join(topologyContainer, 'main');
+  mkdirSync(join(targetRoot, 'packages', 'main'), { recursive: true });
+  mkdirSync(join(targetRoot, 'bin'), { recursive: true });
+  writeFileSync(join(targetRoot, 'package.json'), '{"name":"proof-or-stop"}\n');
+  writeFileSync(join(targetRoot, 'packages', 'main', 'package.json'), '{"name":"@proof-or-stop/core"}\n');
+  writeFileSync(join(targetRoot, 'bin', 'proof-or-stop.js'), '#!/usr/bin/env node\n');
+  execFileSync('git', ['init', '-b', 'main'], { cwd: targetRoot, stdio: 'pipe' });
+  execFileSync('git', ['add', '.'], { cwd: targetRoot, stdio: 'pipe' });
+  execFileSync('git', [
+    '-c', 'user.name=Proof-or-Stop Test',
+    '-c', 'user.email=proof-or-stop@example.invalid',
+    'commit', '-m', 'fixture baseline',
+  ], { cwd: targetRoot, stdio: 'pipe' });
+  const foreignRoot = join(topologyContainer, 'story-worktree');
+  execFileSync('git', ['worktree', 'add', '-b', 'story/B-lab', foreignRoot], { cwd: targetRoot, stdio: 'pipe' });
+
+  const admitted = storyWriters.filter((command) => classifyRuntimeEntrypointAuthority({
+    command,
+    commandArgs: ['{"storyId":"B-lab"}'],
+    projectRoot: targetRoot,
+    invokedEntrypoint: join(foreignRoot, 'bin', 'proof-or-stop.js'),
+    loadedCorePackageRoot: join(foreignRoot, 'packages', 'main'),
+    env: {},
+  }).status !== 'blocked');
+  assert.deepEqual(admitted, [], `foreign runtime admitted Story writers: ${admitted.join(', ')}`);
+} finally {
+  rmSync(topologyContainer, { recursive: true, force: true });
+}
 
 const validationHandler = readFileSync(join(packageRoot, 'src/handlers/story-aware-validation.ts'), 'utf8');
 const config = readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8');

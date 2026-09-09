@@ -510,7 +510,29 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // same post-refactor source plus exactly three brand-text lines (two console.error
   // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
   // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
+  //
+  // B-bcae CHK-003 REPIN, and unlike every re-approval above this one DID add a dynamic
+  // import, so the basis is restated rather than carried forward. The two-target lock
+  // protocol (CL-004/006/007/008) moved this structural digest off main's
+  // d1542f5222...b927e26. Basis checked BEFORE repinning, by diffing the dynamic-code
+  // surface of `main` against this file: exactly one construct is NEW —
+  // `await import(pathToFileURL(join(repoRoot, 'scripts', 'build-lock.mjs')).href)` at the
+  // top of importDistModules() — and one is REWRITTEN in place, the LAB_DIST import moving
+  // into a returned object literal with the same specifier and the same producer. Nothing
+  // else moved, and the file still contains NO eval, no Function/new Function, no vm, no
+  // runInNewContext and no require().
+  //
+  // The new import is in the same benign class as the five already approved here: a
+  // first-party repository-local sibling whose specifier is `pathToFileURL(join(...)).href`
+  // over `repoRoot` — itself `dirname(dirname(fileURLToPath(import.meta.url)))` — plus two
+  // string literals, so no argv, env or user value can reach it. It is dynamic for a stated
+  // reason, not for convenience: build-lock.mjs imports proper-lockfile, which is absent in
+  // a fresh checkout without node_modules, so a static import would throw
+  // ERR_MODULE_NOT_FOUND at module init before the actionable recovery hint can print —
+  // which is why its dependency-free half (build-lock-target.mjs) IS statically imported
+  // above. The exemption stays exactly as narrow: one file, one exact digest, and any
+  // further drift re-triggers the full dynamic-code scan.
+  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
   // B-3e16 CHK-003: the graph handler invokes five members on the module object returned by
   // its approved runtime import — lib.findRoot, lib.createApp (x2), lib.startServer,
   // lib.openBrowser. Because that module object comes from a non-literal import(), the
@@ -1646,9 +1668,22 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       // new build-aware importDistModules() wait loop; the argument expressions are unchanged.
       { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
       { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
+      // B-bcae F-034: the LAB_DIST and BRAND_ENV_DIST imports moved out of runLocalBootstrap
+      // into the new importLabModule() helper so they resolve INSIDE reader admission. Only the
+      // enclosing anchor changed — both argument expressions, and both producers (module-scope
+      // consts joined from repoRoot), are byte-identical to the approved versions.
+      { anchor: 'importLabModule', argument: 'pathToFileURL(LAB_DIST).href' },
+      { anchor: 'importLabModule', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
+      // B-bcae CHK-003: NEW approved call site, the only one this Story added. build-lock.mjs is
+      // a first-party repository-local sibling; the specifier is join(repoRoot, <literal>,
+      // <literal>) through pathToFileURL, and repoRoot is dirname(dirname(fileURLToPath(
+      // import.meta.url))), so no argv, env or user value reaches it. It must be dynamic:
+      // build-lock.mjs imports proper-lockfile, absent in a fresh checkout without node_modules,
+      // and a static import would throw ERR_MODULE_NOT_FOUND at module init before the recovery
+      // hint can print — which is why its dependency-free half, build-lock-target.mjs, is the one
+      // imported statically at the top of the file.
+      { anchor: 'importDistModules', argument: "pathToFileURL(join(repoRoot, 'scripts', 'build-lock.mjs')).href" },
     ],
   }],
   ['packages/main/src/cli.ts', {
@@ -1736,7 +1771,17 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
   // runLocalBootstrap, plus the BRAND_ENV_DIST fallback) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
+  //
+  // B-bcae CHK-003 REPIN: the two-target lock protocol moved this digest, and here the
+  // approved call-site allowlist this fingerprint gates really did change — a SIXTH
+  // non-literal loader call site now exists, `await import(pathToFileURL(join(repoRoot,
+  // 'scripts', 'build-lock.mjs')).href)` in importDistModules(), and the LAB_DIST site was
+  // rewritten in place (same specifier, same producer, now inside a returned object
+  // literal). Both are recorded on the DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS entry
+  // for this file, including why the new one must be dynamic and why its argument cannot be
+  // influenced by argv, env or user input; read that before re-approving here. The
+  // MAIN_DIST/UTILS_DIST, BRAND_ENV_DIST and zod sites are unchanged in shape.
+  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
   // origin/main merge: repinned for the TOOLCHAIN, not the code. origin's lockfile
   // brings typescript 5.9.3 and canonicalAstFingerprint prints via ts.createPrinter,
   // so every AST-keyed digest here shifts. Basis checked BEFORE repinning:

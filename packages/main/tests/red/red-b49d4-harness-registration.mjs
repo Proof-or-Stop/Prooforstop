@@ -117,7 +117,10 @@ const isMember = () => true;
  */
 const REGISTRATION_EXCLUSIONS = new Map([
   [`${POPULATION_DIR_REL}/red-B-e40f-lab-convergence.mjs`,
-    'Standalone fast managed-Lab regression contract. The native five-item integration gate invokes this file explicitly; the routine inventory separately runs the complete quorum-submit-smoke suite and its inventory-bijection harness. This exclusion records that Lab-only validation purpose instead of silently claiming routine execution of this additional fast coordinator fixture.'],
+    'Lab-only maintenance harness for the completed B-e40f convergence experiment. It intentionally measures the '
+    + 'full 73-case coordinator against built dist and records Lab RED/GREEN evidence; running it inside every canonical '
+    + 'validate would duplicate the registered quorum-submit smoke and turn a bounded maintenance witness into standing '
+    + 'suite policy. The permanent red-B-e40f-quorum-submit-harness.mjs coverage remains registered.'],
   [`${POPULATION_DIR_REL}/red-b2aa7-chk001-receipt.mjs`,
     'PRE-FIX attestation. Every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED '
     + '(run.status !== 0 plus redCount === total), so on the finished tree it prints nothing and exits 0. Registering '

@@ -31,6 +31,7 @@ import {
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
+import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { resetConfigCache } from '../core/config.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
@@ -60,6 +61,49 @@ const now = '2026-07-22T00:00:00.000Z';
 function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
   writeFileSync(join(root, rel), content, 'utf8');
+}
+
+/**
+ * Every source a PROCESS_FACT_REGISTRY entry declares as its producer or
+ * consumer implementation.
+ *
+ * `buildBoundedSourceGraph` reports a missing declared ref of a REACHED entry
+ * as `uninspectable registered source ...`, which seals as `snapshot_missing`
+ * and drops the basis from `complete` to `partial`. Reading that set from the
+ * registry itself is what stops these fixtures from silently going partial the
+ * next time an entry declares a new source: B-bcae CHK-004 recovered from
+ * exactly that, when runtime:evidence_hash_input_boundary and
+ * runtime:shared_validation_execution added six refs the hand-written stub list
+ * below did not know about.
+ */
+export function registryDeclaredSourceRefs(): string[] {
+  const refs = new Set<string>();
+  for (const entry of PROCESS_FACT_REGISTRY) {
+    for (const ref of [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]) refs.add(ref);
+  }
+  return [...refs].sort();
+}
+
+/** A valid module identifier for a derived stub, from the ref's basename. */
+export function derivedStubIdentifier(ref: string): string {
+  const base = (ref.split('/').at(-1) ?? ref).replace(/\.[^.]+$/, '');
+  return base.replace(/[^A-Za-z0-9]+(.)?/g, (_match, next?: string) => (next ? next.toUpperCase() : ''));
+}
+
+/**
+ * Write a minimal module for every registry-declared source the fixture does
+ * not already stub explicitly, and report which ones that produced. The
+ * explicit stubs above stay authoritative — several of them carry text the
+ * discovery adapters actually parse — so this only fills genuine gaps.
+ */
+function writeDerivedRegistrySourceStubs(root: string): string[] {
+  const derived: string[] = [];
+  for (const ref of registryDeclaredSourceRefs()) {
+    if (existsSync(join(root, ref))) continue;
+    write(root, ref, `export const ${derivedStubIdentifier(ref)} = true;\n`);
+    derived.push(ref);
+  }
+  return derived;
 }
 
 function git(root: string, args: string[]): string {
@@ -133,7 +177,7 @@ const topology: AcceptanceVerificationTopologyV1 = {
   ],
 };
 
-function writeCanonicalAcceptanceRegistration(root: string): void {
+function writeCanonicalAcceptanceRegistration(root: string): string[] {
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
@@ -210,36 +254,10 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/story-owner-lease.ts', 'export const storyOwnerLease = "acceptance_basis";\n');
   write(root, 'packages/main/src/core/validation-execution-lock.ts', 'export const validationExecutionLock = "acceptance_basis";\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
-  // Explicit structural fixtures for the current signed process-fact closure.
-  // These contain no simulated runtime behavior; missing-source and incomplete-seal
-  // negative assertions below remain unchanged.
-  for (const path of [
-    'bin/bootstrap-runner.js',
-    'packages/main/src/cli-engine.ts',
-    'packages/main/src/core/auto-commit-metadata.ts',
-    'packages/main/src/core/causal-evidence.ts',
-    'packages/main/src/core/evidence-freshness.ts',
-    'packages/main/src/core/execution-implementation.ts',
-    'packages/main/src/core/material-path-policy.ts',
-    'packages/main/src/core/shared-validation-execution.ts',
-    'packages/main/src/core/store.ts',
-    'packages/main/src/core/story-aware-validation.ts',
-    'packages/main/src/core/story-owner-lease.ts',
-    'packages/main/src/core/validation-execution-lock.ts',
-    'packages/main/src/core/verification-intent-amendment.ts',
-    'packages/main/src/core/verification-intent-checkpoint.ts',
-    'packages/main/src/handlers/checklist.ts',
-    'packages/main/src/handlers/done-required-validation.ts',
-    'packages/main/src/handlers/verifier.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-worker.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-fixture.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts',
-    'packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts',
-    'packages/main/src/tasks/quorum-submit-smoke.ts',
-    'scripts/build-lock-target.mjs',
-  ]) write(root, path, 'export const registeredClosureFixture = true;\n');
+  // Everything above is an explicit stub whose CONTENT matters to a discovery
+  // adapter. Whatever the registry declares beyond that only has to be
+  // inspectable, so derive it instead of extending the hand-list again.
+  return writeDerivedRegistrySourceStubs(root);
 }
 
 function checklist(): ChecklistData {
@@ -283,7 +301,19 @@ const pureRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-pure-'));
 try {
   write(pureRoot, 'tsconfig.json', '{}\n');
   write(pureRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
-  writeCanonicalAcceptanceRegistration(pureRoot);
+  const derivedRegistrySourceRefs = writeCanonicalAcceptanceRegistration(pureRoot);
+  // B-bcae CHK-004, asserted BEFORE the first basis control so a newly required
+  // source is reported by name. PROCESS_FACT_REGISTRY — not this fixture — owns
+  // which sources the snapshot closure must be able to inspect, and a missing
+  // declared ref of a reached entry seals as snapshot_missing and drops the
+  // basis to `partial`. Without this, that arrives as a bare complete/partial
+  // mismatch with no indication of which ref moved.
+  for (const ref of registryDeclaredSourceRefs()) {
+    assert.ok(existsSync(join(pureRoot, ref)),
+      `registry-declared source ${ref} is absent from the fixture; writeCanonicalAcceptanceRegistration must supply or derive every declared ref`);
+  }
+  assert.ok(derivedRegistrySourceRefs.length > 0,
+    'the registry declares sources this fixture does not stub explicitly, so the derivation — not the hand-list — must be what supplies them');
   const plannedBeforeCode = deriveAcceptanceCoverageBasis({
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
@@ -382,6 +412,21 @@ try {
       assert.ok(deleted.diagnostics.some(issue => issue.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'deleted call cannot be restored by topology text');
     } finally { write(pureRoot, declaration.consumers[0].expectedFileRef, originalConsumer); }
   }
+  // B-bcae CHK-004 non-vacuity: the derived sources are load-bearing, not
+  // decorative. Removing exactly the refs the derivation supplies must drop the
+  // complete control above to `partial` and name them, so an entry that starts
+  // declaring a new source can never pass unnoticed.
+  for (const ref of derivedRegistrySourceRefs) rmSync(join(pureRoot, ref));
+  const withoutDerivedSources = deriveAcceptanceCoverageBasis(input);
+  assert.equal(withoutDerivedSources.basis.status, 'partial',
+    'omitting the registry-declared sources this fixture derives must drop the basis out of complete');
+  const missingSeals = (withoutDerivedSources.basis.snapshotSeal?.issues ?? [])
+    .filter(issue => issue.code === 'snapshot_missing' && derivedRegistrySourceRefs.includes(issue.canonicalRef));
+  assert.ok(missingSeals.length > 0,
+    `an omitted registry-declared source must be named as snapshot_missing: ${JSON.stringify(withoutDerivedSources.basis.snapshotSeal)}`);
+  writeDerivedRegistrySourceStubs(pureRoot);
+  assert.equal(deriveAcceptanceCoverageBasis(input).basis.status, 'complete',
+    'restoring the derived registry sources returns the control to complete');
   const registryEdgeTopology = structuredClone(topology);
   registryEdgeTopology.producerRefs.push({
     id: 'P-REGISTRY-BASIS-GENERATOR',

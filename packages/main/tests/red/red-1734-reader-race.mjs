@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 /**
  * RED (live-reproduced) for B-1734 F-003 — a concurrent rebuild must NOT expose an absent/partial
- * dist to the ~90 non-lock-holding readers of packages/main/dist.
+ * dist to readers of packages/main/dist.
  *
- * bin/bootstrap-runner.js is imported by EVERY bin/proof-or-stop.js call, yet it does NOT hold the build
- * lock (only build-TAKERS do). The pre-fix build did `rmSync(dist)` then a seconds-long in-place tsc,
- * so for that whole window a concurrent `bin/proof-or-stop.js` reader saw dist absent/partial and died with
- * MODULE_NOT_FOUND / "bootstrap is not ready", violating BOTH userSees claims ("never
- * MODULE_NOT_FOUND"). The fix builds into a SIBLING staging dir and promotes it by an atomic rename
- * (so a reader always sees the old-complete or new-complete dist), and makes the universal entry point
- * bin/bootstrap-runner.js WAIT+retry while a build lock is held instead of crashing.
+ * bin/bootstrap-runner.js is imported by EVERY bin/proof-or-stop.js call. At B-1734 it held no lock at
+ * all (only build-TAKERS did), and the pre-fix build did `rmSync(dist)` then a seconds-long in-place
+ * tsc, so for that whole window a concurrent `bin/proof-or-stop.js` reader saw dist absent/partial and
+ * died with MODULE_NOT_FOUND / "bootstrap is not ready", violating BOTH userSees claims ("never
+ * MODULE_NOT_FOUND"). The B-1734 fix builds into a SIBLING staging dir and promotes it by an atomic
+ * rename (so a reader always sees the old-complete or new-complete dist), and makes the universal entry
+ * point bin/bootstrap-runner.js WAIT+retry while a build lock is held instead of crashing.
+ *
+ * SINCE B-bcae the reader this file spawns is no longer unsynchronised with builders: it takes READER
+ * ADMISSION on distImportLockTarget before importing dist, and withBuildLock nests that same target
+ * inside buildLockTarget for the whole build critical section. It still does not take buildLockTarget
+ * itself — deliberately, so an ordinary CLI startup is never reported as a build. Read readerrace:0
+ * accordingly: zero MODULE_NOT_FOUND is now carried by mutual exclusion with promotion, with the atomic
+ * staging-swap behind it (and still the whole story for dist readers that take no lock at all).
  *
  * This test RACES the REAL reader against a REAL rebuild:
  *   1. Force a genuine rebuild by removing the main build manifest (a gitignored dist artifact — no
@@ -138,14 +145,25 @@ async function main() {
   assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'after the race the main build binding must verify (clean worktree)');
   assert.doesNotThrow(() => verifyUtilsBuildBinding(repoRoot), 'after the race the utils build binding must still verify (clean worktree)');
 
-  // ── readerrace:1 — an ORPHANED (stale) build lock must NOT brick readers ─────────────────────────
-  // A build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release, leaving `<target>.lock`
-  // orphaned. The atomic swap already left dist complete, so it is importable — buildInProgress() must
-  // gate on lock FRESHNESS (proper-lockfile staleness), not mere existence, or every bin/proof-or-stop.js
-  // call would wait 60s then fail until the next build reclaims the stale lock. Two proofs: a fast unit
-  // check that buildInProgress() distinguishes fresh vs stale, and a LIVE check that a real reader with
-  // a stale orphaned lock imports quickly (no 60s hang, no "bootstrap is not ready"). Non-vacuous: with
-  // the pre-fix existsSync gate the stale lock would hang the reader ~60s and fail the time bound.
+  // ── readerrace:1 — a buildLockTarget-only lock must NOT brick readers, fresh OR stale ────────────
+  // Two separate properties, and after B-bcae they live on two different branches of
+  // importDistModules. Keep them apart or one silently stops discriminating.
+  //
+  //   UNIT — buildInProgress() freshness. A build interrupted by Ctrl-C/SIGKILL/crash skips its
+  //   finally-release and leaves `<target>.lock` orphaned. That predicate is what the dist-ABSENT wait
+  //   branch consults, and it must gate on lock FRESHNESS (proper-lockfile staleness), not mere
+  //   existence, or a never-built checkout with an orphaned lock would wait out the whole ceiling
+  //   instead of failing fast with the recovery hint.
+  //
+  //   LIVE — the dist-PRESENT branch, which is what a real `bin/proof-or-stop.js --help` takes here.
+  //   Since B-bcae that branch does not consult buildInProgress() at all (bin/bootstrap-runner.js
+  //   samples it only after an entry was observed ABSENT); exclusion is delegated entirely to reader
+  //   admission on distImportLockTarget. So this half is NOT a second freshness proof — asserting it
+  //   with only a STALE lock would pass for a reason unrelated to freshness. It is the executable
+  //   record of the residual B-bcae F-040 names: a critical section holding buildLockTarget ALONE
+  //   (withCanonicalBuildLock's shape) does not exclude an admitted reader. Both mtimes are exercised
+  //   and BOTH must import immediately; a reader that stalled on either would show up as a time-bound
+  //   failure here rather than as an unexplained pause in an unrelated command.
   {
     const lockDir = `${buildLockTarget(repoRoot)}.lock`;
     try {
@@ -157,14 +175,25 @@ async function main() {
       const staleSec = (Date.now() - BUILD_LOCK_OPTIONS.stale - 5000) / 1000; // older than stale
       utimesSync(lockDir, staleSec, staleSec);
       assert.equal(buildInProgress(), false, 'a STALE orphaned lock (mtime older than stale) must NOT be treated as an active build');
-      // Live: a real bin/proof-or-stop.js reader with the stale orphaned lock still present must import FAST.
-      const t0 = Date.now();
-      const reader = await spawnCapture(['bin/proof-or-stop.js', '--help']);
-      const elapsed = Date.now() - t0;
-      assert.equal(reader.code, 0, `a reader must succeed despite a stale orphaned lock, got code ${reader.code}\n${reader.out.slice(0, 400)}`);
-      assert.ok(!READER_FAIL_RE.test(reader.out), `a reader must not report bootstrap-not-ready with a stale orphaned lock:\n${reader.out.slice(0, 400)}`);
-      assert.ok(elapsed < 15000, `a stale orphaned lock must not make the reader wait ~60s (freshness gate, not existence): took ${elapsed}ms`);
-      console.log('VI-OK CHK-001:readerrace:1');
+      // Live, both mtimes. `stale` is the orphaned-build case; `fresh` is the F-040 residual — nothing
+      // holds distImportLockTarget, so an admitted reader must proceed even though every canonical
+      // build-in-progress observer would report a live build.
+      const liveTimings = [];
+      for (const [label, seconds] of [['stale', staleSec], ['fresh', Date.now() / 1000]]) {
+        utimesSync(lockDir, seconds, seconds);
+        const t0 = Date.now();
+        const reader = await spawnCapture(['bin/proof-or-stop.js', '--help']);
+        const elapsed = Date.now() - t0;
+        assert.equal(reader.code, 0, `a reader must succeed with a ${label} buildLockTarget-only lock, got code ${reader.code}\n${reader.out.slice(0, 400)}`);
+        assert.ok(!READER_FAIL_RE.test(reader.out), `a reader must not report bootstrap-not-ready with a ${label} buildLockTarget-only lock:\n${reader.out.slice(0, 400)}`);
+        assert.ok(
+          elapsed < 15000,
+          `a ${label} buildLockTarget-only lock must not delay a dist-present reader — it holds no ` +
+            `reader-admission target (B-bcae F-040): took ${elapsed}ms`,
+        );
+        liveTimings.push(`${label}=${elapsed}ms`);
+      }
+      console.log(`VI-OK CHK-001:readerrace:1 (buildLockTarget-only reader: ${liveTimings.join(', ')})`);
     } finally {
       rmSync(lockDir, { recursive: true, force: true });
     }
@@ -261,7 +290,7 @@ async function main() {
     console.log('VI-OK CHK-001:readerrace:4');
   }
 
-  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/proof-or-stop.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure (in-process); utils has no pre-lock fast-path`);
+  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/proof-or-stop.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a buildLockTarget-only lock does not brick readers, stale or fresh; the reader waits a live build past 60s; promotion restores dist on failure (in-process); utils has no pre-lock fast-path`);
 }
 
 main().catch(err => {
