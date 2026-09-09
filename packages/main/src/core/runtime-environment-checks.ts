@@ -844,7 +844,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 1, retired: 0 }),
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json", undefined, { canonical: 6, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json"),
       identitySite('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
       identitySite('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
       identitySite('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),

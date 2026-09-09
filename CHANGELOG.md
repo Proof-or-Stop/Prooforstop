@@ -1,5 +1,22 @@
 # Changelog
 
+## Lab b49df-config-identity-count-20260909 - v0.3.292 - 2026-09-09
+
+The active-identity boundary pinned the exact number of canonical
+proof-or-stop.config.json references. Legitimate validation registrations added
+more canonical references, causing agent_prompt to fail even though no retired
+proofbound.config.json token was present.
+
+The boundary now enforces the intended semantic invariant: at least one exact
+canonical proof-or-stop.config.json reference must exist and every retired
+proofbound.config.json reference remains forbidden. The identity-canonical
+public-operation group moved from the recorded RED to GREEN, including a
+successful agent_prompt preflight.
+
+Maintenance provenance: codex/lab-b49df-config-identity-count-20260909, repair 5200c635f931207b417a6543ec5ad43adedf09a5.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=identity-canonical"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b49df-runtime-topology-fixture-20260909 - v0.3.291 - 2026-09-09
 
 The focused B-49df regression test incorrectly reused the current checkout as
