@@ -242,3 +242,10 @@ its machine-wide exclusive TCP 43127 claim. Graph checks use OS-assigned ports
 and retain exclusive local asset access. Independent routine invocations may
 share the configured two-invocation capacity only when all actual claims agree.
 This configuration change alone does not prove all 134 commands pass or run faster.
+
+Exit-only checks with long output within the retention limit keep durable receipts
+and can reuse them without reading selector bytes. The 1 MiB and legacy-store
+fallback remains non-reusable. Historical v1 receipts that contain truncated or
+redacted display text cannot prove a nonempty selector; they refuse with
+`causal_legacy_selector_output_unproven` and require fresh execution. Plain complete
+legacy output remains compatible. No historical credential is silently rewritten.

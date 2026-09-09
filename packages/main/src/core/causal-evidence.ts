@@ -644,7 +644,16 @@ export function verifyCausalEvidenceLedger(ledger: CausalEvidenceLedger): boolea
 const liveSelectorOutput = new WeakMap<CausalEvidenceReceipt, string>();
 
 export function readCausalSelectorOutput(receipt: CausalEvidenceReceipt, store?: CausalEvidenceReceiptStore): string {
-  if (!receipt.selectorOutput) return receipt.selectorProbe ?? receipt.outputProbe;
+  if (!receipt.selectorOutput) {
+    if (receipt.selectorProbe !== undefined) return receipt.selectorProbe;
+    // Historical receipts contain display bytes only. Truncation/redaction markers
+    // have no raw-output provenance and must never become selector evidence.
+    if (receipt.outputLength > CAUSAL_MAX_OUTPUT_CHARS
+        || [receipt.outputProbe, receipt.outputTail].some(value => value.includes(REDACTED) || value.includes('<causal-output-gap>'))) {
+      throw new Error('Legacy display output cannot prove this selector; fresh execution is required [causal_legacy_selector_output_unproven]');
+    }
+    return receipt.outputProbe;
+  }
   const output = liveSelectorOutput.get(receipt) ?? store?.readCausalSelectorOutput?.(receipt.storyId, receipt.selectorOutput.digest);
   if (typeof output !== 'string' || output.length !== receipt.selectorOutput.length
       || createHash('sha256').update(output).digest('hex') !== receipt.selectorOutput.digest) {
@@ -747,7 +756,7 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       const matchingOutput = redactCausalOutput(run.output, { ...process.env, ...args.identity.effectiveEnvironment }, '\0');
       const redactedOutput = matchingOutput.replace(/\0/g, REDACTED);
       const longOutput = matchingOutput.length > CAUSAL_MAX_OUTPUT_CHARS;
-      const durableOutput = longOutput && args.selector.length > 0 && args.receiptStore?.readCausalSelectorOutput && args.receiptStore?.writeCausalSelectorOutput
+      const durableOutput = longOutput && args.receiptStore?.readCausalSelectorOutput && args.receiptStore?.writeCausalSelectorOutput
         && matchingOutput.length <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES
         && Buffer.byteLength(JSON.stringify({output:matchingOutput}), 'utf8') <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES;
       const selectorOutput = durableOutput

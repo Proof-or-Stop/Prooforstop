@@ -8411,7 +8411,7 @@ function assertFilePatterns(entryName, relPath, patterns) {
 
 const inventory = [
   {name:'Complete selector output remains receipt-bound',files:[
-    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['readCausalSelectorOutput','selectorOutput','selectorWitness','CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES','causal_selector_output_invalid','redactCausalOutput']},
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['readCausalSelectorOutput','selectorOutput','selectorWitness','CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES','causal_legacy_selector_output_unproven','causal_selector_output_invalid','redactCausalOutput']},
     {relPath:'packages/main/src/core/store.ts',patterns:['readCausalSelectorOutput','writeCausalSelectorOutput','CAUSAL_OUTPUT_DIRECTORY']},
     {relPath:'docs/validation-performance.md',patterns:['complete redacted output','12,000','missing or changed']},
   ]},
