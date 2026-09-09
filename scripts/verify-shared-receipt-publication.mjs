@@ -26,7 +26,10 @@ try {
   const options = { sharedExecution: { storyId: 'B-receipt-witness', receiptStore: new StoryStore(root), probe } };
   let first;
   try { first = await runValidationCommand(command, root, 10000, options); }
-  catch (error) { assert.fail(`U03: own receipt publication must not invalidate unchanged inputs: ${error.message}`); }
+  catch (error) {
+    console.error({ outputs: options.sharedExecution.receiptStore.causalEvidenceOutputPaths?.('B-receipt-witness'), status: git('status', '--porcelain', '--untracked-files=all') });
+    assert.fail(`U03: own receipt publication must not invalidate unchanged inputs: ${error.message}`);
+  }
   assert.equal(first.code, 0);
   const second = await runValidationCommand(command, root, 10000, options);
   assert.equal(second.output, first.output, 'U03: durable receipt must avoid a second process execution');

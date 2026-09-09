@@ -23,6 +23,12 @@ time, and is not counted as a new child execution. Dynamic validation retains
 its existing trace-based path; shared execution is enabled only with dynamic
 mode off. No existing command is automatically opted in.
 
+Workspace checks exclude only exact CAS receipt paths whose signatures, Story
+identity and content addresses verify, plus an index whose entries all resolve
+to those verified receipts. Publishing these outputs cannot stale their own
+execution inputs. Unknown files and invalid receipts remain workspace pollution;
+explicit input bytes remain bound even when an input is also a receipt output.
+
 `fullBaselineReusePolicy: forbidden`, `closurePolicy: never-reuse`, gate and
 validation-infrastructure risk classifications, and build-proof consumers or
 producers always execute. This change does not relax existing forbidden policies.

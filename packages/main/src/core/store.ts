@@ -800,6 +800,32 @@ export class StoryStore {
     return join(this.storyDir(storyId), CAUSAL_RECEIPT_DIRECTORY, `${receiptHash}.json`);
   }
 
+  causalEvidenceOutputPaths(storyId: string): string[] {
+    const directory = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
+    const outputs: string[] = [];
+    const verified = new Map<string, string>();
+    if (existsSync(directory)) for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isFile() || !/^[a-f0-9]{64}\.json$/.test(entry.name)) continue;
+      const path = join(directory, entry.name);
+      try {
+        const receipt = JSON.parse(readFileSync(path, 'utf8')) as CausalEvidenceReceipt;
+        if (receipt.storyId !== storyId || `${receipt.receiptHash}.json` !== entry.name || !verifyCausalEvidenceReceipt(receipt)) continue;
+        outputs.push(path);
+        verified.set(receipt.executionKey, receipt.receiptHash);
+      } catch { /* Invalid output remains workspace pollution, never exempt. */ }
+    }
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    if (existsSync(indexPath)) {
+      try {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        if (index.schemaVersion === 'proofbound.causal-evidence-index.v1'
+          && index.receipts && typeof index.receipts === 'object' && !Array.isArray(index.receipts)
+          && Object.entries(index.receipts).every(([key, hash]) => verified.get(key) === hash)) outputs.push(indexPath);
+      } catch { /* Invalid index remains workspace pollution. */ }
+    }
+    return outputs;
+  }
+
   private recoverOrphanedCausalEvidenceReceipt(
     storyId: string,
     executionKey: string,

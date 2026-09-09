@@ -140,6 +140,8 @@ export interface CausalEvidenceReceipt {
 }
 
 export interface CausalEvidenceReceiptStore {
+  /** Exact verified CAS outputs, never an entire metadata directory exemption. */
+  causalEvidenceOutputPaths?(storyId: string): string[];
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null;
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void;
   /**

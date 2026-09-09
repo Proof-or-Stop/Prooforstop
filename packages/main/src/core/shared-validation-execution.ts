@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { resolve } from 'node:path';
+import { resolve, relative, isAbsolute } from 'node:path';
 import { readFileSync, realpathSync } from 'node:fs';
 import {
   CAUSAL_MAX_OUTPUT_CHARS, DEFAULT_CAUSAL_SELECTOR_POLICY, causalCanonical,
@@ -52,16 +52,22 @@ export async function executeSharedValidationCommand(
   try { inputFiles=additionalInputs(); } catch { return run(); }
   // Bind uncommitted source/index changes as well as committed material. Unknown
   // Git state refuses reuse; it does not manufacture a complete identity.
+  const gitRoot = realpathSync(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: normalized.cwd, encoding: 'utf8' }).trim());
+  const workspacePaths = () => [':/', ...(context.receiptStore.causalEvidenceOutputPaths?.(context.storyId) ?? []).flatMap(path => {
+    const name = relative(gitRoot, realpathSync(path));
+    return !name || name === '..' || name.startsWith('../') || isAbsolute(name) ? [] : [`:(top,exclude,literal)${name}`];
+  })];
+  const workspaceStatus = () => execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--', ...workspacePaths()], { cwd: normalized.cwd, encoding: 'utf8' });
   const workspaceState = () => {
-    const status = execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'});
-    const diff = execFileSync('git',['diff','--binary','HEAD'],{cwd:normalized.cwd,encoding:'utf8',maxBuffer:16*1024*1024});
+    const status = workspaceStatus();
+    const diff = execFileSync('git',['diff','--binary','HEAD','--',...workspacePaths()],{cwd:normalized.cwd,encoding:'utf8',maxBuffer:16*1024*1024});
     return createHash('sha256').update(status).update('\0').update(diff).digest('hex');
   };
   let workspace: string;
   try { workspace=workspaceState(); } catch { return run(); }
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
-  if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return run();
+  if (workspaceStatus()) return run();
   const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles);
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
   const identity = {
