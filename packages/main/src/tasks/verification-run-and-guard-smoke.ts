@@ -875,17 +875,24 @@ async function partFLabInputScopedReuseRed(): Promise<void> {
     git(env.root, ['add', input, manifest]);
     git(env.root, ['commit', '-m', 'add closed verifier input']);
     const command = labCapsuleCommand(env.root, manifest, [input]);
-    await env.handlers.verification_evidence_add({
-      storyId: env.storyId,
-      itemId: 'CHK-001',
-      intentRef: 'INT-LAB-REUSE',
-      kind: 'integration_test',
-      command,
-      selector: 'LAB_REUSE_OK',
-      result: 'pass',
-      note: 'seed closed verifier receipt',
-      file: manifest,
-    });
+    try {
+      await env.handlers.verification_evidence_add({
+        storyId: env.storyId,
+        itemId: 'CHK-001',
+        intentRef: 'INT-LAB-REUSE',
+        kind: 'integration_test',
+        command,
+        selector: 'LAB_REUSE_OK',
+        result: 'pass',
+        note: 'seed closed verifier receipt',
+        file: manifest,
+      });
+    } catch (error) {
+      assert.fail(
+        `B-aa5f Lab RED: unrelated input drift must issue an auditable reuse receipt; ` +
+        `baseline cannot execute the closed verifier capsule: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
     commitRefreshDrift(env, 'unrelated-to-closed-input');
     await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
     const receipt = findEvidence(env, 'INT-LAB-REUSE')?.receipt as unknown as Record<string, any> | undefined;
