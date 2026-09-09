@@ -1,3 +1,4 @@
+import { currentPrecertFastIdentity } from './validation-identity.js';
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
 import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
@@ -429,6 +430,7 @@ function collectAdmitFacts(
   let cheapCheckReceipt = null;
   try {
     cheapCheckReceipt = currentPrecertCheapCheckReceipt({
+      currentIdentity: currentPrecertFastIdentity(ctx, storyId),
       data: ctx.store.readCertificationWindows(storyId),
       storyId,
       headHash,

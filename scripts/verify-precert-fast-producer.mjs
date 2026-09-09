@@ -3,6 +3,7 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync, symlinkSync, existsSy
 import { join } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
 import { execFileSync } from 'node:child_process';
+import { currentPrecertFastIdentity } from '../packages/main/dist/handlers/validation-identity.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { createVerifierHandlers } from '../packages/main/dist/handlers/verifier.js';
 import { acquireOwnerLease } from '../packages/main/dist/core/story-owner-lease.js';
@@ -27,7 +28,7 @@ try {
   git('add', '.'); git('commit', '-qm', 'repair');
   acquireOwnerLease(store.storyDirPath(storyId), { command: 'fixture-owner', cwd: root });
   const handlers = createVerifierHandlers({ store, root, scanRoot: root, log() {} });
-  const result = await handlers.validate({ story: storyId, focus: 'fast', json: true });
+  const result = await handlers.validate({ story: storyId, focus: ' fast ', json: true });
   assert.match(typeof result === 'string' ? result : JSON.stringify(result), /FAST_CONTRACT_PASS/,
     'real configured fast command must run before checking the receipt');
   const receipts = store.readCertificationWindows(storyId).receipts;
@@ -40,12 +41,13 @@ try {
   symlinkSync(tsxModules, join(root, 'node_modules'), 'dir');
   writeFileSync(join(root, 'validate.js'), `console.log(JSON.stringify({status:'pass',allPass:true,details:['FAST_FILE_PASS']}));\n`);
   git('add', 'validate.js'); git('commit', '-qm', 'validate-file fast entry');
-  const fileResult = JSON.parse(await handlers.validate({ story: storyId, focus: 'fast', json: true }));
+  const fileResult = JSON.parse(await handlers.validate({ story: storyId, focus: ' fast ', json: true }));
   assert.match(JSON.stringify(fileResult), /FAST_FILE_PASS/);
   assert.equal(fileResult.precertCheapCheckReceipt?.authority, 'pre-cert-cheap-check',
     'validate-file fast execution must publish the same authority as configured fast commands');
   const current = store.readCertificationWindows(storyId).receipts.find(row => row.receiptId === fileResult.precertCheapCheckReceipt.receiptId);
   assert.equal(current.routineValidationIdentity.invocation.focus, 'fast');
   assert.deepEqual(current.routineValidationIdentity.commands[0].focus, ['fast']);
+  assert.equal(currentPrecertFastIdentity({ store, root, scanRoot: root }, storyId).digest, current.routineValidationIdentity.digest, 'actual validate-file argv and admission identity must agree');
   console.log('PASS U01 precert-fast-producer');
 } finally { rmSync(root, { recursive: true, force: true }); }

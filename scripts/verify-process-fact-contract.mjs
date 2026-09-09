@@ -5713,6 +5713,7 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
   assert(registry.get('runtime:precert_routine_single_execution')?.level === 'L4', 'PRE_CERT single execution must be a real registered L4 fact');
   assert(/claimTestAdmissibleRoutineValidationWindow/.test(verifier), 'routine validation requires an execution claim');
   assert(/persistPrecertCheapCheckIfQualified/.test(verifier), 'fast validation must publish its own bound receipt');
+  assert(/currentIdentity: currentPrecertFastIdentity\(ctx, storyId\)/.test(read('packages/main/src/handlers/certification-window.ts')), 'PRE_CERT must reconstruct current fast identity before consuming a receipt');
   assert(/requireCurrentHeavyCertificationWindow/.test(doneRequired), 'DONE-required must retain PRE_CERT admission');
   assert(!/refuseHeavyCertificationUnlessAdmitted/.test(doneRequired), 'DONE-required must not consume routine execution allocation');
   const testGate = phaseGate.slice(phaseGate.indexOf('export async function runValidateGate('), phaseGate.indexOf('export function runDoneOracleGate('));

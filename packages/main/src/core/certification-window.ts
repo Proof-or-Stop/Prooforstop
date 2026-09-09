@@ -508,12 +508,15 @@ export function currentPrecertCheapCheckReceipt(args: {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  currentIdentity?: RoutineValidationIdentity;
 }): PrecertCheapCheckReceipt | null {
-  if (!args.headHash || !args.materialHash || !args.storyFilesHash) return null;
+  if (!args.headHash || !args.materialHash || !args.storyFilesHash
+    || !isCompleteRoutineValidationIdentity(args.currentIdentity)) return null;
   for (const receipt of [...args.data.receipts].reverse()) {
     if (receipt.schemaVersion !== PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA) continue;
     if (!verifyPrecertCheapCheckReceipt(receipt)) continue;
-    if (receipt.storyId !== args.storyId
+    if (receipt.routineValidationIdentity.digest !== args.currentIdentity!.digest
+      || receipt.storyId !== args.storyId
       || receipt.headHash !== args.headHash
       || receipt.materialHash !== args.materialHash
       || receipt.storyFilesHash !== args.storyFilesHash) continue;
@@ -996,6 +999,7 @@ export function persistPrecertCheapCheckReceipt(args: {
   return withCertificationWindowLock(args.store, args.storyId, () => {
     const data = args.store.readCertificationWindows(args.storyId);
     const existing = currentPrecertCheapCheckReceipt({
+      currentIdentity: args.routineValidationIdentity,
       data,
       storyId: args.storyId,
       headHash: args.headHash,

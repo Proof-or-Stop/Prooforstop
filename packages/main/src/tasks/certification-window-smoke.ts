@@ -24,6 +24,7 @@ import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { currentPrecertFastIdentity } from '../handlers/validation-identity.js';
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
@@ -54,6 +55,7 @@ import {
   PRECERT_CHEAP_CHECK_AUTHORITY,
   PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
   currentPrecertCheapCheckReceipt,
+  persistSyntheticAdmittedWindowForTest,
   detectCertificationWindowMaterialDrift,
   isOfficialHeavyValidateInvocation,
   emptyCertificationWindowData,
@@ -169,11 +171,12 @@ function persistCurrentFastCheapReceipt(store: StoryStore, root: string, storyId
     materialHash: currentMaterialHash(root, 'HEAD', root)!,
     storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
   });
+  const identity = currentPrecertFastIdentity({ store, root, scanRoot: root }, storyId);
   return persistPrecertCheapCheckReceipt({
     store,
     storyId,
-    routineValidationIdentity: receipt.routineValidationIdentity,
-    commandExecution: receipt.commandExecution,
+    routineValidationIdentity: identity,
+    commandExecution: { ...receipt.commandExecution, commandCount: identity.commands.length },
     headHash: receipt.headHash,
     materialHash: receipt.materialHash,
     storyFilesHash: receipt.storyFilesHash,
@@ -679,6 +682,7 @@ function makeGitRoot(): string {
   writeFileSync(join(gitRoot, 'proof-or-stop.config.json'), JSON.stringify({
     storyDir: '.proof-or-stop/story/actives',
     storyPrefix: 'B',
+    validate: { commands: [{ label: 'fast-fixture', command: 'node', args: ['--version'], focus: ['fast'], timeoutMs: 15000 }] },
   }));
   writeFileSync(join(gitRoot, 'README.md'), 'certification window smoke\n');
   git(gitRoot, ['add', 'proof-or-stop.config.json', 'README.md']);
@@ -1507,6 +1511,7 @@ const cheapCheckValidate = createVerifierHandlers(cheapCheckCtx);
 await cheapCheckValidate.validate({ storyId: cheapCheckStoryId, focus: 'fast' });
 assert.equal(
   currentPrecertCheapCheckReceipt({
+    currentIdentity: currentPrecertFastIdentity(cheapCheckCtx, cheapCheckStoryId),
     data: cheapCheckStore.readCertificationWindows(cheapCheckStoryId),
     storyId: cheapCheckStoryId,
     headHash: currentGitHead(cheapCheckRoot),
@@ -1527,6 +1532,7 @@ assert.equal(exactCheapResult.precertCheapCheckReceipt?.authority, PRECERT_CHEAP
 assert.equal(existsSync(cheapMarkers.fastMarker), true, 'exact cheap producer must run the fast-tagged command');
 assert.equal(existsSync(cheapMarkers.fullMarker), false, 'exact cheap producer must not run an unscoped child command');
 const cheapReceipt = currentPrecertCheapCheckReceipt({
+  currentIdentity: currentPrecertFastIdentity(cheapCheckCtx, cheapCheckStoryId),
   data: cheapCheckStore.readCertificationWindows(cheapCheckStoryId),
   storyId: cheapCheckStoryId,
   headHash: currentGitHead(cheapCheckRoot),
@@ -1627,6 +1633,9 @@ assert.ok(reusedRoutineTimestamp, 'a reused direct request must retain canonical
 // It must consume the admitted window before persisting its warn/PASS evidence,
 // otherwise an unchanged retry could repeatedly mint TEST-admissible evidence.
 const noValidatorRoot = makeGitRoot();
+writeFileSync(join(noValidatorRoot, 'proof-or-stop.config.json'), JSON.stringify({ storyDir: '.proof-or-stop/story/actives', storyPrefix: 'B' }));
+git(noValidatorRoot, ['add', 'proof-or-stop.config.json']);
+git(noValidatorRoot, ['commit', '-m', 'no-validator fixture']);
 const noValidatorStoryId = 'B-cw-no-validator';
 git(noValidatorRoot, ['switch', '-c', `story/${noValidatorStoryId}`]);
 const noValidatorStore = makeStore(noValidatorRoot, noValidatorStoryId);
@@ -1644,9 +1653,9 @@ const noValidatorMock = mockInventoryApis({
   storyFilesHash: currentStoryFilesHash(noValidatorRoot, 'HEAD', noValidatorRoot)!,
 });
 setReviewInventoryAdmitApisForTest(noValidatorMock.apis);
-persistCurrentFastCheapReceipt(noValidatorStore, noValidatorRoot, noValidatorStoryId);
+persistSyntheticAdmittedWindowForTest({ store: noValidatorStore, storyId: noValidatorStoryId, projectRoot: noValidatorRoot, causalInputHashes: deriveCertificationDomainInputHashes(noValidatorRoot, 'HEAD', noValidatorRoot) });
 const noValidatorWindowHandlers = createCertificationWindowHandlers(noValidatorCtx);
-assertStatusSurface(noValidatorWindowHandlers.certification_window_begin({ storyId: noValidatorStoryId }), 'ADMITTED');
+assert.equal(noValidatorStore.readCertificationWindows(noValidatorStoryId).windows.at(-1)?.state, 'ADMITTED', 'test-only admission isolates the no-entry consumer from the fast producer prerequisite');
 const noValidatorValidate = createVerifierHandlers(noValidatorCtx);
 const noValidatorResult = JSON.parse(await noValidatorValidate.validate({ storyId: noValidatorStoryId, json: true }));
 assert.equal(noValidatorResult.status, 'warn');
@@ -1708,6 +1717,7 @@ const atMostOnceInvalidated = atMostOnceWindowHandlers.certification_window_stat
 assertStatusSurface(atMostOnceInvalidated, 'INVALIDATED');
 assert.equal(
   currentPrecertCheapCheckReceipt({
+    currentIdentity: currentPrecertFastIdentity(atMostOnceCtx, atMostOnceStoryId),
     data: atMostOnceStore.readCertificationWindows(atMostOnceStoryId),
     storyId: atMostOnceStoryId,
     headHash: currentGitHead(atMostOnceRoot),

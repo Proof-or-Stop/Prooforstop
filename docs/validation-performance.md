@@ -10,6 +10,9 @@ In REVIEW, finalize the saturated review inventory, then run
 `proof-or-stop validate --story=B-example --focus=fast --json` to publish a
 signed cheap-check receipt for the resulting HEAD. Run
 `proof-or-stop certification_window_begin --storyId=B-example` after that check.
+Admission reconstructs the same current command identity as execution. Changed
+environment, executable, timeout, policy or entrypoint invalidates the cheap
+receipt even when HEAD is unchanged; unavailable identity fails closed.
 The admitted window permits one routine `proof-or-stop validate --story=B-example --json`
 execution. This includes dynamic execution and explicit full validation, even
 when full is combined with focus. An exact reusable current PASS starts no child
