@@ -383,12 +383,12 @@ withTempContext('INIT reviewers cannot mutate checklist definitions directly', (
     itemId: 'CHK-001',
     title: 'Reviewer tries to expand requirements',
     agent: 'proof-or-stop-review-story-init',
-  }), /init_reviewer_checklist_mutation_blocked/);
+  }), /(?:agent_dispatch_mutation_denied|init_reviewer_checklist_mutation_blocked)/);
   assert.throws(() => handlers.checklist_add({
     storyId: STORY_ID,
     title: 'Reviewer adds a requirement',
     context: 'This must be a proposal instead.',
-    agent: 'product-reviewer',
+    agent: 'proof-or-stop-product-reviewer',
   }), /init_reviewer_checklist_mutation_blocked/);
   handlers.checklist_update({
     storyId: STORY_ID,
@@ -416,7 +416,7 @@ withTempContext('INIT reviewers cannot mutate story-level scope fields directly'
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
     description: 'Product reviewer tries to move future capability into current scope.',
-    actor: 'product-reviewer',
+    actor: 'proof-or-stop-product-reviewer',
   }), /init_reviewer_story_scope_mutation_blocked/);
   assert.throws(() => handlers.story_update({
     storyId: STORY_ID,
@@ -427,7 +427,7 @@ withTempContext('INIT reviewers cannot mutate story-level scope fields directly'
   handlers.story_update({
     storyId: STORY_ID,
     priority: 'medium',
-    actor: 'product-reviewer',
+    actor: 'proof-or-stop-product-reviewer',
   });
   assert.equal(store.readStory(STORY_ID).priority, 'medium', 'reviewer may still update non-scope metadata');
 

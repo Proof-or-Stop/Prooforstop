@@ -453,7 +453,7 @@ Suggested schema:
 
 ```ts
 interface PlaybookOutcomeEvent {
-  schemaVersion: 'proofbound.playbook-outcome.v1';
+  schemaVersion: 'proof-or-stop.playbook-outcome.v1';
   eventId: string;
   idempotencyKey: string;
   observedAt: string;

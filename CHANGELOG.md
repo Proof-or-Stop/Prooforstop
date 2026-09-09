@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab b49df-canonical-identity-20260909 - v0.3.287 - 2026-09-09
+
+# Canonical active Proof-or-Stop identity
+
+Problem: newly generated Story scope boundaries on local main still used the retired `lattice.scope_boundary.v1` schema, and active INIT/runtime surfaces retained legacy identity paths.
+
+Behavior change: active Story writers emit `proof-or-stop.scope_boundary.v1.1`; required INIT reviewer identities contain no lattice name; Story-scoped writers fail closed when invoked through a foreign self-host worktree runtime; the active validation shard adapter accepts only the canonical Proof-or-Stop environment name. Historical Story JSON and `.lattice` runtime records were deliberately excluded from this Lab integration.
+
+Verification: the Lab pinned `node packages/main/tests/lab-b49df-canonical-identity.mjs`. It recorded RED on main with actual `lattice.scope_boundary.v1`, then GREEN on the committed repair while also checking INIT identities, every registered Story writer's foreign-runtime rejection, and removal of the active legacy shard-adapter key.
+
+Maintenance provenance: codex/lab-b49df-canonical-identity-20260909, repair 73f03c5802ff216c846ed521b534bb36d0a2c2fd.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-b49df-canonical-identity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab baa5f-receipt-fanout - v0.3.286 - 2026-09-09
 
 Integrate the bounded verification-receipt repair developed and reviewed on local branch `story/B-aa5f` without importing formal Story state into the Lab release.

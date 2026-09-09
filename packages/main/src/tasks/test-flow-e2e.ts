@@ -389,7 +389,7 @@ function ensureSandboxReady(
         actor: 'flow-e2e',
       });
       handlers.init_check_set({ storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
     }
   } catch {
     // ignore

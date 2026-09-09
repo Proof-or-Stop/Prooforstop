@@ -18,7 +18,7 @@ const OWNER_SESSION_TOKEN_LOCK_STALE_MS = 30_000;
 const OWNER_SESSION_TOKEN_LOCK_WAIT_MS = 2_000;
 
 interface StoredOwnerSessionToken {
-  schemaVersion: 'lattice.owner_session_token.v2';
+  schemaVersion: 'proof-or-stop.owner_session_token.v2';
   provider: string;
   taskHash: string;
   agentOrRoleHash: string;
@@ -60,7 +60,7 @@ function tokenFilePath(
 ): string {
   const providerSegment = hashSegment(provider.trim().toLowerCase() || 'unknown');
   const scopeHash = hashSegment([
-    'lattice.owner-session-token.v2',
+    'proof-or-stop.owner-session-token.v2',
     projectRoot,
     provider,
     taskIdentity,
@@ -87,7 +87,7 @@ function parseStoredToken(path: string): Partial<StoredOwnerSessionToken> | null
 }
 
 function isStructurallyValid(record: Partial<StoredOwnerSessionToken>): boolean {
-  return record.schemaVersion === 'lattice.owner_session_token.v2'
+  return record.schemaVersion === 'proof-or-stop.owner_session_token.v2'
     && typeof record.provider === 'string'
     && typeof record.taskHash === 'string'
     && typeof record.agentOrRoleHash === 'string'
@@ -359,7 +359,7 @@ export function readOrCreateOwnerSessionToken(
     if (existsSync(path)) rmSync(path, { force: true });
     const token = `sess-${randomBytes(16).toString('hex')}`;
     writeStoredTokenAtomic(path, {
-      schemaVersion: 'lattice.owner_session_token.v2',
+      schemaVersion: 'proof-or-stop.owner_session_token.v2',
       provider: normalizedProvider,
       taskHash: hashSegment(trimmedTaskIdentity),
       agentOrRoleHash: hashSegment(trimmedAgentOrRoleIdentity),

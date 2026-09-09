@@ -32,24 +32,18 @@ import {
 } from './evidence/environment-contract.js';
 import {
   DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
-  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
-  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_V1,
   DONE_REQUIRED_EVIDENCE_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY,
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
   isDoneRequiredCommandSpecV2Schema,
   isDoneRequiredEvidenceSchema,
 } from './artifact-schema.js';
 
 export {
   DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
-  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
-  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_V1,
   DONE_REQUIRED_EVIDENCE_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY,
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
-  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
 };
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
@@ -249,7 +243,7 @@ export function buildLegacyAbsoluteCwdCommandSpecEnvelope(
     timeoutMs: resolveCommandTimeoutMs(command),
   };
   return {
-    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_V1,
     digest: commandSpecDigest(spec),
     ...spec,
   };
@@ -647,11 +641,11 @@ export function validateCommandSpecDigestCoverage(
       command,
       executedShape,
     );
-    // The v2 digest excludes the schema label.  This lets an old v2 receipt
-    // verify without treating its historical lattice label as a new write.
+    // The v2 digest excludes the schema label. Older canonical v2 receipt
+    // provenance remains verifiable after the current schema guard above.
     const expectedLegacyV2: DoneRequiredCommandSpecEnvelope = {
       ...expectedNew,
-      schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+      schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
     };
     // The LEGACY v1 branch keeps absolute-cwd reconstruction — that IS correct for
     // v1 receipts, which digested an absolute cwd and were never cross-root portable.
@@ -792,7 +786,7 @@ function validateDoneRequiredEvidenceEnvironmentProjection(
             ...commandReceipt,
             commandSpec: {
               ...commandReceipt.commandSpec,
-              schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+              schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
             },
           }
         : commandReceipt;
@@ -813,10 +807,7 @@ function validateDoneRequiredEvidenceEnvironmentProjection(
         consumer: 'DONE_REQUIRED',
         claim: 'done-readiness',
         checks: {
-          // The environment classifier is a legacy, out-of-scope consumer;
-          // keep its non-persistent diagnostic input on the exact historical
-          // label while the evidence artifact itself is written canonically.
-          schemaVersion: DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+          schemaVersion: 'proof-or-stop.done_required_evidence.v1',
           strictShapeValid: true,
           temporalAndMaterialBindingValid: true,
           subjectMatches: true,
@@ -1002,8 +993,8 @@ export function evaluateDoneRequiredEvidence(args: {
     claim: 'done-readiness',
     policy: proofPolicy,
     checks: {
-      schemaVersion: isDoneRequiredEvidenceSchema(evidence?.schema) && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
-        ? DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY
+      schemaVersion: evidence?.schema === DONE_REQUIRED_EVIDENCE_SCHEMA && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
+        ? 'proof-or-stop.done_required_evidence.v1'
         : undefined,
       strictShapeValid: Boolean(evidence),
       semanticDigestValid: ok,

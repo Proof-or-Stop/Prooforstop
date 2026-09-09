@@ -98,7 +98,7 @@ export interface PlannerQuestion {
 }
 
 export interface PlannerDraft {
-  schemaVersion: 'lattice.planner_draft.v1';
+  schemaVersion: 'proof-or-stop.planner_draft.v1';
   plannerRunId: string;
   plannerDraftId: string;
   createdAt: string;
@@ -155,7 +155,7 @@ export interface PlannerReviewIssue {
 }
 
 export interface PlannerReviewResult {
-  schemaVersion: 'lattice.planner_review.v1';
+  schemaVersion: 'proof-or-stop.planner_review.v1';
   plannerRunId: string;
   plannerDraftId: string;
   reviewedAt: string;
@@ -394,7 +394,7 @@ const RETRY_ONLY_KEYS = ['maxAttemptsPerStep', 'maxRepairAttempts', 'maxNoProgre
 const STOP_ONLY_KEYS = ['maxSteps', 'maxWallClockMs', 'onValidationFailure', 'onProviderFailure', 'onGateFailure', 'onDirtyWorktree', 'onLeaseUnsafe', 'onMultiHostDisagreement'] as const;
 
 export interface JobPlan {
-  schemaVersion: 'lattice.job_plan.v1';
+  schemaVersion: 'proof-or-stop.job_plan.v1';
   plannerRunId: string;
   storyId: string;
   mode: PlannerRunMode;
@@ -450,7 +450,7 @@ export interface JobPlan {
 }
 
 export interface PlannerRunRecord {
-  schemaVersion: 'lattice.planner_run_record.v1';
+  schemaVersion: 'proof-or-stop.planner_run_record.v1';
   plannerRunId: string;
   draft?: PlannerDraft;
   review?: PlannerReviewResult;
@@ -802,7 +802,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
   const questions = interactionMode === 'interview' ? interviewQuestions() : [];
   const requiredDecisions = interactionMode === 'decision-gated' ? decisionQuestions() : [];
   const draftBase = {
-    schemaVersion: 'lattice.planner_draft.v1' as const,
+    schemaVersion: 'proof-or-stop.planner_draft.v1' as const,
     plannerRunId,
     plannerDraftId: `pdraft-${scopeDigest.slice(0, 16)}`,
     createdAt: now.toISOString(),
@@ -879,7 +879,7 @@ export function reviewPlannerDraft(draft: PlannerDraft, now = new Date()): Plann
   issues.push(...validateSourceSpec(draft.sourceAlignedRedevelopmentSpec));
   const blockers = issues.filter(issue => issue.severity === 'blocker');
   return {
-    schemaVersion: 'lattice.planner_review.v1',
+    schemaVersion: 'proof-or-stop.planner_review.v1',
     plannerRunId: draft.plannerRunId,
     plannerDraftId: draft.plannerDraftId,
     reviewedAt: now.toISOString(),
@@ -1265,7 +1265,7 @@ export function buildJobPlan(
   });
   const policyBlocks = buildJobPolicyBlocks(draft, plannedSteps);
   const common = {
-    schemaVersion: 'lattice.job_plan.v1' as const,
+    schemaVersion: 'proof-or-stop.job_plan.v1' as const,
     plannerRunId: draft.plannerRunId,
     storyId,
     mode: draft.mode,

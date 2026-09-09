@@ -523,9 +523,10 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
     'packages/main/tests/red/red-global-cli-exec-bit.mjs',
     'scripts/verify-process-fact-contract.mjs',
     'scripts/verify-runtime-fact-contract.mjs',
-    'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
-  ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-  assert.equal(real.commandSetDigest, '1f7fb4cf68fd0616f285d75670e111c5d6278bb7ee2a63a4cb1e57519dbc2441', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+     'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
+     'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+   ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
+   assert.equal(real.commandSetDigest, '801c593732271bffd33c283f32e457498e738a7aef72c36d6e61dd69370fcfff', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
@@ -1198,7 +1199,7 @@ testCase('a malformed commandId is rejected at the resolver entry, not silently 
 // ---------------------------------------------------------------------------
 
 const FIXTURE_HEAD_SNAPSHOT: EvidenceHashSnapshot = {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+  schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v1',
   headHash: 'head0000000000000000000000000000000000000',
   materialHash: 'material00000000000000000000000000000000',
   storyFilesHash: 'storyfiles000000000000000000000000000000',

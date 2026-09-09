@@ -9,7 +9,7 @@
  * authority: neither EvidenceScope nor ArtifactKind grants authority by itself.
  */
 
-export const EVIDENCE_SCHEMA_VERSION = 'lattice.evidence.v1' as const;
+export const EVIDENCE_SCHEMA_VERSION = 'proof-or-stop.evidence.v1' as const;
 export type EvidenceSchemaVersion = typeof EVIDENCE_SCHEMA_VERSION;
 
 /**

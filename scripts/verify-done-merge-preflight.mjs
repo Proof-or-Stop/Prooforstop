@@ -92,7 +92,7 @@ try {
   store.writeBugs(storyId, { bugs: [] });
   store.writeTestEvidence(storyId, { command: 'test_story', output: JSON.stringify({ allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0 }), result: 'PASS', timestamp: now });
   const reviewTime = new Date().toISOString();
-  const hash = createHash('sha256').update(`${storyId}:${reviewTime}:0:0:lattice-review-integrity-v1`).digest('hex');
+  const hash = createHash('sha256').update(`${storyId}:${reviewTime}:0:0:proof-or-stop-review-integrity-v1`).digest('hex');
   store.writeReview(storyId, { reviews: [{ timestamp: reviewTime, issueCount: 0, blockerCount: 0, issues: [], _hash: hash }] });
   store.writeImplementationReview(storyId, { storyId, verdict: 'pass', findings: [], summary: 'clean implementation review', createdAt: now, updatedAt: now });
   store.writeSummary(storyId, { storyId, timestamp: now, changes: 'preflight guard', usage: 'run DONE confirm', limitations: 'none', pitfalls: 'dirty main should fail before mutation' });

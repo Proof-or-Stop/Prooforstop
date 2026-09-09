@@ -46,23 +46,6 @@ export type AgentDispatchCanonicalType =
   | 'proof-or-stop-review-delivery'
   | 'proof-or-stop-finding-repair'
   | 'proof-or-stop-cluster-repair'
-  // Accepted only as legacy input/read values. Runtime registry rows always
-  // use the proof-or-stop spellings above.
-  | 'lattice-implementer'
-  | 'verification-intent'
-  | 'proof-or-stop-review-story-init'
-  | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery'
-  | 'lattice-finding-repair'
-  | 'lattice-cluster-repair'
   | 'acceptance-rollout-verifier';
 
 export type AgentDispatchRoleClass =
@@ -125,20 +108,7 @@ export type AgentDispatchReviewerLane =
   | 'proof-or-stop-review-docs'
   | 'proof-or-stop-review-channel'
   | 'proof-or-stop-review-delivery'
-  | 'acceptance-rollout-verifier'
-  // Historical spellings are accepted at the input/compatibility boundary;
-  // canonical proof-or-stop lanes remain the runtime authority.
-  | 'lattice-review-story-init'
-  | 'product-reviewer'
-  | 'proof-or-stop-review-scope-plan'
-  | 'proof-or-stop-review-topology-critic'
-  | 'proof-or-stop-review-concept'
-  | 'proof-or-stop-review-quality'
-  | 'proof-or-stop-review-test-coverage'
-  | 'proof-or-stop-review-behavior'
-  | 'proof-or-stop-review-docs'
-  | 'proof-or-stop-review-channel'
-  | 'proof-or-stop-review-delivery';
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -772,7 +742,7 @@ export interface AcceptanceRolloutObservationReceiptV1 {
   gateArtifacts: AcceptanceRolloutGateArtifactV1[];
   hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
   quorumReceipt: {
-    schemaVersion: 'lattice.quorum_submit.v1';
+    schemaVersion: 'proof-or-stop.quorum_submit.v1';
     storyId: string;
     rounds: number;
     emittedCount: number;
@@ -946,7 +916,7 @@ export interface TopologyExclusionApprovalV1 {
   exclusionRef: string;
   scopeRef: string;
   approverIdentity: string;
-  approverRole: 'proof-or-stop-review-scope-plan' | 'lattice-review-scope-plan';
+  approverRole: 'proof-or-stop-review-scope-plan';
   approverProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -970,7 +940,7 @@ export interface TopologyCriticReceiptV1 {
   schemaVersion: 'proofstory.topology_critic_receipt.v1';
   storyId: string;
   criticIdentity: string;
-  criticRole: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
+  criticRole: 'proof-or-stop-review-topology-critic';
   criticProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -1917,7 +1887,7 @@ export interface Finding {
 }
 
 export interface GapLogProvenanceBinding {
-  schemaVersion: 'lattice.gap-log-provenance.v1';
+  schemaVersion: 'proof-or-stop.gap-log-provenance.v1';
   command: 'gap_log';
   storyId: 'B-META-framework-audit';
   artifactPath: string;
@@ -2184,7 +2154,7 @@ export interface ReviewRun {
   materialHash: string;
   storyFilesHash?: string;
   promptHash: string;
-  /** Content-addressed full Prompt Envelope; absent only for bounded legacy-full-context history/rollback. */
+  /** Content-addressed full Prompt Envelope; absent only on frozen historical records. */
   envelopeId?: string;
   /**
    * Exact bytes delivered by review_run_start in full-envelope mode. The
@@ -2247,7 +2217,7 @@ export interface ReviewInventoryWave {
 
 /** Signed frozen-candidate inventory fact. It never certifies remediated material. */
 export interface ReviewInventoryEpoch {
-  schemaVersion: 'proofbound.review_inventory_epoch.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_epoch.v1';
   epochId: string;
   storyId: string;
   reviewRound: string;
@@ -2298,7 +2268,7 @@ export interface ReviewInventoryEpoch {
 }
 
 export interface ReviewInventoryReceipt {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1';
   receiptId: string;
   epochId: string;
   storyId: string;
@@ -2332,7 +2302,7 @@ export interface ReviewInventoryPurposeBinding {
 }
 
 export interface ReviewInventoryCriticReceipt {
-  schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1';
   criticReceiptId: string;
   epochId: string;
   storyId: string;
@@ -2341,7 +2311,7 @@ export interface ReviewInventoryCriticReceipt {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   aggregateFindingSetDigest: string;
   requiredLaneCoverageDigest: string;
-  criticLane: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
+  criticLane: 'proof-or-stop-review-topology-critic';
   reviewRunId: string;
   reviewPurpose?: 'inventory-completeness';
   inventoryBinding?: ReviewInventoryPurposeBinding;
@@ -2361,7 +2331,7 @@ export interface ReviewInventoryFindingDisposition {
 }
 
 export interface ReviewInventoryEpochData {
-  schemaVersion: 'proofbound.review_inventory_epochs.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_epochs.v1';
   epochs: ReviewInventoryEpoch[];
   receipts: ReviewInventoryReceipt[];
   criticReceipts: ReviewInventoryCriticReceipt[];
@@ -2542,7 +2512,7 @@ export interface DecisionDocProposal {
 }
 
 export interface DecisionDocProposalFile {
-  schemaVersion: 'lattice.decision_doc_proposals.v1';
+  schemaVersion: 'proof-or-stop.decision_doc_proposals.v1';
   storyId: string;
   updatedAt: string;
   proposals: DecisionDocProposal[];
@@ -2965,8 +2935,13 @@ export interface StallAdjudicationData {
 
 export type ScopeBoundaryMode = 'correctness_fix' | 'feature' | 'maintenance' | 'custom';
 
+export type ScopeBoundarySchemaVersion =
+  | 'proof-or-stop.scope_boundary.v1.1'
+  | 'lattice.scope_boundary.v1';
+
 export interface ScopeBoundaryData {
-  schemaVersion: 'lattice.scope_boundary.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ScopeBoundarySchemaVersion;
   storyId: string;
   mode: ScopeBoundaryMode;
   /** User-confirmed in-scope semantic directions, normalized and deduplicated by the core evaluator. */
@@ -2981,8 +2956,13 @@ export interface ScopeBoundaryData {
   _hash: string;
 }
 
+export type ExecutionBoundarySchemaVersion =
+  | 'proof-or-stop.execution_boundary.v1.1'
+  | 'lattice.execution_boundary.v1';
+
 export interface ExecutionBoundaryData {
-  schemaVersion: 'lattice.execution_boundary.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ExecutionBoundarySchemaVersion;
   storyId: string;
   /** Commands/tool invocations explicitly allowed for this story's INIT_CHECK/DEV execution envelope. */
   allowedCommands: string[];
@@ -3045,8 +3025,13 @@ export interface ScopeFreezeIssue {
   overlapTerms?: string[];
 }
 
+export type ScopeFreezeCheckSchemaVersion =
+  | 'proof-or-stop.scope_freeze_check.v1.1'
+  | 'lattice.scope_freeze_check.v1';
+
 export interface ScopeFreezeCheckData {
-  schemaVersion: 'lattice.scope_freeze_check.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ScopeFreezeCheckSchemaVersion;
   storyId: string;
   checkedAt: string;
   mode: ScopeBoundaryMode;
@@ -3580,7 +3565,7 @@ export interface ReviewScopeBinding {
  * metadataRoot.
  */
 export interface ReviewRunWorkspaceBinding {
-  schemaVersion: 'lattice.review_run_workspace_binding.v1';
+  schemaVersion: 'proof-or-stop.review_run_workspace_binding.v1';
   metadataRoot: string;
   invocationCwd: string;
   repoRoot: string | null;
@@ -4053,7 +4038,7 @@ export interface ReviewLoopRollbackRef {
 }
 
 export interface ReviewLoopStart {
-  schemaVersion: 'lattice.review_loop_start.v1';
+  schemaVersion: 'proof-or-stop.review_loop_start.v1';
   event: 'start';
   loopId: string;
   storyId: string;
@@ -4066,7 +4051,7 @@ export interface ReviewLoopStart {
 }
 
 export interface ReviewLoopIteration {
-  schemaVersion: 'lattice.review_loop_iteration.v1';
+  schemaVersion: 'proof-or-stop.review_loop_iteration.v1';
   event: 'iteration';
   loopId: string;
   storyId: string;
@@ -4116,7 +4101,7 @@ export interface ReviewLoopIteration {
 }
 
 export interface ReviewLoopClose {
-  schemaVersion: 'lattice.review_loop_close.v1';
+  schemaVersion: 'proof-or-stop.review_loop_close.v1';
   event: 'close';
   loopId: string;
   storyId: string;
@@ -4134,7 +4119,7 @@ export interface ReviewLoopClose {
 export type ReviewLoopRecord = ReviewLoopStart | ReviewLoopIteration | ReviewLoopClose;
 
 export interface ReviewLoopPolicy {
-  schemaVersion: 'lattice.review_loop_policy.v1';
+  schemaVersion: 'proof-or-stop.review_loop_policy.v1';
   maxIterations: number;
   maxNoProgressIterations: number;
   maxRuntimeMinutes: number;
@@ -4160,7 +4145,7 @@ export interface ReviewLoopPolicy {
  * docs/requirements/decisions/dev-memory.md's Non-Goals annotation.
  */
 export interface DevMemoryPreflightAckData {
-  schemaVersion: 'lattice.dev_memory_preflight_ack.v1';
+  schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1';
   storyId: string;
   /** Digest of the preflight pack actually seen, or null on a reasoned downgrade. */
   packDigest: string | null;

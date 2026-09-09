@@ -1,7 +1,7 @@
 import type { VerdictSummary } from './verdicts.js';
 
-export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'lattice.baseline.final-report.v1' as const;
-export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'lattice.baseline.suite-report.v1' as const;
+export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'proof-or-stop.baseline.final-report.v1' as const;
+export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'proof-or-stop.baseline.suite-report.v1' as const;
 export const BASELINE_MIN_AUTHORITY_REVIEW_WAVES = 3;
 export const BASELINE_WILSON_95_Z = 1.96;
 export const NON_AUTHORITY_FORBIDDEN_DONE_FIELDS = [
@@ -68,7 +68,7 @@ export interface BaselineLocalTerminal {
 }
 
 export interface NonAuthorityBaselineLocalReviewStatus extends BaselineLocalTerminal {
-  schemaVersion: 'lattice.baseline.local-review-status.v1';
+  schemaVersion: 'proof-or-stop.baseline.local-review-status.v1';
   mode: 'non-authority';
   storyId: string | null;
   runId: string;
@@ -316,7 +316,7 @@ export function buildNonAuthorityBaselineLocalReviewStatus(
   const blockedReason = blockedReasonForLocalReview(summary, requiredIndependentHosts, evidenceRefs, falseDoneFields);
   const localReviewCertified = blockedReason === undefined;
   return {
-    schemaVersion: 'lattice.baseline.local-review-status.v1',
+    schemaVersion: 'proof-or-stop.baseline.local-review-status.v1',
     mode: 'non-authority',
     storyId: summary.storyId ?? null,
     runId: summary.runId,

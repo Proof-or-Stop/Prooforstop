@@ -64,7 +64,7 @@ function createMainProject(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=26995688+Harmonynet@users.noreply.github.com', '-c', 'user.name=Harmonynet', 'commit', '-m', 'base']);
   resetConfigCache();
   return root;
 }
@@ -100,8 +100,8 @@ function seedLargeCommittedLegacyMetaHistory(root: string): string {
   data.historyPadding = 'x'.repeat(1_400_000);
   store.writeFindings(META_STORY_ID, data);
   rmSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH), { force: true });
-  git(root, ['add', '.lattice/story/actives']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'seed large legacy B-META history']);
+  git(root, ['add', '.proof-or-stop/story/actives']);
+  git(root, ['-c', 'user.email=26995688+Harmonynet@users.noreply.github.com', '-c', 'user.name=Harmonynet', 'commit', '-m', 'seed large legacy B-META history']);
   const artifact = join(root, GAP_LOG_ARTIFACT_PATH);
   assert.ok(readFileSync(artifact).length > 1024 * 1024, 'large legacy B-META artifact exceeds the default child-process buffer');
   return artifact;
@@ -430,7 +430,7 @@ function assertNoWorktreeRequired(): void {
 
 function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
   {
-    const root = createMainProject('lattice-gaplog-large-extension-');
+    const root = createMainProject('proof-or-stop-gaplog-large-extension-');
     try {
       seedLargeCommittedLegacyMetaHistory(root);
       const store = new StoryStore(root);
@@ -459,7 +459,7 @@ function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
       const receipt = JSON.parse(readFileSync(ledgerPath, 'utf8').trim());
       const { integrityHash: _oldHash, ...unsigned } = receipt;
       unsigned.parentHead = '0'.repeat(40);
-      const key = readFileSync(join(root, '.git', 'lattice-gap-log-provenance.key'));
+      const key = readFileSync(join(root, '.git', 'proof-or-stop-gap-log-provenance.key'));
       const authenticReadErrorReceipt = {
         ...unsigned,
         integrityHash: createHmac('sha256', key).update(JSON.stringify(unsigned)).digest('hex'),
@@ -473,7 +473,7 @@ function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
-    const root = createMainProject('lattice-gaplog-large-missing-worktree-');
+    const root = createMainProject('proof-or-stop-gaplog-large-missing-worktree-');
     try {
       const artifact = seedLargeCommittedLegacyMetaHistory(root);
       const beforeHead = git(root, ['rev-parse', 'HEAD']);
@@ -881,7 +881,7 @@ function assertProvenanceAndConsumerMatrix(): void {
     const legacyData = readMetaFindings(legacyRoot);
     rmSync(join(legacyRoot, GAP_LOG_PROVENANCE_LEDGER_PATH));
     git(legacyRoot, ['add', '-A']);
-    git(legacyRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'convert to committed non-empty legacy history']);
+    git(legacyRoot, ['-c', 'user.email=26995688+Harmonynet@users.noreply.github.com', '-c', 'user.name=Harmonynet', 'commit', '-m', 'convert to committed non-empty legacy history']);
     return { root: legacyRoot, data: legacyData };
   };
 
@@ -948,8 +948,8 @@ function assertWrapperRootAuthorityParity(): void {
     }));
     write(gitCwd, 'README.md', 'wrapper git authority\n');
     git(gitCwd, ['init', '-b', 'main']);
-    git(gitCwd, ['config', 'user.email', 'wrapper-gap@example.test']);
-    git(gitCwd, ['config', 'user.name', 'Wrapper Gap Smoke']);
+    git(gitCwd, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
+    git(gitCwd, ['config', 'user.name', 'Harmonynet']);
     git(gitCwd, ['add', '.']);
     git(gitCwd, ['commit', '-m', 'base']);
     resetConfigCache();

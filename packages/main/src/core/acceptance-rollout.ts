@@ -306,7 +306,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     throw new Error('acceptance rollout observation: production evidence story/arm/scenario mismatch');
   }
   const quorum = evidence.quorumResult;
-  if (quorum.schemaVersion !== 'lattice.quorum_submit.v1'
+  if (quorum.schemaVersion !== 'proof-or-stop.quorum_submit.v1'
     || quorum.storyId !== args.storyId
     || quorum.rounds !== 3
     || quorum.emittedCount !== 6
@@ -445,7 +445,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     gateArtifacts,
     hostVerdicts: canonicalHostVerdicts,
     quorumReceipt: {
-      schemaVersion: 'lattice.quorum_submit.v1',
+      schemaVersion: 'proof-or-stop.quorum_submit.v1',
       storyId: quorum.storyId,
       rounds: quorum.rounds,
       emittedCount: quorum.emittedCount,
@@ -594,7 +594,7 @@ function verifyObservation(
     || !receipt.gateArtifacts.every(item => verifyGateArtifact(record, item))
     || !receipt.hostVerdicts.every(item => verifyHostVerdict(record, item))) return empty;
   const quorum = receipt.quorumReceipt;
-  if (quorum.schemaVersion !== 'lattice.quorum_submit.v1'
+  if (quorum.schemaVersion !== 'proof-or-stop.quorum_submit.v1'
     || quorum.storyId !== record.storyId
     || quorum.rounds !== 3
     || quorum.emittedCount !== 6

@@ -67,7 +67,7 @@ export type EvidenceFreshness = {
   materialFiles: string[];
 };
 
-export const EVIDENCE_FRESHNESS_CLASSIFIER_VERSION = 'proofbound.evidence-freshness-classifier.v1';
+export const EVIDENCE_FRESHNESS_CLASSIFIER_VERSION = 'proof-or-stop.evidence-freshness-classifier.v1';
 
 export type EvidenceFreshnessClassification =
   | 'CURRENT_MATERIAL'

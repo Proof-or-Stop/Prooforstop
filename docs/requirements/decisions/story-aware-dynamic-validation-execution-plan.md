@@ -847,7 +847,7 @@ selection engine
 command-receipt verifier
 dependency graph generator
 package.json or lockfile
-lattice.config.json validation configuration
+proof-or-stop.config.json validation configuration
 build binding or dist promotion
 lifecycle state machine
 command policy

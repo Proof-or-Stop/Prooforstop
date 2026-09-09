@@ -2,7 +2,7 @@
 
 Research boundary: B-6529 readiness evidence remains `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`. B-991d separately opened a Cell 03-only execution window and completed the ③ A4 E2 same-family Cell 03 run. This is still not a full Phase 1/Phase 2 dataset: Cell 06, Cell 02, optional Cell 04, Phase 2, product gate impact, playbook activation, and paper claim upgrades remain out of scope.
 
-M2 in this directory began as a provider-free launch-readiness layer. B-991d separately opened, used, and completed a Cell 03-only execution window while preserving B-6529 as historical readiness/no-provider-call evidence. Provider calls were authorized only for Cell 03 / protocol cell ③ under the frozen envelope, with `providerCallEnabled=true` only inside that B-991d Cell 03 window; the completed Cell 03 artifacts do not authorize Cell 02, Cell 04, Cell 06, Phase 2 execution, paper claim upgrades, playbook activation, or any Proofbound product gate change.
+M2 in this directory began as a provider-free launch-readiness layer. B-991d separately opened, used, and completed a Cell 03-only execution window while preserving B-6529 as historical readiness/no-provider-call evidence. Provider calls were authorized only for Cell 03 / protocol cell ③ under the frozen envelope, with `providerCallEnabled=true` only inside that B-991d Cell 03 window; the completed Cell 03 artifacts do not authorize Cell 02, Cell 04, Cell 06, Phase 2 execution, paper claim upgrades, playbook activation, or any Proof-or-Stop product gate change.
 
 | Milestone | Status | Checked artifact |
 |---|---|---|

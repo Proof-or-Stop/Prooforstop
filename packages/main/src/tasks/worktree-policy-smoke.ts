@@ -106,7 +106,7 @@ function codexStep(args: Json, requiresCleanWorktree = true): Json {
 
 function plan(opts: { mode?: 'local' | 'authority'; worktreePolicy?: Json | null; providerPolicy?: Json; steps: Json[] }): any {
   return {
-    schemaVersion: 'lattice.job_plan.v1',
+    schemaVersion: 'proof-or-stop.job_plan.v1',
     plannerRunId: 'run-wt',
     storyId: 'B-wt',
     mode: opts.mode ?? 'authority',
@@ -184,7 +184,7 @@ assert.equal(unresolved.steps[0].reason, 'authoritative_worktree_unresolved');
 assert.equal(unresolved.steps[0].summary.worktreeConfigured, false, 'authoritative worktree absence is the specific failing condition');
 assert.equal(unresolved.steps[0].summary.requiresCleanWorktree, true, 'the clean-worktree requirement stays visible but does not mask worktree resolution');
 assert.ok(unresolved.worktreeStopSummary, 'a worktree stop summary is surfaced');
-assert.equal(unresolved.worktreeStopSummary.schemaVersion, 'lattice.worktree_stop_summary.v1');
+assert.equal(unresolved.worktreeStopSummary.schemaVersion, 'proof-or-stop.worktree_stop_summary.v1');
 assert.ok(unresolved.nextActions.some((a: string) => a.includes('story_advance --phase=INIT_CHECK') || a.includes('authoritative')));
 assert.equal(unresolved.authorityDone, false);
 

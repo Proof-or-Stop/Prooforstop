@@ -252,7 +252,7 @@ export interface Playbook {
 // activate, reject, promote, demote, or surface playbooks at runtime; they only
 // record what a caller observed after a concrete exposure (or non-exposure).
 
-export type PlaybookOutcomeSchemaVersion = 'proofbound.playbook-outcome.v1';
+export type PlaybookOutcomeSchemaVersion = 'proof-or-stop.playbook-outcome.v1';
 export type PlaybookExposureMode = 'candidate-inspection' | 'active-advisory' | 'none';
 export type PlaybookOutcomeVerdict = 'helped' | 'neutral' | 'dismissed' | 'harmful' | 'unknown';
 
@@ -300,7 +300,7 @@ export interface PlaybookOutcomeEvent {
   gateEvidence: false;
 }
 
-export type PlaybookTrialControlSchemaVersion = 'proofbound.playbook-trial-control.v1';
+export type PlaybookTrialControlSchemaVersion = 'proof-or-stop.playbook-trial-control.v1';
 
 export interface PlaybookTrialControlEvent {
   schemaVersion: PlaybookTrialControlSchemaVersion;
@@ -330,10 +330,10 @@ export interface PlaybookTrialControlEvent {
 // These rows are local learning metadata under `.proof-or-stop/learning/`. They are
 // explicitly non-authoritative and must never be consumed as lifecycle evidence.
 
-export type PlaybookPromotionDecisionSchemaVersion = 'proofbound.playbook-promotion-decision.v1';
-export type PlaybookAutoActivationSchemaVersion = 'proofbound.playbook-auto-activation.v1';
-export type NonDeducibleSourceSchemaVersion = 'proofbound.non-deducible-sources.v1';
-export type PlaybookPromotionHealthSchemaVersion = 'proofbound.playbook-promotion-health.v1';
+export type PlaybookPromotionDecisionSchemaVersion = 'proof-or-stop.playbook-promotion-decision.v1';
+export type PlaybookAutoActivationSchemaVersion = 'proof-or-stop.playbook-auto-activation.v1';
+export type NonDeducibleSourceSchemaVersion = 'proof-or-stop.non-deducible-sources.v1';
+export type PlaybookPromotionHealthSchemaVersion = 'proof-or-stop.playbook-promotion-health.v1';
 
 export type PlaybookPromotionDecisionAction =
   | 'recommend_activate'
@@ -453,7 +453,7 @@ export interface PlaybookAutoActivationEvent {
 
 // ── B-521d: read-only playbook promotion observation ─────────────────────────
 
-export type PlaybookPromotionObserveSchemaVersion = 'proofbound.playbook-promotion-observe.v1';
+export type PlaybookPromotionObserveSchemaVersion = 'proof-or-stop.playbook-promotion-observe.v1';
 export type PlaybookPromotionObserveSinceMode = 'all' | 'iso' | 'relative';
 export type PlaybookPromotionActionableRecommendation = Extract<
   PlaybookPromotionDecisionAction,
@@ -550,7 +550,7 @@ export interface NonDeducibleOverrideEvent {
 }
 
 export interface NonDeducibleSourceRecord {
-  schemaVersion: 'proofbound.non-deducible-source.v1';
+  schemaVersion: 'proof-or-stop.non-deducible-source.v1';
   source: PlaybookSourceReference;
   markedAt: string;
   reasonCodes: string[];
@@ -667,10 +667,10 @@ export interface SignalSourceFinding {
 
 // -- B-01df M1: read-only learning source lineage audit ----------------------
 
-export type SourceLineageAuditSchemaVersion = 'proofbound.source-lineage-audit.v1';
+export type SourceLineageAuditSchemaVersion = 'proof-or-stop.source-lineage-audit.v1';
 export type SourceLineageDomain = 'learning';
 export type SourceLineageAuthority = 'non_authoritative';
-export type SourceLineageCanonicalKeyVersion = 'proofbound.learning-source-key.v1';
+export type SourceLineageCanonicalKeyVersion = 'proof-or-stop.learning-source-key.v1';
 
 export type SourceLineageArtifactKind =
   | 'dev_memory'

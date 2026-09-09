@@ -1,15 +1,16 @@
-import { LEGACY_AGENT_ROLE_ALIASES } from './agent-role-identity.js';
+import { CANONICAL_AGENT_ROLE_IDS, LEGACY_AGENT_ROLE_ALIASES } from './agent-role-identity.js';
 import { nextPatch } from './version-bump.js';
 
 const LEGACY_ROLE_ALIAS_BASES = Object.freeze(
   [...new Set(Object.values(LEGACY_AGENT_ROLE_ALIASES).flat())],
 );
+const CANONICAL_ROLE_BASES = new Set<string>(CANONICAL_AGENT_ROLE_IDS);
 
 /** Machine-defined compatibility window for the role-identity migration. */
 export const LEGACY_ROLE_ALIAS_SUNSET_CONTRACT = Object.freeze({
   schemaVersion: 'proof-or-stop.legacy-role-alias-sunset.v1',
   minimumReleasedCliPatchObservations: 2,
-  legacyAliasesRemainReadable: true,
+  legacyAliasesRemainReadable: false,
   legacyAliases: LEGACY_ROLE_ALIAS_BASES,
 } as const);
 
@@ -35,7 +36,8 @@ export type LegacyRoleAliasSunsetBlocker =
 
 export interface LegacyRoleAliasSunsetResult {
   schemaVersion: typeof LEGACY_ROLE_ALIAS_SUNSET_CONTRACT.schemaVersion;
-  legacyAliasesReadable: true;
+  legacyAliasesReadable: false;
+  /** Audit-only rollout observation; never authorizes a read alias or a lifecycle transition. */
   removalEligible: boolean;
   nonTerminalLegacyReferenceCount: number;
   releasedCliPatchObservationCount: number;
@@ -47,8 +49,8 @@ function roleBase(roleId: string): string {
   return separator === -1 ? roleId : roleId.slice(0, separator);
 }
 
-function isLegacyRoleAlias(roleId: string): boolean {
-  return LEGACY_ROLE_ALIAS_BASES.includes(roleBase(roleId.trim()));
+function isCanonicalRoleReference(roleId: string): boolean {
+  return CANONICAL_ROLE_BASES.has(roleBase(roleId.trim()));
 }
 
 function countNonTerminalLegacyReferences(references: readonly LegacyRoleReference[]): number {
@@ -62,7 +64,10 @@ function countNonTerminalLegacyReferences(references: readonly LegacyRoleReferen
       count += 1;
       continue;
     }
-    if (!reference.terminal && isLegacyRoleAlias(reference.roleId)) count += 1;
+    // Terminal rows remain immutable history. Every live role that is not a
+    // known canonical role is conservatively counted, even though the runtime
+    // alias registry is intentionally empty after cutover.
+    if (!reference.terminal && !isCanonicalRoleReference(reference.roleId)) count += 1;
   }
   return count;
 }
@@ -89,9 +94,10 @@ function countReleasedCliPatchObservations(
 }
 
 /**
- * Evaluate alias removal eligibility without changing the read path or any
- * persisted state. Malformed facts are conservative: they cannot establish
- * eligibility.
+ * Observe whether the historical alias-removal rollout has enough release and
+ * reference evidence. This audit result is never consumed as role-read or gate
+ * authority and cannot re-enable an alias. Malformed facts are conservative:
+ * they cannot establish eligibility.
  */
 export function evaluateLegacyRoleAliasSunset(
   input: LegacyRoleAliasSunsetInput,
@@ -107,7 +113,7 @@ export function evaluateLegacyRoleAliasSunset(
 
   return {
     schemaVersion: LEGACY_ROLE_ALIAS_SUNSET_CONTRACT.schemaVersion,
-    legacyAliasesReadable: true,
+    legacyAliasesReadable: false,
     removalEligible: blockers.length === 0,
     nonTerminalLegacyReferenceCount,
     releasedCliPatchObservationCount,

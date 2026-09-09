@@ -130,7 +130,7 @@ interface SkippedVerdictFile {
 }
 
 export interface QuorumPruneResult {
-  schemaVersion: 'lattice.quorum_prune.v1';
+  schemaVersion: 'proof-or-stop.quorum_prune.v1';
   storyId: string;
   keep: KeepSelector;
   dryRun: boolean;
@@ -576,7 +576,7 @@ export function createQuorumPruneHandlers(ctx: HandlerContext, testHooks: Quorum
 
       const runIdsFilter = runIdFilter ? [...runIdFilter].sort() : null;
       const baseResultOf = (projection: PruneProjection) => ({
-        schemaVersion: 'lattice.quorum_prune.v1' as const,
+        schemaVersion: 'proof-or-stop.quorum_prune.v1' as const,
         storyId,
         keep,
         runIdsFilter,

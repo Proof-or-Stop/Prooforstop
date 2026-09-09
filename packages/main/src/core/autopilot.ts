@@ -73,7 +73,7 @@ export interface AutopilotStep {
 }
 
 export interface AutopilotRunResult {
-  schemaVersion: 'lattice.autopilot_run.v1';
+  schemaVersion: 'proof-or-stop.autopilot_run.v1';
   mode: AutopilotMode;
   status: AutopilotStatus;
   dryRun: boolean;
@@ -110,7 +110,7 @@ export interface AutopilotRunResult {
 }
 
 export interface AutopilotStatusResult {
-  schemaVersion: 'lattice.autopilot_status.v1';
+  schemaVersion: 'proof-or-stop.autopilot_status.v1';
   localAvailable: true;
   modes: readonly AutopilotMode[];
   defaultMode: 'local';
@@ -270,7 +270,7 @@ export function buildAutopilotRun(
   const plannedSteps = localSteps(args.storyId, targetPhase);
   let status: AutopilotStatus = 'pass';
   return {
-    schemaVersion: 'lattice.autopilot_run.v1',
+    schemaVersion: 'proof-or-stop.autopilot_run.v1',
     mode,
     status,
     dryRun,
@@ -312,7 +312,7 @@ export function buildAutopilotStatus(
   _options: { cwd?: string } = {},
 ): AutopilotStatusResult {
   return {
-    schemaVersion: 'lattice.autopilot_status.v1',
+    schemaVersion: 'proof-or-stop.autopilot_status.v1',
     localAvailable: true,
     modes: AUTOPILOT_MODES,
     defaultMode: 'local',

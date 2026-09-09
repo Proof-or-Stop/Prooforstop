@@ -1,27 +1,33 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { capabilityReleaseRecordValidationErrors, computeCapabilityDigest } from '../packages/main/dist/core/capability-release.js';
+import { artifactReleaseRecordValidationErrors } from '../packages/main/dist/core/artifact-release.js';
 
 const SCRIPT_PATH = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
 const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept-provenance.json';
-const CONCEPT_PROVENANCE_MANIFEST_SHA256 = '2e7b3d5e5c2925748c1651aec42715997930cca764120c5679ff34ebe9717412';
-const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 45;
+const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'e1426303447f285987f6deb22eac21d7a151e8e1fe4d48c43923c73e957329df';
+const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 50;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '43e760b3e76d710d48b8962ea6b0b6056781e4d94bc4dd08b148f223ea002b38';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 170;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'a200c649d3fae82147924de30112088c25cfb579fd2e3df7f383b7195085617e';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 184;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
 // rewrite. The tree and one-path policy-commit boundary are verified below.
 const POLICY_COMMIT = 'f245fd614c728ce6027bd3a08f25eda4de32429c';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
-const SELF_TEST_PASS_SUMMARY = 'PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted';
+const SELF_TEST_PASS_SUMMARY = 'PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, canonical-only release-schema appends, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted';
 const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/requirements/NAV.md'];
+// These live contracts remain current even when navigation omits their links.
+const CURRENT_CONTRACT_PATHS = new Set([
+  'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md',
+]);
 const CURRENT_GUIDANCE_PATHS = ['AGENTS.md', 'CLAUDE.md'];
 const CANONICAL_STORY_DIR = '.proof-or-stop/story/actives';
 const LEGACY_STORY_DIR = 'docs/story/actives';
@@ -29,10 +35,6 @@ const ALLOWED_LEGACY_STORY_PATH_CONTEXTS = new Set([
   [
     'CLAUDE.md',
     '`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.proof-or-stop/activity.jsonl`，并兼容读取旧版 `docs/story/activity.jsonl` 及 story-scoped `docs/story/actives/*/activity.jsonl` heartbeat。默认 60 分钟内跑过 `proof-or-stop session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：',
-  ],
-  [
-    'CLAUDE.md',
-    '**反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。',
   ],
 ].map(([path, line]) => `${path}\0${line}`));
 const EXPLICIT_HISTORICAL_DECISION_DOCS = new Set([
@@ -75,6 +77,12 @@ const HISTORICAL_DECISION_FILENAME_PATHS = new Set([
 const LEGACY_WORD = 'lattice';
 const LEGACY_TITLE = 'Lattice';
 const LEGACY_UPPER = 'LATTICE';
+const RETIRED_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
+const RETIRED_PRODUCT_NAME = ['proof', 'bound'].join('');
+const RETIRED_ARTIFACT_RELEASE_SCHEMA = `${RETIRED_PROTOCOL_PREFIX}artifact-release.v1`;
+const RETIRED_CAPABILITY_RELEASE_SCHEMA = `${RETIRED_PROTOCOL_PREFIX}product-capability-release.v1`;
+const CANONICAL_ARTIFACT_RELEASE_SCHEMA = 'proof-or-stop.artifact-release.v1';
+const CANONICAL_CAPABILITY_RELEASE_SCHEMA = 'proof-or-stop.product-capability-release.v1';
 const RETIRED_ROLE_SUFFIXES = [
   'evaluator',
   'evaluator-cli',
@@ -102,47 +110,32 @@ const ALLOWED_CLASSES = new Set([
   'provenance_bytes',
 ]);
 
-// Each signature row names one tracked source file and one exact literal. Repeated
-// literals in different files intentionally have separate rows. The context digest
-// is sha256(lines-containing-token joined by LF), so surrounding source drift at the
-// exact occurrence is detected without pinning unrelated file bytes.
+// Current signing and verification code uses only canonical salts. The only
+// retired protocol rows allowed in active source are the exact, bounded readers
+// for three signed historical scope artifacts; writers remain canonical.
 const EXACT_ALLOWLIST = [
-  ['sig-review-guard-utils', 'packages/main/src/core/guard-utils.ts', 'lattice-review-integrity-v1', 1, '6d6337e99fcea8f0c8e4f74421ba083f83015e93df1a9cb1da4d3c7e0df0c9c6'],
-  ['sig-review-machine', 'packages/main/src/core/machine.ts', 'lattice-review-integrity-v1', 2, 'afcb140cc0ecfeb73d3eec3e7d34e60a025aec501746c39690f48632a28077b8'],
-  ['sig-review-process-fact', 'packages/main/src/core/process-fact-registry.ts', 'lattice-review-integrity-v1', 1, '7755f80706d60e5ec1f14dabc1e74f8979aca3708367ae06d818438c9fa465dc'],
-  ['sig-review-reviewer-status', 'packages/main/src/core/reviewer-status.ts', 'lattice-review-integrity-v1', 1, 'd872012d4220cb0eeb491e80066d7936d4856a59cd2af9281af2ee73398715fc'],
-  ['sig-review-story-review', 'packages/main/src/handlers/story-review.ts', 'lattice-review-integrity-v1', 1, '42926a79ada73d2844602cabcb344a1a9526ef1d5df07e91667d7429cbb7dfc6'],
-  ['sig-review-parallel-smoke', 'packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts', 'lattice-review-integrity-v1', 1, 'd872012d4220cb0eeb491e80066d7936d4856a59cd2af9281af2ee73398715fc'],
-  ['sig-review-acceptance-smoke', 'packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts', 'lattice-review-integrity-v1', 2, 'cddbb362bcd31a1a90e90afd959e7475abfabb6ec224261807da14c8c2a7bd02'],
-  ['sig-review-topology-smoke', 'packages/main/src/tasks/proofstory-topology-critic-smoke.ts', 'lattice-review-integrity-v1', 1, '8b3fba5ebdda35d87eb60af4adf5e36ad0dd7321e27a685bf997a5c63733a161'],
-  ['sig-init-check', 'packages/main/src/core/init-check-gate.ts', 'lattice-init-check-integrity-v1', 1, '8af04d76437705a76ad3c88086e84622af24d6b587d976fe168a559b82f9de4e'],
-  ['sig-delivery-check', 'packages/main/src/core/delivery-check-hash.ts', 'lattice-delivery-check-integrity-v1', 1, 'de68abe42b7ad17719a4b3e71b4c7892bcf47e4610b363105db908b80424d164'],
-  ['sig-draft-check', 'packages/main/src/core/draft-check-hash.ts', 'lattice-draft-check-integrity-v1', 1, '828f4778734e9fedb5222680578dec3a289e20ea7e46c155bd22340de127ee79'],
-  ['sig-finding', 'packages/main/src/core/finding-verify.ts', 'lattice-finding-integrity-v1', 1, 'cdea427baa39cd588ed0954af72a0a17b5e484b7bba2941e34c762740ec93283'],
-  ['sig-review-pass', 'packages/main/src/core/finding-verify.ts', 'lattice-review-pass-integrity-v1', 1, '41857eb5a41e63e21a672323e9b654da685600462af93c7f1781a794a8f85794'],
-  ['sig-review-run', 'packages/main/src/core/review-run.ts', 'lattice-review-run-integrity-v1', 1, '37ee1e168cc2664ccad091697d2f0372b0ea1a161833a5cf33364372ea507569'],
-  ['sig-review-scope', 'packages/main/src/core/review-scope-binding.ts', 'lattice-review-scope-binding-v1', 1, '9d79b2dc570f61088269e62b1f4fe0e18b29fea9e0ac3862fe2e131c9f232388'],
-  ['sig-review-workspace', 'packages/main/src/core/review-run.ts', 'lattice-review-run-workspace-binding-v1', 1, '175c931f50db2eca9dcb6db5a1500cd55bc2d2e81d1668f65121f3716576ad4e'],
-  ['sig-scope-check', 'packages/main/src/handlers/scope-check.ts', 'lattice-scope-check-integrity-v1', 1, '023680419c231e5f9dc7afc214f132887ca20aa764da170204a54ee53db46425'],
-  ['sig-closeout-write', 'packages/main/src/core/closeout-trust.ts', 'lattice-closeout-write-receipt-integrity-v3', 1, '2c77702b283338350c227087f17abf72d460d5d36038506d932151965d710670'],
-  ['sig-final-host', 'packages/main/src/core/authority-contracts.ts', 'lattice-final-host-check-v1', 1, 'dfa2ab03a159b589bd136e66ed0adbbc170aea40c601dc10e49ed16231087976'],
-  ['sig-stall-adjudication', 'packages/main/src/core/stall-adjudication.ts', 'lattice-stall-adjudication-integrity-v1', 1, '36de9e17ea22105b60ad69150e1e3e3959cbd727cd059500e47a094fa6c5bf2e'],
-].map(([id, path, token, expectedOccurrences, contextSha256]) => ({
+  ['historical-reader-process-execution', 'packages/main/src/core/process-fact-registry.ts', 'lattice.execution_boundary.v1', 'f77165cdd6f2608bc3cfec9c450795a758fb6de0be41245aee58bd77658a4f03'],
+  ['historical-reader-process-freeze', 'packages/main/src/core/process-fact-registry.ts', 'lattice.scope_freeze_check.v1', '236c06ef571dd5d117f0e0c6f582a89f8436347334047ef57886cb5ab4f22f2e'],
+  ['historical-reader-core-scope', 'packages/main/src/core/scope-anti-expansion.ts', 'lattice.scope_boundary.v1', '59a314a125e3e9f539848041d2cd43377f2c03f7b499e4f25355f661a0718503'],
+  ['historical-reader-core-execution', 'packages/main/src/core/scope-anti-expansion.ts', 'lattice.execution_boundary.v1', '9ca17eb94a8193bce2e6d06bc5cced918e7f9e785c2b7ce2f81d6c3b49d61083'],
+  ['historical-reader-core-freeze', 'packages/main/src/core/scope-anti-expansion.ts', 'lattice.scope_freeze_check.v1', '4b2a6d017fb4f862d51d0114af037f843c1bfeb144b94d62428f20c0a7524a5d'],
+  ['historical-reader-type-scope', 'packages/main/src/core/types.ts', 'lattice.scope_boundary.v1', '118091a9a25e90cd0e7edec022b23c0f51a2a88c9e7003ea0ad331b39b3c90fd'],
+  ['historical-reader-type-execution', 'packages/main/src/core/types.ts', 'lattice.execution_boundary.v1', 'f2f3d4af743b17d5d6909164eaf499796d75b4df087cca126d7f565942d174be'],
+  ['historical-reader-type-freeze', 'packages/main/src/core/types.ts', 'lattice.scope_freeze_check.v1', '8a691420508dafd91e443aad3d2533b5a8f43ac03ee14fd6502d56baff07a9bb'],
+].map(([id, path, token, contextSha256]) => ({
   id,
-  class: 'signature_salt',
+  class: 'persisted_schema',
   path,
   token,
-  expectedOccurrences,
-  reason: 'Historical signatures bind this exact salt at this exact source occurrence.',
+  expectedOccurrences: 1,
+  reason: 'Exact signed historical scope schema reader; current writers emit only the canonical proof-or-stop schema.',
   disposition: 'frozen',
   contextSha256,
-  verificationCommand: 'internal:verify-signature-source-occurrence',
-  expectedVerification: 'PASS exact salt occurrence and context',
+  verificationCommand: 'node packages/main/tests/canonical-new-story-artifacts.test.mjs --group=scope',
+  expectedVerification: 'GREEN B-49df: scope group pass.',
 }));
 
 const EXACT_FROZEN_ROWS = [
-  ['signature_salt', 'CLAUDE.md', 'lattice-init-check-integrity-v1', 1, 'ae6e18fe9a563bf838eae1fce1021ebd8b0b54ff9f445de5474616c3df3c3449'],
-  ['signature_salt', 'CLAUDE.md', 'lattice-delivery-check-integrity-v1', 1, '3963c56493c9a6145856c658237fe1619885d01e2930f18ca54770e9e0cde243'],
   ['provenance_bytes', 'docs/requirements/NAV.md', 'legacy-to-lattice-role-naming-execution-plan.md', 1, '935d4532c30cadb40d7e117085260f5cbe565a1cbd811d5d016b6feaf7e4e211'],
   ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-customer-api-key-access', 1, '145f3c49ef9b5066ca3bd358d37c410fa3a48ce2dec8213ba5107068c67e7305'],
   ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-live-integration', 1, '6047759e7992cfc31e1e22c0cf3f8240390cbb70c21b4a682f18a742a2f77f84'],
@@ -167,14 +160,6 @@ const EXACT_FROZEN_ROWS = [
   ['persisted_schema', 'experiments/configs/lab-reviewer-history-v1.json', 'lattice-lab', 1, '7db70f605dce28dfbae47e77210e3c5b90168feb75fa8f1894279dfc68af0aa9'],
   ['persisted_schema', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', 'lattice-lab', 1, '7db70f605dce28dfbae47e77210e3c5b90168feb75fa8f1894279dfc68af0aa9'],
   ['signature_salt', 'experiments/role-prompt-ab-replay/corpus.json', 'lattice-finding-integrity-v1', 2, 'b36ceef181ab304d6d99527b7139f5cc952b2e6a135934952c59f61860761596'],
-  ['signature_salt', 'experiments/role-prompt-ab-replay/lib/replay.mjs', 'lattice-finding-integrity-v1', 2, '5dda7fdca458160f139e84489d134fd5768116264599d8d06914827b9c525cc9'],
-  ['signature_salt', 'scripts/verify-done-merge-preflight.mjs', 'lattice-review-integrity-v1', 1, '0da981ec4a3e352675f85c972695da8a80672b7c49fa5f91ccca94a5389d7e9f'],
-  ['signature_salt', 'scripts/verify-main-branch-runtime-health.mjs', 'lattice-review-integrity-v1', 1, '185e469ceea1438fabb9861a1f3bd63c84a72d8befa1596e2c8d63d94605bf79'],
-  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-review-integrity-v1', 3, '6eb6ade9d168880cae05f5fc23d2e6e169c8ac741988111c470869d69d3b851f'],
-  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-delivery-check-integrity-v1', 1, '505370b648e3817a68017eaa176d3c0e97e5d04d232a0ae8276447032e2c44d9'],
-  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-closeout-write-receipt-integrity-v3', 1, '7c9e55485ff03a08306bc277438ecc8bf31482370a7122e3e7d32c06a36083a2'],
-  ['signature_salt', 'scripts/verify-runtime-reviewer-contract.mjs', 'lattice-review-integrity-v1', 1, 'a0b1dbbb8094162981b61e307bb8908c861b4eea85a0a0728fb35f2c47cb4433'],
-  ['signature_salt', 'scripts/verify-testintent-null-gates.mjs', 'lattice-review-integrity-v1', 1, 'a0b1dbbb8094162981b61e307bb8908c861b4eea85a0a0728fb35f2c47cb4433'],
   ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_RECORD_READONLY', 1, '51ae7cf847cf2142cb327d3e66ba6bcd7d6121a4b9b32d1063f8fde4a452cffe'],
   ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_ROLE', 1, '992ce2da579b0d750bf6c8957071e87a0507ec0228ca94aa7100232716fd044c'],
   ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_SESSION', 1, '4f4e59cd71bf316da7cf2e33c0c6e71c27e8959f81956f08082dc21cf04c17e9'],
@@ -231,23 +216,4102 @@ const CURRENT_LEGACY_CONTEXT_ROWS = JSON.parse(readFileSync(
   'utf8',
 ));
 EXACT_ALLOWLIST.push(...CURRENT_LEGACY_CONTEXT_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 256;
-
-const FROZEN_SALTS = [
-  'lattice-review-integrity-v1',
-  'lattice-init-check-integrity-v1',
-  'lattice-delivery-check-integrity-v1',
-  'lattice-draft-check-integrity-v1',
-  'lattice-finding-integrity-v1',
-  'lattice-review-pass-integrity-v1',
-  'lattice-review-run-integrity-v1',
-  'lattice-review-scope-binding-v1',
-  'lattice-review-run-workspace-binding-v1',
-  'lattice-scope-check-integrity-v1',
-  'lattice-closeout-write-receipt-integrity-v3',
-  'lattice-final-host-check-v1',
-  'lattice-stall-adjudication-integrity-v1',
+// Current capability guidance is not a frozen file. Only these B-785e observations remain historical.
+EXACT_ALLOWLIST.push(...[
+  {
+    "id": "capability-plan-historical-1",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "token": "live-`.lattice` M0",
+    "expectedOccurrences": 1,
+    "contextSha256": "d14ee35156bbc1cac7d04bf58bf378903c631cac1c22c435b55cb5f20c9d6ca3",
+    "reason": "Exact historical B-785e observation from 2026-07-05; not current runtime guidance or a read-side alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact historical observation and bounded context"
+  },
+  {
+    "id": "capability-plan-historical-2",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "token": ".lattice/artifact-releases.jsonl",
+    "expectedOccurrences": 2,
+    "contextSha256": "1f1741bdeb2d1815781f2c0a3b5e69f8230ee5929589f2c023f25990f7485f39",
+    "reason": "Exact historical B-785e observation from 2026-07-05; not current runtime guidance or a read-side alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact historical observation and bounded context"
+  },
+  {
+    "id": "capability-plan-historical-3",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "token": ".lattice/learning/playbook-promotion-health.jsonl",
+    "expectedOccurrences": 1,
+    "contextSha256": "a4cea9c8464cb5c5aaacabd99c3bc4623d9fda6823fdc1d9892a8a09b81177af",
+    "reason": "Exact historical B-785e observation from 2026-07-05; not current runtime guidance or a read-side alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact historical observation and bounded context"
+  },
+  {
+    "id": "capability-plan-historical-4",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "token": ".lattice/learning/playbooks.json",
+    "expectedOccurrences": 2,
+    "contextSha256": "0b1b60a3034facf880693083bd13e4887d5d46e28a25068d1d03509311c7cee6",
+    "reason": "Exact historical B-785e observation from 2026-07-05; not current runtime guidance or a read-side alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact historical observation and bounded context"
+  }
+]);
+// Independently reviewed imported negative/migration contexts. No file exemption.
+const IMPORTED_DENY_CONTEXT_ROWS = [
+  {
+    "id": "imported-context-1",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/command-ownership-contract.ts",
+    "token": "agentId: 'lattice-review-delivery'",
+    "expectedOccurrences": 1,
+    "contextSha256": "ed3a9237e16afd428bf843649c1a1a3a16cdbc866c359ae0da015e96727f7832",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-2",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "token": "assert.doesNotMatch(output, /lattice-review-channel/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "4c68e008ed8c0027abfdf038b1b303905884edbe893e6225cf1fce837f271c17",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-3",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "identity.legacyAgentRoleIds('lattice-review-quality@fallback'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "2b044a78d94339a7b6477e8a3a6a849a64fa7b99da4f094e0124ac58e82e0e39",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-4",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "identity.agentRoleIdsEqual('lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "9903b1522e6da87a1645232fa4f75c249883d28694456811fc965674cd8ee1e8",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-5",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "ab7970c7b54b076aa213da632f2ccf0685868500f612379d1a1cb1b1d4cc1f4a",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-6",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-review-quality -> lattice-implementer',",
+    "expectedOccurrences": 1,
+    "contextSha256": "941a06d047471ea4bccb55fb010b765a4958178631f70edca24e4d816ea8b0b5",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-7",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'lattice-review-quality'), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "deba66c07261ac1bfd7f9886e6610f1ee69cc341232574c05508d6e338fc3f29",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-8",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.throws(() => reviewerList.parseForceReviewers('lattice-review-quality'), /not supported/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "fb30674de25ee5cd36d129cc692b72e60b5a67ed5b8ef0af2f85c291ae6c1dbf",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-9",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "writeFileSync(join(agentsDir, 'lattice-review-quality.md'), 'legacy managed role\\n');",
+    "expectedOccurrences": 1,
+    "contextSha256": "12c92051128f891843a44a6521e17ddab13fc18aaf5bfd9ee4c6fd454d6f5aed",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-10",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.ok(!scan.managedFiles.includes('lattice-review-quality.md'), 'retired role is not a managed alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "d52e2fb3ed615cdba8c9adfc1608373fb6e5b9e1f83c66a4772fc65e900af85f",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-11",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-review-quality.md', 'my-personal-agent.md'",
+    "expectedOccurrences": 2,
+    "contextSha256": "1633252069202ffbcc6eca94804d0e5e42534f7f59ce33c82dcd56749b7db2c9",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-12",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.equal(readFileSync(join(agentsDir, 'lattice-review-quality.md'), 'utf8'), 'legacy managed role\\n', 'unrecognized retired file bytes are preserved without active alias admission');",
+    "expectedOccurrences": 1,
+    "contextSha256": "5adb64bdcca1e026c7a4440aaf4b735bc6f5a7b2af4db37daea4629ed02c3d5d",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-13",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-implementer', 'proof-or-stop-implementer'",
+    "expectedOccurrences": 1,
+    "contextSha256": "332d4681c9067e17ec528d74cdf1adbb6f66b16ce901222af45f5096f74ba7ad",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-14",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-review-concept', 'proof-or-stop-review-concept'",
+    "expectedOccurrences": 1,
+    "contextSha256": "d4f760ff349b1e2990368aa47a320c013401dde744eabc7bff89582e15853a0d",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-15",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'",
+    "expectedOccurrences": 2,
+    "contextSha256": "bb82ddbbdc6253eb1824c11b1d0e07a114475f0f29f6b73a8daf62a2101e6f62",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-16",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "'lattice-review-quality', 'proofbound-review-quality'",
+    "expectedOccurrences": 1,
+    "contextSha256": "fdf3afa2f1e65b9635b8a9e4d965c135a3a7ccc32998c9d7c1c67aef7b7d7cbd",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-17",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality', 'lattice-review-quality'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "dc549c12563b30719935b990437a0c87402bb90ecc34086b79e5ec1a0a247505",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-18",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality@fallback', 'lattice-review-quality@fallback'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "14dcc92d0c6c92dcd70d8aaec63db4a1e71bb06a9de267e805b814543822c0a1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-19",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.doesNotMatch(output, /lattice-review-story-init/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "523ee4df90c3e421752a0b7a6fc708d266b450ee9cc99a7b1268384f9fa651ff",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-20",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.doesNotMatch(deliveryRow.hint, /lattice-review-delivery/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "bced70851e89c73162a641c31b6083380c4d9452b157d4bbc432f9fe38ff2d3a",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-21",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.equal(identity.canonicalAgentRoleId('lattice-implementer'), 'lattice-implementer');",
+    "expectedOccurrences": 1,
+    "contextSha256": "f4cbf7fdfd073ce59ae6a74e78b0050f355e2b7868ec2dcde530615b8a0a5a2e",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-22",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.equal(budget.isBudgetedComplexRole('lattice-implementer'), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "04cd521ecc587acf6a24567106e3ad3fec694b3b9500ff9f2bca14c94b7f5a74",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-23",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.throws(() => resolveReviewRunLane(undefined, 'lattice-review-quality'), /not in the supported REVIEW reviewer lane list/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "c3275407841d316b0ebb0659b7d891a2fc215115b7aaf8364470df398aceca95",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-24",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.equal(reviewRunTool.schema.lane.safeParse('lattice-review-quality').success, false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "c182bf2dc044e51a46499d13bff165e85708d0322d8cd0dcd3a7ba9e75371218",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-25",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "assert.doesNotMatch(profile, /lattice-implementer/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "c8a8543440fbc6c871bc7811c166609246e458434cf13ea8f57522f042e2337d",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-26",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "identity.canonicalizeAgentRoleText('test-intentional product-reviewerish lattice-review-quality@host'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "2d71ee8fb38fe119ff06c238c8518650cccf43156b563e3159fd8e75b97c7742",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-27",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "'test-intentional product-reviewerish lattice-review-quality@host',",
+    "expectedOccurrences": 1,
+    "contextSha256": "bf37694bc024bcd1d9573a0278d1b9f5553c36624b03ad90950643979fbb1acb",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-28",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "'lattice-review-quality', 'proofbound-review-quality', 'verification-intent'",
+    "expectedOccurrences": 1,
+    "contextSha256": "21ed2662ea559487ed525f7d58f4c7bcb85c75916bc0f022b00afd41b2fc2a05",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-29",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "'lattice-review-quality': 'full-envelope'",
+    "expectedOccurrences": 1,
+    "contextSha256": "f54dcbe4e01ea06ebf675639ee2ce470f891c5d8bbea0dc7581b01ca2e18b49b",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-30",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "'lattice-implementer'",
+    "expectedOccurrences": 1,
+    "contextSha256": "9194a3ae62ee1b745979134f9f22332b13ec20078530d926527c0d09639a5cb5",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-31",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "token": "assert.doesNotMatch(body, /lattice agent_prompt --role=/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "1c2403c35e6cec3848e03cd4dc4c9da65a47eb47f32c9647939982b57561e644",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-32",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "token": "'A-MUT-20', 'mutation', 'bin-alias:canonical-help', 'canonical-help-boundary', 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation', 'PASS', binHelpPassed",
+    "expectedOccurrences": 1,
+    "contextSha256": "04653e41e7bfd910858d8e2605beeb28416a1dac34c9d5740983fb0324666832",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-33",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "token": "'A-MUT-21', 'mutation', 'bin-alias:removed-alias', 'npm-bin-reintroduction', 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it', 'BIN_ALIAS_REJECTED', binControlPassed && binMutantRejected",
+    "expectedOccurrences": 1,
+    "contextSha256": "d4b95b9f061b6206b7b570756bc51f19aef04e2f87cc9850602c93326216b95c",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-34",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": ", 'lattice'), 'Codex verification must reject a reintroduced lattice npm bin alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "0751d5b4bc1eeccace75401943c8fbe259f6b7ba3944ac9b7e4f9517bee2d13f",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-35",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": ", 'lattice'), 'Codex verification must reject a reintroduced lockfile lattice npm bin alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "2ea17769047e32c9d420ae7f1229e3c457954acf74b9ed3ece1b6ed6b46987a1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-36",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-entrypoints.mjs",
+    "token": "assert(!Object.prototype.hasOwnProperty.call(packageBin, 'lattice'), 'packages/main package.json must not reintroduce the lattice npm bin alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "dd9f006db89b7ba2e6b7cf033e21c37fd7300f68ae5131a4a6dcbbc079f02e01",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-37",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-entrypoints.mjs",
+    "token": "assert(!Object.prototype.hasOwnProperty.call(lockBin, 'lattice'), 'packages/main package-lock.json must not reintroduce the lattice npm bin alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "c0921632793c5f04f73e7a3046cf95f8502db138f8652ffb3dc32bae856f8730",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-38",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "token": "assert.equal(JSON.stringify(manifest).includes('LATTICE_'), false, 'new Codex adapter manifest should not emit legacy environment names');",
+    "expectedOccurrences": 1,
+    "contextSha256": "785886196c579e76d17f99de4d5d8224a126b1c2cae8e3807f72d1c1e07a8836",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-39",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-entrypoints.mjs",
+    "token": "assert(!JSON.stringify(codexManifest).includes('LATTICE_'), 'new Codex adapter manifest must not emit legacy environment names');",
+    "expectedOccurrences": 1,
+    "contextSha256": "55a2b5435135d9d4c00b7c600ad14a29afb0c5e4327c937016a41dcaaadd36bd",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-40",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "token": "'grep', '-q', '-F', identifier, commit, '--', '.lattice/story/actives/B-cdf6'",
+    "expectedOccurrences": 1,
+    "contextSha256": "675e8e78441d7e6c80e5de41ea351880201dcbdc6a354f58bd1e53c3c6ebb70d",
+    "reason": "Exact Git-qualified historical B-cdf6 evidence search, never a current filesystem read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-41",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "assertNotIncludes(renderProofOrStopCodexAdapterManifest(), '.lattice-codex/koala.json', 'Proof-or-Stop manifest legacy manifest note');",
+    "expectedOccurrences": 1,
+    "contextSha256": "633a064ea17982219baf65ba75a84bed5df3ef58a443af03d19a3b70a09fc795",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-42",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "assertNotIncludes(codexReadme, '.lattice-codex/koala.json', `$",
+    "expectedOccurrences": 1,
+    "contextSha256": "c28fbab715e59849dffe11f45b0896cf6094daafc2891a92676e35027a2ae793",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-43",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "token": "assert.doesNotMatch(content, /<!-- lattice:start -->",
+    "expectedOccurrences": 1,
+    "contextSha256": "db53f7611397dab4fdb9febb59a27c01637fd3f3b729b0f4cc894ebdbdf7c5d1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-44",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "token": "<!-- lattice:end -->/, `$",
+    "expectedOccurrences": 1,
+    "contextSha256": "db53f7611397dab4fdb9febb59a27c01637fd3f3b729b0f4cc894ebdbdf7c5d1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-45",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "token": "packageIdentityMutant.utils.name = '@lattice/utils';",
+    "expectedOccurrences": 1,
+    "contextSha256": "b806456e1259786549dcad615c7a40f785f78246398eca9a436377f08dcc5b33",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-46",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "token": "const binHelpPassed = binHelpOutput.includes('Entrypoint: proof-or-stop') && !/Usage: lattice(",
+    "expectedOccurrences": 1,
+    "contextSha256": "080608eb8b7ec3c3be04ec16f99e25cdc919cb31079a4ae1ad026be82a54b7db",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-47",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "token": "mutantBin.lattice = 'dist/cli.js';",
+    "expectedOccurrences": 1,
+    "contextSha256": "41ee72023bcf1e21e912e2d32c6bb5dfd710b7cea30cc03ca83d580002700162",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-48",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "token": "assert.equal(Object.hasOwn(canonicalConfig, 'latticeVersion'), false, 'global-thin config should not write the legacy version field');",
+    "expectedOccurrences": 1,
+    "contextSha256": "ec14eed5684dc776aa5a969cf8e654bee398ded28e65b36ea66ddd09633c32c1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-49",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/version-bump-smoke.ts",
+    "token": ".name = 'lattice';",
+    "expectedOccurrences": 4,
+    "contextSha256": "9609adaea18bf01c80efb92c2e9afe8804a6e08c45236a39df1bc31733665728",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-50",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/version-bump-smoke.ts",
+    "token": "legacyPackage.name = 'lattice';",
+    "expectedOccurrences": 1,
+    "contextSha256": "eb86f054a892e377cc5acc8fd8d83a489180e546c64f2da376dd121a91c53b26",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-51",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/version-bump-smoke.ts",
+    "token": "legacyLock.name = 'lattice';",
+    "expectedOccurrences": 1,
+    "contextSha256": "88c6fe808dff8eb12ddf005eb45714791871002826687c2f352c4a0cab9baeb7",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-52",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "'lattice', 'proofbound'",
+    "expectedOccurrences": 2,
+    "contextSha256": "d8e34e0b79931502afa556e9ff53905b4e651279ba227b27007d1d6db3910070",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-53",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "d678f7baa12a3150dbc4a52b1a3664230e28f94cb5fe71efcc81ea5f730dc6bb",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-54",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "/(\"schemaVersion\":\"lattice\\.closeout_write_receipt\\.v3\"",
+    "expectedOccurrences": 1,
+    "contextSha256": "4f4e78fc544651a7c4cf981d8dad47a1e6d7c2b74118a229ea0ebc6d715a50f2",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-55",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "token": "assert.equal(existsSync(join(repoRoot, 'bin/lattice.js')), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "ed463eef9b6443bc26db33cee476755450c3dd6fb9eb4d584df7d170c1f13a00",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-56",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "token": "assert.equal(existsSync(join(repoRoot, 'bin/lattice-codex.js')), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "736335e50717510d598390ba632a4997d59e060605df1b8befef323b7e3e9445",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-57",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "token": "assert.equal(brand.resolveUsageBin('lattice'), 'proof-or-stop');",
+    "expectedOccurrences": 1,
+    "contextSha256": "1d3ac3366be95586d8105d2078d97b19a5983ad29348639aeed5e12485dcbe46",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-58",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "token": "assert.equal(brand.resolveUsageBin('lattice-codex'), 'proof-or-stop');",
+    "expectedOccurrences": 1,
+    "contextSha256": "0211b16611dcaa09f7a2151373ebc437aaf4467826f7edf18bb384f65ec7dd5e",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-59",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "token": "'bin/lattice.js', 'bin/lattice-codex.js', 'bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js'",
+    "expectedOccurrences": 1,
+    "contextSha256": "0d23c5885cee92c1de3cd952d85669632778ad98df1e42749116068ba0bdc20d",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-60",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), false);",
+    "expectedOccurrences": 1,
+    "contextSha256": "75dd165db1cd9f82b91df698cd09cd35b9dc62979ac9da4d476fc9eb404e0a7f",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-61",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.doesNotMatch(reviewerText, /lattice-|proofbound-/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b9e910ffc434c63c1c32d5432d951b1ee77e3a8d94884f6b46fab77ad730028",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-62",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "Object.keys(configuredPromptRoles).some(roleId => roleId.startsWith('lattice-')),",
+    "expectedOccurrences": 1,
+    "contextSha256": "afe524419a0e3e00d565fbd2beee20bbf7a21aca3436f2070f567512cfc0012e",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-63",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "7a16b8b1305362af89a26084ba42f7f70845a1141939b4e00e890e26e654ca2f",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-64",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.doesNotMatch(output, /product-reviewer \\+ lattice-review/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "e2825dd6295b843a71d44688050118c915e02695e51343207f21b896f921035f",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-65",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "token": "assert.doesNotMatch(reviewerText, /lattice-review-/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "0415535c8443d72419fae94de6eb9b76ac414e6bdc699bc9e3a67200d61077e3",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-66",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": ".replaceAll('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')",
+    "expectedOccurrences": 1,
+    "contextSha256": "f2d1bd79b21d2b46d0be6d7c674d45aa08ba2f6fe84ae0e177f63e69fed1a45e",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-67",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": ".replaceAll('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');",
+    "expectedOccurrences": 1,
+    "contextSha256": "35c06f8450167b0d11ba980296640d0ca8fd66d1c50cb83524041262eb162630",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-68",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "assert.doesNotMatch(migratedAgents, /<!-- lattice:(",
+    "expectedOccurrences": 1,
+    "contextSha256": "907a5849da364a9cc564be273bc9891f211950033f905d530beccfa4a4f9b255",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-69",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "retiredAgents.replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "a944d5e002fd3b5c216208d200ff283a2402471a7dd19f1c3a6ac436d7568973",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-70",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "retiredAgents.replace('<!-- lattice:start -->', '<!-- lattice:start -->\\n<!-- lattice:start -->'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "821ee52c663aae0a1c48a047aea748f6832a09b0fe7b8394f7a915eb9065bb43",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-71",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "const legacy = 'before\\n<!-- lattice:start -->\\nold\\n<!-- lattice:end -->\\nafter\\n';",
+    "expectedOccurrences": 1,
+    "contextSha256": "4bff851e142ff8ca48eb394ea2bb497f975170a9647d0dd3af74714fb43ecc0f",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-72",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "assert.equal(markers.inspectManagedBlock('<!-- lattice:start -->\\n<!-- lattice:start -->\\nold\\n<!-- lattice:end -->\\n<!-- lattice:end -->').status, 'malformed');",
+    "expectedOccurrences": 1,
+    "contextSha256": "ee5b9e8a9058f1e94f553dfaf229f71d656843a178a46a7f9d14e5b54be3dd11",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-73",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "assert.equal(markers.replaceManagedBlock(legacy.replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->'), replacement, 'document'), null);",
+    "expectedOccurrences": 1,
+    "contextSha256": "08cf801caadc89795b9bbc5abf6ba9407abf1864df57f861ff77447340b41d18",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-74",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "content: 'before\\n<!-- lattice-profile:start -->\\nlegacy\\n<!-- lattice-profile:start -->\\ninner\\n<!-- lattice-profile:end -->\\n<!-- lattice-profile:end -->\\nafter\\n',",
+    "expectedOccurrences": 1,
+    "contextSha256": "b7f957f681c317a95006c7125d9a925ee44f5f585485a549862e01bfe75aac03",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-75",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "content: 'before\\n<!-- lattice-profile:start -->\\nlegacy\\n<!-- proof-or-stop-profile:end -->\\nafter\\n',",
+    "expectedOccurrences": 1,
+    "contextSha256": "1d81cb87d979ef6211ca74788a2cab8047428969183b7cacaa24aaa5a09f9c84",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-76",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "writeFileSync(claudePath, 'before\\n<!-- lattice-profile:start -->\\nlegacy\\n<!-- lattice-profile:end -->\\nafter\\n');",
+    "expectedOccurrences": 1,
+    "contextSha256": "f14afba6e4673ccd57ce846bdfb89b6ee61c16b35523bc6f3c18c634f835164c",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-77",
+    "class": "migration_input",
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "token": "assert.doesNotMatch(synced, /<!-- lattice-profile:start -->/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "700981887a65bbedf343e4ff390b400e0458249b5f9d0738eba734f7781a01b4",
+    "reason": "Independently reviewed explicit one-way managed-marker migration input or malformed rejection; output remains canonical.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-78",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/package-identity-migration.test.mjs",
+    "token": "'@lattice/lab'",
+    "expectedOccurrences": 1,
+    "contextSha256": "f8e84892f437a98bb1caf0925a47d1f1b7ef6d27beca04024f8b3488f09c9e00",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-79",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/package-identity-migration.test.mjs",
+    "token": "'node_modules/@lattice/lab'",
+    "expectedOccurrences": 1,
+    "contextSha256": "37e07748fe3462bad412709c74de016c7695f252a0992fb545206e8fc99c4233",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-80",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "/<!-- lattice:start -->",
+    "expectedOccurrences": 2,
+    "contextSha256": "1c0a4d655fde404c59de975fb00a9c3fa5d69aeef98f5ad86edf5d1a679d4818",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-81",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "<!-- lattice:end -->/,",
+    "expectedOccurrences": 2,
+    "contextSha256": "1c0a4d655fde404c59de975fb00a9c3fa5d69aeef98f5ad86edf5d1a679d4818",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-82",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": ": `lattice-review-$",
+    "expectedOccurrences": 1,
+    "contextSha256": "f81f44a63b8a2a380ed30a2a958a23f1f5a575bb89ce4e4e5b9b0de77337f361",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-83",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "...manifest, source: 'lattice.prompt-registry'",
+    "expectedOccurrences": 1,
+    "contextSha256": "714035dedd6d41ac6420c2a7875ce261de6ee65397ba1897f5c93edbdef8bd50",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-84",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "/lattice:start-slot/,",
+    "expectedOccurrences": 1,
+    "contextSha256": "327650ff67dc948a0580bdbd197a5534ef588b72582edeae090ab5b1dc9ae17e",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-85",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "rmSync(join(dir, 'bin', 'lattice.js'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "02f9fe49660dfb588d461287183d19047a83f7793cb6eaf17c37af2f566b5dcb",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-86",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "rmSync(join(dir, 'bin', 'lattice-codex.js'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "4708693969a8fb790f74952cbcc38bf83b566ec04581aede7adb08012f6ce1c1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-87",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// removed deprecated Codex wrapper\\n');",
+    "expectedOccurrences": 1,
+    "contextSha256": "1f15d68a9002032cf351feaf17d228ad06a35e7ca05e7f6e863c1b2a30ae6777",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-88",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "writeFileSync(join(dir, 'bin', 'lattice.js'), '// removed deprecated bootstrap\\n');",
+    "expectedOccurrences": 1,
+    "contextSha256": "61bdb798eddbbc84668c8b107022f1f413aebc0f06eb013fab605f1e171677e4",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-89",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "const fakeDeprecatedCore = join(fakeGlobalRoot, '@lattice', 'core');",
+    "expectedOccurrences": 1,
+    "contextSha256": "e811c186ad3deeaf8b441ea937f33eeed57ec2e5e9e4fac50b9db7ce6270cdab",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-90",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "writeFileSync(join(fakeDeprecatedBin, 'lattice'), '#!/bin/sh\\nexit 0\\n');",
+    "expectedOccurrences": 1,
+    "contextSha256": "f7168b3fd1ddc37c25f4403951ddc06b8bb15dd95bd49b3772f362e1011c89b1",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  },
+  {
+    "id": "imported-context-91",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "chmodSync(join(fakeDeprecatedBin, 'lattice'), 0o755);",
+    "expectedOccurrences": 1,
+    "contextSha256": "70cb7ad91044ed3ce5b6661d71b7e22ca9614865840caebf454efbfc8cc6b1de",
+    "reason": "Independently reviewed retired-identity rejection or adversarial mutation fixture with canonical controls; no active identity admission.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed occurrence and bounded context"
+  }
 ];
+EXACT_ALLOWLIST.push(...IMPORTED_DENY_CONTEXT_ROWS);
+// Exact imported snapshot/defect observations, not current instructions or file exemptions.
+const IMPORTED_HISTORY_CONTEXT_ROWS = [
+  {
+    "id": "imported-history-context-1",
+    "class": "provenance_bytes",
+    "path": "B-3e16-RESUME.md",
+    "token": "`story_advance DEV` → `REVIEW`, re-run the four `lattice-review-",
+    "expectedOccurrences": 1,
+    "contextSha256": "aae54c0aff918d859e86eee8dbd8f132462e684b97b69209542256bd32075aed",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-2",
+    "class": "provenance_bytes",
+    "path": "B-3f3d-HANDOFF.md",
+    "token": "- Use `node packages/main/dist/cli.js`, not the global `lattice` shim (stale dist).",
+    "expectedOccurrences": 1,
+    "contextSha256": "43bf2f40feb363b5a3aa8ed23521a3c81ccd970bad49caa79ee75030bb5b08fd",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-3",
+    "class": "provenance_bytes",
+    "path": "B-3f3d-HANDOFF.md",
+    "token": "to uncommitted material source changes. Lattice metadata under",
+    "expectedOccurrences": 1,
+    "contextSha256": "e24ea387f326583a3aa8f497d537a7b32e4d8b103928719ebc0a2fdd8c693136",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-4",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "`proof-or-stop validate --json` output is still hardcoded to `lattice-",
+    "expectedOccurrences": 1,
+    "contextSha256": "78140551bce3f81a80240a04c5eb14608d1a3e2821ae065330e46a67439a2850",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-5",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "- `packages/main/src/handlers/validate-channel.ts` — `provider: 'lattice-channel'`",
+    "expectedOccurrences": 1,
+    "contextSha256": "e209f44067d38129ffed74fe9e3b9c56727462202ffed5309348a9865bf5844e",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-6",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "- `packages/main/src/handlers/validate-concept.ts` — `provider: 'lattice-concept'`",
+    "expectedOccurrences": 1,
+    "contextSha256": "8aa38a843a71108af23ecff26a0d6263d8335d0f40a501ad12b1ea8aba9ea165",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-7",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "- `packages/main/src/handlers/validate-lint.ts` — `provider: 'lattice-lint'`",
+    "expectedOccurrences": 1,
+    "contextSha256": "81469e95e80f60fad735d98da17912e5bf21d16a5ccc20b1a553e05de8695cb5",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-8",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "- `packages/main/src/handlers/verifier.ts` — `lattice-verifier`, `-gates`,",
+    "expectedOccurrences": 1,
+    "contextSha256": "86412f2db245ae7173586927db7b5b7de23fbbf559ac69e7267009983f4322cf",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-9",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "`provider: 'lattice-done-required-validation'` (3 sites, a DONE-gate path)",
+    "expectedOccurrences": 1,
+    "contextSha256": "0ccadec36dc31d0b43a52f06e4458af029f8883ff9b2ba109d08bf912ce9bdf7",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-10",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "'lattice-\" packages/main/src` → 41 occurrences",
+    "expectedOccurrences": 1,
+    "contextSha256": "301ecf939a58ae490c0d6b516766fade774411a540dbcda93f60b56ba42bea82",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-11",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "\"provider\":\"lattice-verifier-gates\",...,\"provider\":\"lattice-lint\"",
+    "expectedOccurrences": 1,
+    "contextSha256": "78ddefb4f60ce4c776c36cadf66dd42ee9021c4a5806e83b9e1ab40d9575978a",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-12",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "(`provider === 'lattice-verifier-configured-commands'` and its `-focused` variant),",
+    "expectedOccurrences": 1,
+    "contextSha256": "828c3710b07458da8177375de0d728ea03bf24031d51d5eb648d896888097953",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-13",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "non-owner with `process.env.LATTICE_SESSION_ID = 'sess-intruder'`, then asserts",
+    "expectedOccurrences": 1,
+    "contextSha256": "aeeb7079041fa5ea43ac90bb3acf9001a123e1bf64aacd2a35e8d707c7ac0862",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-14",
+    "class": "provenance_bytes",
+    "path": "B-cdf6-flow.md",
+    "token": "「Rename the lattice CLI brand to proof-or-stop」，2026-08-10 17:34 立案 → 08-11 16:02（数据截至 08-12 复查，当前 DEV 尾声）。仅含实际执行过的命令（activity.jsonl 1338 条 CLI 记录）。",
+    "expectedOccurrences": 1,
+    "contextSha256": "17e4b45f042252089aa53fd16b185c1e648bb5697ffec1dadfa833a1b4662a42",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-15",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "The extractor claims and implements only ``lattice <cmd>`` matching (`packages/main/src/handlers/validate-docs-drift.ts:29-34`, `packages/main/src/handlers/validate-docs-drift.ts:57-65`). The blocking `missing` list is populated only from that extracted set (`packages/main/src/handlers/validate-docs-drift.ts:90-97`). If CHK-003 changes every example to `proof-or-stop`, extraction returns an empty set: a nonexistent `proof-or-stop definitely_not_a_command` is never added to `missing`. Registered commands merely flow into `stale` (`packages/main/src/handlers/validate-docs-drift.ts:99-105`), which the contract explicitly labels advisory/non-blocking (`packages/main/src/handlers/validate-docs-drift.ts:23-26`). Thus the gate can report no missing commands precisely when all active command documentation has moved beyond its parser.",
+    "expectedOccurrences": 1,
+    "contextSha256": "b4a089f3b4ce7dd9366a4aa4380166edfe8355ee8433276dfbd44253aeb50361",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-16",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "Replace the brand-specific extractor with an explicit primary-plus-deprecated-alias command matcher, make the expected primary-token extraction non-vacuous for the active CLAUDE/AGENTS input, and add mutation smokes proving (a) a valid `proof-or-stop` command passes, (b) an invalid `proof-or-stop` command fails, (c) an intentional deprecated `lattice` example remains checked, and (d) an all-renamed document cannot silently degrade to zero extracted primary commands. Update the function/provider names and diagnostics where they are user-visible; do not merely add `proof-or-stop` to an allowlist.",
+    "expectedOccurrences": 1,
+    "contextSha256": "1215bd2da91a577dc40191865fba4a5b6100b5a31fa724d9b64ff92ff8ad496f",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-17",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "REVIEW preflight describes and invokes the canonical script by the literal path `scripts/verify-lattice-residue.mjs` (`packages/main/src/handlers/review-preflight.ts:85-91`), while the root script key points to the same literal path (`package.json:19`). Renaming/reconciling only the script and its self-test, as CHK-004 currently says, leaves preflight trying to execute a missing file before the story can even reach TEST.",
+    "expectedOccurrences": 1,
+    "contextSha256": "40ede5ed8a78d8fd8f75f17c183e95335488a34ab37255df73002c3674a36fd2",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-18",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "The hook documents `@lattice/core` (since renamed to `@proof-or-stop/core`) as its self-repository discriminator (`.githooks/pre-push:24-25`) and exits success whenever `packages/main/package.json` has any other name (`.githooks/pre-push:147-150`). Therefore a broad brand mapping that changes the package name but omits the hook does not fail loudly; it reclassifies this repository as external and bypasses the rest of the hook.",
+    "expectedOccurrences": 1,
+    "contextSha256": "19559e86fae6f0600d5a7323037bfad0ec6d5e54014e5c8e0bdb50c2343ea666",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-19",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "The canonical runtime brand object still declares `LATTICE_PRODUCT_NAME = 'Proofbound CLI'` and `LATTICE_PRIMARY_BIN = 'lattice'` (`packages/main/src/core/lattice-brand.ts:4-5`), and `session_brief` prints the literal heading `# lattice session brief` rather than deriving it from that object (`packages/main/src/handlers/session.ts:772-777`). Meanwhile the current CLI reference simultaneously calls the product “Proof-or-Stop,” “Proofbound CLI,” and says `lattice` is the only active command (`docs/CLI.md:1-5`). A user following the renamed docs would therefore still see old-brand runtime output and contradictory canonical documentation.",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b41a63918355b867fd2aa94d37fe526fa6de7fd56b17d8ac0825285f4e851a0",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-20",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "Make the approved mapping the single runtime source for product name and primary executable, derive user-facing headings/help/version text from it, and keep the old executable only as an explicitly deprecated alias. Update snapshot/smoke assertions for invocation through both names and require the primary invocation's output to contain no accidental `Proofbound CLI`/bare product-brand `lattice` text; frozen role IDs and `.lattice/` paths must remain distinguishable from product branding.",
+    "expectedOccurrences": 1,
+    "contextSha256": "d3e9c9f5ee77834ffc9c6155bf21afdc41fe120e16796dba2a8eaccbe5271242",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-21",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "` scope, yet it contains a “Lattice” release heading (`CHANGELOG.md:297`) and present-tense operational instructions stating that the global command is `lattice` and that this repository uses `lattice validate` (`CHANGELOG.md:365-366`). Those lines are user-readable documentation, not a runtime identifier. Leaving them untouched makes the repository tell users the old command remains primary.",
+    "expectedOccurrences": 1,
+    "contextSha256": "e6f7c617d88de335b73fc7bc330ed8b957241f0e324eb3541602f262bd0574aa",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-22",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "Add `CHANGELOG.md` to the mapping/scope decision. Preserve genuinely historical release names only when marked as historical/frozen, but update present-tense installation and command guidance to `proof-or-stop`, with `lattice` mentioned only as a deprecated alias. Apply the same classification rule to root/experiment Markdown outside `docs/",
+    "expectedOccurrences": 1,
+    "contextSha256": "9211c811ada145c2f4628c240c2c71566a39f7e43d5d1551a4c104a94e669fd7",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-23",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "The repository's DONE-required policy runs the package build and then the root `npm test` (`lattice.config.json:144-146`). That test chain runs both `test:lattice-residue` and `test:proof-or-stop-prompt-baseline` (`package.json:15`, `package.json:19-20`). The prompt-baseline verifier pins a literal `templateHash` for every role template (`scripts/verify-proof-or-stop-prompt-baseline.mjs:44-113`), so CHK-003's planned edits to the 16 agent templates necessarily invalidate the approved manifest. Separately, runtime and gate consumers still embed the old brand or old filenames (`packages/main/src/core/lattice-brand.ts:4-5`, `packages/main/src/handlers/session.ts:777`, `packages/main/src/handlers/validate-docs-drift.ts:57-65`, `packages/main/src/handlers/review-preflight.ts:85-91`, `.githooks/pre-push:147-150`). None is merely prose.",
+    "expectedOccurrences": 1,
+    "contextSha256": "e7885be445322932066e0693c963bef4d14ff7d170621dfe2540e8fdcee31861",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-24",
+    "class": "provenance_bytes",
+    "path": "CODEX-FINDINGS.md",
+    "token": "Its context/acceptance must explicitly require: (1) change the canonical runtime product/primary-bin constants while retaining `lattice` only as the deprecated executable alias; (2) remove hard-coded old-brand runtime headings; (3) make docs-drift understand the new primary command and fail closed against an empty-primary extraction; (4) migrate the residue script's preflight caller, npm script, labels, and smokes atomically if the script is renamed; (5) resolve the pre-push package-identity predicate explicitly; (6) review and update every affected approved prompt `templateHash`, rather than weakening or skipping the baseline; and (7) prove `proof-or-stop --version`, the deprecated `lattice --version`, REVIEW preflight, docs-drift mutation cases, `npm run test:proof-or-stop-prompt-baseline`, and the configured DONE-required build plus root suite all pass from the built artifact.",
+    "expectedOccurrences": 1,
+    "contextSha256": "5f47f746af75ea7d6a6f65be28a99856be9708c1755a50c4eeef52843b418c0b",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-25",
+    "class": "provenance_bytes",
+    "path": "B-3f3d-HANDOFF.md",
+    "token": ": `env LATTICE_AGENT=<role> node packages/main/dist/cli.js ...`.",
+    "expectedOccurrences": 1,
+    "contextSha256": "ac229732964fffb509e9dc8467bd6c399008e00b7a6fa825c470d93fc930ffd0",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-26",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "(delete `PROOF_OR_STOP_SESSION_ID` as well as `LATTICE_SESSION_ID`), or drive",
+    "expectedOccurrences": 1,
+    "contextSha256": "5331523341096c812825696cfe4b58d307dec327f56a6e0c5f1620e96c50450a",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-27",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "`LATTICE_SESSION_ID`. When `PROOF_OR_STOP_SESSION_ID` is exported — which the",
+    "expectedOccurrences": 1,
+    "contextSha256": "41bd0f489b7a3d0d28bdb8dea14ef5f00c306d88180bae1894c72fea596e122e",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-28",
+    "class": "provenance_bytes",
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "token": "env -u PROOF_OR_STOP_SESSION_ID -u LATTICE_SESSION_ID \\",
+    "expectedOccurrences": 1,
+    "contextSha256": "34ddd5db2e9a37bf4a78bea84cf6672b9e172c8a6b5bf28c375b263bdb631f8e",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-29",
+    "class": "provenance_bytes",
+    "path": "docs/story/drafts/pre-review-live-proof-story-identity-and-semantics/background.md",
+    "token": "The live-smoke handler passes PROOF_OR_STOP_ACTIVE_STORY_ID and the parent live-proof branch reads it, but the child scenario branch reads LATTICE_ACTIVE_STORY_ID and the parent forwards only a pre-existing CLI --story argument. Separately, static inspection suggests small custom topology inventories are relabeled over generic fixtures; that semantic risk is suspected, not yet dynamically proven.",
+    "expectedOccurrences": 1,
+    "contextSha256": "ce7b3b61fb805fd12598ce0c1c16493b3a31c86fb999f5fd0cf30f4cdff5479a",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-30",
+    "class": "provenance_bytes",
+    "path": "docs/story/drafts/pre-review-live-proof-story-identity-and-semantics/checklist.json",
+    "token": "\"context\": \"B-aa5f convergence probe on 2026-09-05: env -u LATTICE_ACTIVE_STORY_ID PROOF_OR_STOP_ACTIVE_STORY_ID=B-aa5f node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof exits 1 in 0.29s with --proof-scenarios requires --story=<id> or PROOF_OR_STOP_ACTIVE_STORY_ID. Source line 75 reads the legacy env; lines 513-523 fail to pass the resolved ID.\",",
+    "expectedOccurrences": 1,
+    "contextSha256": "40876590a47596cb8a8c173b208fe4deef0b26a4d08547a96032a36495315066",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-31",
+    "class": "provenance_bytes",
+    "path": "B-3f3d-FOLLOWUP-STORIES.md",
+    "token": "(`.lattice/locks/review-inventory/<story>-epochs.lock`), while the documented",
+    "expectedOccurrences": 1,
+    "contextSha256": "87dfe7dda95d1c5973420c38cb2d39bd4170e14440fbc4b5a981d46f2798aba0",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-32",
+    "class": "provenance_bytes",
+    "path": "B-3f3d-HANDOFF.md",
+    "token": "`.lattice/story/` is excluded from material hashing and does not block it.",
+    "expectedOccurrences": 1,
+    "contextSha256": "828453b95b44aa9b56ad33044f386ce56abe04d626d9cba4618c275aa2fd3b2e",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-33",
+    "class": "provenance_bytes",
+    "path": "B-cdf6-flow.md",
+    "token": "> 数据来源：`.worktrees/B-cdf6/.lattice/story/actives/B-cdf6/`（index.json 事件流、process-events.jsonl 37 条）与 worktree `activity.jsonl` 1338 条 CLI 记录。",
+    "expectedOccurrences": 1,
+    "contextSha256": "35d7c4553526a3fcb1a4dca8127f18a4c2ae985767f55205ca1f347cdde03d4f",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-34",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "token": "“metadata-only commit”使用路径事实分类：一个 commit 的所有路径都位于 `.lattice/` 或 `docs/story/` 时记为 metadata-only，而不是只按 commit message 猜测。",
+    "expectedOccurrences": 1,
+    "contextSha256": "be34ad56ea50f737b6e949db4299b3d75e89c37296646a46b6fa679207d6f485",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-35",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "token": ".lattice/story/actives/B-cdf6/review-runs.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "68c3ca0f8b294fba4521de007fb1dbf3ab864c3466886a57fb739e8874e02638",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-36",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "token": ".lattice/story/actives/B-cdf6/findings.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "edb36b93478abf721e5d7f779e91831725ce5b129a3136a620799cbdf3a0c928",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-37",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "token": ".lattice/story/actives/B-cdf6/test-evidence.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "4f0500a83c552d1d9f5f843abc5ed732c579f95f141ca17479eb6ea07c34224d",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-38",
+    "class": "provenance_bytes",
+    "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "token": "`.lattice/story/actives/B-cdf6/`;",
+    "expectedOccurrences": 1,
+    "contextSha256": "58f76d81931b7186d2906f5eb6048bc4ac602079f0b258301e4218aaf36d9517",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  },
+  {
+    "id": "imported-history-context-39",
+    "class": "provenance_bytes",
+    "path": "B-cdf6-flow.html",
+    "token": "<p class=\"sub\">「Rename the lattice CLI brand to proof-or-stop」· 08-10 17:34 → 08-11 16:02（截至 08-12 复查，DEV 尾声）· 容器 = 论文阶段：蓝 plan · 绿 review⇄reflect · 红 gate→transition · 青 execute</p>",
+    "expectedOccurrences": 1,
+    "contextSha256": "5f83d6b4caeb996cee5bc13c6e3a5ff207ece2b0e2b0b501feff4eee44c75ae3",
+    "reason": "Owner-classified immutable pre-DONE snapshot or dated defect observation from exact imported source commit; superseded by current canonical authority.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-imported-history-context",
+    "expectedVerification": "PASS source commit/blob and exact historical token/context"
+  }
+];
+const IMPORTED_HISTORY_CONTEXT_SOURCES = [
+  {
+    "path": "B-3e16-RESUME.md",
+    "gitBlobOid": "2a57ac1a9dc9f02be2c1baf2b8a903383a54a4e0",
+    "sha256": "1d5d9315a83999d1ddf6d13022f8ddefd9c208c4ef7494b1f4eca2636a5adb85"
+  },
+  {
+    "path": "B-3f3d-HANDOFF.md",
+    "gitBlobOid": "a90f10d6a1757473d7fe0b64cc8191f302092250",
+    "sha256": "be2f26785f1e955e0c5cca63dec2b41fcc73ab528b1d908330ee6b98c871410e"
+  },
+  {
+    "path": "B-5a88-FOLLOWUP-STORIES.md",
+    "gitBlobOid": "6b0a3f5093813f08069170737d3e5d74c6360fd7",
+    "sha256": "a77c9040b8c5778b7f4b29cf0d6c4c4782d30b6712da9d2beb3f146cc33d3a03"
+  },
+  {
+    "path": "B-cdf6-flow.md",
+    "gitBlobOid": "c76dcb3ddbc5fcaee341ad4ebefd30e6f1c3f425",
+    "sha256": "af3cddf9bff1ebcefaea09f0c70ddf3cc919e049fd0f34d4c53bd6abd339aacb"
+  },
+  {
+    "path": "CODEX-FINDINGS.md",
+    "gitBlobOid": "d251fee66b3e033f584b15f207e73658e5114161",
+    "sha256": "fa7d25f956b65fb6877799548de542494de9a46fc71cda6da3117c512fff1b1f"
+  },
+  {
+    "path": "docs/story/drafts/pre-review-live-proof-story-identity-and-semantics/background.md",
+    "gitBlobOid": "d071bbd45a9aa07bc1a70e9d269435f27434efe2",
+    "sha256": "dc8363069f2b9bca9ce722a574d5f1f7d9937040504fc44ae090fe42abdf6a2b"
+  },
+  {
+    "path": "docs/story/drafts/pre-review-live-proof-story-identity-and-semantics/checklist.json",
+    "gitBlobOid": "f7941793afdf609b3a9a33f5668694c2725c4c80",
+    "sha256": "6eb9168566cae0e4301f7dd03d0458519128fe9c1fc46c811542b4e14e24d9af"
+  },
+  {
+    "path": "B-3f3d-FOLLOWUP-STORIES.md",
+    "gitBlobOid": "37bacc2b27961972c07b4084aa6a63d93ac0d0bd",
+    "sha256": "cb4cdf0ff585d7ae9320443d0f614fd46b516dda53eb86dd1684acfe5a416349"
+  },
+  {
+    "path": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "gitBlobOid": "656497748ee626d59852eeb40880fcffaf956274",
+    "sha256": "c9d953da6adb5971267959747f7dc9e057c999f9b3b6b5482f9b74949b6a5ac2"
+  },
+  {
+    "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "gitBlobOid": "a0161da6853bb6f53f61b25c86e505be9683690c",
+    "sha256": "c2f45bc868f050fb173b2664cce80134b8779ebf0d1305bba8bc5562f66fde99"
+  },
+  {
+    "path": "B-cdf6-flow.html",
+    "gitBlobOid": "d18decf0743c0021cc5b934ea0f775fd1b41a771",
+    "sha256": "ef2417cda71712e20a5dcdaa67934919ab8eb5f013d2b5ae91606a587c71da9a"
+  }
+];
+EXACT_ALLOWLIST.push(...IMPORTED_HISTORY_CONTEXT_ROWS);
+// Exact runtime denial/migration/risk contexts; never ordinary legacy lookup.
+const RUNTIME_DENY_CONTEXT_ROWS = [
+  {
+    "id": "runtime-deny-context-1",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "coverageReviewerLaneName, 'lattice-review-test-coverage'",
+    "expectedOccurrences": 1,
+    "contextSha256": "0fbefb6f7e5928308d6c13c0f33bd4836a9e884a77bff7f022a995e6c002fcb8",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-2",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "label: 'CLI invocation', pattern: /\\blattice\\s+lattice-review-test-coverage\\b/i",
+    "expectedOccurrences": 1,
+    "contextSha256": "ce13a60918700e5bc5d944a4a2df7224d0ef675a97e90a9042a84e6cc486986d",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-3",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "lattice-review-test-coverage`",
+    "expectedOccurrences": 2,
+    "contextSha256": "5a17e76075eb9ff4862449cd25ef1cb5f2581e49174a1f6cdee624b373c249ab",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-4",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/pre-review-live-proof.ts",
+    "token": "canonicalCaseId: 'A-MUT-20', target: 'bin-alias:canonical-help', mutationKind: 'canonical-help-boundary', operation: 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation'",
+    "expectedOccurrences": 1,
+    "contextSha256": "d056e4c4a9544286f9f6f6be6b355de16bff869023082ed84fdffa658259cd72",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-5",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/pre-review-live-proof.ts",
+    "token": "canonicalCaseId: 'A-MUT-21', target: 'bin-alias:removed-alias', mutationKind: 'npm-bin-reintroduction', operation: 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it'",
+    "expectedOccurrences": 1,
+    "contextSha256": "cbf0381490c0f4fc68e3d6e2a769bb32a956231b7a14ef5dab2503721dfd06aa",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-6",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/proof-or-stop-cli.ts",
+    "token": "detail: 'packages/main package.json exposes only the canonical proof-or-stop bin; lattice is not an active npm alias',",
+    "expectedOccurrences": 1,
+    "contextSha256": "46bf553556c2e9ea3463aa71f4d97aeb461de1b75b9ab9640fc72ca3872306c3",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-7",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/story-aware-validation.ts",
+    "token": ") => !key.startsWith('LATTICE_VALIDATION_SHARD_') && !key.startsWith('PROOF_OR_STOP_VALIDATION_SHARD_')));",
+    "expectedOccurrences": 1,
+    "contextSha256": "2f86bff1a452377964ac074a1632c53caed283b46d25b6721b338fee438401db",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-8",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/runtime/host-runs/",
+    "expectedOccurrences": 1,
+    "contextSha256": "dc0be9bb926e3eb82c89890ec781144202304034a80fd29781be4202aa5fd4d3",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-9",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/runtime-memory-pack-cache/",
+    "expectedOccurrences": 1,
+    "contextSha256": "05529537d68c353ce17c7b0448dad4d312280a59d749f8edfd0b0053697bd9e4",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-10",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/runtime/framework-audit/state.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "eaac87f60d39daa7e40739c8a4d1c6fcb0759f17c00dcefe8426f7b2e0e84326",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-11",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/finding-signals.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "1bcdc5e565594f011018751a38183f275289b3fe40d989a57dcab6078d877dbf",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-12",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/playbook-promotion-health.jsonl",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b97779e89c61e201640026e48b64808825372798b025446edc22f3a67503a10",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-13",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/playbooks.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "2e058223a67ac0d8bf03f4ab0108857b42a1562f1b70db51afcb0b931c1989b1",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-14",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/signature-registry.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "0f407b8e60aafede62e1dae7137d36f53bcd74ba5f7cba0bfeb53a009c688e9c",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-15",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": "/lattice.config.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "5ba12db28474d590752e7ca64bdd6d46d4c71bcd914da0d96b57b0360410310f",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-16",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "B-cc10 `.lattice/` -> `.proof-or-stop/` state-dir migration carry the deprecated",
+    "expectedOccurrences": 1,
+    "contextSha256": "c58a715058414df3f10a6b5f6126ee197f70603c3bb065b627cfb47cf17c18e2",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-17",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "// A receipt's parentHead may predate the `.lattice/` -> `.proof-or-stop/` state-dir",
+    "expectedOccurrences": 1,
+    "contextSha256": "1e322ff69eec5eeebb53f0b6899002f6016b2b6de65858468cf98bb52f88f9ea",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-18",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "// `.lattice/` -> `.proof-or-stop/` state-dir move CANNOT be rewritten to the",
+    "expectedOccurrences": 1,
+    "contextSha256": "fcb6137196678ee2ee99a0a3c2471a68b47be89f30d981209140db6c8c7c16df",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-19",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'prefix', value: '.lattice/runtime/host-runs/'",
+    "expectedOccurrences": 1,
+    "contextSha256": "4f85959251be35ef46e33a1749a73adc22cd1bf405d5cae2f9a1679c6a8b30ed",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-20",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'prefix', value: '.lattice/learning/runtime-memory-pack-cache/'",
+    "expectedOccurrences": 1,
+    "contextSha256": "f12cd7510950a4613fc4e87cd53e010b6857f0184fbf5983ee8810f57015cfcc",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-21",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/runtime/framework-audit/state.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "40a57a8e38fcbdee187a0a678a294c7f1a55c07a2cc1ce8e26805075e11996cd",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-22",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/finding-signals.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "29dc58387eda4bab6cd4520a8b78f6fde6449d60a7cd556e96f150b98db3aa99",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-23",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/playbook-promotion-health.jsonl',",
+    "expectedOccurrences": 2,
+    "contextSha256": "429956a8b81e359c5ba2b4dc2b9ade39b3ca08ebbec028ce8f4b46293a1aa705",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-24",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/playbooks.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "10a9baca5cc2e3a50cdf3fac84da653324d20e2e0e4924f76b0ba10fcad8ac24",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-25",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/signature-registry.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "00d5838650097c5079fa9ab4e8c3fdf06dbcc4b13e869002950c53a7ad50de94",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-26",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/runtime/host-runs/',",
+    "expectedOccurrences": 1,
+    "contextSha256": "83ef432455336e718b0926a36a5c58a8cbf49e8d7eb2f18a9f86fa116b8178b1",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-27",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/runtime-memory-pack-cache/',",
+    "expectedOccurrences": 1,
+    "contextSha256": "cd8ea37135b64f01284e21d155f607e4ecc71b00a84b3ac2cee0848a8955d671",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-28",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'exact', value: 'lattice.config.json'",
+    "expectedOccurrences": 1,
+    "contextSha256": "af5ea3bdd05f7931a193c708b7b55cd33eb4d54395bb520c957acdbe7b670a1c",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-29",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'/lattice.config.json',",
+    "expectedOccurrences": 1,
+    "contextSha256": "1ce5ed20e01f33b29ed1693ffc98d82ce0ac4fe69d21a926d79c040d589bd931",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-30",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": ":\\.koala|\\.lattice-codex|\\.proof-or-stop-codex|\\.claude|docs|packages|bin)\\/",
+    "expectedOccurrences": 1,
+    "contextSha256": "1d18e61f8fbcd4b9be8bde6ee74459e4e1e0512d06c431da279b2d3320507678",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-31",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/audit-scan.ts",
+    "token": "const RETIRED_AUDIT_BIN_TOKEN = 'lattice'; // Detection only; not a runnable bin alias.",
+    "expectedOccurrences": 1,
+    "contextSha256": "3182fd46207875760475956cd25ff4e2a0dec0ca93349e4205935ab5efabacff",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-32",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/dev-memory.ts",
+    "token": ":lattice|proofbound)(",
+    "expectedOccurrences": 1,
+    "contextSha256": "c5cd3ed971ce13ec236b07d4960e820f6247c697d1fcbb32b2210fd924da7038",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-33",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/evidence-pin-guard.ts",
+    "token": "|lattice(",
+    "expectedOccurrences": 1,
+    "contextSha256": "ae0e7ddc5ae3d22afd303d94d814e8b24a3be4fd880b869617d5723beb0f7179",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-34",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/global-agents.ts",
+    "token": "// legacy lattice-",
+    "expectedOccurrences": 1,
+    "contextSha256": "67594329a6d2cc634fe361923e20eb043dd7aaf4f9503ed2cee8c04b1629ca43",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-35",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_MANAGED_START = '<!-- lattice:start -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "16d6d532e780300452bfa34a21e51232e8fb0c10c20ae438e4cab7ee86710eaf",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-36",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_MANAGED_END = '<!-- lattice:end -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "e0a2c44e7d67563f4cb5c08582b04d4427d6348d295d9ba0d513cf610bd63a5b",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-37",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_PROFILE_START = '<!-- lattice-profile:start -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "4a5109ed56debe6de63301d56b3afe0b809208af762f9e36ac324a1236a289a0",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-38",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_PROFILE_END = '<!-- lattice-profile:end -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "0a4d2c8c3ba1da4d7c29b02d790f909b660435b8246a824605bdf368d89f9300",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-39",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "(proof-or-stop|lattice)$",
+    "expectedOccurrences": 1,
+    "contextSha256": "a413fcbdc358046a83503117f1537a76868f657ccfa47a07183bf33e0a5e1c57",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-40",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "New writes use the Proof-or-Stop spelling. Existing Lattice blocks remain",
+    "expectedOccurrences": 1,
+    "contextSha256": "36613a860e91fe9e1651ba9b1b2a97e5ee218070252c2581ebfda6091025fac6",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-41",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/story-aware-validation.ts",
+    "token": "'validation', 'scheduler', 'executor', 'catalog', 'selection', 'receipt', 'graph', 'package.json', 'package-lock', 'proof-or-stop.config', 'lattice.config', 'process-fact', 'runtime-fact', 'lifecycle', 'command-policy', 'build', 'lockfile'",
+    "expectedOccurrences": 1,
+    "contextSha256": "c2933b433b9c015b12b3888b985e358186032fa11f2ff3a5d46634cec4f456b6",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-42",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/certification-window.ts",
+    "token": "\\.json|lattice\\.config\\.json|proof-or-stop\\.config\\.json)$/",
+    "expectedOccurrences": 1,
+    "contextSha256": "c9a6fb9b133804fb071382d190606a1a86d6aaf1ff0922ab4a852a5e83139dd5",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-43",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/proof-or-stop-cli.ts",
+    "token": ", 'lattice');",
+    "expectedOccurrences": 1,
+    "contextSha256": "0645d8cfd92964305fc514c16339c51ccd28af7d15b1a8b236f176af749bd15f",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-44",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(pack), /proofbound|lattice/iu);",
+    "expectedOccurrences": 1,
+    "contextSha256": "cd0fc6a441587d3002d5bd61e0a60489287287b4885eb62eb19eaf5594d806e4",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-45",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(tampered), /proofbound|lattice/iu,",
+    "expectedOccurrences": 1,
+    "contextSha256": "04f0081fe515aa521d027718ec61e6c728f0cd232e877432895741ce4b9fc6f7",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-46",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "lesson: 'A superlattice and proofboundless token is not the product identity.', reusePrompt: 'Read the canonical memory example.'",
+    "expectedOccurrences": 1,
+    "contextSha256": "e499048e51ff336f14631ce75863536db1c199bd18d55cb4a912acd2f9e09f68",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  }
+];
+EXACT_ALLOWLIST.push(...RUNTIME_DENY_CONTEXT_ROWS);
+// Remaining reviewed rejection/fixture contexts from the frozen integration inventory.
+const FINAL_NEGATIVE_CONTEXT_ROWS = [
+  {
+    "id": "final-negative-context-1",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "token": "assert.throws(() => resolveReviewRunLane('lattice-review-topology-critic'), /not a registered REVIEW reviewer/,",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b62daf533bdc504a7e50f08b587f54a5856d6587dc196b21573e0111c0ba0da",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-2",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "token": ":lattice-review-story-init|product-reviewer)\"|agentType\":\"(",
+    "expectedOccurrences": 1,
+    "contextSha256": "c0a05b8c6b25d042798fe0c2fbb7fa46e3c1cfb1e7e1fbabb967eea4a3d92e41",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-3",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "token": ":lattice-review-story-init|product-reviewer)\"/i,",
+    "expectedOccurrences": 1,
+    "contextSha256": "c0a05b8c6b25d042798fe0c2fbb7fa46e3c1cfb1e7e1fbabb967eea4a3d92e41",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-4",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "token": "...contract, replacementAgentType: 'lattice-review-quality'",
+    "expectedOccurrences": 1,
+    "contextSha256": "21f2ba2cedfdbdfeccf88dead355dd54683e422b1e226f23375152261042ca9e",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-5",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "token": "...contract, migrationHint: 'Use only lattice-review-quality.'",
+    "expectedOccurrences": 1,
+    "contextSha256": "81de713f33e77f06c6ca18919276e9db6b3eaef46757ef751bb0f5cb84065855",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-6",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
+    "token": "assert.doesNotMatch(output, /subagent_type: \"lattice-review-story-init\"/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "b810e0fa84d3a9cd8ca9aa21e04b3d42d615cbf2cfc1eaf61165d982adcdd84e",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-7",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
+    "token": "assert.doesNotMatch(output, /agentType\":\"lattice-review-story-init\"/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "d872294119599967a9adb73e3182649f18058733300bec521ea5be0b9956ffee",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-8",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
+    "token": "assert.doesNotMatch(error.message, /lattice-review-story-init/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "597fa9e1ee5a896fadda25d2ea65ea802ef3ec9ab21a1b78c8c38b16be431ec1",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-9",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "subagent_type: \"lattice-implementer\"",
+    "expectedOccurrences": 1,
+    "contextSha256": "e456244eac19005110b4ac99c23fa81b8e5e1ff90ea845ff245a2019efe19fcb",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-10",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'| `lattice-review-scope-plan` | PLAN |', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "fcceb18c8792f50e75cdb8057e9e739c5020a4e93caadf3f838e04938910cab4",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-11",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "token": "assert.doesNotMatch(activeRoleSection, /lattice-review-/u, 'the active-role list excludes retired lattice reviewer IDs');",
+    "expectedOccurrences": 1,
+    "contextSha256": "e985302079696a90be7d03debcf3f7d347c86154c23c6ffce4d4f27aba408f2b",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-12",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "token": "assert.doesNotMatch(storyCreateHelp, /lattice story_create with checklist/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "276274cf2f6030ffb3ce800c2998152edbff53657aa0532b37921ba93bfa166d",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-13",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "token": "assert.doesNotMatch(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "b6998430f8019899d9a6add49096c9a044ecdf76728e4dfadafc47146a60c2c0",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-14",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "token": "assert.doesNotMatch(storyAdvanceHelp, /lattice story_review/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "c685d888d9f9fe8bf832e63077a0a52f87a464ef3e3e938a7efd00e1a0c32db6",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-15",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "token": "assert.doesNotMatch(storyAdvanceHelp, /lattice story_advance '\\",
+    "expectedOccurrences": 1,
+    "contextSha256": "42f038877bf2d843954843a209e969ae57e1e5aec1a63e61d173ebf95eda16ce",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-16",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": ", 'lattice'), 'core package must not publish the lattice npm bin alias');",
+    "expectedOccurrences": 1,
+    "contextSha256": "664cb2b926a29fe100957c7f9518a991cc16f33040966cfb881c7b710b5f2af9",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-17",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": ": retired lattice npm bin alias is active or metadata is invalid');",
+    "expectedOccurrences": 1,
+    "contextSha256": "907413fe763fb7eedc0c69cf06948c1c32c08e73e502493ad215b02c2f165bb8",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-18",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'export LATTICE_SESSION_BRIEF_FRESH_MINUTES=60', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "7d14758af5c9e177f245426a0f97b5dbfd96954bc517e85fd7858b847ade8b15",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-19",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'`LATTICE_CLI_VERSION` must be bumped', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "998cdbc4676f9c152edfdd9dbe4f4ddc4e59a6475b79bc1cda0e96392aad4bd6",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-20",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/certification-window-smoke.ts",
+    "token": "'lattice.config.json',",
+    "expectedOccurrences": 1,
+    "contextSha256": "c36927a450ead068ed5e40ccd55edd80669c83736ee70fd137518a8024800a53",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-21",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "'.lattice',",
+    "expectedOccurrences": 1,
+    "contextSha256": "5a826a70cd3ff97ca6f83657d62e95c251877fa7e39107e84f44120aae7779bb",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-22",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "'lattice.json',",
+    "expectedOccurrences": 1,
+    "contextSha256": "791c87d23ede8501e79930784e899e4ddbb13759a90dce9f44208c7ed6bd067e",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-23",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "const legacyCodexDir = '.lattice-codex';",
+    "expectedOccurrences": 1,
+    "contextSha256": "d8fb39c56968fc7851c04e0203adb5e980cb054f82462a110b230c6c6e313653",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-24",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-codex-assets.mjs",
+    "token": "const legacyCodexManifest = join(legacyCodexDir, 'lattice.json');",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b59df52ed93711379d63af866b5ad7ddae331ce8a8615e08e1b62180fa1b91d",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-25",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'state lives in .lattice/story/actives/B-xxxx/', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "f962d0aeaff9ab4e7b7163e55c7bacfe809f15d84422b2db62e4ccd9b1a2915e",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-26",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'writes .lattice/locks/main-write.lock/', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "8cc0322a6d3c539e17f41bf31a327fc66d732b202f205114e2cc136bb0bb8326",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-27",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'edit `lattice.config.json` directly', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "f5965a208d955f41fd1e91848540d0795141234ad86541772bc3fa8aebad5a13",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-28",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "token": "() => resolveAgentDispatchType('lattice-review-unknown'),",
+    "expectedOccurrences": 1,
+    "contextSha256": "3008b6476231117c9b7e921757bd7e894301d959fc96677fbd0ff07346959c12",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-29",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "token": ":proof-or-stop|lattice) checklist_update/, `$",
+    "expectedOccurrences": 1,
+    "contextSha256": "fe31e14dfefe9a4416bfc509ecbcf2ecaf0419ce2f00f2c0236f8b09a87151b1",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-30",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "token": ":lattice|lattice-codex)\\s+\\S+/, 'help does not teach retired bin invocations');",
+    "expectedOccurrences": 1,
+    "contextSha256": "c6f1cedc1f7c255482aac8baa9a2799a7b5f693d4d7d7efd1f76438ee277833c",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-31",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "token": "// them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice",
+    "expectedOccurrences": 1,
+    "contextSha256": "d83667592dbcc44483b6f9eb9bbaf0029bde92499667fb5878b4696d3ad9cb8a",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-32",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "const retiredBin = 'lattice'; // Explicit negative input; never an executable alias.",
+    "expectedOccurrences": 1,
+    "contextSha256": "bdc71d9be7127cdf8fc4db23175e2e3a03e88ce9c120322d18c8fad0f7a39b60",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-33",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/lab-brand-migration.test.mjs",
+    "token": "assert.equal(source.includes('lattice-lab'), false, `$",
+    "expectedOccurrences": 1,
+    "contextSha256": "8190efe1b3cd0bbc9fc4931af667e9eb6efeaade211e18a6ce0d484cf360b33a",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-34",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/lab-brand-migration.test.mjs",
+    "token": "must not emit the retired lattice-lab brand`);",
+    "expectedOccurrences": 1,
+    "contextSha256": "8190efe1b3cd0bbc9fc4931af667e9eb6efeaade211e18a6ce0d484cf360b33a",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-35",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/lab-brand-migration.test.mjs",
+    "token": "assert.equal(output.includes('lattice-lab'), false, 'new lab output must not advertise the retired lattice-lab brand');",
+    "expectedOccurrences": 1,
+    "contextSha256": "d99d7823c8d4298dcf524f541360940fd738c5a8bab9ea75f2be19bce91fc4b5",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-36",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-core-package-rename.mjs",
+    "token": "retired `lattice` package identity while the core package has moved.",
+    "expectedOccurrences": 1,
+    "contextSha256": "f82f33ae9eb2a06ccf3ac56e9798140e0ae8da117deece7ced579e92a4af7c8b",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-37",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": "'@lattice-agent/lab'",
+    "expectedOccurrences": 1,
+    "contextSha256": "9c72bba1ddbd40bd5e04777534f18116d5ba6c366c96b155663c6271e2a4b007",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-38",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": ", 'core should not depend on retired @lattice-agent/lab');",
+    "expectedOccurrences": 1,
+    "contextSha256": "9c72bba1ddbd40bd5e04777534f18116d5ba6c366c96b155663c6271e2a4b007",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-39",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": "'@lattice-agent/core'",
+    "expectedOccurrences": 2,
+    "contextSha256": "2b00f6321fe82b45c34b9a885e8ff288f0c42714791057315f2ccf187b7484af",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-40",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": ", 'utils should not depend on retired @lattice-agent/core');",
+    "expectedOccurrences": 1,
+    "contextSha256": "f3cf56664bfac36db0cbba7b6004a7518f47d5dced71a7660e7659261b101f85",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-41",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "token": ", 'lab should not depend on retired @lattice-agent/core');",
+    "expectedOccurrences": 1,
+    "contextSha256": "3ead7b191e237ed875b5a70e0f88fd2373128528c7c59cef0e69156328474bd6",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-42",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "'`bin/lattice.js`',",
+    "expectedOccurrences": 1,
+    "contextSha256": "3406b2e43027ae802979884ee75aff2b33e840b4f731e965f3650c139e5f2130",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-43",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-migration-contract.mjs",
+    "token": "'`bin/lattice-codex.js`',",
+    "expectedOccurrences": 1,
+    "contextSha256": "68120a471e27163e071991f6422606dc41eb32da61480da27f90e853c4979f23",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-44",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "token": "// These probes intentionally retain deprecated lattice-",
+    "expectedOccurrences": 1,
+    "contextSha256": "60f965233b86f6c4545acf7c47ee21b49584ebbe15f5db08cd44793d0a543302",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-45",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "the retired `lattice` executable alias. Keep this guard structural so adding the",
+    "expectedOccurrences": 1,
+    "contextSha256": "ac3859d7ff4d63d7eca8e4b510c9289cc257783fc447d26008b746eae4d8cd2b",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-46",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "&& !Object.prototype.hasOwnProperty.call(value, 'lattice');",
+    "expectedOccurrences": 1,
+    "contextSha256": "4bc0bd331d28e04b78019dddba0d8f93d94c3b4f280daf7b38111c4c4afe8651",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-47",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'node bin/lattice.js verify_codex', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "a761fc299a579b430ea6adb874832da38e1c1c963b852a791a2099da0adff2b4",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-48",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'node bin/lattice-codex.js session_brief', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "59378eb3a6caf6428c14259f85d433ce3ecedc65cc25543e6642985322863e2e",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-49",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'<!-- lattice:start -->', false",
+    "expectedOccurrences": 1,
+    "contextSha256": "86925de601e1f654b465d266113d7e54f8a4f9d22eb2c4ae63a67cde9437643d",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-50",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "'proof-or-stop': 'dist/cli.js', lattice: 'dist/cli.js'",
+    "expectedOccurrences": 2,
+    "contextSha256": "ec5a85219f3972a3a4defdb54b2358c4b90bd7f7b5e32a464788bc7dd0db346a",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-51",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "token": "lattice: 'dist/cli.js'",
+    "expectedOccurrences": 3,
+    "contextSha256": "89d7e3c2c16adf2893b7b32d1e1a11e6c2877897a8a50ffb61757eecf90fddb2",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-52",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "'lattice.cmd' : 'lattice';",
+    "expectedOccurrences": 1,
+    "contextSha256": "cdb587efa0e4e89b7709ca362cc8c9e1faa8f52db8affc138a81c1e6ee4a3159",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-53",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "const staleLatticeName = process.platform === 'win32'",
+    "expectedOccurrences": 1,
+    "contextSha256": "cdb587efa0e4e89b7709ca362cc8c9e1faa8f52db8affc138a81c1e6ee4a3159",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-54",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "const staleLatticeBin = join(localBinDir, staleLatticeName);",
+    "expectedOccurrences": 1,
+    "contextSha256": "3ea0aae8f8e89e09a59fb42648fa5a600d678d7277a379aa38d988729ac675f7",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-55",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "writeFileSync(staleLatticeBin, 'local lattice');",
+    "expectedOccurrences": 1,
+    "contextSha256": "0b5d818100d452d108cf5e6eec6d249b8bf178d0dc52fc3dab83cd8d75e4de5a",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-56",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale lattice-only local bin');",
+    "expectedOccurrences": 1,
+    "contextSha256": "d8cc83baeecc73e8f3beab056b889f96ed8047d8674e176f6869d666f6560521",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-57",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count a legacy lattice-only local bin as present');",
+    "expectedOccurrences": 1,
+    "contextSha256": "05cb26d8f226c5f3d9f26b067872e80b0dc5e41ee6b89690f879c8d4850bea65",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  },
+  {
+    "id": "final-negative-context-58",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "token": "check(!registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');",
+    "expectedOccurrences": 1,
+    "contextSha256": "cdf7f5491c9f1505f31f49940112da1e6becc9105a7db7b5a5e936d62ed38efa",
+    "reason": "Reviewed rejection, stale-identity isolation, forbidden-output mutation, or historical-contract assertion; no active legacy lookup or accepted role identity.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact reviewed negative occurrence and bounded context"
+  }
+];
+FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 'main-release-ledger-near-miss-negative', class: 'compatibility_fixture', path: 'packages/main/src/tasks/certification-window-smoke.ts', token: ['.lat', 'tice/artifact-releases.jsonl'].join(''), expectedOccurrences: 1, contextSha256: 'bd1c44e732807153b21472ef246315bad1219c1a447c4d5d402fcf55797af581', reason: 'Exact near-miss path is asserted to remain unclassified; this is deny-only test input, never active path admission.', disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence', expectedVerification: 'PASS exact reviewed negative occurrence and bounded context' }, { id: 'main-retired-config-draft-background-negative', class: 'compatibility_fixture', path: 'docs/story/drafts/orphan-cli-migration-smoke-retired-config-command/background.md', token: ['lat', 'tice_config_doctor'].join(''), expectedOccurrences: 2, contextSha256: 'e36b2eeb98bcfe17b92396b9e4ec85c384f42996897c9d0a9674e55788c228fa', reason: 'Exact pre-delivery draft observation names a retired command only to route its removal; it grants no active command authority.', disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence', expectedVerification: 'PASS exact reviewed negative occurrence and bounded context' }, { id: 'main-retired-config-draft-checklist-negative', class: 'compatibility_fixture', path: 'docs/story/drafts/orphan-cli-migration-smoke-retired-config-command/checklist.json', token: ['lat', 'tice_config_doctor'].join(''), expectedOccurrences: 1, contextSha256: '7428a467e4bc67132bcd7c29e4a90f5a08ba74f629408ab8f7eff5294f7dba66', reason: 'Exact pre-delivery draft checklist names a retired command only as rejected input; it grants no active command authority.', disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence', expectedVerification: 'PASS exact reviewed negative occurrence and bounded context' }, { id: 'main-retired-config-draft-index-negative', class: 'compatibility_fixture', path: 'docs/story/drafts/orphan-cli-migration-smoke-retired-config-command/index.json', token: ['lat', 'tice_config_doctor'].join(''), expectedOccurrences: 1, contextSha256: 'ede609a61eb03ff5073a44a2ccfc66d1835292b5311b0dc888f1c5976eca8a9e', reason: 'Exact pre-delivery draft index names a retired command only as the problem statement; it grants no active command authority.', disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence', expectedVerification: 'PASS exact reviewed negative occurrence and bounded context' }); EXACT_ALLOWLIST.push(...FINAL_NEGATIVE_CONTEXT_ROWS);
+// Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
+// Runtime obligations below and the normal focused suites establish rejection behavior.
+const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"4a509dc3449554c3b53289e28d12daac50fe16c9fb7dee335aa63597de708217"},
+  {
+    "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "sha256": "23db6d5e896552fae206dc318a930a295262d6a7b4bd4fe409b2ea300dc60187"
+  },
+  {
+    "path": "packages/main/src/tasks/certification-window-smoke.ts",
+    "sha256": "50c34aa6fd1e711b799ab862077677c88086a8fadc69966c5f03cf785490f4c4"
+  },
+  {
+    "path": "packages/main/src/tasks/command-ownership-contract.ts",
+    "sha256": "2b83592f49678b869e429d1b9c7d32e9a425787a3ee433181d4151e479b6575c"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "sha256": "1bbfa269c36320ccdad4b6ce0aa89fd48e84ba5d67ac72d0b68a8be69ce801e9"
+  },
+  {
+    "path": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "sha256": "8aeb3b110704050e50f455033f60d189ffabbde769822d428d63472168c65b47"
+  },
+  {
+    "path": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "sha256": "657b257d931a06689c8d90ea108c3e2d4aa3300fcdd6fea850200a8e044f2f4e"
+  },
+  {
+    "path": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "sha256": "4300984893dd7fb0dd1987b16ff873fc45abb82c98fdde01dae9236bae2d5590"
+  },
+  {
+    "path": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "sha256": "2751be4f4391d7852cb4e45af28b6978246281a36c1bc0d1ee81b4a5f4feb6cf"
+  },
+  {
+    "path": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "sha256": "9bd8423702469774c7c860ff349b9215e39baa2e29d47a1b93d9360db07fdbfd"
+  },
+  {
+    "path": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts",
+    "sha256": "cdbf26ba34750f8d02f17b51b343f9368f9e07229722f380af012501d4bdc188"
+  },
+  {
+    "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "sha256": "dba2da2e375dfe48beca39e1aaab7f38ba5e24c1ea15784cc9f74e8fa267ae35"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "sha256": "4284a628b9ae05e53b156f7335d67b5da29ceb0d7e76d13c031e713a04857273"
+  },
+  {
+    "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "sha256": "962b7a30575905c7b3dd46800482ff6a2a54ac95b1faa964963c2f5e6222f33f"
+  },
+  {
+    "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "sha256": "d5f66049f670b99d57df8c7fbcdce35fc8b3b5531a3238090d2324edb61985fe"
+  },
+  {
+    "path": "packages/main/src/tasks/version-bump-smoke.ts",
+    "sha256": "24e9fc05585731b70adc7850f9fb08202b95857126e7878126b559e4c48a27cd"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "sha256": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216"
+  },
+  {
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "sha256": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1"
+  },
+  {
+    "path": "packages/main/tests/bin-alias-migration.test.mjs",
+    "sha256": "b8152639bce087b87cbfd55bca169ce805a81a71d4b4f3cc1f9147b95d97f620"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "sha256": "539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "sha256": "fbae10cb8a339f37bb3971d624e78632572f5df5a2d920cd74911ca6879822a1"
+  },
+  {
+    "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
+    "sha256": "1c816299468dce646ba5137bf647a6caa8601fa6479df17e3601a3a7c258e798"
+  },
+  {
+    "path": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "sha256": "9277c705129a9cd15160c043a439e9ae86688a62714c66417bb665de46246613"
+  },
+  {
+    "path": "packages/main/tests/lab-brand-migration.test.mjs",
+    "sha256": "5bf82221848b0502eed75288387649159a735de71874920914f093eb98a87669"
+  },
+  {
+    "path": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+    "sha256": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856"
+  },
+  {
+    "path": "packages/main/tests/managed-marker-migration.test.mjs",
+    "sha256": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9"
+  },
+  {
+    "path": "packages/main/tests/package-identity-migration.test.mjs",
+    "sha256": "2ff4765736009577ce4c44aeda16b9c5335240391188cce67bc94268f798f730"
+  },
+  {
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "sha256": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30"
+  },
+  {
+    "path": "scripts/verify-codex-assets.mjs",
+    "sha256": "e23ebef3d7a921c085531f1f71267a1306fe775f7407dd4b1588c5bf0c72c873"
+  },
+  {
+    "path": "scripts/verify-core-package-rename.mjs",
+    "sha256": "7f23fcf9bcc27e82eb44ac988853bf72dc032d0eb05b64800b1d72a53d11a43a"
+  },
+  {
+    "path": "scripts/verify-entrypoints.mjs",
+    "sha256": "af6854f6258ea29b73d9016fdc73343d43ebae2770be8c2387c0e0dfd1076d78"
+  },
+  {
+    "path": "scripts/verify-global-lab-entrypoint.mjs",
+    "sha256": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4"
+  },
+  {
+    "path": "scripts/verify-migration-contract.mjs",
+    "sha256": "75de0e714349006cd3cf40ce2f8b5466347e2e8d9d8444d6a8e9540ca5e4d2ad"
+  },
+  {
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "sha256": "35f59c8e9720f3eddf2bdd8a9b14db708e1c81f3dc2b0b41ef368aec6369a033"
+  },
+  {
+    "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "sha256": "ae7faccc41eee6ab6ab9e1d59b4d8257751d2e630a320a26d998fd3929f0d50c"
+  },
+  {
+    "path": "scripts/verify-proof-or-stop-residue.mjs",
+    "sha256": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970"
+  },
+  {
+    "path": "scripts/verify-runtime-fact-contract.mjs",
+    "sha256": "7d596bb02458045d8fdda07d5b3def216fd44906dd61bb1194b5509401d6d9ae"
+  }
+];
+const CLOSED_ROLE_NEGATIVE_ROWS = [
+  {
+    "id": "closed-role-negative-1",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "token": "'', /lattice-review-story-init/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "61e78ba58ddd8725a457069ca740930d21fe10b46a262b75411f7a82928bec34",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-2",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "token": "assert.doesNotMatch(output, /subagent_type: \"lattice-review-story-init\"/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "d0159dbd02a747f9c2827b86216a7602a96f8a636f419ef58cbc692d0b4a371e",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-3",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "token": "assert.doesNotMatch(output, /agentType\":\"lattice-review-story-init\"/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "f3be5b820fda1ff000e95361817cfae2877a408253654d81aeb6a91b00565f59",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-4",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "token": "assert.doesNotMatch(error.message, /lattice-review-story-init/);",
+    "expectedOccurrences": 1,
+    "contextSha256": "321122e81b688154fc80a2f65188e3621eafcbac008b047d3c85ee7c787c55bb",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-5",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "token": "storyId, agentType: 'lattice-review-scope-plan'",
+    "expectedOccurrences": 1,
+    "contextSha256": "4b7c772e82e35e9d87d55c356a762e3d0fe7b336299edeccda35efeb4aa079ab",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-6",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+    "token": "roleId: 'lattice-review-quality@historical', terminal: false",
+    "expectedOccurrences": 1,
+    "contextSha256": "ddfc8416ce5f641128edb91c7af63e8f0e9165f9577594081f01221dd4db82e4",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-7",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+    "token": "roleId: 'lattice-review-quality@historical', terminal: true",
+    "expectedOccurrences": 1,
+    "contextSha256": "8e1978e19eff129b2f5966e4ad08f6bbc3d360305377a6df05b8f4914520fccf",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  },
+  {
+    "id": "closed-role-negative-8",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+    "token": "'lattice-review-quality', 'verification-intent', 'proofbound-review-quality', 'unknown-review-role'",
+    "expectedOccurrences": 1,
+    "contextSha256": "df05799e5c1dbf0ca88d8328c6544cad54b39a84952cf2960b2414ab818cbb8d",
+    "reason": "Independently verified retired-role dispatch rejection and historical observation without readable alias authority; canonical controls and input non-mutation are retained.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact closed-role negative context"
+  }
+];
+FINAL_NEGATIVE_CONTEXT_ROWS.push(...CLOSED_ROLE_NEGATIVE_ROWS);
+EXACT_ALLOWLIST.push(...CLOSED_ROLE_NEGATIVE_ROWS);
+const CLOSED_ROLE_RUNTIME_WITNESSES = [
+  { path: 'packages/main/tests/b90d6-init-dispatch-guidance.test.mjs', command: 'packages/main/tests/b90d6-init-dispatch-guidance.test.mjs', selector: 'b90d6-init-dispatch-guidance: ALL PASS' },
+  { path: 'packages/main/tests/legacy-role-alias-sunset.test.mjs', command: 'packages/main/tests/legacy-role-alias-sunset.test.mjs', selector: 'legacy role alias sunset contract test passed' },
+];
+const INTEGRATION_ROOT_HISTORY_CONTEXT = {
+  id: 'integration-root-index-removal-history',
+  class: 'provenance_bytes',
+  path: 'docs/requirements/decisions/b-49df-main-integration-provenance.md',
+  token: 'lattice.config.json',
+  expectedOccurrences: 1,
+  contextSha256: '1c5baa40c23c10f7a7b60b58f17be9ba45d23e1e42b3a6cd57966bad6c18a035',
+  reason: 'Exact historical index-removal evidence table; the retired root configuration is denied, never a current lookup input.',
+  disposition: 'frozen',
+  verificationCommand: 'internal:verify-integration-root-history-context',
+  expectedVerification: 'PASS exact committed history context and imported root blob binding',
+};
+const INTEGRATION_ROOT_HISTORY_SOURCE = {
+  commit: 'ce5e59fb9dee49ebc0c9b90f2dae62fbefd09d07',
+  path: INTEGRATION_ROOT_HISTORY_CONTEXT.path,
+  gitBlobOid: '63bdd64e71868f710a1a18cc3e2654fc2d76e5a4',
+  sha256: 'f72c2d909125501518eee66521c46769739ad3549ad52e16ea675714d9a881f5',
+};
+EXACT_ALLOWLIST.push(INTEGRATION_ROOT_HISTORY_CONTEXT);
+const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [
+  ["lattice-evaluator",1,"2d96a1f44ffa2eb05931241226d5de899f06a5b7566a4280ab1be887f659c6c2"],
+  ["lattice-implementer",1,"f23fa45cc02552afdfdbed39f510f7f802ecab624f652c4b77cdd967f9ff17ac"],
+  ["lattice-review-behavior",1,"bb4852595cc7fc8b1b26ccf5543a890a344dc9a19c6cbe2a7c33ee63bb5576fb"],
+  ["lattice-review-concept",1,"f1aee775601d04f50ceba85dc2cad00eab41606d7a6aef1f59748d8cbd44333b"],
+  ["lattice-review-delivery",1,"4d88dd1ec4dbade655bb71b633e09e1cab7bbbb00e88ce410642f0d89c68c33a"],
+  ["lattice-review-docs",1,"22ba64eb6decaa0732ecc938e1243ee884d042284157cf0c056c69794da2c711"],
+  ["lattice-review-quality",1,"3287d166851568de782063047864dc0a2f304b9bf4f546f68443277300a39c70"],
+  ["lattice-review-run-workspace-binding-v1",1,"a5ccdcd7f60c1d0d71ad85f49ce4fcbd3dc242c42e1cb144ab8e5b63c5e8785e"],
+  ["lattice-review-scope-plan",1,"c16c13cbe506ab84d1cca13376dd1f28476a0fb2baf9fd84063cbe3c40e57bcb"],
+  ["lattice-review-story-init",1,"e5d9be534ed6e73c45ea47494e435cbe7334f165e0537643b2f213f044dc4673"],
+  ["lattice-review-test-coverage",1,"d6bce1d9772c390a55768488b618bd3ac5bd86bce47c1fb9ea7615d51b857336"],
+  ["lattice-review-topology-critic",2,"27fbcae67c27a8ba6d63d54efb198cddedadeac09906999258852b5f9a049404"],
+  ["lattice.evidence_hash_snapshot.v1",3,"c9631c0dedd8954ae56932c500c92bcf629647fba8e7112729f988c8c7cdb255"],
+  ["lattice.proof_admissibility.v1",3,"4dbbe7a3e32c2fe86f1b89fa172ade086254fe4c7f622dbd65454091ae613ea7"],
+  ["lattice.proof_admissibility_verifier.v1",3,"a38123b77874b352d5c95b94e90aebee359b0b2bfaca88bde1cbfd7f16959ed6"],
+  ["lattice.quantum_claim_admissibility.v1",3,"9d76fa71707f7702b184306ce533e403e7bad03f661c80b30388478c8ab818cf"],
+  ["lattice.quantum_claim_admissibility_verifier.v1",3,"140cba5a7d60988f0bb82f14be442636195fd76a20b8a9e1b57da05dd2d3b0c5"],
+  ["lattice.queue_exception_registry.v1",1,"357ad5000df1bee2f379a49c17ad90c79a31f25d3e701d12699061e0bc7786ab"],
+  ["lattice.queue_exception_set.v1",1,"d1ef0563b6d9381a5e80111ce74c9b68c0b63f98b1122aac43af302168748220"],
+  ["proofbound-code-runtime",1,"aecabbf8608fa67d693da8a3f184281083faa4f43fba1d23b51e727048b26f42"],
+  ["proofbound-evaluator",10,"9ac725b537724ccc9ccf608ce56e6ad1e5bbd0dff47c9c901f30b2e101be6b31"],
+  ["proofbound-evaluator-cli",4,"b29d4346ec3c85c1f59857752a1d6f98c3b10232f174bee2273777aa69849d46"],
+  ["proofbound-implementation-reviewer",4,"c53ade05bdfec81e0c56e04e101a9c3de39eafe7a5034545f9750377ea0436ab"],
+  ["proofbound-implementer",10,"c5436e3bb9c5e9e002935631c37058cee65ec51331c02377c4a1794a56214ef7"],
+  ["proofbound-memory-baseline-global-",1,"ad24bd05e6064cbd42e7543353bf441957bdf8f5b2a727066a8f83afdcdb3b55"],
+  ["proofbound-memory-baseline-matrix-",1,"81b010c6c3abc8e2caa180216b562d98f96d17061b8acf6291bc96f9aafed134"],
+  ["proofbound-memory-baseline-runtime-",2,"23998295137b6ad03d351d093c1f27dbc81698011fe63c871d13142cbd62d725"],
+  ["proofbound-memory-baseline-runtime-corpus-",1,"c4c738abfb3e5193f8a83d60cff9009dc8da14d9f66efd9887f75303d1f161e7"],
+  ["proofbound-product-reviewer",6,"3497e3fafcc3063a8d5e1d2dcbd59b10ef4741c562aa94cbabebbe1e57067628"],
+  ["proofbound-review-behavior",10,"740ae800f1cad2dfc01b87b55411ceb75582ed0400207b07f9020ee25c6c101f"],
+  ["proofbound-review-channel",8,"61651c66f5f988c613fc5b77311cdef76e0e3474c0c0e08598830ed1d2eeb161"],
+  ["proofbound-review-concept",10,"6d7d0bf38b0800a8ccc759ca72bc89464df312e10c71a204ecd1120f3a624906"],
+  ["proofbound-review-delivery",10,"82c21439b4f095d2d527cd6642e0210b2a551c9add261c4f84409f3fe3b2b7b4"],
+  ["proofbound-review-docs",10,"1491b8a69b057c189c7bd6df0505e1b10c03e231ff41ebc1671a8aa6fe96301c"],
+  ["proofbound-review-quality",10,"c0f66bf8de03ddc7fe02e8df2dc6ba3aee1b4b996561b159182b539604e76046"],
+  ["proofbound-review-scope-plan",12,"22eae75e0bd9f67f532d59361821404a40bb7beb752a7ea05310924646617d96"],
+  ["proofbound-review-story-init",10,"0311bb952c0ac12107c207d4e3d1c8d926f44ee5a65faaa835598e97ac8390f7"],
+  ["proofbound-review-test-coverage",8,"62b9c433f5d256af42a110ec32d0eeac0960e8fc60cf152c726cd52604abe68f"],
+  ["proofbound-review-topology-critic",12,"4c5e9d6c97547c6be82fa9453b0b5837db990f9ea1dd3b612b2ebcd339b35020"],
+  ["proofbound-test-case-reviewer",4,"a878292f7a0ac0c3d47f66784f66f63708fffc26130156a54e91cd265a7b4a8c"],
+  ["proofbound-test-intent",4,"3ecbbde186a6470078995c272c4fa3c861a0a2a62220cd2c1fd0ef3942f33263"],
+  ["proofbound-verification-intent",4,"1b52ac90e97b135daf917679904856b8c44c89e9d57fe93c347b04c4d7191711"],
+  ["proofbound.agent-runtime.v1",2,"42dcc1e66764931d8ff418e780564ceab425187078cd0c7b9f22bcb96b2bfcbc"],
+  ["proofbound.candidate-spec-set.v1",1,"9b0c7fd2190d207289d319cb1bae800054dbe21b6dc99775def2b7a810001f61"],
+  ["proofbound.canonical-json.code-point-keys.v1",4,"032cd4a7ea83eb7245d59fd1ad18761d3e248b403dcc942eaf78bc7de7e1e451"],
+  ["proofbound.capability-release-backfill.v1",1,"ff285bfe39f28fee13d95d40178f4402f4c989180c114ba6f30f84c50f9df0e7"],
+  ["proofbound.certification-window.v1",1,"104d245388e0fcde08b4e31a548c9b7beb4604749eaf41f1592db80fdf675350"],
+  ["proofbound.certification_windows.v1",1,"bb748e61b7ecb23753a4723d326640fd94e77f70e3c34637d4e9a8d6143e160c"],
+  ["proofbound.config.json",2,"44cee7f8af7ea7cac6ab24c4537f59f59e4535a8c866781f3c3e8bcdc3a78e99"],
+  ["proofbound.dev-memory-finish-decision.v1",1,"1bc6c4fc894935eff145db24a1766ea2b65178d6b04863d52fd0472a142bbae8"],
+  ["proofbound.evidence-activated-advisory-playbook.v1",1,"66b288858677c5c9e9f5ac36f38ece2d9d2cf8ac5b7b8c9c16a68f132f8c1344"],
+  ["proofbound.final-response-check.v1",1,"3b0cde1d6cb515c6e258f284749d67d3c1989b8f5df02df874a56b45eac96b63"],
+  ["proofbound.keyword-proposal.v1",2,"cf15b09a43d173042e1a66b628b301dd43a661dd710ec924c1445703c7fc7504"],
+  ["proofbound.keyword-seeds.v1",1,"364bc676fdd158884264abaa662d7d2492fe17fffb1d866ecf39fb2d03f0da6c"],
+  ["proofbound.learning-source-key.v1",1,"c39a0f697e6ed72a6451214fd176956af956a07f81efe7197089127e3a6e419c"],
+  ["proofbound.lifecycle.init-to-done.v2",4,"15f2d4945c071c62006e800a050d17dd2f36b3f64135366a2a72c04c9feae73c"],
+  ["proofbound.memory-playbook-baseline.gold.v1",1,"74debf2d70d1e8f788a9011177c715521afa1e57777832549e25142bb814e209"],
+  ["proofbound.memory-playbook-optimized-parity.v1",1,"c2e0443b27cdb04e7172bf36e8c9238c5122fdb8354c84c2c852449981662d80"],
+  ["proofbound.milestone_closeout.v1",1,"a597032720ea96df42e2be55ebf5d34da85d7d3221d7e8e0e7fd2961be5da052"],
+  ["proofbound.milestone_closeout_missing.v1",1,"189518c23ae83e6bdb7b5e334b127f795c575c0897e48ea30b62c41e725d1250"],
+  ["proofbound.non-deducible-source.v1",1,"34c3660dc4dfb1b5501256d1a92ec174ff51ca3ec12f2f378cee2fc9116e4db2"],
+  ["proofbound.non-deducible-sources.v1",1,"c3d3e7ad00d89b66968a1223134b01b6c3eb1ed64c6910ab126529ca30c7ea94"],
+  ["proofbound.playbook-auto-activation.v1",2,"4c91b68f152b5f861781a1f168fbe5e89f0c83fdc34a9b2e1f0ecfbbe0202cfc"],
+  ["proofbound.playbook-auto-promotion-apply.v1",1,"53047872b3a356344970310eee28fee5ca57c40f0f9bf083a9552ee6fd446a2d"],
+  ["proofbound.playbook-candidate-batch-manifest.v1",1,"6c86456e4679e3428bcfd2fde1415fabfb73702ad937847ed5286e0dd12caed7"],
+  ["proofbound.playbook-candidate-ingest.v1",1,"ba2b44abefe10d7ca70e5406d213452ddb108875255f7bfb422800d36c6b766e"],
+  ["proofbound.playbook-outcome.v1",1,"d205fb6b07d2698a275d939b9d3cf349f317d75d092ee9a6aa0e69b0ee79fa3e"],
+  ["proofbound.playbook-promotion-decision.v1",3,"e8e9aafa71169b6dd5ed23c6bc320bf2b3e5f56ff16ee01c178a2b0b827248e9"],
+  ["proofbound.playbook-promotion-health.v1",2,"f3e735f157c96b211755fc5128a0829b5ecf862858ada615e5896ced12397d48"],
+  ["proofbound.playbook-promotion-observe.v1",1,"e97d3d6971d0204d33874e32d8277d49004448d4b1a4cb9159406f9ff85920c6"],
+  ["proofbound.playbook-promotion-timer.v1",1,"906a43292b7a2e504affa80a77c74db15d2cc1b759c801ee2971f24f15697180"],
+  ["proofbound.playbook-runtime-consumption-verify.v1",1,"d301225d3cd4420ba5ae854290e13519d6e5460c65a7689a56831041cd25780c"],
+  ["proofbound.playbook-seed-backfill.v1",1,"4db010981979f2c5eac8a91a7863a49b5ba3c3c683d3924e6daf378f1fe9b24f"],
+  ["proofbound.playbook-seed-propose-batch.v1",1,"1fb93a178d0244c863ae22f3113b9a9bf564e33dca0998d813c8e6cf457a66ff"],
+  ["proofbound.playbook-trial-control.v1",2,"7c2153cb8c6246be27c52a8725944b25309afd090fc8576837e37d38d6f9f318"],
+  ["proofbound.playbook-trial-run.v1",1,"ac00286dca98e6cce798728a15929ba19100a70f064ce59d918d092c4918623a"],
+  ["proofbound.post-remediation-review-selection.v1",1,"9c98c64499534a4a791956c11e3e40f58f444eecce134bc639d88f4a6dcf2adf"],
+  ["proofbound.precert-receipt.v1",1,"15f8df1e3db1b5555ebfbeaeb5f701a714ab340d68d0acc1b6079403b92c8341"],
+  ["proofbound.precert_receipt.v1",1,"3ee73ae737fb09659c29c37625e4115a60aa2f7a2484a0514c56cab0a18d468e"],
+  ["proofbound.product-capability-release.v1",1,"bcc692efc7be5140570179a24efd02874f2720da513409f1895cfa31e2802b40"],
+  ["proofbound.prompt-envelope-rollout.v1",1,"dc61202e31a5c475cf24cf8dd3218af6fb3215476c71b6468aec40e1e139ef2a"],
+  ["proofbound.prompt-measurement-report.v1",2,"3e33a4c99b1c8d7ff502eeb48d13c9cc29a0810f2d681d83b345025716205496"],
+  ["proofbound.prompt-role-contract-registry.v1",2,"87e31db7612133dec01a455591b38592bcd8b9cc12b8edb3e9678d6bfcdf4910"],
+  ["proofbound.queue_exception.v1",1,"0008de2856a3754d6aa546acbf720fda98120bff660626a5cbc8a83b518dbee2"],
+  ["proofbound.review-inventory-critic-receipt.v1",1,"321bc2cd046199e9088e40835746e4f12afe91741293f7df8f06e06e4979dfed"],
+  ["proofbound.review-inventory-epoch.v1",1,"2152c085e7750a42834770dd58d16cf48be4a2b33c5bbb2af497fb75121b64de"],
+  ["proofbound.review-inventory-receipt.v1",1,"f935c8302e29070aea95aec76da978ec239020b0ac76eba3f5ec6852de99affa"],
+  ["proofbound.review_inventory_critic_receipt.v1",1,"b64cedea1ee30c32581d1eff2252ecd7810bc1425d30d53e55b826ff0df88e4b"],
+  ["proofbound.review_inventory_epoch.v1",1,"82b5ed81713171b49a256a6e46243385fc30f717aff495a5c358908629f685f7"],
+  ["proofbound.review_inventory_receipt.v1",1,"8c079227aa603c336264fbf1dd84143c53bb39bc85efc614d8b43b95fcd472f8"],
+  ["proofbound.review_run_list.v1",1,"ae43051e1a56e34c522448965a6c52f3c0068033fb78f3d088f9d4aadb772ecf"],
+  ["proofbound.reviewer-host-render-identity.v1",1,"e1a7b75ddfb3fe4b94fb15e423db27f50d331ca75bbc34faf5020d6da3fca1af"],
+  ["proofbound.role-contract.v1",2,"5c32df5c65c8a8e730547111a7f7247b9de136fa4b6e2761d7ced678342309c3"],
+  ["proofbound.signed-process-facts.v1",4,"5675001deb045c0002adb7d8446fa2976bca3816b5463f4803728a1b4e607eee"],
+  ["proofbound.story-owner-boundaries.v1",4,"c5fb2d7d95165eae67eee4a761b08aa61ae7b70be0912878bcf4c3999b29846a"],
+].map(([token, expectedOccurrences, contextSha256], index) => ({
+  id: `owned-identity-mutation-${index + 1}`, class: 'compatibility_fixture',
+  path: 'packages/main/src/core/runtime-environment-checks.ts', token, expectedOccurrences, contextSha256,
+  reason: 'Exact fail-closed mutation metadata input, bound to independent source inventory, actual public-operation cases and historical or explicitly constructed provenance; never runtime alias admission.',
+  disposition: 'frozen', verificationCommand: 'node packages/main/tests/canonical-new-story-artifacts.test.mjs --group=identity-sites',
+  expectedVerification: 'GREEN B-49df: identity-sites group pass.',
+}));
+EXACT_ALLOWLIST.push(...OWNED_IDENTITY_MUTATION_CONTEXT_ROWS);
+
+const BOTH_FAMILY_CONTEXT_ROWS = [
+  ["packages/main/tests/brand-role-migration.test.mjs","proofbound-review-quality",2,"ce5548010842c37dd9329abdaadbfd8d1a13af87eef7fa51dc294fdc641c6308","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["docs/story/drafts/codex-hook-assets-drift-from-generator/checklist.json","; .codex/hooks.json is neither, which is why Proofbound survived. Add JSON host assets under .codex/ and .claude/ to the scan roots with the same deprecate",1,"a4633d374ab9e70e0de04f4e38a81b81bc1228b22b7818763a75a26781f7e7f9","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/story/drafts/codex-hook-assets-drift-from-generator/index.json","ed ROOT_MARKERS, deprecated alias fallbacks, Proofbound statusMessage strings). Regenerate them fully on main, and add a smoke that renders the generator o",1,"33dfd134a02450393ce20678f9820d168b5441f7fe7cc14c307be5748b4c3a08","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["packages/main/src/tasks/command-catalog-smoke.ts","assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');",1,"55649ea8494c215048a19f1dcb3da742591c3d6223836151b8930e9862367ae8","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","// this inventory specifically so active proofbound protocol literals or",1,"360530bd2123c42ef12c5ce94b715cecb9b3f19152573bc4da4e6b89fe127230","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs",", 'CHK-007:edge:0 frozen proofbound history stays byte-identical and is rejected by active readers', () =>",1,"ac46d7f5af2afc2060115d73d97e493dfb87017ebf218029cc4ff253165ef283","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs",", 'CHK-007:adversarial:0 proofbound injection at every active boundary fails closed with zero mutation', () =>",1,"5faf7bdaaf63f9f8b46c2640d3b6fdf5c97001d7fb7454badd7315aad8b35e34","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md","> Proofbound 的生命周期、reviewer 编排、证据写入和验收模型，在哪些位置把一次正常的实现—审查—修复过程放大成了多轮重复工作？",1,"c53fd27427997f24090b13e286bddb940b4878122d6a1befd7a3638b1c950c2d","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/requirements/decisions/milestone-ledger-status-review-findings.md","`/Users/jek/Documents/Work/proofbound/.worktrees/B-b550`. The retired",1,"18c7c970ef63b8449d434c81c02ebbf34b5c0a0345bfb868449f146db76bdc86","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/requirements/decisions/orchestrate-retirement.md","| B-3523 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-3523` | preserved, not normalized |",1,"0193096213ccb09c302c9a0c5166bc5759b9fe361382e3d669a3bad029a8eb23","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/requirements/decisions/orchestrate-retirement.md","| B-fbb6 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` | preserved, not normalized |",1,"8e05367179635a8bade4944b1145c3fcdacc9eca8ca6c11187a2bd43aa77f2fc","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md","| Repository | `proofbound` |",1,"c6fabdfbfb3213f16ec650e7d01e844d0e127c376a492417e0edd1eb93b73f11","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/story/drafts/codex-hook-assets-drift-from-generator/background.md","/hooks.json statusMessage strings still read Proofbound instead of Proof-or-Stop. B-af1b only appended its own entries and did not repair this, because it ",1,"7f94ba793527508f4abf21fdfa37e36592c81f389417fcc3832395e59139c2a0","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["docs/story/drafts/codex-hook-assets-drift-from-generator/background.md","e narrowed to the files that story owns. The Proofbound statusMessage is a brand-rename residue that the residue verifier does not scan because .codex/hook",1,"9814fbce828b637aad15547148ce64e41d5a5dc90d1c0b30f2a0167b642b1df2","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["packages/main/src/tasks/evidence-retention-gc-smoke.ts","PROOFBOUND_TEST_ACTOR_KEY",1,"9dc84e85e42f53e72b8f9d35b3a8fe0f2e9d904bc3a5eb2da223348a71adb26d","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-0b50.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-1482.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-16df.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-1734.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-1e1f.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-2220.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-3434.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-3e16.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-41c8.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-45a0.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-45a5.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-49ed.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-5952.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-5a15.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-5a88.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-6693.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-74b9.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-7dff.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-8af0.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-8df9.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-9a49.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-9f2c.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-9ff1.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-a2a6.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-a745.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-cc10.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-d15e.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-d854.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  [".proof-or-stop/dev-memory/finish-decisions/B-dc2e.json","proofbound.dev-memory-finish-decision.v1",1,"98e842f59bd8cc5276644d0e2dcd18d1323a6eaf795e6404d6cc9fd7061294c8","persisted_schema","Exact pre-cutover signed finish-decision schema bytes; preserve the record, never admit it to a current active reader."],
+  ["docs/story/drafts/codex-hook-assets-drift-from-generator/checklist.json","ks rewritten, hooks.json statusMessage still Proofbound). GREEN: after the commit the same sequence leaves an empty diff. Restore the paths init --upgrade ",1,"b7336c4387e65c52936b049c57b28242960f207b1088e761ae5dd91d843f429e","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/negative-controls/host-path-contamination.json","\"value\": \"/Users/jek/Documents/Work/proofbound/.proof-or-stop/secret\"",1,"3d918e6bf8474a0973b0959a932a9ccc2d0c9d01c9c9dbe0661b078d9e75c1ef","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/negative-controls/proofbound-memory-contamination.json","proofbound-memory-contamination",1,"32e4faf877df157c500ceaf27e2b85207d3b97f50b1a7dc8d791fd717fa7b497","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority.",true],
+  ["experiments/multi-model-ablation/cell06-docker-probe/negative-controls/proofbound-memory-contamination.json","Proofbound-memory",1,"5fe40880a0c7d8d72051513edf7376cc79eb732b47f82c92ceb7b86860846e16","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json","proofbound-cell06-codex-probe",1,"2298b058065cb0ba0d548d31fbc871a2becaf7963fd36efa4c22f2a500a699d9","provenance_bytes","Exact completed Cell06 probe evidence bytes; current producer changed independently and does not rewrite prior results or authorization."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl","proofbound-cell06-codex-probe",2,"7752b70c3cff700b1c18490cd4e4741c44aa696ff89d75e7d463dbba975b8d5b","provenance_bytes","Exact completed Cell06 probe evidence bytes; current producer changed independently and does not rewrite prior results or authorization."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl","proofboundMemoryLeak",2,"7752b70c3cff700b1c18490cd4e4741c44aa696ff89d75e7d463dbba975b8d5b","provenance_bytes","Exact completed Cell06 probe evidence bytes; current producer changed independently and does not rewrite prior results or authorization."],
+  ["experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs","proofbound-memory",1,"4a6b9017cedb4361bc659b09d9596c83bad1a5e3c3b0d7a3e5755fa583641479","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/core/runtime-environment-checks.ts","retiredNeedle = canonical.replace(/^proof-or-stop/u, 'proofbound'),",1,"afcc2837563573b1c1fee780141a0506578dbd3987a53ef3e4bbb6df6202acfa","compatibility_fixture","Exact unsupported-family mutation constructor metadata; synthesizes rejection controls and never resolves an active alias."],
+  ["packages/main/src/core/runtime-environment-checks.ts","retired = canonical.replace(/^proof-or-stop/u, 'proofbound'),",1,"ce6c078cd961186d1e30222b08ab78cb1176e9877b75f5c7caa5d825488f773a","compatibility_fixture","Exact unsupported-family mutation constructor metadata; synthesizes rejection controls and never resolves an active alias."],
+  ["packages/main/src/tasks/command-catalog-smoke.ts","// B-cdf6 CHK-002: the product name is now Proof-or-Stop (the legacy 'Proofbound'",1,"f622688ba0faba3e7c816f38df4ff257a49c0bdd9e359e2030729ea52d7c080e","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/convergence-breaker-smoke.ts","'  at frame /Users/jek/Documents/Work/proofbound/packages/main/dist/core/machine.js:179:11\\n'.repeat(5_000)",1,"c6a765deebc23f736cbecbd364adbe3ec153bfff5d1a63579892c727dbd8de04","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/convergence-breaker-smoke.ts","`(owner cwd: /Users/jek/Documents/Work/proofbound/.worktrees/B-bf52). \"story_advance\" is an owner-gated storyScopedMutating command, ` +",1,"a7ef85e99a4cf68a4265c8e5f0264b07034ddf806dd7a688bc41b7be1e541477","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/convergence-breaker-smoke.ts","a: 'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate',",1,"c0b905f7b02f3154b5766bb76d0c7af03dbbd24bc7882c50d1b3e7683b392ec0","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/convergence-breaker-smoke.ts","a: 'ENOENT reading \"/Users/jek/Documents/Work/proofbound/packages/main/src/core/machine.ts\"',",1,"1a8f9b11507cd623addd55c99653bcf4c6090bfe274bb5aa959c701b2166e206","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/convergence-breaker-smoke.ts","a: 'story lock cwd=/Users/jek/Documents/Work/proofbound/.worktrees/B-bf52 is held elsewhere',",1,"0c777443f00cb13bc0f66d0ae08294031cb47890f5f3f8264535f22bcb9cf0c5","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/dev-memory-supersession-smoke.ts",".some(tag => tag === 'proofbound' || tag.includes('proofbound')), `$",1,"eaf13bcb25ae4b660c8b5b47159e37d63b5d007cd5baa8339d40d29e4f132bdc","compatibility_fixture","Exact raw historical tag assertion restricted to five fixed pre-cutover project IDs; newly generated global fixtures forbid the retired tag."],
+  ["packages/main/src/tasks/dev-memory-supersession-smoke.ts",".every(tag => !tag.includes('proofbound')), `$",1,"01ebe57bbe312336da30c94ca8c03531ce445e84fda972685ca39f810b1728f5","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts","mergedInto: 'proofbound',",1,"8c1426260aa633e85a020d0856989545c39843c994d5fd42c99997111bb360fa","compatibility_fixture","Exact historical deprecated-tag fixture field used to exercise deprecated-term observations; not proof of rejection or current tag emission."],
+  ["packages/main/src/tasks/usage-sweep-smoke.ts","const codexCwd = '/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9';",1,"00bff076769a0dbb7ce3af4e3cdba33e3dd5d468d7a70bb10684e25a23f1f1b3","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/src/tasks/usage-sweep-smoke.ts","type: 'assistant', timestamp: '2026-07-10T02:00:00.000Z', cwd: '/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9', requestId: 'req_1', message:",1,"85554fe596f2b668eba4c0ee755a373ba182da673b5852d7972dcce996897da9","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","/retired|proofbound|unsupported|unexpected|pinned|provenance|allowlist/i,",1,"ac899cff98f276f54bda8c39e62eac61881cf45ac8ea24dd2025ded8015a7ab2","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","/retired|proofbound|unsupported|unexpected|allowlist|schema/is,",1,"62d0b0b5c4eb59006d2c4a5bb5584f6b8aeb88efa85627c64151a95f11f44e4f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.equal(/proofbound/iu.test(readFileSync(join(repoRoot, path), 'utf8')), false, `$",1,"7eef367f9b5eb038c73b01cfb659f24b339e41dde992e3fda28150d7f88a52f8","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.equal(/proofbound/iu.test(bytes), false, `$",1,"97b2e85d00c912d1dbada8741102737d5c26b412f7f11f5648736e8bc859c03f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.ok(identityCase.retired.startsWith('proofbound.') || identityCase.retired.startsWith('proofbound-'), `$",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","'proofbound-'",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/prompt-role-migration.test.mjs","proofbound.prompt-registry.v1",1,"94ff59bed270fbcc9eda265e6f179dfdd44e927b3f0972a33923d09866db4500","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/red/red-s3-differential-probe.mjs","'volatile machine-absolute path', 'volatile', 'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate', 'validation lock held at /private/var/folders/zz/T/proof-or-stop-abc/.proof-or-stop/locks/validate'",1,"24ac9f6cf3589bdff771e5edfee56b7af522bb75a04855bfd4ef832686484837","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/red/red-s3-digest-collapse.mjs","'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate',",1,"2f5cc620006a939032a2ee1cb7444b189314d76fa646fae40ae0c93d7d986f6b","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/release-push-approval-migration.test.mjs","proofbound.remote-push-approval.v1",1,"7b43c8c4ec1bff21bf8d6151f139c3e649a8718d0d6f14fa0fa9ffe79800bab2","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+].map(([path, token, expectedOccurrences, contextSha256, classification, reason, allowFilename = false], index) => ({
+  id: `both-family-context-${index + 1}`, path, token, expectedOccurrences, contextSha256,
+  class: classification, reason, disposition: 'frozen',
+  historicalStatement: classification === 'provenance_bytes', allowFilename,
+  verificationCommand: 'internal:verify-both-family-contexts',
+  expectedVerification: 'PASS exact independently classified historical or negative context',
+}));
+EXACT_ALLOWLIST.push(...BOTH_FAMILY_CONTEXT_ROWS);
+
+const BOTH_FAMILY_CONTEXT_WITNESSES = [
+  [0,"539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b"],
+  [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
+  [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
+  [3,"4661b6c4a710475e0769fc40d38e6a2ae35743a99db51923df5e89440f21d893"],
+  [4,"fbae10cb8a339f37bb3971d624e78632572f5df5a2d920cd74911ca6879822a1"],
+  [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
+  [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
+  [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
+  [17,"438a1d64432dd513be0a365831bf260c5dd3f06a664ee26a91d4ec85612acecc"],
+  [18,"e682201fcd919fed8b31298c5f9fea4a2f4074a79acdf36283d1895752a8254b"],
+  [19,"99f4f22d9a18956841357ccdbc27b2f379043be626da5644dd646b84d4d019cb"],
+  [20,"a9d4b98b556f6fc86b10c0ffdc5428efd9fdc3ff726c49d7d1aaca72cddfb153"],
+  [21,"60f20b105f498895f236dfad760345cf70f513d36d52e906808ef1354d832b36"],
+  [22,"c77d7847d413037394c5c2f6a33b1ad096a21d027da2b38d4efa072b1bfd5515"],
+  [23,"6123835d0e76ab25fb522130d2fb0a3d6d9f9c8a5671498d799054075539c4cd"],
+  [24,"b64a701e7111d9e38a6fa9eeb33aa29557820a13e8b0e6551760542308e662f4"],
+  [25,"793e99306f265c4eee27d3f909cadaae7c1f8aafa1efcf3aa7dc788e838b4f2a"],
+  [26,"1f46856a5c0bb12fde681a4bf6361714c51b831a9c5e6cb42eeb86111cd4ad72"],
+  [27,"fdd5c1a51c573e6407e884326dbec519d3b926ad84dd877ad9ae935976be4975"],
+  [28,"4f8f72584e07b1687cca8147e648b87f279417df95461f98af20cd55665e2ee1"],
+  [29,"eeed0ce3c76402d35b80ab28feb714e09e609daa00a1f5a1c1ebea634b3f4145"],
+  [30,"7654530d129b96fcceee9333976da1d38f3be2b7a1a9d75e6414cc608a93f240"],
+  [31,"018e370fbbfc8a0a3ccd8273c430bd2f1a6e89da44e85463238d360a0855b330"],
+  [32,"d0697d2522c9b760ab4311e884f9a1152bf288716cffb0e21c4372b0959b0ee0"],
+  [33,"42767df1b1d8a19995890722dbacf7e09e127ac5ae7480ff1858e4cf88284479"],
+  [34,"f8aeb47bd6d7c182ad0fa205a064d2baad6073fee0b51613698677529235e96c"],
+  [35,"cb428e7d74fec6edf0a793df0dedd0bc0217b95b13dafec4116848d32812167c"],
+  [36,"e38507976e13d5ad83c5a3aec638bff1a1309c24e1a5ac40535f61ca6b1ab218"],
+  [37,"6a670b33f25d9f121c47c4b935643635f5b43b86f20604f260d58db378419dbe"],
+  [38,"2b7480f4412b755b6d63ea7971e7452338c798d9e3ebaf421e6fd4f20c6ae4e5"],
+  [39,"aeeba6f2f2af24a0a7a198af2a40158725547589b632ec50a6f8bbeb80070f28"],
+  [40,"eab566b1f5ec64152a186e2e7d8798181dc94ead09bce29d0e0d0cdd9bf44e93"],
+  [41,"29e4ebfba3757034cb06d9beae3272dccac8b75911674143c8ff9384bde9ad6c"],
+  [42,"6af4d5cc0a83c04bc92dddf004159badc857161214512a4b0996bee237aaaa6f"],
+  [43,"3415e6ef07f528e911b673151b1dd40a325cf05d75253272da4ddc19e5c87019"],
+  [45,"ef0ee67a627af9fa8d46115714543c1cd18b9c278d9526dd605f40b581366470"],
+  [46,"c2567f39e9f08dfcdc472a3b7b8a5a60f9e8efe33b9e386d24773c79071b8328"],
+  [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
+  [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
+  [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
+  [52,"4a509dc3449554c3b53289e28d12daac50fe16c9fb7dee335aa63597de708217"],
+  [55,"6247df3d01e06afbc65f88a0a045506420d093170269e8143d31bfd0fdc99353"],
+  [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
+  [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
+  [63,"2c66ecdd669663680f3ec141617a929b29ae53ca6a603f1d6a31197dfdcd4be4"],
+  [71,"64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30"],
+  [72,"bba76d9fccb473fe801af115aad9eb59c82f382d0934a14f69cfce860d0c376f"],
+  [73,"42de93915352c14e2962c733365adfd1c840a9b12cce78bf4bcfa201676a6870"],
+  [74,"e45306331efdcbb30c7ba79060f40279a46964a54bc2bf49a9c9d9913353fd7a"],
+].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
+
+// Exact hashes/counts/positions of audited metadata, deny patterns and mutation-
+// fixture lines. Moving an unchanged negative literal into executable output is
+// not admitted; the hash-only table does not exempt any other line or position.
+const SCANNER_RETIRED_LINE_CONTEXTS = [
+  ["6f3a16288cc901adf522d25e722265c6af3b3ce8d89f6371c59df9dd281ffda1",2,[46,55]],
+  ["18fec397c87d03231fc4a68b35dfd7733ebd8fd1d219b91942f601be9c36424e",2,[47,56]],
+  ["91763a49efe8b8dc166604a45797f21ff2616a870e69aa2b0f35f4a1d734ca46",2,[48,57]],
+  ["ebdfc6df1de843b904f72fc85d7364a71bf90f638e24a949faa9693e9f3f0de1",2,[49,58]],
+  ["d6f9de689f1c52e9d7735cacd2f1a32522242b9bae655738c635fda118bb7f1e",2,[50,59]],
+  ["aef62859e1a12d34a106c9c19fd04e219416a15037d68f682eff767eb440ec0a",2,[51,61]],
+  ["031917dfe9a1e4abf91a3ec81a12e5b03d6ae7012a285899c1fb221bc43a7b63",1,[60]],
+  ["ca66e01bdc42ed05bfa767b703c5fc0d22dfa8859f93ab81c3b0e57ea4fcf01e",1,[62]],
+  ["b8127581df8b77d145c93fb0caa4dbf4466b5ca88353476124f17906035a6495",1,[63]],
+  ["e682ece20972322ff7818f2a868bebc7704658947a3386cb6e381c2391c4e577",1,[64]],
+  ["f23f33861c953b01e25436c59ff49c978ba7fe416a8668e2f4e3d59c4c83885b",1,[65]],
+  ["d5a37c22811733b7b3ee4d26416aa4f4a2bf0a7a828f2f6de8f29268d0b809f1",1,[66]],
+  ["08c506771ec95265d0e810b36029ee6e08ac99c005d600853db1fd8ecf4d7499",1,[67]],
+  ["beb125674f5d9f004095c4ce3b27b881c0ad84f39653d5af8a13451640c71a6b",1,[68]],
+  ["04ea8a7ac4e2f54ea3b92ff832fbf81db404b4dfc58bb3097c726e032a0f3f0e",1,[69]],
+  ["8b551b014fa84c26fb5ca513e0e3711368bdb573500c6e1388cf4d94fe348ae8",1,[70]],
+  ["2c84e99cbca9c54cc07ac09b1012a9bf80e390794872f50c1549e7519a63b9f7",1,[71]],
+  ["1f98e84d42b77065a1cfd927f925bbe1b0245ef008a193921961a7b86f086812",1,[72]],
+  ["90b04ad32fa01b869c271661fe002f92394965cb671596fd2a71b3dd59506b2d",1,[73]],
+  ["0a3cda91b983aade32daba6a0b85a57b7dd4f011672a0b3b0ef7cf054b58d6f2",1,[74]],
+  ["771ca698ab718029e621bc2dcbeca01a0787de8eb562b723e3915fd5cdaad3d6",1,[75]],
+  ["f046d595eb89614783e1b64d45372e0d91ea83e7e7fedb7f35c3a742321f1f96",1,[77]],
+  ["7d78c5e107d1ad86753aa51ec7394f7d413cdc7fb4ea7f5c3560ad89f135a3d0",1,[78]],
+  ["28cf62238a383dd6d8e160962b0d5d06f1a271541acde25b4bd8f78570112612",1,[79]],
+  ["3ac085192a934c6b2107a9d5d1ec5513e1d10023ac971d4fcce6edfaca1117bc",1,[117]],
+  ["4da50371a4079649d24c95224400853909c2cee2ff4c2009dd3f2b400567e979",1,[118]],
+  ["d03a3ec5f34d8b44ebbf849eb0635b9389db8ff59631ebc1a84cc96c5612f21e",1,[119]],
+  ["1ee357998d3be5432574d91d71e8cae70c6b688a353c3211516eabc9a57eea8c",1,[120]],
+  ["0090612c7b55c28c014c0b6262984137f5dd285e9116699db321d9b2122fb219",1,[121]],
+  ["1a182e62589d5346e3f21a1c97af3bd318bb1aa02fabdd8c703e8ffe0ebdbaa9",1,[122]],
+  ["33efe244e268e9fc36010040c475f55808f601db7adeed48903634ce9fabab30",1,[123]],
+  ["221dcbe62cbabb7087d087de8272ae5c107133e82b4c2bea14c125d41c9af5aa",1,[124]],
+  ["1c249b28c0d05e61f69f98f2eebaf491c98befebb4142ef3ebed0aa0bddb60c6",1,[139]],
+  ["756ea2ab38cef2492a67c7ebc172beba1d1ed9ff6bdf17ca9e9387c8e0f51fee",1,[140]],
+  ["d70bc85d4d1b4a6938adf129622897c69e6cc69f15eb8d5e077012900e449274",1,[141]],
+  ["1d15fe1ef78a4bf4b9bba7fef15d80feac2446bf9bfa1cb2022287ba502fd840",1,[142]],
+  ["187d0ab95e7b1a90afa2039312ab271396fc978b5fa275c2512acaa54f67aa58",1,[143]],
+  ["ef5466a466f4c698d03b8c891364bf91e2769d675d8b218976e22bfdef2be900",1,[144]],
+  ["f996e238c7929d6f2985011a6f26d07bd5ec02f7b8df62acae816160a494272b",1,[145]],
+  ["f5bbf5844be3cad1a66434a19e2106242d88e136ca18bc293a21e5382b1ef3cd",1,[146]],
+  ["53bf1e48b62a2b2490471ec7bd8a0d748a6b1c6e214fd883bd4b8a0eb2322305",1,[147]],
+  ["02b1fb2d631f33a9957dbdfd023085e6cd781b17472b34df5f7d8ebc6347a8b3",1,[148]],
+  ["9d2eaa9fac773ecc37f359f49cf97513a3cd64dd274af512aab02a320808e611",1,[149]],
+  ["54ae83cc8ab6e956e14cb5abf0edca43616b3d24950c52846c27934194c81365",1,[150]],
+  ["ce936e0f7ea10d334d28554d4101294afa3c121adafc6566f44242a912db166d",1,[151]],
+  ["a4d316db29cf6458a2eb8e98d14c5bd8b95cbb7dc8b08288aaf21fa7a8ebdce8",1,[152]],
+  ["beb726212e8066bdd76554af565b4e71c9430670d5c225827beed01d393cace8",1,[153]],
+  ["6058c9a69d3e2693b06cec7b2efabd5e4b595f83cab2dba0793871b026fc1f18",1,[154]],
+  ["32d2e3554bc5698195492ed413d8401bd4fb39d61af1b66183d7fd6822391bc1",1,[155]],
+  ["f48fe9bab513b285e85d692a41e734607099144d726e7397cc7659e4a995584c",1,[156]],
+  ["dc64eda1cc2b477291d0614662d2d8672c417704124c7d4b766e6d1d46c080aa",1,[157]],
+  ["0b1f57ae7e366628cda35c18499b410d1f3c190f0b8dd4705ba423c804a3bad5",1,[158]],
+  ["78903b50ea7927ef7dc85a5851f936ce89e0a07401188613030196ba33f6ffe9",1,[159]],
+  ["4213c1bd12fe4ee7b95c5e3a208927124d43cc17f7f2cb8f6f2f30904146a42b",1,[160]],
+  ["a12f31dafb66571788e2b645c86356cc4613675e38f09c31338fbd9798f4139a",1,[161]],
+  ["f994286ae4c398dfe044dcf39d42550d88a0a3b42a6ea99373c089bc0ec30f54",1,[162]],
+  ["edd8e0f4075b22d5a74f189c0548d950d676c0e6b2dbb3a930c14022a2c5d8ff",1,[163]],
+  ["1798e68a7a984fdcb40a1ce957db6bd871f76651f7982e10099bce657b07093a",1,[164]],
+  ["eb1cd262ae253ee8809edc73dd77ad88fce8e80177f3cb46171101b922815e79",1,[165]],
+  ["37684a4d45dd7c06ac46103e7e7159cc64067be225efc3c2863698b4eb599783",1,[166]],
+  ["4585d5dfd87116147cf640e44e17b805a3eadc869c6d3e2553ec051028704d79",1,[167]],
+  ["7279ed6ac906c943a4084d72caba7321926ebb5010de70cc4b37129ef61ce458",1,[168]],
+  ["924b29b259110df93ec4f0c5bbb37ec610bdedc8a077a6f4e97ed4a6fd0a944e",1,[169]],
+  ["9eab67071311282cfb162aa07531ab42bbce9ee69c0f9f94afe75216fc4703c0",1,[170]],
+  ["a5ca3eb3dd20185093d3b38be290a0c52f5e0d543439d0c3df9821a5b2648426",1,[171]],
+  ["f33af832380cb6e620318ba41389765d4181c9499e260f1e2723a0400519d66b",1,[172]],
+  ["aa2c9b605eec7101eceb61b15809c16d88eb45a6f024bd4dabc9beacab9a32a9",1,[173]],
+  ["dbbe567ad09ad4be990f0bd5bb9bdcf32520b8521d859152ee0f92db7dd3a2a6",1,[174]],
+  ["3145be379001010df3bae896a7d2fe3d755780739a476af8dc8ee85400fcec7a",1,[175]],
+  ["0914b6f20ac5914d9462bafee63e4595cf947ef3fdce4a7fa1553fa3500cb205",1,[176]],
+  ["f12f338907e126c938012b043165edc88519a694c42b3fcd82f576ef8e8c467e",1,[177]],
+  ["b7b3027fca920fe6997f467aab9e740145167f10c0df9e6ce356d69a12d34474",1,[178]],
+  ["278f11f508b68abc5fef898f112d7cc17456a612bf21e2b5ad78886b2f06d40d",1,[179]],
+  ["3a604ba279f4d0abc4b227eeb4b7c3b3d74577789e6aba4849c7a82e83781daa",1,[180]],
+  ["3fb73f52705431d829d402c71d70a1405b4a50d5335f86e2f28b2ba0f50a5c93",1,[181]],
+  ["c7b43d2279e2f5e00c7b114cc850c7a12b898084a1f70a93989faf8c7f08d30f",1,[182]],
+  ["067c4b0582a30abe6b091d6a0062f6035375b60fa92402c8b5e917bf81355d9c",1,[183]],
+  ["3a24f325be7df9ed35a5547df22025a0d401432174125afe2c23b8eace38691f",1,[184]],
+  ["0d4810cf3c00e5c2fb76f971de0bf01c85cf33d5eace4f33827914499f4f33d2",1,[185]],
+  ["66fbf77777a2af1ff78392297029a37d77620777477893b1564628902f9ec534",1,[186]],
+  ["e6683496e8ee8d4b78c7b72d0fc96dc3c0aad2dc67b51377741fbfef6874ec7a",1,[187]],
+  ["55879c397a5e079a58412a73dd8fc286253a3a8bc8db98f18ba1855efd5b08c7",1,[188]],
+  ["4d1f4e9e033dce31829021e6a84c631fdc705b5e96aa30ca33756ce49c54ed9d",1,[189]],
+  ["061b3890ba666c6c69401331bfa4baf49d3a4ab75c62e231ec538594289357bf",1,[190]],
+  ["36df5e56ac6ac7fd3baf3260da011a56f4f8f8cfeefe059eea2a0bd4437bc397",1,[191]],
+  ["0b05830b486b47841d4244c480c48f0bddc5689100aaf22d3f870ac46d1addd2",1,[192]],
+  ["fbe40e398ecfa87ca466c2317e1a3bdb5156e37449c28920361483608e8f304b",1,[193]],
+  ["ec2ab37be7bec9e09833aec816e4d876df658a1837197f2793ee75a26e38bda1",1,[194]],
+  ["eb0d5cbc6cb34576636e6cacbfc12f0fa0da8fa376340051cb6016191bc2ef84",1,[199]],
+  ["3c05e2953dca91591e0a63c936a4c24622b6fbac249e958856eefedd23098915",1,[225]],
+  ["6684b1565e42b34bcd4b8c46c02d3561ddcbb442f05ac7834d20b1b182038571",1,[237]],
+  ["13b118329d40d1c0423953e93942d7e13c7682f154db1d95048d0aa275f99e17",2,[249,2033]],
+  ["6d6e48a4081842bef6716b4fa79a7771f1d41732c4a742ea43135530bd7760e7",2,[261,2045]],
+  ["9f3646d69fd9f6b9e6e0d9f2acb51d620cb506ea4a09d9e071a57d7c91efaab9",1,[276]],
+  ["4bef9a919fa4e3203801fb398fc592974101968d6544dd7e9270bdb1e3ac50f7",1,[288]],
+  ["8beb6fde8d9c5d892973a27316583c8a4709e5b2970c6596956c61c3c0768e36",1,[300]],
+  ["f8faad4f944c7525097b20454c5e03b957a13f00f62e58d9c301bef6db5a4af2",1,[312]],
+  ["495ace37e9521d5db3b23b780e07ce8a3a22cf724fddb66e76427be311655f44",1,[324]],
+  ["cd878d113d1ff9cdf9a502b2a80474cb20993e6aa79885f5d30f9ec9c2a09a8e",1,[336]],
+  ["a7edf9a63517c26efe098704ec80e954870ff8a8e5b7d63be538dd948a37a392",1,[348]],
+  ["62b6fd99ae1cc1632193a2a562392aae949bc4cff15dc7a2898b8ea6da84c739",1,[360]],
+  ["089260026743942c4f080cf3808429c9459fade25e85a0550dce7f5163f3dbdf",1,[372]],
+  ["684aba9229ea5836dc104941815c35e4869209b2670668c5e92d1636f330482b",1,[384]],
+  ["48b39dd1f1a0937bc5fc7c4c5af23553eb67230494dcad986e7cc0b335b0880f",1,[396]],
+  ["5367094922effb6560ee6213e650ef836ed61f0430c6b7daa67343b6fe60a6c7",1,[408]],
+  ["3f1b3692f05f8859d6a107876b7269fb6074bc19d7cefa6f7ae02369a62e2e36",1,[420]],
+  ["3578b70787df5047051a25c7db58b03929844df82df1055168deccc2ee7ed983",1,[432]],
+  ["8b8a89a5552446466955dc90b2b9fac6543b8f0b5ac45f212d66fbcebdc6ab53",1,[444]],
+  ["a899c51eeff8425f9d6d646520b11a6cec8ca714b80dbab9469a6d8bd280539c",1,[456]],
+  ["38f1f0c4190c81ecca256cf001a3901d4b8500a0c2912e4c7ec4ac1e89226f80",1,[468]],
+  ["10484b28010986f1f76087686bdf892b3d47e7049916cfd55df4b5bfbb9d842c",1,[480]],
+  ["6c5b013522bde8a69390e163ab9a8e97767fed829cbad3d694458eb12181a747",1,[492]],
+  ["7b0f41a0e93846be9ca3a6cff74928888adbfe0eeb9922582c59d2516983bd99",1,[504]],
+  ["86b3c1834bdb78bc7be0daf2bea7b9d31599073fd8928f37f2825781226af10d",1,[516]],
+  ["16afeca2301dc67ae41564c44206143d8f6a7519d98a148e8b95bda0a7781a34",1,[528]],
+  ["bfc36171245fc683d6aa1a1b081f6e1f67fc8056a000893427daa42efbf32a45",1,[540]],
+  ["47f363dec73bb153ccb4ee686eda5ad02869832afdec706b72a9687a1f0c463e",1,[552]],
+  ["0a823f81eee70c50a7a4bc8cc0153c817c63485d411c2f7a5a104fddfb927103",1,[564]],
+  ["ba6eda92c28569ddefa5621d17e0895a68224ab1d369d63fb61d295636f9a779",1,[576]],
+  ["c1bc6896e1beb3085fc52c77546eb0f6b92ecbfce85f20323b2b2dc0d9af9a2b",1,[588]],
+  ["dbeb7762d451f7dac87d359d2dd5c5bb2f492731a9175a355f5cbefc5a14ebbe",1,[600]],
+  ["e124e1c48c0954789efee569f6b01160f44278900c60f780304b64edc177c5af",1,[612]],
+  ["f240e5547b83995ac9964a0fb5c0d194e2746ea40b1abd977460d1e750c4b8e5",1,[624]],
+  ["1b081fb0e16bed5a8de0802b98a66c4d48b781b5d0c3dd23fc6a9129acd6573e",1,[636]],
+  ["095ab887808d847215b83291aa29e74fb5a2838afb727e936859849420c6a73e",1,[648]],
+  ["74306ea734c6208e192f58ee691266d8af12d70322dd3da3d637dc2d5d1d0396",1,[660]],
+  ["b16aa96db7393dd296d9c064bbc2ff624bf8b5fa9bf841df257a0e5214a985d7",1,[672]],
+  ["5a33b823c17752cef56453c26412e582d4927ca3948258eaedd8e09616d3b833",1,[684]],
+  ["67b62ac5361c6d79a011680eaeecf3086d771a40083ec4b1037d992ff933bb74",1,[696]],
+  ["50ad54dd80ccf375cf65edcfbfde119cddb978a29ea6e91878a386492e28d474",1,[708]],
+  ["b738a808679059c7487278d8d572c20ae348d45698327cd48e58f198d25ff621",1,[720]],
+  ["b91845cd3eec175b6659cdf0d1dde4b2410e9f37ca60a69172496d59a0c89008",1,[732]],
+  ["179053f0b523cb45227c248b58f1ae1e7e72dae2f91a1d2ea03c495f733e359c",1,[744]],
+  ["8930b2c3d8d436dc363b6619c4ca90569a91de60547cbf301a4325045d84dae5",1,[756]],
+  ["3b854b8a8bdb3dd556bccf7e6d6c11e9400df625ad1a6d16818288cdb72d5967",1,[768]],
+  ["f4768d3b48d98151471e08ca359a3f64920d68f652d3da76056ae7615d30c756",1,[780]],
+  ["2b60352da80de7cabe76754a29f29ffce623fe6b2eac6d0a799119c983d02714",1,[792]],
+  ["24fbca90de978264e18705a9bbf320ace86335614fd8a72781b1fe5103b1fd32",1,[804]],
+  ["357a2478003661028fd34bc9a88d7a65c1a224ed6ea35e1fb476c11f7900ed19",1,[816]],
+  ["d607fb36a9208219b06930ce9b117711972d67e9c0c82954b2ffc88a546d2239",1,[828]],
+  ["d83e6774f7278762db3c2cfc83baec101f9ade248c812b2c576eaa6142b3367b",1,[840]],
+  ["47466ac11c2252c2dba3f90312d1484202b429f16dfd98fc70ddc3825f1a4817",1,[852]],
+  ["e0bf0a2b2f285f918332f8201734a22c977ffc0e71b3631ee42da737b58552e6",1,[864]],
+  ["df52e597e4dc23057a27685219c4a079ba9c4a73b0768cfbc53cbe1cb4059611",1,[876]],
+  ["ce0954808d0ae2ea435929285befcb33eb49b20ed4339815e40ff26f8df6d418",1,[888]],
+  ["b26aa8f384c8e2963a78c3cc47aec0e2a0e1c006cbc9d885d50b50b0c5a5d0cf",2,[900,984]],
+  ["1ec13fb3a064c080ae5d621d9b1c00f16b0a68439478d36cebfcdbc3c13575bf",1,[912]],
+  ["14583e54d3c35bcb1c7841eafe76d5afa8a80b67761ca533d6dcd5dc82b3172e",1,[924]],
+  ["f257bbebdf2736872ee1a77134c880f27927f5f4697ddfbccb9da604aed3a740",1,[936]],
+  ["ec004df89b8f1f78c591434a3c5a25b11c46894231e92cd1c36018aa819dae91",1,[948]],
+  ["6e1519422cff4e53519170c864692d86908e12d9fee7efd2f9f7378415fd2956",1,[960]],
+  ["e767d5070c47db3ee41844b7a74119aa73926d46435bef0332cac20c9f27154a",1,[972]],
+  ["222430657162dffeb5020fecc913dd657fcd0cef86cc95155de6f5f77c86298a",1,[996]],
+  ["ddc68d5d5cc4d708dd0a41b89903d5d9640193178516e8b8f834da66ec3a6207",1,[1008]],
+  ["9d54f331a1ced485bb56b6f801c0fc1f0a60a74c42283fbc5a567f5668e2b201",1,[1020]],
+  ["3f990a9cbbbb11f87403a9bd477ca3227b6f14acf40ee8c73175c6f8b504e648",1,[1032]],
+  ["2c6e63ddfa97b8f99c52a76d81f52380feca517139b7f67206209226bfe53171",1,[1044]],
+  ["8a0fe299c33ef96eb60005d5fbf62770993d3537eba1573326d2e858b3ddd8f2",1,[1056]],
+  ["c175a7a21ce302203a07a89f58fb86ab68ece61229c2662137592195b0867e78",1,[1068]],
+  ["b322ee48994cbe3455176c8fcad3ab3d69d27b0e9066e84cd13608ae1c490992",1,[1080]],
+  ["68b1bfe66937a12239950a7d6d059afa0a0a362657547d53783b4e0a68dd9947",1,[1092]],
+  ["3283a2cf9974ce23da849e334299a14858e522e0193e7d0df10ffc42ad40dbd3",1,[1104]],
+  ["19d2d68a88e9d52b9195dcbface6c5315383a6cb16ef13df994eeb1d919d0c62",1,[1116]],
+  ["45ce1e3611b5c542a6ec455b243cbddcb6173a708bd015a706345e73cd34b478",1,[1128]],
+  ["99998308d24d090ad2daa0d15230d45749b436a1741afd0f784c731a79054b23",1,[1140]],
+  ["032e080ee3f697a6c235ff07e2c422594677bebedee6e4f372c6a7ef3eb14093",1,[1152]],
+  ["33aed162574342fe2a7a89395e715585b708f5098ea0df54cd286ba436d17c5d",1,[1164]],
+  ["a6dddbb8736eee4f12615f1d6ee8ab19dde3fa5232a1324877975f5a69abe1b5",1,[1176]],
+  ["adfd8348b72e69e212d5485ebaa9809f9f9e870f9f1bb5c36c20e13c3002d6c9",1,[1188]],
+  ["914c10eee3c3864386d8df74f8be9fd46e37046e0fb6f091e17f7361233f8f9b",1,[1200]],
+  ["c811d7218fc0bcc8df74bda066a2a079992df10a7bfb82d6684b8cdd82ec031f",1,[1212]],
+  ["3f309d2523fc802cad98c172774e57285440a124382af2b0d32210418a36974a",1,[1224]],
+  ["60e1dcb676f4d6cc6868903e2cbe90ec4d753ec3aad896940a696fb258d9f71b",1,[1236]],
+  ["cc815a713bdca5533e9f7a1837eac92ede03d73c3af594095d5ed81a7f1b00f7",1,[1248]],
+  ["6670afbc21626c20345d1d5ee52bae71a35912e9212b3eb713a7918352ea804f",1,[1260]],
+  ["84a2c33e958df1aa5d392980e90de4d01706f85b5dfba60f5b597c4842c8779b",1,[1272]],
+  ["22034f28de5ce6ef8ee9e5e8f26ce7062d256f28cf6b78da989d4c6ede512f58",1,[1284]],
+  ["fb2859534f9cecb6b048522e64620a5973d9c1d29d51d2132e6bd9ce9567d0ee",1,[1296]],
+  ["9dfdd7f62bb6cab81cf6f3871e2651a44a04aa0c4decce337d0c08fd4a74857d",1,[1308]],
+  ["ca176d252350dbb549b3cee8aa6775077e1c69ec2e694f94064a6ba2f2985694",1,[1320]],
+  ["b577888afa690fb2e36941af0a7da2ad5b62c33fd83361077217c4bb9cbb034d",1,[1332]],
+  ["c3d8d4ecf01d7fa81abe8b549eb408e020b63b9e19dc335d0a238206dc937090",1,[1344]],
+  ["bf82bdf87e5532588159be600096fd2ec289c7325d5b69373884d0aea2b9c044",1,[1356]],
+  ["da8347c47ed5e7ca83432cb110e5fec1b45c2bdaded9077f530a49c4a769eef0",1,[1372]],
+  ["81192e96ddce3ce0c8f299d44ccd9cd80b8aaa267c188d469d8b270b944f94a5",1,[1384]],
+  ["4a2bdea5684b16fbd47fc23448b428e086b46f00d7ea7835cec11fd82fa11a70",1,[1396]],
+  ["7d140ec9856dbf7e6a155376c189ed8e8c34be64990dbf6274ba908faa71c0b0",1,[1408]],
+  ["43da2bff23df4292e31a19afbc3881f158a44267833c12d514ce312b4e6fde81",1,[1420]],
+  ["8633a05c23039013abf8ae12f29d381ad9b296b1d62e3cbdc01762be1198315d",1,[1432]],
+  ["ed7e81e63a1bfd03150860a248b2d1704915f68dc87ac4183742c5bbd74cc21b",1,[1444]],
+  ["52b336f92cd748a05f99280f9641059d3419d0b81cb1f40c8b29c93c0c263d1f",1,[1456]],
+  ["3bb8c0d1fc5a301c80b54ca735ced98019764ca951e8fbac859e31caa59c105d",1,[1468]],
+  ["5c70c442760a11918e99cddf13950884fdd08179676e87fc17f1aa1961d76250",1,[1480]],
+  ["67b33d0b8a3705fdc1d338927900f203573b96f333a535ff59138a648b4940f7",1,[1492]],
+  ["19966d28fb022902ff99a8b14bbebf59370b5b11536d001fe884c12b92044a4b",1,[1504]],
+  ["bd7f420be6afc6d4a50e53295dc99c8f3fb4d740a1445d37f14b4b8764f2d375",1,[1516]],
+  ["592a95520cbbe0f739087adfca5fd97abe2462040e11ac1f718b6c8cef8ed429",1,[1528]],
+  ["5558b485747df951e557038ca88d512d7cd2d3e918c82cf2c6bcb9d5dc94e986",1,[1540]],
+  ["e610a92be153bb8f68c6fddab30ba796c5e0ae758680afa261d5898f9710e623",1,[1552]],
+  ["618339f9530fb3d0ce8c4586402bdccd9eda45ff4baf9d526387a7c9e28b4098",1,[1564]],
+  ["6a0d4daa38c6548898d84b7c0c7aeca0e18cabac268308cc7d06a5cef20b68c0",1,[1576]],
+  ["97e768ed2b9ee508fe1b801e26016709c445686d19599856e3efd208903e6d79",1,[1588]],
+  ["c1b4f8e84dccd6b00e56a8a4d2d29f4656e3f32368a3ea7caa6f57c33229e6ba",1,[1600]],
+  ["678b87acf7e38b88c94d565ca285f111d97ac3f64decc1e947ef1b90c9561f0f",1,[1612]],
+  ["394b39606b72d7ad4c2bb5e02593f98ad2bc1e63c6a92b1ef7dc9dc53ef2e3dd",1,[1624]],
+  ["8b99622abe942e975ba3e278396f4fca04db282f11ec896922adc98ddfde7ce8",1,[1636]],
+  ["05a89e5e13e68af0a989074805730381758b7e130fcf58d465ef2781c9c8eb6a",1,[1648]],
+  ["a1fd0bb4b0da63c53d8371d73aa8aef2bd03a237d66cd327285a2cd0c81626eb",1,[1660]],
+  ["f62e33d8a72eb4e8cd4816b8accd879446e9231c8b9809beb0ba4ae8031f1ee6",1,[1672]],
+  ["78645ebe38aa9b49288a292d43ac2597f9613338475b79f5755d7f07d3d4627f",1,[1684]],
+  ["54463b24ce8d3b82363f078ea77f681f2d7b420622c05a6e29b5b75cb05f3b6a",1,[1696]],
+  ["682d5ff475f2cd612d40697210a4b9048b459afc763609ba00433647aa9e41ad",1,[1708]],
+  ["4fd152c918fea4c45ea1f778058b28436d1e0605f79bffec50613e0f0e4a81cb",1,[1720]],
+  ["17eabe8612fc363203d14b5d52f30054c286800cbf42c9b2c65f81b8f26c96c7",1,[1732]],
+  ["ce58874362843a4251740df9029d2747fb5166f0d7582eca9a1ae6c9215f5428",1,[1744]],
+  ["d38c4344c9f1879f0762e430480d9cf1ebe1b091615bca1f06a49da0e1a41415",1,[1756]],
+  ["a1915ef4cef025d1a7ea9831da3f80744eae38c477368715ef5ce67f5739d626",1,[1768]],
+  ["5d92ff71d8e1033b1b83cdd7bc35c3404885fa85f9984ba0ac4898cfd5af3829",1,[1780]],
+  ["495d050d69fea37da73a42bfb013792498d26edbc662cfe20f6548ba1ebfbe19",1,[1792]],
+  ["2581d1e1bdeba5fdf86296bdee84ca93405ffd43c93b450f67833230877520c4",1,[1804]],
+  ["0c8c1f0fc2b85a1757ec31748a96709d909c2282fb2ad46427af3a031f8adebb",1,[1816]],
+  ["723c9905f5ddb27175d0aa1f5ecbc7e0b47de7e810b25c478e0056e9c511beef",1,[1828]],
+  ["32e6ccfc3b279b85fcc6b1eb5c2acd52beee32ae15aa27516c0308105a07f1e1",1,[1901]],
+  ["dbc50ef302b16902b737d07d9b3b30e08880bcb3579f36732b34f7b198e47ed0",1,[1913]],
+  ["e3e59fa1eee76dc9999882d05c6c224e01b2bd693f126d7baf0e8c0fcddb7d14",1,[1925]],
+  ["2c7469828330b01667ee924efb7a87941b7ffafb0fd3dded3b2a6752b99508ea",1,[1937]],
+  ["4da9b569a13a752d06134cd20f210a5534d5e1dc51a128feaf67a42b3163bf87",1,[1949]],
+  ["7771914560a701b9a2e6a6816eda6ad2ea500806a4eb020c5714391ffe1c59b3",1,[1961]],
+  ["4c5b005c1dc70e6a3fff33d19c95379f29033fca44affcb2a8d2822ffe7afc4a",1,[1973]],
+  ["64d89afad1936c174ae9f4b4a0948d809da97f49af77d08f1fcb591d932ca25a",1,[1985]],
+  ["4d668677a4c4e979029dc42ff25e657211be405ccbba759d1bee94ea0f4e501a",1,[1997]],
+  ["7a83855c32ede80fde6e2cc52d999824c94edf889118ae99b03c641694dbc475",1,[2009]],
+  ["b25f55750c88f3f3dc7819f98c77ed42734929eb8a3882cbbf488f50d65a126a",1,[2021]],
+  ["15a1a3089e20c136a280ab6c1a89fe5626bced347ae3cc6f44917e363e781f5c",1,[2057]],
+  ["811efe5cbe2c07e1d4e548fd14bef24c5749b8b97fa533b6245f63654ff76551",1,[2069]],
+  ["cff83dfc1046bfc291ea29b589f4e034c7a078f27cfb1c9394600935c129dd02",1,[2081]],
+  ["e296f827cd7663612d2dc4677c70615c6a639c01466f3e87d5eb35403e7f33b0",1,[2093]],
+  ["0e5ca8c339f9e214a9f20a3d2a4358550f017c91261bd19866ee6c34646b0db4",1,[2105]],
+  ["d122f7c9f79106cd8298fd4993b513b2519fa340a4d2f7bb1a3f73c22c4456d7",1,[2117]],
+  ["1c0b0b914ebc5a1447539f5789da1cb67047b1730b39c4cf03fc71e9b7286c5a",1,[2129]],
+  ["851725f330bca24d605855aab9791b6fee0701d18c3cb44c2b65709adf3d330e",1,[2141]],
+  ["21e7944f5242eea907ba4cf54144e9259020a980987d4ff20901f536be4be065",1,[2153]],
+  ["930d9945c7e2fe4b576219df45d46c16e61dd0bb238a15d1def0c166ff297848",1,[2165]],
+  ["951a2b060f3d004084901eb404359c87006c901a151a74212da1f66fe3175751",1,[2177]],
+  ["89247fdc9444ea34aa4b3b25d795766e48bebefbf74eba449767e31103fbad08",1,[2189]],
+  ["5dbf3209286140dfc47aa10c3d6cc1909e848d7f225099426d0319b1f409800f",1,[2201]],
+  ["1b8ce0309207289e76e2bc4e887f8a5053c38d24c7adc56f82d7102151f8ea5d",1,[2213]],
+  ["e68fdcd2ab83b74e3614021ba79cf2518f6299ebbd3d5bb9a9f383758bbd1ae6",1,[2225]],
+  ["b5a9c9167daf4722e276dae2b56c7471ac2a9af8355eee68d7eb2fe80525b738",1,[2237]],
+  ["ee431bbd236db241d1a7323161e18dc06e57e66c1e69bb040ff35608676b1a2b",1,[2249]],
+  ["3577f1b3c6306548583c70a73b06af81c19ef2c43b77147564273bcdb414f715",1,[2261]],
+  ["0ed414d5ccafe7f2c218b1c8eee8ef26603df8afadccf64040d274a9d82d5cfe",1,[2273]],
+  ["cd9581e6f21a4212440abe917850dffa74d8f7e926e7a27e3083a5b348be9133",1,[2285]],
+  ["e68619b884fce37fcf0dc6a48dcec9775bd6ba848b8cc0ae2c3857ad6fb527ae",1,[2297]],
+  ["5c464904f1299a4f3cee97feafc7f2f48b52c2cad7c91e802603b209c6ae49b0",1,[2309]],
+  ["85b32a0576a5ce6518f1e86e27282f64eb873a0f3f4471262fde162e94f4189e",1,[2321]],
+  ["c08e0b555563c6c563ee30e5e08e767a72ed72cd39819b1b985a188392e3abaf",1,[2333]],
+  ["1ba8a9bec15cb6233c01c6d4729fd7b1f4484bf235f3a7391303324baa2a48f1",1,[2345]],
+  ["7b9e9438b30c36e3e51a60667a51463244cd0298da9dcbeea46160cdbbd242f1",1,[2357]],
+  ["d8e0f2ba9d8b16d83c7086ef59f960a4a51b252fbab215b0a51de72a781364be",1,[2369]],
+  ["2ae3da0b4fb56d4b45972c8b5cfa699f0383d630ddb1b67e923c806c62de1c0e",1,[2381]],
+  ["c8fb2840c63b37311b94c01c26c9acd8ad1e968049c8f526d4c817056dd4527a",1,[2393]],
+  ["316778fe857e872fb270fef9d479cbb32a456194c7a4e4665a0ef65b9106f173",1,[2405]],
+  ["e0cef1947d8b6b9cee9025b6e46a478766962160464fedda64c26f6de796a37f",1,[2417]],
+  ["1609375c116217cb0b88b42e661c741c55337cf48c5e204fbb9da8d3a216d48a",1,[2429]],
+  ["7bf5d81a2e84c1cf13c172a46eab9551739f4569422482d85e77fb86bb3d1da6",1,[2441]],
+  ["873acd0663367d6c8d0c3790e3cd4fc4371f147b7e72b076e6f0734c4efe4ced",1,[2457]],
+  ["31b31165862f0fd9ec842bf9f9b0df9d9a5f0a322a94c5f00cb5bdcc0ed5a908",1,[2469]],
+  ["d1419f692baf87a2361f4870eedd5d5345a35aeee905256be3ca7e81ea0f73cf",1,[2481]],
+  ["5d794ef059b805e611d5bd96c4af62358c808ef09385ac7268f6718d601aa99b",1,[2493]],
+  ["f9e16e10c270066bd3685ff53a2cece8c7b34fcdb3c29af9be5eda7f2c48b524",1,[2505]],
+  ["879f71f7f35b0817bee62ab69020b9603ccda5b17a8118475b86b77cab38eeb3",2,[2517,3317]],
+  ["3190e7663a0cd5bdeb5b6d5a3b102102be234c38d73750116b70ac2b12a6d2aa",2,[2529,3329]],
+  ["ed48211e1a72ad8cbc3dd22610f4957b86ccc2b3d40d123e33f8a5d78cef9268",2,[2541,3341]],
+  ["816187bc011185c96464cbc1fdfc632935acdd6d8ccf3f6da15cfb88f250d98d",1,[2553]],
+  ["b9917e15b8a0ceb80ea06b917c5b7c54aa398b8f9e90e6e82ae41705c0f5dbb0",1,[2565]],
+  ["11ee8d9d58a9832aa6c42f05174a1840352c091a0c653103c21ce990c904906d",1,[2577]],
+  ["7c93613bf968a7f688523a27220753274c828d137bf3e0381f4e4d11f1679cfa",1,[2589]],
+  ["984c9441586758555835fc9d8bb1f7ca0301ee5e12ef6f8e19fc3ecc7c424327",1,[2601]],
+  ["3cb4df933e503f96e6baaa0609804c311a170ebcadb6d280c773f5098d582bf5",1,[2613]],
+  ["b7d33e24c8bd2c2c7d75d1476555ed2926fdd4679cbbd59b566c825707bd14ec",1,[2625]],
+  ["a9e0a12d720d65a77acf67770510ad02068660fa91f8fd1c3ee7b280c57d1398",1,[2637]],
+  ["0637e635558348e67bcbe1630277b04add1ee7da988231d6f1f1946069ff66b7",1,[2649]],
+  ["234766083f3062965ce6f866821febf71c7eb741255541ac5be0623b79d0ffba",1,[2661]],
+  ["77b694f6840c4271525e5525aa5a45e17c76878261470732ea53c972725f77ac",1,[2673]],
+  ["f47cfe3a712b4a032af5e6c4db063d003936d90e8c3d5a0c3836c5556ab9ee3f",1,[2685]],
+  ["77a70c0c595d02d8dd89980f58a9ecf095f83b5ce290dabda3f9eb85a5d49980",1,[2697]],
+  ["612adc4a63be4c709a9600fad6a36a8873ca19169623bced1739161ebc4d463b",1,[2709]],
+  ["72ecc8f19f657fa238d2f2004fe6228454e07cf66437b37622deb430809022da",1,[2721]],
+  ["b5b903295af41e311be7988fca5cf62d69ad6ed4c56740fdd8c73db0ccebffb0",1,[2733]],
+  ["d55fe20e2e165db869e545be2ee4ed763a26acc8b1d0e577974a39a1ea321555",1,[2745]],
+  ["61b255cdc26b8bd782d7fb0d5d98fc83bc68bcb858325bbf4e15d15f8f40b01d",1,[2757]],
+  ["247ee43187fb21b4f2d88d8bb43a44d1dd3d26252e902337915af620211b7ecb",1,[2769]],
+  ["d5b11f8c1eac5a39ccbe9a85992462fb8a3d1831a42cf65d4029fd4e2dae8d1b",1,[2781]],
+  ["104745910237b76aad41abcd0c4b3575595b90f7fd89cef68857ef20b7cdf4ae",1,[2793]],
+  ["573d37af0484b9f245ca9286d6d8a263c557b6d271ba9427bfb207bd4d48847e",1,[2805]],
+  ["2a748feaf07bdcdf8a25b99f1fece7931bd6117b3d279459a7508fa4c224126e",1,[2817]],
+  ["58bd8d66759cbe00299167bbf3b8c480acc0591c07d8306375e3828f328ef587",1,[2829]],
+  ["a1ec9ce50c7704a23d3f20b4fc62258f2059b9e4c7b367f8b0bff793805268f3",1,[2841]],
+  ["1fa9bc3d30e7c9e973f11cc2b2b9650e18349c2d723611a116b8d0cae3ae9324",1,[2853]],
+  ["fdf83e938256b2735cf4f0d844fe52377ed26d2219bd170c93f03d48a1ed00ed",1,[2865]],
+  ["58a23ada6c771c4f059cc03f73bc73fc55f2e6d2efd44db8b8e61b4242f8d441",1,[2877]],
+  ["7c4f7d451abd4a60bb36f4d0fe91a454ea5cf872b02c8cb2b758fa9e5100b236",1,[2889]],
+  ["e7efeb43b0143d3a69d66b8016dee175132f4b3096b0d0a7e3bb0515c5e5c7be",1,[2901]],
+  ["1674093d92539893134a39a72c136d702c1ecf4a15f1567faa9450dfbd688915",1,[2913]],
+  ["1b6a9b742a8b2903429cdf9504ac3a3a046230231484bd06ed8088839715f94b",1,[2925]],
+  ["44232a36557dc56760d397077789449dd72c33e0e7d7f7876da01c9207c31ea6",1,[2937]],
+  ["79e4dd02f929ef587a6946ab71096cd612dee8d0b3c874094392c85fcfd1560d",1,[2949]],
+  ["0925c0c793109a4d816b1538b3e7f40a9c50f99e287b1f99193c3480b3f5f14c",1,[2961]],
+  ["36a011f41703e1b3d2678fde8d1c92854cbeb8eec84036baba340c44e78a8d47",1,[2973]],
+  ["72eed523491c10a598876309f7eff3f73b855e2c9e732b05d5fad9d6ea49034f",1,[2985]],
+  ["dcc59d5b01cc6847805471a9892552759038e6e75365567fd81b1f2954a031e2",1,[2997]],
+  ["5be4a239c20a953c819a4ded07173d6a39bc97621a903d67b764c96d95fb5ba9",1,[3009]],
+  ["872c76d50d230b342bca6f6bf8b99fb49ece40fb5f5e742164fdbac22f53f226",1,[3021]],
+  ["cc49ca65be94b367003341377e501ec615d17341265f1ed58ea5da63c72189d1",1,[3033]],
+  ["9326362e24c9ffd79570c26444ae1494ec13a7e5136084dcece0466385a0db1e",1,[3045]],
+  ["8a74da7e8220777001d4a24b2315d8f3639fc03d1502c2896d1e1d5a2ead47ec",1,[3057]],
+  ["58279d2d6cac7976f5e4c98b817c284ed3bac2e11f9983287501f18c203f03ea",1,[3069]],
+  ["61f32c98cf32c8fabe4c9cec8a5c8dfae9479c56a89924aca634edfd2ec4445c",1,[3081]],
+  ["649b6e82c06d51101160b257e8a5df92ff4d828131052061a45244b602a2763b",1,[3093]],
+  ["985da4140aa9fc7f3dd7f42fcdf2d75f52a546a94a38a46b95aab27494b4bbaf",1,[3105]],
+  ["6208a7524715e3463021cfbe909fb009acc1e9f09bc751efdd95f4f40ebbadd1",1,[3117]],
+  ["f3e7c8504248d033df80629174abd5af7bd09baafcb7c6a3714d1a481b7bec15",1,[3129]],
+  ["f781489e23b7a55083094c289298d89837d7b413971a7a9e1b6f35d181f62afb",1,[3141]],
+  ["72d7c52dc437e5cbfac87143d93df3bbfb3f4e33ce298f41edf8ebe50fb81129",1,[3305]],
+  ["dcc836c1eac12422d2ecb32762147750f4f44447d5b329675192f0464a651575",1,[3353]],
+  ["dba752160ad8411d0c7ec9edff38891eb31e6c1ac6ba2dd72af3da7f2b917207",1,[3365]],
+  ["2f3e3ab7ae3573d80d230c0cfefc00004e0c31c2caab44706e02d5a5e1dc2874",1,[3377]],
+  ["b27adc58d0ea6268e59ae6cc3712b9cb1b70ab30be7d6394483b6c75a8d6a8ba",1,[3389]],
+  ["c7acbc12a8943af5f496dc1039b13c1b40cb537409fd230c748468508ca55daa",1,[3408]],
+  ["cc76ae999a76785134b60aa7b2f096c75e8d744107789b3a0bc67d13b96bb853",1,[3424]],
+  ["efbc9c6697540c0481fb9cec5b590aba5ae2e23db6f719c23e83f3af2079c3b6",1,[3425]],
+  ["3a75bba92383966d98e7164c509a59d1ed51ced5bfb0ed9dcdf5541cb80880cf",1,[3426]],
+  ["027c3247f3d1541e39fa99c5477525d4bd9cf4feb498574b995641f0f76790fb",1,[3427]],
+  ["4f98ec808d51f8da8c9d0a8c282fe542d98a3a7102e6e39fc12e47f151b3191d",1,[3428]],
+  ["c7e4d4be591aae39fae06a85cb5aa9e3da09570fec529852b444f1414a59ab3f",1,[3429]],
+  ["94e8074190e75632704a3ca29d6d01d9d3abb02c16aee81d64e1dab6564f9b9a",1,[3430]],
+  ["5253b094f53772446234cbd876a025679adacc494597153196e3c361bb7df23c",1,[3431]],
+  ["31bb371b99fc942afe73342d6317504c709a3f3baeced4a04cd5262249eb5002",1,[3432]],
+  ["58f224cd652bffc31a290ecae089238a35be688075af0b6f700a80fc8dd75c58",1,[3433]],
+  ["7c0ee0b051f20a7261d37e29f4f2c2c76acc2e4d880b6b845318c64593cd3068",1,[3434]],
+  ["124890811ee34a43f759ccda05ec57dfdec3f6050bdb605deb0c52c1f8d8a721",1,[3435]],
+  ["e02305e2b3d32e393d0b927d0d1f4d73e7391844e1d9b05c1dd7e4dd65612e04",1,[3436]],
+  ["fb246f4e0c35f89c3d67e83278c7c9247d494d846280e554b6b2d15dd852bc76",1,[3437]],
+  ["170446eb383a2dd0231a6bfa5d06da91dab921dd257d771993ef5d09308c4cdc",1,[3438]],
+  ["461ef934c52338ee7bd85aa182a2d909c28530e4df223f002c2ae6958b9fb67a",1,[3439]],
+  ["2c52f45c3e423a2267b2078b655a54e689bfbc63bfc5fb5198119c9f1dd0a10f",1,[3440]],
+  ["2cc7d05db6cfefb3cbd09b9055e5ea7cbf003148dbfe8950e6909f01b7d97cf4",1,[3441]],
+  ["538f6803d736fc72507cb9c68ad96e21173c013a1846ec7dcc675b406c339304",1,[3442]],
+  ["054613ff533480e990638012270557d795aa34b1ba195098c6c4c3bcf3b47fd7",1,[3443]],
+  ["042c3e0dad6a1df6edba4e2f90107a0ff93099d96670030277a32a1afed4188e",1,[3444]],
+  ["b50aadd26b200dd0ba3fcd68bd051cc96dce393da73d69308cc0e6fbe4b29008",1,[3445]],
+  ["edb18bf0dfb89789fec602166b9eef80838fcd9742cfc1b8f9f08e93926cbffc",1,[3446]],
+  ["e43860a87def6573169c1c3fbd0a800e50e8d71b730be5fca96c597cb131bc1a",1,[3447]],
+  ["02e62241513b488a50da3f033e48d6da394462f43c893260e53fa3fb4d14bef1",1,[3448]],
+  ["9821b7074fbb46833b3f3189aa1bb6091302177b22a4d6c3745f3ea4298f8cdf",1,[3449]],
+  ["c5bb29b9f113a127cbec9e5d932c14702d86e01b14d5d950342dfff457385e8a",1,[3450]],
+  ["d571ea1b12edec92032b59cf92aabbb8a03de1ecd410b425afbafb374afa0045",1,[3451]],
+  ["bb52336a8088b74122d1d7d2079322250c20123a4172b068941ae9185d192fd0",1,[3452]],
+  ["152ad390ba0622868768c9896fdf78afd0dc04df8a5b597ab4d5d3d8ae2c10bc",1,[3453]],
+  ["51b8ba5cfa3d303e76fb5caf5dc4db2453474275e753c20fa1c86076e56c9dd0",1,[3454]],
+  ["1bf4e03782744ac9418a2a34950add624e2fc3135a749b6d0531ee07163fd4e6",1,[3455]],
+  ["390f2cf20ce1c25830976735959743e1fd72fdd7b36593426b820ce0441aaaf3",1,[3456]],
+  ["3d44d58cf7bc817be58e6a5e475d50948e55166aacc2b64dff9c8b160f9710b1",1,[3457]],
+  ["020cda0a3550a41b176bb8571042fbdfbb47897a176eef957b56083a04a59435",1,[3458]],
+  ["d6ca9cc13b573931cc75b3b1ef0d8c1a81856b50dc01dc8c55c900d13f892bcf",1,[3459]],
+  ["2c806bf63e795c493b8d4b0cc7d2be488064b1d3453304779a49b29feabcb02c",1,[3460]],
+  ["3d2dce2197f93c08328664c632bc4e0232f1688eab166bab3369dcd928c245e4",1,[3461]],
+  ["ffcd3220053947cd84d407402fd01588800e37537d0799a0bddc09cf41bb1aea",1,[3462]],
+  ["d1961628e619e363b9ca88265bc919521fce35ac13f7498c55a505e86c3cdfbf",1,[3463]],
+  ["7e854b8722418417cbce09175fd4a0b4802b4516674dda7eb9ea67a0f0dbf4f2",1,[3464]],
+  ["6b52ed23b796faa3c33a47531f194c7fd019b9d9cc848e5ed759087c70d2a7be",1,[3465]],
+  ["6501db695a40ea532ffbe0010f34fa745f3e5297cff15e1c4a569e49890106d8",1,[3466]],
+  ["192fbfbee163f6a09e1a5d6db986ab16cad6de519db173ba0d985d228d68f819",1,[3467]],
+  ["5f971e9d9498dc10582922d780ceabac38cf9d09f91881a7c24887a4a24b761b",1,[3468]],
+  ["09caddc34cdbee55b91acc1efcdf584800d8d021af19c86f1c2f170df5d13773",1,[3469]],
+  ["59191d121eaa73dcfc05420b79ab9da1e99cde04f8badd0deff06cc9e80c3db3",1,[3470]],
+  ["90b063132826c1468475ff2edc1ad0a0c470a3368ec5b087a934f8a43a202ba0",1,[3471]],
+  ["2adb9fc7df74ccd4f4f8c14a3aa03a5a439f4c08562ee8ab61f1d28144794700",1,[3472]],
+  ["dad8ccfb6db98e9755d6f283fcad6ac9c9666d5379f36452a2083cd63fcbd411",1,[3473]],
+  ["4ede3f5c0f9742fe1acc6fe4944a940d033fce195a3ff8effe09fe788bf4fed5",1,[3474]],
+  ["f4a8ac67044ff71d75bca2434b970c399e7d3085b205baa0c3108a3d65d1e222",1,[3475]],
+  ["fbb4c75efd550154bf6e626bc0f28d8ddeb1261897f614312594dc68b241b1f1",1,[3476]],
+  ["69c33cb00b9f90cf1de9cefa69f5fd89d449677f56255cd81b49ece9e265a46e",1,[3477]],
+  ["55c772c9e278794fb4c960a37ad415b7a16a87169eb54d66316261749c3a390f",1,[3478]],
+  ["a4d1cd1ace83a3b70abe3ee380880dafc7b92cfbd5691a1ac219a3e11f49f4bc",1,[3479]],
+  ["5bfde5ad6bbe68068eca22bb49dde4b159160ac78d61826a648078ea0d287ac9",1,[3480]],
+  ["9511efe789b00e21941f894c12122807339c6c1e80ee5273864fd53fbba6c1b9",1,[3481]],
+  ["d7669357b83d8d17d3faef89260ece6a60649d0e615fe450bfebf09e9a063979",1,[3482]],
+  ["8c7e6ca243a54829b56ac835eec253b8d645508ed853343c3c831750f580420d",1,[3483]],
+  ["f480a32628a19bfd28ef3d5435f76afe09bdcf60d5661e281a2204b03aad4d72",1,[3484]],
+  ["f9b800b7c957a4b19fbf226cd5f816aeb741f43c50f91fa5e88a8ac191358efb",1,[3485]],
+  ["681865ab74bd5066e289d32f03b8e06dd8e4d51c85dcdf44f766b2e52f7722e8",1,[3486]],
+  ["b2d9be7438172b7ce44c2cf946c4e1e2ba930480419e7555eff96a7139ed67d9",1,[3487]],
+  ["d18e0bf2d47792a1789431e9495551ce6d52cf2c21768ab96fd572cf7a118156",1,[3488]],
+  ["7b385a419030ed6241ead17467bb07df6e637ba873e2b035abf52c5f9dd16b57",1,[3489]],
+  ["6366efb54c805a99bb9e82b0039f34ae70313695ae6b3b3b2945b5336a15d6fe",1,[3490]],
+  ["fd7b28a61721e595d1374ecfc7356c48289bd9d237632dedfc65b88f62ec8687",1,[3491]],
+  ["66a931f74e4e1767ded4ccd678dcb880e457da90b2294d7b6334a63d44e7dc3a",1,[3492]],
+  ["7709d006987d44d5773f9eaded3fc8f5905e33793050cbd6de3ccd7b2c0c1b96",1,[3493]],
+  ["8705196fd0e53139fb36414e0c7a0bbbc38d9605a2615415a6bfe8a1d52ae17d",1,[3494]],
+  ["ee47b7f345ec196ba88c530d276e13b39b67a71b26a2a59d6b38856a747caa73",1,[3495]],
+  ["111dfa8b8556bbe27fd45871ecfbf03e30220572bc51a86c6a77cdf3c76e0045",1,[3496]],
+  ["4d2a8c1ac3300fd35212fc177b98985713d4f1784cac59e12950718d8df9ff55",1,[3497]],
+  ["14977ae684486e31f094d7e0422ba703c0e0d8d7537ebf580ac4fe4db0e4602e",1,[3498]],
+  ["0e6e178b2a3dd4e3c9de8dc422410bdbc572c629df846fb923d6371bf4cba0b0",1,[3499]],
+  ["3caa67b0390116171cb75b05cddfa58da2ea0bba9bb908397e815807316e78e4",1,[3500]],
+  ["bcfd532bf376099591904755032f64d06e2b3bf962ac2698bc03313b070c0ad8",1,[3501]],
+  ["43728a343b748437e1d6a431f89c5a9bb2661741a6aae4eb095672db546c97d1",1,[3502]],
+  ["6c6ed232be4c434cad8b7257c8c06ab01b78fb7330811c38e3514b3917dd572a",1,[3503]],
+  ["ec935f8a3a83dadee5c261bee94c4ec83ac6eec8161707d02d0a57730c0875cf",1,[3504]],
+  ["beeac83e63181530958f9a907cb883beacb08782eaa063a6e8ece678ca960547",1,[3505]],
+  ["5516925b181c84487f631c43e9205da62a390966aa5d8178c08071e0955b1aee",1,[3506]],
+  ["994695e6e3d9082511c504a8c90950e729311d16094e73254751a940e4331930",1,[3507]],
+  ["7e5fa981c04cc7211e79bfe3cc8aa1ce0f1bc3d878a81a2814a1322f540844a0",1,[3508]],
+  ["35a519a57be53ed0dacfcd810f5a77af012f1b2b72facd8a8b10a326cb666fc5",1,[3509]],
+  ["c9210a10ae47e1006212b34a2b8ba3d307ea66c719bc29e42edbae1c5cc26055",1,[3510]],
+  ["a6c7fc3fb3238b3942bf40e18527ba8b8833ff63594f8c11fae1f8d261a23586",1,[3511]],
+  ["dada70c4f618e822021f26b39d853601d973fd3b33dc53b84ef9aebb02e6ed44",1,[3512]],
+  ["103391b9b7478561c59ba757b79990d8de601ad4186e76f766bcb66d40418208",1,[3513]],
+  ["c630518d19f13cd357b768d0458bef38e0291b7360a8dbfeea48d8d3ee87b7cb",1,[3514]],
+  ["937edd04cef58be6d6e73e6462c0efcaf5b8975112139737747d23ed555dc95b",1,[3515]],
+  ["d97a75d46423f3d397125982a83abf43c805f482d87639f8a1cb81e10ab6b516",1,[3516]],
+  ["55c2afb67aa66d27057f7345d33cf5c1fa1cf6acc552dfb7663c52ee7a9569db",1,[3517]],
+  ["c7e771e632a0f3c0ff4a78c82f1b9542f93cdfbd6fa9bf081268778b31c58da8",1,[3518]],
+  ["647bd33f199cba01ca12c6936429d04cd28b4bab275f3be12a42f53b328dbbdd",1,[3529]],
+  ["b207b162a9f189a59e5dea89d006a8c64930e68881b69c6088102b62c74d84cf",1,[3530]],
+  ["41e0f56a8b2c2ea58171e883bab8092217fe85ea03ea83f1c74da7de4200e8da",1,[3531]],
+  ["5eaf003fcccefd3911eaeec0c2455f63933f42a7394de5d4df10782d87f3e1a4",1,[3532]],
+  ["c4bc5619c3de5370880bf687e7bc22ef10c905afaad11d47e7382b3597a57b1a",1,[3533]],
+  ["5916363ec140c3d4c29d7d07cda4977ecd166705551fa9ce6bf65043386fb60a",1,[3534]],
+  ["e2f7bb87e1ddb2c11397a9385d0e2b03105cae07f0b2496df850619293e1f06a",1,[3535]],
+  ["646ea866c0a6f91c7b04a4ba505114fbe85a0bfc16bbecfda46d3486990f1839",1,[3536]],
+  ["ab5b672dc6d5c902b5f86b74c801915a0eee90c850e4bed910082632f08b62fe",1,[3537]],
+  ["70cf08d8e725ec1bf5ae904a2869524fb7babdfc1f9f63131440e36e66b46b08",1,[3538]],
+  ["6ee7018056c3030ad5c1f39cb4c7fffc52f80397cfd549c6960b3d7f3a723c21",1,[3539]],
+  ["6751e33d977b0577ad71812cd395b55866dd59bc23c9f9b3628e6601ca617f17",1,[3540]],
+  ["96ff9b03f8f7f0b76f72c20b79571142e135cf35180ac3ab02c283f1b18da3e5",1,[3541]],
+  ["897e8202e2af9cfcdeea62e0dd02f81b9f939a48da0f21609d3713cd9a3375e1",1,[3542]],
+  ["1b5d49e0cb261bb3b2e8b405c02599ae075411d61e77bf0d0ef3f86d803d3f6b",1,[3543]],
+  ["a5cf593de389697a8e669ed9180e8fa67e6103d8e267fc4f9f0c8837fa04979d",1,[3544]],
+  ["826bf0bff4c674f08afc9f70a77749f4902c7eaaa2a4c6003bc8e6d290701cc8",1,[3545]],
+  ["e1dabe99141b3a382680f3df94c1ffda0d8634b0bb15581bcf0e99980278dda3",1,[3546]],
+  ["a283f45fa909dae9ffbe83bde98ddc94287881c79963d189db1f58b2631b9b6e",1,[3547]],
+  ["461640c8529b2e85ab199fc691b6bd57249a0818de5039e14fe2eb52577c5727",1,[3548]],
+  ["46440dfe981f7865d62ea1f707337818b01d0414fb4c940c2760f59d982e3bf4",1,[3549]],
+  ["a07298f893c685c46aa185f8fe03653a1e4167f7b21ffdb531124de3f09ae891",1,[3550]],
+  ["ce1931dab2a041f10f57db4c8a4b9d380f35955746f076ecd34ba114f52cee59",1,[3551]],
+  ["bcfa70e9793634eba8d6d6db608a1231da8bd30c0b2c93686044b598bfc8f07e",1,[3552]],
+  ["2f49bc2f03db73948dae161c49a116a127721613c73ffedd666c4410c809e18a",1,[3553]],
+  ["3cee4dd1a5e08bb309e17b4b1470065ef8e73f6058b918e9fc419e70e2bf04c8",1,[3554]],
+  ["9addac1eb40e07d57260bf66d8b856ff2e16e73018b2f8e7fc3a302abb5edaa4",1,[3555]],
+  ["237b99f42ed3abd57b39ddca0867d07538456b627149377ac97d59bcd8e583f1",1,[3556]],
+  ["efe623f5c55177cd66ed6731e584bef377a88692d83e30d77317a6903fb73238",1,[3557]],
+  ["86d4f2a2d5317d8df79e0764ab234a9f5d48e2191a3eb395c36a5acf681ec12f",1,[3558]],
+  ["6f32c4ce66fcbc07f74b82b4713f6abefab4838aa25238d8c0775f4f4942e56b",1,[3559]],
+  ["635ebb2bbdcff2eedc30d958a5f5900adb904f2d785c7728592769aff2394752",1,[3560]],
+  ["82d7c9e24274688eb3f5df876924f323e80e1c0430dbbe02995e51d304d97036",1,[3561]],
+  ["a75cef6e02bc137cefd46cb5f6a61ad0c925949a2e6dbacb86f2cec2b82ab125",1,[3562]],
+  ["1f6bc241bb214253d8773fbdc635a10aafeb349b1e1ed5c9da58ec0502d11448",1,[3563]],
+  ["0b389cd4b2e46108e0920665b65d145fac0038b7f848e8f243f8b2308ed568a9",1,[3564]],
+  ["eebafa35d17816240bbb56dce0168ab8884c098384328870eae36c8226058e8f",1,[3565]],
+  ["cb460ae0308369c0181f3bfbe37df260a04cb45deeb654582d90a5cef9af7a90",1,[3566]],
+  ["39f78de646b9796b69b9f764fd8e84c74e4a7e688aa68fc5f96d1ca43fd66c9d",1,[3567]],
+  ["2ff74b7034f5679effbbb57e8ded6ec316896e62418c5579565834c94cec310a",1,[3568]],
+  ["49da30ebdf7965b19197b05d50bd4a9ca6ba6358d7d7057e74635218bbeecaa0",1,[3569]],
+  ["cd4e71519693ed28caac5cf954d2ecc7df09704e2ab0690f98774ec44da8dacd",1,[3570]],
+  ["c317766f4311af160405b83558c0a03f32055c7f1e111fdd022db94eff52997f",1,[3571]],
+  ["8b424d1215e3c9386688070107c7c9e27e02d201d39875e7682f1aa997768786",1,[3572]],
+  ["cfe7c8380f27ffe7bec92e3471e802409b9bb100f95743aefd7f36b8bf27705b",1,[3573]],
+  ["c83955629e4f43c3ffeb9275cfd25519fa059c8316d1a065eaab097c574bc4cf",1,[3574]],
+  ["8123a3c461a3628206095e3f88c4e1b02c856f18e6689b19b80b9358da4add31",1,[3575]],
+  ["7a621681e8858a171ea2f7d78cc11de3b5ddcb0340937289396f5edbd49dcb74",1,[3576]],
+  ["a0cf2be738eca094deaada35de1a9d4160f09d3c64dc479f8abd45ea4fc86b6d",1,[3577]],
+  ["134a59fbcae88ebf2ee4dea5b072d3c012f56dab90c5c62703a8527dfde0c76e",1,[3578]],
+  ["633b4dbfe1df9b6ee235f4114aa88ed7e032e273e10c5caf6f7ecbaf9612029e",1,[3579]],
+  ["db7fdcd41acf91f18aa312ee90c9bbd16bd99b6aa34cd075a47462d245b56314",1,[3580]],
+  ["aa8e1fe2f556efa4ec1ee48a4d85fcbabfccb4ffa884c881e27c3e5030ffd26c",1,[3581]],
+  ["953814735839b659f7e28aa5ea933bde55783ddecd606aca8a51a848bf29a091",1,[3582]],
+  ["c62cf938815d8d24e14796a5af9a45bf080693a9069315eb4569236c97e01559",1,[3583]],
+  ["d21c247b00f3ca639986c9d1c9a11af269553bfeeb23cb72e03b741956860bb1",1,[3584]],
+  ["70b9c2e359afcfa57d1e554a9fe2d3c6119a71d44f48769b05ee2bcb4ce5f6a5",1,[3585]],
+  ["fdaae19d4cdd119b5fb01f8b97157ce2719c92cec6fd154c9b0aa13a4a20f5f1",1,[3586]],
+  ["028bf7a609930ab68311795c5faed2984e8d95275f558efd3770b751eb4b5383",1,[3587]],
+  ["c2b71d408ccf52fa4b08fc08375c2e9131c99bcea8c25001257edcf90036f420",1,[3588]],
+  ["085c3057991333d43301574a2ad4f71d80360d203aa4297c8215cbcfaeea9556",1,[3589]],
+  ["776fbba3d1789a11c57b73543a6ef026841555d28831cb1a00203a29eff2d922",1,[3590]],
+  ["2c0fb581f887d245b54e36b44eab365a532895eff56d40c13bcd6453b87dbcd3",1,[3591]],
+  ["fb8ae1f239b7034f058b47889271380fa8c21191a4522b245d92687df22cc84b",1,[3592]],
+  ["2f23ef2c4988b96a45648bc3668878850828b47ffc30023162b5d984faffbc82",1,[3593]],
+  ["bbaaf868c9335af19dff806c1362ab67336152f1caed19164e62030c0f6dc36e",1,[3594]],
+  ["f4805b709e630ed725a9290920f05ae21f54aa71f90b8657d93e2a5811332ac8",1,[3595]],
+  ["92d2584c1719163883387605bc8f251a954db9e2b80714b3563416f56ccadca3",1,[3596]],
+  ["49d72c07b7d2571632dc69c6f9c12be2dda0bd4808ab3f6bcfd362da6bf283cb",1,[3597]],
+  ["59a1e28587d4bfc6a3beaa39e5b75569808a4308e68e792404a6c99e0104ed26",1,[3598]],
+  ["2106f15dba99b404dec3b1abbe46532467bcae177b80049c48b3c464a8ae9efe",1,[3599]],
+  ["7c07f980410ecdc8477c36a392f6264caa80ae1bc12eb415d807019ccc6cc9d5",1,[3600]],
+  ["479879fe569ba1293106d5c1aa51ad8ba1c5a0590d26ad98ef9915536bacb482",1,[3601]],
+  ["e9ed3ebb04bb963106dc2eadbf95c291219bc511931c0ab29c53c44608551a5a",1,[3602]],
+  ["be0e7a9c8eadcbfba284e7ce51037ff4bde22d9fb59a336685db2837b131b60a",1,[3603]],
+  ["ffad70892143c163822ecb9f4ce4e6461b0034bf740d6e33d9beb3ec1a4b1ddd",1,[4413]],
+  ["cbd3fe38071e24073adcbf9f8c652b34f1196962ed7e4ff0f713e7cb260b1833",1,[4425]],
+  ["21f52f788f2a8562b1d0acc5aa807e86162e1b925f83f51d7b385fe0e9da7bc7",1,[4426]],
+  ["b9facc404a8540f60d0d9f0ca588f8b428bc1e10fc06f5b0df6eb968a78c525e",1,[4427]],
+  ["147075f34702041e833817116b85a5ad4a356372ca45f6c7ce927aeb2a11b799",1,[4428]],
+  ["6818d350b4bd7c6527ba55eb4a6cd0f3aa1368ed5ac85d87ad6669e00cee2d77",1,[4429]],
+  ["082380c709191b8996681dd1c7c0da90bb01586cafc2052a3734056c9e6cf54a",1,[4430]],
+  ["4fbb26ec7e06a0f492bb2aebb0aaee2e2f70f661231f56a17caa1002b56dda82",1,[4431]],
+  ["8271e4bc577c5820bfbf56627d41c4af92f7db5ea65e476aa074461a45a09c10",1,[4432]],
+  ["2632c9e6b1dbc8058ee95590362816e031e6cbbac0a3d33b5cafc388456a9c39",1,[4433]],
+  ["b42970aa4c8f3fa2b782d54edae4a5c490416e4bec1f84745de97cf7f4b311cd",1,[4434]],
+  ["afbd8eaf090ae1056f95a4b39b67a1caeaa0eec0762a9b06b6e7161ad8692a9f",1,[4435]],
+  ["da821950058d5bf40ca7084350b814de597f63113abbda67b485debddbd77e5d",1,[4436]],
+  ["9010dbdd7a491d1a40ca61acaf46e057044fdd5078dcf0d07712c671bbf8165f",1,[4437]],
+  ["39e1b694c70437e01d3bea0a18b8a0c3e31beb3dfa5d8ebb212dc523558cb53d",1,[4438]],
+  ["503a72752dd957b54a33cea80744083c9661760e57702606f062a7623f9c17bf",1,[4439]],
+  ["f9402fe591d208a4b89f98fa4c50dfdb09bea067274779e32966a50ce73ee123",1,[4440]],
+  ["20a2e04b0c536d44495d0dcdb447f4a4bdea5760c8950d78b3e54975dee1d8de",1,[4441]],
+  ["5b44278f70d7edf7a85901d76698808744b0d3bd4d1df3c50093b48461c0dfdd",1,[4442]],
+  ["f7f0052b5bdc21d7435411c5633959924b26f17e870b9274d70e2eef95362c31",1,[4443]],
+  ["4c73a266a504c737b1902accab339b5128e5df2d1c868806e48e4a554631890a",1,[4444]],
+  ["bd1a13f574ae8eaff37acfec36cda9acd8cd6e9a78a52609544ec5026b76ab37",1,[4445]],
+  ["17a42ee10d6aa53f76b4734ca0cd9e17fe10b1db8756053a11fceec7e3a4e9c4",1,[4446]],
+  ["f63357afc95a477a43a42d2b77d8119699f39f3f405292ba91925580508e7967",1,[4447]],
+  ["5d33f5e919e7ae957dd6c161e8eb08fe874bbaa067c7f14a4c4cd49871317cbe",1,[4448]],
+  ["8bad13498de12dcd130d3e237f81e21281432d2cb8b01f3845c637e5716e7206",1,[4449]],
+  ["4605f7feb08bfefd841bfc009a3da8c895cf3c1f9b9ac36bb90315502b47ae94",1,[4450]],
+  ["98925bc7754a2ed0cc9594a3feb511d902ec4496cd38f45386f2cd36410c14b4",1,[4451]],
+  ["15fbb71cbeee3c7dcddbde81df853ee744c978d98d33a0dfe9548134a6da7f12",1,[4452]],
+  ["3528c64bc47653fff8e9f26131ddba5b3aa8a7c71c739cf03d5b4f15180929eb",1,[4453]],
+  ["d70584e92e6250c8c0b2ce1e40434c800809e589375f34b0691e557f0e620ec1",1,[4454]],
+  ["6ff87c8852f907196fd0e69b55e8bd64d809e956705edbde57532a07108f22a9",1,[4455]],
+  ["668ee99e17a379f0c96d0d8bba1852f79c216f538306b35780076b3ae0b822a6",1,[4456]],
+  ["760f999eef0e4ec4daa5eb669e750bf7140c1f7f39fbc498ff377ac874c2252a",1,[4528]],
+  ["e79bb7a9d22fe93c2c8aba4b175fbf739c5a96be1f78ad43daf045875a2f11f6",1,[4539]],
+  ["d526f48492c6d85f9ece092f9ed894574693d7bbbc04121f6673adcebfcdaa59",1,[4540]],
+  ["03f211e4865b3815c12f015a2286b3ed8ff5517346210514e4129d2b4a8cf216",1,[4541]],
+  ["4943cf6fe62c452dada16a0980b5168b317875e1357501d42bdc08090dfceeef",1,[4542]],
+  ["7d74651ddfe576507188661d38bda5e0b3b99feddc83e03b279d60daed4ac832",1,[4543]],
+  ["808e3c57c2e5cbd43d2ee72c68ad8202bd35c03973b0731f63b7f9ff875b2719",1,[4544]],
+  ["2b4f0a91f37a7a655cc9f555f652633e13f5b56771cc00f6f692e6595166e20b",1,[4545]],
+  ["94ddd609c125d49763896cf838f4e95c5af9b2a8104e92c56cef400f9dcf6957",1,[4546]],
+  ["db08f0ea4949a87b66d2219f5cda3c05887b800663ea14be20e300a450189318",1,[4547]],
+  ["77d1d05324d4b3fdfb95f2f0bb4808e9c6c76dcb6a4a96d2922485e6623f792f",1,[4548]],
+  ["db496c6b6c10cddd5da19804970e9a4b1ae0bb1b496cf98f2aa74f21435b8123",1,[4549]],
+  ["5f4ef091e1aeb8bbbc673daa53c2501b28d8ed72c7f1833120579777b1d4b0f5",1,[4550]],
+  ["c32ac59d3e3d0e31437048a184fd5ccf3ca4ce094a18b1c1635e0f7923aeb0ae",1,[4551]],
+  ["515aee7e5fa1f12bf40619d82977c935f2bc68c30587c09583d867a0922e8ab8",1,[4552]],
+  ["81afc74f4449d8a533e2a012b04e653eb12c9bfa0010365312b281cc66889129",1,[4553]],
+  ["e58535fd9e1718ec917f9aec69fd4bbd3a80151a2e434684f72d989dc68b8306",1,[4554]],
+  ["6f50237983ff273e7c8856f7b1d75cca5d20d0d1d297c1de07877b19b2b5fd1a",1,[4567]],
+  ["c611ee411d4455b635605e3fe57d5445e5f2140ddecfb2d662a47c5ced2a5753",1,[4568]],
+  ["7ccc7dfc32fa190ac1b48cc2b3caeeb59d32d2e0d4d32fc907451a79ac18f9eb",1,[4569]],
+  ["a958e8fe2e61e94be6f327e1cff0c5b1fa902434e7df937e52d50a9b636be624",1,[4570]],
+  ["d9b70dfcc92ad0a72a7110cd4447a926b214a189e073d2d783ec6ec0c392ed93",1,[4571]],
+  ["1452a39ee2d268fbabdb0001a02814bb39c120ff9247e56a0c7d896290c90ba9",1,[4572]],
+  ["77623f6eb2d27206dce1eff13c8100f219e4ebadd67daf6c34dced82cde95faf",1,[4573]],
+  ["6f6421157eca575331b68e6d56e01e58d0825e6ae41640b5fc956946aa7e25fd",1,[4574]],
+  ["a288b6e1ea71a81f06cf5a358ae7678ec84b66ae11910b0d86c7493c5a1a24af",1,[4575]],
+  ["6989c4c08adcb8e46dd673d5c52851253ede8f94f973625021dc6ba2b652a517",1,[4576]],
+  ["1ec022638a342efd33cf89aeb4de7d0c71d519cf6fea19cd56f428bb7b5a1bc2",1,[4577]],
+  ["fbb5e869dd964d1a2b1629e34ec207f0d24f39cb6105d27664ef284b8bd9c8c7",1,[4578]],
+  ["dbc7528000da559441df79dcc372009e4bd63030726df0371f627b82e48aaef3",1,[4579]],
+  ["66e78a3dd53471f6a306e88a5c4e7ab1b5ce6aef1bb223e8a03623010c931fe7",1,[4580]],
+  ["f0641beb5a60935f032f3a0f0d4d542481b3f62bd410d66da3dd1a241ac1615f",1,[4581]],
+  ["e2b0728b901384fa34b86914c50e76472f54ab4df868d8a028f9d99c932dd142",1,[4582]],
+  ["f897f22840cc6e6b82759efe505a0a0b0e5b34067e515b187f4dcffd1fee45b4",1,[4583]],
+  ["5f2a67f67d624b1717a544f1a250967166764e4c3d182ba2d9a3bee4b3a01dcd",1,[4584]],
+  ["31f103a0280dbca9b8de584b454441a6f9cc0570ea922287781581560cc4ea98",1,[4585]],
+  ["f28fc5c82cd6c50c3a3d714eb5e1f52b67d91811bab0714df73586851459c2e0",1,[4586]],
+  ["26e5845ae59e16369e542c2a6387aa4ab12f7aaa2336c8b7b88b1371064e592e",1,[4587]],
+  ["e8da4ce97aa5b0a12952423e1e7f1dd5412fb60953fa5bfba49c33828d0f1503",1,[4588]],
+  ["4c50375170865b88e3818b0e0229cd3331a65b04ea3fb3b9d3844f2bf3fecce1",1,[4589]],
+  ["139841272f46501174698eaa77f81eec6f7403ab2256f2b2d8017881d9d17f9e",1,[4590]],
+  ["570f61f16ba13abf0533dad7c7d63c139a5bbbead3a558fde4999ebbe6fd3208",1,[4591]],
+  ["fe4f41ddb9fbbaa6ced0042a39dbfb36ff301927b46e7a63ca2bf404a001a0f8",1,[4592]],
+  ["19aaa352ae28486f77cce922a3db08b2b697ba6c0073ec7e494c8ce3a625e40d",1,[4593]],
+  ["624ce0add9e67761efb8c5941b86a814ec493c12e2b3f83fcc7b7638cedbbf63",1,[4594]],
+  ["83f5d947f5aa2a413e08137b18eb46739ce2d875eb979ab8b70ad83d0865a850",1,[4713]],
+  ["d400d65c4a6aa593b36bc0aa109aae200a7c93ae63e5e755ebfe1f18b27ba5de",1,[4714]],
+  ["19ec461843027482db8f173faa7dcd92c0e5529a20ec9a18f7052819a15e6e3c",1,[4715]],
+  ["e45e4d7ecb4094c774cf40cc68d5981021f2414855b3ed66c428e186d1fb4a1f",1,[4716]],
+  ["3587dd0259d1e06173ed87ea08275aa6cea88acff3bd4e7fdb5141cb4f55c640",1,[4717]],
+  ["ac04c7564127c72e27ef2a477668f75196ef15b0bad15a3ed18bf528933967c3",1,[4718]],
+  ["acd99bde56c72eaba86d681bc943a50759baf4ccf805ca557eaffea6b5858677",1,[4724]],
+  ["6ae87bb5a5186b3157bd859dfb5cb7d7bf072eaea6e56782c83d82d0cbddd9f2",2,[4939,5035]],
+  ["86195d5c5fb3de96b356b82d4a9f36cbb6271b95a92963237a5d545ba25767b6",1,[4945]],
+  ["59bf409ed11d657b3fed31e5f3e0ada0882e977a748bc6d62a7cbff38020415c",1,[4951]],
+  ["56d1791f990793dbb626695ea21f9a33ea9c2461dea0837c2369ad50b645ce31",2,[4957,4999]],
+  ["43b85e9e2a8d36c03ee5d3a501daaf7f53a3a310eec4d8c9ca9c1ee6b449c071",1,[4963]],
+  ["00b55b735a6af963b5aad5245cee05833870d7a60a512851e352da681ec57bcb",2,[4969,5029]],
+  ["dd66b22f4a5b82433188d5101966f309372a02e03580bbbef672450cad6cb8bd",1,[4975]],
+  ["4cb26c50b4d3ad570db6dce1a6d14816c82e6eeff122cf15ee57f3b1a36daa88",1,[4981]],
+  ["0b4cdcfcd851441ba9b40c5ef111fa50e163232fc1dd4263f5329aac1d9a79f4",1,[4987]],
+  ["061d3dcca4bdee365f3d0bd7373e4590c485edce6b29a0aaa7eb1fe037eaf145",1,[4993]],
+  ["1fc08551a9c0025596f2f5fa6129249a62617b2d5b88da364e6ce89dcf5a085b",1,[5005]],
+  ["e1044ed4592ac8f0227b06311f3ee0e0453082963b9853698d2ed88258e1bc6a",1,[5011]],
+  ["19aa3472006012f8c1a0eb7fbeed9cef469ca862c209664aa4ba11b1d76c60ae",1,[5017]],
+  ["62e90d95c1a213125b2e5e77cd223be97e90f5d5343ed4c387bb982f2e6548eb",1,[5023]],
+  ["3698588407ceb7ca89e310f1a2fa0f3e7b73def8e1785374a05c9dcaed3b0773",1,[5041]],
+  ["ecc135b10b51527a48461eb01ab46e16f73e48e8b6528d5a297d73eedf32e664",1,[5184]],
+  ["c86502aedb438bb464f95fcf74347508cfcd66a0b95baa53831828212677fd98",1,[5185]],
+  ["29c046207e93fb9d926b3c0be6e3f26d48a181813f1174e2335e9080d4f91781",1,[5186]],
+  ["66b3446236cc6ef450be84316e159598768877d4b666937e69465c8cec6a5fd2",1,[5187]],
+  ["1c7962aa64cccb285c8946784d00d73857680222960f8c84bab5e38b0aef4341",1,[5188]],
+  ["41ba6274ebd838a3d212fd67952eb0768c1fa9d9204632586b6b44fa522907e5",3,[5256,5854,5870]],
+  ["0a6f4088f6fb0e2b9162fc53abaaa15e9a231e160f672b9d78c9163bf6301c4d",1,[5343]],
+  ["2a2366e22845a91975efb81f1695d4b601cd5598e8e54b1f81f190d961dc039d",1,[5646]],
+  ["34dbb2f67b7e93058291a0e53a21d5e7468a6e6d8065655412afe69f17356484",1,[5650]],
+  ["a86c722b8b18ec05cf5997bb988e5037f204912992e21e07e17fa5477be1982c",1,[5654]],
+  ["2f2d31fee7f09cad07db0f20721e07dd6340259af90cb9ce8263046a55e5bc19",1,[5819]],
+  ["5a2ce17286beedcd061775698a21dcbc441f91a45e5bec966382b5ff39d044aa",1,[5891]],
+  ["acc91fed7898d0bca3a29b1bfee475e8ce21d2919fcc1b43fbed1034fcefa46b",1,[5914]],
+  ["664947c955a7f5804f2c2d2ab711d96b8d86964ade92714453cd0bf496796531",1,[5915]],
+  ["851a427a06e1a257f663767b167c3fe09d97530160835be12668915bcdc6182f",1,[5917]],
+  ["4ce5469cf8d83cadd1645d2ef49b11ae3fdd2362270e6e5b736828e133f61dda",1,[5919]],
+  ["8c8c5cb6b850d6f758127b2ee573bb3d5bfabc9dd396bf223ea4316d40f0da38",1,[5920]],
+  ["ff4213c359fbe1a20359ed7c53b01dfaa5d3a733f541128b0ea8c38048a3122e",1,[5923]],
+  ["dba9df28233a56080612e6fdc6355094fd29ae43d019ac88591e226b55bd67ef",1,[6011]],
+  ["fed7a0d7bc4e4899e161ebd24d771cf969990d960837e903b353b04d1067e84b",1,[6098]],
+  ["e125e8d1ee84f1f464026faada6d9a34e97425bf76a0253be7b6ac2f519ac811",1,[6124]],
+  ["8f5105810d07545344ecd156e207e6150bbe3a5074d0c42b3b7d73be82505528",1,[6146]],
+  ["1578e0e84bd7a481225bd8f5a1fa54c5d98813841f3a9af04e14e84403ef4992",1,[6147]],
+  ["df639fd0f83169089ee081df79ebcd04a12597ddf22818ff503f7c4c8909e13a",1,[6148]],
+  ["577a9a5205ebc67a74e853089e666357586949b725c62bb24e0f70ad5fca3a8d",1,[6149]],
+  ["9ee639fe6f42fb62dc7650a050bbc4851794e9e7b1bc2d28f3cd9fabca8ea65e",1,[6150]],
+  ["d4c07ef6d7fb26ebdb6d90ffa02bac8573ee61cf0eceb34b880bcede74cb34dd",1,[6151]],
+  ["ca4c93c80da3e65c5b62864e12336551f4eaa017241aafa664405edcce33e7b9",1,[6152]],
+  ["30b35d8684571bd463e907ce88531baedeef3b7403f016d4ce5ffadcda79263d",1,[6153]],
+  ["99a9d700d4ce9bdf439f5197df6ab872948a2b647d1f096f9bfa05fc068c1d81",1,[6154]],
+  ["7ff8336e3d7482a104f575bd8b71b6cdc065833d639a46d78176aea2c6297fdf",1,[6209]],
+  ["4af81d017a785e06de58e1d07b8e4dc6006eb02eb79eab712db9b0af3f3a3a92",1,[6219]],
+  ["c568efbb7b956d3ec038ab49bb35b9bff80d0a353d52fd486d0d5224f7d145fb",1,[6290]],
+  ["471fed82f05ce6c78080216f0aa1697f461b781e25db4ba297b774e9afe26956",1,[6294]],
+  ["91b6a617340307941edf74c8d7debb26ad2ca1f9d4b44c742039379fe35f049e",1,[6298]],
+  ["d49726ce93b549ef2ffd306745642dc79590dfdc7d4f16e0a917badb6e5ce9e5",1,[6449]],
+  ["4b56c392d1992648da19fb8bc13310d79022b92d7168113f115869fa82b97064",1,[6452]],
+  ["4a1e42cea269e577e5273724dbdad851cca273683e95ce4f92b5096de6e71a28",1,[6455]],
+  ["580d08037f5467d9d2f8beeeafbc3a727eb2f14d2520a2abf102a5b0eb5cb56b",1,[6456]],
+  ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[6776]],
+].concat([["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[6961]],["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[6962]],["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[6963]],["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[6964]],["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[6965]],["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[6966]],["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[6967]]]);
+
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 676;
+
+// Historical artifact bytes can contain retired salts, but active source may not.
+const FROZEN_SALTS = [];
 
 // Protected stories and fixtures are verified only by Git object identity here;
 // this verifier never parses their contents. Provenance documents and the
@@ -255,8 +4319,8 @@ const FROZEN_SALTS = [
 const FROZEN_FILE_BASELINES = [
   {
     id: 'changelog-history', class: 'changelog', path: 'CHANGELOG.md',
-    gitBlobOid: '9ad8fa442fda129d79b9124f18413b4172a63360',
-    byteSha256: '6e1b350d86fcad1358d9cc518599bd74d661314b0fb6904087d0190da8b7a888',
+    gitBlobOid: '4b874492711d5b53d4f75de7116d1a8019703217',
+    byteSha256: 'dfac66a15ee7761396e293e915c70b3c2d3dd5b4e1317e51b18d40c30213b2f5',
     reason: 'Release history is immutable.',
   },
   {
@@ -273,8 +4337,8 @@ const FROZEN_FILE_BASELINES = [
   },
   {
     id: 'cutover-policy-provenance', class: 'provenance_bytes', path: POLICY_PATH,
-    gitBlobOid: 'd67a7a7a8b99dcf98f420bf1f68367a66eb41623',
-    byteSha256: '05a5d3fe0a1fd904d60e51bfe07cbd84081739a0932779f69dcb7b7f2a9614c0',
+    gitBlobOid: '91212d10d11beaa36d2b9904cbc5369b7c131005',
+    byteSha256: 'b6b2495b47c5c3f724773289f22a6aa9fb261ed8f7bdcad946b8e4ebbefc50b8',
     reason: 'The original policy-only commit preceded RED; the current reviewed policy bytes, including later exact clarifications, remain independently pinned.',
   },
   {
@@ -296,8 +4360,8 @@ const FROZEN_FILE_BASELINES = [
     reason: 'Exact migration fixture proves bounded legacy input handling.',
   },
   ...[
-    ['.proof-or-stop/artifact-releases.jsonl', '0918320f9803f910a351b9cb3e55fa4a572ce5b7', '353ad771076933f9c1e1eb74cf83eadf03aa2cb21ddc32865f764aa341ab382c', 'proofbound.artifact-release.v1'],
-    ['.proof-or-stop/capability-releases.jsonl', 'c908eaf4626a4fa893e86887d3a40885d4aca324', '9dd9fdfc54061145558aac04f959673c8dade7051c2d8ff9c2db1bf05e23d584', 'proofbound.product-capability-release.v1'],
+    ['.proof-or-stop/artifact-releases.jsonl', '0918320f9803f910a351b9cb3e55fa4a572ce5b7', '353ad771076933f9c1e1eb74cf83eadf03aa2cb21ddc32865f764aa341ab382c', CANONICAL_ARTIFACT_RELEASE_SCHEMA],
+    ['.proof-or-stop/capability-releases.jsonl', 'c908eaf4626a4fa893e86887d3a40885d4aca324', '9dd9fdfc54061145558aac04f959673c8dade7051c2d8ff9c2db1bf05e23d584', CANONICAL_CAPABILITY_RELEASE_SCHEMA],
     ['RESUME-B-cc10.md', 'a7a5a123d35b67270eeacae103ffce90a3489657', 'e35061dd7c7130b441158f298c30aa203ab8a1ab4a20f7b5967d715c802c55b3'],
     ['docs/evidence/orchestrate-legacy-index.md', 'dee96f0808570c108112b9b0dce9ea234464b712', 'a95eb9728f5e34c5a01fcb142e63d13400142c223ca466c5eb7d932cdc9acf7c'],
     ['docs/evidence/proof-surface-inventory.json', '0f8a38666f5d121b4bb367e9c061fc612bceac34', '5fd0421c5d37efef5e03d1c5e8be0d743049816f086a2a7566b6b0892651e1eb'],
@@ -339,6 +4403,7 @@ const FROZEN_FILE_BASELINES = [
 ];
 const FROZEN_FILE_BASELINE_PATHS = new Set(FROZEN_FILE_BASELINES.map((row) => row.path));
 const EXPECTED_FROZEN_FILE_BASELINE_COUNT = 35;
+const retiredToken = (...parts) => parts.join('');
 const APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE = [
   {
     path: '.proof-or-stop/artifact-releases.jsonl',
@@ -393,6 +4458,62 @@ const APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE = [
       token,
       expectedOccurrences: 1,
       reason: 'Exact historical changed-path token inside the byte-pinned B-5952 capability release record.',
+    })),
+  },
+  {
+    path: '.proof-or-stop/artifact-releases.jsonl',
+    recordId: 'AR-d0f7cec0f3ae1d7553d3fa07',
+    recordSha256: '1b5f58bd5d5dc96ba06ef3cb585c195c07670068dde36d09efbc7df7c2f39481',
+    reason: 'B-022e release provenance is immutable and byte-pinned; only its exact historical decision-document filenames are classified.',
+    retiredTokens: [
+      retiredToken('lat', 'tice-baseline-two-host-multi-agent-execution-plan'),
+      retiredToken('lat', 'tice-codex-command-boundary-execution-plan'),
+      retiredToken('lat', 'tice-console-demo-mvp-requirements'),
+      retiredToken('lat', 'tice-experience-layer-effectiveness-record'),
+      retiredToken('lat', 'tice-experience-layer-execution-plan'),
+      retiredToken('lat', 'tice-experiment-protocol'),
+      retiredToken('lat', 'tice-llm-usage-ledger-execution-plan'),
+      retiredToken('lat', 'tice-midflight-story-repair-and-gitroot-worktree-plan'),
+      retiredToken('lat', 'tice-parallel-wave'),
+      retiredToken('lat', 'tice-runtime-owned-agent-assets-execution-plan'),
+      retiredToken('lat', 'tice-strengthening-roadmap-execution-plan'),
+      retiredToken('lat', 'tice-unattended-completion-plan'),
+      retiredToken('lat', 'tice-workflow-efficiency-baseline'),
+      retiredToken('legacy-to-lat', 'tice-role-naming-execution-plan.md'),
+    ].map((token) => ({
+      token,
+      expectedOccurrences: 1,
+      reason: 'Exact historical filename inside the byte-pinned B-022e artifact release record.',
+    })),
+  },
+  {
+    path: '.proof-or-stop/capability-releases.jsonl',
+    recordId: 'PCR-29ffc786e972b2dc6f1afff8',
+    recordSha256: '91737e26e5e28a2e4c6c16d6bfcd243df6eab097a358efac85d7650b1150d452',
+    reason: 'B-022e capability provenance is immutable and byte-pinned; only its exact historical paths are classified.',
+    retiredTokens: [
+      retiredToken('.lat', 'tice/story/actives/B-022e/checklist.json'),
+      retiredToken('.lat', 'tice/story/actives/B-022e/index.json'),
+      retiredToken('.lat', 'tice/story/actives/B-022e/process-events.jsonl'),
+      retiredToken('lat', 'tice.json'),
+      retiredToken('lat', 'tice-baseline-two-host-multi-agent-execution-plan'),
+      retiredToken('lat', 'tice-codex-command-boundary-execution-plan'),
+      retiredToken('lat', 'tice-console-demo-mvp-requirements'),
+      retiredToken('lat', 'tice-experience-layer-effectiveness-record'),
+      retiredToken('lat', 'tice-experience-layer-execution-plan'),
+      retiredToken('lat', 'tice-experiment-protocol'),
+      retiredToken('lat', 'tice-llm-usage-ledger-execution-plan'),
+      retiredToken('lat', 'tice-midflight-story-repair-and-gitroot-worktree-plan'),
+      retiredToken('lat', 'tice-parallel-wave'),
+      retiredToken('lat', 'tice-runtime-owned-agent-assets-execution-plan'),
+      retiredToken('lat', 'tice-strengthening-roadmap-execution-plan'),
+      retiredToken('lat', 'tice-unattended-completion-plan'),
+      retiredToken('lat', 'tice-workflow-efficiency-baseline'),
+      retiredToken('legacy-to-lat', 'tice-role-naming-execution-plan.md'),
+    ].map((token) => ({
+      token,
+      expectedOccurrences: 1,
+      reason: 'Exact historical path inside the byte-pinned B-022e capability release record.',
     })),
   },
   ...[
@@ -477,7 +4598,97 @@ const APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE = [
       reason: 'Exact historical changed-path token inside the byte-pinned B-2220 capability release record.',
     })),
   },
+  {
+    path: '.proof-or-stop/artifact-releases.jsonl',
+    recordId: 'AR-2659cf69b0912f0b2e2c2f67',
+    recordSha256: '6073f4a8404cdeeb8254b3b7f68e21feb26a6189fa98459b40cb72170f7c21b4',
+    reason: 'B-d854 completed before the canonical release-schema cutover; this exact final pre-cutover row is immutable provenance.',
+    retiredTokens: [],
+    allowSchemaOnly: true,
+  },
+  {
+    path: '.proof-or-stop/capability-releases.jsonl',
+    recordId: 'PCR-676257c4e8d5522149bf97b9',
+    recordSha256: 'e2bf52944f239b7be32e7825cc972797b90df308352935e878caa481059ee043',
+    reason: 'B-d854 completed before the canonical release-schema cutover; this exact final pre-cutover row is immutable provenance.',
+    retiredTokens: [],
+    allowSchemaOnly: true,
+  },
 ];
+
+// Exact B-212f release rows imported from main before this Story's completion.
+// Their complete line digests are historical proof, never production admission.
+APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.push(
+  {
+    path: '.proof-or-stop/artifact-releases.jsonl',
+    recordId: 'AR-29ab9703262efd8f69982852',
+    recordSha256: '35de311ce1b1d3720c85f373d1f7c66c32b34ed2152e93bdd63232bd19b0b504',
+    reason: 'Exact B-212f release from main commit 446b73fa02414ebc09749976750b0d3ffb744d58, before B-49df canonical writer delivery; audit-only historical bytes.',
+    retiredTokens: [],
+    allowSchemaOnly: true,
+  },
+  {
+    path: '.proof-or-stop/capability-releases.jsonl',
+    recordId: 'PCR-cdd7db406d44736d26f0162b',
+    recordSha256: '2f94e4f7194dbdf80de5d826c8cd1afbcac59fdf8c24a44fad47442eba276df4',
+    reason: 'Exact B-212f release from main commit 3eec15009ba93740b5dd74c0563bf1b3ca098b32, before B-49df canonical writer delivery; audit-only historical bytes.',
+    retiredTokens: [],
+    allowSchemaOnly: true,
+  },
+);
+
+// Audit-only imports authorized by b-49df-main-integration-provenance.md.
+// These source objects prove historical existence, never current runtime admission.
+const IMPORTED_RELEASE_SOURCE_COMMIT = '69403365ae9a19422564babf93f6c10de869c81d';
+const IMPORTED_RELEASE_SOURCES = [
+  ['.proof-or-stop/artifact-releases.jsonl', 'cff44f22780d7bb87cf93aeb4cc31c0cb58564f0', 'c82439e2beb65417e515a58592a7b89b39e533a81f95fa12f9af3d3a27af6e89'],
+  ['.proof-or-stop/capability-releases.jsonl', '10ed026faa44ef0c510f020128a399b311ea6740', '879a35962741c11eca0294ad55631ecba3390cf29df8a4b79e00bb97cd40ea83'],
+];
+const IMPORTED_RELEASE_PROVENANCE = [
+  ['AR-76578f8b19eafd7f207c2655', '51393778dd850a21c85a8eb43cfb4cb3806ef860f1d2766fa61a5c0efb2fac8b', 'df1adff46bea1c34d11f01c4b6d93f09bc5aba55', []],
+  ['AR-c25638f7e5c16c626634d474', 'e5b9a946e7699bbfcc7dbed6e2fdeec659d54e6d373cb22421ef183fd21db3e5', '287585dea55b4a19730f6e0aef78245f08dc423b', []],
+  ['AR-0ee40055f1a56064eae569d4', '15413531aa7c842da502d5c83a06fb5ebfb1f31b6f87fa21183e2d9f14e821ba', '552c00f83e22b9361de41114f24df9b16be910c7', [[retiredToken('.lat', 'tice/story/'), 1]]],
+  ['AR-44df2e95ab2dee605862d4cc', '2190d456ac92ea6d71c4eb5d1e6c810b2c2a2afddf16c91d4ede57e04b9c4790', 'a99a59834d2fb8b5efb37ed589a81426368c8615', [[retiredToken('.lat', 'tice/story/'), 1]]],
+  ['AR-cd1e3f3ff2ecd962ad694be8', '4a5657abdad810bfcf6e70d4e154d4278a113f13dc6d2c4692eefa7792b2c2ab', '8814cffcc4472cca3e47184888e259699f0444b2', [[retiredToken('.lat', 'tice/story/'), 1]]],
+  ['AR-cddf5716b6a8ac45fb7ba0ff', '38e40adf35f38e20eb9633453b68519d2757676af5284d52cb68abac2d2b56a1', 'cf9330a339da823eb84c1614946cf940d25b36ab', [[retiredToken('.lat', 'tice/story/'), 1]]],
+  ['AR-d828464f58fc8717714a0f90', '08ce914d3b1136399a732632ce6545a2db59878c460005ab2957e91edf22af8a', '689a3bd2c1801e22c6b1c9cc3d495f289fd00b88', [[retiredToken('.lat', 'tice/story/'), 1]]],
+  ['PCR-f34879fe3d61be233f768ec6', 'b19f301f01d1dba2cda91ae4fb226fa3a3f72aef1baad97f51dd8619bf7b1b68', 'df1adff46bea1c34d11f01c4b6d93f09bc5aba55', [
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/checklist.json'), 1],
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/index.json'), 1],
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/init-check.json'), 1],
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/process-events.jsonl'), 1],
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/scope-boundary.json'), 1],
+    [retiredToken('.lat', 'tice/story/actives/B-9a49/scope-freeze-check.json'), 1],
+  ]],
+  ['PCR-1ca191e2d6a25b296f60739b', '3d825090d2bbcfe05d849296e4fc790023ef5b08632baf683d0f1f15d85f40ed', '287585dea55b4a19730f6e0aef78245f08dc423b', []],
+  ['PCR-c371c3b2d0e267231f40b7b0', 'f60b2c23d7bf69a6575dbdb94f1b9d27bb91c70255957f9acfa703648b0ae5f6', '552c00f83e22b9361de41114f24df9b16be910c7', [
+    [retiredToken('lat', 'tice-review-channel'), 3], [retiredToken('lat', 'tice-review-topology-critic'), 3], [retiredToken('lat', 'tice.config.json'), 1],
+  ]],
+  ['PCR-bebda7913e0a0720842b4726', '5c7a1860832a7bfcd50dc94a97270fee2532cb2df2d6744c7919437d3fa49f24', 'a99a59834d2fb8b5efb37ed589a81426368c8615', []],
+  ['PCR-6e2e3b8418578ac0a8d63334', '313ebaed00eee32e4fbf382a1c70a367bf10954bf2fedc69d24e32e8d4fcd439', '8814cffcc4472cca3e47184888e259699f0444b2', [
+    [retiredToken('lat', 'tice.config.json'), 1], [retiredToken('verify-lat', 'tice-residue.mjs'), 1],
+  ]],
+  ['PCR-665600be2cc01bd5c079d7ba', 'feb760efd7114d4fc1ad13533765bac4133f12dad4ddb73507f38da367bd15ad', 'cf9330a339da823eb84c1614946cf940d25b36ab', [
+    [retiredToken('lat', 'tice-evaluator-cli'), 3], [retiredToken('lat', 'tice-brand'), 1], [retiredToken('lat', 'tice-parallel-wave'), 1],
+    [retiredToken('lat', 'tice-cli'), 1], [retiredToken('lat', 'tice-cli-migration-smoke'), 1], [retiredToken('lat', 'tice-only-absence-smoke'), 1], [retiredToken('verify-lat', 'tice-residue.mjs'), 1],
+  ]],
+  ['PCR-30edbf3f2e8e65a46dd10ac2', 'a4bf65d2a09d4920948db0fd671a951479179bf192236747d5a86793713e1b6d', '689a3bd2c1801e22c6b1c9cc3d495f289fd00b88', [
+    [retiredToken('lat', 'tice.config.json'), 1], [retiredToken('lat', 'tice-brand'), 1],
+  ]],
+].map(([recordId, recordSha256, mainCommit, tokens]) => {
+  const artifact = recordId.startsWith('AR-');
+  const schemaVersion = artifact ? RETIRED_ARTIFACT_RELEASE_SCHEMA : RETIRED_CAPABILITY_RELEASE_SCHEMA;
+  return {
+    path: IMPORTED_RELEASE_SOURCES[artifact ? 0 : 1][0], recordId, recordSha256, mainCommit,
+    sourceCommit: IMPORTED_RELEASE_SOURCE_COMMIT, schemaVersion,
+    reason: 'Exact imported historical release record authorized by the B-49df main-integration provenance decision; audit-only, never runtime admission.',
+    retiredTokens: [[schemaVersion, 1], ...tokens].map(([token, expectedOccurrences]) => ({
+      token, expectedOccurrences,
+      reason: 'Exact decoded historical schema, role, configuration, or changed-path occurrence in the source-bound record.',
+    })),
+  };
+});
+APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.push(...IMPORTED_RELEASE_PROVENANCE);
 
 const CONCEPT_PROVENANCE_ROWS = JSON.parse(readFileSync(
   new URL('./proof-or-stop-identity-concept-provenance.json', import.meta.url),
@@ -489,6 +4700,9 @@ const CONCEPT_PROVENANCE_ROWS = JSON.parse(readFileSync(
   byteSha256,
 }));
 const CONCEPT_PROVENANCE_PATHS = new Set(CONCEPT_PROVENANCE_ROWS.map((row) => row.path));
+const MEMORY_LEDGER_PATH = '.proof-or-stop/dev-memory/experience.jsonl';
+const MEMORY_IMPORTED_PREFIX_BLOB = '71d93ff1a25df23baef53206afd41f3eb344a97c';
+const MEMORY_IMPORTED_PREFIX_SHA256 = 'c83147c093dc1cbb2801dbc2f238494470efb8e1001287bbcda921f362bfbec3';
 
 // Generated once at the RED commit. Every row is one exact tracked file pinned by
 // both Git blob identity and sha256. Runtime exclusion is by this exact path set;
@@ -711,11 +4925,163 @@ const EXPERIMENT_PROVENANCE_PATHS = new Set(EXPERIMENT_PROVENANCE_ROWS.map((row)
 // Baseline of sorted `path NUL schema-token NUL count NUL contextSha256` rows.
 // The exact row list is derived from tracked active source, while this digest makes
 // additions, deletions, changed counts, moved paths, and context mutations fail closed.
-// B-022e CHK-005 repins only the paths of identity-bearing source modules that
-// moved from their retired filenames; all 374 tokens, counts, and context hashes
-// were compared row-for-row before this path-only baseline update.
-const PERSISTED_SCHEMA_ROW_COUNT = 374;
-const PERSISTED_SCHEMA_BASELINE_SHA256 = '384049f14300eafc950e24d8e3d7d367e99f99a4ebd4e6145b2341000bb5a8f3';
+// The exact baseline includes the canonical/legacy schema pairs required for
+// immutable historical reads. Any later token, path, count, or context change
+// still requires an explicit re-pin and remains mutation-tested below.
+// The obsolete positive hook schema row was removed; all other original pins remain.
+const PERSISTED_SCHEMA_ROW_COUNT = 29;
+const PERSISTED_SCHEMA_BASELINE_SHA256 = '7b88daf38a12a33d9b6ac2afa7945a6c37b2a185d46cb6325e873e369e2ed16a';
+// Exact imported rejection fixtures, independently reviewed with canonical controls.
+// These pins exempt only schema occurrences, never their files or other identities.
+const NEGATIVE_SCHEMA_ROWS = [
+  {
+    "path": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "token": "lattice.prompt-registry.v1",
+    "count": 1,
+    "contextSha256": "3b56a3cf29dea393a6ae73b02137cc58aaccb58284a52deebcc3d1a3d573c75a"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.closeout_write_receipt.v3",
+    "count": 2,
+    "contextSha256": "adfd329070196983ca33fe8697ecd01094fc7aaf2512b1d12137e667f4ae2a50"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.closeout_write_receipt.v99",
+    "count": 1,
+    "contextSha256": "830d26fc86de5d4857fcbeacf9e665d4a44fc1b6fe7206e9499eeb307090e508"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.command-spec.v2",
+    "count": 1,
+    "contextSha256": "1c41c56d818853389921aedeb8f1f2f375477445ba40fbf6e788daa4371d8cb0"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.command-spec.v99",
+    "count": 1,
+    "contextSha256": "1e231bb7db39386db07506dbc0fc0bd1c19602aaea9b8956d09e39ecbb2ba33f"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.done-required-evidence.v99",
+    "count": 1,
+    "contextSha256": "55acd83837d5fb802acb11817a697d704d32d8c7b2eec66cf11f1d9c0ec71449"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.evidence_hash_snapshot.v1",
+    "count": 2,
+    "contextSha256": "63fb24e8078cfc2e4069dd4e5405f1f4ec45ec28665883388c32a036a29433df"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.proof_binding.v1",
+    "count": 1,
+    "contextSha256": "3ce4db02aeddead7ac2ffbb5c6c70ba493253a1c31fe0deda5c1e740ed7120af"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "token": "lattice.proof_binding.v99",
+    "count": 1,
+    "contextSha256": "2d87df212b72e531f41b20925dda7f3314b06e12c6f9795b400912317ef67662"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.command-spec.v1",
+    "count": 1,
+    "contextSha256": "98b5f99dc3bae4d670c6be0bb3c431b314bc87fa55e81f94b76d864944965a84"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.command-spec.v2",
+    "count": 1,
+    "contextSha256": "5fe890181d105d689303046c4406e3b24f30bd79ff94bdc0b195e344abe1caef"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.done-prepare-generated-metadata.v1",
+    "count": 1,
+    "contextSha256": "9d2ce2144804e3acb1da700dba4c017a9b2d0eb2b4c30379371d8a61860f3d4c"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.done-prepare-generated-metadata.v99",
+    "count": 1,
+    "contextSha256": "f2b5faf1010df82127a226ec499f2268d7520f11690ea93e2b9e12705a33274c"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.done-prepare-validation-reuse.v1",
+    "count": 1,
+    "contextSha256": "41c512732e8a73ae595ebbbd280936ba8b3442063d242602fa845415370996df"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.done-prepare-validation-reuse.v99",
+    "count": 1,
+    "contextSha256": "91a1ec94b6f88c545b8dfef4e938981548b82bc893edd80937990ca8dbebd1b9"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "token": "lattice.done-required-evidence.v99",
+    "count": 1,
+    "contextSha256": "d63fff93ed823472b4613dac02cc33382ffdb315b877268d77d5510b3b79bd6b"
+  },
+  {
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "token": "lattice.prompt-registry.v1",
+    "count": 2,
+    "contextSha256": "f52ee041c5500b2568b60c339d2644d5a8765da21cddd3c219796de5a97ea643"
+  },
+  {
+    "path": "packages/main/tests/release-push-approval-migration.test.mjs",
+    "token": "lattice.remote-push-approval.v1",
+    "count": 1,
+    "contextSha256": "7b43c8c4ec1bff21bf8d6151f139c3e649a8718d0d6f14fa0fa9ffe79800bab2"
+  }
+];
+// Whole-test integrity binds rejection assertions outside literal-bearing lines.
+// Runtime witnesses below must also pass; a digest is not proof of rejection alone.
+const NEGATIVE_SCHEMA_WITNESSES = [
+  {
+    "path": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "sha256": "4ec6686ba239958830ac167b5fb5d5bfcbf3e94bc12b74ae133bf38e78cf06c2",
+    "command": "packages/main/dist/tasks/codex-registry-mode-smoke.js",
+    "selector": "✓ codex registry mode smoke passed",
+    "rejectionAssertion": "assert.equal(legacy.ok, false, 'retired prompt-registry schema must not satisfy adapter verification');"
+  },
+  {
+    "path": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "sha256": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
+    "command": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "selector": "artifact-schema migration test passed",
+    "rejectionAssertion": "assert.equal(migratedReceipt, null, 'retired epoch cannot be laundered through a canonical suffix');"
+  },
+  {
+    "path": "packages/main/tests/brand-role-migration.test.mjs",
+    "sha256": "539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b",
+    "command": "packages/main/tests/brand-role-migration.test.mjs",
+    "selector": "brand-role migration test passed",
+    "rejectionAssertion": "assert.equal(identity.agentRoleIdsEqual(legacy, canonical), false, `${legacy} cannot satisfy a canonical role`);"
+  },
+  {
+    "path": "packages/main/tests/prompt-role-migration.test.mjs",
+    "sha256": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
+    "command": "packages/main/tests/prompt-role-migration.test.mjs",
+    "selector": "prompt-role migration test passed",
+    "rejectionAssertion": "assert.equal(budget.isBudgetedComplexRole(legacy), false, `${legacy} is not an active budgeted role`);"
+  },
+  {
+    "path": "packages/main/tests/release-push-approval-migration.test.mjs",
+    "sha256": "e45306331efdcbb30c7ba79060f40279a46964a54bc2bf49a9c9d9913353fd7a",
+    "command": "packages/main/tests/release-push-approval-migration.test.mjs",
+    "selector": "release-push-approval migration test passed",
+    "rejectionAssertion": "assert.notEqual(result.code, 0, `approval must reject: ${JSON.stringify(change)}`);"
+  }
+];
 
 const ACTIVE_CLASSES = [
   'package',
@@ -771,6 +5137,7 @@ function git(args, options = {}) {
   return execFileSync(selectGit(cwd), ['-C', cwd, ...args], {
     encoding: options.encoding === null ? null : 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: 64 * 1024 * 1024,
   });
 }
 
@@ -780,9 +5147,14 @@ function repoRoot() {
 
 function trackedFiles(root) {
   const output = git(['ls-files', '-z'], { cwd: root });
-  const files = output.split('\0').filter(Boolean).sort();
+  const files = [...new Set(output.split('\0').filter(Boolean))].sort();
   if (files.length === 0) throw new Error('tracked-file enumeration returned zero files');
   return files;
+}
+
+function readTrackedText(root, path) {
+  const absolute = resolve(root, path);
+  return lstatSync(absolute).isSymbolicLink() ? readlinkSync(absolute) : readFileSync(absolute, 'utf8');
 }
 
 function countLiteral(text, token) {
@@ -808,6 +5180,14 @@ function hasBroadToken(token) {
     `${LEGACY_UPPER}_`,
     `@${LEGACY_WORD}/`,
     `.${LEGACY_WORD}`,
+    RETIRED_PRODUCT_NAME,
+    'Proofbound',
+    'PROOFBOUND',
+    'PROOFBOUND_',
+    '@proofbound/',
+    '.proofbound',
+    `${RETIRED_PRODUCT_NAME}-`,
+    `${RETIRED_PRODUCT_NAME}.`,
   ]).has(token);
 }
 
@@ -906,7 +5286,7 @@ function appendOnlyReleaseRecordStructureErrors(schemaVersion, value) {
     if (!Array.isArray(value.notes) || value.notes.length === 0 || value.notes.some((note) => !isNonEmptyString(note))) errors.push('notes must be a non-empty array of non-empty strings');
   };
   if (value.schemaVersion !== schemaVersion) errors.push(`schemaVersion must be ${schemaVersion}`);
-  if (schemaVersion === 'proofbound.artifact-release.v1') {
+  if (schemaVersion === CANONICAL_ARTIFACT_RELEASE_SCHEMA || schemaVersion === RETIRED_ARTIFACT_RELEASE_SCHEMA) {
     validateCommon(/^AR-[a-f0-9]{24}$/u, 'AR-<24 lowercase hex>');
     requireStrings(['artifactSetDigest', 'claimBoundary']);
     if (!Number.isInteger(value.changedPathCount) || value.changedPathCount < 0) errors.push('changedPathCount must be a non-negative integer');
@@ -922,7 +5302,11 @@ function appendOnlyReleaseRecordStructureErrors(schemaVersion, value) {
       if (value.idempotencyKey !== expectedKey) errors.push('idempotencyKey does not match artifact identity inputs');
       if (isNonEmptyString(value.id) && value.id !== `AR-${sha256(expectedKey).slice(0, 24)}`) errors.push('id does not match idempotencyKey');
     }
-  } else if (schemaVersion === 'proofbound.product-capability-release.v1') {
+  } else if (schemaVersion === CANONICAL_CAPABILITY_RELEASE_SCHEMA || schemaVersion === RETIRED_CAPABILITY_RELEASE_SCHEMA) {
+    if (schemaVersion === CANONICAL_CAPABILITY_RELEASE_SCHEMA) {
+      if (value.changedPathsScope !== 'capability-material') errors.push('changedPathsScope must be capability-material for new canonical release records');
+      errors.push(...capabilityReleaseRecordValidationErrors(value, { requireCurrentWrite: true }));
+    }
     validateCommon(/^PCR-[a-f0-9]{24}$/u, 'PCR-<24 lowercase hex>');
     requireStrings(['capabilityId', 'capabilityVersion', 'capabilityDigest']);
     if (value.capabilityName !== undefined && !isNonEmptyString(value.capabilityName)) errors.push('capabilityName must be a non-empty string when present');
@@ -950,11 +5334,18 @@ function appendOnlyReleaseRecordStructureErrors(schemaVersion, value) {
   return errors;
 }
 
-function retiredTokenCounts(value) {
+function retiredTokenCounts(value, includeRetiredProduct = false) {
   const counts = new Map();
   const scan = (candidate) => {
     if (typeof candidate === 'string') {
-      for (const match of candidate.matchAll(TOKEN_PATTERN)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+      // Historical suffix pins predate the general both-family active scanner.
+      // Preserve their exact counting contract; do not recount or rewrite ledgers.
+      const historicalPattern = /@lattice\/[A-Za-z0-9._/-]+|__?LATTICE_[A-Z0-9_]+|LATTICE_[A-Z0-9_]+|\.lattice(?:-[A-Za-z0-9._-]+|\/[A-Za-z0-9._/-]*)?|lattice\.config\.json|lattice\.json|lattice-[a-z0-9-]+|[A-Za-z0-9_.-]*lattice[A-Za-z0-9_.-]*|Lattice[A-Za-z0-9_]*|LATTICE[A-Z0-9_]*/giu;
+      for (const match of candidate.matchAll(historicalPattern)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+      if (includeRetiredProduct) {
+        const pattern = new RegExp(`${RETIRED_PRODUCT_NAME}[a-z0-9._/-]*`, 'giu');
+        for (const match of candidate.matchAll(pattern)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+      }
       return;
     }
     if (Array.isArray(candidate)) {
@@ -971,11 +5362,20 @@ function retiredTokenCounts(value) {
   return counts;
 }
 
-function validateAppendOnlySuffixProvenance(row, line, record) {
+function validateAppendOnlySuffixProvenance(row, line, record, pins = APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE) {
   const errors = [];
-  const counts = retiredTokenCounts(record);
-  const pin = APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.find((candidate) => candidate.path === row.path && candidate.recordId === record.id);
+  const pin = pins.find((candidate) => candidate.path === row.path && candidate.recordId === record.id);
+  const counts = retiredTokenCounts(record, !pin || Boolean(pin.sourceCommit));
+  if (pin?.sourceCommit) {
+    if (pin.sourceCommit !== IMPORTED_RELEASE_SOURCE_COMMIT) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} source commit changed`);
+    if (record.mainCommit !== pin.mainCommit) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} embedded main commit changed`);
+    if (record.schemaVersion !== pin.schemaVersion) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} pinned schema changed`);
+  }
   if (counts.size === 0) {
+    if (pin?.allowSchemaOnly) {
+      if (sha256(line) !== pin.recordSha256) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} digest changed`);
+      return errors;
+    }
     if (pin) errors.push(`frozen baseline ${row.id}: stale retired-identity provenance pin for suffix record ${record.id}`);
     return errors;
   }
@@ -996,6 +5396,44 @@ function validateAppendOnlySuffixProvenance(row, line, record) {
   return errors;
 }
 
+function verifyImportedReleaseProvenance(root, pins = IMPORTED_RELEASE_PROVENANCE) {
+  const errors = [];
+  if (pins.length !== 14) errors.push('imported release provenance: expected exactly 14 records');
+  const seen = new Set();
+  const sources = new Map();
+  for (const [path, blobOid, digest] of IMPORTED_RELEASE_SOURCES) {
+    try {
+      if (git(['rev-parse', `${IMPORTED_RELEASE_SOURCE_COMMIT}:${path}`], { cwd: root }).trim() !== blobOid) {
+        errors.push(`imported release provenance ${path}: source commit/path blob changed`);
+      }
+      const bytes = git(['cat-file', 'blob', blobOid], { cwd: root, encoding: null });
+      if (sha256(bytes) !== digest) errors.push(`imported release provenance ${path}: source blob digest changed`);
+      sources.set(path, bytes.toString('utf8').trimEnd().split('\n'));
+    } catch {
+      errors.push(`imported release provenance ${path}: exact source commit/blob unavailable`);
+    }
+  }
+  for (const pin of pins) {
+    const key = `${pin.path}\0${pin.recordId}`;
+    if (seen.has(key)) errors.push(`imported release provenance ${pin.recordId}: duplicate pin`);
+    seen.add(key);
+    if (pin.sourceCommit !== IMPORTED_RELEASE_SOURCE_COMMIT) errors.push(`imported release provenance ${pin.recordId}: source commit changed`);
+    const lines = (sources.get(pin.path) || []).filter((line) => {
+      try { return JSON.parse(line).id === pin.recordId; } catch { return false; }
+    });
+    if (lines.length !== 1) {
+      errors.push(`imported release provenance ${pin.recordId}: source path/id must identify exactly one record`);
+      continue;
+    }
+    errors.push(...validateAppendOnlySuffixProvenance({ id: 'imported-source', path: pin.path }, lines[0], JSON.parse(lines[0]), pins));
+    const validateCurrent = pin.recordId.startsWith('AR-') ? artifactReleaseRecordValidationErrors : capabilityReleaseRecordValidationErrors;
+    if (!validateCurrent(JSON.parse(lines[0])).some((error) => error.includes('schemaVersion'))) {
+      errors.push(`imported release provenance ${pin.recordId}: production reader no longer rejects the retired schema`);
+    }
+  }
+  return errors;
+}
+
 function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
   const errors = [];
   if (sha256(frozenBytes) !== row.byteSha256) {
@@ -1007,7 +5445,12 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
     return errors;
   }
   const suffix = currentBytes.subarray(frozenBytes.length);
-  if (suffix.length === 0) return errors;
+  if (suffix.length === 0) {
+    for (const pin of APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.filter((candidate) => candidate.path === row.path)) {
+      errors.push(`frozen baseline ${row.id}: pinned suffix provenance record ${pin.recordId} is missing`);
+    }
+    return errors;
+  }
   if (frozenBytes.at(-1) !== 0x0a) {
     errors.push(`frozen baseline ${row.id}: pinned JSONL prefix does not end at a record boundary`);
     return errors;
@@ -1022,7 +5465,7 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
     return errors;
   }
   const lines = text.slice(0, -1).split('\n');
-  const seenPinnedRecords = new Set();
+  const seenPinnedRecords = new Map();
   for (const [index, line] of lines.entries()) {
     if (!line) {
       errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is empty`);
@@ -1030,15 +5473,23 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
     }
     try {
       const record = JSON.parse(line);
-      for (const error of appendOnlyReleaseRecordStructureErrors(row.appendOnlyJsonlSchemaVersion, record)) errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} ${error}`);
+      const pin = APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.find((candidate) => candidate.path === row.path && candidate.recordId === record.id);
+      const expectedSchema = pin
+        ? pin.schemaVersion || (row.path.endsWith('/artifact-releases.jsonl') ? RETIRED_ARTIFACT_RELEASE_SCHEMA : RETIRED_CAPABILITY_RELEASE_SCHEMA)
+        : row.appendOnlyJsonlSchemaVersion;
+      for (const error of appendOnlyReleaseRecordStructureErrors(expectedSchema, record)) errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} ${error}`);
       errors.push(...validateAppendOnlySuffixProvenance(row, line, record));
-      if (APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.some((pin) => pin.path === row.path && pin.recordId === record.id)) seenPinnedRecords.add(record.id);
+      if (APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.some((pin) => pin.path === row.path && pin.recordId === record.id)) {
+        const count = (seenPinnedRecords.get(record.id) ?? 0) + 1;
+        seenPinnedRecords.set(record.id, count);
+        if (count > 1) errors.push(`frozen baseline ${row.id}: pinned suffix provenance record ${record.id} appears ${count} times, expected exactly once`);
+      }
     } catch {
       errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is invalid JSON`);
     }
   }
   for (const pin of APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.filter((candidate) => candidate.path === row.path)) {
-    if (!seenPinnedRecords.has(pin.recordId)) errors.push(`frozen baseline ${row.id}: pinned suffix provenance record ${pin.recordId} is missing`);
+    if ((seenPinnedRecords.get(pin.recordId) ?? 0) === 0) errors.push(`frozen baseline ${row.id}: pinned suffix provenance record ${pin.recordId} is missing`);
   }
   return errors;
 }
@@ -1093,7 +5544,7 @@ function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
 
 function selfTestAppendRecord(schemaVersion) {
   const mainCommit = 'a'.repeat(40);
-  if (schemaVersion === 'proofbound.artifact-release.v1') {
+  if (schemaVersion === CANONICAL_ARTIFACT_RELEASE_SCHEMA) {
     const storyId = 'B-selftest';
     const artifactSetDigest = `sha256:${'b'.repeat(64)}`;
     const idempotencyKey = `${storyId}:${mainCommit}:${artifactSetDigest}`;
@@ -1114,7 +5565,7 @@ function selfTestAppendRecord(schemaVersion) {
   }
   const storyId = 'B-selftest';
   const capabilityId = 'docs-self-test';
-  const capabilityDigest = `sha256:${'c'.repeat(64)}`;
+  const capabilityDigest = computeCapabilityDigest(capabilityId, 'documentation-control', ['docs/self-test.md']);
   const idempotencyKey = `${storyId}:${capabilityId}:${capabilityDigest}`;
   return {
     schemaVersion,
@@ -1128,6 +5579,7 @@ function selfTestAppendRecord(schemaVersion) {
     capabilityKind: 'documentation-control',
     capabilityDigest,
     changedPaths: ['docs/self-test.md'],
+    changedPathsScope: 'capability-material',
     runtimeSemverChanged: false,
     activationBoundary: 'non-runtime-capability',
     authority: 'non_authoritative',
@@ -1144,7 +5596,7 @@ function isConceptProvenancePath(path) {
 }
 
 function currentTruthSourcePaths(root) {
-  const paths = new Set();
+  const paths = new Set(CURRENT_CONTRACT_PATHS);
   const decisionRef = /(?:docs\/requirements\/decisions\/)?([A-Za-z0-9._-]+\.md)/gu;
   for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
     const text = readFileSync(resolve(root, entrypoint), 'utf8');
@@ -1224,6 +5676,66 @@ function verifyCurrentLegacyContextManifest(root, bytes = readFileSync(resolve(r
   return errors;
 }
 
+function memorySuffixRecordErrors(value) {
+  if (!isPlainRecord(value)) return ['memory record must be an object'];
+  const errors = [];
+  for (const [field, min] of [['id', 7], ['createdAt', 1], ['sourceAgent', 1], ['summary', 10], ['trigger', 5], ['lesson', 10], ['reusePrompt', 5]]) {
+    if (typeof value[field] !== 'string' || value[field].trim().length < min) errors.push(`memory record ${field} is invalid`);
+  }
+  if (Number.isNaN(Date.parse(value.createdAt))) errors.push('memory record createdAt is invalid');
+  if (!['failure-mode', 'pattern', 'anti-pattern', 'workflow', 'tool-quirk', 'guard-bypass', 'debugging', 'communication', 'other'].includes(value.category)) errors.push('memory record category is invalid');
+  if (!['project', 'global', 'story-candidate'].includes(value.scope)) errors.push('memory record scope is invalid');
+  if (value.authority !== 'non_authoritative' || value.gateEvidence !== false) errors.push('memory record authority must remain non-authoritative');
+  for (const field of ['tags', 'evidenceRefs']) {
+    if (value[field] !== undefined && (!Array.isArray(value[field]) || value[field].some((entry) => typeof entry !== 'string'))) errors.push(`memory record ${field} is invalid`);
+  }
+  const retired = new RegExp(`(?:^|[^a-z0-9])(?:${LEGACY_WORD}|${RETIRED_PRODUCT_NAME})(?=$|[^a-z0-9])`, 'iu');
+  const hasRetiredIdentity = (entry) => {
+    if (typeof entry === 'string') return retired.test(entry);
+    if (Array.isArray(entry)) return entry.some(hasRetiredIdentity);
+    return isPlainRecord(entry) && Object.entries(entry).some(([key, item]) => retired.test(key) || hasRetiredIdentity(item));
+  };
+  if (hasRetiredIdentity(value)) errors.push('memory record contains a retired identity');
+  return errors;
+}
+
+function verifyMemoryLedgerBytes(row, originalPrefix, importedPrefix, currentBytes) {
+  const errors = [];
+  if (sha256(originalPrefix) !== row.byteSha256 || !importedPrefix.subarray(0, originalPrefix.length).equals(originalPrefix)) errors.push('memory provenance: original immutable prefix byte sha256 changed');
+  if (sha256(importedPrefix) !== MEMORY_IMPORTED_PREFIX_SHA256) errors.push('memory provenance: imported prefix digest changed');
+  if (!currentBytes.subarray(0, importedPrefix.length).equals(importedPrefix)) errors.push('memory provenance: imported immutable prefix changed');
+  if (errors.length) return errors;
+  const suffix = currentBytes.subarray(importedPrefix.length);
+  if (!suffix.length) return errors;
+  if (importedPrefix.at(-1) !== 0x0a || suffix.at(-1) !== 0x0a) return ['memory provenance: appended JSONL suffix is truncated'];
+  const text = suffix.toString('utf8');
+  if (!Buffer.from(text, 'utf8').equals(suffix)) return ['memory provenance: appended JSONL suffix is not valid UTF-8'];
+  const ids = new Set(importedPrefix.toString('utf8').trimEnd().split('\n').map((line) => JSON.parse(line).id));
+  for (const line of text.slice(0, -1).split('\n')) {
+    try {
+      const record = JSON.parse(line);
+      errors.push(...memorySuffixRecordErrors(record));
+      if (ids.has(record?.id)) errors.push(`memory provenance: duplicate appended record ${record.id}`);
+      ids.add(record?.id);
+    } catch {
+      errors.push('memory provenance: appended record is invalid JSON');
+    }
+  }
+  return errors;
+}
+
+function verifyMemoryLedger(root, row) {
+  try {
+    if (git(['rev-parse', `${IMPORTED_RELEASE_SOURCE_COMMIT}:${MEMORY_LEDGER_PATH}`], { cwd: root }).trim() !== MEMORY_IMPORTED_PREFIX_BLOB) return ['memory provenance: source commit/path blob changed'];
+    return verifyMemoryLedgerBytes(row,
+      git(['cat-file', 'blob', row.gitBlobOid], { cwd: root, encoding: null }),
+      git(['cat-file', 'blob', MEMORY_IMPORTED_PREFIX_BLOB], { cwd: root, encoding: null }),
+      readFileSync(resolve(root, MEMORY_LEDGER_PATH)));
+  } catch {
+    return ['memory provenance: exact source commit/blob unavailable'];
+  }
+}
+
 function verifyConceptProvenance(root, tracked, rows = CONCEPT_PROVENANCE_ROWS) {
   const errors = [];
   const currentTruthSources = currentTruthSourcePaths(root);
@@ -1255,6 +5767,10 @@ function verifyConceptProvenance(root, tracked, rows = CONCEPT_PROVENANCE_ROWS) 
     }
     if (!/^[a-f0-9]{40}$/u.test(row.gitBlobOid || '') || !/^[a-f0-9]{64}$/u.test(row.byteSha256 || '')) {
       errors.push(`concept provenance ${row.path}: invalid exact digest`);
+      continue;
+    }
+    if (row.path === MEMORY_LEDGER_PATH) {
+      errors.push(...verifyMemoryLedger(root, row));
       continue;
     }
     const actualOid = git(['hash-object', '--', row.path], { cwd: root }).trim();
@@ -1306,7 +5822,7 @@ function schemaRows(root, files) {
   const rows = [];
   for (const path of files) {
     if (!isActiveTextPath(path) || isPersistedSchemaExcludedSurface(path)) continue;
-    const text = readFileSync(resolve(root, path), 'utf8');
+    const text = readTrackedText(root, path);
     const tokens = new Set();
     for (const match of text.matchAll(SCHEMA_PATTERN)) tokens.add(match[1]);
     for (const token of tokens) {
@@ -1348,8 +5864,7 @@ function isPersistedSchemaExcludedSurface(path) {
 // path. In particular, decision docs, fixtures, and dev-memory receive no
 // directory-wide exemption.
 function isFrozenSurface(path) {
-  return path === SCRIPT_PATH
-    || path === CONCEPT_PROVENANCE_MANIFEST_PATH
+  return path === CONCEPT_PROVENANCE_MANIFEST_PATH
     || path === CURRENT_LEGACY_CONTEXT_MANIFEST_PATH
     || path.startsWith('.proof-or-stop/story/')
     || path.startsWith('.lattice/story/')
@@ -1373,7 +5888,7 @@ function scanRootGroups(files) {
   };
 }
 
-const TOKEN_PATTERN = /@lattice\/[A-Za-z0-9._/-]+|__?LATTICE_[A-Z0-9_]+|LATTICE_[A-Z0-9_]+|\.lattice(?:-[A-Za-z0-9._-]+|\/[A-Za-z0-9._/-]*)?|lattice\.config\.json|lattice\.json|lattice-[a-z0-9-]+|[A-Za-z0-9_.-]*lattice[A-Za-z0-9_.-]*|Lattice[A-Za-z0-9_]*|LATTICE[A-Z0-9_]*/giu;
+const TOKEN_PATTERN = /@(?:lattice|proofbound)\/[A-Za-z0-9._/-]+|__?(?:LATTICE|PROOFBOUND)_[A-Z0-9_]+|(?:LATTICE|PROOFBOUND)_[A-Z0-9_]+|\.(?:lattice|proofbound)(?:-[A-Za-z0-9._-]+|\/[A-Za-z0-9._/-]*)?|(?:lattice|proofbound)\.config\.json|(?:lattice|proofbound)\.json|(?:lattice|proofbound)-[a-z0-9-]+|[A-Za-z0-9_.-]*(?:lattice|proofbound)[A-Za-z0-9_.-]*/giu;
 
 function lineNumberAt(text, index) {
   let line = 1;
@@ -1395,18 +5910,24 @@ function exactAllowedRow(path, token, line = '') {
 }
 
 function classifyToken(path, token, line) {
-  if (RETIRED_ROLES.has(token)) return 'agent_role';
-  if (token.startsWith(`${LEGACY_UPPER}_`) || token.startsWith(`__${LEGACY_UPPER}_`)) return 'environment';
-  if (token === `${LEGACY_WORD}.config.json` || token === `${LEGACY_WORD}.json` || token.startsWith(`.${LEGACY_WORD}`)) return 'path_config';
+  if (RETIRED_ROLES.has(token) || RETIRED_ROLE_SUFFIXES.some(suffix => token === `${RETIRED_PRODUCT_NAME}-${suffix}`)) return 'agent_role';
+  if (/^_*(?:LATTICE|PROOFBOUND)_/iu.test(token)) return 'environment';
+  if (/^(?:lattice|proofbound)(?:\.config)?\.json$/iu.test(token) || /^\.(?:lattice|proofbound)/iu.test(token)) return 'path_config';
   if ((path.endsWith('package.json') || path.endsWith('package-lock.json') || path.endsWith('npm-shrinkwrap.json'))
-    && (token.startsWith(`@${LEGACY_WORD}/`) || /["']name["']\s*:\s*["']lattice["']/u.test(line))) return 'package';
+    && (/^@(?:lattice|proofbound)\//iu.test(token) || /["']name["']\s*:\s*["'](?:lattice|proofbound)["']/iu.test(line))) return 'package';
   if ((path.endsWith('package.json') || path.endsWith('package-lock.json'))
-    && /["']lattice["']\s*:/u.test(line)) return 'bin';
+    && /["'](?:lattice|proofbound)["']\s*:/iu.test(line)) return 'bin';
   if ((path.startsWith('bin/') && path.includes(LEGACY_WORD)) || /(?:^|\/)lattice(?:\.js|-codex\.js)$/u.test(path)) return 'bin';
   if (path.startsWith('packages/main/templates/agents/') || path.startsWith('.claude/agents/') || path.startsWith('.proof-or-stop-codex/agents/')) return 'prompt';
   if (/\.md$/u.test(path) || ['README.md', 'AGENTS.md', 'CLAUDE.md'].includes(path)) return 'documentation';
-  if (new RegExp(`(?:^|[^A-Za-z0-9_-])${LEGACY_WORD}\\s+[a-z][a-z0-9_-]*`, 'u').test(line)) return 'command';
+  if (/(?:^|[^A-Za-z0-9_-])(?:lattice|proofbound)\s+[a-z][a-z0-9_-]*/iu.test(line)) return 'command';
   return 'runtime';
+}
+
+function scanRegisteredActiveIdentityResidue(root, files) {
+  // The public residue scan and mutation probes share the same complete tracked
+  // text universe. Registration lists describe runtime guards, not scan scope.
+  return scanActiveResidue(root, files);
 }
 
 function scanActiveResidue(root, files) {
@@ -1418,22 +5939,26 @@ function scanActiveResidue(root, files) {
     const absolute = resolve(root, path);
     let text;
     try {
-      text = readFileSync(absolute, 'utf8');
+      text = readTrackedText(root, path);
     } catch {
       continue;
     }
     for (const match of text.matchAll(TOKEN_PATTERN)) {
-      const token = match[0];
+      const token = match[0].replace(/\.+$/u, '');
       const line = lineAt(text, match.index);
+      if (path === SCRIPT_PATH && SCANNER_RETIRED_LINE_CONTEXTS.some(([digest, , positions]) =>
+        digest === sha256(line) && positions.includes(lineNumberAt(text, match.index)))) continue;
       if (schemaSet.has(`${path}\0${token}`)) continue;
       const exactRow = exactAllowedRow(path, token, line);
       const activeInstruction = isRetiredActiveInstruction(path, token, line, currentTruthSources);
-      if (exactRow && (!activeInstruction || exactRow.class === 'migration_input')) continue;
+      if (exactRow && (!activeInstruction || exactRow.class === 'migration_input' || exactRow.historicalStatement === true)) continue;
       hits.push({ class: classifyToken(path, token, line), path, line: lineNumberAt(text, match.index), token });
     }
     for (const match of path.matchAll(TOKEN_PATTERN)) {
       const token = match[0];
       if (HISTORICAL_DECISION_FILENAME_PATHS.has(path)) continue;
+      if (BOTH_FAMILY_CONTEXT_ROWS.some(row => row.path === path && row.token === token && row.allowFilename === true)
+        && BOTH_FAMILY_CONTEXT_WITNESSES.some(pin => pin.path === path && pin.sha256 === sha256(readTrackedText(root, path)))) continue;
       hits.push({ class: classifyToken(path, token, path), path, line: 0, token: `<path:${token}>` });
     }
   }
@@ -1557,8 +6082,62 @@ function createOrderingSelfTestFixture(productionBeforePolicy = false, productio
 }
 
 function runSelfTest(root, files) {
-  const failures = [];
+  if (verifyBothFamilyContexts(root).length > 0) throw new Error('both-family exact contexts or witnesses are not current');
+  const failures = [...verifyImportedFinishDecisionBoundary(root, files), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-e256.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-29bc.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-42f6.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-5a52.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-adc3.json')];
   const expect = (condition, message) => { if (!condition) failures.push(message); };
+  expect(verifyReviewedNegativeSourceIntegrity(root).length === 0, 'reviewed negative source integrity failed');
+  const customWitnessControls = new Map([
+    ['packages/main/src/core/runtime-environment-checks.ts', 'if (exactOccurrenceDrift || countNeedle(site.sourceNeedle) === 0 || (!counts && countNeedle(site.retiredNeedle) > 0)) {'],
+    ['scripts/verify-migration-contract.mjs', 'if (!doc) fail(`${DOC} missing`);'],
+    ['scripts/verify-proof-or-stop-prompt-baseline.mjs', 'if (actual !== expected)'],
+    ['scripts/verify-proof-or-stop-residue.mjs', 'if (actual !== expected)'],
+  ]);
+  for (const pin of REVIEWED_NEGATIVE_SOURCE_INTEGRITY) {
+    const original = readFileSync(resolve(root, pin.path), 'utf8');
+    const assertion = customWitnessControls.get(pin.path)
+      ?? original.split(/\r?\n/u).find(line => /^\s*(?:assert(?:\.[A-Za-z]+)?|check|rejects)\(/u.test(line) && !/lattice|proofbound/iu.test(line));
+    expect(Boolean(assertion) && original.includes(assertion), `reviewed witness has no separate control: ${pin.path}`);
+    const changed = original.replace(assertion, assertion === 'if (actual !== expected)' ? 'if (false)' : '// removed independent control');
+    expect(verifyReviewedNegativeSourceIntegrity(root, path => path === pin.path ? changed : readFileSync(resolve(root, path), 'utf8')).length > 0,
+      `negative witness control removal escaped source integrity: ${pin.path}`);
+  }
+  expect(verifyImportedHistoryContexts(root).length === 0, 'exact imported historical contexts failed');
+  expect(verifyImportedHistoryContexts(root, IMPORTED_HISTORY_CONTEXT_SOURCES.slice(1)).length > 0, 'missing historical context source accepted');
+  expect(verifyIntegrationRootHistoryContext(root).length === 0, 'exact integration root history source rejected');
+  for (const change of [{ commit: '0'.repeat(40) }, { path: 'package.json' }, { gitBlobOid: '0'.repeat(40) }, { sha256: '0'.repeat(64) }]) {
+    expect(verifyIntegrationRootHistoryContext(root, { ...INTEGRATION_ROOT_HISTORY_SOURCE, ...change }).length > 0, 'altered integration history source accepted');
+  }
+  for (const change of [{ path: 'package.json' }, { token: 'unlisted.config.json' }, { expectedOccurrences: 2 }, { contextSha256: '0'.repeat(64) }]) {
+    expect(verifyIntegrationRootHistoryContext(root, INTEGRATION_ROOT_HISTORY_SOURCE, { ...INTEGRATION_ROOT_HISTORY_CONTEXT, ...change }).length > 0, 'altered integration history context accepted');
+  }
+  expect(verifyImportedHistoryContexts(root, [...IMPORTED_HISTORY_CONTEXT_SOURCES, IMPORTED_HISTORY_CONTEXT_SOURCES[0]]).length > 0, 'duplicate historical context source accepted');
+  for (const change of [{ gitBlobOid: '0'.repeat(40) }, { sha256: '0'.repeat(64) }, { path: 'README.md' }]) {
+    expect(verifyImportedHistoryContexts(root, IMPORTED_HISTORY_CONTEXT_SOURCES.map((row, i) => i === 0 ? { ...row, ...change } : row)).length > 0,
+      'changed historical context source accepted');
+  }
+  for (const change of [{ token: 'unlisted-token' }, { contextSha256: '0'.repeat(64) }, { expectedOccurrences: 999 }]) {
+    expect(verifyImportedHistoryContexts(root, IMPORTED_HISTORY_CONTEXT_SOURCES, IMPORTED_HISTORY_CONTEXT_ROWS.map((row, i) => i === 0 ? { ...row, ...change } : row)).length > 0,
+      'changed imported historical context accepted');
+  }
+  const exactSchemas = schemaRows(root, files);
+  expect(verifySchemaInventory(root, exactSchemas).length === 0, 'reviewed schema inventory did not pass');
+  for (const pin of [...NEGATIVE_SCHEMA_ROWS, ...OWNED_IDENTITY_MUTATION_CONTEXT_ROWS.filter(row => /^lattice\..*\.v\d+$/u.test(row.token)).map(row => ({ ...row, count: row.expectedOccurrences }))]) {
+    const otherRows = exactSchemas.filter(row => row.path !== pin.path || row.token !== pin.token);
+    expect(verifySchemaInventory(root, otherRows).length > 0, `missing schema pin accepted: ${pin.token}`);
+    expect(verifySchemaInventory(root, [...exactSchemas, pin]).length > 0, `duplicate schema pin accepted: ${pin.token}`);
+    for (const mutation of [{ ...pin, count: pin.count + 1 }, { ...pin, contextSha256: '0'.repeat(64) }, { ...pin, path: 'packages/main/src/unlisted.ts' }, { ...pin, token: `${pin.token}-unlisted` }]) {
+      expect(verifySchemaInventory(root, [...otherRows, mutation]).length > 0, `changed schema pin accepted: ${pin.token}`);
+    }
+  }
+  for (const witness of NEGATIVE_SCHEMA_WITNESSES) {
+    const original = readFileSync(resolve(root, witness.path), 'utf8');
+    // Remove a rejection assertion line while retaining all schema literal lines.
+    const assertionLine = witness.rejectionAssertion;
+    expect(original.includes(assertionLine), `negative witness has no named rejection assertion: ${witness.path}`);
+    const tampered = original.replace(assertionLine, '// removed rejection control');
+    expect(verifyNegativeSchemaWitnesses(root, path => path === witness.path ? tampered : readFileSync(resolve(root, path), 'utf8')).length > 0,
+      `removed assertion escaped schema witness integrity: ${witness.path}`);
+  }
   expect(
     SELF_TEST_PASS_SUMMARY.includes('all fail closed'),
     'self-test PASS summary must retain the immutable acceptance selector `all fail closed`',
@@ -1589,6 +6168,108 @@ function runSelfTest(root, files) {
       `canonical identity was misclassified as legacy residue: ${canonicalIdentity}`,
     );
   }
+  const activeExperimentFixture = 'experiments/experience-ablation/f051-injected.mjs';
+  const activeDocumentationFixture = 'docs/requirements/decisions/testing-infra.md';
+  const activeExperimentRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-f051-identity-subtree-'));
+  try {
+    for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+      mkdirSync(resolve(activeExperimentRoot, dirname(entrypoint)), { recursive: true });
+      writeFileSync(resolve(activeExperimentRoot, entrypoint), '');
+    }
+    mkdirSync(resolve(activeExperimentRoot, dirname(activeExperimentFixture)), { recursive: true });
+    writeFileSync(
+      resolve(activeExperimentRoot, activeExperimentFixture),
+      `export const schemaVersion = '${RETIRED_PROTOCOL_PREFIX}experience-ablation-injected.v1';\n`,
+    );
+    expect(
+      scanRegisteredActiveIdentityResidue(activeExperimentRoot, [activeExperimentFixture])
+        .some((hit) => hit.path === activeExperimentFixture && hit.class === 'runtime'),
+      'active experience-ablation retired identity mutation was not detected',
+    );
+    writeFileSync(
+      resolve(activeExperimentRoot, activeExperimentFixture),
+      "export const schemaVersion = 'proof-or-stop.experience-ablation-injected.v1';\n",
+    );
+    expect(
+      scanRegisteredActiveIdentityResidue(activeExperimentRoot, [activeExperimentFixture]).length === 0,
+      'canonical experience-ablation identity was rejected',
+    );
+    for (const path of [
+      activeExperimentFixture,
+      'packages/main/src/handlers/dev-memory.ts',
+      'packages/main/src/handlers/quorum-prune.ts',
+      'packages/main/src/core/usage-ledger/ids.ts',
+      'packages/main/src/handlers/validate-docs-drift.ts',
+      'packages/unregistered/src/new-consumer.ts',
+      '.claude/hooks/new-managed-hook.cjs',
+      '.codex/new-assets.json',
+      'docs/requirements/decisions/new-current-guidance.md',
+    ]) {
+      mkdirSync(resolve(activeExperimentRoot, dirname(path)), { recursive: true });
+      for (const token of ['Proofbound', 'PROOFBOUND', 'proofbound', 'Lattice', 'LATTICE', 'lattice']) {
+        writeFileSync(resolve(activeExperimentRoot, path), `export const message = '${token} current product';\n`);
+        expect(scanRegisteredActiveIdentityResidue(activeExperimentRoot, [path]).length === 1,
+          `active product prose escaped scanner: ${path}/${token}`);
+      }
+      writeFileSync(resolve(activeExperimentRoot, path), "export const message = 'Proof-or-Stop current product';\n");
+      expect(scanRegisteredActiveIdentityResidue(activeExperimentRoot, [path]).length === 0,
+        `canonical product prose was rejected: ${path}`);
+    }
+    mkdirSync(resolve(activeExperimentRoot, dirname(activeDocumentationFixture)), { recursive: true });
+    writeFileSync(resolve(activeExperimentRoot, activeDocumentationFixture), 'The current boundary uses Proofbound handlers.\n');
+    expect(
+      scanRegisteredActiveIdentityResidue(activeExperimentRoot, [activeDocumentationFixture])
+        .some((hit) => hit.path === activeDocumentationFixture && hit.class === 'documentation'),
+      'active current-document retired product name mutation was not detected',
+    );
+    writeFileSync(resolve(activeExperimentRoot, activeDocumentationFixture), 'The current boundary uses Proof-or-Stop handlers.\n');
+    expect(
+      scanRegisteredActiveIdentityResidue(activeExperimentRoot, [activeDocumentationFixture]).length === 0,
+      'canonical current-document product name was rejected',
+    );
+    for (const path of CURRENT_CONTRACT_PATHS) {
+      const original = readTrackedText(root, path);
+      mkdirSync(resolve(activeExperimentRoot, dirname(path)), { recursive: true });
+      writeFileSync(resolve(activeExperimentRoot, path), original);
+      expect(scanActiveResidue(activeExperimentRoot, [path]).length === 0,
+        `canonical current contract and exact negative contexts rejected: ${path}`);
+      for (const family of [LEGACY_WORD, RETIRED_PRODUCT_NAME]) {
+        writeFileSync(resolve(activeExperimentRoot, path), `${original}\nRun ${family} validate now.\n`);
+        expect(scanActiveResidue(activeExperimentRoot, [path]).some(hit => hit.path === path && hit.token === family),
+          `active retired command hidden by current contract provenance: ${path}`);
+      }
+      writeFileSync(resolve(activeExperimentRoot, path), `${original}\nRun proof-or-stop validate now.\n`);
+      expect(scanActiveResidue(activeExperimentRoot, [path]).length === 0,
+        `canonical current contract command rejected: ${path}`);
+    }
+    const scannerText = readTrackedText(root, SCRIPT_PATH);
+    expect(verifyScannerRetiredContexts(scannerText).length === 0, 'audited scanner negative contexts drifted');
+    const knownLine = scannerText.split(/\r?\n/u).find(line => [...line.matchAll(TOKEN_PATTERN)].length > 0);
+    expect(verifyScannerRetiredContexts(`${scannerText}\n${knownLine}\n`).length > 0, 'duplicated scanner metadata context escaped');
+    expect(verifyScannerRetiredContexts(scannerText.replace(knownLine, '')).length > 0, 'removed scanner metadata context escaped');
+    mkdirSync(resolve(activeExperimentRoot, dirname(SCRIPT_PATH)), { recursive: true });
+    const retiredTitle = RETIRED_PRODUCT_NAME[0].toUpperCase() + RETIRED_PRODUCT_NAME.slice(1);
+    const movableLine = scannerText.split(/\r?\n/u).find(line => line.trim() === `'${retiredTitle}',`);
+    expect(Boolean(movableLine), 'scanner transplant control must have an actual negative data line');
+    const transplanted = scannerText.replace(`${movableLine}\n`, '') + `\nconsole.log(\n${movableLine}\n);\n`;
+    expect(verifyScannerRetiredContexts(transplanted).length > 0, 'unchanged negative line transplanted into active output escaped');
+    writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), transplanted);
+    expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).some(hit => hit.token === retiredTitle),
+      'scanner active scan admitted a negative literal moved into console output');
+    for (const family of [LEGACY_WORD, RETIRED_PRODUCT_NAME]) {
+      for (const injected of [`${family} current product`, `${family}.injected-live-schema.v1`]) {
+        const mutated = `${scannerText}\nexport const injectedIdentity = '${injected}';\n`;
+        expect(verifyScannerRetiredContexts(mutated).length > 0, 'unclassified scanner executable identity escaped integrity');
+        writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), mutated);
+        expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).some(hit => hit.token.includes(family)),
+          'scanner own-file executable/prose mutation escaped active scan');
+      }
+    }
+    writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), `${scannerText}\nexport const canonicalControl = 'Proof-or-Stop current product';\n`);
+    expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).length === 0, 'canonical scanner own-file control rejected');
+  } finally {
+    rmSync(activeExperimentRoot, { recursive: true, force: true });
+  }
   for (const path of [
     'docs/requirements/decisions/injected-current.md',
     'packages/main/tests/fixtures/injected-current.json',
@@ -1601,6 +6282,10 @@ function runSelfTest(root, files) {
   expect(isFrozenSurface(CONCEPT_PROVENANCE_ROWS[0].path), 'exact concept-provenance file was not exempted');
   const currentTruthSources = currentTruthSourcePaths(root);
   expect(currentTruthSources.has('docs/requirements/decisions/story-lifecycle.md'), 'mechanical current-truth-source extraction missed story-lifecycle.md');
+  for (const path of CURRENT_CONTRACT_PATHS) {
+    expect(currentTruthSources.has(path), `current contract classification missing: ${path}`);
+    expect(!isFrozenSurface(path), `current contract was frozen: ${path}`);
+  }
   expect(
     isRetiredActiveInstruction('docs/requirements/decisions/story-lifecycle.md', 'lattice', 'Run lattice validate now.', currentTruthSources),
     'retired active instruction in a current truth source was not classified as active residue',
@@ -1651,22 +6336,6 @@ function runSelfTest(root, files) {
       'legacy heartbeat compatibility label plus appended direct StoryStore instruction did not fail closed',
     );
   }
-  const historicalExperimentLine = guidance.get('CLAUDE.md').split(/\r?\n/u).find((line) => line.includes('EXP-001') && line.includes('docs/story/actives/B-e71f/experiments/exp-001.md'));
-  expect(Boolean(historicalExperimentLine), 'current guidance self-test requires the exact historical EXP-001 line');
-  if (historicalExperimentLine) {
-    const historicalComposition = new Map(guidance);
-    historicalComposition.set(
-      'CLAUDE.md',
-      guidance.get('CLAUDE.md').replace(
-        historicalExperimentLine,
-        `Run echo overwrite against ${LEGACY_STORY_DIR}/B-live/index.json, then ${historicalExperimentLine}`,
-      ),
-    );
-    expect(
-      verifyCurrentGuidance(root, (path) => historicalComposition.get(path)).some((error) => error.includes('active legacy StoryStore path')),
-      'historical EXP-001 label plus prepended overwrite instruction did not fail closed',
-    );
-  }
   expect(
     verifyCurrentGuidance(root, guidanceRead).length === 0,
     'current guidance clean control did not restore to PASS after composition mutations',
@@ -1692,7 +6361,7 @@ function runSelfTest(root, files) {
   expect(validateExactRows(changedPath, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'changed exact allowlist path did not fail');
   const changedContext = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, contextSha256: '0'.repeat(64) } : row);
   expect(validateExactRows(changedContext, tracked, root, virtualRead).some((error) => error.includes('bounded context digest changed')), 'changed exact allowlist context digest did not fail');
-  const missingRow = EXACT_ALLOWLIST.filter((row) => row.token !== FROZEN_SALTS[1]);
+  const missingRow = EXACT_ALLOWLIST.slice(1);
   expect(validateExactRows(missingRow, tracked, root, virtualRead).some((error) => error.includes('row count') || error.includes('missing signature allowlist')), 'missing allowlist row did not fail');
   const missingOccurrenceText = source.replace(first.token, `proof-or-stop-review-integrity-v1`);
   const missingRead = (path) => (path === first.path ? missingOccurrenceText : readFileSync(resolve(root, path), 'utf8'));
@@ -1721,7 +6390,47 @@ function runSelfTest(root, files) {
   const missingFrozenRow = FROZEN_FILE_BASELINES.slice(1);
   expect(verifyFrozenFiles(root, tracked, missingFrozenRow).some((error) => error.includes('row count')), 'missing frozen baseline row did not fail');
   const appendOnlyRows = FROZEN_FILE_BASELINES.filter((row) => row.appendOnlyJsonlSchemaVersion);
+  const memoryRow = CONCEPT_PROVENANCE_ROWS.find((row) => row.path === MEMORY_LEDGER_PATH);
+  const originalMemory = git(['cat-file', 'blob', memoryRow.gitBlobOid], { cwd: root, encoding: null });
+  const importedMemory = git(['cat-file', 'blob', MEMORY_IMPORTED_PREFIX_BLOB], { cwd: root, encoding: null });
+  const validMemory = { id: 'memory-test-id', createdAt: '2026-09-05T00:00:00.000Z', sourceAgent: 'proof-or-stop-implementer', category: 'pattern', scope: 'project',
+    summary: 'Canonical memory append', trigger: 'A focused test', lesson: 'Use proof-or-stop for current project instructions.', reusePrompt: 'Read the current example.', authority: 'non_authoritative', gateEvidence: false };
+  const memoryAppend = (record) => Buffer.concat([importedMemory, Buffer.from(`${JSON.stringify(record)}\n`)]);
+  expect(verifyMemoryLedger(root, memoryRow).length === 0, 'exact preserved memory history failed');
+  expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, memoryAppend(validMemory)).length === 0, 'canonical memory append was refused');
+  expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, originalMemory).length > 0, 'missing imported memory suffix was accepted');
+  for (const offset of [0, originalMemory.length]) {
+    const changed = Buffer.from(importedMemory); changed[offset] ^= 1;
+    expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, changed).length > 0, 'changed historical memory bytes were accepted');
+  }
+  for (const changed of [
+    { ...validMemory, lesson: `Run ${LEGACY_WORD} validate.` },
+    { ...validMemory, [RETIRED_PRODUCT_NAME]: true },
+    { ...validMemory, notes: { injected: `${RETIRED_PRODUCT_NAME}.current` } },
+    { ...validMemory, authority: 'authoritative' },
+    { ...validMemory, gateEvidence: true },
+    { ...validMemory, category: 'unknown' },
+    { ...validMemory, lesson: '' },
+    { ...validMemory, id: JSON.parse(importedMemory.toString('utf8').split('\n')[0]).id },
+  ]) expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, memoryAppend(changed)).length > 0, 'invalid or retired memory append was accepted');
+  const escapedMemory = JSON.stringify({ ...validMemory, lesson: `Run ${LEGACY_WORD} validate.` }).replace(LEGACY_WORD, `\\u006c${LEGACY_WORD.slice(1)}`);
+  expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, Buffer.concat([importedMemory, Buffer.from(`${escapedMemory}\n`)])).some((error) => error.includes('retired identity')), 'escaped retired memory append was accepted');
+  expect(verifyMemoryLedgerBytes(memoryRow, originalMemory, importedMemory, memoryAppend(validMemory).subarray(0, -1)).some((error) => error.includes('truncated')), 'truncated memory append was accepted');
   expect(appendOnlyRows.length === 2, 'both append-only frozen prefix rows are required');
+  expect(verifyImportedReleaseProvenance(root).length === 0, 'exact imported release source bindings failed');
+  for (const [label, mutate] of [
+    ['missing pin', (pins) => pins.slice(1)],
+    ['duplicate pin', (pins) => [...pins.slice(0, -1), pins[0]]],
+    ['wrong path', (pins) => pins.map((pin, index) => index ? pin : { ...pin, path: 'package.json' })],
+    ['wrong id', (pins) => pins.map((pin, index) => index ? pin : { ...pin, recordId: 'AR-000000000000000000000000' })],
+    ['wrong source', (pins) => pins.map((pin, index) => index ? pin : { ...pin, sourceCommit: '0'.repeat(40) })],
+    ['wrong embedded commit', (pins) => pins.map((pin, index) => index ? pin : { ...pin, mainCommit: '0'.repeat(40) })],
+    ['wrong record digest', (pins) => pins.map((pin, index) => index ? pin : { ...pin, recordSha256: '0'.repeat(64) })],
+    ['wrong token count', (pins) => pins.map((pin, index) => index ? pin : { ...pin, retiredTokens: pin.retiredTokens.map((token) => ({ ...token, expectedOccurrences: token.expectedOccurrences + 1 })) })],
+    ['wrong token', (pins) => pins.map((pin, index) => index ? pin : { ...pin, retiredTokens: pin.retiredTokens.map((token) => ({ ...token, token: `${token.token}-changed` })) })],
+  ]) {
+    expect(verifyImportedReleaseProvenance(root, mutate(IMPORTED_RELEASE_PROVENANCE)).length > 0, `imported release provenance accepted ${label}`);
+  }
   for (const appendOnlyRow of appendOnlyRows) {
     const appendOnlyPrefix = git(['cat-file', 'blob', appendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
     const syntheticRow = { ...appendOnlyRow, path: `${appendOnlyRow.path}.synthetic-self-test` };
@@ -1732,7 +6441,7 @@ function runSelfTest(root, files) {
     delete missingRequired.mainCommit;
     const missingRequiredAppend = Buffer.from(`${JSON.stringify(missingRequired)}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, missingRequiredAppend])).some((error) => error.includes('mainCommit must be a non-empty string')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a missing required field`);
-    const requiredPathField = appendOnlyRow.appendOnlyJsonlSchemaVersion === 'proofbound.artifact-release.v1' ? 'paths' : 'changedPaths';
+    const requiredPathField = appendOnlyRow.appendOnlyJsonlSchemaVersion === CANONICAL_ARTIFACT_RELEASE_SCHEMA ? 'paths' : 'changedPaths';
     const emptyRequiredPaths = { ...validRecord, [requiredPathField]: [] };
     if (requiredPathField === 'paths') emptyRequiredPaths.changedPathCount = 0;
     const emptyRequiredPathsAppend = Buffer.from(`${JSON.stringify(emptyRequiredPaths)}\n`);
@@ -1749,7 +6458,61 @@ function runSelfTest(root, files) {
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, escapedRetiredKeyAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a Unicode-escaped retired-token object key`);
     const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ ...validRecord, schemaVersion: 'wrong.schema.v1' })}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted another schema`);
+    const retiredSchema = appendOnlyRow.appendOnlyJsonlSchemaVersion === CANONICAL_ARTIFACT_RELEASE_SCHEMA
+      ? RETIRED_ARTIFACT_RELEASE_SCHEMA
+      : RETIRED_CAPABILITY_RELEASE_SCHEMA;
+    const retiredSchemaAppend = Buffer.from(`${JSON.stringify({ ...validRecord, schemaVersion: retiredSchema })}\n`);
+    expect(
+      verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, retiredSchemaAppend])).some((error) => error.includes('schemaVersion')),
+      `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a new retired-schema suffix`,
+    );
+    if (appendOnlyRow.appendOnlyJsonlSchemaVersion === CANONICAL_CAPABILITY_RELEASE_SCHEMA) {
+      for (const [label, record] of [
+        ['missing scope marker', { ...validRecord, changedPathsScope: undefined }],
+        ['wrong scope marker', { ...validRecord, changedPathsScope: 'full-diff' }],
+        ['unrelated path', { ...validRecord, changedPaths: ['packages/main/src/cli.ts'] }],
+        ['changed material path', { ...validRecord, changedPaths: ['docs/changed.md'] }],
+      ]) {
+        const bytes = Buffer.concat([appendOnlyPrefix, Buffer.from(`${JSON.stringify(record)}\n`)]);
+        expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, bytes).length > 0, `canonical capability suffix accepted ${label}`);
+      }
+    }
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a truncated appended record`);
+  }
+  for (const appendOnlyRow of appendOnlyRows) {
+    const appendOnlyPrefix = git(['cat-file', 'blob', appendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
+    const currentBytes = readFileSync(resolve(root, appendOnlyRow.path));
+    expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, currentBytes).length === 0, `exact historical release ledger ${appendOnlyRow.path} failed`);
+    expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, appendOnlyPrefix).some((error) => error.includes('is missing')), 'removing the complete historical suffix was accepted');
+    for (const pin of APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.filter((candidate) => candidate.path === appendOnlyRow.path)) {
+      const pinnedLine = currentBytes.toString('utf8').split('\n').find((line) => {
+        if (!line) return false;
+        try { return JSON.parse(line).id === pin.recordId; } catch { return false; }
+      });
+      expect(Boolean(pinnedLine), `self-test requires current pinned suffix record ${pin.recordId}`);
+      if (!pinnedLine) continue;
+      const duplicated = Buffer.concat([currentBytes, Buffer.from(`${pinnedLine}\n`)]);
+      expect(
+        verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, duplicated)
+          .some((error) => error.includes(`pinned suffix provenance record ${pin.recordId} appears 2 times, expected exactly once`)),
+        `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} accepted a byte-identical duplicate of pinned suffix record ${pin.recordId}`,
+      );
+      if (!pin.sourceCommit) continue;
+      const replaceLine = (line) => Buffer.from(currentBytes.toString('utf8').replace(`${pinnedLine}\n`, line === null ? '' : `${line}\n`));
+      expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, replaceLine(null)).some((error) => error.includes(`record ${pin.recordId} is missing`)), `missing imported record ${pin.recordId} was accepted`);
+      const record = JSON.parse(pinnedLine);
+      for (const [label, changed] of [
+        ['bytes', { ...record, notes: [...record.notes, 'altered historical note'] }],
+        ['embedded commit', { ...record, mainCommit: '0'.repeat(40) }],
+        ['unlisted id', { ...record, id: `${record.id.slice(0, -1)}${record.id.endsWith('0') ? '1' : '0'}` }],
+        ['new token', { ...record, notes: [...record.notes, retiredToken('.lat', 'tice/unlisted')] }],
+        ['schema', { ...record, schemaVersion: appendOnlyRow.appendOnlyJsonlSchemaVersion }],
+      ]) {
+        expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, replaceLine(JSON.stringify(changed))).length > 0, `imported record ${pin.recordId} accepted altered ${label}`);
+      }
+      const escapedLine = pinnedLine.replace(RETIRED_PRODUCT_NAME, `\\u0070${RETIRED_PRODUCT_NAME.slice(1)}`);
+      expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, replaceLine(escapedLine)).some((error) => error.includes('digest changed')), `imported record ${pin.recordId} accepted escaped byte mutation`);
+    }
   }
   const firstAppendOnlyRow = appendOnlyRows[0];
   const firstAppendOnlyPrefix = git(['cat-file', 'blob', firstAppendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
@@ -1794,6 +6557,22 @@ function runSelfTest(root, files) {
     verifyConceptProvenance(root, tracked, currentTruthSourceRow).some((error) => error.includes('current truth source cannot be frozen')),
     'current truth source inserted into concept provenance did not fail',
   );
+  for (const path of CURRENT_CONTRACT_PATHS) {
+    const bytes = readFileSync(resolve(root, path));
+    const exactCurrentRow = {
+      class: 'provenance_bytes', path,
+      gitBlobOid: createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex'),
+      byteSha256: sha256(bytes),
+    };
+    // Preserve the required count and supply correct current digests: refusal
+    // must come from current authority, not a stale hash or malformed row.
+    const refrozen = CONCEPT_PROVENANCE_ROWS.map((row, index) => index === 0 ? exactCurrentRow : row);
+    const refrozenErrors = verifyConceptProvenance(root, tracked, refrozen);
+    expect(refrozenErrors.some(error => error.includes(`${path}: current truth source cannot be frozen`)),
+      `current contract reinsertion escaped: ${path}`);
+    expect(!refrozenErrors.some(error => error.includes(path) && /digest changed|sha256 changed/.test(error)),
+      `current contract reinsertion control used stale digests: ${path}`);
+  }
   const contextManifestBytes = readFileSync(resolve(root, CURRENT_LEGACY_CONTEXT_MANIFEST_PATH));
   expect(
     verifyCurrentLegacyContextManifest(root, Buffer.concat([contextManifestBytes, Buffer.from('\n')]))
@@ -1878,6 +6657,139 @@ function runSelfTest(root, files) {
   console.log(SELF_TEST_PASS_SUMMARY);
 }
 
+function verifyImportedHistoryContexts(root, sources = IMPORTED_HISTORY_CONTEXT_SOURCES, rows = IMPORTED_HISTORY_CONTEXT_ROWS) {
+  const errors = [];
+  const paths = new Set(sources.map(source => source.path));
+  if (sources.length !== 11 || paths.size !== 11) errors.push('imported historical contexts require exactly 11 unique source paths');
+  for (const row of rows) if (!paths.has(row.path)) errors.push(`historical context has no imported source: ${row.path}`);
+  for (const source of sources) {
+    try {
+      const oid = git(['rev-parse', `${IMPORTED_RELEASE_SOURCE_COMMIT}:${source.path}`], { cwd: root }).trim();
+      if (oid !== source.gitBlobOid) errors.push(`historical context source commit/path binding changed: ${source.path}`);
+      const text = git(['cat-file', 'blob', source.gitBlobOid], { cwd: root });
+      if (sha256(text) !== source.sha256) errors.push(`historical context source bytes changed: ${source.path}`);
+      for (const row of rows.filter(row => row.path === source.path)) {
+        if (countLiteral(text, row.token) !== row.expectedOccurrences || occurrenceContextDigest(text, row.token) !== row.contextSha256) {
+          errors.push(`historical context does not match imported source: ${row.id}`);
+        }
+      }
+    } catch { errors.push(`historical context source unavailable: ${source.path}`); }
+  }
+  return errors;
+}
+
+function verifyIntegrationRootHistoryContext(root, source = INTEGRATION_ROOT_HISTORY_SOURCE, row = INTEGRATION_ROOT_HISTORY_CONTEXT) {
+  try {
+    const oid = git(['rev-parse', `${source.commit}:${source.path}`], { cwd: root }).trim();
+    const text = git(['cat-file', 'blob', source.gitBlobOid], { cwd: root });
+    const importedRoot = git(['rev-parse', `${IMPORTED_RELEASE_SOURCE_COMMIT}:${row.token}`], { cwd: root }).trim();
+    if (source.path !== row.path || oid !== source.gitBlobOid || sha256(text) !== source.sha256
+      || countLiteral(text, row.token) !== row.expectedOccurrences
+      || occurrenceContextDigest(text, row.token) !== row.contextSha256
+      || importedRoot !== '605e217c14ce451ca40d306c3128cda5f4e92dd4') {
+      return ['integration root history source/blob/token/context binding changed'];
+    }
+    return [];
+  } catch { return ['integration root history source unavailable']; }
+}
+
+function verifyReviewedNegativeSourceIntegrity(root, readText = path => readFileSync(resolve(root, path), 'utf8')) {
+  const errors = [];
+  const requiredPaths = new Set([...IMPORTED_DENY_CONTEXT_ROWS, ...FINAL_NEGATIVE_CONTEXT_ROWS, ...RUNTIME_DENY_CONTEXT_ROWS]
+    .map(row => row.path).filter(path => path.startsWith('packages/main/tests/') || path.startsWith('packages/main/src/tasks/') || path.startsWith('scripts/')));
+  requiredPaths.add('packages/main/src/core/runtime-environment-checks.ts');
+  const seen = new Set();
+  for (const pin of REVIEWED_NEGATIVE_SOURCE_INTEGRITY) {
+    if (seen.has(pin.path) || !requiredPaths.has(pin.path)) errors.push(`negative source integrity duplicate/unlisted path: ${pin.path}`);
+    seen.add(pin.path);
+    if (sha256(readText(pin.path)) !== pin.sha256) errors.push(`reviewed negative source integrity changed: ${pin.path}`);
+  }
+  for (const path of requiredPaths) if (!seen.has(path)) errors.push(`reviewed negative source integrity missing: ${path}`);
+  return errors;
+}
+
+function verifyBothFamilyContexts(root, readText = path => readTrackedText(root, path)) {
+  const errors = [];
+  if (BOTH_FAMILY_CONTEXT_ROWS.length !== 75) errors.push('both-family exact context inventory count drift');
+  const expectedPaths = new Set(BOTH_FAMILY_CONTEXT_ROWS.map(row => row.path).filter(path => !path.endsWith('.md')));
+  const seen = new Set();
+  for (const pin of BOTH_FAMILY_CONTEXT_WITNESSES) {
+    if (seen.has(pin.path) || !expectedPaths.has(pin.path)) errors.push(`both-family witness duplicate/unlisted: ${pin.path}`);
+    seen.add(pin.path);
+    if (sha256(readText(pin.path)) !== pin.sha256) errors.push(`both-family witness integrity changed: ${pin.path}`);
+  }
+  for (const path of expectedPaths) if (!seen.has(path)) errors.push(`both-family witness missing: ${path}`);
+  // Prove historical classifications against the pre-repair Git source, without
+  // freezing a mixed current document or modifying any historical record bytes.
+  const historicalSources = new Map();
+  for (const row of BOTH_FAMILY_CONTEXT_ROWS.filter(row => row.historicalStatement || row.class === 'persisted_schema')) {
+    if (!historicalSources.has(row.path)) historicalSources.set(row.path, git(['show', `b4a23aec6f7f494d080b60c9cc5895a23c2302ac:${row.path}`], { cwd: root }));
+    const historical = historicalSources.get(row.path);
+    if (countLiteral(historical, row.token) !== row.expectedOccurrences || occurrenceContextDigest(historical, row.token) !== row.contextSha256) {
+      errors.push(`both-family historical source context mismatch: ${row.path}`);
+    }
+  }
+  return errors;
+}
+
+function verifyScannerRetiredContexts(text) {
+  const counts = new Map();
+  for (const [index, line] of text.split(/\r?\n/u).entries()) {
+    if ([...line.matchAll(TOKEN_PATTERN)].length === 0) continue;
+    const digest = sha256(line);
+    const positions = counts.get(digest) ?? [];
+    positions.push(index + 1);
+    counts.set(digest, positions);
+  }
+  const expected = new Map(SCANNER_RETIRED_LINE_CONTEXTS.map(([digest, count, positions]) => [digest, { count, positions }]));
+  const errors = [];
+  if (expected.size !== SCANNER_RETIRED_LINE_CONTEXTS.length) errors.push('scanner negative line inventory duplicated');
+  for (const [digest, positions] of counts) {
+    const pin = expected.get(digest);
+    if (!pin || pin.count !== positions.length || JSON.stringify(pin.positions) !== JSON.stringify(positions)) errors.push(`scanner unclassified, duplicated or relocated retired context: ${digest}`);
+  }
+  for (const [digest, pin] of expected) if (JSON.stringify(counts.get(digest)) !== JSON.stringify(pin.positions)) errors.push(`scanner retired context missing, changed or relocated: ${digest}`);
+  return errors;
+}
+
+function verifyNegativeSchemaWitnesses(root, readText = path => readFileSync(resolve(root, path), 'utf8')) {
+  const errors = [];
+  for (const witness of NEGATIVE_SCHEMA_WITNESSES) {
+    if (sha256(readText(witness.path)) !== witness.sha256) errors.push(`negative schema witness changed: ${witness.path}`);
+  }
+  return errors;
+}
+
+function verifySchemaInventory(root, schemas) {
+  const errors = verifyNegativeSchemaWitnesses(root);
+  const key = row => `${row.path}\0${row.token}`;
+  const negativeKeys = new Set(NEGATIVE_SCHEMA_ROWS.map(key));
+  if (NEGATIVE_SCHEMA_ROWS.length !== 18 || negativeKeys.size !== 18) errors.push('negative schema inventory must have exactly 18 unique rows');
+  for (const pin of NEGATIVE_SCHEMA_ROWS) {
+    const matches = schemas.filter(row => key(row) === key(pin));
+    if (matches.length !== 1 || matches[0].count !== pin.count || matches[0].contextSha256 !== pin.contextSha256) {
+      errors.push(`negative schema exact occurrence changed: ${pin.path} ${pin.token}`);
+    }
+  }
+  // These seven queue/snapshot/proof/quantum schemas are mutation inputs only.
+  // Keep the original 29 and the independently reviewed 18 fixture rows intact.
+  const mutationSchemas = OWNED_IDENTITY_MUTATION_CONTEXT_ROWS.filter(row => /^lattice\..*\.v\d+$/u.test(row.token));
+  if (mutationSchemas.length !== 7) errors.push('owned mutation schema inventory must contain exactly seven queue/snapshot/proof/quantum controls');
+  for (const pin of mutationSchemas) {
+    const matches = schemas.filter(row => key(row) === key(pin));
+    if (matches.length !== 1 || matches[0].count !== pin.expectedOccurrences || matches[0].contextSha256 !== pin.contextSha256) {
+      errors.push(`owned mutation schema exact occurrence changed: ${pin.path} ${pin.token}`);
+    }
+  }
+  const mutationKeys = new Set(mutationSchemas.map(key));
+  const originalRows = schemas.filter(row => !negativeKeys.has(key(row)) && !mutationKeys.has(key(row)));
+  const digest = schemaBaselineDigest(originalRows);
+  if (originalRows.length !== PERSISTED_SCHEMA_ROW_COUNT || digest !== PERSISTED_SCHEMA_BASELINE_SHA256) {
+    errors.push(`persisted_schema: exact original baseline changed (rows=${originalRows.length}, digest=${digest})`);
+  }
+  return errors;
+}
+
 function main() {
   const root = repoRoot();
   const files = trackedFiles(root);
@@ -1905,6 +6817,13 @@ function main() {
   }
 
   const structuralErrors = [
+    ...verifyBothFamilyContexts(root),
+    ...verifyScannerRetiredContexts(readTrackedText(root, SCRIPT_PATH)),
+    ...verifyReviewedNegativeSourceIntegrity(root),
+    ...verifyImportedHistoryContexts(root),
+    ...verifyIntegrationRootHistoryContext(root),
+    ...verifySchemaInventory(root, schemas),
+    ...verifyImportedReleaseProvenance(root),
     ...verifyCurrentGuidance(root),
     ...verifyCurrentLegacyContextManifest(root),
     ...validateExactRows(EXACT_ALLOWLIST, new Set(files), root),
@@ -1913,10 +6832,6 @@ function main() {
     ...verifyExperimentProvenance(root, files),
     ...verifyOrdering(root),
   ];
-  const actualSchemaDigest = schemaBaselineDigest(schemas);
-  if (schemas.length !== PERSISTED_SCHEMA_ROW_COUNT || actualSchemaDigest !== PERSISTED_SCHEMA_BASELINE_SHA256) {
-    structuralErrors.push(`persisted_schema: exact baseline changed (rows=${schemas.length}, digest=${actualSchemaDigest})`);
-  }
 
   if (structuralErrors.length > 0) {
     console.error('FAIL identity-cutover: frozen boundary or lineage invalid');
@@ -1943,9 +6858,36 @@ function main() {
     return;
   }
 
+  // The inexpensive independent AST/JSON and import-use totality checks are a
+  // standing obligation. Full public-operation mutation coverage remains the
+  // separately registered identity-cutover validation command, not a recursive
+  // scanner invocation or an integrity-hash substitute for behavioral proof.
+  const identitySitesCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 });
+  if (!identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')) throw new Error('independent owned identity totality verification did not produce its required selector');
+
+  // Historical memory may be scanner-visible only while production selection,
+  // rendering, cache reads, and writes keep the canonical-only boundary green.
+  const memoryCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=memory-identity'], { cwd: root, encoding: 'utf8', timeout: 60000 });
+  if (!memoryCheck.includes('GREEN B-49df: memory-identity group pass.')) throw new Error('memory runtime quarantine verification did not produce its required selector');
+
+  // This group now includes the real public-CLI zero-mutation/admission suite,
+  // not only pure registry checks. Its sequential CLI fixtures exceeded 60s
+  // without an assertion failure; keep every check and selector with a bounded
+  // five-minute ceiling instead of truncating the behavioral proof.
+  const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 });
+  if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');
+  const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+  if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');
+
+  for (const witness of [...NEGATIVE_SCHEMA_WITNESSES, ...CLOSED_ROLE_RUNTIME_WITNESSES]) {
+    const output = execFileSync(process.execPath, [resolve(root, witness.command)], { cwd: root, encoding: 'utf8', timeout: 60000 });
+    if (!output.includes(witness.selector)) throw new Error(`negative schema runtime witness missing selector: ${witness.path}`);
+  }
+
   console.log('PASS identity-cutover');
   console.log('PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current');
   console.log('PASS active prose/assets: Proof-or-Stop only');
+  console.log('PASS active experience-ablation schemas: proof-or-stop.* only');
   console.log('PASS frozen history: unchanged');
   console.log(`PASS unchanged: ${FROZEN_SALTS.length} signature salts at ${EXACT_ALLOWLIST.length} exact source rows`);
   console.log(`PASS unchanged: ${CURRENT_LEGACY_CONTEXT_ROWS.length} exact current-doc legacy token/context rows`);
@@ -1959,4 +6901,75 @@ function main() {
   });
 }
 
-main();
+// Shared read-only classification data. Consumers must validate the exact count,
+// context and witness integrity against their own source map before admitting a
+// hit; returning a row is not a path exemption or a runtime reader permission.
+export function identityCutoverReviewedContexts() {
+  return {
+    rows: [...EXACT_ALLOWLIST, ...NEGATIVE_SCHEMA_ROWS.map(row => ({ ...row, expectedOccurrences: row.count }))].map(row => ({ ...row })),
+    witnesses: [...REVIEWED_NEGATIVE_SOURCE_INTEGRITY, ...NEGATIVE_SCHEMA_WITNESSES].map(({ path, sha256 }) => ({ path, sha256 })),
+  };
+}
+
+APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.push({ path: '.proof-or-stop/artifact-releases.jsonl', recordId: 'AR-ebe978cd6027cbdd0a255313', recordSha256: '2a057f65f6ce59db272b892bca36ade24a065ad276b3b9d6b737f591a89b64c5', reason: 'Exact invalid B-29bc release imported from main before B-49df canonical writer delivery; audit-only historical bytes, never schema admission.', retiredTokens: [], allowSchemaOnly: true }, { path: '.proof-or-stop/capability-releases.jsonl', recordId: 'PCR-c8d198c51a6961e22f7d7c0d', recordSha256: '92f5ab5fd5a6fde6cdf382bc86de862675b638fb760d0562ceeda2cef20c9f7d', reason: 'Exact invalid B-29bc capability release imported from main before B-49df canonical writer delivery; audit-only historical bytes, never schema admission.', retiredTokens: [], allowSchemaOnly: true }, { path: '.proof-or-stop/artifact-releases.jsonl', recordId: 'AR-49c11e45ea2fc8461c24fea1', recordSha256: '5cf8911a5bab4e1bf9de0886d6fe1aaccda8f203df761f02b262dd230c659350', reason: 'Exact B-42f6 release imported from main before B-49df canonical writer delivery; audit-only historical bytes.', retiredTokens: [], allowSchemaOnly: true }, { path: '.proof-or-stop/capability-releases.jsonl', recordId: 'PCR-e1a078cfd84f88a1545ef70b', recordSha256: 'b15638cdd18c2027d2e1d6c858df76314e768e6840d9e583d663fc675298be38', reason: 'Exact B-42f6 release imported from main before B-49df canonical writer delivery; audit-only historical bytes.', retiredTokens: [retiredToken('.lat', 'tice/story/actives/B-fe8f/checklist.json'), retiredToken('.lat', 'tice/story/actives/B-fe8f/index.json'), retiredToken('.lat', 'tice/story/actives/B-fe8f/init-check.json'), retiredToken('.lat', 'tice/story/actives/B-fe8f/process-events.jsonl')].map(token => ({ token, expectedOccurrences: 1, reason: 'Exact historical changed-path token inside the byte-pinned B-42f6 capability release record.' })), allowSchemaOnly: true }); if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+
+function verifyImportedFinishDecisionBoundary(root, files, path = '.proof-or-stop/dev-memory/finish-decisions/B-8a40.json') {
+  const failures = [];
+
+  const originalBytes = readFileSync(resolve(root, path));
+  const tracked = new Set(files);
+  const exactRow = CONCEPT_PROVENANCE_ROWS.find(row => row.path === path);
+  if (exactRow?.class !== 'provenance_bytes' || !isFrozenSurface(path)) {
+    failures.push('imported finish decision lacks its exact audit-only provenance row');
+  }
+  for (const [field, value, diagnostic] of [
+    ['gitBlobOid', '0'.repeat(40), 'Git blob digest changed'],
+    ['byteSha256', '0'.repeat(64), 'byte sha256 changed'],
+  ]) {
+    const changedRows = CONCEPT_PROVENANCE_ROWS.map(row => row.path === path ? { ...row, [field]: value } : row);
+    if (!verifyConceptProvenance(root, tracked, changedRows).some(error => error.includes(path) && error.includes(diagnostic))) {
+      failures.push(`imported finish decision ${field} mutation escaped provenance verification`);
+    }
+  }
+  const fixtureRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-finish-decision-boundary-'));
+  const neighbor = '.proof-or-stop/dev-memory/finish-decisions/B-unlisted-schema.json';
+  try {
+    for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+      mkdirSync(resolve(fixtureRoot, dirname(entrypoint)), { recursive: true });
+      writeFileSync(resolve(fixtureRoot, entrypoint), '');
+    }
+    mkdirSync(resolve(fixtureRoot, dirname(neighbor)), { recursive: true });
+    writeFileSync(resolve(fixtureRoot, neighbor), JSON.stringify({ schemaVersion: `${RETIRED_PRODUCT_NAME}.dev-memory-finish-decision.v1` }));
+    if (isFrozenSurface(neighbor) || !scanActiveResidue(fixtureRoot, [neighbor]).some(hit => hit.path === neighbor)) {
+      failures.push('unlisted finish-decisions neighbor escaped the active identity scanner');
+    }
+    writeFileSync(resolve(fixtureRoot, neighbor), JSON.stringify({ schemaVersion: 'proof-or-stop.dev-memory-finish-decision.v1' }));
+    if (scanActiveResidue(fixtureRoot, [neighbor]).length !== 0) {
+      failures.push('canonical fresh finish-decision neighbor was misclassified');
+    }
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+  if (!readFileSync(resolve(root, path)).equals(originalBytes)) failures.push('historical finish-decision bytes changed during read-only controls');
+  return failures;
+}
+
+// Exact current negative controls and a deny-only explanatory comment imported
+// with the main launcher fix. These are not whole-file or runtime exemptions.
+function mainIntegrationNegativeContextRows() {
+  return [
+    ["packages/main/tests/global-core-realpath.test.mjs","writeRepresentativeWindowsShim(join(resolverBin, 'lattice.cmd'), globalRoot);",1,"ae23682f05bf6f5b9a10c744e1d23dfdd3f7b1265223cbcfd84ecf4eaaf76e7d"],
+    ["packages/main/tests/global-core-realpath.test.mjs","assert.notEqual(legacyOnly.globalCoreRealpath.status, 'pass', 'a legacy lattice launcher cannot mask absence of the canonical command');",1,"f3acc14b6023258ab5338bb5405d16cc324ce98c7faa36dd30cc95e355739662"],
+    ["packages/main/tests/global-core-realpath.test.mjs","const legacyPosix = join(resolverBin, 'lattice');",1,"5b880a4c76701ac6ab7907b4e6d24e4cc2edddef19647ad966e6e444c096978e"],
+    ["packages/main/tests/global-core-realpath.test.mjs","assert.notEqual(legacyOnlyPosix.globalCoreRealpath.status, 'pass', 'a POSIX lattice executable cannot mask absence of proof-or-stop');",1,"ea6f9211829e7183cb0bfd38d78b8633790aa98c44820149fb94401a011bd017"],
+    ["packages/main/src/tasks/proofstory-pre-review-check-smoke.ts","LATTICE_ACTIVE_STORY_ID: undefined",1,"326a44eeb0714fb839f8b4f384a7e7923773321c0a8c1d1ec697718a0c864f9d"],
+    ["packages/main/src/tasks/proofstory-pre-review-check-smoke.ts","LATTICE_ACTIVE_STORY_ID: 'B-legacy'",3,"bd4531a5e9132f99370ab83b2286016bc6ec10b36cb4ea6b7ac722f3004c2879"],
+    ["packages/main/src/core/runtime-environment-checks.ts","// legacy `lattice` launcher cannot stand in for an absent `proof-or-stop`.",1,"dd2d74eb3f835e37c0e8aa1bd65dcecf7fa2b79528c3913b4000cf91082370c3"],
+  ].map(([path, token, expectedOccurrences, contextSha256], index) => ({
+    id: `main-launcher-negative-context-${index + 1}`, class: 'compatibility_fixture',
+    path, token, expectedOccurrences, contextSha256,
+    reason: 'Exact current canonical-absence rejection control or accompanying deny-only comment; retained old input never grants active identity admission.',
+    disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence',
+    expectedVerification: 'PASS exact reviewed negative occurrence and bounded context',
+  }));
+}

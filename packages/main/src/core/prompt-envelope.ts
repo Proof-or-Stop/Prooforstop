@@ -1,6 +1,7 @@
 import { projectScopeInventory } from './scope-inventory-budget.js';
 import {
   canonicalJsonStringify,
+  CURRENT_PROMPT_IDENTITIES,
   domainSeparatedDigest,
   estimatePromptTokens,
   PROMPT_CONTRACT_ALGORITHMS,
@@ -28,10 +29,8 @@ import { digestScopeContract } from './guard-session.js';
 import { isModularReviewerRoleId } from './prompt-registry.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 
-export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proof-or-stop.full-context-assembler.v1';
-export const PROMPT_ENVELOPE_ASSEMBLER_VERSION_LEGACY = 'proofbound.full-context-assembler.v1';
-export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proof-or-stop.prompt-dispatch.v1';
-export const PROMPT_DISPATCH_PROTOCOL_VERSION_LEGACY = 'proofbound.prompt-dispatch.v1';
+export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = CURRENT_PROMPT_IDENTITIES.assembler;
+export const PROMPT_DISPATCH_PROTOCOL_VERSION = CURRENT_PROMPT_IDENTITIES.dispatchProtocol;
 
 export interface FullPromptAssemblyInput {
   roleContract: RoleContract;
@@ -1259,7 +1258,7 @@ export function buildFullTaskContext(args: {
   scopeContract?: ScopeContractData | null;
 }): FullTaskContext {
   const context: FullTaskContext = {
-    schemaVersion: FULL_TASK_CONTEXT_SCHEMA,
+    schemaVersion: CURRENT_PROMPT_IDENTITIES.fullTaskContext,
     storyId: args.story.storyId,
     title: args.story.title,
     description: args.story.description,
@@ -1325,7 +1324,7 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {
   const value: KnownExecutionEnvironment = {
-    schemaVersion: KNOWN_EXECUTION_ENVIRONMENT_SCHEMA,
+    schemaVersion: CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment,
     nodeVersion: process.version,
     platform: process.platform,
     architecture: process.arch,
@@ -1398,7 +1397,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     input.dispatchPrompt,
   );
   const envelopeWithoutId: Omit<PromptEnvelope, 'envelopeId'> = {
-    schemaVersion: PROMPT_ENVELOPE_SCHEMA,
+    schemaVersion: CURRENT_PROMPT_IDENTITIES.promptEnvelope,
     roleId: input.roleContract.roleId,
     storyId: input.taskContext.storyId,
     dispatchKind: input.dispatchKind,

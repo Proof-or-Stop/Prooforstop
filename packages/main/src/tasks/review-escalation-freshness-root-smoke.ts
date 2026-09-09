@@ -121,7 +121,7 @@ import type {
 function legacyPromptHash(agent: string): string {
   return hashReviewPrompt(resolvePromptRoleBody(agent, {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [agent]: 'legacy-full-context' },
+    roles: { [agent]: 'full-envelope' },
   }).body);
 }
 

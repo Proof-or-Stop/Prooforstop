@@ -163,7 +163,7 @@ try {
     args: argv ? { operation: 'implement', argv } : { operation: 'implement' },
   });
   const plan = (step: JsonObject, providerPolicy: JsonObject): JsonObject => ({
-    schemaVersion: 'lattice.job_plan.v1', plannerRunId: 'run-syn', storyId: 'B-syn', mode: 'local', until: 'DONE',
+    schemaVersion: 'proof-or-stop.job_plan.v1', plannerRunId: 'run-syn', storyId: 'B-syn', mode: 'local', until: 'DONE',
     developmentWorkflow: 'standard', plannedSteps: [step], coverageMap: [], multiHostPolicy: {}, providerPolicy,
     plannerDigest: 'pd', jobPlanDigest: 'jd', status: 'planned',
   });

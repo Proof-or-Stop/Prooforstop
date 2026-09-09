@@ -59,7 +59,7 @@ try {
 
   const storyDir = join(temp, 'docs', 'story', 'actives', 'B-test');
   const timestamp = new Date().toISOString();
-  const reviewSalt = 'lattice-review-integrity-v1';
+  const reviewSalt = 'proof-or-stop-review-integrity-v1';
   const hashInput = `B-test:${timestamp}:0:0:${reviewSalt}`;
 
   writeJson(join(storyDir, 'index.json'), {

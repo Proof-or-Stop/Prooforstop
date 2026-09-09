@@ -133,7 +133,7 @@ function seedStory(store: StoryStore): void {
 }
 
 function assertClaudeCodeStatus(result: ProofOrStopHostStatus): void {
-  assert.equal(result.schemaVersion, 'lattice.host_status.v1');
+  assert.equal(result.schemaVersion, 'proof-or-stop.host_status.v1');
   assert.equal(result.host, 'claude-code');
   assert.equal(result.overflowReady, true);
   assert.ok(result.status === 'ready' || result.status === 'degraded');
@@ -148,7 +148,7 @@ function assertClaudeCodeStatus(result: ProofOrStopHostStatus): void {
 
 function buildSemanticEditingProbe(): CapabilityProbe {
   return {
-    schemaVersion: 'lattice.capability_probe.v1',
+    schemaVersion: 'proof-or-stop.capability_probe.v1',
     host: 'semantic-editor',
     requestedHost: 'semantic-editor',
     matchedFallback: false,
@@ -286,7 +286,7 @@ try {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   })) as HandoffWorktreeProjection;
-  assert.equal(worktree.schemaVersion, 'lattice.handoff_worktree_create.v1');
+  assert.equal(worktree.schemaVersion, 'proof-or-stop.handoff_worktree_create.v1');
   assert.equal(worktree.status, 'projected');
   assert.equal(worktree.created, false);
   assert.equal(worktree.authorityChanged, false);
@@ -297,7 +297,7 @@ try {
   assert.match(worktree.cleanupCommand, /git worktree remove/);
 
   const plannedDispatch = dispatchFromHost(cliPath, root, packPath, 'claude-code');
-  assert.equal(plannedDispatch.schemaVersion, 'lattice.host_dispatch.v1');
+  assert.equal(plannedDispatch.schemaVersion, 'proof-or-stop.host_dispatch.v1');
   assert.equal(plannedDispatch.status, 'planned');
   assert.equal(plannedDispatch.overflowReady, true);
   assert.equal(plannedDispatch.authorityChanged, false);
@@ -389,7 +389,7 @@ Historical completion in another story.
   assert.equal(unavailableDispatch.overflowReady, false);
 
   const goodReceipt: HandoffReceipt = {
-    schemaVersion: 'lattice.handoff_receipt.v1',
+    schemaVersion: 'proof-or-stop.handoff_receipt.v1',
     storyId: pack.storyId,
     host: 'claude-code',
     packId: pack.packId,

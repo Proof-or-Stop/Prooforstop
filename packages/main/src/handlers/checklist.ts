@@ -80,7 +80,7 @@ import {
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'proof-or-stop-review-story-init',
-  'product-reviewer',
+  'proof-or-stop-product-reviewer',
 ]);
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';

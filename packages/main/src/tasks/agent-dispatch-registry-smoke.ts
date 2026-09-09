@@ -135,7 +135,7 @@ const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
 assert.deepEqual(
   AGENT_DISPATCH_ACCEPTED_TYPES,
-  allNames.filter(name => name !== 'proof-or-stop-review-channel' && name !== 'lattice-review-channel').sort(),
+  allNames.filter(name => name !== 'proof-or-stop-review-channel').sort(),
   'accepted type list must enumerate every non-retired role while excluding channel',
 );
 assert.deepEqual(
@@ -218,10 +218,8 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   assert.equal(canonical.usedAlias, false);
   assert.equal(canonical.usedDefault, false);
   for (const alias of entry.aliases) {
-    const resolved = resolveAgentDispatchType(alias);
-    assert.equal(resolved.entry, entry, `${alias} must resolve to ${entry.canonicalName}`);
-    assert.equal(resolved.usedAlias, true);
-    assert.equal(resolved.usedDefault, false);
+    assert.throws(() => resolveAgentDispatchType(alias), /agentType/, `${alias} is retired, not a dispatch identity`);
+    assert.throws(() => assertRegisteredAgentMutationAllowed(alias, 'checklist_update'), /agent_dispatch_actor_unknown/, `${alias} cannot acquire mutation authority`);
   }
   const declaredIdentifiers: readonly string[] = entry.identifierKinds;
   for (const kind of ['itemId', 'findingId', 'clusterId'] as const) {
@@ -248,10 +246,10 @@ assert.throws(
   () => resolveAgentDispatchType('lattice-review-unknown'),
     (error: unknown) => error instanceof AgentDispatchRegistryError
       && error.code === 'unknown_agent_type'
-      && error.acceptedTypes.includes('verification-intent')
+      && !error.acceptedTypes.includes('verification-intent')
       && error.acceptedTypes.includes('proof-or-stop-verification-intent')
       && !error.acceptedTypes.includes('test-intent'),
-  'unknown agent type must return a typed error with accepted canonical and alias guidance',
+  'unknown agent type must return a typed error with canonical guidance only',
 );
 for (const unknown of ['PROOF_OR_STOP-IMPLEMENTER', 'review-quality', 'proof-or-stop-review-']) {
   assert.throws(
@@ -283,13 +281,14 @@ assert.throws(
   'alias collisions must fail validation',
 );
 
-const verification = resolveAgentDispatchType('verification-intent').entry;
+const verification = resolveAgentDispatchType('proof-or-stop-verification-intent').entry;
+assert.throws(() => resolveAgentDispatchType('verification-intent'), /unknown agentType/, 'bare role alias cannot dispatch');
 assert.equal(verification.canonicalName, 'proof-or-stop-verification-intent');
 for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
   assert.throws(
     () => validateAgentDispatchRequest({ agentType: legacyType, phase: 'PLAN', itemId: 'CHK-001' }),
     (error: unknown) => error instanceof AgentDispatchRegistryError
-      && error.code === 'legacy_agent_type'
+      && error.code === (legacyType.startsWith('proof-or-stop-') ? 'legacy_agent_type' : 'unknown_agent_type')
       && /proof-or-stop-verification-intent/.test(error.message),
     `${legacyType} must be rejected for new PLAN dispatch`,
   );
@@ -305,7 +304,7 @@ const coveredPromptBuilders = new Set<string>();
 for (const entry of AGENT_DISPATCH_REGISTRY) {
   coveredCanonical.add(entry.canonicalName);
   coveredPromptBuilders.add(entry.promptBuilder);
-  const names = [entry.canonicalName, ...entry.aliases];
+  const names = [entry.canonicalName];
   for (const alias of entry.aliases) coveredAliases.add(alias);
   if (entry.canonicalName === 'proof-or-stop-review-channel') continue;
   for (const agentType of names) {
@@ -374,7 +373,7 @@ for (const lane of ['proof-or-stop-review-concept', 'proof-or-stop-review-qualit
   assert.equal(validateAgentDispatchRequest({ agentType: lane, phase: 'REVIEW' }).entry, entry);
 }
 assert.throws(
-  () => validateAgentDispatchRequest({ agentType: 'verification-intent', phase: 'DEV', itemId: 'CHK-001' }),
+  () => validateAgentDispatchRequest({ agentType: 'proof-or-stop-verification-intent', phase: 'DEV', itemId: 'CHK-001' }),
   (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === 'invalid_dispatch_phase',
   'verification-intent must fail before prompt generation outside PLAN',
 );
@@ -400,24 +399,24 @@ assert.throws(
   () => resolveAgentMutationAuthority({
     command: 'checklist_update',
     envActor: 'test-intent',
-    payloadActors: ['verification-intent'],
+    payloadActors: ['proof-or-stop-verification-intent'],
   }),
-  /agent_dispatch_identity_conflict/,
+  /agent_dispatch_actor_unknown/,
   'legacy actor identity must not be authority-equivalent to the active PLAN role',
 );
 assert.equal(
   resolveAgentMutationAuthority({
     command: 'checklist_update',
-    envActor: 'verification-intent',
-    payloadActors: ['verification-intent'],
+    envActor: 'proof-or-stop-verification-intent',
+    payloadActors: ['proof-or-stop-verification-intent'],
   }).entry?.canonicalName,
   'proof-or-stop-verification-intent',
-  'active alias and canonical role remain authority-equivalent',
+  'matching canonical role identities retain declared authority',
 );
 assert.throws(
   () => resolveAgentMutationAuthority({
     command: 'checklist_update',
-    envActor: 'verification-intent',
+    envActor: 'proof-or-stop-verification-intent',
     payloadActors: ['human'],
   }),
   /agent_dispatch_identity_conflict/,
@@ -594,7 +593,7 @@ try {
   };
   assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + trusted-host payload', 'human');
   assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + registered-role payload', 'proof-or-stop-review-quality');
-  assertSpoofRejectedWithoutMutation('checklist_update', 'verification-intent', () => checklistHandlers.checklist_update({
+  assertSpoofRejectedWithoutMutation('checklist_update', 'proof-or-stop-verification-intent', () => checklistHandlers.checklist_update({
     storyId, itemId: 'CHK-001', status: 'done', actor: 'human', agent: 'human',
   }));
   assertSpoofRejectedWithoutMutation('finding_add', 'proof-or-stop-review-quality', () => findingHandlers.finding_add({
@@ -614,7 +613,7 @@ try {
     storyId, agentId: 'proof-or-stop-review-delivery', docsPromises: [], realMachineTests: [],
     closingSelfCheck: { summary: 'spoofed delivery evidence must not persist' },
   }));
-  for (const agentType of ['verification-intent']) {
+  for (const agentType of ['proof-or-stop-verification-intent']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);
     assert.match(prompt, /verificationIntent/);
@@ -622,7 +621,20 @@ try {
     assert.doesNotMatch(prompt, /git commit|status["': ]+done/i);
   }
   const previousPlanActor = process.env.PROOF_OR_STOP_AGENT;
+  const beforeRetiredPlanActor = mutationState();
   process.env.PROOF_OR_STOP_AGENT = 'verification-intent';
+  try {
+    assert.throws(() => checklistHandlers.checklist_update({
+      storyId, itemId: 'CHK-001',
+      verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+      agent: 'verification-intent',
+    }), /agent_dispatch_actor_unknown/);
+    assert.equal(mutationState(), beforeRetiredPlanActor, 'retired bare PLAN actor rejection preserves all fixture state');
+  } finally {
+    if (previousPlanActor === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousPlanActor;
+  }
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-verification-intent';
   try {
     checklistHandlers.checklist_update({
       storyId,
@@ -632,7 +644,7 @@ try {
         edge: [],
         adversarial: [],
       },
-      agent: 'verification-intent',
+      agent: 'proof-or-stop-verification-intent',
     });
     const writtenItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-001');
     assert.deepEqual(writtenItem?.verificationIntent, {
@@ -643,7 +655,7 @@ try {
     assert.equal(writtenItem?.status, 'pending', 'verification-intent role cannot complete the checklist item');
     assert.throws(
       () => checklistHandlers.checklist_update({
-        storyId, itemId: 'CHK-001', status: 'done', agent: 'verification-intent',
+        storyId, itemId: 'CHK-001', status: 'done', agent: 'proof-or-stop-verification-intent',
       }),
       /agent_dispatch_mutation_scope_denied/,
       'canonical PLAN role cannot write checklist status',
@@ -653,7 +665,7 @@ try {
         storyId,
         itemId: 'CHK-001',
         verificationEvidence: [{ kind: 'logic_test', intentRef: `${storyId}:CHK-001:happy:0`, result: 'pass', note: 'must be rejected' }],
-        agent: 'verification-intent',
+        agent: 'proof-or-stop-verification-intent',
       }),
       /agent_dispatch_mutation_scope_denied/,
       'canonical PLAN role cannot write verificationEvidence',
@@ -675,7 +687,7 @@ try {
   );
   assert.throws(
     () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'test-intent' }),
-    /agent_dispatch_mutation_denied/,
+    /agent_dispatch_actor_unknown/,
     'legacy verification-intent identity must have no mutation authority',
   );
   assert.throws(
@@ -684,16 +696,18 @@ try {
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
   );
   assert.equal(
-    resolveReviewRunLane('lattice-review-topology-critic'),
+    resolveReviewRunLane('proof-or-stop-review-topology-critic'),
     'proof-or-stop-review-topology-critic',
     'independent topology critic must mint its own canonical REVIEW ReviewRun before critic authority',
   );
+  assert.throws(() => resolveReviewRunLane('lattice-review-topology-critic'), /not a registered REVIEW reviewer/,
+    'retired critic spelling cannot acquire REVIEW authority');
   const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
   assert.throws(
     () => findingHandlers.finding_add({
       storyId, desc: 'must not persist', severity: 'high', category: 'missing', agent: 'test-intent',
     }),
-    /agent_dispatch_mutation_denied/,
+    /agent_dispatch_actor_unknown/,
   );
   assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_add must have no side effect');
   assert.throws(
@@ -789,19 +803,19 @@ try {
         storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
         readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
       }),
-      /agent_dispatch_mutation_denied/,
+      /agent_dispatch_actor_unknown/,
     );
     assert.equal(store.readScopeCheck(storyId), null, 'denied scope_check_save must have no side effect');
     assert.throws(
       () => deliveryCheckHandlers.delivery_check_set({
         storyId, docsPromises: [], realMachineTests: [], closingSelfCheck: { summary: 'must not persist delivery evidence' },
       }),
-      /agent_dispatch_mutation_denied/,
+      /agent_dispatch_actor_unknown/,
     );
     assert.equal(store.readDeliveryCheck(storyId), null, 'denied delivery_check_set must have no side effect');
     assert.throws(
       () => findingHandlers.finding_resolve({ storyId, findingId: `${storyId}:F-001` }),
-      /agent_dispatch_mutation_denied/,
+      /agent_dispatch_actor_unknown/,
     );
     assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_resolve must have no side effect');
   } finally {
@@ -817,7 +831,7 @@ try {
     captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-quality' }),
     'registered REVIEW lanes must retain reviewer read evidence authority',
   );
-  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW', currentReviewRound: now });
   const reviewPrompt = handlers.dispatch({ storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
   assert.match(reviewPrompt, /review story .* using the trusted context selected by review_run_start/);
   assert.doesNotMatch(reviewPrompt, /git commit|checklist_update/);
@@ -825,7 +839,7 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
     /story-only; omit itemId/,
   );
-  const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;
+  const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'proof-or-stop-review-topology-critic' }).prompt;
   assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
     'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
 
@@ -846,7 +860,7 @@ try {
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {
     if (entry.canonicalName === 'proof-or-stop-review-channel') continue;
-    for (const agentType of [entry.canonicalName, ...entry.aliases]) {
+    for (const agentType of [entry.canonicalName]) {
       for (const identifierKind of entry.targetCardinality === 'story-only' ? [null] : entry.identifierKinds) {
         for (const phase of entry.allowedPhases) {
           store.writeStory(storyId, { ...store.readStory(storyId), phase });

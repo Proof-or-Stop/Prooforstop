@@ -141,7 +141,7 @@ message is genuinely useful — as a SEATBELT, not the enforcement floor (that i
 
 ## 7. How to start
 1. Read `docs/evidence-integrity-program-spec.md` §1 (M1) and §3 Step 2.
-2. `cd /Users/jek/Documents/Work/proofbound`; `proof-or-stop session_brief`; check for an
+2. `cd /Users/jek/Documents/GitHub/Prooforstop`; `proof-or-stop session_brief`; check for an
    existing story on this before creating (`proof-or-stop story_list`).
 3. `proof-or-stop story_create` (type=feature, this adds a schema field + new command;
    likely high-assurance → full cross-host quorum review). Background must cite

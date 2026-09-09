@@ -39,7 +39,7 @@ import {
   getEvidenceEnvironmentDescriptor,
 } from '../evidence/environment-contract.js';
 
-export const CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION = 'lattice.claim_admissibility_pack.v1' as const;
+export const CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION = 'proof-or-stop.claim_admissibility_pack.v1' as const;
 export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID = 'code-runtime' as const;
 export const QUANTUM_CLAIM_ADMISSIBILITY_PACK_ID = 'quantum' as const;
 
@@ -437,7 +437,7 @@ export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK: ClaimAdmissibilityPack = def
     id: CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID,
     version: '1.0.0',
     contractVersion: CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION,
-    domain: 'proofbound-code-runtime',
+    domain: 'proof-or-stop-code-runtime',
     displayName: 'Proof-or-Stop code runtime pack',
     description: 'Read-only descriptor for the existing local proof-admissibility code/runtime lifecycle path.',
     boundary: CODE_RUNTIME_BOUNDARY,

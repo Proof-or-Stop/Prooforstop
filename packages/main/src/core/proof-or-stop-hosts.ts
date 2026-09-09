@@ -33,7 +33,7 @@ import { PROOF_OR_STOP_CLI_VERSION, PROOF_OR_STOP_PRODUCT_NAME } from './proof-o
 export type ProofOrStopFormat = 'text' | 'json';
 
 export interface ProofOrStopHostList {
-  schemaVersion: 'lattice.host_list.v1';
+  schemaVersion: 'proof-or-stop.host_list.v1';
   product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof PROOF_OR_STOP_CLI_VERSION };
   migration: {
     cliFirst: true;
@@ -48,7 +48,7 @@ export interface ProofOrStopHostList {
 }
 
 export interface ProofOrStopHostProbe {
-  schemaVersion: 'lattice.host_probe.v1';
+  schemaVersion: 'proof-or-stop.host_probe.v1';
   product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof PROOF_OR_STOP_CLI_VERSION };
   productionDone: false;
   receiptVerified: false;
@@ -56,7 +56,7 @@ export interface ProofOrStopHostProbe {
 }
 
 export interface ProofOrStopHostStatus {
-  schemaVersion: 'lattice.host_status.v1';
+  schemaVersion: 'proof-or-stop.host_status.v1';
   product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof PROOF_OR_STOP_CLI_VERSION };
   host: string;
   requestedHost: string;
@@ -80,7 +80,7 @@ export interface ProofOrStopHostStatus {
 }
 
 export interface ProofOrStopHostInstallGuidance {
-  schemaVersion: 'lattice.host_install.v1';
+  schemaVersion: 'proof-or-stop.host_install.v1';
   product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof PROOF_OR_STOP_CLI_VERSION };
   host: string;
   dryRun: true;
@@ -233,7 +233,7 @@ function buildProofOrStopCapabilityProbe(host: string): CapabilityProbe {
 export function buildProofOrStopHostList(): ProofOrStopHostList {
   const list = buildProofOrStopCapabilityList();
   return {
-    schemaVersion: 'lattice.host_list.v1',
+    schemaVersion: 'proof-or-stop.host_list.v1',
     product: PRODUCT,
     migration: {
       cliFirst: true,
@@ -251,7 +251,7 @@ export function buildProofOrStopHostList(): ProofOrStopHostList {
 
 export function buildProofOrStopHostProbe(host: string): ProofOrStopHostProbe {
   return {
-    schemaVersion: 'lattice.host_probe.v1',
+    schemaVersion: 'proof-or-stop.host_probe.v1',
     product: PRODUCT,
     productionDone: false,
     receiptVerified: false,
@@ -338,7 +338,7 @@ export function buildProofOrStopHostStatusFromProbe(probe: CapabilityProbe): Pro
     status = 'degraded';
   }
   return {
-    schemaVersion: 'lattice.host_status.v1',
+    schemaVersion: 'proof-or-stop.host_status.v1',
     product: PRODUCT,
     host: probe.host,
     requestedHost: probe.requestedHost,
@@ -474,7 +474,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
 export function buildProofOrStopHostInstallGuidance(host: string): ProofOrStopHostInstallGuidance {
   const guidance = installStepsForHost(host);
   return {
-    schemaVersion: 'lattice.host_install.v1',
+    schemaVersion: 'proof-or-stop.host_install.v1',
     product: PRODUCT,
     host,
     dryRun: true,

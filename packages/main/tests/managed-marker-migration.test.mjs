@@ -14,12 +14,13 @@ const distRoot = join(packageRoot, distName);
 const markers = await import(join(distRoot, 'core/managed-markers.js'));
 const sync = await import(join(distRoot, 'claude-md-sync.js'));
 const assets = await import(join(distRoot, 'init-assets.js'));
+const { runManagedAssetCheck } = await import(join(distRoot, 'core/managed-assets.js'));
 
 const residueSelfTest = execFileSync(process.execPath, [
-  join(packageRoot, '..', '..', 'scripts/verify-lattice-residue.mjs'),
+  join(packageRoot, '..', '..', 'scripts/verify-proof-or-stop-residue.mjs'),
   '--self-test',
 ], { cwd: packageRoot, encoding: 'utf8' });
-assert.match(residueSelfTest, /PASS lattice-residue self-test:/, 'residue detector distinguishes historical paths from active brand residue');
+assert.match(residueSelfTest, /PASS proof-or-stop-residue self-test:/, 'residue detector distinguishes historical paths from active brand residue');
 
 const legacy = 'before\n<!-- lattice:start -->\nold\n<!-- lattice:end -->\nafter\n';
 const replacement = '<!-- proof-or-stop:start -->\nnew\n<!-- proof-or-stop:end -->';
@@ -78,9 +79,50 @@ try {
 } finally {
   rmSync(syncRoot, { recursive: true, force: true });
 }
-for (const name of ['AGENTS_MD_TEMPLATE', 'LATTICE_MD_TEMPLATE', 'CLAUDE_MD_TEMPLATE', 'LATTICE_DOT_DIR_MD_TEMPLATE', 'AGENTS_MD_GLOBAL_THIN_TEMPLATE']) {
+for (const name of ['AGENTS_MD_TEMPLATE', 'PROOF_OR_STOP_MD_TEMPLATE', 'CLAUDE_MD_TEMPLATE', 'PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE', 'AGENTS_MD_GLOBAL_THIN_TEMPLATE']) {
   assert.match(assets[name], /<!-- proof-or-stop:start -->/);
   assert.match(assets[name], /<!-- proof-or-stop:end -->/);
+}
+
+const checkRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-marker-freshness-'));
+try {
+  const agentsPath = join(checkRoot, 'AGENTS.md');
+  const retiredAgents = assets.AGENTS_MD_TEMPLATE
+    .replace('<!-- proof-or-stop:end -->', [
+      '# AGENTS.md',
+      'Current lifecycle override',
+      'proof-or-stop session_brief',
+      'proof-or-stop codex verify',
+      'Two-Layer Process Fact Contract',
+      'Story Phase Transitions',
+      'Fail-fast policy',
+      '<!-- proof-or-stop:end -->',
+    ].join('\n'))
+    .replaceAll('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
+    .replaceAll('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
+  writeFileSync(agentsPath, retiredAgents);
+  const options = { profile: 'codex', assetMode: 'full' };
+  const agentsItem = result => result.items.find(item => item.id === 'doc:AGENTS.md');
+  assert.equal(agentsItem(runManagedAssetCheck(checkRoot, { ...options, assetMode: 'global-thin' }))?.status, 'STALE_SAFE', 'global-thin checking requires explicit marker migration');
+  const check = runManagedAssetCheck(checkRoot, options);
+  assert.equal(agentsItem(check)?.status, 'STALE_SAFE', 'normal checking never treats retired marker assets as fresh canonical assets');
+  assert.equal(readFileSync(agentsPath, 'utf8'), retiredAgents, 'read-only checking preserves retired marker bytes');
+  runManagedAssetCheck(checkRoot, { ...options, apply: true });
+  const migratedAgents = readFileSync(agentsPath, 'utf8');
+  assert.match(migratedAgents, /<!-- proof-or-stop:start -->/);
+  assert.doesNotMatch(migratedAgents, /<!-- lattice:(?:start|end) -->/);
+  assert.equal(agentsItem(runManagedAssetCheck(checkRoot, options))?.status, 'OK', 'explicit migration produces fresh canonical assets');
+
+  for (const malformed of [
+    retiredAgents.replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->'),
+    retiredAgents.replace('<!-- lattice:start -->', '<!-- lattice:start -->\n<!-- lattice:start -->'),
+  ]) {
+    writeFileSync(agentsPath, malformed);
+    assert.equal(agentsItem(runManagedAssetCheck(checkRoot, { ...options, apply: true }))?.status, 'INCOMPATIBLE');
+    assert.equal(readFileSync(agentsPath, 'utf8'), malformed, 'explicit apply preserves malformed or mixed marker bytes');
+  }
+} finally {
+  rmSync(checkRoot, { recursive: true, force: true });
 }
 
 console.log('managed-marker migration test passed');

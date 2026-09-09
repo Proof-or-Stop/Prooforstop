@@ -11,9 +11,9 @@ import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
-export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'lattice.baseline.final_report.v1' as const;
-export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'lattice.baseline_suite_report.v1' as const;
-export const CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION = 'lattice.capability_claim_report.v1' as const;
+export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'proof-or-stop.baseline.final_report.v1' as const;
+export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'proof-or-stop.baseline_suite_report.v1' as const;
+export const CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION = 'proof-or-stop.capability_claim_report.v1' as const;
 export const LAYER2_ENGINEERING_CLAIM_TARGET = 'engineering' as const;
 export const LAYER3_LOOP_ENGINEERING_CLAIM_TARGET = 'loop-engineering' as const;
 
@@ -1423,7 +1423,7 @@ function createStubValue(
 ): string {
   const generatedAt = options.generatedAt ?? nowIso();
   const common = {
-    schemaVersion: 'lattice.baseline.stub.v1',
+    schemaVersion: 'proof-or-stop.baseline.stub.v1',
     generatedAt,
     layer: definition.layer,
     baselineId: definition.baselineId,
@@ -1438,7 +1438,7 @@ function createStubValue(
     || file === 'host-verdict-claude.json' || file === 'host-verdict-codex.json') {
     const host = file === 'review-claude.json' || file === 'host-verdict-claude.json' ? 'claude' : 'codex';
     return `${JSON.stringify({
-      schemaVersion: file.startsWith('host-verdict-') ? 'lattice.host_verdict.v1' : 'lattice.host_review.v1',
+      schemaVersion: file.startsWith('host-verdict-') ? 'proof-or-stop.host_verdict.v1' : 'proof-or-stop.host_review.v1',
       host,
       source: host,
       verdict: 'pass',
@@ -2004,7 +2004,7 @@ function buildDevelopmentLowerLayerReport(input: {
 
   const requiredBaselineIds = [...DEVELOPMENT_REQUIRED_BASELINE_IDS];
   if (source) {
-    if (source.schemaVersion !== 'lattice.baseline.suite-report.v1') {
+    if (source.schemaVersion !== 'proof-or-stop.baseline.suite-report.v1') {
       blockedReasons.push(`development source suite schema mismatch: ${String(source.schemaVersion ?? 'missing')}`);
     }
     if (source.suiteStatus !== 'PASS') {

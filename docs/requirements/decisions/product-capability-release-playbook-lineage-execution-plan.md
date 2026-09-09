@@ -1,5 +1,12 @@
 # Product Capability Release And Playbook Lineage Execution Plan
 
+Current write contract (B-49df): the canonical capability schema uses
+`changedPathsScope: "capability-material"` and stores the classifier's material
+subset. The full DONE diff remains classifier input and Git provenance. This
+amendment supersedes the former full-list field contract; see
+`b-49df-main-integration-provenance.md`. Historical observations below describe
+the original B-785e audit only and do not authorize current identity aliases.
+
 > Revision 2 (audited). This revision resolves the findings of the 2026-07-05 adversarial
 > audit of revision 1: the two blockers (undefined `capabilityDigest`; live-`.lattice` M0
 > red test), the four high-severity gaps (`mainCommit` in the idempotency key; classifier
@@ -29,7 +36,7 @@ The result is that Proof-or-Stop remembers "a DONE story produced a lesson", but
 
 This document defines the execution plan to close that gap without weakening the existing safety boundary that candidate playbooks are inert until explicitly exposed, evaluated, and promoted by evidence.
 
-## Current State
+## Historical B-785e State (2026-07-05)
 
 ### What Is Already Working
 
@@ -142,15 +149,15 @@ The V1 story MUST NOT be run as an ambiguous 9-milestone story. The blockers bel
 
 | Milestone | Problem solved | Deliverable | Evidence |
 | --- | --- | --- | --- |
-| M0 Red Evidence | Prove the gap on a controlled fixture: a candidate whose lineage lacks capability release binding. | A failing **hermetic** smoke (`product-capability-release-red-smoke`) over a `mkdtemp` `.lattice` fixture modeling B-785e's shape. | Red test fails on the fixture candidate; goes green once M4 lineage binding is applied to the same fixture. |
-| M1 Capability Release Schema | There is no first-class non-runtime product capability release record, and no read-time enforcement of its non-authoritative status. | `ProductCapabilityReleaseRecord` schema + `.lattice/capability-releases.jsonl` ledger (git-tracked) + fail-closed reader + gate-import guard test. | Unit tests: parse, deterministic `capabilityDigest`/`idempotencyKey`/id (fixed input→value), idempotent append, malformed-row rejection, fail-closed on `gateEvidence:true`/non-`non_authoritative` rows, guard test that no gate path imports the reader. |
+| M0 Red Evidence | Prove the gap on a controlled fixture: a candidate whose lineage lacks capability release binding. | A failing **hermetic** smoke (`product-capability-release-red-smoke`) over a `mkdtemp` `.proof-or-stop` fixture modeling B-785e's shape. | Red test fails on the fixture candidate; goes green once M4 lineage binding is applied to the same fixture. |
+| M1 Capability Release Schema | There is no first-class non-runtime product capability release record, and no read-time enforcement of its non-authoritative status. | `ProductCapabilityReleaseRecord` schema + `.proof-or-stop/capability-releases.jsonl` ledger (git-tracked) + fail-closed reader + gate-import guard test. | Unit tests: parse, deterministic `capabilityDigest`/`idempotencyKey`/id (fixed input→value), idempotent append, malformed-row rejection, fail-closed on `gateEvidence:true`/non-`non_authoritative` rows, guard test that no gate path imports the reader. |
 | M2 DONE Capability Classification | DONE distinguishes runtime semver vs artifact release, but not reusable product capability release. | A **pure classifier fn in `core/`** (mirroring `selectArtifactReleasePathsV1`) invoked from **both** DONE completion sites. | Fixtures for B-785e-like docs/experiments, plain docs, runtime code, story-metadata-only; conservative-uncertain → advisory + no record. |
 | M3 Release Binding | Artifact releases and capability releases can drift, and recovery re-merge must not duplicate. | Capability record binds `storyId`, `mainCommit` (provenance), `artifactReleaseId?`, `artifactSetDigest?`, `capabilityId`, `capabilityVersion`, `capabilityDigest`, `changedPaths`; dedup on a merge-stable key. | Smoke proves deterministic binding and **no duplicate record when re-run with a different `mainCommit`** (recovery path). |
 | M4 Playbook Lineage Binding | Candidate playbooks know only `DONE-EXPERIENCE`, not the capability they came from. | `PlaybookLineage` gains **optional** capability fields (existing 3-field rows stay valid); DONE candidate ingest attaches them when a capability release exists; idempotency defined on the stable source key, not digest equality. | `PBP-882`-style fixture includes `lineage.capabilityReleaseId`/`artifactReleaseId`; pre-existing 3-field lineage still parses; re-apply is a no-op that does not trip stale-proposal rejection. |
 | M5 Read-Only Inspection | Users cannot see product capability releases or their candidate lineage. | `capability_release_list` / `capability_release_status` as **pure ledger clones** of `handlers/artifact-release.ts`, registered in all four command sites + process-fact-levels; candidate lineage shown in `playbook_promotion_status`. | CLI smoke verifies read-only behavior, command-policy `readOnly/none/all`, and exact rendering. |
 | M6 Assert (candidate inert) | Regression-proof that candidates never enter active runtime surfacing. | A smoke asserting `matchActivePlaybook` excludes a `status=candidate` capability playbook. | Runtime memory test proves the candidate is absent from `MemoryFreshnessPack.results.playbookIds`. |
 | M7 Assert (DONE ≠ helped) | Regression-proof that DONE success cannot become `helped`. | A smoke asserting a DONE-settlement outcome does not increment `helped`/`decisiveSamples`. | Test rejects DONE-only helped; `decisiveSamples = helped + dismissed + harmful` over non-done-settlement events. |
-| Backfill proof (hermetic) | Meet the "no lifecycle-closed without a B-785e backfill proof" caveat without the standalone command. | A fixture-based dry-run/apply/idempotency proof over a B-785e-shaped `.lattice`. | Dry-run detects exactly one eligible candidate; apply enriches exactly one; repeated apply idempotent; candidate stays `status=candidate`; `surfacedCount` unchanged. |
+| Backfill proof (hermetic) | Meet the "no lifecycle-closed without a B-785e backfill proof" caveat without the standalone command. | A fixture-based dry-run/apply/idempotency proof over a B-785e-shaped `.proof-or-stop`. | Dry-run detects exactly one eligible candidate; apply enriches exactly one; repeated apply idempotent; candidate stays `status=candidate`; `surfacedCount` unchanged. |
 
 ### Follow-up milestones (separate story)
 
@@ -162,17 +169,17 @@ The V1 story MUST NOT be run as an ambiguous 9-milestone story. The blockers bel
 
 ## Data Model (M1, normative)
 
-Ledger path (git-tracked, committed at DONE — mirrors `.lattice/artifact-releases.jsonl`):
+Ledger path (git-tracked, committed at DONE — mirrors `.proof-or-stop/artifact-releases.jsonl`):
 
 ```text
-.lattice/capability-releases.jsonl
+.proof-or-stop/capability-releases.jsonl
 ```
 
 Record:
 
 ```ts
 type ProductCapabilityReleaseRecord = {
-  schemaVersion: 'proofbound.product-capability-release.v1';
+  schemaVersion: 'proof-or-stop.product-capability-release.v1';
   id: string;                 // `PCR-${sha256Hex(idempotencyKey).slice(0,24)}` — mirrors AR- derivation
   idempotencyKey: string;     // see below; MERGE-STABLE
   storyId: string;
@@ -185,7 +192,8 @@ type ProductCapabilityReleaseRecord = {
   capabilityDigest: string;   // see below; MERGE-STABLE
   artifactReleaseId?: string; // present only when the story also produced an artifact release
   artifactSetDigest?: string; // provenance; folded into capabilityDigest, so absence is safe
-  changedPaths: string[];     // FULL DONE-time changed-path list (so backfill needs no git replay)
+  changedPathsScope?: 'capability-material'; // required for new writes; absent only on older canonical v1 reads
+  changedPaths: string[];     // selected capability material for marked records
   runtimeSemverChanged: boolean;
   activationBoundary: 'non-runtime-capability' | 'runtime-capability';
   authority: 'non_authoritative';
@@ -194,7 +202,15 @@ type ProductCapabilityReleaseRecord = {
 };
 ```
 
-Naming note: this record intentionally uses `changedPaths` (the full DONE-time list, needed by the classifier and backfill) and the new `activationBoundary` enum — distinct from the artifact record's `paths` (selected subset) and `claimBoundary` string. `capability_release_status` renders both ledgers; keep the field labels visibly distinct so the two are not confused.
+The full DONE-time changed-path list is classifier input. New records persist
+only its capability-declaring subset as `changedPaths`, explicitly marked by
+`changedPathsScope: 'capability-material'`. The full diff is auditable through
+`mainCommit` and its parents. A reader may inspect an older canonical v1 record
+without the marker under its original full-list interpretation; that read does
+not upgrade the record or authorize a new unmarked append. Unknown markers fail.
+For marked records, the reader verifies normalized, sorted, unique capability
+paths and recomputes `capabilityDigest` from them and `artifactSetDigest`.
+The marker never enters the content digest or idempotency key.
 
 ### capabilityDigest (blocker B1)
 
@@ -204,7 +220,7 @@ Naming note: this record intentionally uses `changedPaths` (the full DONE-time l
 capabilityDigest = 'sha256:' + sha256Hex(JSON.stringify({
   capabilityId,
   capabilityKind,
-  changedPaths: <capability-declaring changedPaths, sorted, deduped>,
+  capabilityPaths: <capability-declaring changedPaths, sorted, deduped>,
   artifactSetDigest: artifactSetDigest ?? null,
 }))
 ```
@@ -231,7 +247,7 @@ The reader (modeled on `readArtifactReleaseLedger`, `:141`) MUST fail closed, mi
 
 ### M0. Red Evidence (blocker B2 — hermetic)
 
-Create a **hermetic** read-only smoke over a `mkdtemp` `.lattice` fixture (mirror `makePartialDoneRecoveryFixture` / `makeGitFixture` in `artifact-release-ledger-smoke.ts`). The fixture contains:
+Create a **hermetic** read-only smoke over a `mkdtemp` `.proof-or-stop` fixture (mirror `makePartialDoneRecoveryFixture` / `makeGitFixture` in `artifact-release-ledger-smoke.ts`). The fixture contains:
 
 - a B-785e-shaped row in `artifact-releases.jsonl`
 - a `PBP-882`-shaped candidate in `learning/playbooks.json` whose `lineage` has `sourceStoryId`/`sourceFindingId`/`sourceSignature` but **no** `capabilityReleaseId`
@@ -242,7 +258,7 @@ The test asserts the gap ON THE FIXTURE:
 FAIL: fixture candidate exists but lineage lacks capabilityReleaseId / artifactReleaseId
 ```
 
-It MUST NOT read the repo-root live `.lattice` (revision 1's defect): those files are mutable, two of them (`playbooks.json`, `playbook-promotion-health.jsonl`) are git-ignored and absent on a clean clone, `run-all-smokes.ts:123` auto-discovers `dist/tasks/*-smoke.js` so a live-reading smoke would run against mutable state in `test:all`, and — fatally — M4/backfill would enrich the very field M0 asserts missing, flipping the live test permanently green (self-invalidation). The hermetic fixture makes M0 re-runnable: it stays red until the M4 binding is applied to the same fixture, then goes green — a proper red→green pin. The live observation stays only as one-time motivation in "Why This Document Exists".
+It MUST NOT read the repo-root live `.proof-or-stop` (revision 1's defect): those files are mutable, two of them (`playbooks.json`, `playbook-promotion-health.jsonl`) are git-ignored and absent on a clean clone, `run-all-smokes.ts:123` auto-discovers `dist/tasks/*-smoke.js` so a live-reading smoke would run against mutable state in `test:all`, and — fatally — M4/backfill would enrich the very field M0 asserts missing, flipping the live test permanently green (self-invalidation). The hermetic fixture makes M0 re-runnable: it stays red until the M4 binding is applied to the same fixture, then goes green — a proper red→green pin. The live observation stays only as one-time motivation in "Why This Document Exists".
 
 ### M1. Capability Release Schema
 
@@ -257,13 +273,19 @@ Add a **pure classifier fn in `core/`** (mirror `selectArtifactReleasePathsV1`) 
 | `experiments/multi-model-ablation/m2-provider-execution-check.mjs` + launch artifact + execution plan | `experiment-launch-control` |
 | ordinary typo-only doc | no capability release |
 | `packages/main/src/**` watched runtime input | runtime semver path may apply |
-| `.lattice/story/**` metadata only | no capability release |
+| `.proof-or-stop/story/**` metadata only | no capability release |
 
 The classifier is invoked from **both** DONE completion sites — `runArtifactReleaseLedgerAfterDoneMerge`'s callers at `handlers/done-effects.ts:1167` **and** `handlers/done-recover.ts:116` — importing one source so the two paths cannot diverge. The classifier must be conservative: uncertain → no record + advisory.
 
 ### M3. Release Binding (high H1)
 
-When a capability release is created, bind `storyId`, `mainCommit` (provenance), artifact release id + set digest when present, `capabilityDigest`, `capabilityId`, `capabilityVersion`, and the full `changedPaths`. Dedup on `idempotencyKey` (merge-stable; excludes `mainCommit`). This makes the recovery re-merge a no-op instead of a duplicate.
+When a capability release is created, bind `storyId`, `mainCommit` (provenance),
+artifact release id + set digest when present, `capabilityDigest`, `capabilityId`,
+`capabilityVersion`, and the selected `changedPaths` with
+`changedPathsScope: 'capability-material'`. The builder checks that the selected
+paths came from the full DONE diff. Append validates the marker and subset digest
+before existing-record lookup. Dedup on `idempotencyKey` remains merge-stable and
+excludes `mainCommit`; recovery returns an existing record without changing it.
 
 ### M4. Playbook Lineage Binding (high H2 + interface-widening)
 
@@ -313,7 +335,7 @@ Every follow-up exposure writes a record with: `playbookId`, `capabilityReleaseI
 
 **V1 keeps only a hermetic backfill proof** (a fixture dry-run/apply/idempotency test, NOT the live `PBP-882`): dry-run detects exactly one eligible candidate, apply enriches exactly one, repeated apply is idempotent, candidate stays `status=candidate`, `surfacedCount` unchanged, no `helped` inferred.
 
-**Durability model (medium):** the capability ledger is git-tracked and committed at DONE (mirror `commitArtifactReleaseLedgerIfNeeded`, `handlers/done-effects.ts:238`) — this is the cross-host source of truth (Design Principle 5). For the tracking to actually hold, the mirror MUST replicate BOTH parts of the artifact-ledger pattern, not just the commit call: (a) add a `.gitignore` un-ignore rule `!.lattice/capability-releases.jsonl` immediately after the existing `!.lattice/artifact-releases.jsonl` (`.gitignore:9`), since `.lattice/*` (`.gitignore:8`) ignores it by default; and (b) stage it with `git add -f` (mirror `done-effects.ts:246`). Both are required — the un-ignore rule keeps it tracked on ordinary `git add`, and `-f` force-stages the first commit. The candidate playbook lineage lives in the git-ignored `playbooks.json` and is therefore host-local; that is acceptable because the committed ledger, keyed by `storyId`/`capabilityId`, lets any host reconstruct "which capability" without the local playbook file. Backfill re-runs the classifier from the record's persisted full `changedPaths` (stored at DONE time), so it needs no git replay.
+**Durability model (medium):** the capability ledger is git-tracked and committed at DONE (mirror `commitArtifactReleaseLedgerIfNeeded`, `handlers/done-effects.ts:238`) — this is the cross-host source of truth (Design Principle 5). For the tracking to actually hold, the mirror MUST replicate BOTH parts of the artifact-ledger pattern, not just the commit call: (a) add a `.gitignore` un-ignore rule `!.proof-or-stop/capability-releases.jsonl` immediately after the existing `!.proof-or-stop/artifact-releases.jsonl` (`.gitignore:9`), since `.proof-or-stop/*` (`.gitignore:8`) ignores it by default; and (b) stage it with `git add -f` (mirror `done-effects.ts:246`). Both are required — the un-ignore rule keeps it tracked on ordinary `git add`, and `-f` force-stages the first commit. The candidate playbook lineage lives in the git-ignored `playbooks.json` and is therefore host-local; that is acceptable because the committed ledger, keyed by `storyId`/`capabilityId`, lets any host reconstruct "which capability" without the local playbook file. Backfill re-runs the classifier from the record's persisted capability-material `changedPaths` for marked records (or the original full list for older unmarked canonical v1 records), so it needs no git replay.
 
 **The standalone `capability_release_backfill` command (M8) is the follow-up story:**
 

@@ -53,7 +53,7 @@ export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT = 'review_escalat
 export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE = 'explicitlyConfiguredHighRiskPolicyRequires3x2';
 export const REVIEW_HOST_AVAILABILITY_PROBE_EVENT = 'review_host_availability_probe';
 export const REVIEW_HOST_AVAILABILITY_PROBE_COMMAND = 'review_host_availability_probe';
-export const REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION = 'lattice.review_host_availability_probe.v2';
+export const REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION = 'proof-or-stop.review_host_availability_probe.v2';
 export const REVIEW_HOST_AVAILABILITY_REQUIRED_REVIEW_READY_HOSTS = 2;
 export const REVIEW_HOST_AVAILABILITY_DEFAULT_TIMEOUT_MS = 5000;
 
@@ -208,7 +208,7 @@ export interface CompletedReviewEscalationSnapshot {
 }
 
 export interface ReviewEscalationReport {
-  schemaVersion: 'lattice.review_escalation_status.v1';
+  schemaVersion: 'proof-or-stop.review_escalation_status.v1';
   ok: boolean;
   required: boolean;
   trigger: {
@@ -1040,7 +1040,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     claim: 'review-pass',
     policy: proofPolicy,
     checks: {
-      schemaVersion: 'lattice.review_run.v1',
+      schemaVersion: 'proof-or-stop.review_run.v1',
       strictShapeValid: true,
       semanticDigestValid: Boolean(materialHash),
       signatureOrReceiptBindingValid: bindingValid,
@@ -1060,7 +1060,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
 
   if (!required) {
     return {
-      schemaVersion: 'lattice.review_escalation_status.v1',
+      schemaVersion: 'proof-or-stop.review_escalation_status.v1',
       ok: true,
       required: false,
       trigger,
@@ -1091,7 +1091,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
   if (!materialHash) {
     reasons.push('current material hash is unavailable');
     return {
-      schemaVersion: 'lattice.review_escalation_status.v1',
+      schemaVersion: 'proof-or-stop.review_escalation_status.v1',
       ok: false,
       required: true,
       trigger,
@@ -1150,7 +1150,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     : reasons;
 
   return {
-    schemaVersion: 'lattice.review_escalation_status.v1',
+    schemaVersion: 'proof-or-stop.review_escalation_status.v1',
     ok: effectiveOk,
     required: true,
     trigger,

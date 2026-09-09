@@ -15,7 +15,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,9 +51,11 @@ function writeText(root: string, relPath: string, content: string): void {
 }
 
 function makeRoot(name: string): string {
-  const root = mkdtempSync(join(tmpdir(), `lattice-${name}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-${name}-`));
   writeText(root, 'bin/proof-or-stop.js', renderProofOrStopBootstrapScript(packageRoot));
   writeText(root, 'bin/proof-or-stop-codex.js', renderProofOrStopCodexWrapperScript());
+  assert.equal(existsSync(join(root, 'bin/proof-or-stop.js')), true, 'active adapter fixture exposes the canonical CLI entrypoint');
+  assert.equal(existsSync(join(root, 'bin/proofOrStop.js')), false, 'active adapter fixture does not expose the retired CLI entrypoint');
   seedCodexNativeHooks(root);
   return root;
 }
@@ -141,7 +143,7 @@ try {
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const actualCodexRegistryPrompt = renderPromptEntryForHost(entry, 'codex');
   assert.match(actualCodexRegistryPrompt, /review_run_start/, 'registry mode returns the reviewer bootstrap');
-  assert.doesNotMatch(actualCodexRegistryPrompt, /proofbound:modular-role-body:v1/, 'registry mode never preloads the role body');
+  assert.doesNotMatch(actualCodexRegistryPrompt, /proof-or-stop:modular-role-body:v1/, 'registry mode never preloads the role body');
   const identity = reviewerHostRenderIdentity(thinRoot, 'proof-or-stop-review-quality', 'codex');
   assert.equal(identity.host, 'codex');
   assert.equal(identity.source, 'package-registry');
@@ -154,16 +156,18 @@ try {
     schemaVersion: 'lattice.prompt-registry.v1',
   } };
   writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(legacyManifest, null, 2)}\n`);
+  const retiredManifestBytes = readFileSync(join(thinRoot, '.proof-or-stop-codex/proof-or-stop.json'));
   const legacy = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
-  assertOk(legacy);
-  assert.equal(checkById(legacy, 'manifest').status, 'pass', 'legacy prompt-registry schema remains readable');
+  assert.equal(legacy.ok, false, 'retired prompt-registry schema must not satisfy adapter verification');
+  assert.equal(checkById(legacy, 'manifest').status, 'fail', 'retired prompt-registry schema fails closed');
+  assert.deepEqual(readFileSync(join(thinRoot, '.proof-or-stop-codex/proof-or-stop.json')), retiredManifestBytes, 'rejection preserves historical manifest bytes');
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
 }
 
 const globalThinRoot = makeRoot('global-thin-host-render');
 try {
-  writeText(globalThinRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
+  writeText(globalThinRoot, '.proof-or-stop/proof-or-stop.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
   const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'proof-or-stop-review-quality', 'codex');
   const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'proof-or-stop-review-quality', 'claude');
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
@@ -180,7 +184,7 @@ try {
 
 const fullCodexOnlyRoot = makeRoot('full-codex-only-host-render');
 try {
-  writeText(fullCodexOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
+  writeText(fullCodexOnlyRoot, '.proof-or-stop/proof-or-stop.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
   const codexBootstrap = renderReviewerRunBootstrapForTemplate(renderCodexAgentContent(packagePrompt), entry.file);
@@ -190,17 +194,15 @@ try {
   assert.equal(identity.bootstrapDigest?.length, 64);
   assert.equal(identity.selectedRoleBodyDigest.length, 64);
   assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
-  const legacyIdentity = reviewerHostRenderIdentity(
-    fullCodexOnlyRoot,
-    entry.agentId,
-    'codex',
-    'legacy-full-context',
-  );
-  assert.equal(legacyIdentity.bootstrapDigest, identity.bootstrapDigest, 'rollout mode does not change the host bootstrap');
-  assert.notEqual(
-    legacyIdentity.selectedRoleBodyDigest,
-    identity.selectedRoleBodyDigest,
-    'rollout mode selects exactly one independently bound role body',
+  assert.throws(
+    () => reviewerHostRenderIdentity(
+      fullCodexOnlyRoot,
+      entry.agentId,
+      'codex',
+      'legacy-full-context' as never,
+    ),
+    /unsupported prompt template mode/,
+    'retired prompt modes are rejected at the host-render boundary',
   );
   assert.throws(
     () => reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'claude'),
@@ -222,7 +224,7 @@ try {
 
 const fullClaudeOnlyRoot = makeRoot('full-claude-only-host-render');
 try {
-  writeText(fullClaudeOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
+  writeText(fullClaudeOnlyRoot, '.proof-or-stop/proof-or-stop.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
   writeText(

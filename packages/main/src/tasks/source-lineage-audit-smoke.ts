@@ -149,7 +149,7 @@ function playbook(id: string): Playbook {
 
 function outcome(pb: Playbook): PlaybookOutcomeEvent {
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId: 'PBO-LINEAGE-001',
     idempotencyKey: 'source-lineage-audit-smoke:outcome',
     observedAt: NOW,
@@ -182,7 +182,7 @@ function outcome(pb: Playbook): PlaybookOutcomeEvent {
 function decision(pb: Playbook): PlaybookPromotionDecisionRow {
   const aggregate = aggregatePlaybookPromotion(pb, [], []);
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: 'PBD-LINEAGE-001',
     idempotencyKey: `source-lineage-audit-smoke:${pb.id}:${aggregate.aggregateDigest}`,
     decidedAt: NOW,
@@ -219,7 +219,7 @@ function activation(pb: Playbook, row: PlaybookPromotionDecisionRow): PlaybookAu
     sourceStoryId: STORY_ID,
   }).slice(0, 16)}`;
   return {
-    schemaVersion: 'proofbound.playbook-auto-activation.v1',
+    schemaVersion: 'proof-or-stop.playbook-auto-activation.v1',
     activationId: 'PBA-LINEAGE-001',
     idempotencyKey: `source-lineage-audit-smoke:${pb.id}:activation`,
     activatedAt: NOW,
@@ -233,7 +233,7 @@ function activation(pb: Playbook, row: PlaybookPromotionDecisionRow): PlaybookAu
       playbookDigest: activeDigest,
     },
     policy: {
-      policyId: 'proofbound.evidence-activated-advisory-playbook.v1',
+      policyId: 'proof-or-stop.evidence-activated-advisory-playbook.v1',
       policyDigest: digestCanonicalJson({ smoke: 'source-lineage-audit', policy: 1 }),
       reviewedBy: 'source-lineage-audit-smoke',
     },
@@ -403,7 +403,7 @@ try {
     const after = snapshot(root);
 
     assert.equal(after, before, 'source_lineage_audit must not write or normalize stores');
-    assert.equal(report.schemaVersion, 'proofbound.source-lineage-audit.v1');
+    assert.equal(report.schemaVersion, 'proof-or-stop.source-lineage-audit.v1');
     assert.equal(report.domain, 'learning');
     assert.equal(report.authority, 'non_authoritative');
     assert.equal(report.gateEvidence, false);
@@ -427,7 +427,7 @@ try {
     for (const record of report.records) {
       assert.equal(record.authority, 'non_authoritative');
       assert.equal(record.gateEvidence, false);
-      assert.equal(record.canonicalSourceKeyVersion, 'proofbound.learning-source-key.v1');
+      assert.equal(record.canonicalSourceKeyVersion, 'proof-or-stop.learning-source-key.v1');
       assert.equal(record.canonicalizationPolicyHash, report.canonicalizationPolicyHash);
       assert.ok(Object.hasOwn(record, 'canonicalSourceKey'), 'canonicalSourceKey key is always present');
     }

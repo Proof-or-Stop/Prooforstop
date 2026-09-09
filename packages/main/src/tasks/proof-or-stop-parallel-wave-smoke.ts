@@ -227,7 +227,7 @@ function assertAuthorityBoundary(value: {
 }
 
 function assertWave(wave: ProofOrStopParallelWave, root: string): void {
-  assert.equal(wave.schemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(wave.schemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(wave.waveId, 'wave-smoke');
   assert.equal(wave.storyRefs.length, WAVE_STORY_IDS.length);
   assert.ok(wave.evidenceRefs.includes('B-independent:happy:0'), 'top-level evidence refs preserve story evidence lineage');
@@ -279,8 +279,8 @@ function assertWave(wave: ProofOrStopParallelWave, root: string): void {
 }
 
 function assertInspection(inspection: ProofOrStopParallelWaveInspection): void {
-  assert.equal(inspection.schemaVersion, 'lattice.parallel_wave_inspect.v1');
-  assert.equal(inspection.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(inspection.schemaVersion, 'proof-or-stop.parallel_wave_inspect.v1');
+  assert.equal(inspection.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(inspection.waveId, 'wave-smoke');
   assert.equal(inspection.inspection.parallelDevCandidateCount, 2);
   assert.ok(inspection.inspection.blockingDegradationCount > 0);
@@ -288,8 +288,8 @@ function assertInspection(inspection: ProofOrStopParallelWaveInspection): void {
 }
 
 function assertPlan(plan: ProofOrStopParallelPlan): void {
-  assert.equal(plan.schemaVersion, 'lattice.parallel_plan.v1');
-  assert.equal(plan.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(plan.schemaVersion, 'proof-or-stop.parallel_plan.v1');
+  assert.equal(plan.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(plan.waveId, 'wave-smoke');
   assert.deepEqual(plan.parallelDevCandidates, ['B-idea-adjacent', 'B-independent']);
   assert.ok(plan.planOnlyStories.includes('B-hotspot'));
@@ -319,8 +319,8 @@ function assertExperienceRefs(refs: ProofOrStopParallelDispatch['dispatchEntries
 }
 
 function assertDispatch(dispatch: ProofOrStopParallelDispatch, root: string, expectedExperienceRefs = 0): void {
-  assert.equal(dispatch.schemaVersion, 'lattice.parallel_dispatch.v1');
-  assert.equal(dispatch.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(dispatch.schemaVersion, 'proof-or-stop.parallel_dispatch.v1');
+  assert.equal(dispatch.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(dispatch.waveId, 'wave-smoke');
   assert.equal(dispatch.summary.storyCount, WAVE_STORY_IDS.length);
   assert.equal(dispatch.summary.candidateCount, 2);
@@ -358,8 +358,8 @@ function assertDispatch(dispatch: ProofOrStopParallelDispatch, root: string, exp
 }
 
 function assertStatus(status: ProofOrStopParallelStatus): void {
-  assert.equal(status.schemaVersion, 'lattice.parallel_status.v1');
-  assert.equal(status.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(status.schemaVersion, 'proof-or-stop.parallel_status.v1');
+  assert.equal(status.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(status.waveId, 'wave-smoke');
   assert.equal(status.summary.candidateCount, 2);
   assert.deepEqual(status.candidates, ['B-idea-adjacent', 'B-independent']);
@@ -371,8 +371,8 @@ function assertStatus(status: ProofOrStopParallelStatus): void {
 }
 
 function assertMergeQueue(queue: ProofOrStopParallelMergeQueue): void {
-  assert.equal(queue.schemaVersion, 'lattice.parallel_merge_queue.v1');
-  assert.equal(queue.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(queue.schemaVersion, 'proof-or-stop.parallel_merge_queue.v1');
+  assert.equal(queue.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(queue.waveId, 'wave-smoke');
   assert.equal(queue.summary.storyCount, WAVE_STORY_IDS.length);
   assert.ok(queue.ready.some(entry => entry.storyId === 'B-independent'));
@@ -385,8 +385,8 @@ function assertMergeQueue(queue: ProofOrStopParallelMergeQueue): void {
 }
 
 function assertReport(report: ProofOrStopParallelReport, root: string, expectedExperienceRefs = 0): void {
-  assert.equal(report.schemaVersion, 'lattice.parallel_report.v1');
-  assert.equal(report.waveSchemaVersion, 'lattice.parallel_wave.v1');
+  assert.equal(report.schemaVersion, 'proof-or-stop.parallel_report.v1');
+  assert.equal(report.waveSchemaVersion, 'proof-or-stop.parallel_wave.v1');
   assert.equal(report.waveId, 'wave-smoke');
   assert.equal(report.summary.candidateCount, 2);
   assert.deepEqual(report.candidates, ['B-idea-adjacent', 'B-independent']);
@@ -396,7 +396,7 @@ function assertReport(report: ProofOrStopParallelReport, root: string, expectedE
   assert.equal(report.evidenceSummary.byStory.length, WAVE_STORY_IDS.length);
   assert.ok(report.evidenceSummary.topLevelRefs.includes('B-independent:happy:0'));
   assertExperienceRefs(report.experienceRefs, expectedExperienceRefs);
-  assertDispatch({ ...report, schemaVersion: 'lattice.parallel_dispatch.v1', dispatchedAt: report.reportedAt, hostCandidates: [], evidenceRefs: report.evidenceSummary.topLevelRefs, mergeOrder: [] }, root, expectedExperienceRefs);
+  assertDispatch({ ...report, schemaVersion: 'proof-or-stop.parallel_dispatch.v1', dispatchedAt: report.reportedAt, hostCandidates: [], evidenceRefs: report.evidenceSummary.topLevelRefs, mergeOrder: [] }, root, expectedExperienceRefs);
   assertAuthorityBoundary(report);
 }
 

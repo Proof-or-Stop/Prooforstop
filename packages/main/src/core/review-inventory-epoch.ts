@@ -23,15 +23,15 @@ import { collectVerificationIntents } from './verification.js';
 import { isSplitVerificationReceipt, validateVerificationReceipt } from './verification-execution-evidence.js';
 
 export const REVIEW_INVENTORY_EPOCHS_FILE = 'review-inventory-epochs.json';
-export const REVIEW_INVENTORY_EPOCHS_SCHEMA = 'proofbound.review_inventory_epochs.v1';
-export const REVIEW_INVENTORY_EPOCH_SCHEMA = 'proofbound.review_inventory_epoch.v1';
-export const REVIEW_INVENTORY_RECEIPT_SCHEMA = 'proofbound.review_inventory_receipt.v1';
+export const REVIEW_INVENTORY_EPOCHS_SCHEMA = 'proof-or-stop.review_inventory_epochs.v1';
+export const REVIEW_INVENTORY_EPOCH_SCHEMA = 'proof-or-stop.review_inventory_epoch.v1';
+export const REVIEW_INVENTORY_RECEIPT_SCHEMA = 'proof-or-stop.review_inventory_receipt.v1';
 export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only' as const;
 export type { ReviewInventoryEpochData } from './types.js';
 
-const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
-const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
-const CRITIC_RECEIPT_DOMAIN = 'proofbound.review-inventory-critic-receipt.v1';
+const EPOCH_DOMAIN = 'proof-or-stop.review-inventory-epoch.v1';
+const RECEIPT_DOMAIN = 'proof-or-stop.review-inventory-receipt.v1';
+const CRITIC_RECEIPT_DOMAIN = 'proof-or-stop.review-inventory-critic-receipt.v1';
 
 /**
  * One serialization boundary for inventory snapshots and reviewer terminal
@@ -106,7 +106,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
   // storyFilesHash/timestamp (and receipt.executedAt) while result/command/note/
   // outputDigest stay identical. Hashing those freshness pins made an evidence
   // re-pin flip this digest and trip OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, even
-  // though currentMaterialHash already excludes the whole .lattice/story/ tree —
+  // though currentMaterialHash already excludes the whole .proof-or-stop/story/ tree —
   // so a metadata-only refresh invalidated an OPEN epoch and discarded other
   // lanes' completed verdicts. Same principle as withoutVolatileTimestamps above:
   // semantic content in, bookkeeping out. Anything that should still invalidate
@@ -208,7 +208,7 @@ export function signReviewInventoryEpoch(epoch: Omit<ReviewInventoryEpoch, '_has
 }
 
 export function verifyReviewInventoryEpoch(epoch: ReviewInventoryEpoch): boolean {
-  if (!epoch._hash || epoch.schemaVersion !== 'proofbound.review_inventory_epoch.v1') return false;
+  if (!epoch._hash || epoch.schemaVersion !== 'proof-or-stop.review_inventory_epoch.v1') return false;
   const { _hash, ...unsigned } = epoch;
   return _hash === signReviewInventoryEpoch(unsigned);
 }
@@ -218,7 +218,7 @@ export function signReviewInventoryReceipt(receipt: Omit<ReviewInventoryReceipt,
 }
 
 export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): boolean {
-  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_receipt.v1') return false;
+  if (!receipt._hash || receipt.schemaVersion !== 'proof-or-stop.review_inventory_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryReceipt(unsigned)
     && receipt.authorizesTest === false
@@ -233,7 +233,7 @@ export function signReviewInventoryCriticReceipt(receipt: Omit<ReviewInventoryCr
 }
 
 export function verifyReviewInventoryCriticReceipt(receipt: ReviewInventoryCriticReceipt): boolean {
-  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_critic_receipt.v1') return false;
+  if (!receipt._hash || receipt.schemaVersion !== 'proof-or-stop.review_inventory_critic_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryCriticReceipt(unsigned)
     && canonicalAgentRoleId(receipt.criticLane) === 'proof-or-stop-review-topology-critic'

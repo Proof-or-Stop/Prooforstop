@@ -37,6 +37,8 @@ import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION } from '../core/process-fact-registry.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
   getSessionId,
   getSessionIdentity,
@@ -600,7 +602,7 @@ function buildStoryMemoryQuery(story: StoryInfo, checklist: ChecklistSummary | n
     story.phase,
     ...(checklist?.inProgress.map((item) => item.title) ?? []),
     ...(checklist?.pending.slice(0, 3).map((item) => item.title) ?? []),
-    'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+    'session_brief proof-or-stop host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
   ];
   return parts.filter((part) => part && part.trim().length > 0).join(' ');
 }
@@ -741,6 +743,7 @@ function extractNextStep(brief: string): string {
 export function createSessionHandlers(ctx: HandlerContext) {
   const handlers = {
     session_brief(args: SessionBriefArgs = {}): string {
+      assertActiveIdentityConsumerContract('process-fact-registry', CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION);
       const concise = args.concise === true;
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
@@ -929,7 +932,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (!concise) {
           const query = [
             ...activeStories.slice(0, 5).flatMap((s) => [s.storyId, s.phase, s.title]),
-            'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+            'session_brief proof-or-stop host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
           ].filter((part) => part && part.trim().length > 0).join(' ');
           const memoryPreflightLines = renderMemoryRuntimePreflight(ctx.root, {
             query,

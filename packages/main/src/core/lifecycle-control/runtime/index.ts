@@ -317,7 +317,7 @@ export function projectRuntimeClosure(
   });
 
   return {
-    schemaVersion: 'lattice.runtime_closure_status.v1',
+    schemaVersion: 'proof-or-stop.runtime_closure_status.v1',
     readOnly: true,
     generatedAt: now,
     projectRoot: root,

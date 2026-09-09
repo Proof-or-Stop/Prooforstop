@@ -183,9 +183,9 @@ export function readCommitsSinceMain(
 /**
  * Sync entry: scan the story's commits + clusters, mark open findings within clusters hit by Resolves: CL-xxx as resolved.
  *
- * Callers:
- *   - `finding_list` handler (scan once before each list to stay timely)
- *   - `validate` handler (scan before running validate, so TEST gate counts correctly)
+ * Caller: the owner-gated `validate` handler scans before validation so TEST
+ * gate counts stay current. Read-only finding inspection never invokes this
+ * writer as an implicit side effect.
  *
  * Idempotency guard: already resolved ones are not re-marked. Git unavailable → return warning (do not throw).
  *

@@ -10,11 +10,9 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import {
   EXPERIMENT_ROOT,
-  STORY5_ROLE_CAMPAIGN,
   canonicalJson,
   digest,
   evaluateBoundFixture,
-  evaluateStory5RoleCampaign,
   findingSetDigest,
   historicalFindingSnapshotDigest,
   loadPinnedExperiment,
@@ -186,7 +184,7 @@ function makeHermeticFixture() {
   }));
   const adjudicationContent = { matches };
   return {
-    schemaVersion: 'proofbound.role-prompt-ab.hermetic-fixture.v1',
+    schemaVersion: 'proof-or-stop.role-prompt-ab.hermetic-fixture.v1',
     arms,
     oracles,
     oracleSetDigest: digest('role-prompt-ab.hermetic-oracle-set.v1', oracles),
@@ -280,7 +278,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
 
     await mkdir(isolatedExperimentRoot, { recursive: true });
     await cp(path.join(EXPERIMENT_ROOT, 'lib'), path.join(isolatedExperimentRoot, 'lib'), { recursive: true });
-    for (const name of ['protocol.json', 'corpus.json', 'run.mjs', 'analyze.mjs']) {
+    for (const name of ['protocol.json', 'corpus.current.json', 'run.mjs', 'analyze.mjs']) {
       await copyFile(path.join(EXPERIMENT_ROOT, name), path.join(isolatedExperimentRoot, name));
     }
     await mkdir(path.join(isolatedExperimentRoot, 'runtime'), { recursive: true });
@@ -342,7 +340,6 @@ try {
   let baseline;
   let hermeticResult;
   let isolationProof;
-  let roleCampaignResult;
 
   await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and signed historical findings', () => {
     identity = validateExperiment(protocol, corpus);
@@ -366,47 +363,30 @@ try {
     }
   });
 
-  await check('B-235e campaign pins five roles and reports insufficient quality evidence per role', async () => {
+  await check('retired prompt mode cannot be reopened by the historical B-235e campaign', async () => {
     const roleRegistry = await import(pathToFileURL(
       path.join(repoRoot, 'packages', 'main', 'dist', 'core', 'prompt-role-contract-registry.js'),
     ).href);
-    const roleBodies = Object.fromEntries(STORY5_ROLE_CAMPAIGN.roles.map(role => [
-      role.roleId,
-      {
-        legacy: roleRegistry.resolvePromptRoleBody(role.roleId, {
-          version: roleRegistry.PROMPT_ENVELOPE_ROLLOUT_VERSION,
-          roles: { [role.roleId]: 'legacy-full-context' },
-        }).body,
-        modular: roleRegistry.resolvePromptRoleBody(role.roleId, {
-          version: roleRegistry.PROMPT_ENVELOPE_ROLLOUT_VERSION,
-          roles: { [role.roleId]: 'full-envelope' },
-        }).body,
-      },
-    ]));
-    roleCampaignResult = evaluateStory5RoleCampaign(STORY5_ROLE_CAMPAIGN, protocol, corpus, roleBodies);
-    assert.equal(roleCampaignResult.results.length, 5);
-    assert.equal(roleCampaignResult.status, 'INCONCLUSIVE');
-    assert.equal(roleCampaignResult.eligibleIncrementalDenominator, 0);
-    assert.equal(roleCampaignResult.savingsClaim, null);
-    assert.equal(roleCampaignResult.recallClaim, null);
-    for (const row of roleCampaignResult.results) {
-      assert.equal(row.verdict, 'INCONCLUSIVE');
-      assert.equal(row.reasonCode, 'ADJUDICATION_EVIDENCE_UNVERIFIED');
-      assert.equal(row.incrementalContextReduction, null);
-      assert.equal(row.assembledPromptReduction, null);
-      assert.equal(row.providerUsage.claude.providerProcessedInputTokens.availability, 'unavailable');
-      assert.equal(row.providerUsage.codex.providerProcessedInputTokens.availability, 'unavailable');
-      assert.ok(row.roleBodyReduction > 0);
+    const retiredMode = ['legacy', 'full-context'].join('-');
+    assert.throws(
+      () => roleRegistry.resolvePromptRoleBody('proof-or-stop-review-quality', {
+        version: roleRegistry.PROMPT_ENVELOPE_ROLLOUT_VERSION,
+        roles: { 'proof-or-stop-review-quality': retiredMode },
+      }),
+      /unsupported mode/,
+    );
+  });
+
+  await check('retired Story 5 campaign evaluator is absent from the active replay module', async () => {
+    const replay = await import(pathToFileURL(path.join(EXPERIMENT_ROOT, 'lib', 'replay.mjs')).href);
+    for (const retiredExport of [
+      'STORY5_ROLE_CAMPAIGN_SCHEMA',
+      'STORY5_ROLE_CAMPAIGN',
+      'STORY5_ROLE_CAMPAIGN_DIGEST',
+      'evaluateStory5RoleCampaign',
+    ]) {
+      assert.equal(Object.hasOwn(replay, retiredExport), false, `dead active export remains: ${retiredExport}`);
     }
-    const tampered = clone(STORY5_ROLE_CAMPAIGN);
-    tampered.roles.reverse();
-    await expectCode('ROLE_CAMPAIGN_DIGEST_MISMATCH', async () =>
-      evaluateStory5RoleCampaign(tampered, protocol, corpus, roleBodies));
-    const substitutedBodies = clone(roleBodies);
-    substitutedBodies['proof-or-stop-review-concept'].modular =
-      substitutedBodies['proof-or-stop-review-quality'].modular;
-    await expectCode('PROMPT_SNAPSHOT_DIGEST_MISMATCH', async () =>
-      evaluateStory5RoleCampaign(STORY5_ROLE_CAMPAIGN, protocol, corpus, substitutedBodies));
   });
 
   await check('same frozen contract and corpus yield the same experiment identity', () => {
@@ -622,11 +602,21 @@ try {
 
   await check('protocol and corpus version skew fail closed', async () => {
     const changedProtocol = clone(protocol);
-    changedProtocol.schemaVersion = 'proofbound.role-prompt-ab.protocol.v2';
+    changedProtocol.schemaVersion = 'proof-or-stop.role-prompt-ab.protocol.v2';
     await expectCode('UNSUPPORTED_PROTOCOL_VERSION', async () => replayExperiment({ protocol: changedProtocol, corpus }));
     const changedCorpus = clone(corpus);
-    changedCorpus.schemaVersion = 'proofbound.role-prompt-ab.corpus.v2';
+    changedCorpus.schemaVersion = 'proof-or-stop.role-prompt-ab.corpus.v2';
     await expectCode('UNSUPPORTED_CORPUS_VERSION', async () => replayExperiment({ protocol, corpus: changedCorpus }));
+  });
+
+  await check('active readers reject the retired protocol family without normalization', async () => {
+    const retiredStem = ['proof', 'bound'].join('');
+    const retiredProtocol = clone(protocol);
+    retiredProtocol.schemaVersion = `${retiredStem}.role-prompt-ab.protocol.v1`;
+    await expectCode('UNSUPPORTED_PROTOCOL_VERSION', async () => replayExperiment({ protocol: retiredProtocol, corpus }));
+    const retiredCorpus = clone(corpus);
+    retiredCorpus.schemaVersion = `${retiredStem}.role-prompt-ab.corpus.v1`;
+    await expectCode('UNSUPPORTED_CORPUS_VERSION', async () => replayExperiment({ protocol, corpus: retiredCorpus }));
   });
 
   await check('path traversal and mutable live Story material are rejected', async () => {
@@ -670,8 +660,8 @@ try {
       readFile(path.join(repoRoot, 'packages/main/src/core/process-fact-registry.ts'), 'utf8'),
       readFile(path.join(repoRoot, 'packages/main/src/core/process-fact-levels.ts'), 'utf8'),
     ]);
-    assert.equal(factRegistry.includes('proofbound.role-prompt-ab.experiment-ledger.v1'), false);
-    assert.equal(factLevels.includes('proofbound.role-prompt-ab.experiment-ledger.v1'), false);
+    assert.equal(factRegistry.includes('proof-or-stop.role-prompt-ab.experiment-ledger.v1'), false);
+    assert.equal(factLevels.includes('proof-or-stop.role-prompt-ab.experiment-ledger.v1'), false);
     assert.equal(factRegistry.includes('experiments/role-prompt-ab-replay/runtime'), false);
   });
 
@@ -975,20 +965,6 @@ try {
     assert.equal(cell.findingComparison.recall, null);
   });
 
-  await check('B-235e provider/cache dimensions preserve unavailable reasons through CLI output', () => {
-    for (const row of roleCampaignResult.results) {
-      for (const [provider, dimensions] of Object.entries(row.providerUsage)) {
-        for (const [dimension, observation] of Object.entries(dimensions)) {
-          assert.equal(observation.availability, 'unavailable', `${provider}.${dimension}`);
-          assert.equal(typeof observation.reason, 'string', `${provider}.${dimension} reason`);
-          assert.ok(observation.reason.length > 0, `${provider}.${dimension} nonblank reason`);
-          assert.equal(Object.hasOwn(observation, 'tokens'), false);
-          assert.equal(Object.hasOwn(observation, 'value'), false);
-        }
-      }
-    }
-  });
-
   await check('isolated copied entrypoints cannot write sentinel production evidence or process events', async () => {
     isolationProof = await proveIsolatedProductionEvidenceNoWrite();
     assert.equal(isolationProof.sentinelArtifacts, 8);
@@ -1000,14 +976,6 @@ try {
   process.stdout.write('Replay: PASS sameInput=true deterministic=true\n');
   process.stdout.write('Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\n');
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
-  for (const row of roleCampaignResult.results) {
-    process.stdout.write(
-      `B-235e role=${row.roleId} verdict=${row.verdict} reason=${row.reasonCode} ` +
-      `legacyRoleBodyTokens=${row.legacyRoleBodyTokens} modularRoleBodyTokens=${row.modularRoleBodyTokens} ` +
-      `incrementalContextReduction=unavailable assembledReduction=unavailable ` +
-      `providerUsage=${JSON.stringify(row.providerUsage)}\n`,
-    );
-  }
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
   process.stdout.write(`Isolated production evidence drift: NONE sentinelArtifacts=${isolationProof.sentinelArtifacts} copiedEntrypoints=${isolationProof.entrypoints} mutationBites=${isolationProof.mutationBites}\n`);

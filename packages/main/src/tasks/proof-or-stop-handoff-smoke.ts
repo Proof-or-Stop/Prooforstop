@@ -105,7 +105,7 @@ function assertHandoffPack(pack: HandoffPack): void {
 }
 
 function assertInspection(inspection: HandoffInspection): void {
-  assert.equal(inspection.schemaVersion, 'lattice.handoff_inspect.v1');
+  assert.equal(inspection.schemaVersion, 'proof-or-stop.handoff_inspect.v1');
   assert.equal(inspection.storyId, 'B-handoff');
   assert.match(inspection.packId, /^HP-[a-f0-9]{12}$/);
   assert.match(inspection.packHash, /^sha256:/);
@@ -120,7 +120,7 @@ function assertInspection(inspection: HandoffInspection): void {
 }
 
 function assertAcceptProjection(projection: HandoffAcceptProjection): void {
-  assert.equal(projection.schemaVersion, 'lattice.handoff_accept.v1');
+  assert.equal(projection.schemaVersion, 'proof-or-stop.handoff_accept.v1');
   assert.equal(projection.storyId, 'B-handoff');
   assert.match(projection.packId, /^HP-[a-f0-9]{12}$/);
   assert.match(projection.packHash, /^sha256:/);
@@ -141,7 +141,7 @@ function assertAcceptProjection(projection: HandoffAcceptProjection): void {
 }
 
 function assertResumeProjection(projection: HandoffResumeProjection): void {
-  assert.equal(projection.schemaVersion, 'lattice.handoff_resume.v1');
+  assert.equal(projection.schemaVersion, 'proof-or-stop.handoff_resume.v1');
   assert.equal(projection.storyId, 'B-handoff');
   assert.match(projection.packId, /^HP-[a-f0-9]{12}$/);
   assert.match(projection.packHash, /^sha256:/);

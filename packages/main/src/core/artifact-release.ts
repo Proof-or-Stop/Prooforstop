@@ -11,7 +11,7 @@ import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 // at a path that no longer holds it — the same defect class as managed-assets.json
 // and the gap-log paths.
 export const ARTIFACT_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/artifact-releases.jsonl`;
-export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proofbound.artifact-release.v1';
+export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proof-or-stop.artifact-release.v1';
 
 export interface ArtifactReleaseRecordV1 {
   schemaVersion: typeof ARTIFACT_RELEASE_SCHEMA_VERSION;
@@ -202,7 +202,11 @@ export function readArtifactReleaseLedger(root: string): ArtifactReleaseRecordV1
     if (!line) continue;
     try {
       const parsed = JSON.parse(line) as ArtifactReleaseRecordV1;
-      if (parsed.schemaVersion !== ARTIFACT_RELEASE_SCHEMA_VERSION) continue;
+      if (parsed.schemaVersion !== ARTIFACT_RELEASE_SCHEMA_VERSION) {
+        throw new ArtifactReleaseLedgerError(
+          `artifact release ledger line ${index + 1}: unsupported identity schema ${String(parsed.schemaVersion)}; expected ${ARTIFACT_RELEASE_SCHEMA_VERSION}`,
+        );
+      }
       const errors = artifactReleaseRecordValidationErrors(parsed);
       if (errors.length > 0) throw new ArtifactReleaseLedgerError(`artifact release ledger line ${index + 1}: ${errors.join('; ')}`);
       records.push(parsed);
@@ -247,7 +251,11 @@ export function buildArtifactReleaseRecord(opts: ArtifactReleaseRecordOptions): 
 }
 
 export function appendArtifactReleaseRecord(root: string, record: ArtifactReleaseRecordV1): RecordArtifactReleaseResult {
-  const existing = readArtifactReleaseLedger(root);
+  // Validate the new-write claim before idempotency: an existing canonical row
+  // cannot authorize an invalid incoming record.
+  const errors = artifactReleaseRecordValidationErrors(record);
+  if (errors.length > 0) throw new ArtifactReleaseLedgerError(`artifact release append: ${errors.join('; ')}`);
+  const existing = readCanonicalArtifactReleaseRecordsForAppend(root);
   const previous = existing.find(row => row.idempotencyKey === record.idempotencyKey);
   if (previous) return { status: 'already_recorded', record: previous };
 
@@ -255,6 +263,36 @@ export function appendArtifactReleaseRecord(root: string, record: ArtifactReleas
   mkdirSync(dirname(file), { recursive: true });
   appendFileSync(file, `${JSON.stringify(record)}\n`, 'utf-8');
   return { status: 'recorded', record };
+}
+
+/**
+ * Writer-only idempotency scan. Historical non-canonical rows are opaque bytes:
+ * DONE verifies their frozen provenance before and after this writer runs. This
+ * helper never returns them and therefore does not restore retired read semantics.
+ */
+function readCanonicalArtifactReleaseRecordsForAppend(root: string): ArtifactReleaseRecordV1[] {
+  const file = artifactReleaseLedgerPath(root);
+  if (!existsSync(file)) return [];
+  const records: ArtifactReleaseRecordV1[] = [];
+  for (const [index, rawLine] of readFileSync(file, 'utf-8').split(/\r?\n/).entries()) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    let parsed: ArtifactReleaseRecordV1;
+    try {
+      parsed = JSON.parse(line) as ArtifactReleaseRecordV1;
+    } catch (e: any) {
+      throw new ArtifactReleaseLedgerError(
+        `artifact release ledger parse failed at line ${index + 1}: ${e?.message ?? e}`,
+      );
+    }
+    if (parsed.schemaVersion !== ARTIFACT_RELEASE_SCHEMA_VERSION) continue;
+    const errors = artifactReleaseRecordValidationErrors(parsed);
+    if (errors.length > 0) {
+      throw new ArtifactReleaseLedgerError(`artifact release ledger line ${index + 1}: ${errors.join('; ')}`);
+    }
+    records.push(parsed);
+  }
+  return records;
 }
 
 export function recordArtifactReleaseForDoneMerge(opts: ArtifactReleaseRecordOptions): RecordArtifactReleaseResult {

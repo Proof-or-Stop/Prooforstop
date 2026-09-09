@@ -82,7 +82,7 @@ const sampleRollback = {
 
 function makeStart(loopId: string, storyId: string): ReviewLoopStart {
   return {
-    schemaVersion: 'lattice.review_loop_start.v1',
+    schemaVersion: 'proof-or-stop.review_loop_start.v1',
     event: 'start',
     loopId,
     storyId,
@@ -97,7 +97,7 @@ function makeStart(loopId: string, storyId: string): ReviewLoopStart {
 
 function makeIteration(loopId: string, storyId: string, decision: ReviewLoopDecision): ReviewLoopIteration {
   return {
-    schemaVersion: 'lattice.review_loop_iteration.v1',
+    schemaVersion: 'proof-or-stop.review_loop_iteration.v1',
     event: 'iteration',
     loopId,
     storyId,
@@ -133,7 +133,7 @@ function makeIteration(loopId: string, storyId: string, decision: ReviewLoopDeci
 
 function makeClose(loopId: string, storyId: string, status: 'resolved' | 'escalated' | 'blocked'): ReviewLoopClose {
   return {
-    schemaVersion: 'lattice.review_loop_close.v1',
+    schemaVersion: 'proof-or-stop.review_loop_close.v1',
     event: 'close',
     loopId,
     storyId,

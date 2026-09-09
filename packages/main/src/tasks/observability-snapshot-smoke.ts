@@ -164,6 +164,7 @@ function makeProjectionResult(): LocalAssuranceStoryProjection {
 
 function assertReadOnlyLocalAssurance(snapshot: ProofOrStopObservabilitySnapshot): void {
   assert.equal(snapshot.schemaVersion, OBSERVABILITY_SNAPSHOT_SCHEMA);
+  assert.equal(snapshot.schemaVersion, 'proof-or-stop.observability_snapshot.v1');
   assert.equal(snapshot.readOnly, true);
   assert.equal(snapshot.localAssurance.admissibilityStatus, 'local-only');
   assert.equal(snapshot.localAssurance.assuranceLevel, 'local-observation');
@@ -316,8 +317,8 @@ try {
   // B-dc2e CHK-001: derive the rendered header from the exported schema
   // constant instead of a literal. The literal 'proofOrStop.observability_snapshot.v1'
   // was a mechanical identity-migration rewrite that never matched the renderer
-  // (the constant is 'lattice.observability_snapshot.v1', a historical signing
-  // token), so this smoke failed on every direct run while no npm script named it.
+  // (the constant was a retired historical signing token), so this smoke failed
+  // on every direct run while no npm script named it.
   const schemaVersionPattern = OBSERVABILITY_SNAPSHOT_SCHEMA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   assert.match(textResult, new RegExp(`Proof-or-Stop observability snapshot \\(${schemaVersionPattern}\\)`));
   assert.ok(

@@ -41,7 +41,7 @@ check('CHK-A isControlArm false for an unknown arm value',
 // --- CHK-B: redactMemoryPackForControlArm ------------------------------------
 {
   const makePack = () => ({
-    schemaVersion: 'proofbound.memory-pack.v1',
+    schemaVersion: 'proof-or-stop.memory-pack.v1',
     packDigest: packDigest(['pb-x', 'lesson-y']),
     results: { devMemoryEntryIds: ['lesson-y'], playbookIds: ['pb-x'], suppressedSupersededIds: [], deprecatedTermHits: [], contributingSourceRefs: ['ref-1'] },
     items: { devMemory: [{ id: 'lesson-y' }], playbooks: [{ id: 'pb-x' }] },
@@ -82,14 +82,14 @@ check('CHK-A isControlArm false for an unknown arm value',
 // --- CHK-D: control-arm TEXT omission at renderHostDispatchProjectionText ------
 {
   const memPack = {
-    schemaVersion: 'proofbound.memory-pack.v1',
+    schemaVersion: 'proof-or-stop.memory-pack.v1',
     packDigest: packDigest(['pb1', 'dm1']),
     results: { playbookIds: ['pb1'], devMemoryEntryIds: ['dm1'], suppressedSupersededIds: [], deprecatedTermHits: [], contributingSourceRefs: [] },
     items: { devMemory: [], playbooks: [] },
     authority: 'non_authoritative', gateEvidence: false,
   };
   const projection = {
-    schemaVersion: 'lattice.host_dispatch.v1', status: 'planned', mode: 'supervised',
+    schemaVersion: 'proof-or-stop.host_dispatch.v1', status: 'planned', mode: 'supervised',
     storyId: 'B-t', host: 'codex', packId: 'HP-x', packHash: 'sha256:x', overflowReady: false,
     nextAction: 'review', limits: [], warnings: [],
     admissibilitySummary: { admissibleProofRef: [], blocked: false, diagnostics: [], reasons: [] },

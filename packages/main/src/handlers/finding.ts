@@ -20,7 +20,6 @@ import type {
 import { isFindingEvidenceState, FINDING_EVIDENCE_STATES } from '../core/advisory.js';
 import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
-import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, resolveReviewRunLane } from '../core/review-run.js';
 import { getSessionIdentity } from '../core/owner-session.js';
@@ -107,9 +106,9 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
 
 function holdReviewPassLockForDeterministicStress(): void {
   if (process.env.NODE_ENV !== 'test') return;
-  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS ?? 0);
+  const holdMs = Number(process.env.PROOF_OR_STOP_INTERNAL_REVIEW_PASS_HOLD_MS ?? 0);
   if (!Number.isFinite(holdMs) || holdMs <= 0) return;
-  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_PASS_READY_FILE;
+  const readyFile = process.env.PROOF_OR_STOP_INTERNAL_REVIEW_PASS_READY_FILE;
   if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
@@ -1009,10 +1008,6 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_list(args: { storyId: string; cluster?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
       assertCwdInWorktree(store, args.storyId);
-      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log, authoritativeMutation);
-      if (synced.resolved > 0) {
-        ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
-      }
       // B-7c05 CHK-002: brief by default; --full and explicit --json/--format=json
       // return the current full shape (frozen machine contract).
       const full = wantsFullOutput(args);

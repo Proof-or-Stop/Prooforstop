@@ -223,7 +223,7 @@ function expectBlock(
   assert.ok(forged.reasons.includes('producer_attestation_invalid'));
 
   const checks = {
-    schemaVersion: 'lattice.done_required_evidence.v1',
+    schemaVersion: 'proof-or-stop.done_required_evidence.v1',
     strictShapeValid: true,
     temporalAndMaterialBindingValid: true,
     subjectMatches: true,
@@ -401,7 +401,7 @@ function expectBlock(
     command: 'npm',
     args: ['--prefix', 'packages/main', 'run', 'build'],
     commandSpec: {
-      schema: 'lattice.command-spec.v2',
+      schema: 'proof-or-stop.command-spec.v2',
       digest: 'portable-command-spec-digest',
       command: 'npm',
       args: ['--prefix', 'packages/main', 'run', 'build'],
@@ -498,7 +498,7 @@ function expectBlock(
   const legacyProjected = projectDoneRequiredReceiptToEnvironment({
     ...doneReceipt,
     commandSpec: {
-      schema: 'lattice.command-spec.v1',
+      schema: 'proof-or-stop.command-spec.v1',
       digest: 'legacy-command-spec-digest',
       command: 'npm',
       args: ['--prefix', 'packages/main', 'run', 'build'],
@@ -526,7 +526,7 @@ function expectBlock(
     ...doneReceipt,
     cwd: '/other-worktree',
     commandSpec: {
-      schema: 'lattice.command-spec.v1',
+      schema: 'proof-or-stop.command-spec.v1',
       digest: 'other-legacy-command-spec-digest',
       command: 'npm',
       args: ['--prefix', 'packages/main', 'run', 'build'],
@@ -554,7 +554,7 @@ function expectBlock(
       ...doneReceipt,
       commandSpec: {
         ...doneReceipt.commandSpec!,
-        schema: 'lattice.command-spec.v3' as never,
+        schema: 'proof-or-stop.command-spec.v3' as never,
       },
     }, {
       invocationId: 'unsupported-command-spec',

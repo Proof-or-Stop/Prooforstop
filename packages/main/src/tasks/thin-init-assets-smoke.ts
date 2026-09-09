@@ -248,11 +248,11 @@ try {
   assert.match(proofOrStopMd, /proof-or-stop session_brief/, `${PROOF_OR_STOP_MD_REL} should reference proof-or-stop session_brief`);
   assert.match(proofOrStopMd, /proof-or-stop codex verify/, `${PROOF_OR_STOP_MD_REL} should reference proof-or-stop codex verify`);
 
-  // .lattice/lattice.json should declare global-thin mode
-  const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, PROOF_OR_STOP_MANIFEST_REL), 'utf8'));
-  assert.equal(latticeConfig.assetMode, 'global-thin');
-  assert.equal(latticeConfig.proofOrStopVersion, 1, 'global-thin config should write the canonical proof-or-stop version field');
-  assert.equal(Object.hasOwn(latticeConfig, 'latticeVersion'), false, 'global-thin config should not write the legacy version field');
+  // The canonical manifest declares global-thin mode.
+  const canonicalConfig = JSON.parse(readFileSync(join(globalThinRoot, PROOF_OR_STOP_MANIFEST_REL), 'utf8'));
+  assert.equal(canonicalConfig.assetMode, 'global-thin');
+  assert.equal(canonicalConfig.proofOrStopVersion, 1, 'global-thin config should write the canonical proof-or-stop version field');
+  assert.equal(Object.hasOwn(canonicalConfig, 'latticeVersion'), false, 'global-thin config should not write the legacy version field');
 
   // Forbidden default assets must not exist
   assertAbsent(globalThinRoot, 'bin/proofOrStop.js');

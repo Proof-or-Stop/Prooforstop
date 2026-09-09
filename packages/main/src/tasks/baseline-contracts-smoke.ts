@@ -58,7 +58,7 @@ function authorityPass(over: ReportOverride = {}): BaselineFinalReport {
     ...(authorityOverride ?? {}),
   };
   const base: BaselineFinalReport = {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId: 'NL-CLI-1',
     runId: 'run-authority-pass',
     track: 'natural-language',
@@ -124,7 +124,7 @@ function localPass(over: ReportOverride = {}): BaselineFinalReport {
     ...(localOverride ?? {}),
   };
   const base: BaselineFinalReport = {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId: 'NL-CLI-LOCAL-1',
     runId: 'run-local-pass',
     track: 'natural-language',

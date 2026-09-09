@@ -24,8 +24,8 @@ try {
     scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
     storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     promptEnvelope: {
-      version: 'proofbound.prompt-envelope-rollout.v1',
-      roles: Object.fromEntries(roles.map(role => [role, 'legacy-full-context'])),
+      version: 'proof-or-stop.prompt-envelope-rollout.v1',
+      roles: Object.fromEntries(roles.map(role => [role, 'full-envelope'])),
     },
   }));
   execFileSync('git', ['init', '-q'], { cwd: root });
@@ -43,25 +43,17 @@ try {
   execFileSync('git', ['add', '.'], { cwd: root });
   execFileSync('git', ['commit', '-qm', 'story fixture'], { cwd: root });
   const handlers = createAgentPromptHandlers({ root, scanRoot: root, store });
-  const receipts: Array<{ roleId: string; arm: 'legacy' | 'modular'; provider: 'INCONCLUSIVE'; envelopeId?: string }> = [];
+  const receipts: Array<{ roleId: string; arm: 'canonical'; provider: 'INCONCLUSIVE'; envelopeId: string }> = [];
   for (const role of roles) {
     const defaultSelected = handlers.agent_prompt({ role, storyId: 'B-story6-production', format: 'json' });
     assert.equal(typeof defaultSelected, 'string');
-    assert.throws(() => JSON.parse(defaultSelected), 'regressed modular arm must not be selected by default');
-    const legacyResponse = JSON.parse(handlers.agent_prompt({ role, storyId: 'B-story6-production', format: 'json', auditExperiment: true }));
-    assert.equal(legacyResponse.mode, 'legacy-full-context');
-    assert.equal(legacyResponse.auditExperiment, true);
-    assert.equal(legacyResponse.envelope, null);
-    receipts.push({ roleId: role, arm: 'legacy', provider: 'INCONCLUSIVE' });
-    const response = JSON.parse(handlers.agent_prompt({
-      role, storyId: 'B-story6-production', format: 'json', auditExperiment: true,
-      experimentalModeOverride: 'full-envelope',
-    }));
+    const response = JSON.parse(defaultSelected);
+    assert.equal(response.mode, 'full-envelope');
     assert.equal(response.auditOnly, true);
     assert.equal(response.canMintReviewEvidence, false);
     assert.equal(response.envelope.roleId, role);
     assert.equal(response.envelope.dispatchKind, 'story-dispatch');
-    receipts.push({ roleId: role, arm: 'modular', provider: 'INCONCLUSIVE', envelopeId: response.envelope.envelopeId });
+    receipts.push({ roleId: role, arm: 'canonical', provider: 'INCONCLUSIVE', envelopeId: response.envelope.envelopeId });
     assert.ok(store.readPromptEnvelopes('B-story6-production').envelopes.some(envelope => envelope.envelopeId === response.envelope.envelopeId));
     const event = store.readProcessEvents('B-story6-production').find(candidate => candidate.promptEnvelopeId === response.envelope.envelopeId);
     assert.equal(event?.targetKind, 'story-dispatch');
@@ -84,10 +76,10 @@ try {
     /unsupported caller-controlled field "baselineAccepted"/,
     'a caller cannot forge A/B acceptance to activate modular rollout',
   );
-  assert.equal(receipts.length, roles.length * 2, 'legacy and modular arms must both be recorded per role');
-  assert.ok(receipts.every(receipt => receipt.provider === 'INCONCLUSIVE'), 'provider A/B dimensions must remain honest');
-  assert.equal(store.readPromptEnvelopes('B-story6-production').envelopes.length, roles.length, 'each experimental modular arm has one durable content-addressed receipt');
-  assert.equal(store.readProcessEvents('B-story6-production').filter(event => event.type === 'dispatch').length, roles.length * 2, 'legacy and modular audit arms each persist a dispatch event');
+  assert.equal(receipts.length, roles.length, 'each current role records one canonical receipt');
+  assert.ok(receipts.every(receipt => receipt.provider === 'INCONCLUSIVE'), 'provider dimensions must remain honest');
+  assert.equal(store.readPromptEnvelopes('B-story6-production').envelopes.length, roles.length, 'each current role has one durable content-addressed receipt');
+  assert.equal(store.readProcessEvents('B-story6-production').filter(event => event.type === 'dispatch').length, roles.length, 'each current role persists one dispatch event');
   const reviewConsumer = collectReviewerEvidenceState(store, 'B-story6-production', root);
   assert.equal(
     reviewConsumer.valid.length,
@@ -107,8 +99,7 @@ try {
   const failingAgentPrompt = createAgentPromptHandlers({ root, scanRoot: root, store: failingStore });
   assert.throws(
     () => failingAgentPrompt.agent_prompt({
-      role: 'proof-or-stop-implementer', storyId: 'B-story6-event-failure', format: 'json', auditExperiment: true,
-      experimentalModeOverride: 'full-envelope',
+      role: 'proof-or-stop-implementer', storyId: 'B-story6-event-failure', format: 'json',
     }),
     /injected dispatch event failure/,
   );
@@ -119,7 +110,7 @@ try {
     writeFileSync(join(dispatchRoot, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
       storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
-      promptEnvelope: { version: 'proofbound.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-implementer': 'full-envelope' } },
+      promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-implementer': 'full-envelope' } },
     }));
     execFileSync('git', ['init', '-q'], { cwd: dispatchRoot });
     execFileSync('git', ['config', 'user.email', 'story6@example.invalid'], { cwd: dispatchRoot });

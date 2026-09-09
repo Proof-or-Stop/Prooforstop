@@ -17,7 +17,7 @@ export function createStoryResolveHandlers(ctx: HandlerContext) {
         metadataRoot: ctx.root,
       });
       const result = {
-        schemaVersion: 'lattice.story_resolve.v1' as const,
+        schemaVersion: 'proof-or-stop.story_resolve.v1' as const,
         storyId: story.storyId,
         phase: story.phase,
         exists: true,

@@ -37,7 +37,13 @@ import {
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import {
   digestScopeFreezeCheck,
+  executionBoundaryHashIsFresh,
+  EXECUTION_BOUNDARY_SCHEMA_VERSION,
   evaluateScopeFreeze,
+  LEGACY_EXECUTION_BOUNDARY_SCHEMA_VERSION,
+  LEGACY_SCOPE_FREEZE_CHECK_SCHEMA_VERSION,
+  SCOPE_FREEZE_CHECK_SCHEMA_VERSION,
+  scopeBoundaryHashIsFresh,
   storedScopeFreezeDiscardMitigations,
   type ScopeFreezeChecklistProjection,
 } from './scope-anti-expansion.js';
@@ -59,7 +65,7 @@ import {
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
-import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
+import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 /**
@@ -232,17 +238,16 @@ function initPreflightGuidance(storyId: string): string {
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
-    const canonicalAgentId = canonicalAgentRoleId(agentId);
-    if (canonicalAgentId === 'proof-or-stop-review-story-init') {
-      return `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })`;
+    if (agentId === 'proof-or-stop-review-story-init') {
+      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })`;
     }
-    if (canonicalAgentId === 'proof-or-stop-product-reviewer') {
-      return `   Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}'\` })`;
+    if (agentId === 'proof-or-stop-product-reviewer') {
+      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
-  return `→ Preferred: separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
-    `   Every dispatched reviewer must call init_check_set regardless of pass/fail.`;
+  return `→ Preferred: have the Story owner separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
+    `   Every reviewer independently performs its reviewerWrite by calling init_check_set regardless of pass/fail; review_run_start begins only after the Story enters REVIEW, not during INIT.`;
 }
 
 function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
@@ -294,12 +299,48 @@ export function evaluateScopeAntiExpansionGate(
 ): ScopeAntiExpansionGateResult {
   const scopeBoundary = readScopeGateFailure(storyId, 'scope-boundary.json', () => store.readScopeBoundary(storyId));
   if (scopeBoundary.reason) return { ok: false, reason: scopeBoundary.reason };
+  if (scopeBoundary.value && !scopeBoundaryHashIsFresh(scopeBoundary.value)) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-boundary.json hash is stale or tampered. [scope_boundary_tampered]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
+        `→ Recreate the scope boundary from an explicit user-confirmed scope; do not rewrite signed history.`,
+    };
+  }
 
   const executionBoundary = readScopeGateFailure(storyId, 'execution-boundary.json', () => store.readExecutionBoundary(storyId));
   if (executionBoundary.reason) return { ok: false, reason: executionBoundary.reason };
+  if (
+    executionBoundary.value
+    && executionBoundary.value.schemaVersion !== EXECUTION_BOUNDARY_SCHEMA_VERSION
+    && executionBoundary.value.schemaVersion !== LEGACY_EXECUTION_BOUNDARY_SCHEMA_VERSION
+  ) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: execution-boundary.json has unsupported schemaVersion ${String(executionBoundary.value.schemaVersion)}. [execution_boundary_unreadable]`,
+    };
+  }
+  if (executionBoundary.value && !executionBoundaryHashIsFresh(executionBoundary.value)) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: execution-boundary.json hash is stale or tampered. [execution_boundary_tampered]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
+        `→ Recreate the execution boundary from the user-confirmed envelope; do not rewrite signed history.`,
+    };
+  }
 
   const freezeCheck = readScopeGateFailure(storyId, 'scope-freeze-check.json', () => store.readScopeFreezeCheck(storyId));
   if (freezeCheck.reason) return { ok: false, reason: freezeCheck.reason };
+  if (
+    freezeCheck.value
+    && freezeCheck.value.schemaVersion !== SCOPE_FREEZE_CHECK_SCHEMA_VERSION
+    && freezeCheck.value.schemaVersion !== LEGACY_SCOPE_FREEZE_CHECK_SCHEMA_VERSION
+  ) {
+    return {
+      ok: false,
+      reason: `Cannot enter INIT_CHECK: scope-freeze-check.json has unsupported schemaVersion ${String(freezeCheck.value.schemaVersion)}. [scope_freeze_check_unreadable]`,
+    };
+  }
 
   const proposals = readScopeGateFailure(storyId, 'scope-extension-proposals.json', () => store.readScopeExtensionProposals(storyId));
   if (proposals.reason) return { ok: false, reason: proposals.reason };
@@ -442,7 +483,7 @@ export function evaluateDevMemoryPreflightGate(storyId: string, store: StoryStor
     throw e;
   }
   if (!ack) return false;
-  if (ack.schemaVersion !== 'lattice.dev_memory_preflight_ack.v1') return false;
+  if (ack.schemaVersion !== 'proof-or-stop.dev_memory_preflight_ack.v1') return false;
   if (typeof ack.storyId !== 'string' || ack.storyId !== storyId) return false;
   if (!Array.isArray(ack.topHitIds)) return false;
   if (typeof ack.acknowledgedAt !== 'string' || !ack.acknowledgedAt) return false;
@@ -708,7 +749,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
       const review = context.store.readReview(context.storyId);
       if (!review || !review.reviews || review.reviews.length === 0) return false;
       const lastRound = review.reviews[review.reviews.length - 1];
-      const REVIEW_SALT = 'lattice-review-integrity-v1';
+      const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
       const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
       const expectedHash = createHash('sha256').update(hashInput).digest('hex');
       if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
@@ -990,8 +1031,11 @@ export function* evaluateDonePredicates(context: StoryMachineContext): Generator
     ? `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}` : null);
 
   // Presence alone is a completeness signal; lesson contents are not authority.
-  const finishDecision = readDevMemoryFinishDecision(projectRoot, storyId);
-  yield donePredicate('dev-memory-finish-decision', 'dev-memory-finish-decision', finishDecision, !finishDecision
+  const finishDecisionRead = inspectDevMemoryFinishDecision(projectRoot, storyId);
+  const finishDecision = finishDecisionRead.record;
+  yield donePredicate('dev-memory-finish-decision', 'dev-memory-finish-decision', finishDecisionRead, finishDecisionRead.unsupportedIdentity
+    ? `Cannot enter DONE: ${finishDecisionRead.unsupportedIdentity}. [unsupported_identity]`
+    : !finishDecision
     ? `Cannot enter DONE: dev_memory_finish_decision has not been recorded. [missing_dev_memory_finish_decision]\n` +
       `→ Run \`proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason\`.`
     : null);
@@ -1264,9 +1308,10 @@ export function getGuardFailureReason(
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
         `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
-        `→ Preferred: spawn an independent reviewer\n` +
-        `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })\n` +
-        `   and have proof-or-stop-product-reviewer call init_check_set as well.\n` +
+        `→ Preferred: have the Story owner prepare both independent reviewers\n` +
+        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })\n` +
+        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })\n` +
+        `   Each reviewer independently performs its reviewerWrite by calling init_check_set; review_run_start begins only after the Story enters REVIEW, not during INIT.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
@@ -1391,7 +1436,7 @@ export function getGuardFailureReason(
             reasons.push('story_review check not passed (no review record)');
           } else {
             const lastRound = review.reviews[review.reviews.length - 1];
-            const REVIEW_SALT = 'lattice-review-integrity-v1';
+            const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
             const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
             const expectedHash = createHash('sha256').update(hashInput).digest('hex');
             if (!lastRound._hash || lastRound._hash !== expectedHash) {
