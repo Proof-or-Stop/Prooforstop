@@ -206,7 +206,12 @@ async function inventoryPurposeRecovery(): Promise<void> {
       /OPEN review inventory requires signed readManifest plus mechanical readEvents\/readLog/,
       'F-001 pass-only finding normalization must enforce the same producer boundary');
       assert.equal(JSON.stringify(fixture.store.readReviewPasses(storyId)), beforeIncompletePass);
+      const beforeResultHead = git(fixture.root, ['rev-parse', 'HEAD']);
       await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: lane, reviewRunId: reviewRunId, command: 'review_pass_set', payload: { storyId, agent: lane, reviewRunId, note: 'Disposable required lane inspected the frozen inventory subject.', readManifest, readEvents } });
+      if (process.argv.includes('--metadata-batch-fixture')) {
+        assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeResultHead, 'U12 epoch result must persist without one Git commit per reviewer');
+        assert.ok(fixture.store.readReviewPasses(storyId).passes.some(pass => pass.reviewRunId === reviewRunId), 'result remains durable before epoch commit');
+      }
     }
     const status = cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner'));
     assert.doesNotMatch(status, /REVIEW_INVENTORY_LANES_INCOMPLETE/);
@@ -329,6 +334,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     git(fixture.root, ['commit', '-m', 'Synthetic full-envelope inventory mode with ordinary contributor identity']);
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
     const fullEpoch = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+    const epochStartHead = git(fixture.root, ['rev-parse', 'HEAD']);
     for (const lane of fullEpoch.requiredLanes) {
       const laneEnv = env(lane, `b29bc-full-required-${lane}`);
       cli(fixture.root, 'dispatch', { storyId, agentType: lane }, laneEnv);
@@ -407,6 +413,17 @@ async function inventoryPurposeRecovery(): Promise<void> {
       writeFileSync(observationPath, beforeObservation);
     }
     assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner')), /FINALIZED/);
+    if (process.argv.includes('--metadata-batch-fixture')) {
+      assert.equal(git(fixture.root, ['rev-list', '--count', `${epochStartHead}..HEAD`]), '1', 'one completed epoch creates one metadata commit');
+      const committedHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const runsBefore = fixture.store.readReviewRuns(storyId).runs.length;
+      cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner'));
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), committedHead, 'finalize replay creates no extra commit');
+      assert.equal(fixture.store.readReviewRuns(storyId).runs.length, runsBefore, 'commit retry never redispatches reviewers');
+      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'epoch metadata commit preserves signed prompt authority');
+      console.log('PASS U12 actual epoch persists each result, commits once, and replays without reviewer work');
+      return;
+    }
     const progress = readConvergenceProgress(fixture.store, storyId, fixture.root);
     assert.ok(progress?.state.snapshot.completedEpochIds.includes(fullEpoch.epochId), 'U11 finalization captures actual independently completed epoch');
     const progressPath = fixture.store.storyFilePath(storyId, 'convergence-progress.json');
