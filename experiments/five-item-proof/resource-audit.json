@@ -84,7 +84,7 @@
         {
           "path": "scripts/build-lock-target.mjs",
           "lines": "26-29",
-          "observation": "lock target = join(tmpdir(), 'proof-or-stop-build-lock-'+sha256(repoKey)) \u2014 deterministic per-checkout, NOT an isolated fixture"
+          "observation": "lock target = join(tmpdir(), 'proof-or-stop-build-lock-'+sha256(repoKey)) — deterministic per-checkout, NOT an isolated fixture"
         }
       ],
       "suggestedResources": null,
@@ -145,7 +145,40 @@
       ],
       "unknowns": [
         "5949-line file; I verified the absence of repo writes by exhaustive write-call sweep rather than by reading every line."
-      ]
+      ],
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 6,
@@ -159,7 +192,7 @@
         {
           "path": "packages/main/src/tasks/command-catalog-smoke.ts",
           "lines": "44-45,57-58,70-71",
-          "observation": "execFileSync/spawnSync of packages/main/dist/cli.js \u2014 dist reader"
+          "observation": "execFileSync/spawnSync of packages/main/dist/cli.js — dist reader"
         },
         {
           "path": "packages/main/src/tasks/command-catalog-smoke.ts",
@@ -174,7 +207,30 @@
           "access": "shared"
         }
       ],
-      "unknowns": []
+      "unknowns": [],
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 14,
@@ -188,7 +244,7 @@
         {
           "path": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
           "lines": "674-676",
-          "observation": "resolves repoRoot and readFileSync('packages/main/src/handlers/verifier.ts') \u2014 static source assertion only"
+          "observation": "resolves repoRoot and readFileSync('packages/main/src/handlers/verifier.ts') — static source assertion only"
         },
         {
           "path": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
@@ -237,7 +293,7 @@
         {
           "path": "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
           "lines": "274-275",
-          "observation": "execFileSync bin/proof-or-stop.js verify_codex --help with cwd=process.cwd() \u2014 reads this checkout's dist via bootstrap; bootstrap never builds (bin/bootstrap-runner.js:106-126)"
+          "observation": "execFileSync bin/proof-or-stop.js verify_codex --help with cwd=process.cwd() — reads this checkout's dist via bootstrap; bootstrap never builds (bin/bootstrap-runner.js:106-126)"
         }
       ],
       "suggestedResources": [
@@ -278,7 +334,7 @@
         {
           "path": "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
           "lines": "33",
-          "observation": "imports ../core/evidence-freshness.js \u2014 dist reader (the task itself executes from dist)"
+          "observation": "imports ../core/evidence-freshness.js — dist reader (the task itself executes from dist)"
         },
         {
           "path": "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
@@ -312,12 +368,12 @@
         {
           "path": "packages/main/src/tasks/quorum-submit-smoke.ts",
           "lines": "1267-1269",
-          "observation": "the ONLY real-repo git call: `git cat-file -e <commit>^{commit}` with cwd=IMPLEMENTATION_REPO_ROOT \u2014 read-only object existence probe"
+          "observation": "the ONLY real-repo git call: `git cat-file -e <commit>^{commit}` with cwd=IMPLEMENTATION_REPO_ROOT — read-only object existence probe"
         },
         {
           "path": "packages/main/src/tasks/quorum-submit-smoke.ts",
           "lines": "2657,2838-2841,2996,3339",
-          "observation": "readFileSync of repo .gitignore and several packages/main/src files \u2014 read-only"
+          "observation": "readFileSync of repo .gitignore and several packages/main/src files — read-only"
         },
         {
           "path": "packages/main/src/tasks/quorum-submit-smoke.ts",
@@ -354,7 +410,40 @@
       ],
       "unknowns": [
         "3489-line file; repo-write absence established by exhaustive write-call sweep, not line-by-line reading."
-      ]
+      ],
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 79,
@@ -368,12 +457,12 @@
         {
           "path": "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
           "lines": "385",
-          "observation": "gitRead uses `git --no-optional-locks` \u2014 deliberate read-only discipline against the real repo"
+          "observation": "gitRead uses `git --no-optional-locks` — deliberate read-only discipline against the real repo"
         },
         {
           "path": "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
           "lines": "413,436,1214",
-          "observation": "snapshots real git state before/after and ASSERTS it is unchanged \u2014 so it is sensitive to any concurrent git mutation"
+          "observation": "snapshots real git state before/after and ASSERTS it is unchanged — so it is sensitive to any concurrent git mutation"
         },
         {
           "path": "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
@@ -424,7 +513,40 @@
         }
       ],
       "unknowns": [],
-      "notes": "Directly antagonistic to #80, which plants probe files into BOTH directories this entry enumerates and whose populations it asserts. Safe today only because both are undeclared (barrier-exclusive). If either is declared, they must share identical key strings for the two directories, or the pair must remain undeclared."
+      "notes": "Directly antagonistic to #80, which plants probe files into BOTH directories this entry enumerates and whose populations it asserts. Safe today only because both are undeclared (barrier-exclusive). If either is declared, they must share identical key strings for the two directories, or the pair must remain undeclared.",
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist/tasks",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/tests/red",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 80,
@@ -438,12 +560,12 @@
         {
           "path": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
           "lines": "156",
-          "observation": "writeFileSync(join(repoRoot, 'packages/main/dist/tasks/red-evidence-chk002-receipt-probe.js'), 'process.exit(3);') \u2014 a REAL write into this checkout's dist"
+          "observation": "writeFileSync(join(repoRoot, 'packages/main/dist/tasks/red-evidence-chk002-receipt-probe.js'), 'process.exit(3);') — a REAL write into this checkout's dist"
         },
         {
           "path": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
           "lines": "150",
-          "observation": "writeFileSync(join(repoRoot, 'packages/main/tests/red/chk002-receipt-probe-unprefixed.harness')) \u2014 a REAL write into the tracked test corpus"
+          "observation": "writeFileSync(join(repoRoot, 'packages/main/tests/red/chk002-receipt-probe-unprefixed.harness')) — a REAL write into the tracked test corpus"
         },
         {
           "path": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
@@ -458,12 +580,12 @@
         {
           "path": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
           "lines": "69,184",
-          "observation": "asserts proof-or-stop.config.json digest is unchanged across the run \u2014 sensitive to concurrent config writes"
+          "observation": "asserts proof-or-stop.config.json digest is unchanged across the run — sensitive to concurrent config writes"
         },
         {
           "path": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
           "lines": "119-123",
-          "observation": "mkdtemp sandbox whose entries are symlinks back to the real repo \u2014 read-through, so the sandbox does not isolate reads"
+          "observation": "mkdtemp sandbox whose entries are symlinks back to the real repo — read-through, so the sandbox does not isolate reads"
         }
       ],
       "suggestedResources": null,
@@ -487,12 +609,12 @@
         {
           "path": "packages/main/tests/red/red-1734-lock-liveness.mjs",
           "lines": "103,121,138,165,188,205,280",
-          "observation": "EVERY withBuildLock/buildLockTarget call uses uniqueKey() \u2014 this entry never touches the real per-checkout build lock, despite importing the same module"
+          "observation": "EVERY withBuildLock/buildLockTarget call uses uniqueKey() — this entry never touches the real per-checkout build lock, despite importing the same module"
         },
         {
           "path": "packages/main/tests/red/red-1734-lock-liveness.mjs",
           "lines": "42-43,191-192",
-          "observation": "lock dirs created/removed are buildLockTarget(<random uuid>) under tmpdir \u2014 genuinely isolated"
+          "observation": "lock dirs created/removed are buildLockTarget(<random uuid>) under tmpdir — genuinely isolated"
         },
         {
           "path": "packages/main/tests/red/red-1734-lock-liveness.mjs",
@@ -513,7 +635,30 @@
         }
       ],
       "unknowns": [],
-      "notes": "A good example of why 'mkdtemp appears in the file' proves nothing on its own: this entry is isolated because the LOCK KEY is random, whereas #83 uses buildLockTarget(repoRoot) from the same module and is not isolated at all."
+      "notes": "A good example of why 'mkdtemp appears in the file' proves nothing on its own: this entry is isolated because the LOCK KEY is random, whereas #83 uses buildLockTarget(repoRoot) from the same module and is not isolated at all.",
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 82,
@@ -527,7 +672,7 @@
         {
           "path": "packages/main/tests/red/red-1734-content-binding.mjs",
           "lines": "257-258",
-          "observation": "runMainBuild/runUtilsBuild = execFileSync of scripts/build-{main,utils}-with-binding.mjs with cwd=repoRoot \u2014 REAL rebuilds of this checkout"
+          "observation": "runMainBuild/runUtilsBuild = execFileSync of scripts/build-{main,utils}-with-binding.mjs with cwd=repoRoot — REAL rebuilds of this checkout"
         },
         {
           "path": "packages/main/tests/red/red-1734-content-binding.mjs",
@@ -566,7 +711,7 @@
         }
       ],
       "suggestedResources": null,
-      "whyNotDeclarable": "This is the most aggressive dist mutator in the set \u2014 it deletes, tampers and rebuilds packages/main/dist and packages/utils/dist repeatedly, and takes the per-checkout build mutex (inexpressible, see \u00a71.3 Trap B). 107 of 108 declared readers consume that dist. Barrier-exclusive is the only safe encoding.",
+      "whyNotDeclarable": "This is the most aggressive dist mutator in the set — it deletes, tampers and rebuilds packages/main/dist and packages/utils/dist repeatedly, and takes the per-checkout build mutex (inexpressible, see §1.3 Trap B). 107 of 108 declared readers consume that dist. Barrier-exclusive is the only safe encoding.",
       "unknowns": []
     },
     {
@@ -581,12 +726,12 @@
         {
           "path": "packages/main/tests/red/red-1734-reader-race.mjs",
           "lines": "97",
-          "observation": "rmSync(join(repoRoot, BUILD_MANIFEST)) \u2014 deletes this checkout's build manifest to FORCE a slow rebuild"
+          "observation": "rmSync(join(repoRoot, BUILD_MANIFEST)) — deletes this checkout's build manifest to FORCE a slow rebuild"
         },
         {
           "path": "packages/main/tests/red/red-1734-reader-race.mjs",
           "lines": "100",
-          "observation": "spawns scripts/build-main-with-binding.mjs with cwd=repoRoot \u2014 a real rebuild of packages/main/dist"
+          "observation": "spawns scripts/build-main-with-binding.mjs with cwd=repoRoot — a real rebuild of packages/main/dist"
         },
         {
           "path": "packages/main/tests/red/red-1734-reader-race.mjs",
@@ -596,7 +741,7 @@
         {
           "path": "packages/main/tests/red/red-1734-reader-race.mjs",
           "lines": "150-153",
-          "observation": "rmSync + mkdirSync of `${buildLockTarget(repoRoot)}.lock` \u2014 manipulates the REAL per-checkout build lock"
+          "observation": "rmSync + mkdirSync of `${buildLockTarget(repoRoot)}.lock` — manipulates the REAL per-checkout build lock"
         },
         {
           "path": "packages/main/tests/red/red-1734-reader-race.mjs",
@@ -610,7 +755,7 @@
         }
       ],
       "suggestedResources": null,
-      "whyNotDeclarable": "Confirms the brief. Exclusive claims on packages/main/dist and packages/utils/dist would be REQUIRED, but they are insufficient on their own: the build-lock contention is inexpressible (\u00a71.3 Trap B), and declaring it would only be safe after all 107 dist readers gain matching shared dist claims (\u00a75). Barrier-exclusive is correct today.",
+      "whyNotDeclarable": "Confirms the brief. Exclusive claims on packages/main/dist and packages/utils/dist would be REQUIRED, but they are insufficient on their own: the build-lock contention is inexpressible (§1.3 Trap B), and declaring it would only be safe after all 107 dist readers gain matching shared dist claims (§5). Barrier-exclusive is correct today.",
       "ifEverDeclared": [
         {
           "class": "fixed-path",
@@ -638,7 +783,7 @@
           "access": "shared"
         }
       ],
-      "ifEverDeclaredCaveat": "packages/main and packages/utils are listed because sweepSwapSiblings enumerates and deletes dist.staging/dist.trash-* siblings, which live in the PACKAGE dir, not inside dist \u2014 and nested keys do not conflict (Trap A). Even with all of these, the build mutex remains undeclarable.",
+      "ifEverDeclaredCaveat": "packages/main and packages/utils are listed because sweepSwapSiblings enumerates and deletes dist.staging/dist.trash-* siblings, which live in the PACKAGE dir, not inside dist — and nested keys do not conflict (Trap A). Even with all of these, the build mutex remains undeclarable.",
       "unknowns": []
     },
     {
@@ -653,7 +798,7 @@
         {
           "path": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "lines": "84-98",
-          "observation": "makeRepo: mkdtemp + git init + its OWN core.hooksPath pointing at an empty dir \u2014 fully isolated git, hooks disabled"
+          "observation": "makeRepo: mkdtemp + git init + its OWN core.hooksPath pointing at an empty dir — fully isolated git, hooks disabled"
         },
         {
           "path": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
@@ -663,12 +808,12 @@
         {
           "path": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "lines": "37",
-          "observation": "imports ../../dist/core/done-prepare-generated-metadata.js \u2014 dist reader"
+          "observation": "imports ../../dist/core/done-prepare-generated-metadata.js — dist reader"
         },
         {
           "path": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "lines": "196",
-          "observation": "readFileSync of packages/main/src/core/done-prepare-generated-metadata.ts \u2014 read-only"
+          "observation": "readFileSync of packages/main/src/core/done-prepare-generated-metadata.ts — read-only"
         },
         {
           "path": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
@@ -707,12 +852,12 @@
         {
           "path": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "lines": "285,293",
-          "observation": "symlinkSync of projectRoot packages/main/dist and bin INTO the fixture \u2014 read-through references, not writes to the checkout"
+          "observation": "symlinkSync of projectRoot packages/main/dist and bin INTO the fixture — read-through references, not writes to the checkout"
         },
         {
           "path": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "lines": "268-272",
-          "observation": "reads the real git common dir and COPIES a rollout verifier key out of it into the fixture \u2014 read-only against shared git"
+          "observation": "reads the real git common dir and COPIES a rollout verifier key out of it into the fixture — read-only against shared git"
         },
         {
           "path": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
@@ -742,7 +887,35 @@
           "access": "shared"
         }
       ],
-      "unknowns": []
+      "unknowns": [],
+      "supersededBy": {
+        "reference": "b97fe91cb7",
+        "recordedBy": "Codex Lab owner; original Claude source analysis retained",
+        "classification": "exclusive-local-writer",
+        "reason": "Conservative local barrier retained and independently reviewed in claude-final-repairs/report.md; historical shared recommendation is not the effective scheduling policy.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 115,
@@ -756,7 +929,7 @@
         {
           "path": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
           "lines": "188-196",
-          "observation": "dynamic imports from ${DIST}: core/store.js, handlers/proofstory.js, handlers/phase-gates.js, core/proofstory.js, handlers/validate-channel.js \u2014 dist reader"
+          "observation": "dynamic imports from ${DIST}: core/store.js, handlers/proofstory.js, handlers/phase-gates.js, core/proofstory.js, handlers/validate-channel.js — dist reader"
         },
         {
           "path": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
@@ -805,7 +978,7 @@
         {
           "path": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
           "lines": "552",
-          "observation": "the .proof-or-stop tree it digests is join(root, '.proof-or-stop') \u2014 the fixture's, not the checkout's"
+          "observation": "the .proof-or-stop tree it digests is join(root, '.proof-or-stop') — the fixture's, not the checkout's"
         },
         {
           "path": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
@@ -816,7 +989,7 @@
       "reachableHelpersChecked": [
         {
           "path": "scripts/verify-process-fact-contract.mjs",
-          "observation": "no git calls; its writeFileSync/rmSync matches are STRING LITERALS inside source assertions \u2014 it is a source scanner, not a writer"
+          "observation": "no git calls; its writeFileSync/rmSync matches are STRING LITERALS inside source assertions — it is a source scanner, not a writer"
         },
         {
           "path": "packages/main/src/tasks/lifecycle-registry-contract.ts",
@@ -846,7 +1019,7 @@
         }
       ],
       "unknowns": [
-        "scripts/verify-process-fact-contract.mjs is modified in the working tree (owner's in-flight change). Per scope I checked only whether it writes or runs git \u2014 it does neither \u2014 and did not review the diff."
+        "scripts/verify-process-fact-contract.mjs is modified in the working tree (owner's in-flight change). Per scope I checked only whether it writes or runs git — it does neither — and did not review the diff."
       ]
     },
     {
@@ -861,7 +1034,7 @@
         {
           "path": "packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "lines": "39",
-          "observation": "DIST = new URL('../../dist', import.meta.url) \u2014 pure dist consumer"
+          "observation": "DIST = new URL('../../dist', import.meta.url) — pure dist consumer"
         },
         {
           "path": "packages/main/tests/red/red-w2d-entropy-differential.mjs",
@@ -890,7 +1063,7 @@
         {
           "path": "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "lines": "37",
-          "observation": "DIST = new URL('../../dist', import.meta.url) \u2014 pure dist consumer"
+          "observation": "DIST = new URL('../../dist', import.meta.url) — pure dist consumer"
         },
         {
           "path": "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
@@ -919,7 +1092,7 @@
         {
           "path": "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
           "lines": "31",
-          "observation": "DIST = new URL('../../dist', import.meta.url) \u2014 pure dist consumer"
+          "observation": "DIST = new URL('../../dist', import.meta.url) — pure dist consumer"
         },
         {
           "path": "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
@@ -948,7 +1121,7 @@
         {
           "path": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
           "lines": "31",
-          "observation": "DIST = new URL('../../dist', import.meta.url) \u2014 pure dist consumer"
+          "observation": "DIST = new URL('../../dist', import.meta.url) — pure dist consumer"
         },
         {
           "path": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
@@ -992,7 +1165,7 @@
         {
           "path": "packages/main/tests/red/red-w2d-command-readonly.mjs",
           "lines": "489",
-          "observation": "configuredValidationCommands(REPO_ROOT) \u2014 READS proof-or-stop.config.json"
+          "observation": "configuredValidationCommands(REPO_ROOT) — READS proof-or-stop.config.json"
         },
         {
           "path": "packages/main/tests/red/red-w2d-command-readonly.mjs",
@@ -1091,12 +1264,12 @@
         {
           "path": "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
           "lines": "216-232",
-          "observation": "readdirSync + readFileSync over the REAL .proof-or-stop/story/actives corpus (each <story>/init-check.json) \u2014 live shared state, but READ-ONLY"
+          "observation": "readdirSync + readFileSync over the REAL .proof-or-stop/story/actives corpus (each <story>/init-check.json) — live shared state, but READ-ONLY"
         },
         {
           "path": "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
           "lines": "55",
-          "observation": "imports only existsSync/readFileSync/readdirSync \u2014 no write API is even imported"
+          "observation": "imports only existsSync/readFileSync/readdirSync — no write API is even imported"
         }
       ],
       "suggestedResources": [
@@ -1133,7 +1306,7 @@
         {
           "path": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
           "lines": "28",
-          "observation": "imports only existsSync/readFileSync \u2014 no write API imported"
+          "observation": "imports only existsSync/readFileSync — no write API imported"
         },
         {
           "path": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
@@ -1148,7 +1321,7 @@
         {
           "path": "bin/bootstrap-runner.js",
           "lines": "69-73",
-          "observation": "buildInProgress() only statSync's the tmpdir lock dir \u2014 read-only"
+          "observation": "buildInProgress() only statSync's the tmpdir lock dir — read-only"
         }
       ],
       "suggestedResources": [
@@ -1190,12 +1363,12 @@
         {
           "path": "packages/graph/package.json",
           "lines": "scripts.build",
-          "observation": "= 'tsc && node scripts/build-web.mjs' \u2014 WRITES packages/graph/dist"
+          "observation": "= 'tsc && node scripts/build-web.mjs' — WRITES packages/graph/dist"
         },
         {
           "path": "packages/graph/scripts/verify-clean-tree.mjs",
           "lines": "21,23,47-49",
-          "observation": "runs `git status --porcelain` over the repo and FAILS if it differs before vs after the run \u2014 any concurrent working-tree write anywhere breaks it"
+          "observation": "runs `git status --porcelain` over the repo and FAILS if it differs before vs after the run — any concurrent working-tree write anywhere breaks it"
         },
         {
           "path": "packages/graph/scripts/verify-no-project-writes.mjs",
@@ -1204,7 +1377,7 @@
         }
       ],
       "suggestedResources": null,
-      "whyNotDeclarable": "Two independent reasons. (1) It writes packages/graph/dist. (2) verify-clean-tree and verify-no-project-writes assert whole-repository invariants, so it is broken by ANY concurrent write anywhere in the tree \u2014 including #80's probe files, which are untracked and would appear in `git status --porcelain`. A narrow claim set would be actively misleading: no finite fixed-path claim expresses 'the entire working tree must be quiescent'. Barrier-exclusive is exactly right.",
+      "whyNotDeclarable": "Two independent reasons. (1) It writes packages/graph/dist. (2) verify-clean-tree and verify-no-project-writes assert whole-repository invariants, so it is broken by ANY concurrent write anywhere in the tree — including #80's probe files, which are untracked and would appear in `git status --porcelain`. A narrow claim set would be actively misleading: no finite fixed-path claim expresses 'the entire working tree must be quiescent'. Barrier-exclusive is exactly right.",
       "unknowns": [
         "I did not execute the graph check or enumerate every one of its ~12 sub-scripts; the two whole-repo asserters alone are decisive."
       ]
@@ -1239,7 +1412,7 @@
         }
       ],
       "suggestedResources": null,
-      "whyNotDeclarable": "Same as validate.commands[1] \u2014 it is the same command. Exclusive dist rewriter plus an undeclarable build mutex.",
+      "whyNotDeclarable": "Same as validate.commands[1] — it is the same command. Exclusive dist rewriter plus an undeclarable build mutex.",
       "unknowns": [
         "doneRequiredCommands entries have no `resources` field in this config, and I did not verify whether core/done-required-validation.ts routes them through the same keyed scheduler at all. If DONE commands run sequentially outside the scheduler, the question of declaring resources for them is moot."
       ]
@@ -1260,12 +1433,12 @@
         {
           "path": "package.json",
           "lines": "scripts.pretest",
-          "observation": "= 'node scripts/ensure-dist.mjs' \u2014 npm runs this BEFORE test"
+          "observation": "= 'node scripts/ensure-dist.mjs' — npm runs this BEFORE test"
         },
         {
           "path": "scripts/ensure-dist.mjs",
           "lines": "20-23",
-          "observation": "runs build-main-with-binding.mjs then build-utils-with-binding.mjs with cwd=root \u2014 a conditional but real rebuild of BOTH dists"
+          "observation": "runs build-main-with-binding.mjs then build-utils-with-binding.mjs with cwd=root — a conditional but real rebuild of BOTH dists"
         },
         {
           "path": "scripts/ensure-dist.mjs",
@@ -1275,14 +1448,14 @@
         {
           "path": "package.json",
           "lines": "scripts.test",
-          "observation": "= 'node packages/main/dist/tasks/full-suite-runner.js' \u2014 the entire suite, itself a keyed scheduler over the whole corpus"
+          "observation": "= 'node packages/main/dist/tasks/full-suite-runner.js' — the entire suite, itself a keyed scheduler over the whole corpus"
         }
       ],
       "suggestedResources": null,
       "whyNotDeclarable": "It rebuilds both dists via pretest and then runs the full suite, whose own footprint is the union of every test in the repository. There is no honest finite claim set; it must never overlap anything.",
       "unknowns": [
         "Same routing question as doneCommandIndex 0: whether DONE commands are scheduled at all.",
-        "I did not enumerate the full-suite runner's transitive footprint \u2014 out of scope and not needed, since the pretest rebuild alone is decisive."
+        "I did not enumerate the full-suite runner's transitive footprint — out of scope and not needed, since the pretest rebuild alone is decisive."
       ]
     }
   ]

@@ -796,7 +796,18 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         liveSelectorOutput.set(receipt, matchingOutput);
         // Publish complete bytes first. A receipt can never advertise an output
         // object whose write failed; an orphan output object grants no authority.
-        if (receipt.reusable) args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, matchingOutput);
+        if (receipt.reusable) {
+          // Retry only publication of these already-captured immutable bytes.
+          // A permanent storage fault still refuses; it never launches a child.
+          for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+              args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, matchingOutput);
+              break;
+            } catch (error) {
+              if (attempt === 1) throw error;
+            }
+          }
+        }
       }
       // A non-PASS result is an execution outcome, not a reusable CAS value.
       // Leaving it at this address would both turn a transient failure into a
@@ -812,7 +823,9 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     disposition: 'executed' | 'reused';
   };
   let execution: Promise<ExecutionOutcome>;
-  const batchPromise = key.reusable ? args.batch?.executions.get(key.key) : undefined;
+  const batchPromise = key.reusable
+    ? (args.batch?.retryExecutions.get(key.key) ?? args.batch?.executions.get(key.key))
+    : undefined;
   if (batchPromise) {
     // Only a PASS can be a per-batch cache hit. A failed/partial/timeout/
     // cancelled attempt must leave the key eligible for a later PASS.
@@ -892,7 +905,15 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     void batchReceipt.catch(() => undefined);
     args.batch.executions.set(key.key, batchReceipt);
   }
-  const { receipt, disposition } = await execution;
+  let { receipt, disposition } = await execution;
+  // A bounded fallback witness proves one selector only. Another subscriber
+  // cannot consume it as an absent-selector verdict for its own different pin.
+  // Durable reusable output still fans out; this fallback needs its own run.
+  if (receipt.selectorWitness
+      && receipt.selectorWitness.selectorDigest !== createHash('sha256').update(args.selector).digest('hex')) {
+    receipt = await executeFresh();
+    disposition = 'executed';
+  }
   const verdict = selectorVerdict(receipt, args.selector, args.intentRef, args.receiptStore);
   if (args.batch) {
     args.batch.ledger.intentCount++;

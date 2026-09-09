@@ -259,3 +259,14 @@ retain build/full-suite exclusions; 0/2 DONE eligibility is the intended policy,
 not a switch left disconnected. The root full-suite inventory does not contain
 this heavy command, so the isolated two-consumer experiment proves conditional
 reuse, not that those two root inventories duplicate this work.
+
+Late subscribers now join an already-running batch retry instead of launching a
+third identical command. A non-reusable fallback witness for another selector
+cannot become a false selector-mismatch result: that consumer executes its own
+witness. This may require one execution per selector outside durable retention;
+it is correctness, not a claimed speed gain. Completed selector-output publication
+retries the same bytes at most twice without rerunning the command. A permanent
+storage error still refuses and provides no cross-process recovery guarantee.
+The historical resource audit now records six explicit supersessions and reports
+21 reviewed / 15 effectively shared / 6 retained local writers; exact claim guards
+reject both unapproved additional claims and removal of writer protection.
