@@ -13,7 +13,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import { timeoutLayerFromReason } from '../core/done-required-timeout-budget.js';
-import { refuseHeavyCertificationUnlessAdmitted } from '../core/certification-window.js';
+import { requireCurrentHeavyCertificationWindow } from '../core/certification-window.js';
 import { currentCertificationIdentity } from './certification-window.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -34,7 +34,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
       const policy = resolveDoneRequiredPolicy(ctx.root);
       if (policy.required) {
-        refuseHeavyCertificationUnlessAdmitted({
+        requireCurrentHeavyCertificationWindow({
           store: ctx.store,
           storyId,
           current: currentCertificationIdentity(ctx, storyId),

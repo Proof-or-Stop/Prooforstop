@@ -4,6 +4,25 @@ Official `validate` and `done_required_validate` retain independent acceptance,
 freshness, resource, owner and build-proof checks. These changes optimize the
 execution mechanisms; they do not turn Lab records into Story evidence.
 
+## PRE_CERT execution order
+
+In REVIEW, finalize the saturated review inventory, then run
+`proof-or-stop validate --story=B-example --focus=fast --json` to publish a
+signed cheap-check receipt for the resulting HEAD. Run
+`proof-or-stop certification_window_begin --storyId=B-example` after that check.
+The admitted window permits one routine `proof-or-stop validate --story=B-example --json`
+execution. This includes dynamic execution and explicit full validation, even
+when full is combined with focus. An exact reusable current PASS starts no child
+and consumes no additional execution claim.
+
+The REVIEW-to-TEST gate consumes the signed current routine PASS. Missing, failed,
+stale or tampered evidence blocks TEST before any validation child starts. Return
+to DEV for repair and follow the reported PRE_CERT recovery. A consumed window
+cannot authorize unchanged failed-suite retries. Focused preparation remains
+available. DONE-required validation keeps its own policy, evidence and capacity
+checks and requires a current PRE_CERT window; it does not consume the routine
+suite's execution claim.
+
 ## Identical command results
 
 A structured command in `validate.commands` or `doneRequiredCommands` may opt in

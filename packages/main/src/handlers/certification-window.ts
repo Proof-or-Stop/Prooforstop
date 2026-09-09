@@ -1,8 +1,9 @@
 import type { HandlerContext } from './context.js';
-import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { execFileSync } from 'node:child_process';
+import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, realpathSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { isFindingBlocking } from '../core/advisory.js';
 import { loadConfig } from '../core/config.js';
 import {
@@ -45,6 +46,8 @@ import {
 } from '../core/done-prepare-validation-reuse.js';
 import {
   evaluateCertificationWindowAdmit,
+  currentPrecertCheapCheckReceipt,
+  isSaturatedReviewInventoryForPrecert,
   loadReviewInventoryAdmitApis,
   loadVerifiedCertificationWindow,
   persistAdmittedCertificationWindow,
@@ -281,6 +284,88 @@ export function buildCertificationDecision(
   });
 }
 
+const PRECERT_INVENTORY_METADATA_REASONS = [
+  'review_inventory_begin',
+  'review_run_start',
+  'review_pass_set',
+  'finding_add',
+  'finding_resolve',
+  'review_inventory_critic_set',
+  'review_inventory_wave_advance',
+  'review_inventory_finalize',
+] as const;
+
+function gitText(gitCwd: string, args: string[]): string | null {
+  try {
+    return execFileSync('git', args, {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The signed workspace and the StoryStore can reach the same directory through
+ * different aliases (notably macOS /var -> /private/var). The continuity proof
+ * is path-sensitive, so it must compare the filesystem's canonical identities,
+ * and it must fail closed when either proof endpoint does not exist.
+ */
+function canonicalExistingPath(path: string): string | null {
+  try {
+    return existsSync(path) ? realpathSync(path) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * REVIEW evidence and the bounded inventory protocol both write metadata after
+ * an inventory cutoff. Permit only that exact bookkeeping chain, and no other
+ * HEAD drift, before PRE_CERT consumes inventory. Cancellation and drift-status
+ * commits are deliberately excluded: neither can lie on the lineage of a valid
+ * unconsumed FINALIZED receipt. The consume lock remains the final all-hash
+ * race fence.
+ */
+function hasVerifiedInventoryMetadataHeadContinuity(args: {
+  gitCwd: string;
+  storyMetadataPath: string;
+  storyId: string;
+  receiptHead?: string;
+  currentHead?: string;
+}): boolean {
+  const { gitCwd, storyMetadataPath, storyId, receiptHead, currentHead } = args;
+  if (!receiptHead || !currentHead || receiptHead === currentHead) return false;
+  if (!/^[0-9a-f]{40,64}$/i.test(receiptHead) || !/^[0-9a-f]{40,64}$/i.test(currentHead)) return false;
+
+  const canonicalGitCwd = canonicalExistingPath(gitCwd);
+  const canonicalStoryMetadataPath = canonicalExistingPath(storyMetadataPath);
+  if (!canonicalGitCwd || !canonicalStoryMetadataPath) return false;
+
+  const storyRel = relative(canonicalGitCwd, canonicalStoryMetadataPath).replaceAll('\\', '/');
+  if (!storyRel || storyRel === '.' || storyRel.startsWith('../') || storyRel.startsWith('/')) return false;
+  const storyPrefix = `${storyRel.replace(/\/+$/, '')}/`;
+  const ancestor = gitText(gitCwd, ['merge-base', '--is-ancestor', receiptHead, currentHead]);
+  if (ancestor === null) return false;
+  const commitsText = gitText(gitCwd, ['rev-list', '--reverse', `${receiptHead}..${currentHead}`]);
+  if (!commitsText) return false;
+
+  for (const commit of commitsText.split(/\s+/).filter(Boolean)) {
+    const parents = gitText(gitCwd, ['show', '-s', '--format=%P', commit]);
+    const subject = gitText(gitCwd, ['show', '-s', '--format=%s', commit]);
+    const pathsText = gitText(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]);
+    if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
+    if (!PRECERT_INVENTORY_METADATA_REASONS.some(reason => (
+      matchesRuntimeCommitSubject(subject, `record ${storyId} ${reason} metadata`)
+    ))) return false;
+    const paths = pathsText.split('\n').filter(Boolean);
+    if (paths.length === 0 || paths.some(path => !path.startsWith(storyPrefix))) return false;
+  }
+  return true;
+}
+
 function collectAdmitFacts(
   ctx: HandlerContext,
   storyId: string,
@@ -333,11 +418,36 @@ function collectAdmitFacts(
   } catch {
     dirtyNonRuntimePaths = ['<dirty-classifier-unreadable>'];
   }
+  const inventory = readInventoryPair(apis, ctx.store, storyId);
+  const inventoryHeadMetadataContinuity = hasVerifiedInventoryMetadataHeadContinuity({
+    gitCwd,
+    storyMetadataPath: ctx.store.storyDirPath(storyId),
+    storyId,
+    receiptHead: inventory?.receipt?.cutoff?.headHash ?? inventory?.epoch?.cutoff?.headHash,
+    currentHead: headHash,
+  });
+  let cheapCheckReceipt = null;
+  try {
+    cheapCheckReceipt = currentPrecertCheapCheckReceipt({
+      data: ctx.store.readCertificationWindows(storyId),
+      storyId,
+      headHash,
+      materialHash,
+      storyFilesHash,
+    });
+  } catch {
+    // An unreadable/tampered cheap receipt is intentionally indistinguishable
+    // from an absent one at the admit boundary: both fail closed without
+    // consuming the inventory receipt.
+  }
   return {
     inventoryApisPresent: true,
-    inventory: readInventoryPair(apis, ctx.store, storyId),
+    inventory,
+    inventorySaturated: isSaturatedReviewInventoryForPrecert(apis, inventory, storyId),
+    cheapCheckReceipt,
     currentStoryId: storyId,
     headHash,
+    inventoryHeadMetadataContinuity,
     materialHash,
     storyFilesHash,
     expectedMainSha,
@@ -448,6 +558,22 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           {
             materialHash: facts.materialHash ?? '',
             ...(facts.storyFilesHash ? { storyFilesHash: facts.storyFilesHash } : {}),
+          },
+          () => {
+            const current = currentCertificationIdentity(ctx, storyId);
+            if (current.headHash !== facts.headHash
+              || current.materialHash !== facts.materialHash
+              || current.storyFilesHash !== facts.storyFilesHash) {
+              throw new Error(
+                'REVIEW_INVENTORY_PRE_CERT_BLOCKED: current certification identity changed before inventory consume',
+              );
+            }
+            const currentInventory = readInventoryPair(apis, ctx.store, storyId);
+            if (!isSaturatedReviewInventoryForPrecert(apis, currentInventory, storyId)) {
+              throw new Error(
+                'REVIEW_INVENTORY_PRE_CERT_BLOCKED: current inventory is not a signed B-3f3d saturated FINALIZED receipt',
+              );
+            }
           },
         );
         if (!consumed) {

@@ -302,6 +302,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
+  'runtime:precert_routine_single_execution': ['runtime-behavior', 'signed-artifact', 'atomic-persistence', 'validation-result', 'gate-evidence'],
   'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:legacy_role_alias_sunset_contract': ['runtime-behavior', 'schema-contract', 'normalization-policy'],
   'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
@@ -345,9 +346,9 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'certification-window.json',
     path: 'certification-window.json',
     signed: true,
-    signature: 'signCertificationWindow/verifyCertificationWindow and signPrecertReceipt/verifyPrecertReceipt; inventory-completeness-only receipts never authorize PRE_CERT',
-    producerCommand: 'certification_window_begin/certification_window_status/certification_window_cancel',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+    signature: 'signCertificationWindow/verifyCertificationWindow and signPrecertReceipt/verifyPrecertReceipt and signPrecertCheapCheckReceipt/verifyPrecertCheapCheckReceipt; inventory-completeness-only receipts never authorize PRE_CERT',
+    producerCommand: 'certification_window_begin/certification_window_status/certification_window_cancel/validate',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
   },
   certification_window_status: {
     name: 'certification-window.json',
@@ -355,7 +356,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow',
     producerCommand: 'certification_window_status',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
   },
   certification_window_cancel: {
     name: 'certification-window.json',
@@ -363,7 +364,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow with CANCELLED state',
     producerCommand: 'certification_window_cancel',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
   },
   review_inventory_begin: {
     name: 'review-inventory-epochs.json',
@@ -1607,7 +1608,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/certification-window',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
     rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Exact canonical artifact-releases.jsonl and capability-releases.jsonl paths are review-subject causal inputs bound to actual Git blobs/tombstones, with integration/test dependency invalidation; release provenance is never gate evidence and unknown paths fail closed. Inventory completeness receipts never authorize certification.',
   },

@@ -563,6 +563,7 @@ async function executeShardedEntry(args: {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  beforeLaunch?: () => void;
   buildProofDigest: string;
 }): Promise<{ result: ValidationResult; artifact: DynamicShardArtifact }> {
   const domain = shardDomainForEntry(args.entry)!;
@@ -580,7 +581,7 @@ async function executeShardedEntry(args: {
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
-    deadlineError: args.deadlineError,
+    deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
   const oracleCommand = oracle.commands[0];
@@ -667,7 +668,7 @@ async function executeShardedEntry(args: {
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
-      deadlineError: args.deadlineError,
+      deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
       jobs: 1,
     });
     results.push(result);
@@ -847,6 +848,7 @@ export interface RunStoryAwareValidationArgs extends PrepareStoryAwareValidation
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  beforeLaunch?: () => void;
   progress?: ValidationProgressReporter;
   prerequisites?: Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites'];
 }
@@ -944,7 +946,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
-    deadlineError: args.deadlineError,
+    deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
@@ -986,7 +988,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
-        deadlineError: args.deadlineError,
+        deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
       }));
     }
     for (const entry of shardEntries) {
@@ -994,7 +996,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       const sharded = await executeShardedEntry({
         entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
-        deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, buildProofDigest,
+        deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });
       selectedResults.push(sharded.result);
       shardArtifacts.push(sharded.artifact);

@@ -68,6 +68,8 @@ import {
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
+import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
+import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -637,19 +639,6 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }
 
-type ValidateEvidenceFailureKind = 'validation_failure' | 'infra_failure';
-
-function validateFailureKindFromResult(result: any): ValidateEvidenceFailureKind | undefined {
-  if (result?.allPass === true || result?.allPassed === true) return undefined;
-  if (result?.failureKind === 'infra_failure') return 'infra_failure';
-  if (result?.failureKind === 'validation_failure') return 'validation_failure';
-  const commands = Array.isArray(result?.commands) ? result.commands : [];
-  if (commands.some((cmd: any) => cmd?.failureKind === 'infra_failure' || cmd?.timedOut === true)) {
-    return 'infra_failure';
-  }
-  return 'validation_failure';
-}
-
 function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
   const status = readGitStatusLines(gitCwd);
   if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
@@ -720,20 +709,17 @@ function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibi
 }
 
 /**
- * DEV→TEST proof-or-stop validate gate.
+ * REVIEW→TEST routine validation evidence gate.
  *
- * 自动调 proof-or-stop validate，消费 verifier 返回的 JSON 结果。
+ * This gate consumes a current signed PASS produced by the one unscoped
+ * story-scoped routine suite in REVIEW. It deliberately has no verifier
+ * dependency or execution fallback: allowing TEST entry to call validate
+ * would create a second routine-suite authority after PRE_CERT admission.
  *
- * verifier owns test-evidence.json persistence and canonical metadata commit.
- * This gate must not write the artifact again: a second write would discard
- * commandExecution / routineValidationIdentity / disposition, leave metadata
- * dirty after verifier's commit, and invalidate closeout writer provenance.
- *
- * Fail-closed (preMortem #1): validate throw / JSON-parse failure each still
- * block TEST — the catch rethrows "Cannot enter TEST" and never advances.
- *
- * On gate failure / execution failure this throws; on success it returns
- * normally.
+ * Missing, stale, malformed, or non-PASS evidence therefore fails closed
+ * before any validation child can be discovered or spawned. Recovery returns
+ * to DEV, then re-establishes the REVIEW PRE_CERT workflow and its sole
+ * unscoped `proof-or-stop validate --story=<id> --json` execution.
  *
  * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
  * owned solely by transition-orchestrator.ts, which stops it in a single
@@ -745,60 +731,25 @@ export async function runValidateGate(
   storyId: string,
   _actor: { stop(): void },
 ): Promise<void> {
-  const { store } = ctx;
   const validateCommand = `proof-or-stop validate --story=${storyId} --json`;
+  // Guard before consulting reusable evidence: a terminal/missing PRE_CERT
+  // window cannot be bypassed by an otherwise current PASS.
+  assertTestAdmissibleRoutineValidationWindow(ctx, storyId);
   const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
   if (admissibility.ok) {
-    ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping proof-or-stop validate rerun (admissible lineage=${admissibility.lineage}).`);
+    ctx.log?.(`REVIEW→TEST gate: existing validation PASS is fresh; TEST reuses it without rerunning proof-or-stop validate (admissible lineage=${admissibility.lineage}).`);
     return;
   }
-  const rerunReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand);
-
-  ctx.log?.(rerunReason
-    ? `DEV→TEST gate: ${rerunReason}; running proof-or-stop validate --json...`
-    : 'DEV→TEST gate: running proof-or-stop validate --json...');
-  try {
-    const { createVerifierHandlers } = await import('./verifier.js');
-    const verifierHandlers = createVerifierHandlers(ctx);
-    const jsonResult = await verifierHandlers.validate({ json: true, story: storyId });
-    const parsed = JSON.parse(String(jsonResult));
-
-    if (!parsed.allPass) {
-      const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
-      const coverage = parsed.verificationCoverage;
-      const missingCoverage = coverage?.missingRequired ?? 0;
-      const coverageLines = Array.isArray(coverage?.entries)
-        ? coverage.entries
-          .filter((e: any) => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
-          .map((e: any) => `  - ${e.intentRef} [${e.status}] ${e.desc}`)
-        : [];
-      const sections = [
-        failedDetails.length > 0 ? failedDetails.join('\n') : '',
-        missingCoverage > 0
-          ? `Verification coverage 不足: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
-          : '',
-        parsed.summary ? `Summary: ${parsed.summary}` : '',
-      ].filter(Boolean);
-      throw new Error(
-        `Cannot enter TEST: proof-or-stop validate did not pass` +
-        (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
-        (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
-        '\n' +
-        sections.join('\n') +
-        '\n\n→ 修复后重跑 proof-or-stop validate，再 story_advance --phase=TEST'
-      );
-    }
-    ctx.log?.('validate PASS; canonical test-evidence.json persisted by verifier');
-  } catch (e: any) {
-    if (e.message?.includes('Cannot enter TEST')) throw e;
-    const message = e instanceof Error ? e.message : String(e);
-    throw new Error(
-      `Cannot enter TEST: proof-or-stop validate execution error\n` +
-      `${message}\n\n` +
-      `→ 修复 validate runner 后重跑 proof-or-stop validate --story=${storyId} --json\n` +
-      `→ 然后重跑 proof-or-stop story_advance --phase=TEST`,
-    );
-  }
+  const refusalReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand)
+    || 'the current signed REVIEW routine PASS is missing';
+  ctx.log?.(`REVIEW→TEST gate: ${refusalReason}; refusing to execute a second routine suite.`);
+  throw new Error(
+    `[${PRE_CERT_ROUTINE_PASS_REQUIRED}] Cannot enter TEST: ${refusalReason}.\n` +
+    'TEST never invokes proof-or-stop validate or starts configured validation children.\n\n' +
+    `→ Return to DEV: proof-or-stop story_advance --storyId=${storyId} --phase=DEV\n` +
+    '→ Re-enter REVIEW, complete the signed inventory and PRE_CERT window, then run the sole routine suite:\n' +
+    `  ${validateCommand}`,
+  );
 }
 
 /**

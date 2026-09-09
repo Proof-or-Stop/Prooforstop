@@ -10,6 +10,11 @@ import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { persistSyntheticAdmittedWindowForTest as persistSyntheticWindow, PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+function persistSyntheticAdmittedWindowForTest(args: Parameters<typeof persistSyntheticWindow>[0]) {
+  return persistSyntheticWindow({ ...args, causalInputHashes: deriveCertificationDomainInputHashes(args.gitCwd ?? args.projectRoot, 'HEAD', args.projectRoot) });
+}
 import {
   configuredValidationCommands,
   createVerifierHandlers,
@@ -44,6 +49,45 @@ function initSmokeGitRepo(root: string): void {
   gitQuiet(root, ['init', '--initial-branch=main']);
   gitQuiet(root, ['config', 'user.name', 'ProofOrStop Smoke']);
   gitQuiet(root, ['config', 'user.email', 'smoke@example.test']);
+}
+
+/**
+ * Story-scoped validate is a production mutation: it requires a Git identity,
+ * canonical StoryStore metadata, and a current PRE_CERT window before it can
+ * persist its validation evidence. Keep alias fixtures focused on argument
+ * normalization rather than accidentally failing an earlier precondition.
+ */
+function seedStoryScopedValidateFixture(root: string, storyId: string): StoryStore {
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.',
+    rootDir: '.',
+    storyDir: '.proof-or-stop/story/actives',
+  }));
+  initSmokeGitRepo(root);
+  gitQuiet(root, ['add', 'proof-or-stop.config.json']);
+  gitQuiet(root, ['commit', '-m', `seed ${storyId} validate smoke`]);
+  resetConfigCache();
+
+  const store = new StoryStore(root);
+  const now = '2026-06-13T00:00:00.000Z';
+  store.writeStory(storyId, {
+    storyId,
+    name: `${storyId.toLowerCase()}-validate-smoke`,
+    title: 'Story-scoped validation smoke',
+    description: 'Synthetic story for a story-scoped validation argument contract.',
+    type: 'chore',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+  });
+  gitQuiet(root, ['add', `.proof-or-stop/story/actives/${storyId}/index.json`]);
+  gitQuiet(root, ['commit', '-m', `seed ${storyId} validation story`]);
+  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'fixture-owner', cwd: root });
+  return store;
 }
 
 function withFakeNpx<T>(root: string, scriptBody: string, fn: () => Promise<T>): Promise<T> {
@@ -384,6 +428,8 @@ try {
     assert.match(noEntryRendered, /fallback/);
     assert.match(noEntryRendered, /skip\/warn/);
     assert.match(noEntryRendered, /validate\.command/);
+    assert.match(noEntryRendered, /proof-or-stop\.config\.json/, 'no-validator recovery must direct canonical configuration writes');
+    assert.doesNotMatch(noEntryRendered, /lattice\.config\.json/, 'no-validator recovery names only the supported canonical config');
   } finally {
     rmSync(noEntryRoot, { recursive: true, force: true });
   }
@@ -1626,13 +1672,9 @@ try {
     resetConfigCache();
   }
 
-  // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST proof-or-stop validate gate was extracted into handlers/phase-gates.ts
-  // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
-  // transition-orchestrator.ts. The gate must still fail-closed: a failing
-  // validate run must throw "Cannot enter TEST" while preserving the verifier's
-  // canonical FAIL test-evidence record — never silently advance or rewrite it.
-  // Direct gate calls must not stop the actor themselves.
+  // B-14ae: TEST is a consumer of the current signed REVIEW routine PASS.
+  // runValidateGate must reject unsafe evidence without invoking verifier
+  // execution or rewriting the evidence it was asked to consume.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
   function seedValidateGateSkipRoot(prefix: string, storyId: string): {
@@ -1699,7 +1741,7 @@ try {
     return { root, store, storyId, evidence };
   }
 
-  async function assertUnsafePassEvidenceReruns(args: {
+  async function assertUnsafePassEvidenceRefusesTest(args: {
     name: string;
     reason: string;
     prepareBeforeEvidenceCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
@@ -1714,33 +1756,35 @@ try {
       gitQuiet(fixture.root, ['add', `.proof-or-stop/story/actives/${fixture.storyId}`]);
       gitQuiet(fixture.root, ['commit', '-m', `record ${args.name} validation evidence`]);
       args.mutateAfterCommit?.(fixture);
+      persistSyntheticAdmittedWindowForTest({
+        store: fixture.store,
+        storyId: fixture.storyId,
+        projectRoot: fixture.root,
+      });
       let stopped = false;
       const logs: string[] = [];
       const actor = { stop() { stopped = true; } };
+      const before = fixture.store.readTestEvidence(fixture.storyId);
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
-        `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
+        new RegExp(`\\[${PRE_CERT_ROUTINE_PASS_REQUIRED}\\] Cannot enter TEST`),
+        `${args.name}: unsafe PASS evidence must not start a TEST-time validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
-      assert.equal(stopped, false, `${args.name}: rerun path must leave actor stop to transition-orchestrator`);
-      assert.equal(after?.result, 'FAIL', `${args.name}: failing validate rerun must persist FAIL evidence`);
-      assert.equal(after?.disposition, 'executed', `${args.name}: gate must preserve verifier disposition`);
-      assert.equal(after?.commandExecution?.status, 'FAIL', `${args.name}: gate must preserve verifier command execution summary`);
-      assert.equal(after?.commandExecution?.commandCount, 1, `${args.name}: gate must preserve verifier command count`);
-      assert.equal(typeof after?.routineValidationIdentity?.digest, 'string', `${args.name}: gate must preserve verifier validation identity`);
+      assert.equal(stopped, false, `${args.name}: refusal path must leave actor stop to transition-orchestrator`);
+      assert.deepEqual(after, before, `${args.name}: TEST refusal must not rewrite unsafe validation evidence`);
       assert.doesNotMatch(
         spawnSync('git', ['status', '--porcelain'], { cwd: fixture.root, encoding: 'utf8' }).stdout,
         /test-evidence\.json/,
-        `${args.name}: gate must not dirty canonical test evidence after verifier auto-commit`,
+        `${args.name}: TEST refusal must not dirty canonical test evidence`,
       );
       assert.ok(
         logs.some(line => line.includes(args.reason)),
-        `${args.name}: rerun log should include "${args.reason}"`,
+        `${args.name}: refusal log should include "${args.reason}"`,
       );
       assert.ok(
-        !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
-        `${args.name}: unsafe evidence must not log fresh skip`,
+        logs.some(line => line.includes('refusing to execute a second routine suite')),
+        `${args.name}: unsafe evidence must log the TEST execution refusal`,
       );
     } finally {
       rmSync(fixture.root, { recursive: true, force: true });
@@ -1798,6 +1842,7 @@ try {
     assert.ok(evidence.materialHash, 'fresh skip smoke must bind materialHash');
     assert.ok(evidence.storyFilesHash, 'fresh skip smoke must bind storyFilesHash');
     store.writeTestEvidence(storyId, evidence);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: gateFreshRoot });
     gitQuiet(gateFreshRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateFreshRoot, ['commit', '-m', 'record fresh validation evidence']);
     evidence.headHash = currentGitHead(gateFreshRoot)!;
@@ -1814,8 +1859,8 @@ try {
     assert.equal(after?.timestamp, evidence.timestamp, 'fresh skip path must not rewrite test-evidence timestamp');
     assert.equal(after?.output, evidence.output, 'fresh skip path must not rewrite test-evidence output');
     assert.ok(
-      logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
-      'fresh skip path must log that proof-or-stop validate was not rerun',
+      logs.some(line => line.includes('REVIEW→TEST gate: existing validation PASS is fresh; TEST reuses it without rerunning proof-or-stop validate')),
+      'fresh skip path must identify TEST as reusing the REVIEW routine PASS without a rerun',
     );
   } finally {
     rmSync(gateFreshRoot, { recursive: true, force: true });
@@ -1833,16 +1878,21 @@ try {
     gitQuiet(gateWarningRoot.root, ['commit', '-m', 'unrelated main material change']);
     gitQuiet(gateWarningRoot.root, ['checkout', `story/${gateWarningRoot.storyId}`]);
     gitQuiet(gateWarningRoot.root, ['merge', 'main', '--no-edit']);
+    persistSyntheticAdmittedWindowForTest({
+      store: gateWarningRoot.store,
+      storyId: gateWarningRoot.storyId,
+      projectRoot: gateWarningRoot.root,
+    });
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
+      new RegExp(`\\[${PRE_CERT_ROUTINE_PASS_REQUIRED}\\] Cannot enter TEST`),
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
-    assert.equal(after?.result, 'FAIL', 'whole-tree material drift must rerun rather than reuse PASS evidence');
+    assert.equal(after?.result, 'PASS', 'whole-tree material drift must refuse TEST rather than rewrite PASS evidence');
     assert.ok(
       logs.some(line => line.includes('materialHash does not match current materialHash')),
       'whole-tree material drift must fail the exact validation admissibility envelope',
@@ -1852,25 +1902,25 @@ try {
     resetConfigCache();
   }
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'wrong-command',
     reason: 'existing validation PASS command is not',
     mutateEvidence: evidence => { evidence.command = 'proof-or-stop validate --story=B-other --json'; },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'coverage-malformed',
     reason: 'verificationCoverage is missing missingRequired',
     mutateEvidence: evidence => { evidence.verificationCoverage.missingRequired = '0'; },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'coverage-gap',
     reason: 'required verification coverage gap',
     mutateEvidence: evidence => { evidence.verificationCoverage.missingRequired = 1; },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'missing-hashes',
     reason: 'missing headHash/materialHash freshness bindings',
     mutateEvidence: evidence => {
@@ -1879,19 +1929,19 @@ try {
     },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'output-false',
     reason: 'output is not allPass/allPassed=true',
     mutateEvidence: evidence => { evidence.output = '{"allPass":false,"summary":"contradiction"}'; },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'output-malformed',
     reason: 'output is not valid JSON',
     mutateEvidence: evidence => { evidence.output = 'not json'; },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'checklist-drift',
     reason: 'verificationCoverage does not match current checklist verificationIntent inputs',
     mutateAfterCommit: ({ store, storyId }) => {
@@ -1912,7 +1962,7 @@ try {
     },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'coverage-evidence-removed',
     reason: 'current verificationEvidence records',
     prepareBeforeEvidenceCommit: ({ store, storyId, evidence }) => {
@@ -1965,7 +2015,7 @@ try {
     },
   });
 
-  await assertUnsafePassEvidenceReruns({
+  await assertUnsafePassEvidenceRefusesTest({
     name: 'dirty-material',
     reason: 'current worktree has blocking dirty path',
     mutateAfterCommit: ({ root }) => {
@@ -2000,7 +2050,7 @@ try {
     const now = '2026-05-16T03:00:00.000Z';
     store.writeStory(storyId, {
       storyId, name: 'validate-gate-legacy', title: 'Validate gate legacy no coverage',
-      description: 'strongly bound legacy PASS without verificationCoverage reruns validate', type: 'chore', phase: 'TEST',
+      description: 'strongly bound legacy PASS without verificationCoverage refuses TEST execution', type: 'chore', phase: 'TEST',
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
@@ -2024,18 +2074,19 @@ try {
     store.writeTestEvidence(storyId, legacyEvidence);
     gitQuiet(gateLegacyNoCoverageRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'record legacy validation evidence']);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: gateLegacyNoCoverageRoot });
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
-      'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
+      new RegExp(`\\[${PRE_CERT_ROUTINE_PASS_REQUIRED}\\] Cannot enter TEST`),
+      'strongly bound legacy PASS without verificationCoverage must refuse TEST without a rerun',
     );
     const after = store.readTestEvidence(storyId);
     assert.equal(stopped, false, 'legacy no coverage path must leave actor stop to transition-orchestrator');
-    assert.equal(after?.result, 'FAIL', 'legacy PASS without verificationCoverage followed by failing validate must persist FAIL evidence');
-    assert.notEqual(after?.timestamp, legacyEvidence.timestamp, 'legacy no coverage path must rewrite stale-format PASS evidence');
+    assert.equal(after?.result, 'PASS', 'legacy PASS without verificationCoverage must remain unchanged after TEST refusal');
+    assert.equal(after?.timestamp, legacyEvidence.timestamp, 'legacy no coverage path must not rewrite stale-format PASS evidence');
     assert.ok(
       logs.some(line => line.includes('missing verificationCoverage from proof-or-stop validate')),
       'legacy no coverage path must log why the existing PASS was not consumed',
@@ -2076,7 +2127,7 @@ try {
     const now = '2026-05-16T03:00:00.000Z';
     store.writeStory(storyId, {
       storyId, name: 'validate-gate-stale', title: 'Validate gate stale rerun',
-      description: 'stale PASS validation evidence reruns validate', type: 'chore', phase: 'TEST',
+      description: 'stale PASS validation evidence refuses TEST execution', type: 'chore', phase: 'TEST',
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
@@ -2108,25 +2159,26 @@ try {
     // after its fixture commits so the official validation heartbeat observes
     // the lease generation it is expected to renew.
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateStaleRoot });
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: gateStaleRoot });
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
-      'stale PASS evidence must not skip a failing validate rerun',
+      new RegExp(`\\[${PRE_CERT_ROUTINE_PASS_REQUIRED}\\] Cannot enter TEST`),
+      'stale PASS evidence must refuse TEST without a rerun',
     );
     const after = store.readTestEvidence(storyId);
-    assert.equal(stopped, false, 'stale rerun path must leave actor stop to transition-orchestrator');
-    assert.equal(after?.result, 'FAIL', 'stale PASS evidence followed by failing validate must persist FAIL evidence');
-    assert.notEqual(after?.timestamp, staleEvidence.timestamp, 'stale rerun path must rewrite stale PASS evidence');
+    assert.equal(stopped, false, 'stale refusal path must leave actor stop to transition-orchestrator');
+    assert.equal(after?.result, 'PASS', 'stale PASS evidence must remain unchanged after TEST refusal');
+    assert.equal(after?.timestamp, staleEvidence.timestamp, 'stale refusal path must not rewrite PASS evidence');
     assert.ok(
       logs.some(line => line.includes('existing validation PASS is stale')),
-      'stale rerun path must log why the existing PASS was not consumed',
+      'stale refusal path must log why the existing PASS was not consumed',
     );
     assert.ok(
       !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
-      'stale rerun path must not log the fresh skip message',
+      'stale refusal path must not log the fresh skip message',
     );
   } finally {
     rmSync(gateStaleRoot, { recursive: true, force: true });
@@ -2155,7 +2207,7 @@ try {
     const now = '2026-05-16T03:00:00.000Z';
     store.writeStory(storyId, {
       storyId, name: 'validate-gate-fail', title: 'Validate gate fail',
-      description: 'validate FAIL must block TEST', type: 'chore', phase: 'TEST',
+      description: 'missing PRE_CERT must block TEST', type: 'chore', phase: 'TEST',
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
@@ -2168,12 +2220,11 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
-      'runValidateGate must block TEST when proof-or-stop validate fails',
+      /\[pre_cert_window_required\]/,
+      'runValidateGate must reject a TEST entry without PRE_CERT before runner execution',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
-    assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
-    assert.equal(store.readTestEvidence(storyId)?.failureKind, 'validation_failure', 'ordinary validate command failure must be classified as validation_failure');
+    assert.equal(store.readTestEvidence(storyId), null, 'missing PRE_CERT must not create TEST-time validation evidence');
   } finally {
     rmSync(gateFailRoot, { recursive: true, force: true });
     resetConfigCache();
@@ -2213,25 +2264,11 @@ try {
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
-      'runValidateGate must block TEST when the validation runner times out',
+      /\[pre_cert_window_required\]/,
+      'runValidateGate must reject a TEST entry without PRE_CERT before timeout runner execution',
     );
-    const evidence = store.readTestEvidence(storyId);
-    assert.equal(evidence?.result, 'FAIL', 'timeout must still persist FAIL evidence');
-    assert.equal(evidence?.failureKind, 'infra_failure', 'timeout must be classified as infra_failure');
-    assert.match(evidence?.output ?? '', /"failureKind":"infra_failure"/, 'persisted validation JSON must expose infra_failure');
-    const terminal = store.readProcessEvents(storyId).find((event) => event.type === 'validation_terminal');
-    assert.ok(terminal, 'routine validation must emit a durable validation_terminal event');
-    assert.equal(terminal?.storyId, storyId);
-    assert.equal(terminal?.attemptId, now);
-    assert.equal(terminal?.reviewRound, now);
-    assert.equal(terminal?.disposition, 'executed');
-    assert.equal(terminal?.commandExecutions, 1);
-    assert.equal(terminal?.result, 'fail');
-    assert.equal(typeof terminal?.commandSetHash, 'string');
-    assert.ok(String(terminal?.commandSetHash).length > 0);
-    assert.equal(typeof terminal?.materialHash, 'string');
-    assert.equal(typeof terminal?.storyFilesHash, 'string');
+    assert.equal(store.readTestEvidence(storyId), null, 'missing PRE_CERT must not create timeout evidence from TEST');
+    assert.equal(store.readProcessEvents(storyId).some((event) => event.type === 'validation_terminal'), false, 'missing PRE_CERT must not emit a TEST-time routine validation terminal event');
   } finally {
     rmSync(gateInfraRoot, { recursive: true, force: true });
     resetConfigCache();
@@ -2260,38 +2297,7 @@ try {
   // 2. storyId alias writes test evidence (same as --story)
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
-    writeFileSync(join(storyIdAliasRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
-    resetConfigCache();
-    // B-dc2e CHK-001: validate now resolves git-common-dir identity for its
-    // workspace capacity lock, so these alias fixtures (bare temp dirs while
-    // this smoke was orphaned) are seeded as minimal repositories; the
-    // no-story case still proves nothing under .proof-or-stop/ is created.
-    initSmokeGitRepo(storyIdAliasRoot);
-    gitQuiet(storyIdAliasRoot, ['commit', '--allow-empty', '-m', 'seed storyIdAliasRoot']);
-    const aliasStore = new StoryStore(storyIdAliasRoot);
-    // B-dc2e CHK-001: the canonical evidence transaction resolves the story
-    // directory (realpath) before persisting test evidence, so a story-scoped
-    // validate against a story that was never written now fails as
-    // canonical-validation-persistence-failed instead of writing evidence.
-    // Seed the story the alias refers to, as every other evidence-writing
-    // fixture in this smoke already does.
-    aliasStore.writeStory('B-alias-smoke', {
-      storyId: 'B-alias-smoke', name: 'alias-smoke', title: 'storyId alias smoke',
-      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
-      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
-      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
-    });
-    const aliasNow = new Date().toISOString();
-    aliasStore.writeStory('B-alias-smoke', {
-      storyId: 'B-alias-smoke', name: 'story-id-alias-smoke', title: 'Story id alias smoke',
-      description: 'validate storyId alias persists evidence', type: 'chore', phase: 'TEST',
-      priority: 'medium', createdAt: aliasNow, startedAt: aliasNow, endedAt: null,
-      currentReviewRound: aliasNow, events: [],
-    });
-    aliasStore.writeChecklist('B-alias-smoke', { items: [] });
-    // This calls the verifier directly, bypassing the CLI path that acquires
-    // the story owner lease before a story-scoped validation begins.
-    acquireOwnerLease(aliasStore.storyDirPath('B-alias-smoke'), { command: 'validate', cwd: storyIdAliasRoot });
+    const aliasStore = seedStoryScopedValidateFixture(storyIdAliasRoot, 'B-alias-smoke');
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2311,27 +2317,7 @@ try {
   // 3. --story still writes test evidence (unchanged behavior)
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
-    writeFileSync(join(storyFlagRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
-    resetConfigCache();
-    initSmokeGitRepo(storyFlagRoot);
-    gitQuiet(storyFlagRoot, ['commit', '--allow-empty', '-m', 'seed storyFlagRoot']);
-    const storyFlagStore = new StoryStore(storyFlagRoot);
-    storyFlagStore.writeStory('B-story-flag-smoke', {
-      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'story flag smoke',
-      description: 'seeded so the alias validate can persist evidence', type: 'chore', phase: 'TEST',
-      priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
-      currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
-    });
-    const storyFlagNow = new Date().toISOString();
-    storyFlagStore.writeStory('B-story-flag-smoke', {
-      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'Story flag smoke',
-      description: 'validate story flag persists evidence', type: 'chore', phase: 'TEST',
-      priority: 'medium', createdAt: storyFlagNow, startedAt: storyFlagNow, endedAt: null,
-      currentReviewRound: storyFlagNow, events: [],
-    });
-    storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
-    // Match the real CLI ownership precondition for this direct verifier call.
-    acquireOwnerLease(storyFlagStore.storyDirPath('B-story-flag-smoke'), { command: 'validate', cwd: storyFlagRoot });
+    const storyFlagStore = seedStoryScopedValidateFixture(storyFlagRoot, 'B-story-flag-smoke');
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,

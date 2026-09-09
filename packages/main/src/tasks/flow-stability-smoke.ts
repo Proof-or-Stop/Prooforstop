@@ -29,6 +29,11 @@ import {
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { EMPTY_STORY_FILES_HASH, checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { persistSyntheticAdmittedWindowForTest as persistSyntheticWindow } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+function persistSyntheticAdmittedWindowForTest(args: Parameters<typeof persistSyntheticWindow>[0]) {
+  return persistSyntheticWindow({ ...args, causalInputHashes: deriveCertificationDomainInputHashes(args.gitCwd ?? args.projectRoot, 'HEAD', args.projectRoot) });
+}
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import {
@@ -1213,9 +1218,8 @@ function assertPhaseFlowDerivedValuesByteIdentical(): void {
 
 function assertStoryAdvanceTestGateFailClosedContracts(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-  // B-56d3: the TEST gate runner was extracted into handlers/phase-gates.ts.
-  // The fail-closed error wording now lives there; the warn-and-advance regex
-  // negative-check still covers both files so a relapse anywhere is caught.
+  // B-14ae: TEST is a signed-evidence consumer. The phase gate must preserve
+  // the PRE_CERT recovery but cannot retain an execution fallback.
   const source = readFileSync(join(root, 'src', 'handlers', 'story-advance.ts'), 'utf-8');
   const phaseGatesSource = readFileSync(join(root, 'src', 'handlers', 'phase-gates.ts'), 'utf-8');
   assert.match(
@@ -1225,8 +1229,13 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: proof-or-stop validate execution error/,
-    'validate execution errors must be fail-closed before entering TEST',
+    /\[\$\{PRE_CERT_ROUTINE_PASS_REQUIRED\}\] Cannot enter TEST/,
+    'missing or stale REVIEW routine evidence must fail closed before entering TEST',
+  );
+  assert.doesNotMatch(
+    phaseGatesSource,
+    /createVerifierHandlers|verifierHandlers\.validate/,
+    'TEST must not retain a verifier execution fallback',
   );
   for (const src of [source, phaseGatesSource]) {
     assert.doesNotMatch(
@@ -2655,11 +2664,21 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     }).next({ concise: true });
     assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
     assert.match(reviewNext, /All reviewer gates passed/);
-    assert.match(reviewNext, /phase=TEST/);
+    assert.match(reviewNext, /review_inventory_begin/);
+    assert.doesNotMatch(reviewNext, /story_advance .*phase=TEST/);
 
     const testStory = store.readStory(storyId);
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
+    const missingPassNext = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).next({ concise: true });
+    assert.match(missingPassNext, /current signed REVIEW routine PASS is missing/);
+    assert.match(missingPassNext, /phase=DEV to restore PRE_CERT/);
+    assert.doesNotMatch(missingPassNext, /Next: proof-or-stop validate/);
+
     const evidence: TestEvidenceData = {
       command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
@@ -2735,6 +2754,7 @@ function assertReviewNextUsesReviewerGateState(): void {
     assert.match(pendingNext, /test-coverage/);
     assert.doesNotMatch(pendingNext, /channel/);
     assert.doesNotMatch(pendingNext, /All critical\/high findings resolved/);
+    assert.doesNotMatch(pendingNext, /story_advance .*phase=TEST/);
 
     const id = `${storyId}:F-open`;
     const createdAt = '2026-04-27T12:30:00.000Z';
@@ -4146,10 +4166,10 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
  *     and transition-orchestrator.ts do NOT import handlers/story-advance.js
  *     (no circular import); story-advance.ts is only the public command shell,
  *     and transition-orchestrator.ts owns the transition sequence.
- *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
- *     TEST when proof-or-stop validate fails (allPass=false) AND when validate output
- *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
- *     blocks TEST when a CLI gate fails.
+ *  2. Fail-closed gate behavior (preMortem #1): runValidateGate consumes only
+ *     a current signed REVIEW PASS and refuses TEST without starting validation
+ *     children when that evidence is absent/stale/non-PASS;
+ *     runReviewToTestPreflightGate still blocks TEST when a CLI gate fails.
  *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
  *     renderRelatedDocsHint produce the exact text the inline originals did.
  */
@@ -4215,15 +4235,12 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     /const verifierHandlers = createVerifierHandlers\(ctx\)/,
     'the proof-or-stop validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
   );
-  // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
-  // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
-  // verifier always returns valid JSON in practice, so the JSON-parse branch is
-  // defensive — its fail-closed shape is pinned statically here, while the
-  // validate-FAIL and preflight-FAIL paths below are exercised behaviorally.
-  assert.match(
+  // TEST is an evidence consumer, never a second validate executor. This
+  // source-level fence complements the behavioral marker assertion below.
+  assert.doesNotMatch(
     phaseGatesSrc,
-    /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;/,
-    'runValidateGate catch must rethrow gate errors before the execution exception throw',
+    /createVerifierHandlers|verifierHandlers\.validate/,
+    'runValidateGate must not retain a verifier execution path in TEST',
   );
   assert.match(
     phaseGatesSrc,
@@ -4242,10 +4259,9 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   );
 
   // --- 2. Fail-closed gate behavior ---
-  // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
-  //     configured validate command by exit code, so a non-zero exit is a real
-  //     validate failure (allPass=false) → first throw "did not pass".
-  const failRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-phase-gates-validate-fail-'));
+  // 2a. runValidateGate: an ADMITTED window without a signed routine PASS
+  //     blocks TEST before the configured child can execute.
+  const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
   try {
     // Official validation now requires the configured workspace to resolve one
     // Git identity before it enters the capacity queue. Seed only that identity
@@ -4261,7 +4277,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
-      validate: { commands: [{ label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] }] },
+      validate: { commands: [{ label: 'must not run from TEST', command: 'node', args: ['-e', `require('node:fs').writeFileSync(${JSON.stringify(join(failRoot, 'unexpected-test-gate-child.marker'))}, 'ran')`] }] },
       workflow: { profile: 'balanced' },
     }));
     resetConfigCache();
@@ -4269,7 +4285,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const now = '2026-05-16T02:00:00.000Z';
     store.writeStory(storyId, {
       storyId, name: 'phase-gate-fail', title: 'Phase gate fail',
-      description: 'validate FAIL must block TEST', type: 'chore', phase: 'TEST',
+      description: 'missing REVIEW routine PASS must block TEST', type: 'chore', phase: 'TEST',
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
@@ -4283,31 +4299,21 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
         endTime: now,
       }],
     });
+    // Bind a test-only signed window: no test evidence is written, so TEST
+    // must reject with the routine-PASS recovery instead of executing the
+    // configured marker command.
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: failRoot });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     let rejectionMessage = '';
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      (error: unknown) => {
-        rejectionMessage = error instanceof Error ? error.message : String(error);
-        return /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/.test(rejectionMessage);
-      },
-      'runValidateGate must block TEST when proof-or-stop validate fails',
+      /\[pre_cert_routine_pass_required\] Cannot enter TEST/,
+      'runValidateGate must reject TEST when the signed REVIEW routine PASS is absent',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
-    const causalPreflightRefusal = /Cannot enter TEST: proof-or-stop validate execution error/.test(rejectionMessage)
-      && /writerLease/.test(rejectionMessage)
-      && /causal_preflight_refused/.test(rejectionMessage);
-    if (causalPreflightRefusal) {
-      assert.match(rejectionMessage, /commandExecutions=0/);
-      assert.match(rejectionMessage, /evidenceWrites=0/);
-      assert.equal(store.readTestEvidence(storyId), null, 'causal preflight refusal must not persist test evidence');
-    } else {
-      assert.match(rejectionMessage, /Cannot enter TEST: proof-or-stop validate did not pass/);
-      // An ordinary validation failure still persists a FAIL test-evidence
-      // record (the behavior-preserving side effect annotated in phase-gates.ts).
-      assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
-    }
+    assert.equal(store.readTestEvidence(storyId), null, 'TEST refusal must not create replacement validation evidence');
+    assert.equal(existsSync(join(failRoot, 'unexpected-test-gate-child.marker')), false, 'TEST refusal must not execute configured validation children');
   } finally {
     rmSync(failRoot, { recursive: true, force: true });
     resetConfigCache();
@@ -4389,6 +4395,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     assert.match(nextSteps.REVIEW, /unknown or temporarily unavailable/);
     assert.match(nextSteps.REVIEW, /authoritative failed, cancelled, missing, or dead status/);
     assert.doesNotMatch(nextSteps.REVIEW, /no result for 10 minutes\/600s treat as stalled, restart/i);
+    assert.match(nextSteps.TEST, /routine suite already executed once in REVIEW after PRE_CERT became ADMITTED/);
+    assert.match(nextSteps.TEST, /do not start a second unscoped proof-or-stop validate --story run here/);
 
     // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
     //     line shape must be byte-identical to the inline original.

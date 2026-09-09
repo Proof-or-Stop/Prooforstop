@@ -5707,6 +5707,16 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
       `${processFactRegistryPath}: certification release provenance contract missing ${term}`);
   }
   const statusSource = read('packages/main/src/core/certification-window.ts');
+  const verifier = read('packages/main/src/handlers/verifier.ts');
+  const phaseGate = read('packages/main/src/handlers/phase-gates.ts');
+  const doneRequired = read('packages/main/src/handlers/done-required-validation.ts');
+  assert(registry.get('runtime:precert_routine_single_execution')?.level === 'L4', 'PRE_CERT single execution must be a real registered L4 fact');
+  assert(/claimTestAdmissibleRoutineValidationWindow/.test(verifier), 'routine validation requires an execution claim');
+  assert(/persistPrecertCheapCheckIfQualified/.test(verifier), 'fast validation must publish its own bound receipt');
+  assert(/requireCurrentHeavyCertificationWindow/.test(doneRequired), 'DONE-required must retain PRE_CERT admission');
+  assert(!/refuseHeavyCertificationUnlessAdmitted/.test(doneRequired), 'DONE-required must not consume routine execution allocation');
+  const testGate = phaseGate.slice(phaseGate.indexOf('export async function runValidateGate('), phaseGate.indexOf('export function runDoneOracleGate('));
+  assert(/PRE_CERT_ROUTINE_PASS_REQUIRED/.test(testGate) && !/createVerifierHandlers|await.*\.validate\(/.test(testGate), 'TEST must consume signed routine PASS without executing a second suite');
   assert(
     /status must never claim inventory completeness is certification/.test(statusSource),
     'packages/main/src/core/certification-window.ts must refuse status prose that treats inventory completeness as certification',
@@ -8808,15 +8818,15 @@ const inventory = [
           'getGuardFailureReason',
           'runReviewCliGates',
           'proof-or-stop validate --json',
-          'verifierHandlers.validate',
+          'assertTestAdmissibleRoutineValidationWindow',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: proof-or-stop validate execution error',
+          'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],
       },
       {
         // B-914f: verifier is the single canonical writer for routine
-        // validation evidence. Phase gates invoke it and consume its JSON;
+        // validation evidence. Phase gates consume its signed PASS;
         // they must not persist the same artifact a second time.
         relPath: 'packages/main/src/handlers/verifier.ts',
         patterns: [
@@ -9164,10 +9174,10 @@ const inventory = [
           'runReviewCliGates',
           'proof-or-stop validate --json',
           'buildDoneChecklist',
-          'verifierHandlers.validate',
+          'assertTestAdmissibleRoutineValidationWindow',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: proof-or-stop validate execution error',
+          'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],
       },
       {

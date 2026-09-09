@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, symlinkSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { tmpdir, homedir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { createVerifierHandlers } from '../packages/main/dist/handlers/verifier.js';
@@ -33,5 +33,19 @@ try {
   const receipts = store.readCertificationWindows(storyId).receipts;
   assert.ok(receipts.some(row => row.authority === 'pre-cert-cheap-check' && row.result === 'PASS'),
     'U01: successful fast preparation must publish a bound PRE_CERT cheap-check receipt');
+  const cache = join(homedir(), '.npm', '_npx');
+  const candidates = [process.env.LAB_TSX_NODE_MODULES, ...(existsSync(cache) ? readdirSync(cache).map(name => join(cache, name, 'node_modules')) : [])].filter(Boolean);
+  const tsxModules = candidates.find(path => existsSync(join(path, '.bin', 'tsx')));
+  assert.ok(tsxModules, 'fixture requires an installed tsx runtime; set LAB_TSX_NODE_MODULES');
+  symlinkSync(tsxModules, join(root, 'node_modules'), 'dir');
+  writeFileSync(join(root, 'validate.js'), `console.log(JSON.stringify({status:'pass',allPass:true,details:['FAST_FILE_PASS']}));\n`);
+  git('add', 'validate.js'); git('commit', '-qm', 'validate-file fast entry');
+  const fileResult = JSON.parse(await handlers.validate({ story: storyId, focus: 'fast', json: true }));
+  assert.match(JSON.stringify(fileResult), /FAST_FILE_PASS/);
+  assert.equal(fileResult.precertCheapCheckReceipt?.authority, 'pre-cert-cheap-check',
+    'validate-file fast execution must publish the same authority as configured fast commands');
+  const current = store.readCertificationWindows(storyId).receipts.find(row => row.receiptId === fileResult.precertCheapCheckReceipt.receiptId);
+  assert.equal(current.routineValidationIdentity.invocation.focus, 'fast');
+  assert.deepEqual(current.routineValidationIdentity.commands[0].focus, ['fast']);
   console.log('PASS U01 precert-fast-producer');
 } finally { rmSync(root, { recursive: true, force: true }); }
