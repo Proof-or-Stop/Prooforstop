@@ -2411,8 +2411,11 @@ async function partKCausalIntegration(): Promise<void> {
       revalidateBeforeRun: () => true,
       run: async () => { throw new Error('K: diagnostic replay must not launch another execution'); },
     });
-    assert.equal(boundedDiagnostic.verdict.matched, false, 'K: bounded causal diagnostic honestly misses a middle-of-large-output selector');
-    assert.equal(splitReceipt(env, 'K-DOCS').selectorMatched, true, 'K: only authenticated complete-output V5 assertion controls selector admission');
+    assert.equal(signed[0].outputProbe.includes('K_DOCS'), false, 'K: bounded diagnostic probe still omits the middle-of-large-output selector');
+    assert.ok(signed[0].selectorOutput, 'K: causal replay binds durable complete selector output');
+    assert.equal(boundedDiagnostic.disposition, 'reused', 'K: complete-output replay does not launch another execution');
+    assert.equal(boundedDiagnostic.verdict.matched, true, 'K: authenticated complete causal output finds the middle-of-large-output selector');
+    assert.equal(splitReceipt(env, 'K-DOCS').selectorMatched, true, 'K: authenticated complete-output V5 assertion agrees with causal replay');
     const sourceBytes = signed.map(receipt => JSON.stringify(receipt));
     let imports = 0;
     for (const receipt of signed) importCausalEvidenceReceipt({
