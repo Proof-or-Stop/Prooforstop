@@ -144,7 +144,7 @@ function makeRoot(): string {
   return root;
 }
 
-function makeStore(root: string, storyId: string, phase: 'DEV' | 'TEST' = 'DEV'): StoryStore {
+function makeStore(root: string, storyId: string, phase: 'DEV' | 'REVIEW' | 'TEST' = 'DEV'): StoryStore {
   const store = new StoryStore(root);
   mkdirSync(join(root, '.proof-or-stop', 'story', 'actives', storyId), { recursive: true });
   store.writeStory(storyId, {
@@ -1556,7 +1556,7 @@ const atMostOnceRoot = makeGitRoot();
 const atMostOnceMarker = writeRuntimeCounterConfig(atMostOnceRoot);
 const atMostOnceStoryId = 'B-cw-at-most-once';
 git(atMostOnceRoot, ['switch', '-c', `story/${atMostOnceStoryId}`]);
-const atMostOnceStore = makeStore(atMostOnceRoot, atMostOnceStoryId);
+const atMostOnceStore = makeStore(atMostOnceRoot, atMostOnceStoryId, 'REVIEW');
 atMostOnceStore.writeChecklist(atMostOnceStoryId, { items: [] });
 const atMostOnceCtx = {
   store: atMostOnceStore,
