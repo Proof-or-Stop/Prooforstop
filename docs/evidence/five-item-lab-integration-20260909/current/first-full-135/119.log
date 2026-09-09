@@ -1,0 +1,29 @@
+  characterization (F-060): 5 short real-world constants pinned; 1 admitted (the vaguest) - documents the F-058 inversion
+    "SIGSEGV"       len= 7 bits= 15.65 -> REJECT
+    "ENOMEM"        len= 6 bits= 11.51 -> REJECT
+    "HTTP 404"      len= 8 bits= 20.00 -> REJECT
+    "Error 500"     len= 9 bits= 21.77 -> REJECT
+    "test failed"   len=11 bits= 34.05 -> ADMIT
+red-w2d-specificity-conjunction: PASS
+  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)
+  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)
+  DIFFER  "aaaaaaaa"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "aaaaaaaaaaaa"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "xxxxxxxx"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "========"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "--------"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "abababababab"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "aabbaabb"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "abcabcabcabc"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "ababababab"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "aaaaaaaaab"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "zzzzzzzzzzzz"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT
+  DIFFER  "abcabcab"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT
+  agree   "aabbccddeeff"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT
+  agree   "Error: Cannot find module '/repo/dist/x.js'"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT
+  agree   "abcdefgh"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT
+  agree   "Err"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT
+  agree   "ab"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT
+  DIFFER  "Cannot find"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT
+  DIFFER  "no such file"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT
+  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)

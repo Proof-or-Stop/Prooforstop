@@ -501,8 +501,11 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // 129-entry inventory form a 132-entry union without losing either side;
   // B-e256 then adds its global launcher row for the 133-entry merged inventory.
   // The Lab-maintenance registration adds the 134th command; all prior commands remain.
-  // Lab opt-in adds only --jobs=4 for the complete73 quorum suite and --probe-jobs=4 for the complete58 refusal matrix; no command/assertion/resource protection is removed.
-  assert.equal(real.commandSetDigest, 'b29365c6a2ba5e50d50e05fd12654e505922413117531f37ce76e7716d859653', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // Current main adds the B-e40f inventory-bijection command (135 total) and uses
+  // --jobs=2 for its modular quorum coordinator. This Lab retains that complete
+  // inventory and enables --probe-jobs=4 only for the complete58 refusal matrix.
+  // Exact before/after command correspondence is recorded in the integration evidence.
+  assert.equal(real.commandSetDigest, '63f9234131b7473f03917a37de401db5dcfbab11a38e4b53a2d7c9fa961565d4', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

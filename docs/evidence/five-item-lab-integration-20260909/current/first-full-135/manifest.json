@@ -1,0 +1,3270 @@
+{
+  "runtime": {
+    "path": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-integration-full-hhgrvxkt/repo",
+    "head": "3b55ae70ddda3f6085ec0b0473847da2cacfef9c",
+    "main": "04e66fdbaeaeeb540a80c9f8e16085a5ee468f5a",
+    "independentWritableDist": true,
+    "copyMethod": "APFS clone-on-write; no mutable runtime symlinks"
+  },
+  "configHash": "de684766b7a3ef122cc8aafd91120725a0951605f7f12ef8e2f792ac57f7bfe1",
+  "commandCount": 135,
+  "commands": [
+    {
+      "label": "configured validate.commands[0]",
+      "command": "node",
+      "args": [
+        "scripts/verify-lab-worktree.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[1]",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 290000,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[2]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[3]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[4]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/production-test-seam-guard.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[5]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-list-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[6]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-catalog-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "review-pass-discard-smoke",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-pass-discard-smoke.js"
+      ],
+      "env": {
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+      },
+      "declaredEnvironmentKeys": [
+        "PATH",
+        "SystemRoot",
+        "WINDIR",
+        "ComSpec",
+        "PATHEXT",
+        "LANG",
+        "LC_ALL",
+        "TZ",
+        "NODE_OPTIONS",
+        "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
+        "LATTICE_VALIDATION_SHARD_ADAPTER",
+        "CI",
+        "TMPDIR",
+        "TMP",
+        "TEMP",
+        "HOME",
+        "USERPROFILE",
+        "XDG_CONFIG_HOME",
+        "USER",
+        "NODE_ENV",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_CONFIG_GLOBAL",
+        "GIT_ATTR_NOSYSTEM",
+        "GIT_TEMPLATE_DIR",
+        "GIT_OPTIONAL_LOCKS",
+        "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_NONCE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FIXTURE_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_RESOURCE_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_OWNED_TEMP_BASE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_RUN_ID",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_KIND",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_CASE_ID",
+        "PROOF_OR_STOP_QUORUM_SMOKE_REPOSITORY_ROOT",
+        "PROOF_OR_STOP_QUORUM_SMOKE_WORKER_PROCESS_MARKER",
+        "PROOF_OR_STOP_DYN5_CASE",
+        "PROOF_OR_STOP_SESSION_ID",
+        "PROOF_OR_STOP_ACTIVITY_SOURCE",
+        "PROOF_OR_STOP_ACTIVITY_SESSION",
+        "PROOF_OR_STOP_AGENT",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED",
+        "CLAUDE_CODE_SESSION_ID",
+        "CLAUDE_SESSION_ID",
+        "CODEX_SESSION_ID",
+        "CODEX_THREAD_ID",
+        "OPENAI_SESSION_ID",
+        "TERM_SESSION_ID",
+        "ANTIGRAVITY_SESSION_ID",
+        "AGY_SESSION_ID",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY",
+        "LATTICE_VALIDATION_SHARD_CASE_REGISTRY",
+        "PROOF_OR_STOP_VALIDATION_SHARD_DIR",
+        "LATTICE_VALIDATION_SHARD_DIR",
+        "PROOF_OR_STOP_VALIDATION_SHARD_DOMAIN",
+        "LATTICE_VALIDATION_SHARD_DOMAIN",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ID",
+        "LATTICE_VALIDATION_SHARD_ID",
+        "PROOF_OR_STOP_VALIDATION_SHARD_SENTINEL",
+        "LATTICE_VALIDATION_SHARD_SENTINEL",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+        "LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER_DIGEST",
+        "LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_IDS",
+        "LATTICE_VALIDATION_SHARD_CASE_IDS",
+        "PROOF_OR_STOP_VALIDATION_PROJECT_ROOT",
+        "LATTICE_VALIDATION_PROJECT_ROOT",
+        "PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS",
+        "LATTICE_VALIDATION_CASE_TIMEOUT_MS",
+        "PROOF_OR_STOP_PROJECT_ROOT",
+        "PROOF_OR_STOP_IDLE_TIMEOUT_MS",
+        "PROOF_OR_STOP_MAX_TIMEOUT_MS",
+        "PROOF_OR_STOP_ACTIVITY_ROLE",
+        "PROOF_OR_STOP_CODEX_ENTRYPOINT",
+        "PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE",
+        "LATTICE_DYNAMIC_VALIDATION_MODE",
+        "PROOF_OR_STOP_VALIDATE_JOBS",
+        "PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS",
+        "LATTICE_VALIDATE_HEARTBEAT_MS",
+        "LATTICE_VALIDATE_JOBS",
+        "LATTICE_VALIDATE_CPU",
+        "FORCE_COLOR",
+        "GRACEFUL_FS_PLATFORM",
+        "NODE_DEBUG",
+        "NODE_INSPECTOR_IPC",
+        "NODE_V8_COVERAGE",
+        "TEST_GRACEFUL_FS_GLOBAL_PATCH",
+        "TSC_NONPOLLING_WATCHER",
+        "TSC_WATCHDIRECTORY",
+        "TSC_WATCHFILE",
+        "TSC_WATCH_POLLINGCHUNKSIZE_HIGH",
+        "TSC_WATCH_POLLINGCHUNKSIZE_LOW",
+        "TSC_WATCH_POLLINGCHUNKSIZE_MEDIUM",
+        "TSC_WATCH_POLLINGINTERVAL_HIGH",
+        "TSC_WATCH_POLLINGINTERVAL_LOW",
+        "TSC_WATCH_POLLINGINTERVAL_MEDIUM",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_HIGH",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_LOW",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_MEDIUM",
+        "VSCODE_INSPECTOR_OPTIONS",
+        "WATCH_REPORT_DEPENDENCIES",
+        "__CF_USER_TEXT_ENCODING",
+        "PROOF_OR_STOP_EXPERIMENT_ARM",
+        "PROOF_OR_STOP_EXPERIMENT_ID",
+        "PROOF_OR_STOP_HEALTH_PATH",
+        "PROOF_OR_STOP_REVIEWER_READONLY",
+        "PWD",
+        "QUORUM_CLI_PROBE_COUNTER",
+        "SHLVL",
+        "_"
+      ],
+      "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+      "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+      "assurance": "story-selectable",
+      "riskTier": "gate",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 3,
+      "expectedP50Ms": 265000,
+      "timeoutMs": 1200000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[8]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      ],
+      "executionReuse": "exact-inputs",
+      "executionInputs": [
+        "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[9]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[10]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[11]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[12]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[13]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[14]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[15]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[16]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[17]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[18]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[19]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[20]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-validation-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[21]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[22]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[23]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-freshness-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[24]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-head-drift-proof.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[25]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[26]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/version-bump-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[27]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[28]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[29]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[30]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[31]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[32]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[33]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[34]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[35]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[36]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[37]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[38]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-preflight-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[39]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/english-early-check-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "quorum-submit-smoke",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/quorum-submit-smoke.js",
+        "--jobs=2"
+      ],
+      "env": {
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+      },
+      "declaredEnvironmentKeys": [
+        "PATH",
+        "SystemRoot",
+        "WINDIR",
+        "ComSpec",
+        "PATHEXT",
+        "LANG",
+        "LC_ALL",
+        "TZ",
+        "NODE_OPTIONS",
+        "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
+        "LATTICE_VALIDATION_SHARD_ADAPTER",
+        "CI",
+        "TMPDIR",
+        "TMP",
+        "TEMP",
+        "HOME",
+        "USERPROFILE",
+        "XDG_CONFIG_HOME",
+        "USER",
+        "NODE_ENV",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_CONFIG_GLOBAL",
+        "GIT_ATTR_NOSYSTEM",
+        "GIT_TEMPLATE_DIR",
+        "GIT_OPTIONAL_LOCKS",
+        "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_NONCE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FIXTURE_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_RESOURCE_TRACE_FILE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_OWNED_TEMP_BASE",
+        "PROOF_OR_STOP_QUORUM_SMOKE_RUN_ID",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_KIND",
+        "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_CASE_ID",
+        "PROOF_OR_STOP_QUORUM_SMOKE_REPOSITORY_ROOT",
+        "PROOF_OR_STOP_QUORUM_SMOKE_WORKER_PROCESS_MARKER",
+        "PROOF_OR_STOP_DYN5_CASE",
+        "PROOF_OR_STOP_SESSION_ID",
+        "PROOF_OR_STOP_ACTIVITY_SOURCE",
+        "PROOF_OR_STOP_ACTIVITY_SESSION",
+        "PROOF_OR_STOP_AGENT",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY",
+        "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED",
+        "CLAUDE_CODE_SESSION_ID",
+        "CLAUDE_SESSION_ID",
+        "CODEX_SESSION_ID",
+        "CODEX_THREAD_ID",
+        "OPENAI_SESSION_ID",
+        "TERM_SESSION_ID",
+        "ANTIGRAVITY_SESSION_ID",
+        "AGY_SESSION_ID",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY",
+        "LATTICE_VALIDATION_SHARD_CASE_REGISTRY",
+        "PROOF_OR_STOP_VALIDATION_SHARD_DIR",
+        "LATTICE_VALIDATION_SHARD_DIR",
+        "PROOF_OR_STOP_VALIDATION_SHARD_DOMAIN",
+        "LATTICE_VALIDATION_SHARD_DOMAIN",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ID",
+        "LATTICE_VALIDATION_SHARD_ID",
+        "PROOF_OR_STOP_VALIDATION_SHARD_SENTINEL",
+        "LATTICE_VALIDATION_SHARD_SENTINEL",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+        "LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+        "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER_DIGEST",
+        "LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST",
+        "PROOF_OR_STOP_VALIDATION_SHARD_CASE_IDS",
+        "LATTICE_VALIDATION_SHARD_CASE_IDS",
+        "PROOF_OR_STOP_VALIDATION_PROJECT_ROOT",
+        "LATTICE_VALIDATION_PROJECT_ROOT",
+        "PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS",
+        "LATTICE_VALIDATION_CASE_TIMEOUT_MS",
+        "PROOF_OR_STOP_PROJECT_ROOT",
+        "PROOF_OR_STOP_IDLE_TIMEOUT_MS",
+        "PROOF_OR_STOP_MAX_TIMEOUT_MS",
+        "PROOF_OR_STOP_ACTIVITY_ROLE",
+        "PROOF_OR_STOP_CODEX_ENTRYPOINT",
+        "PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE",
+        "LATTICE_DYNAMIC_VALIDATION_MODE",
+        "PROOF_OR_STOP_VALIDATE_JOBS",
+        "PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS",
+        "LATTICE_VALIDATE_HEARTBEAT_MS",
+        "LATTICE_VALIDATE_JOBS",
+        "LATTICE_VALIDATE_CPU",
+        "FORCE_COLOR",
+        "GRACEFUL_FS_PLATFORM",
+        "NODE_DEBUG",
+        "NODE_INSPECTOR_IPC",
+        "NODE_V8_COVERAGE",
+        "TEST_GRACEFUL_FS_GLOBAL_PATCH",
+        "TSC_NONPOLLING_WATCHER",
+        "TSC_WATCHDIRECTORY",
+        "TSC_WATCHFILE",
+        "TSC_WATCH_POLLINGCHUNKSIZE_HIGH",
+        "TSC_WATCH_POLLINGCHUNKSIZE_LOW",
+        "TSC_WATCH_POLLINGCHUNKSIZE_MEDIUM",
+        "TSC_WATCH_POLLINGINTERVAL_HIGH",
+        "TSC_WATCH_POLLINGINTERVAL_LOW",
+        "TSC_WATCH_POLLINGINTERVAL_MEDIUM",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_HIGH",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_LOW",
+        "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_MEDIUM",
+        "VSCODE_INSPECTOR_OPTIONS",
+        "WATCH_REPORT_DEPENDENCIES",
+        "__CF_USER_TEXT_ENCODING",
+        "PROOF_OR_STOP_EXPERIMENT_ARM",
+        "PROOF_OR_STOP_EXPERIMENT_ID",
+        "PROOF_OR_STOP_HEALTH_PATH",
+        "PROOF_OR_STOP_REVIEWER_READONLY",
+        "PWD",
+        "QUORUM_CLI_PROBE_COUNTER",
+        "SHLVL",
+        "_"
+      ],
+      "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+      "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+      "assurance": "story-selectable",
+      "riskTier": "gate",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 4,
+      "expectedP50Ms": 643000,
+      "timeoutMs": 1200000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-e40f CHK-002: quorum-submit executable registrations and manifest remain a lossless 73-case bijection",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+        "--case=inventory-bijection"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[42]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[43]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[44]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-registry-contract.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[45]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[46]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[47]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[48]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[49]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[50]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[51]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[52]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[53]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "focus": [
+        "fast"
+      ],
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[54]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[55]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 120000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[56]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[57]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[58]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[59]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[60]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[61]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[62]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[63]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[64]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[65]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[66]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[67]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[68]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[69]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[70]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[71]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[72]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[73]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[74]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[75]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-validate-registration.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-212f CHK-001: done_prepare and DONE reject missing finish decisions and stale reviewer diff-pack bindings with matching diagnostics without mutating reviewer evidence",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-212f CHK-003: shared DONE predicates reach boolean, diagnostic and preflight consumers with executable mutation protection",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-212f CHK-003: historical DONE presentation preserves snapshot assurance without reopening live reviewer eligibility, and rejected delivery artifacts remain structured blockers",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[79]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[80]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist/tasks",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/tests/red",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[81]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[82]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-lock-liveness.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[83]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-content-binding.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[84]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-reader-race.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[85]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-e256 global CLI rebuild and promotion regression",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "id": "red-global-cli-exec-bit"
+    },
+    {
+      "label": "configured validate.commands[87]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[88]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[89]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-differential-probe.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[90]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[91]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-canon-differential.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[92]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[93]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-binding-store.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[94]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[95]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[96]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[97]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-gate-guard.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[98]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-head-consistency.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[99]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[100]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[101]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[102]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[103]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[104]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[105]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[106]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+        "--issuer-mutations"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[107]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+        "--probe-jobs=4"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[108]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[109]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[110]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[111]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+      ],
+      "env": {
+        "PROOF_OR_STOP_VALIDATE_JOBS": "4"
+      },
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[112]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-plan-scheduling.test.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[113]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-resource-claims.test.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[114]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[115]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-pollution-attribution.test.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[117]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[118]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[119]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[120]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[121]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[122]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 600000,
+      "focus": [
+        "b8df9-init-check-signature"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 300000,
+      "focus": [
+        "b8df9-init-check-signature"
+      ],
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/story/actives",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[125]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[126]",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/graph",
+        "run",
+        "check"
+      ],
+      "env": {
+        "GRAPH_VERIFY_PORT": "0"
+      },
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 290000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/graph",
+          "access": "exclusive"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[127]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/cli-surface-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[128]",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-ownership-contract.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[129]",
+      "command": "node",
+      "args": [
+        "scripts/verify-orphan-surface.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "configured validate.commands[130]",
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-a745 CHK-006: the Story 1 fixture suite (stable validation command identity, canonical legacy pin resolver, Story input contract, tier planner widening matrix, read-only validation_plan CLI). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-41c8 CHK-004: the single-owner extraction suite (NUL-delimited rename-aware diff reader, canonical legacy command parse, story-workspace resolver, resolveGitCwd call-site audit). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/single-owner-extraction-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-1482 CHK-003: the narrowing-only evidence re-pin suite (receipt selector persistence, the narrowing-only re-pin and its refusals, CLI reachability, the three registration inventories, the documentation). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/narrowing-repin-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    },
+    {
+      "label": "B-dc2e CHK-001: the validation protocol suite (validation executor, verifier discovery, managed-asset check/apply, runtime footprint, doctor, evidence freshness gates, tasks/ inventory sweep). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-protocol-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "cpuWeight": 1,
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ]
+    }
+  ],
+  "scope": "Current integrated candidate, actual executeValidationPlan with all 135 current routine commands and unchanged configured timeouts. Single correctness run under shared host load; not an A/B performance result or Story DONE.",
+  "head": "3b55ae70ddda3f6085ec0b0473847da2cacfef9c",
+  "statusBefore": ""
+}

@@ -1,0 +1,23 @@
+  [lying-agent] stale done/pass REJECTED reason=stale
+  [lying-agent] forged done/pass REJECTED reason=signature_invalid
+  [self-check] receipt exitCode:1 REJECTED reason=receipt_not_passing; hostVerdicts.push(null) REJECTED reason=malformed_bundle
+  [ACCEPT] authentic (control)    reason=ok
+  [REJECT] code-byte-flip         reason=stale
+  [REJECT] evidence-edit          reason=signature_invalid
+  [REJECT] host-verdict-swap      reason=signature_invalid
+  [REJECT] commandSet-change      reason=signature_invalid
+  [REJECT] stale-materialHash     reason=stale
+  [REJECT] forged-signature       reason=signature_invalid
+  [REJECT] missing-signature      reason=signature_missing
+  [REJECT] missing-build-proof    reason=build_proof_missing
+  [REJECT] binding-incomplete     reason=binding_incomplete
+  [REJECT] digest-malformed       reason=digest_mismatch
+  [REJECT] decision-fail          reason=decision_not_pass
+  [REJECT] receipt-exit-1         reason=receipt_not_passing
+  [REJECT] receipt-exit-neg1      reason=receipt_not_passing
+  [REJECT] receipt-empty-cmd      reason=receipt_not_passing
+  [REJECT] hostverdict-null       reason=malformed_bundle
+  [REJECT] decision-null          reason=malformed_bundle
+  [REJECT] extra-key              reason=malformed_bundle
+  [REJECT] signer-key-mismatch    reason=signer_key_mismatch
+✓ receipt-bundle contract smoke passed: authentic ACCEPTED; 18 tamper classes REJECTED (every reason code reached); lying-agent + soundness-hole self-checks rejected; 0 false-accept, 0 false-reject

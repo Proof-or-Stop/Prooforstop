@@ -288,7 +288,9 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/proof-admissibility-smoke.ts',
   'packages/main/src/tasks/provider-claude-smoke.ts',
   'packages/main/src/tasks/provider-codex-smoke.ts',
-  'packages/main/src/tasks/quorum-submit-smoke.ts',
+  // B-e40f moved the existing negative compatibility assertions into this module.
+  // Transfer the exact structural quarantine; the coordinator wrapper is no longer exempt.
+  'packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts',
   'packages/main/src/tasks/repair-retry-integration-smoke.ts',
   'packages/main/src/tasks/repair-retry-loop-smoke.ts',
   'packages/main/src/tasks/review-assurance-floor-smoke.ts',

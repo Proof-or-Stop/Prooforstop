@@ -1,0 +1,15 @@
+PASS independent explicitly declared resources use separate capacity slots
+PASS conflicting resources remain serialized
+PASS unknown declarations remain serialized
+PASS malformed resource declarations fail before callback
+PASS cross-process admit independent resources
+PASS cross-process serialize conflicts
+PASS cross-process isolated worktrees admit independent resources
+PASS cross-process isolated worktrees serialize conflicts
+PASS missing lease is never acquired by heartbeat
+PASS released lease is never resurrected by heartbeat
+PASS reacquired generation fences a late heartbeat
+PASS long official validation renews the same owner until publication
+PASS real validation consumers share only permitted unchanged PASS executions
+PASS complete signed review wave enables repair without certification authority
+Performance production regressions passed

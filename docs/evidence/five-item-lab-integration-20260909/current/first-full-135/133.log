@@ -1,0 +1,26 @@
+[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it
+[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one
+[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one
+[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts
+[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader
+[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating
+[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side
+[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt
+[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound
+[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof
+[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof
+[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing
+[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged
+[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against
+[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing
+[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function
+[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call
+[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands
+[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded
+[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception
+[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback
+[PASS] CHK-003/C7 the decision record carries at least four pre-mortems
+[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed
+[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command
+[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability
+narrowing-repin-smoke: PASS

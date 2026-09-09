@@ -1,0 +1,8 @@
+PASS reftable retains and restores dual-erased history
+PASS in-place ref backend migration preserves evidence
+PASS interrupted mirror reconciles every generation
+PASS unchanged legacy write migrates complete chain
+PASS truncated root cannot masquerade as migration
+PASS rollback against intact mirror refuses recovery
+PASS CAS conflict is typed and preserves winner
+CHECKPOINT_AUDIT_CONTROLS_GREEN 7

@@ -1,0 +1,60 @@
+done-required-head-drift-proof passed
+{
+  "status": "PASS",
+  "proof": "DONE-required metadata-only HEAD drift is non-blocking (deadlock fixed)",
+  "rounds": 3,
+  "headDriftFreshRounds": 3,
+  "materialDriftBlockedRounds": 3,
+  "slowCommandMs": 800,
+  "averages": {
+    "firstRunMs": 1145,
+    "postMetadataEvalMs": 107
+  },
+  "results": [
+    {
+      "round": 1,
+      "firstRunMs": 1161,
+      "postMetadataEvalMs": 113,
+      "metadataOnlyHeadChanged": true,
+      "materialSameAfterMetadataCommit": true,
+      "storyFilesSameAfterMetadataCommit": true,
+      "postMetadataOk": true,
+      "postMetadataBlocking": false,
+      "postMetadataReasons": [],
+      "materialDriftBlocking": true,
+      "materialDriftReasons": [
+        "stale-material"
+      ]
+    },
+    {
+      "round": 2,
+      "firstRunMs": 1146,
+      "postMetadataEvalMs": 108,
+      "metadataOnlyHeadChanged": true,
+      "materialSameAfterMetadataCommit": true,
+      "storyFilesSameAfterMetadataCommit": true,
+      "postMetadataOk": true,
+      "postMetadataBlocking": false,
+      "postMetadataReasons": [],
+      "materialDriftBlocking": true,
+      "materialDriftReasons": [
+        "stale-material"
+      ]
+    },
+    {
+      "round": 3,
+      "firstRunMs": 1128,
+      "postMetadataEvalMs": 101,
+      "metadataOnlyHeadChanged": true,
+      "materialSameAfterMetadataCommit": true,
+      "storyFilesSameAfterMetadataCommit": true,
+      "postMetadataOk": true,
+      "postMetadataBlocking": false,
+      "postMetadataReasons": [],
+      "materialDriftBlocking": true,
+      "materialDriftReasons": [
+        "stale-material"
+      ]
+    }
+  ]
+}

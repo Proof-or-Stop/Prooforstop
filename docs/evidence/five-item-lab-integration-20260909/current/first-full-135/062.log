@@ -1,0 +1,40 @@
+      proof B1: v2Loads=byte-identical; v2Quarantined=false; skipFlip=[]->["missing_red_evidence"] on schemaVersion alone; nonInterference=2/2 orders; negControl(schemaVersion=v3)=discriminated
+  [PASS] B1-v2-record-skipped-unchanged  a valid v2 record loads byte-identically and is still correctly SKIPPED by the v1 predicate
+      proof B2: recordsKeyPresent=false; readThrew=false; codes=["missing_red_evidence"]; report==ABSENT=true; quarantined=false; recordsAbsent==recordsEmpty=true; negControl(records:{})=discriminated
+  [PASS] B2-records-key-absent-stays-not-configured  an artifact whose `records` key is ABSENT still yields UNSATISFIED via the ordinary not-configured path
+      proof B3: absentReadsNull=true; family=4/4 on the ordinary not-configured path; notConfigured!=satisfied=true; negControl(records:{})=discriminated
+  [PASS] B3-absent-side-not-reclassified-as-corruption  the whole NOT-CONFIGURED family stays on one path — the fix must earn BLOCK A by moving the CORRUPT side, not this one
+      proof D0: seed="B-2aa7/CHK-011/fuzz/v1"; corpus=4846; corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; acyclic=true; maxDepth=204; objectNodes=19546; arrayNodes=7709; emptyObjects=2919; emptyArrays=1272; nullPrototype=1485; inheritedPrototype=819; ownProtoKeys=508; mixedPrimitiveArrays=150; distinctKeys=47; novelVsEnumerated=3528; potencyAgainstUnguardedPreFixReader=1786/4846
+
+red-b2aa7-artifact-validation — BLOCK A (CHK-001), pre-fix expectation: MUST FAIL  ·  BLOCK C (CHK-009): same expectation
+
+  [GREEN] A1-record-versionless (A.1 CRASH) { id: "corrupt" } — versionless, no observedFailure
+  [GREEN] A2-observedFailure-null (A.1 CRASH) observedFailure: null
+  [GREEN] A3-observedFailure-number (A.1 CRASH) observedFailure: 123
+  [GREEN] A4-record-is-array (A.1 CRASH) the record itself is an array
+  [GREEN] A5-malformed-first (A.1 CRASH) malformed FIRST, satisfying after (some() cannot short-circuit)
+  [GREEN] A6-envelope-object (A.1 CRASH) records: {} — non-iterable envelope
+  [GREEN] A7-envelope-number (A.1 CRASH) records: 42 — non-iterable envelope
+  [GREEN] A8-envelope-string (A.2 ENVELOPE-MISATTRIBUTION) records: "x" — the string's characters are iterated as records
+  [GREEN] A9-root-array (A.3 SILENT) JSON root is []
+  [GREEN] A10-root-string (A.3 SILENT) JSON root is "x"
+  [GREEN] A11-root-null (A.3 SILENT) JSON root is null — indistinguishable even in the returned value
+  [GREEN] A12-root-number (A.3 SILENT) JSON root is 42
+  [GREEN] A13-satisfying-first (A.3 SILENT) satisfying FIRST, malformed after (row O2) — some() short-circuits past the corruption
+  [GREEN] A14-unparseable-file (A.4 UNTYPED-THROW) the file is not valid JSON
+  [GREEN] C1-verdict-order-independent (C.1 ORDER-DEPENDENCE) the SAME record set yields the SAME verdict in EVERY permutation (§10.3 rows O1 + O2, compared against each other)
+         proof C1: families=4; permutations=38; distinctPerFamily=1,1,1,1; bareTypeErrors=0; negControls(addMalformed/swapFlavour/absent)=discriminated
+  [GREEN] C2-malformed-reported-behind-satisfier (C.2 ORDER-DEPENDENCE) a malformed entry is REPORTED even when satisfying records precede it (§10.3 row O2, every flavour × every depth)
+         proof C2: cases=12; reportedAtTrueIndex=12/12; silentPassThrough=0/12; flavours=4; depths=1,2,3; attributedIndexExact=12/12; attributedIndices=[1,2,3,1,2,3,1,2,3,1,2,3]
+  [GREEN] C3-detection-exhaustive-not-first-match (C.3 ORDER-DEPENDENCE) detection examines EVERY entry, not just up to the first match — 3 malformed entries behind a satisfying record are all accounted for
+         proof C3: expected=3; satisfierFirstReported=3; malformedFirstReported=3; ordersAgree=true; satisfierFirstThrew=false; malformedFirstThrew=false
+  [GREEN] D1-classify-total-on-arbitrary-json (D.1 TOTALITY) `classifyRedEvidenceArtifact` returns a well-formed CLASSIFICATION for every generated acyclic JSON value and never throws (§10.5)
+         proof D1: seed="B-2aa7/CHK-011/fuzz/v1"; corpus=4846; corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; strata=raw:1200,envelope:1200,records:1200,mutants:1200,structural:46; classifyThrew=0/4846; notAClassification=0/4846; outcomes=envelope/records_not_array:509,envelope/root_not_object:813,envelope/schema_version_missing:605,envelope/schema_version_unknown:366,ok-clean:547,ok-quarantined:1227,record_schema:779
+  [GREEN] D2-partition-total-and-lossless (D.2 TOTALITY) `partitionRedEvidenceRecords` is total over every array in the corpus and never drops, duplicates or rewrites an entry (D-4 retain-and-report)
+         proof D2: arrays=7705; partitionThrew=0/7705; lossyOrReordered=0/7705; retainedVerbatim=7705/7705
+  [GREEN] D3-read-boundary-total-on-generated-artifacts (D.3 TOTALITY) no generated artifact lets a RAW builtin escape the live read boundary or the live gate pair, and every typed rejection names the artifact
+         proof D3: artifacts=1212; readBoundaryRawBuiltins=0/1212; typedRejections=773; typedNamingArtifact=773/773; gateSample=16; gateRawBuiltins=0/16
+
+  0 RED / 20 GREEN of 20 rows — witnessed classes: none
+
+red-b2aa7-artifact-validation: OK (every documented defect class is closed)

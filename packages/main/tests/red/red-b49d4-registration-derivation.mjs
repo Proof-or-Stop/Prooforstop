@@ -522,7 +522,27 @@ const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
 /** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
-const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', join(mirrorRoot, rel)], mirrorRoot);
+// Execute the actual configured argv for registered node harnesses. A selector-only
+// harness must not be misclassified as broken merely because this mirror dropped
+// its required arguments. Multiple registered variants all remain observable.
+function registeredNodeArgs(rel, configuration = config) {
+  const invocations = (configuration.validate?.commands ?? []).map(entryArgv)
+    .filter(argv => argv[0] === 'node' && argv[1] === rel).map(argv => argv.slice(2));
+  return invocations.length ? invocations : [[]];
+}
+assert.deepEqual(registeredNodeArgs('fixture.mjs', {validate:{commands:[
+  {command:'node',args:['fixture.mjs','--case=one']},
+  {command:'node',args:['fixture.mjs','--case=two']},
+]}}), [['--case=one'],['--case=two']], 'every configured selector variant must run');
+assert.deepEqual(registeredNodeArgs('unregistered.mjs',{validate:{commands:[]}}),[[]]);
+const runInMirror = (mirrorRoot, rel) => {
+  const runs = registeredNodeArgs(rel).map(args => ({args,...runNode(['--preserve-symlinks-main', join(mirrorRoot, rel), ...args], mirrorRoot)}));
+  const failed = runs.find(r=>r.status!==0);
+  // Preserve every command and result; any failed variant keeps the aggregate red.
+  return {status:failed ? failed.status : 0,variants:runs,
+    stdout:runs.map(r=>r.stdout).join('\n'),stderr:runs.map(r=>r.stderr).join('\n'),
+    out:runs.map(r=>r.out).join('\n'),ms:runs.reduce((sum,r)=>sum+r.ms,0)};
+};
 
 const gitStatusFor = (paths) => {
   try {
@@ -1109,10 +1129,9 @@ try {
         return true;
       }
     });
-    targetRuns = targetRels.map((rel) => {
-      const r = runInMirror(newcomerMirror, rel);
-      return { rel, status: r.status, names: r.out.includes(NEWCOMER_BASE), ms: r.ms, out: r.out };
-    });
+    targetRuns = targetRels.flatMap((rel) => runInMirror(newcomerMirror, rel).variants.map(r => ({
+      rel, args:r.args, status:r.status, names:r.out.includes(NEWCOMER_BASE), ms:r.ms, out:r.out,
+    })));
   } finally {
     if (newcomerMirror !== null) rmSync(newcomerMirror, { recursive: true, force: true });
   }

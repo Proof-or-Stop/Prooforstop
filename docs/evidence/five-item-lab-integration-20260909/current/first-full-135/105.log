@@ -1,0 +1,5 @@
+✓ [hook] status→done pins a userSeesSnapshot (digest + storyFilesHash + headHash) via the REAL handler
+✓ [immutable-once] a second done write does NOT overwrite the snapshot (byte-identical, attestedAt unchanged)
+✓ [no-claim] a done item with absent/empty userSees gets NO snapshot
+✓ [clean-report] real frozen_claim_drift_check handler reports a CLEAN report for the snapshot-bound story
+frozen-claim-snapshot-hook-smoke: PASS

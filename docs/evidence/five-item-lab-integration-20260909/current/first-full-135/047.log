@@ -1,0 +1,7 @@
+check: happy: candidate lineage binds the capability release - PASS
+check: edge: no capability release keeps the 3-field lineage (still valid) - PASS
+check: edge: a legacy 3-field PlaybookLineage still parses - PASS
+check: edge: enrichSeedWithCapabilityLineage is a no-op with no matching release - PASS
+check: adversarial: re-apply produces no duplicate and trips no stale/drift rejection - PASS
+check: adversarial: a tampered capability ledger fails open (lineage stays 3-field) - PASS
+playbook capability lineage smoke passed: 6/6 checks

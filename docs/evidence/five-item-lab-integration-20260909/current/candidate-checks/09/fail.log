@@ -1,0 +1,11 @@
+Error: causal evidence import failed after 2 transaction attempt(s): INJECTED_PERSISTENT_PUBLICATION_FAILURE [causal_import_failed]
+    at importCausalEvidenceReceipt (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/core/causal-evidence.js:1233:11)
+    at commitCanonicalCausalEvidence (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/handlers/checklist.js:1745:9)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/handlers/checklist.js:2428:21
+    at withMkdirLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/core/mkdir-lock.js:477:16)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/handlers/checklist.js:118:70
+    at withMkdirLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/core/mkdir-lock.js:477:16)
+    at withReviewInventoryMutationLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/core/review-inventory-epoch.js:21:12)
+    at withChecklistLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/handlers/checklist.js:118:12)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-five-item-integration-20260909/packages/main/dist/handlers/checklist.js:2388:24
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)

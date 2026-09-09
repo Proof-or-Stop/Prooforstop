@@ -1,0 +1,5 @@
+VI-OK C3:depfree:0
+VI-OK C3:depfree:3
+VI-OK C3:depfree:1
+VI-OK C3:depfree:2
+PASS red-1734-bootstrap-depfree: bootstrap-runner is proper-lockfile-free (imports the dep-free build-lock-target.mjs) and a fresh checkout prints the recovery hint instead of ERR_MODULE_NOT_FOUND

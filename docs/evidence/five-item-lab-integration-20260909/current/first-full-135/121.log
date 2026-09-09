@@ -1,0 +1,144 @@
+red-w2d-rejection-matrix: PASS
+  142 fixtures; tags exercised: R1-1, R1-2, R1-3, R1-5, R1-6
+  ACCEPT             baseline: one admissible present-in-red literal-line matcher
+  ACCEPT             CHK-001: unique ids across kinds literal-line + class
+  ACCEPT             CHK-016: class value exactly naming a registered matcherClassRegistry entry
+  ACCEPT             CHK-015: exactly 1 matcher (inclusive lower count bound)
+  ACCEPT             CHK-015: exactly policy.maxMatchers=8 matchers (inclusive upper count bound)
+  ACCEPT             CHK-002: value at exactly maxMatcherLen=512 bytes
+  ACCEPT             CHK-003: greenExempt:true on a present-in-red matcher
+  ACCEPT             CHK-003: greenExempt:false explicitly set on a present-in-red matcher
+  ACCEPT             CHK-004: expectedExitClass exit:7 (0 < n <= 255)
+  ACCEPT             CHK-004: expectedExitClass exit:255 (upper bound)
+  ACCEPT             CHK-004: expectedExitClass nonzero with a script-exit adapter
+  ACCEPT             CHK-005: valid repo-relative targetArtifactRef
+  ACCEPT             CHK-010: an explicit policyDigest equal to the resolved one
+  ACCEPT             CHK-010: BOTH policyDigest and assertionDigest omitted (a candidate need not pre-supply them)
+  ACCEPT             CHK-010: policyDigest AND assertionDigest supplied and MATCHING
+  DIAGNOSE             CHK-010: a SUPPLIED assertionDigest that does not recompute
+  ACCEPT             CHK-004: timeout-is-failure with a reporter-event adapter
+  REJECT R1-3        CHK-015: ZERO matchers
+  REJECT R1-3        CHK-015: maxMatchers+1 = 9 matchers
+  REJECT R1-3        CHK-015: matchers is not an array
+  ACCEPT             CHK-015: 4 matchers are ADMISSIBLE under the frozen default policy (maxMatchers=8)
+  REJECT R1-3        CHK-015: the SAME 4 matchers reject under a policy with maxMatchers=3 (a hard-coded 8 would ADMIT this)
+  REJECT R1-3        CHK-001: duplicate matcher id
+  REJECT R1-3        CHK-001: unknown matcher kind "anchored-regex"
+  REJECT R1-3        CHK-001: unknown matcher kind "regex"
+  REJECT R1-3        CHK-001: unknown matcher kind "Literal-Line"
+  REJECT R1-3        CHK-001: unknown matcher kind "literal_line"
+  REJECT R1-3        CHK-001: unknown matcher kind ""
+  REJECT R1-3        CHK-016: class value "no-such-class" names no registry entry
+  REJECT R1-3        CHK-016: class value "Stderr-Nonempty" names no registry entry
+  REJECT R1-3        CHK-016: class value "STDERR-NONEMPTY" names no registry entry
+  REJECT R1-3        CHK-016: class value "" names no registry entry
+  REJECT R1-3        CHK-016: a class registered ONLY in the default policy is unregistered under a custom registry
+  ACCEPT             CHK-016: the custom registry name IS admissible under that policy
+  REJECT R1-3        CHK-016: exit-code-in class matcher declaring stream stderr
+  REJECT R1-3        CHK-002: class matcher stream "Stderr"
+  REJECT R1-3        CHK-002: class matcher stream "STDERR"
+  REJECT R1-3        CHK-002: class matcher stream "both"
+  REJECT R1-3        CHK-002: class matcher stream ""
+  REJECT R1-3        CHK-002: class matcher stream undefined
+  REJECT R1-3        CHK-002: class matcher polarity "absent-in-red"
+  REJECT R1-3        CHK-002: class matcher polarity "Present-In-Red"
+  REJECT R1-3        CHK-002: class matcher polarity ""
+  REJECT R1-3        CHK-002: class matcher polarity undefined
+  REJECT R1-3        CHK-003: class matcher carrying greenExempt true on present-in-green
+  REJECT R1-3        CHK-003: class matcher carrying greenExempt false on present-in-green
+  REJECT R1-3        CHK-003: class matcher carrying greenExempt "true" on present-in-green
+  REJECT R1-3        CHK-001: duplicate id across a literal-line and a class matcher
+  REJECT R1-3        CHK-002: value with a leading space
+  REJECT R1-3        CHK-002: value with a trailing newline
+  REJECT R1-3        CHK-002: value with a trailing tab
+  REJECT R1-3        CHK-002: value at maxMatcherLen+1 = 513 bytes
+  ACCEPT             CHK-002: 128 four-byte emoji = exactly 512 bytes
+  REJECT R1-3        CHK-002: 129 four-byte emoji = 516 bytes (a code-unit implementation would ADMIT this)
+  REJECT R1-3        CHK-002: stream "Combined"
+  REJECT R1-3        CHK-002: stream "STDOUT"
+  REJECT R1-3        CHK-002: stream "both"
+  REJECT R1-3        CHK-002: stream ""
+  REJECT R1-3        CHK-002: stream undefined
+  REJECT R1-3        CHK-002: polarity "absent-in-red"
+  REJECT R1-3        CHK-002: polarity "Present-In-Red"
+  REJECT R1-3        CHK-002: polarity "present"
+  REJECT R1-3        CHK-002: polarity ""
+  REJECT R1-3        CHK-002: polarity undefined
+  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher
+  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher
+  REJECT R1-3        CHK-003: greenExempt:FALSE carried on a absent-in-green matcher
+  REJECT R1-3        CHK-003: greenExempt:FALSE carried on a present-in-green matcher
+  REJECT R1-3        CHK-003: greenExempt is not a boolean
+  ACCEPT             CHK-003: greenExempt:false remains legal (and digest-invisible) on present-in-red
+  REJECT R1-3        CHK-004: expectedExitClass "exit:0"
+  REJECT R1-3        CHK-004: expectedExitClass "exit:256"
+  REJECT R1-3        CHK-004: expectedExitClass "exit:-1"
+  REJECT R1-3        CHK-004: expectedExitClass "exit:"
+  REJECT R1-3        CHK-004: expectedExitClass "exit:07"
+  REJECT R1-3        CHK-004: expectedExitClass "exit:1.5"
+  REJECT R1-3        CHK-004: expectedExitClass ""
+  REJECT R1-3        CHK-004: expectedExitClass "NONZERO"
+  REJECT R1-3        CHK-004: expectedExitClass "Nonzero"
+  REJECT R1-3        CHK-004: expectedExitClass "zero"
+  REJECT R1-3        CHK-004: expectedExitClass "timeout"
+  REJECT R1-3        CHK-004: expectedExitClass undefined
+  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter
+  REJECT R1-3        CHK-005: targetArtifactRef "/absolute/path"
+  REJECT R1-3        CHK-005: targetArtifactRef "foo//bar"
+  REJECT R1-3        CHK-005: targetArtifactRef "foo/./bar"
+  REJECT R1-3        CHK-005: targetArtifactRef "foo/../bar"
+  REJECT R1-3        CHK-005: targetArtifactRef "foo\\bar"
+  REJECT R1-3        CHK-005: targetArtifactRef ""
+  REJECT R1-3        CHK-005: targetArtifactRef "."
+  REJECT R1-3        CHK-005: targetArtifactRef ".."
+  REJECT R1-3        CHK-005: targetArtifactRef "foo/bar/"
+  REJECT R1-3        CHK-005: targetArtifactRef "/"
+  REJECT R1-3        CHK-005: targetArtifactRef "./foo"
+  REJECT R1-3        CHK-005: targetArtifactRef "../foo"
+  REJECT R1-3        CHK-005: targetArtifactRef "C:/outside"
+  REJECT R1-3        CHK-005: targetArtifactRef "c:/outside"
+  REJECT R1-3        CHK-005: targetArtifactRef "C:/"
+  REJECT R1-3        CHK-005: targetArtifactRef "Z:/repo/packages/x.js"
+  REJECT R1-3        CHK-005: targetArtifactRef "C:outside"
+  REJECT R1-3        CHK-005: targetArtifactRef "C:\\outside"
+  REJECT R1-3        CHK-005: targetArtifactRef "//server/share/x.js"
+  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon
+  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)
+  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible
+  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum
+  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef
+  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3
+  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3
+  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)
+  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2
+  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3
+  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3
+  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6
+  REJECT R1-1        CHK-011: targetExercisedProof is not an object
+  REJECT R1-1        CHK-011: targetExercisedProof.method undefined
+  REJECT R1-1        CHK-011: targetExercisedProof.method "artifact-presence"
+  REJECT R1-1        CHK-011: targetExercisedProof.method "path-touch"
+  REJECT R1-1        CHK-011: targetExercisedProof.method "Harness-Token"
+  REJECT R1-1        CHK-011: targetExercisedProof.method ""
+  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)
+  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)
+  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)
+  REJECT R1-6        CHK-011: NO committed binding registered for the target
+  REJECT R1-6        CHK-011: adapterId mismatching the committed binding
+  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)
+  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included
+  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing
+  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "free-form:not-derived" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "npm-script:" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "npm-script:test x" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "NPM-SCRIPT:test:x" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "prefix-npm-script:test:x" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: testCaseRef "npm-script:test:x-suffix\n" matches no registered testCaseRefPattern is R1-5
+  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5
+  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it
+  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other
+  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur
+  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)
+  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)
+  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported

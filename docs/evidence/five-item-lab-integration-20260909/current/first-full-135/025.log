@@ -1,0 +1,13 @@
+✓ V1 path classifier includes docs and experiments only after runtime/lifecycle exclusions
+✓ digest is deterministic, sha256-prefixed, and bound to git blobs at the supplied commit
+✓ wrapper-root read commands use the same resolved ledger root that DONE writes
+✓ partial-DONE recovery writes and commits artifact release ledger for docs and experiments
+✓ partial-DONE recovery auto-bumps runtime version before build
+✓ filesystem fallback works when no commit is supplied
+✓ record append is idempotent for storyId + mainCommit + artifactSetDigest
+✓ reader FAILS CLOSED on missing or inconsistent required release fields
+✓ already-recorded dirty ledger retry commits the existing row durably
+✓ empty releasable set skips without creating a ledger file
+✓ read-only handlers list and filter records without mutating
+✓ test record helper preserves the provenance-only semver boundary note
+artifact-release-ledger smoke passed: 12 assertions

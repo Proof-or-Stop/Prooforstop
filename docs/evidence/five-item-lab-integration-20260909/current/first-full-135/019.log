@@ -1,0 +1,14 @@
+  pass: generated cross-product covers single-field and pairwise delivery-promise mutations with pre-write rejection
+  pass: handler, machine readiness, and DONE oracle agree on every normalized outcome
+  pass: delivery_check_set records materialHash as binding and headHash as audit metadata
+  pass: non-story whole-tree drift downgrades to a mandatory re-attestation advisory (DONE row passes with the advisory text)
+  pass: story-owned change after delivery-check is stale across DONE consumers
+  pass: forged storyFilesHash breaks the delivery-check integrity hash (signed)
+  pass: legacy delivery-check with no storyFilesHash falls back to strict materialHash stale
+  pass: missing material binding fails closed as stale delivery-check
+  pass: tampered material binding breaks delivery-check integrity hash
+  pass: docsPromise validation remains independent after fresh material binding
+  pass: process-fact registry keeps delivery-check as L4 signed gate evidence produced by delivery_check_set
+  pass: delivery_waiver_add re-sign preserves the signed storyFilesHash so the drift-advisory survives (F-002)
+  pass: empty-set storyFilesHash (no story diff) falls back to strict materialHash stale, never advisory (host-2 soundness)
+delivery-check-freshness smoke passed

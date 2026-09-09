@@ -1,0 +1,37 @@
+[
+  {
+    "name": "reftable retains and restores dual-erased history",
+    "backend": "reftable",
+    "passed": true
+  },
+  {
+    "name": "in-place ref backend migration preserves evidence",
+    "backend": "files",
+    "passed": true
+  },
+  {
+    "name": "interrupted mirror reconciles every generation",
+    "backend": "files",
+    "passed": true
+  },
+  {
+    "name": "unchanged legacy write migrates complete chain",
+    "backend": "files",
+    "passed": true
+  },
+  {
+    "name": "truncated root cannot masquerade as migration",
+    "backend": "files",
+    "passed": true
+  },
+  {
+    "name": "rollback against intact mirror refuses recovery",
+    "backend": "files",
+    "passed": true
+  },
+  {
+    "name": "CAS conflict is typed and preserves winner",
+    "backend": "files",
+    "passed": true
+  }
+]

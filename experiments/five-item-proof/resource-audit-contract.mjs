@@ -28,4 +28,5 @@ target.supersededBy.effectiveResources=target.supersededBy.effectiveResources.fi
 assert.throws(()=>verifyResourceAudit(coordinatedConfig,coordinatedAudit),/RESOURCE_AUDIT_WITHDRAWN_CLAIM/);
 const duplicate=structuredClone(config);duplicate.validate.commands.push(structuredClone(commandFor(duplicate,reader)));assert.throws(()=>verifyResourceAudit(duplicate,audit),/AUDITED_COMMAND_DRIFT/);
 const shifted=structuredClone(config);shifted.validate.commands.splice(10,0,{command:'node',args:['unrelated-fixture.mjs'],resources:[]});assert.deepEqual(verifyResourceAudit(shifted,audit),summary,'An unrelated inserted row must not rebind an audited command');
+const boundaryLoss=structuredClone(config),boundaryCommand=commandFor(boundaryLoss,reader);boundaryCommand.command+=' '+boundaryCommand.args.shift();assert.throws(()=>verifyResourceAudit(boundaryLoss,audit),/AUDITED_COMMAND_DRIFT/,'Display text equality cannot substitute for executable/argv identity');
 console.log('RESOURCE_AUDIT_SUPERSESSION_AND_MUTATION_GUARDS_GREEN');

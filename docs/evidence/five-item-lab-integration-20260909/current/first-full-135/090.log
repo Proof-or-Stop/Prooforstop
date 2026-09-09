@@ -1,0 +1,12 @@
+S3 RED — gateFailureDigest must distinguish paths/phases and must collapse ordinals (dist: /private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-integration-full-hhgrvxkt/repo/packages/main/dist)
+  [PASS] C1c signal-less long rejections diverging past char 200 are distinct
+  [PASS] C2 different phase targets are distinct
+  [PASS] C4 different in-repo file paths are distinct
+  [PASS] K1a ISO timestamps still collapse (ordinal held constant)
+  [PASS] K1b bare ordinals still collapse (round-4 re-decision REVERTED; see comment above)
+  [PASS] K2 machine-specific absolute paths still collapse
+  [PASS] K3 hex ids and digests still collapse
+  [PASS] K4 story-id digits still collapse (B-cc54 CHK-002:adversarial:2, verbatim)
+  [PASS] K5a artifact ordinals collapse — the WITHDRAWN C3, from a real producer (F-058)
+  [PASS] K5b a third-party TAP label of the SAME shape collapses too (F-058, codex reproducer)
+S3 RED: 10/10 pass — defect is FIXED

@@ -1,0 +1,9 @@
+ok: story_create refuses CJK background before persistence
+ok: story_create refuses CJK checklist title/context before persistence
+ok: story_create refuses CJK relatedDocs before persistence
+ok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement
+ok: English story_create succeeds with em dash punctuation
+ok: background_set refuses CJK before writing
+ok: early authoring check and english-artifact gate agree on containsCJK
+ok: agent docs preserve the recursive English-authoring boundary
+english-early-check smoke passed

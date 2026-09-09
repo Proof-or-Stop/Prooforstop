@@ -1,0 +1,6 @@
+VI-OK CHK-001:readerrace:0
+VI-OK CHK-001:readerrace:1
+VI-OK CHK-001:readerrace:2
+VI-OK CHK-001:readerrace:3
+VI-OK CHK-001:readerrace:4
+PASS red-1734-reader-race: 46 concurrent bin/proof-or-stop.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure (in-process); utils has no pre-lock fast-path

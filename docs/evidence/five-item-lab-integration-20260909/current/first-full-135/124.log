@@ -1,0 +1,42 @@
+=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===
+
+  C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)
+      observed: distinct=true digestLength=64
+  S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S3  [PASS      ] shape hashes deterministically and does not throw: proof-or-stop-*@fallback pair
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)
+      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true
+  S7  [PASS      ] the documented shapes do not collide onto one digest
+      observed: distinctDigests=6 of shapes=6; collisions=none
+  X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)
+      observed: absentDigestDiffersFromExplicitEncoding=true
+  X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest
+      observed: digestMoved=true
+  D1  [PASS      ] INJECTING a reviewer record moves the digest
+      observed: digestMoved=true
+  D2  [PASS      ] ERASING a recorded blocking issue moves the digest
+      observed: digestMoved=true
+  D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead
+      observed: digestMoved=true
+  M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message
+      observed: componentsDeclared=7 allRendered=true
+  M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list
+      observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false
+  L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads
+      observed: filesMeasuredOnThisRun=335 threw=0 unstable=0 recordsWithNoAgentResultsField=0
+  L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)
+      observed: present=[canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | proof-or-stop-*@fallback pair | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above
+
+  0 FAILED / 0 BROKEN / 17 rows
+  signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)
+
+  PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.
+

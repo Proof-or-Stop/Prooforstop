@@ -1,0 +1,99 @@
+
+> @proof-or-stop/graph@0.1.0 check
+> npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && npm run verify-docs && npm run verify-json-no-listener && npm run verify-missing-assets-fail && npm run verify-engines-floor && npm run verify-serves && node dist/tasks/audit.js && node dist/tasks/bench.js
+
+
+> @proof-or-stop/graph@0.1.0 build
+> tsc && node scripts/build-web.mjs
+
+assets: app.html (486KB)
+assets: d3.min.js
+assets: mermaid not installed — the phase-flow diagram will fall back to text
+assets: gsap.min.js
+assets: mediabunny.min.mjs
+assets: gifenc.esm.js
+assets: gif-palette.js
+assets: gif-encoder.worker.js
+
+> @proof-or-stop/graph@0.1.0 typecheck
+> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN
+
+GRAPH_TSC_CLEAN
+
+> @proof-or-stop/graph@0.1.0 anchor-check
+> node src/tasks/anchor-check.mjs
+
+anchor-check PASS · finding-id anchors normalise across both spellings
+
+> @proof-or-stop/graph@0.1.0 verify-assets-ignored
+> node scripts/verify-assets-ignored.mjs
+
+ASSETS_IGNORED_OK
+
+> @proof-or-stop/graph@0.1.0 verify-clean-tree
+> node scripts/verify-clean-tree.mjs
+
+index db: /Users/jek/.cache/proof-or-stop-graph/repo-acdef3bc8975/index.db
+scanned 414 stories, 485 relations
+index db resolved OUTSIDE the inspected repo: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/graph-clean-tree-probe-36542/index.db
+CLEAN_TREE_OK
+
+> @proof-or-stop/graph@0.1.0 verify-no-project-writes
+> node scripts/verify-no-project-writes.mjs
+
+repository byte-identical across a full scan (45078 paths hashed)
+coverage: synchronous cold-cache build in a subprocess; worker-thread rebuild NOT exercised
+NO_PROJECT_WRITES_OK
+
+> @proof-or-stop/graph@0.1.0 verify-docs
+> node scripts/verify-docs.mjs
+
+CLAUDE.md graph section: 48 lines, all four flags present
+decisions doc: all four migration decisions recorded
+decisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)
+package README: no removed-binary vocabulary, and every architecture-tree path exists
+DOCS_OK
+
+> @proof-or-stop/graph@0.1.0 verify-json-no-listener
+> node scripts/verify-json-no-listener.mjs
+
+--json returned 414 stories and exited without serving
+JSON_NO_LISTENER_OK
+
+> @proof-or-stop/graph@0.1.0 verify-missing-assets-fail
+> node scripts/verify-missing-assets-fail.mjs
+
+Recovery 1 served 497517 bytes from http://localhost:50590/
+Recovery 2 served 497517 bytes from http://localhost:50593/
+MISSING_ASSETS_HANDLED_OK
+
+> @proof-or-stop/graph@0.1.0 verify-engines-floor
+> node scripts/verify-engines-floor.mjs
+
+no pre-22.5 Node installed; exercised the pure decision function only (weaker proof)
+simulated 22.4.1 message:
+    graph: this Node runtime cannot load node:sqlite, which the graph
+      full-text index is built on.
+      running Node: v22.4.1
+      @proof-or-stop/graph requires Node >=22.5.0
+      → upgrade Node, then re-run: proof-or-stop graph
+engines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass
+ENGINES_FLOOR_OK
+
+> @proof-or-stop/graph@0.1.0 verify-serves
+> node scripts/verify-serves.mjs
+
+Served HTML, graph, status and search from owned CLI http://localhost:50598/
+SERVES_OK
+audit PASS · 414 stories · 485 edges · heaviest detail 4.6MB (B-45a0)
+bench · 414 stories · 485 edges
+
+  ok   getGraph (warm)                p50=0.0ms p95=0.0ms (budget 5ms)
+  ok   getGraphBuffer (warm)          p50=0.0ms p95=0.0ms (budget 5ms)
+  ok   getStatus                      p50=0.0ms p95=0.0ms (budget 5ms)
+  ok   search (warm cache)            p50=0.0ms p95=0.0ms (budget 5ms)
+  ok   story buffer (warm)            p50=0.0ms p95=0.0ms (budget 10ms)
+  ok   story buffer (cold sweep)      p50=3.4ms p95=10.4ms (budget 40ms)
+  ok   search (cold, distinct)        p50=20.0ms p95=26.7ms (budget 120ms)
+
+bench PASS

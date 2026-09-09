@@ -1,0 +1,14 @@
+  ✓ test-only reviewer: catchRate 0, falseShip = wrongTotal (ships every wrong probe)
+  ✓ block-all reviewer: catchRate 1.0 BUT falseBlock = genuineTotal (catchRate alone is gameable)
+  ✓ oracle reviewer: catchRate 1.0, falseShip 0, falseBlock 0, names each defect
+  ✓ oracle DOMINATES: beats test-only on catchRate AND beats block-all on falseBlock
+  ✓ runGateStrength REJECTS an all-genuine corpus (catch-rate is undefined)
+  ✓ runGateStrength REJECTS a corpus that violates the defectKind<->genuine invariant
+  ✓ gate-strength receipt verifies offline (ACCEPTED) against matching materialHash
+  ✓ tampering a signed bundle field is REJECTED (signature_invalid)
+  ✓ a stale receipt (old materialHash) is REJECTED
+  ✓ verifyGateStrengthResult: the authentic result MATCHES the bound digest
+  ✓ verifyGateStrengthResult: a result tampered after the fact does NOT match the receipt
+  ✓ verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)
+
+✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).

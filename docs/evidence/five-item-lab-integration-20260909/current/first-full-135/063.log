@@ -1,0 +1,10 @@
+mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt
+  of which the pre-fix predicate never reads: id, trigger, createdAt
+self-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported
+SCAN_RECOMPUTES_NOT_PINNED
+
+roots: /private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-integration-full-hhgrvxkt/repo (repository root)
+scanned 147 artifacts / 203 records, 0 affected
+  (of 203 records: 202 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)
+MIGRATION_SCAN_ENUMERATED_AND_COUNTED
+ZERO_AFFECTED_STATED_POSITIVELY

@@ -1,0 +1,15 @@
+✓ dry-run detects exactly one eligible under-bound candidate + a plan digest
+✓ dry-run plan digest is stable across re-runs (deterministic)
+✓ dry-run writes NOTHING (playbooks unchanged, no outcome, ledger intact)
+✓ apply with the WRONG --digest is refused (drift)
+✓ apply WITHOUT a --digest is refused
+✓ apply with the RIGHT --digest enriches exactly one candidate
+✓ second dry-run finds 0 eligible (idempotent)
+✓ re-apply is a no-op: 0 eligible, empty-plan digest, enrichedCount 0
+✓ --storyId filter scopes to a single story (no eligible after full apply)
+✓ no playbook-outcome ledger file was ever written by backfill
+✓ record-then-bind: dry-run reports one eligible with plan=record-then-bind + the PCR it would record
+✓ record-then-bind: apply records the capability release (committed) then binds the candidate
+✓ record-then-bind: re-run is idempotent (PCR exists + candidate bound → 0 eligible)
+✓ record-then-bind: an under-bound candidate whose story has NEITHER a capability NOR an artifact release is not eligible
+capability-release-backfill smoke passed: 14 checks

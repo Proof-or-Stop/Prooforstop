@@ -1,0 +1,57 @@
+{
+  "runs": [
+    {
+      "mode": "first",
+      "elapsedMs": 2337.488125,
+      "exitCode": 0,
+      "executions": 1
+    },
+    {
+      "mode": "same",
+      "elapsedMs": 1755.6827080000003,
+      "exitCode": 0,
+      "executions": 1
+    },
+    {
+      "mode": "changed",
+      "elapsedMs": 2330.433708999999,
+      "exitCode": 0,
+      "executions": 2
+    },
+    {
+      "mode": "restored",
+      "elapsedMs": 2106.667040999999,
+      "exitCode": 0,
+      "executions": 2
+    }
+  ],
+  "evidence": {
+    "intentRef": "I-1",
+    "kind": "integration_test",
+    "command": "node witness.mjs",
+    "result": "pass",
+    "note": "Recover the original successful execution after the publishing process exits.",
+    "mechanical": true,
+    "receipt": {
+      "exitCode": 0,
+      "outputDigest": "c655af161b4a90b18d0e49a143ef9fb081d896b36c9ec8c7c1ba9a104cc4a9c2",
+      "outputTail": "PUBLISH_RESTART_OK\n",
+      "selectorMatched": true,
+      "selector": "PUBLISH_RESTART_OK",
+      "executedAt": "2026-09-09T12:53:10.483Z",
+      "timeoutMs": 270000,
+      "executionKey": "ce:v1:baaba8bfaf5db3eb73a66c334dab499cb317115fd13083c6fb2613282e9e1eb5",
+      "causalReceiptHash": "a16caeafcae09246f8e7a54a182297b3d76928c2eaa785a0778966cabdee8413",
+      "commandReruns": 0
+    },
+    "headHash": "e0c87143729089ef293949b8e8fd9410bbd06129",
+    "materialHash": "10c486f3dc0b058b8efd3620db2c03395b6c889315ed1c75eb6a1e5bfff7053c",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "timestamp": "2026-09-09T12:53:10.671Z"
+  },
+  "commandExecutions": 2,
+  "consumers": 4,
+  "limitations": [
+    "This fixture exercises complete-output selection across independent handler processes; it does not measure full-Story delivery time."
+  ]
+}

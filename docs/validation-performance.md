@@ -66,8 +66,8 @@ validation execution-lock suite also runs these regressions. The regression uses
 repositories and fixtures, real command execution, cross-process capacity,
 lease loss/generation controls, receipt tampering and signed inventory replay.
 Existing validation-lock, DONE-required and inventory CLI suites provide the
-integration controls. The earlier experiment's approximately 48% reductions
-remain measurements of those workloads: there is no Story-wide speedup claim.
+integration controls. Earlier measurements apply only to their identified workloads. Stage percentages
+may not be added; no universal 48% or Story-wide speedup has been established.
 
 ## Evidence hash accuracy
 

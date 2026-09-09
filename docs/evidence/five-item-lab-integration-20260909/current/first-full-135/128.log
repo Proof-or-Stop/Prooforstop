@@ -1,0 +1,7 @@
+✓ scope_check_save allowedPhases: PLAN
+✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW
+✓ PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only reviewer mode
+✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified
+✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked
+✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null
+✓ command-ownership contract passed — 368 CLI commands all carry a valid ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / validate --story / delivery_check_set boundary rules resolve as ruled; read-only reviewer command gate (B-4f15 CHK-002) assertions all pass; owner lease help block (B-a30e CHK-003) discoverable for gated commands, absent for read-only

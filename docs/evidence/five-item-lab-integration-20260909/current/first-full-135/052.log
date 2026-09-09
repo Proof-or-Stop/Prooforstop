@@ -1,0 +1,9 @@
+✓ HAPPY: playbook_outcome_record accepts structured helped outcomes for the capability candidate
+✓ HAPPY: aggregatePlaybookPromotion counts the structured outcomes toward decisiveSamples
+✓ HAPPY: playbook_promotion_sweep dry-run EMITS a recommend_activate recommendation (writes nothing)
+✓ HAPPY: playbook_promotion_sweep --apply appends an idempotent recommendation but NEVER activates
+✓ EDGE: a done-settlement helped outcome does NOT count toward helped/decisiveSamples
+✓ EDGE: playbook_outcome_record REFUSES a helped outcome with exposureMode=none (helped requires != none)
+✓ ADVERSARIAL: with ZERO structured helped outcomes the sweep never recommends activation
+✓ ADVERSARIAL: even a full recommend_activate recommendation leaves the candidate status=candidate (no auto-activation)
+capability-candidate-promotion smoke passed: 8 checks

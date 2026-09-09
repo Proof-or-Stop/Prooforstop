@@ -81,7 +81,11 @@
           }
         ]
       },
-      "historicalCommandIndex": 0
+      "historicalCommandIndex": 0,
+      "commandIdentity": [
+        "node",
+        "scripts/verify-lab-worktree.mjs"
+      ]
     },
     {
       "commandIndex": 1,
@@ -113,7 +117,14 @@
       "suggestedResources": null,
       "whyNotDeclarable": "Exclusive rewriter of packages/main/dist, which 107 of the 108 declared readers consume. It also holds the per-checkout build mutex under os.tmpdir(), which canonicalFilesystemPath refuses as a claim key (verified THROW). Barrier-exclusive (undeclared) is the only faithful encoding.",
       "unknowns": [],
-      "historicalCommandIndex": 1
+      "historicalCommandIndex": 1,
+      "commandIdentity": [
+        "npm",
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ]
     },
     {
       "commandIndex": 3,
@@ -203,7 +214,11 @@
           }
         ]
       },
-      "historicalCommandIndex": 3
+      "historicalCommandIndex": 3,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      ]
     },
     {
       "commandIndex": 6,
@@ -256,7 +271,11 @@
           }
         ]
       },
-      "historicalCommandIndex": 6
+      "historicalCommandIndex": 6,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/command-catalog-smoke.js"
+      ]
     },
     {
       "commandIndex": 14,
@@ -291,7 +310,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 14
+      "historicalCommandIndex": 14,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+      ]
     },
     {
       "commandIndex": 18,
@@ -338,7 +361,11 @@
       "unknowns": [
         "cwd for the :274 wrapper call is process.cwd(), i.e. whatever the validate runner sets. Assumed to be the project root, which is what the executor supplies."
       ],
-      "historicalCommandIndex": 18
+      "historicalCommandIndex": 18,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+      ]
     },
     {
       "commandIndex": 36,
@@ -378,7 +405,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 36
+      "historicalCommandIndex": 36,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+      ]
     },
     {
       "commandIndex": 80,
@@ -482,7 +513,11 @@
           }
         ]
       },
-      "historicalCommandIndex": 79
+      "historicalCommandIndex": 79,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ]
     },
     {
       "commandIndex": 81,
@@ -527,7 +562,11 @@
       "suggestedResources": null,
       "whyNotDeclarable": "Plants and removes files inside packages/main/dist/tasks and packages/main/tests/red while other commands may be reading them. To declare it, EVERY reader of those two directories (including #79 and the 107 dist readers) would first need matching shared claims at the identical key granularity. The untracked probe at :150 also transiently dirties the working tree, which breaks #125's verify-clean-tree. Barrier-exclusive is correct.",
       "unknowns": [],
-      "historicalCommandIndex": 80
+      "historicalCommandIndex": 80,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+      ]
     },
     {
       "commandIndex": 82,
@@ -596,7 +635,11 @@
           }
         ]
       },
-      "historicalCommandIndex": 81
+      "historicalCommandIndex": 81,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-1734-lock-liveness.mjs"
+      ]
     },
     {
       "commandIndex": 83,
@@ -651,7 +694,11 @@
       "suggestedResources": null,
       "whyNotDeclarable": "This is the most aggressive dist mutator in the set — it deletes, tampers and rebuilds packages/main/dist and packages/utils/dist repeatedly, and takes the per-checkout build mutex (inexpressible, see §1.3 Trap B). 107 of 108 declared readers consume that dist. Barrier-exclusive is the only safe encoding.",
       "unknowns": [],
-      "historicalCommandIndex": 82
+      "historicalCommandIndex": 82,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-1734-content-binding.mjs"
+      ]
     },
     {
       "commandIndex": 84,
@@ -724,7 +771,11 @@
       ],
       "ifEverDeclaredCaveat": "packages/main and packages/utils are listed because sweepSwapSiblings enumerates and deletes dist.staging/dist.trash-* siblings, which live in the PACKAGE dir, not inside dist — and nested keys do not conflict (Trap A). Even with all of these, the build mutex remains undeclarable.",
       "unknowns": [],
-      "historicalCommandIndex": 83
+      "historicalCommandIndex": 83,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-1734-reader-race.mjs"
+      ]
     },
     {
       "commandIndex": 88,
@@ -774,7 +825,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 87
+      "historicalCommandIndex": 87,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+      ]
     },
     {
       "commandIndex": 106,
@@ -857,7 +912,12 @@
           }
         ]
       },
-      "historicalCommandIndex": 105
+      "historicalCommandIndex": 105,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+        "--issuer-mutations"
+      ]
     },
     {
       "commandIndex": 116,
@@ -897,7 +957,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 115
+      "historicalCommandIndex": 115,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+      ]
     },
     {
       "commandIndex": 117,
@@ -964,7 +1028,11 @@
       "unknowns": [
         "scripts/verify-process-fact-contract.mjs is modified in the working tree (owner's in-flight change). Per scope I checked only whether it writes or runs git — it does neither — and did not review the diff."
       ],
-      "historicalCommandIndex": 116
+      "historicalCommandIndex": 116,
+      "commandIdentity": [
+        "node",
+        "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+      ]
     },
     {
       "commandIndex": 118,
@@ -994,7 +1062,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 117
+      "historicalCommandIndex": 117,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+      ]
     },
     {
       "commandIndex": 119,
@@ -1024,7 +1096,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 118
+      "historicalCommandIndex": 118,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+      ]
     },
     {
       "commandIndex": 120,
@@ -1054,7 +1130,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 119
+      "historicalCommandIndex": 119,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+      ]
     },
     {
       "commandIndex": 121,
@@ -1084,7 +1164,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 120
+      "historicalCommandIndex": 120,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+      ]
     },
     {
       "commandIndex": 122,
@@ -1145,7 +1229,11 @@
       ],
       "unknowns": [],
       "notes": "Its footprint is a strict SUPERSET of #116's, because it runs #116 as a child. Any claim set for #116 must also appear here. Both are read-only w.r.t. the checkout, so shared claims are sound.",
-      "historicalCommandIndex": 121
+      "historicalCommandIndex": 121,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-w2d-command-readonly.mjs"
+      ]
     },
     {
       "commandIndex": 123,
@@ -1190,7 +1278,11 @@
         }
       ],
       "unknowns": [],
-      "historicalCommandIndex": 122
+      "historicalCommandIndex": 122,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ]
     },
     {
       "commandIndex": 124,
@@ -1243,7 +1335,11 @@
         "The storyDir key is read from config at runtime and defaults to '.proof-or-stop/story/actives'. The suggested key hardcodes the current configured value; if storyDir is ever reconfigured the claim would silently point at the wrong path."
       ],
       "notes": "The only entry in the 28 that reads live Story state. No validate command in the set mutates stories, but a concurrent CLI Story write outside the validate run could race it.",
-      "historicalCommandIndex": 123
+      "historicalCommandIndex": 123,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ]
     },
     {
       "commandIndex": 125,
@@ -1294,7 +1390,11 @@
       ],
       "unknowns": [],
       "notes": "packages/utils/dist is included because bootstrap-runner gates on BOTH MAIN_DIST and UTILS_DIST existing before importing (bin/bootstrap-runner.js:106).",
-      "historicalCommandIndex": 124
+      "historicalCommandIndex": 124,
+      "commandIdentity": [
+        "node",
+        "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+      ]
     },
     {
       "commandIndex": 126,
@@ -1333,7 +1433,14 @@
       "unknowns": [
         "I did not execute the graph check or enumerate every one of its ~12 sub-scripts; the two whole-repo asserters alone are decisive."
       ],
-      "historicalCommandIndex": 125
+      "historicalCommandIndex": 125,
+      "commandIdentity": [
+        "npm",
+        "--prefix",
+        "packages/graph",
+        "run",
+        "check"
+      ]
     },
     {
       "doneCommandIndex": 0,

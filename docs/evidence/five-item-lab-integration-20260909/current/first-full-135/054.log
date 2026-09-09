@@ -1,0 +1,26 @@
+check: (a) happy — no-experiment dev_memory_start renders the pack, byte-stable, zero surfaced events — PASS
+check: (a) edge — surfaceRuntimeMemoryPack pass-through: shouldRender=true, no event, no activity log write — PASS
+check: (a) happy — no-experiment session_brief renders the pack section and logs no surfaced event — PASS
+check: (a) happy — no-experiment done_prepare prints the advisory memory summary, no surfaced event — PASS
+check: (c) happy — treatment dev_memory_start output is byte-identical to no-env and fires the event — PASS
+check: (c) happy — treatment session_brief pack section is byte-identical to no-env and fires the event — PASS
+check: (c) happy — treatment done_prepare output is byte-identical to no-env and fires the event — PASS
+check: (b) happy — control session_brief hides the pack section and still logs the surfaced event — PASS
+check: (b) happy — control done_prepare omits ONLY the advisory memory block and logs the event — PASS
+check: (b) happy — control story_create hides the pack advisory on stderr and still logs the event — PASS
+check: (a)+(c) happy — no-env story_create prints the pack advisory on stderr with no event — PASS
+check: (b/e) adversarial — control dev_memory_start is REFUSED at the CLI with a retrieval_violation, no surfaced event — PASS
+check: (e) adversarial — control recall + dev_memory_search blocked with violations; story_list still works — PASS
+check: (e) happy — recall works normally on treatment and with no experiment env — PASS
+check: (e) adversarial — gate function: control throws for memory commands only; treatment/unknown pass — PASS
+check: (d) edge — partial env (only experimentId) ignored with ONE warning naming the ignored var — PASS
+check: (d) edge — partial env (only arm=control) neither hides the pack nor blocks retrieval — PASS
+check: (d) edge — invalid arm value ignored with a warning naming control|treatment — PASS
+check: (f) adversarial — every registered memory-family command carries the memoryRetrieval marker — PASS
+check: (f) adversarial — a deliberately unmarked memory-family name FAILS the same cross-check — PASS
+check: (g) adversarial — resolveReviewPromptHash is byte-identical across control/treatment/no-env — PASS
+check: (h) edge — exactly one event per dedup key; each key component opens a new event — PASS
+check: (i) adversarial — host_dispatch projection: control hides ONLY the memory lines; treatment byte-identical to no-env — PASS
+check: (j) edge — handoff_resume text: control suppresses the whole memory advisory section; treatment byte-identical to no-env; JSON keeps pack + hostPolicy — PASS
+TOTAL 24 | PASS 24 | FAIL 0
+experience-pack-arm-switch-smoke: ALL PASS

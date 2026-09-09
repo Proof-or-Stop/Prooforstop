@@ -1,0 +1,27 @@
+running product-capability-release-smoke...
+✓ capabilityDigest is deterministic and merge-stable (no mainCommit)
+✓ changing a capability input changes the digest
+✓ artifact-less capability digest is stable (artifactSetDigest undefined -> null)
+✓ capabilityVersion is the 12 hex after sha256: prefix
+✓ capabilityId slug derives host-neutral experiments-multi-model-ablation for B-785e paths
+✓ record id is PCR-<24 hex>, idempotencyKey excludes mainCommit
+✓ a different mainCommit yields the SAME id/key (merge-stable recovery)
+✓ append dedups on idempotencyKey (recorded -> already_recorded, even with new mainCommit)
+✓ reader filters by schemaVersion and returns valid rows
+✓ reader FAILS CLOSED on authority !== non_authoritative
+✓ reader FAILS CLOSED on gateEvidence !== false
+✓ reader FAILS CLOSED on missing or inconsistent required release fields
+✓ reader FAILS CLOSED on malformed JSON
+✓ no gate/DONE/validate/delivery module imports the capability-release reader (negative invariant guard)
+✓ M2 classifier: experiment+doc changed paths => experiment-launch-control, capability subset only
+✓ M2 classifier: docs-only => documentation-control
+✓ M2 classifier (edge): typo-only single doc still classifies but as documentation-control
+✓ M2 classifier (edge): packages/main/src runtime-only => NO capability release
+✓ M2 classifier (edge): .proof-or-stop / docs/story / root-manifest-only => NO capability release
+✓ recordCapabilityReleaseForDoneMerge skips empty (no capability-declaring path)
+✓ recordCapabilityReleaseForDoneMerge (adversarial): different mainCommit => already_recorded, no duplicate
+✓ M3 (happy): done_recover with experiment+doc changes records exactly one PCR and commits the ledger
+✓ M3 (edge): done_recover with .proof-or-stop-metadata-only material change records NO PCR
+✓ M5 CLI: list/status render a written ledger read-only (json + text) and reject missing storyId
+
+ok product-capability-release (24 checks)
