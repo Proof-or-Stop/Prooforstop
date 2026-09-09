@@ -1035,6 +1035,7 @@ export function reviewIncrementalContext(
     prior.run.materialHash,
     projectRoot,
     prior.run.storyFilesHash,
+    asOfRef,
   );
   const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
   const storyForRole = store.readStory(storyId);

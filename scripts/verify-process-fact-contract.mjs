@@ -9424,3 +9424,8 @@ for (const path of ['packages/main/src/handlers/finding.ts', 'packages/main/src/
   assert(read(path).includes('commitReviewResultMetadata'), `${path}: native and managed results must share epoch commit deferral`);
 }
 assert(read('packages/main/src/core/review-metadata-batch.ts').includes('commitImmutableMetadataTree'), 'epoch commits must preserve isolated-index exact manifest and HEAD CAS semantics');
+
+assert(/prior\.run\.storyFilesHash,\s*asOfRef,/.test(read('packages/main/src/core/review-incremental-context.ts')), 'historical freshness must use the requested as-of commit');
+assert(read('packages/main/src/core/review-run.ts').includes('!liveFreshness.fresh || !liveFreshness.currentHead'), 'requested-full verifier must retain explicit live freshness');
+
+assert(read('packages/main/src/core/review-run.ts').includes('!liveFreshness.currentMaterialHash'), 'requested-full current material must be measurable, not merely a readable HEAD');

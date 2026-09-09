@@ -927,8 +927,9 @@ export function verifyReviewRunPromptEnvelope(
           // doing so made every valid pass stale at DONE after review_pass_set
           // appended its own metadata commit. Pin git probes to run.headHash so
           // a later metadata-only import commit cannot rewrite eligibilityDigest
-          // / reviewBasisDigest either; related material drift remains visible
-          // to a current-HEAD probe.
+          // / reviewBasisDigest either. Historical selection is replayed at H1;
+          // current admission checks live freshness separately below and in
+          // assertCurrentReviewRunForEvidence / collectReviewerEvidenceState.
           passesCutoffAt: run.startedAt,
           asOfRef: run.headHash,
           findingProjection: envelope.findingProjection,
@@ -952,6 +953,23 @@ export function verifyReviewRunPromptEnvelope(
     // semantic facts below remain authoritatively recomputed and fail closed.
     const reviewerRequestedFull = envelope.contextMode === 'full'
       && envelope.selectionReason === 'REVIEWER_REQUESTED_FULL';
+    if (reviewerRequestedFull) {
+      // This full-context verifier has an existing live-material contract. Do
+      // not implement it by accidentally mixing HEAD into historical eligibility.
+      const workspaceRoot = run.workspaceBinding?.signedWorkspaceRoot
+        || run.workspaceBinding?.metadataRoot || process.cwd();
+      const liveFreshness = checkEvidenceFreshnessForGit(
+        workspaceRoot, run.headHash, run.materialHash,
+        run.workspaceBinding?.metadataRoot ?? workspaceRoot,
+        run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+      );
+      if (!liveFreshness.currentMaterialHash) {
+        return { ok: false, reason: 'Prompt Envelope current material hash unavailable; retry after the Git material probe is healthy' };
+      }
+      if (!liveFreshness.fresh || !liveFreshness.currentHead) {
+        return { ok: false, reason: `Prompt Envelope freshnessClassification is not current: ${liveFreshness.reason}` };
+      }
+    }
     const eligibilityMismatches = [
       ['impactPolicyVersion', envelope.impactPolicyVersion, incremental.impactPolicyVersion],
       ...(!reviewerRequestedFull ? [

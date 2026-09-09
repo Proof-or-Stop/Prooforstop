@@ -214,3 +214,9 @@ bodies using an isolated index, normal hooks, verified bytes and a HEAD
 compare-and-swap. Unrelated staged files remain untouched. A failed commit leaves
 the signed results intact: retry the original finalize or cancel command without launching reviewers again. Preserve `--remediation` for repair-only receipts and the original reason for cancellation; retries cannot change receipt authority or rewrite cancellation history. Ordinary CLI telemetry alone never triggers another epoch commit.
 Outside an eligible epoch, the existing immediate-commit behavior remains.
+
+Historical incremental eligibility replays every Git/freshness probe at the
+signed run commit. Later material changes do not rewrite that historical choice.
+Current reviewer admission still checks live material and scope independently;
+requested-full envelope verification also retains its explicit live-material
+check. Historical replay is never a substitute for current gate admissibility.

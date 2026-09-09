@@ -1493,7 +1493,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical promptHash-addressed body delivered by review_run_start. New records carry assembledPromptRef and slim readers do not load body files; legacy inline records remain unchanged. Gate and managed-launch consumers hydrate and verify exact content digests before accepting authority.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical promptHash-addressed body delivered by review_run_start. New records carry assembledPromptRef and slim readers do not load body files; legacy inline records remain unchanged. Gate and managed-launch consumers hydrate and verify exact content digests before accepting authority. Historical incremental eligibility uses one consistent as-of commit, while current admission and requested-full live freshness remain independently enforced.',
   },
   {
     name: 'artifact:prompt-bodies',

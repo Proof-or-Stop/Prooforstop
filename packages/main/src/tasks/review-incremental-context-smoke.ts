@@ -60,7 +60,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -579,6 +579,19 @@ async function runProductionVerifierTemporalCutoffRegression(): Promise<void> {
       { ok: true },
       'production verifier accepts B before a later pass is appended',
     );
+    const failingGitDirectory = mkdtempSync(join(tmpdir(), 'review-material-probe-'));
+    try {
+      const actualGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+      const fakeGit = join(failingGitDirectory, 'git');
+      writeFileSync(fakeGit, `#!${process.execPath}\nconst {spawnSync}=require('node:child_process');const args=process.argv.slice(2);if(args[0]==='ls-tree')process.exit(1);const result=spawnSync(${JSON.stringify(actualGit)},args,{stdio:'inherit'});process.exit(result.status??1);\n`);
+      chmodSync(fakeGit, 0o755);
+      const probe = `import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};import {verifyReviewRunPromptEnvelope} from ${JSON.stringify(new URL('../core/review-run.js', import.meta.url).href)};const store=new StoryStore(process.argv[1]);const run=store.readReviewRuns(process.argv[2]).runs.find(row=>row.reviewRunId===process.argv[3]);process.stdout.write(JSON.stringify(verifyReviewRunPromptEnvelope(store,run)));`;
+      const unavailable = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', probe, root, storyId, runB.reviewRunId], {
+        cwd: root, env: { ...process.env, PATH: `${failingGitDirectory}:${process.env.PATH ?? ''}` }, encoding: 'utf8',
+      }));
+      assert.equal(unavailable.ok, false, 'HEAD alone cannot establish current material freshness');
+      assert.match(unavailable.reason ?? '', /current material hash unavailable/, 'unknown current material gets an actionable fail-closed diagnostic');
+    } finally { rmSync(failingGitDirectory, { recursive: true, force: true }); }
     await recordPass({
       storyId,
       agent: role,
