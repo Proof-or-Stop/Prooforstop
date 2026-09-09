@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {syncBuiltinESMExports} from 'node:module';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,readdirSync,chmodSync,existsSync,cpSync,renameSync} from 'node:fs';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {join,resolve} from 'node:path';
@@ -70,4 +72,28 @@ run('successful owner recovery removes only verified duplicate replacement stora
  const unknown=f.mirror+'.replacement-00000000-0000-4000-8000-000000000002';mkdirSync(unknown);writeFileSync(join(unknown,'operator-note.txt'),'Must retain unrecognized data');
  const plan=inspect(f);apply(f,plan.expectedCheckpointDigest);assert.deepEqual(f.store.readChecklist(storyId),snapshot);assert.equal(existsSync(orphan),false,'Verified duplicate replacement must not leak after recovery');assert.equal(readFileSync(join(unknown,'operator-note.txt'),'utf8'),'Must retain unrecognized data');
 });
+
+run('second mirror rename failure preserves bytes and retry restores without rerunning commands',f=>{
+ f.append('TWO');const snapshot=f.store.readChecklist(storyId),anchor=f.git(['rev-parse',f.ref]);
+ const file=join(f.mirror,'000000000001.json'),corrupt='{fault-injected original bytes';writeFileSync(file,corrupt);
+ const plan=inspect(f),rename=fs.renameSync;let failures=0;
+ fs.renameSync=(source,target)=>{
+  if(String(source).startsWith(f.mirror+'.replacement-')&&String(target)===f.mirror){failures++;const e=new Error('Injected second rename EIO');e.code='EIO';throw e;}
+  return rename(source,target);
+ };syncBuiltinESMExports();
+ try{assert.throws(()=>apply(f,plan.expectedCheckpointDigest),/Injected second rename EIO/);}finally{fs.renameSync=rename;syncBuiltinESMExports();}
+ assert.equal(failures,1);assert.equal(f.git(['rev-parse',f.ref]),anchor);assert.equal(existsSync(f.mirror),false);
+ const names=readdirSync(join(f.mirror,'..'));assert.equal(names.filter(n=>n.startsWith(digestCanonicalJson(storyId)+'.replacement-')).length,0);
+ const q=names.filter(n=>n.startsWith(digestCanonicalJson(storyId)+'.quarantine-'));assert.equal(q.length,1);assert.equal(readFileSync(join(f.mirror,'..',q[0],'000000000001.json'),'utf8'),corrupt);
+ assert.deepEqual(f.store.readChecklist(storyId),snapshot,'retained authoritative projection survives failed publication');
+ const retry=inspect(f);apply(f,retry.expectedCheckpointDigest);assert.deepEqual(f.store.readChecklist(storyId),snapshot);assert.equal(readIntentCheckpoint(storyId,f.root).generation,2);
+ // This fixture has no executable verifier pin: recovery operates only on the signed records.
+ assert.equal(f.store.readChecklist(storyId).items[0].verificationEvidence,undefined);
+});
+run('empty and partial duplicate replacements are disposable but unknown files are retained',f=>{
+ f.append('TWO');const empty=f.mirror+'.replacement-00000000-0000-4000-8000-000000000003',partial=f.mirror+'.replacement-00000000-0000-4000-8000-000000000004';
+ mkdirSync(empty);mkdirSync(partial);cpSync(join(f.mirror,'000000000001.json'),join(partial,'000000000001.json'));
+ const plan=inspect(f);apply(f,plan.expectedCheckpointDigest);assert.equal(existsSync(empty),false);assert.equal(existsSync(partial),false);assert.equal(readIntentCheckpoint(storyId,f.root).generation,2);
+});
+
 const output=process.env.FIVE_ITEM_PROOF_OUTPUT;if(output){mkdirSync(output,{recursive:true});writeFileSync(join(output,'checkpoint-owner-recovery.json'),JSON.stringify(results,null,2)+'\n');}assert.ok(results.every(r=>r.passed),'CHECKPOINT_GOVERNED_RECOVERY_GAPS: available signed history must have an owner repair path');console.log('CHECKPOINT_OWNER_RECOVERY_GREEN',results.length);
