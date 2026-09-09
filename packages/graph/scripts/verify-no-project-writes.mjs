@@ -39,9 +39,9 @@ const STATE_DIR_VOLATILE = /^(?:\.proof-or-stop|\.lattice)\/(?:activity\.jsonl$|
 const ROOT_VOLATILE = /^(?:docs\/story\/activity\.jsonl|\.proof-or-stop-serve\.json|proof-or-stop-debug\.log|browser-test\.log|\.proof-or-stop-tmp-[^/]+(?:\/.*)?)$/;
 const shouldPrune = (rel) => STRUCTURAL_PRUNED.test(rel) || STATE_DIR_VOLATILE.test(rel) || ROOT_VOLATILE.test(rel);
 
-/* Regression contract for the validator race seen in B-7abb. These files are
-   runtime-owned and may change while this subprocess is running; ordinary Story
-   evidence, source, and ignored graph assets must remain measured. */
+/* Regression contract for the validator races seen in B-7abb and B-aa5f. These
+   files are runtime-owned and may change while this subprocess is running;
+   ordinary Story evidence, source, and ignored graph assets remain measured. */
 const expectedRuntimePrunes = [
   '.proof-or-stop/activity.jsonl',
   '.proof-or-stop/runtime/validation-traces/B-7abb.jsonl',
@@ -51,9 +51,15 @@ const expectedRuntimePrunes = [
   '.proof-or-stop/story/actives/B-7abb/owner-lease.json',
   '.proof-or-stop/story/actives/B-7abb/breaker-state.json',
   '.lattice/story/actives/B-7abb/gate-failure-counts.json',
+  '.proof-or-stop/runtime/validation-traces/B-aa5f.jsonl',
+  '.proof-or-stop/story/actives/B-aa5f/activity.jsonl',
+  '.proof-or-stop/story/actives/B-aa5f/owner-lease.json',
+  '.proof-or-stop/story/actives/B-aa5f/breaker-state.json',
+  '.lattice/story/actives/B-aa5f/gate-failure-counts.json',
 ];
 const expectedMeasuredPaths = [
   '.proof-or-stop/story/actives/B-7abb/index.json',
+  '.proof-or-stop/story/actives/B-aa5f/index.json',
   '.proof-or-stop/dev-memory/experience.jsonl',
   'packages/graph/assets/index.html',
   'packages/main/src/index.ts',

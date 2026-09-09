@@ -195,13 +195,20 @@ it includes checklist context, status, related docs, user-visible claims,
 exclusions, file routing, verification intents, verification evidence
 *semantics*, and the frozen claim snapshot. Evidence is bound by what a verifier
 OBSERVED — `intentRef`, `kind`, `file`, `command`, `result`, `note`,
-`mechanical`, and `receipt.exitCode` / `outputDigest` / `outputTail` /
-`selectorMatched` — and deliberately NOT by its freshness pins
-(`headHash`, `materialHash`, `storyFilesHash`, `timestamp`,
-`receipt.executedAt`). So a pure `verification_evidence_refresh_stale` re-pin,
-which rotates only those pins while the observed result is unchanged, no longer
-moves the digest and no longer invalidates an OPEN epoch on scope grounds; a
-refresh that changes an observed result, command, or captured output still does.
+`mechanical`, and the authenticated V5 observation/input projection
+`proof-or-stop.inventory-verification-observation.v1`. Before projecting, the
+store-backed consumer validates the complete signed receipt graph, immutable
+artifact, publication freshness tuple, and command against its intent pin.
+Malformed or tampered data is refused, not normalized into a valid subject.
+The whitelist retains execution-input identity, full-output digest, exit/timeout
+outcomes, and assertion intent/selector/matcher/result. It omits signatures,
+run IDs, artifact instance IDs, execution timestamps/duration, publication
+coordinates and reuse lineage—not merely the outer receipt timestamp. Thus
+genuine same-observation, same-input re-execution or authorized reuse preserves
+the acceptance subject. Changed output or execution inputs still invalidate it.
+This projection does not supply lifecycle authority: authentic V4 remains
+historical audit-only and requires real V5 renewal. Independent epoch material
+and scope cutoffs remain enforced even when a receipt projection is unchanged.
 This mirrors the same semantic-content-not-bookkeeping rule already applied to
 the ProofStory contract below. Every checklist writer (including `verification_intent_repair` and
 verification-evidence writers) takes the inventory lock before its checklist

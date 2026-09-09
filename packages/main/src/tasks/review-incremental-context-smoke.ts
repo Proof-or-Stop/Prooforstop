@@ -1983,6 +1983,60 @@ function runIncrementalGuardClassMatrix(): GuardObservation[] {
   return observations;
 }
 
+function startGuardScenario(mask: number, iteration: number): Promise<GuardObservation> {
+  const target = fileURLToPath(import.meta.url);
+  const child = spawn(process.execPath, [target, `--guard-scenario=${mask}`, `--guard-iteration=${iteration}`], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', chunk => { stdout += String(chunk); });
+  child.stderr.on('data', chunk => { stderr += String(chunk); });
+  return new Promise((resolveScenario, rejectScenario) => {
+    child.once('error', rejectScenario);
+    child.once('close', code => {
+      if (code !== 0) {
+        rejectScenario(new Error(`guard scenario ${mask}/${iteration} failed: ${stderr || stdout}`));
+        return;
+      }
+      const receiptLine = stdout.split(/\r?\n/).find(line => line.startsWith('GUARD_SCENARIO_RECEIPT='));
+      if (!receiptLine) {
+        rejectScenario(new Error(`guard scenario ${mask}/${iteration} emitted no receipt: ${stderr || stdout}`));
+        return;
+      }
+      for (const line of stdout.split(/\r?\n/).filter(line => line && !line.startsWith('GUARD_SCENARIO_RECEIPT='))) console.log(line);
+      const receipt = JSON.parse(receiptLine.slice('GUARD_SCENARIO_RECEIPT='.length)) as { mask: number; iteration: number; observation: GuardObservation };
+      if (receipt.mask !== mask || receipt.iteration !== iteration) {
+        rejectScenario(new Error(`guard scenario receipt mismatch: expected ${mask}/${iteration}, got ${receipt.mask}/${receipt.iteration}`));
+        return;
+      }
+      resolveScenario(receipt.observation);
+    });
+  });
+}
+
+function startIsolatedMode(argument: string, expectedMarker: RegExp): Promise<{ durationMs: number }> {
+  const target = fileURLToPath(import.meta.url);
+  const started = performance.now();
+  const child = spawn(process.execPath, [target, argument], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', chunk => { stdout += String(chunk); });
+  child.stderr.on('data', chunk => { stderr += String(chunk); });
+  return new Promise((resolveMode, rejectMode) => {
+    child.once('error', rejectMode);
+    child.once('close', code => {
+      const output = `${stdout}${stderr}`;
+      if (code !== 0 || !expectedMarker.test(output)) {
+        rejectMode(new Error(`isolated mode ${argument} failed or omitted its marker: ${output}`));
+        return;
+      }
+      for (const line of stdout.split(/\r?\n/).filter(Boolean)) console.log(line);
+      resolveMode({ durationMs: performance.now() - started });
+    });
+  });
+}
+
 function runGuardShardTrials(): unknown {
   const target = fileURLToPath(import.meta.url);
   const program = String.raw`
@@ -2057,29 +2111,47 @@ function runScheduleMutationTrial(): {
   }
 }
 
-function run(): void {
+async function run(): Promise<void> {
   runPolicyCases();
   runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
-  const cutoffStarted = performance.now();
-  runProductionVerifierTemporalCutoffRegression();
-  const cutoffDurationMs = performance.now() - cutoffStarted;
+  // The production verifier cutoff owns a separate repository and already has
+  // a dedicated direct-run mode. Keep the real mutation proof, but overlap it
+  // with the other independent incremental checks instead of paying its ~75s
+  // as a serial full-suite tail.
+  const cutoffProbe = startIsolatedMode('--cutoff-verifier-only', /PRODUCTION VERIFIER CUTOFF/u);
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   const abaStarted = performance.now();
   runDeterministicTicketReclaimAbaCase();
   const abaDurationMs = performance.now() - abaStarted;
-  const matrixObservations = runIncrementalGuardClassMatrix();
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
   const burnInIterations = process.env.PROOF_OR_STOP_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  // In the canonical run, execute the independent replay in its own process
+  // while the three fixed-mask cases use this process. This preserves a real
+  // second repository/run and the exact comparison, but removes a redundant
+  // serial tail from the full-suite critical path. Stress mode keeps its
+  // historical sequential/sharded schedule unchanged.
+  const overlappedReplay = burnInIterations === 1 ? startGuardScenario(0b10101, 2) : null;
+  let matrixObservations: GuardObservation[];
+  let replayObservation: GuardObservation;
+  try {
+    matrixObservations = runIncrementalGuardClassMatrix();
+    replayObservation = overlappedReplay
+      ? await overlappedReplay
+      : runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
+  } catch (error) {
+    await overlappedReplay?.catch(() => undefined);
+    throw error;
+  }
   const burnInObservations = [matrixObservations[2]!];
   for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
-  const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
   const canonicalObservation = burnInObservations[0]!;
+  const { durationMs: cutoffDurationMs } = await cutoffProbe;
   const mutationKillMap = Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => {
     if (burnInIterations !== 20) return [guardClass, { executed: false, detected: false }];
     let mutated: GuardObservation | { threw: string };
@@ -2135,7 +2207,9 @@ if (isDirectRun) {
   const guardScenario = process.argv.find(argument => argument.startsWith('--guard-scenario='));
   if (guardScenario) {
     const mask = Number(guardScenario.slice('--guard-scenario='.length));
-    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, observation: runConcurrentReviewerWriteCase(mask, 900) })}`);
+    const iterationArgument = process.argv.find(argument => argument.startsWith('--guard-iteration='));
+    const iteration = iterationArgument ? Number(iterationArgument.slice('--guard-iteration='.length)) : 900;
+    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, iteration, observation: runConcurrentReviewerWriteCase(mask, iteration) })}`);
   } else if (process.argv.includes('--guard-timeout-fixture')) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
   } else if (process.argv.includes('--aba-only')) {
@@ -2149,6 +2223,6 @@ if (isDirectRun) {
   } else if (process.argv.includes('--schedule-mutation-only')) {
     console.log(`SCHEDULE_MUTATION_RECEIPT=${JSON.stringify(runScheduleMutationTrial())}`);
   } else {
-    run();
+    await run();
   }
 }

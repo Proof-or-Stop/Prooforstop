@@ -15,6 +15,7 @@ import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
 import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
+import { createVerificationEvidenceGateEvaluator } from './proof-admissibility.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -458,7 +459,12 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   if (!cl.items.every(item => isTerminalChecklistStatus(item.status))) return false;
   const story = context.store.readStory(context.storyId);
   const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
-  return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
+  return getBlockingVerificationEvidenceIssues(
+    cl,
+    undefined,
+    policy.profile,
+    createVerificationEvidenceGateEvaluator(context.projectRoot, context.storyId),
+  ).length === 0;
 }
 
 /**
@@ -1267,7 +1273,7 @@ export function getGuardFailureReason(
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
-            return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (signed components: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (signed components: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
@@ -1425,6 +1431,9 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'REVIEW') {
+    if (!projectRoot) {
+      return 'Cannot enter REVIEW: verification_receipt_invalid: project root is required to validate executable evidence';
+    }
     const cl = store.readChecklist(storyId);
     // B-1909 CHK-002: withdrawn items are terminal, not outstanding.
     const pending = cl.items.filter(i => !isTerminalChecklistStatus(i.status));
@@ -1433,7 +1442,12 @@ export function getGuardFailureReason(
     }
     const reviewStory = store.readStory(storyId);
     const reviewPolicy = resolveWorkflowPolicy(loadConfig(projectRoot), reviewStory);
-    const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
+    const missingEvidence = getBlockingVerificationEvidenceIssues(
+      cl,
+      undefined,
+      reviewPolicy.profile,
+      createVerificationEvidenceGateEvaluator(projectRoot, storyId),
+    );
     if (missingEvidence.length > 0) {
       return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
     }

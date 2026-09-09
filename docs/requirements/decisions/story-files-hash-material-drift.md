@@ -57,12 +57,35 @@ When both a record and the current workspace have `storyFilesHash` values:
 - mismatching `materialHash` plus matching `storyFilesHash` means the record is
   valid for the story-owned file set, but the result must include an explicit
   whole-tree drift warning requiring re-attestation review;
-- mismatching `storyFilesHash` means the record is stale and must be rejected;
+- mismatching `storyFilesHash` means the record is stale and must be rejected,
+  except for the bounded checklist-verification refresh described below;
 - missing current `storyFilesHash` falls back to strict `materialHash` behavior.
 
 The warning is mandatory. This is not a silent rebind, not an automatic evidence
 refresh, and not permission to rewrite stored hashes. Operators and reviewers
 must see that unrelated whole-tree material drift occurred.
+
+### Bounded input-closure exception for checklist verification
+
+Checklist verification has one narrower refresh operation; it does not make an old
+record fresh or weaken review-run, host-verdict, delivery, or DONE-required bindings.
+After unrelated Story drift, `verification_evidence_refresh_stale` may publish a new
+signed assertion/bundle with zero subprocesses only when all of these facts validate:
+
+- the prior record is the current `VerificationReceiptBundleV5`, not a legacy bundle;
+- the verifier is the policy-owned deterministic capsule, not an arbitrary command;
+- its mechanically enforced input closure is complete;
+- its `evidenceInputDigest` and selector-free execution identity are unchanged; and
+- the immutable execution/output artifact and exact signed execution, assertion, and
+  reuse lineage all pass trusted-key and cross-link validation.
+
+That new bundle carries a signed `ReuseReceipt` referencing the immutable prior
+execution; it never rewrites the old receipt, its timestamp, or its hashes. A legacy
+receipt, non-capsule command, incomplete closure, changed input/identity, malformed
+hash, missing signature, or invalid lineage remains stale and fails closed to a real
+rerun (at most once per affected execution key) or evidence demotion. Thus
+`storyFilesHash` remains the strict fallback whenever the stronger input-scoped proof
+is absent.
 
 ## Why Not Story-Diff Only
 

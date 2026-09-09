@@ -918,15 +918,21 @@ It exists for the B-a745 class: a selector pinned to a string the command prints
 every branch matches runs that genuinely failed, so the receipt records a
 passing-shaped match for a failing run.
 
-**The proof reads tool-recorded receipts only.** There is no transcript, output or
+**The proof reads current signed V5 receipts only.** Legacy combined and Bundle V2/V3/V4
+receipts remain readable for audit but cannot authorize narrowing, even when they
+carry a plausible selector. There is no transcript, output or
 receipt parameter; a request carrying one is refused before any proof is attempted
 (`narrowing_caller_output_not_admissible`), so an offered rendering can never be
 considered and then ignored. The caller supplies only the story, item, intentRef,
 candidate selector and a reason of at least 30 characters — the reason is retained
 for attribution and is never itself the proof. A narrowing is accepted only when
-recorded receipts show the candidate ABSENT from the retained (bounded) `outputTail`
+recorded receipts show the candidate ABSENT from the complete authenticated output
 of at least one recorded FAILING render the current selector matched, PRESENT in
-EVERY recorded passing receipt, and recorded on the same story material.
+EVERY recorded passing receipt, and recorded on the same story material. Every
+direction, presence, and absence check uses the complete authenticated output artifact,
+including selectors before its retained-tail boundary. `outputTail` is a bounded
+display-only projection and must equal the canonical tail derived from that artifact;
+a mismatched projection is refused with `narrowing_recorded_receipt_invalid`.
 
 **Bound: a recorded-receipt set admits at most one narrowing.** The set's digest is
 retained on the accepted record and re-checked FIRST, before the proof — so a second
@@ -944,10 +950,11 @@ Refusal codes: `narrowing_caller_output_not_admissible`,
 `narrowing_selector_absent_from_passing_receipt`,
 `narrowing_receipt_selector_unknown`, `narrowing_receipt_material_mismatch`,
 `narrowing_selector_unchanged`, `narrowing_no_recorded_receipts`,
-`narrowing_receipt_not_predating_request`.
+`narrowing_receipt_not_predating_request`, `narrowing_recorded_receipt_invalid`,
+`narrowing_recorded_receipt_not_authoritative`.
 
-**What is and is not bounded.** Mechanically enforced: the witness must be a genuine
-tool-recorded receipt of the same pinned command, judged and matched by the current
+**What is and is not bounded.** Mechanically enforced: the witness must be a current
+signed, authoritative V5 receipt of the same pinned command, judged and matched by the current
 pin, recorded on the same story material as the compared passing receipts, and
 predating the request; the candidate must also match every recorded passing receipt;
 and the set is spent afterwards. Not bounded: an operator who can drive that command

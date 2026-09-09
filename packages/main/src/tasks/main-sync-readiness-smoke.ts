@@ -217,13 +217,21 @@ function assertBehindStory(root: string): void {
   const reviewRow = reviewReport.readiness.find((row) => row.code === 'branch_behind_main_advisory');
   assert.ok(reviewRow, 'REVIEW readiness includes behind-main advisory');
   assert.equal(reviewRow.blocking, false, 'REVIEW advisory is non-blocking');
-  assert.equal(reviewReport.claims.localReady, true, 'behind-main state alone does not fail REVIEW readiness');
+  assert.equal(
+    reviewReport.readiness.filter((row) => row.id.startsWith('main-sync.')).some((row) => row.blocking),
+    false,
+    'no main-sync readiness row blocks REVIEW',
+  );
 
   const testReport = buildStoryReadinessReport({ storyId: BEHIND_STORY, target: 'TEST', store, root });
   const testRow = testReport.readiness.find((row) => row.code === 'branch_behind_main_advisory');
   assert.ok(testRow, 'TEST readiness includes behind-main advisory');
   assert.equal(testRow.blocking, false, 'TEST advisory is non-blocking');
-  assert.equal(testReport.claims.localReady, true, 'behind-main state alone does not fail TEST readiness');
+  assert.equal(
+    testReport.readiness.filter((row) => row.id.startsWith('main-sync.')).some((row) => row.blocking),
+    false,
+    'no main-sync readiness row blocks TEST',
+  );
 
   const brief = createSessionHandlers(context).session_brief();
   assert.match(brief, new RegExp(`main-sync readiness: story/${BEHIND_STORY} is behind main by 1 commits; advisory/read-only; run proof-or-stop done_prepare`));

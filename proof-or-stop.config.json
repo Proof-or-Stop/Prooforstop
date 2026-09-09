@@ -339,7 +339,8 @@
         "args": [
           "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
         ],
-        "timeoutMs": 180000,
+        "label": "B-aa5f complete live identity, publication, capsule and concurrency regression; bounded CHK-007 audited execution budget",
+        "timeoutMs": 1200000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -352,6 +353,21 @@
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
         "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-process-fact-contract.mjs",
+          "--quiet"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "timeoutMs": 180000
       },
       {
         "command": "node",
@@ -2641,6 +2657,17 @@
             "key": "proof-or-stop.config.json",
             "access": "shared"
           }
+        ]
+      },
+      {
+        "label": "B-aa5f CHK-007: real authenticated inventory observation, reexecution/reuse compatibility, tamper rejection and independent cutoff regression",
+        "command": "node",
+        "args": ["packages/main/dist/tasks/review-inventory-epoch-smoke.js"],
+        "timeoutMs": 180000,
+        "resources": [
+          { "class": "git-common-dir", "key": ".", "access": "shared" },
+          { "class": "fixed-path", "key": "package.json", "access": "shared" },
+          { "class": "fixed-path", "key": "proof-or-stop.config.json", "access": "shared" }
         ]
       },
       {

@@ -263,6 +263,25 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'verification-evidence-artifacts',
+    description: 'Immutable content-addressed verification-output objects, refs, and the observed ledger; policy or unknown files elsewhere under evidence/ remain material.',
+    matchers: STATE_DIR_NAMES.flatMap((dir) => [
+      {
+        kind: 'regexp' as const,
+        value: rx(`^${dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/evidence/objects/sha256/[a-f0-9]{64}\\.json$`),
+      },
+      {
+        kind: 'regexp' as const,
+        value: rx(`^${dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/evidence/refs/by-id/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$`),
+      },
+      { kind: 'exact' as const, value: `${dir}/evidence/ledger/observed.jsonl` },
+    ]),
+    ignorePatterns: stateDirIgnore('evidence/'),
+    materialHash: 'exclude',
+    volatile: false,
+    repairableTrackedArtifact: false,
+  },
+  {
     // B-cc10 CHK-007 (F-004): this entry named ONLY the deprecated state
     // directory while the runtime had already moved to the canonical one, so
     // `.proof-or-stop/locks/` was neither gitignored nor recognized as runtime
@@ -270,7 +289,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // `unexpected_dirty_files=2` on the validation-capacity lock's holder.json /
     // heartbeat.json. Now derived, so it covers both spellings by construction.
     id: 'runtime-locks',
-    description: 'Main write lock and other mkdir-style coordination locks under <state-dir>/locks/.',
+    description: 'Main write lock and other mkdir-style coordination locks under <state-dir>/locks/, including execution-key producer locks that serialize verification evidence publication.',
     matchers: stateDirPrefix('locks/'),
     // B-cc10 F-062: `**/*.lock/` must be REGISTRY-owned, not hand-typed into .gitignore.
     // It lived only as a literal inside the generator-owned managed block, so

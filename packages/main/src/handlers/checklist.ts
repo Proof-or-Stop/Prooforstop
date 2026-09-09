@@ -4,11 +4,19 @@ import { dirname, isAbsolute, join, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
-import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { randomUUID } from 'node:crypto';
+import {
+  checkEvidenceFreshnessForGit,
+  checkStrictVerificationEvidenceFreshnessForGit,
+  currentMaterialHash,
+  currentStoryFilesHash,
+  isCanonicalGitHeadHash,
+  isCanonicalSha256Hash,
+} from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationEvidenceReceipt, VerificationExecutionReceiptV3, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord, VerificationReuseReceiptV1 } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
-import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
@@ -34,6 +42,22 @@ import {
   checklistEnglishAuthoringFields,
 } from './english-artifact-gate.js';
 import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
+import {
+  assertVerificationInputUnchanged,
+  assertVerificationFreshnessUnchanged,
+  captureVerificationFreshness,
+  createVerificationExecutionKey,
+  createCurrentVerificationAssertionReceipt,
+  createVerificationExecutionReceipt,
+  isSplitVerificationReceipt,
+  planVerificationExecutionReuse,
+  prepareVerificationExecutionIdentity,
+  validateVerificationReceipt,
+  verificationReceiptHasCurrentReuseAuthority,
+  verificationReceiptLostCurrentReuseAuthority,
+  withVerificationExecutionLocks,
+} from '../core/verification-execution-evidence.js';
 import {
   DEFAULT_CAUSAL_SELECTOR_POLICY,
   CAUSAL_MAX_OUTPUT_CHARS,
@@ -53,7 +77,6 @@ import {
   type CausalEvidenceReceipt,
   type CausalEvidenceReceiptStore,
 } from '../core/causal-evidence.js';
-
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'proof-or-stop-review-story-init',
@@ -672,7 +695,6 @@ function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; c
 // One shared enforce-and-stamp helper reached by BOTH verification_evidence_add
 // and verification_evidence_batch_add so neither write path is an unguarded bypass.
 
-const VERIFICATION_OUTPUT_TAIL_CHARS = 4000;
 const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
 
 // ── B-cdf6 (B-META F-012): bounded, audited per-evidence command timeout override ──
@@ -759,27 +781,16 @@ function resolveEvidenceCommandTimeout(
  * written before B-1482, which genuinely has no recorded selector — the renderer must
  * not assume the field, and must not substitute the current pin for it.
  */
-function renderReceiptSelectorNote(receipt: VerificationExecutionReceipt | undefined): string {
+function renderReceiptSelectorNote(receipt: VerificationEvidenceReceipt | undefined): string {
   const selector = receipt?.selector;
   if (!selector) return '';
   return ` selector=${JSON.stringify(selector)}`;
 }
 
-function renderTimeoutOverrideNote(receipt: VerificationExecutionReceipt | undefined): string {
+function renderTimeoutOverrideNote(receipt: VerificationEvidenceReceipt | undefined): string {
   const override = receipt?.timeoutOverride;
   if (!override) return '';
   return `, timeoutOverride=${override.timeoutMs}ms (raised above the ${override.defaultTimeoutMs}ms default)`;
-}
-
-function sha256Hex(value: string): string {
-  return createHash('sha256').update(value).digest('hex');
-}
-
-/** Bounded output tail (mirrors done-required-validation.ts:531 WITHOUT importing it). */
-function boundedOutputTail(output: string): string {
-  return output.length <= VERIFICATION_OUTPUT_TAIL_CHARS
-    ? output
-    : output.slice(output.length - VERIFICATION_OUTPUT_TAIL_CHARS);
 }
 
 /** Common shape of a single evidence write for the shared enforcement helper. */
@@ -792,6 +803,7 @@ interface EvidenceWriteInput {
   storyId?: string;
   intentRef: string;
   kind: VerificationEvidence['kind'];
+  file?: string;
   command?: string;
   selector?: string;
   result?: 'pass' | 'fail';
@@ -806,6 +818,13 @@ interface EvidenceWriteInput {
   commandTimeoutReason?: string;
 }
 
+const VERIFIER_DEPENDENCY_MANIFEST_SUFFIX = '.verification-dependencies.json';
+
+function dependencyManifestPath(file: string | undefined): string | undefined {
+  const candidate = file?.trim();
+  return candidate?.endsWith(VERIFIER_DEPENDENCY_MANIFEST_SUFFIX) ? candidate : undefined;
+}
+
 /**
  * B-ec67: what the shared helper decides for one evidence write. `evidencePatch`
  * is merged into the makeEvidence args (result/mechanical/receipt/nonMechanicalReason);
@@ -817,13 +836,13 @@ interface EnforceAndStampResult {
     result?: 'pass' | 'fail';
     command?: string;
     mechanical?: boolean;
-    receipt?: VerificationExecutionReceipt;
+    receipt?: VerificationEvidenceReceipt;
     nonMechanicalReason?: string;
   };
   pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
   causalReceipt?: CausalEvidenceReceipt;
   causalPreflight?: {
-    input: { command: string; cwd: string; timeoutMs?: number; executionSemanticsKey?: string };
+    input: { command: string; cwd: string; timeoutMs?: number };
     facts: CausalPreflightFacts;
   };
 }
@@ -835,6 +854,134 @@ function resolveIntentForRef(
 ): { lane: VerificationLane; index: number; intent: VerificationIntentItem } | undefined {
   const hit = collectVerificationIntents(item).find(c => c.ref === intentRef);
   return hit ? { lane: hit.lane, index: hit.index, intent: hit.intent } : undefined;
+}
+
+interface VerificationProducerPlan {
+  command: string;
+  selector: string;
+  cwd: string;
+  effectiveTimeoutMs: number;
+  manifestPath?: string;
+  preparedIdentity: ReturnType<typeof prepareVerificationExecutionIdentity>;
+  executionKey: string;
+}
+
+/**
+ * Resolve the selector-free producer identity without launching anything.  All
+ * four execution-producing entrypoints use this exact planner before taking the
+ * repository-local key lock.
+ */
+function verificationProducerPlan(
+  root: string,
+  item: ChecklistItem,
+  input: EvidenceWriteInput,
+  cwd: string,
+): VerificationProducerPlan | undefined {
+  if (input.kind === 'waiver') return undefined;
+  const resolved = resolveIntentForRef(item, input.intentRef);
+  if (!resolved || (
+    !isExecutableIntentType(resolved.intent.type)
+    && !resolved.intent.verification
+    && !input.selector?.trim()
+  )) return undefined;
+  const existingPin = resolved.intent.verification;
+  const command = existingPin?.command ?? input.command?.trim();
+  const selector = existingPin?.selector ?? input.selector?.trim();
+  const escape = input.nonMechanicalReason?.trim();
+  if ((!existingPin && escape && !input.selector) || !command || !selector) return undefined;
+  const timeoutOverride = resolveEvidenceCommandTimeout('verification evidence refused', input);
+  const effectiveTimeoutMs = timeoutOverride?.timeoutMs
+    ?? resolvePinnedCommandTimeoutMs(root, command)
+    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const manifestPath = dependencyManifestPath(input.file);
+  const preparedIdentity = prepareVerificationExecutionIdentity({
+    command, cwd, effectiveTimeoutMs, manifestPath,
+  });
+  return {
+    command,
+    selector,
+    cwd,
+    effectiveTimeoutMs,
+    ...(manifestPath ? { manifestPath } : {}),
+    preparedIdentity,
+    executionKey: createVerificationExecutionKey({ command, cwd, effectiveTimeoutMs, preparedIdentity }),
+  };
+}
+
+function executionMatchesPlan(execution: VerificationExecutionReceiptV3, plan: VerificationProducerPlan): boolean {
+  return execution.command === plan.command
+    && execution.cwd === plan.cwd
+    && execution.effectiveTimeoutMs === plan.effectiveTimeoutMs
+    && execution.executionIdentityDigest === plan.preparedIdentity.executionIdentityDigest;
+}
+
+function publicationDigestsForKey(checklist: ChecklistData, plan: VerificationProducerPlan): Set<string> {
+  const digests = new Set<string>();
+  for (const item of checklist.items) {
+    for (const evidence of item.verificationEvidence ?? []) {
+      const receipt = evidence.receipt;
+      if (!receipt || !isSplitVerificationReceipt(receipt)) continue;
+      const execution = receipt.executionReceipt;
+      if (receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5'
+        && execution.schemaVersion === 'proof-or-stop.verification-execution-receipt.v3'
+        && executionMatchesPlan(execution, plan)) digests.add(receipt.bundleReceiptDigest);
+    }
+  }
+  return digests;
+}
+
+interface SharedVerificationPublication {
+  executionReceipt: VerificationExecutionReceiptV3;
+  freshness: ReturnType<typeof captureVerificationFreshness>;
+  reuseReceipt?: VerificationReuseReceiptV1;
+  causalReceipt?: CausalEvidenceReceipt;
+}
+
+/** Find a newly published execution anywhere in the checklist, then re-assert locally. */
+function concurrentPublishedExecution(
+  root: string,
+  storyId: string,
+  checklist: ChecklistData,
+  plan: VerificationProducerPlan,
+  initialPublicationDigests: ReadonlySet<string>,
+  currentHashes: ReturnType<typeof evidenceHashes>,
+): SharedVerificationPublication | undefined {
+  for (const item of checklist.items) {
+    for (const evidence of item.verificationEvidence ?? []) {
+      const receipt = evidence.receipt;
+      if (
+        evidence.mechanical !== true
+        || evidence.result !== 'pass'
+        || !isCanonicalGitHeadHash(evidence.headHash)
+        || !isCanonicalGitHeadHash(currentHashes.headHash)
+        || evidence.materialHash !== currentHashes.materialHash
+        || evidence.storyFilesHash !== currentHashes.storyFilesHash
+        || !receipt
+        || !isSplitVerificationReceipt(receipt)
+        || receipt.schemaVersion !== 'proof-or-stop.verification-receipt-bundle.v5'
+        || receipt.executionReceipt.schemaVersion !== 'proof-or-stop.verification-execution-receipt.v3'
+        || !executionMatchesPlan(receipt.executionReceipt, plan)
+        || initialPublicationDigests.has(receipt.bundleReceiptDigest)
+      ) continue;
+      const source = resolveIntentForRef(item, evidence.intentRef);
+      const selector = source?.intent.verification?.selector;
+      if (!selector) continue;
+      const validation = validateVerificationReceipt(root, receipt, {
+        intentRef: evidence.intentRef, selector, storyId, command: plan.command,
+        freshness: { headHash: evidence.headHash, materialHash: evidence.materialHash!, storyFilesHash: evidence.storyFilesHash! },
+      });
+      if (validation.ok) {
+        return {
+          executionReceipt: receipt.executionReceipt,
+          freshness: receipt.publicationBinding.freshness,
+          ...(receipt.publicationMode === 'reused' && receipt.reuseReceipt
+            ? { reuseReceipt: receipt.reuseReceipt }
+            : {}),
+        };
+      }
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -992,15 +1139,17 @@ async function enforceAndStampEvidence(
   input: EvidenceWriteInput,
   deps: {
     runCommand: SingleCommandRunner;
-    preflightFacts: (input: { command: string; cwd: string; timeoutMs?: number }) => CausalPreflightFacts;
     cwd: string;
-    storyId: string;
     projectRoot: string;
+    storyId: string;
+    sharedExecutionReceipt?: VerificationExecutionReceiptV3;
+    sharedFreshness?: ReturnType<typeof captureVerificationFreshness>;
+    sharedReuseReceipt?: VerificationReuseReceiptV1;
+    sharedCausalReceipt?: CausalEvidenceReceipt;
+    preflightFacts: (input: { command: string; cwd: string; timeoutMs?: number }) => CausalPreflightFacts;
     metadataRoot: string;
     receiptStore: CausalEvidenceReceiptStore;
     batch?: CausalEvidenceBatch;
-    /** Refresh-only identity that prevents distinct selector/provenance groups from sharing a causal CAS key. */
-    executionSemanticsKey?: string;
   },
 ): Promise<EnforceAndStampResult> {
   const resolved = resolveIntentForRef(item, input.intentRef);
@@ -1130,17 +1279,31 @@ async function enforceAndStampEvidence(
     pinToSet = { lane, index, verification: { command: pinCommand, selector: pinSelector } };
   }
 
-  // Preflight is a readiness contract, not a freshness decision. It must be
-  // complete before the child runner is even callable, and its zero counters
-  // make a refusal auditable.
+  // The B-aa5f execution identity and main's causal readiness identity are
+  // sampled before the same child launch. A shared V5 publication has already
+  // crossed this boundary in the producer; followers only create their own
+  // selector assertion over its immutable full-output artifact.
+  const effectiveTimeoutMs = timeoutOverride?.timeoutMs
+    ?? resolvePinnedCommandTimeoutMs(deps.projectRoot, pinCommand)
+    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const manifestPath = dependencyManifestPath(input.file);
+  const beforeIdentity = prepareVerificationExecutionIdentity({
+    command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs, manifestPath,
+  });
+  const sharedExecution = deps.sharedExecutionReceipt;
+  const sharedCausalReceipt = deps.sharedCausalReceipt;
+  if (sharedExecution && (
+    sharedExecution.command !== pinCommand
+    || sharedExecution.cwd !== deps.cwd
+    || sharedExecution.effectiveTimeoutMs !== effectiveTimeoutMs
+    || sharedExecution.executionIdentityDigest !== beforeIdentity.executionIdentityDigest
+  )) {
+    throw new Error('verification evidence refused: shared execution identity mismatch [verification_shared_execution_identity_mismatch]');
+  }
+
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
-  const timeoutMs = timeoutOverride?.timeoutMs;
-  const preflightInput = {
-    command: pinCommand,
-    cwd: deps.cwd,
-    timeoutMs,
-    ...(deps.executionSemanticsKey ? { executionSemanticsKey: deps.executionSemanticsKey } : {}),
-  };
+  const launchFreshness = captureVerificationFreshness(deps.cwd, deps.metadataRoot);
+  const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs: effectiveTimeoutMs };
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -1149,14 +1312,17 @@ async function enforceAndStampEvidence(
     cwd: deps.cwd,
     command: pinCommand,
     bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
-    inputs: {
+    inputs: sharedCausalReceipt?.identity.inputs ?? {
       storyId: deps.storyId,
       materialHash: hashes.materialHash ?? null,
-      timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+      timeoutMs: effectiveTimeoutMs,
       preflightFacts: initialPreflightFacts,
-      ...(deps.executionSemanticsKey
-        ? { verificationExecutionSemanticsKey: deps.executionSemanticsKey }
-        : {}),
+      verificationExecutionKey: createVerificationExecutionKey({
+        command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs, preparedIdentity: beforeIdentity,
+      }),
+      // Observation addressing is distinct from selector-free physical grouping.
+      // An ordinary real rerun must never borrow an older CAS observation/time.
+      verificationObservationId: randomUUID(),
     },
     storyFilesHash: hashes.storyFilesHash,
     effectiveEnvironment: effectiveCausalEnvironment(undefined, deps.cwd),
@@ -1169,21 +1335,42 @@ async function enforceAndStampEvidence(
     const reason = preflight.failedChecks.join(', ');
     throw new Error(`preflight REFUSED: ${reason} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
   }
+  if (!sharedExecution && !preflightFactsUnchanged()) {
+    throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
+  }
 
-  const causal = await executeCausalEvidence({
+  let run: SingleCommandExecutionResult | undefined = sharedExecution
+    ? {
+        code: sharedExecution.exitCode,
+        output: '',
+        timedOut: sharedExecution.timedOut,
+        durationMs: sharedExecution.durationMs,
+        timeoutMs: sharedExecution.effectiveTimeoutMs,
+        executable: sharedExecution.executable,
+        args: [...sharedExecution.argv],
+      }
+    : undefined;
+  // Re-evaluate each follower's diagnostic selector on the authenticated source
+  // CAS observation. This records a real reused consumer in the causal ledger,
+  // never a new child, observation UUID, execution signature or execution time.
+  // The bounded causal verdict is diagnostic only; V5 full output decides below.
+  const causal = !sharedExecution || sharedCausalReceipt
+    ? await executeCausalEvidence({
     identity: causalIdentity,
     selector: pinSelector,
     intentRef: input.intentRef,
     receiptStore: deps.receiptStore,
     batch: deps.batch,
     preflight,
-    // This is deliberately the last fact check before runSingleAllowlistedCommand
-    // is invoked. Compare the complete probe snapshot, not just the three
-    // freshness hashes, so a changed CLI/worktree/index/lease/capability/resource/
-    // evidence-target/side-channel fact refuses before any child launch.
     revalidateBeforeRun: preflightFactsUnchanged,
+    // The causal API performs its last-moment check immediately before this
+    // actual launch. Preserve the complete result separately for V5; the causal
+    // receipt intentionally retains only its bounded diagnostic observation.
     run: async () => {
-      const run = await deps.runCommand(pinCommand, deps.cwd, timeoutMs);
+      if (sharedExecution) {
+        throw new Error('causal evidence shared publication missing its producer receipt [causal_shared_receipt_missing]');
+      }
+      run = await deps.runCommand(pinCommand, deps.cwd, effectiveTimeoutMs);
       return {
         code: run.code,
         output: run.output,
@@ -1192,10 +1379,12 @@ async function enforceAndStampEvidence(
         timeoutMs: run.timeoutMs,
       };
     },
-  });
-  const receipt = causal.receipt;
-  const exitOk = receipt.status === 'pass' && receipt.exitCode === 0;
-  const selectorMatched = causal.verdict.matched;
+  })
+    : undefined;
+  if (!run) {
+    throw new Error('verification evidence refused: ordinary observation did not execute [verification_execution_observation_missing]');
+  }
+  const exitOk = run.code === 0 && !run.timedOut;
 
   // B-cdf6 (B-META F-012) — REFUSE FIRST, with a DISTINCT diagnosis: the runner KILLED
   // the pinned command at its wall-clock ceiling. This check MUST precede the selector
@@ -1205,9 +1394,9 @@ async function enforceAndStampEvidence(
   // ~270.3s, misdiagnosed first as a stdout capture problem, then as a clean-tree
   // assertion, before anyone read the executor and found the constant). Naming the budget
   // and the override turns that into a one-line diagnosis.
-  if (receipt.status === 'timeout') {
-    const elapsed = Math.round((receipt.durationMs ?? 0) / 1000);
-    const armed = receipt.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  if (run.timedOut) {
+    const elapsed = Math.round(run.durationMs / 1000);
+    const armed = run.timeoutMs;
     const raiseHint = armed >= MAX_EVIDENCE_COMMAND_TIMEOUT_MS
       ? `That is already the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap, so this witness cannot be raised further — shrink the ` +
         `pinned command (a focused suite / single verifier) instead of widening the budget.`
@@ -1217,7 +1406,7 @@ async function enforceAndStampEvidence(
         `needs ${BRAND_ENV_PREFIX}IDLE_TIMEOUT_MS / ${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS raised for the same invocation.`;
     throw new Error(
       `verification evidence refused: pinned command was KILLED at its ${armed}ms wall-clock ceiling after ~${elapsed}s ` +
-      `(exit ${receipt.exitCode}) for ${input.intentRef}, so it never printed a verdict and NO canonical PASS can be minted. ` +
+      `(exit ${run.code}) for ${input.intentRef}, so it never printed a verdict and NO canonical PASS can be minted. ` +
       `This is a TIMEOUT, not a wrong selector${timeoutOverride ? ' (a raised budget was already in effect)' : ''}. ${raiseHint} ` +
       `[receipt_command_timeout]`,
     );
@@ -1225,37 +1414,33 @@ async function enforceAndStampEvidence(
   // Refuse: a caller cannot claim pass when the command did not exit 0.
   if (input.result === 'pass' && !exitOk) {
     throw new Error(
-      `verification evidence refused: pinned command exited ${receipt.exitCode} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
+      `verification evidence refused: pinned command exited ${run.code} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
     );
   }
   // Refuse: the pinned selector must appear in captured output (kills same-command,
   // wrong/absent-case false passes). Applies regardless of the caller's claimed result.
-  if (!selectorMatched) {
-    throw new Error(
-      `verification evidence refused: pinned selector "${pinSelector}" not found in command output for ${input.intentRef} [receipt_selector_absent]`,
-    );
-  }
-
-  const verificationReceipt: VerificationExecutionReceipt = {
-    exitCode: receipt.exitCode,
-    outputDigest: receipt.outputDigest,
-    outputTail: receipt.outputTail,
-    selectorMatched,
-    // B-1482: stamp the selector text beside the match verdict, so the receipt records
-    // WHAT it was judged against and not merely THAT something matched. Taken from the
-    // pin actually executed above (never from the caller — this block is inside the
-    // tool-owned receipt that every caller-facing schema strips).
+  const afterIdentity = prepareVerificationExecutionIdentity({
+    command: pinCommand,
+    cwd: deps.cwd,
+    effectiveTimeoutMs: run.timeoutMs,
+    manifestPath,
+  });
+  assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
+  assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot));
+  const sourceExecutedAt = sharedExecution?.executedAt ?? causal?.receipt.executedAt;
+  if (!sourceExecutedAt) throw new Error('verification evidence refused: signed execution time missing [causal_execution_time_missing]');
+  const executionReceipt = sharedExecution ?? createVerificationExecutionReceipt({
+    projectRoot: deps.projectRoot, storyId: deps.storyId, command: pinCommand,
+    cwd: deps.cwd, run, manifestPath, preparedIdentity: afterIdentity, executedAt: sourceExecutedAt,
+  });
+  const verificationReceipt = createCurrentVerificationAssertionReceipt({
+    freshness: deps.sharedFreshness ?? launchFreshness,
+    projectRoot: deps.projectRoot,
+    storyId: deps.storyId,
+    executionReceipt,
+    intentRef: input.intentRef,
     selector: pinSelector,
-    executedAt: receipt.executedAt,
-    // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
-    // RAISED it — an attributable override block, so a reviewer reading the receipt can
-    // see this pass was earned under a raised budget rather than the default. Lives in
-    // the tool-owned receipt, which every caller-facing schema strips, so it can never be
-    // caller-injected onto a receipt actually earned under the default.
-    timeoutMs: receipt.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
-    executionKey: receipt.executionKey,
-    causalReceiptHash: receipt.receiptHash,
-    commandReruns: 0,
+    ...(deps.sharedReuseReceipt ? { reuseReceipt: deps.sharedReuseReceipt } : {}),
     ...(timeoutOverride
       ? {
           timeoutOverride: {
@@ -1265,8 +1450,13 @@ async function enforceAndStampEvidence(
           },
         }
       : {}),
-  };
-  const derivedResult: 'pass' | 'fail' = exitOk && selectorMatched ? 'pass' : 'fail';
+  });
+  if (!verificationReceipt.selectorMatched) {
+    throw new Error(
+      `verification evidence refused: pinned selector "${pinSelector}" not found in command output for ${input.intentRef} [receipt_selector_absent]`,
+    );
+  }
+  const derivedResult: 'pass' | 'fail' = exitOk && verificationReceipt.selectorMatched ? 'pass' : 'fail';
 
   return {
     evidencePatch: {
@@ -1275,8 +1465,12 @@ async function enforceAndStampEvidence(
       mechanical: true,
       receipt: verificationReceipt,
     },
-    causalReceipt: receipt,
-    causalPreflight: { input: preflightInput, facts: initialPreflightFacts },
+    ...(causal
+      ? {
+          causalReceipt: causal.receipt,
+          causalPreflight: { input: preflightInput, facts: initialPreflightFacts },
+        }
+      : {}),
     ...(pinToSet ? { pin: pinToSet } : {}),
   };
 }
@@ -1425,7 +1619,36 @@ export function narrowVerificationPin(ctx: HandlerContext, args: VerificationPin
       );
     }
 
-    const receipts = collectRecordedPinnedReceipts(cl, pin.command);
+    const receipts = collectRecordedPinnedReceipts(cl, pin.command, ({ itemId, intentRef, receipt, evidence }) => {
+      const recordedSelector = receipt.selector;
+      const validation = validateVerificationReceipt(root, receipt, {
+        intentRef,
+        selector: typeof recordedSelector === 'string' ? recordedSelector : '',
+        storyId: args.storyId,
+        command: pin.command,
+        freshness: { headHash: evidence.headHash!, materialHash: evidence.materialHash!, storyFilesHash: evidence.storyFilesHash! },
+      });
+      if (!validation.ok) {
+        throw new Error(
+          `verification pin narrowing refused: recorded receipt ${itemId}/${intentRef} failed authoritative validation: ` +
+          `${validation.errors.join('; ')} [narrowing_recorded_receipt_invalid]`,
+        );
+      }
+      if (validation.kind !== 'split-v5') {
+        throw new Error(
+          `verification pin narrowing refused: recorded receipt ${itemId}/${intentRef} is ${validation.kind}; ` +
+          `legacy combined and split V2/V3/V4 receipts remain readable for audit but cannot authorize a selector change. ` +
+          `Record current signed V5 evidence first [narrowing_recorded_receipt_not_authoritative]`,
+        );
+      }
+      if (typeof validation.output !== 'string') {
+        throw new Error(
+          `verification pin narrowing refused: recorded receipt ${itemId}/${intentRef} has no authenticated complete output ` +
+          `[narrowing_recorded_receipt_invalid]`,
+        );
+      }
+      return validation.output;
+    });
     const receiptSetDigest = computeRecordedReceiptSetDigest(receipts);
     const priorNarrowings = pin.narrowings ?? [];
     // The bound is checked BEFORE the proof, and deliberately so: a second narrowing
@@ -1477,10 +1700,10 @@ export function narrowVerificationPin(ctx: HandlerContext, args: VerificationPin
     return (
       `Verification pin NARROWED for ${item.id} → ${args.intentRef}: selector ${JSON.stringify(record.previousSelector)} → ` +
       `${JSON.stringify(record.selector)} (pinned command unchanged: ${pin.command}). Reason: ${reason}. ` +
-      `Proved from tool-recorded receipts only — failing render(s) the old selector matched: ${record.failingReceiptIds.join(', ')}; ` +
+      `Proved from current signed authoritative V5 receipts recorded by this tool only — failing render(s) the old selector matched: ${record.failingReceiptIds.join(', ')}; ` +
       `passing receipt(s) the new selector matches: ${record.passingReceiptIds.join(', ')}; ` +
       `recorded-receipt set ${record.receiptSetDigest.slice(0, 12)} (${receipts.length} receipt(s)), now spent — this set admits no further narrowing. ` +
-      `${NARROWING_TAIL_BOUNDED_NOTE}${commitHint}`
+      `${NARROWING_COMPLETE_OUTPUT_NOTE}${commitHint}`
     );
   });
 }
@@ -1577,28 +1800,73 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
 
 /**
  * B-1507 CHK-002: a receipt earned by RE-RUNNING a pinned command during a stale
- * refresh. Only ever populated by a real pass (mechanical:true + on-disk receipt) —
- * a failed / unavailable re-run leaves NO entry, so the row falls through to the
- * demote path. There is NO code path that mints one of these without a real pass.
+ * refresh. Only ever populated by a real pass (mechanical:true + on-disk receipt).
+ * A real timeout/nonzero run is represented separately by ReexecFailure; an
+ * unavailable/unattempted run has neither outcome. There is NO code path that
+ * mints a ReexecStamp without a real pass.
  */
 type ReexecStamp = {
   command?: string;
   result?: 'pass' | 'fail';
   mechanical: true;
-  receipt: VerificationExecutionReceipt;
-  /** Exact execution-semantics key used to prevent reuse after a concurrent pin/provenance change. */
+  receipt: VerificationEvidenceReceipt;
+  /** Execution-only identity shared by rows that may consume one subprocess result. */
   executionKey: string;
-  causalReceipt: CausalEvidenceReceipt;
-  causalPreflight: NonNullable<EnforceAndStampResult['causalPreflight']>;
+  /** Row assertion/provenance identity rechecked under the write lock. */
+  assertionKey: string;
+  causalReceipt?: CausalEvidenceReceipt;
+  causalPreflight?: NonNullable<EnforceAndStampResult['causalPreflight']>;
 };
+
+/**
+ * A real shared execution that could not mint any passing assertion. This is
+ * kept separate from ReexecStamp so the write phase can preserve truthful
+ * provenance without ever treating a failed execution as mechanical evidence.
+ */
+type ReexecFailure = {
+  kind: 'timeout' | 'nonzero_exit';
+  executionKey: string;
+  assertionKey: string;
+  nonMechanicalReason: string;
+};
+
+function staleRefreshExecutionFailure(input: {
+  executionKey: string;
+  timedOut: boolean;
+  timeoutMs: number;
+  exitCode: number;
+}): Pick<ReexecFailure, 'kind' | 'executionKey' | 'nonMechanicalReason'> {
+  if (input.timedOut) {
+    return {
+      kind: 'timeout',
+      executionKey: input.executionKey,
+      nonMechanicalReason: 'verification_evidence_refresh_stale: shared execution was attempted and timed out; ' +
+        `executionKey=${input.executionKey}; timeoutMs=${input.timeoutMs}; no pass receipt was issued ` +
+        '[verification_refresh_execution_timeout]',
+    };
+  }
+  return {
+    kind: 'nonzero_exit',
+    executionKey: input.executionKey,
+    nonMechanicalReason: 'verification_evidence_refresh_stale: shared execution was attempted and exited nonzero; ' +
+      `executionKey=${input.executionKey}; exitCode=${input.exitCode}; no pass receipt was issued ` +
+      '[verification_refresh_execution_nonzero]',
+  };
+}
 
 type StaleReexecCandidate = {
   item: ChecklistItem;
   input: EvidenceWriteInput;
-  /** Process identity without selector/intent presentation semantics. */
-  rawExecutionKey: string;
-  /** Evidence identity including selector/type/kind semantics. */
+  /** Physical identity excludes selector/type/kind and descriptive provenance. */
   executionKey: string;
+  assertionKey: string;
+  effectiveTimeoutMs: number;
+  manifestPath?: string;
+  evidenceHeadHash?: string;
+  evidenceMaterialHash?: string;
+  evidenceStoryFilesHash?: string;
+  priorReceipt?: VerificationEvidenceReceipt;
+  timeoutOverride?: { timeoutMs: number; reason: string };
   rowKey: string;
 };
 
@@ -1645,25 +1913,55 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
   const coverage = buildVerificationCoverage(
     cl,
     headHash,
-    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
-    { deferredGateEvidence: 'missing' },
+    (oldHeadHash, evidence) => {
+      if (verificationReceiptLostCurrentReuseAuthority(evidence?.receipt)) return false;
+      return (
+        verificationReceiptHasCurrentReuseAuthority(evidence?.receipt)
+        && isCanonicalGitHeadHash(oldHeadHash)
+        && isCanonicalSha256Hash(evidence?.materialHash)
+        && isCanonicalSha256Hash(evidence?.storyFilesHash)
+        ? checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash)
+        : checkStrictVerificationEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash)
+      ).fresh;
+    },
+    { deferredGateEvidence: 'missing', receiptAdmissibility: createVerificationEvidenceGateEvaluator(root, storyId) },
   );
+  // F089: maintenance scheduling is not lifecycle admission. Gate-owned
+  // classification correctly rejects receipt-less legacy logic attestations,
+  // but that must not hide their metadata drift from the demotion-only writer.
+  const hasStaleLegacyMetadata = (entry: typeof coverage.entries[number]): boolean => {
+    const evidence = entry.evidence;
+    if (!evidence || entry.status !== 'non_mechanical' || evidence.receipt
+      || evidence.mechanical === true || !evidence.headHash
+      || evidence.kind === 'waiver' || evidence.result === 'fail') return false;
+    const item = cl.items.find(candidate => candidate.id === entry.itemId);
+    const resolved = item && resolveIntentForRef(item, entry.intentRef);
+    if (!resolved || resolved.intent.verification) return false;
+    return !checkEvidenceFreshnessForGit(
+      refreshGitCwd, evidence.headHash, evidence.materialHash, root, evidence.storyFilesHash,
+    ).fresh;
+  };
   const stale = coverage.entries.filter(e => e.evidence && (
     e.status === 'stale'
+    || (e.status === 'non_mechanical' && e.evidence.mechanical === true)
     || e.evidence.nonMechanicalReason?.startsWith('receipt invalidated by verification_evidence_refresh_stale:')
+    || hasStaleLegacyMetadata(e)
   ));
   return { refreshGitCwd, headHash, materialHash, storyFilesHash, cl, stale };
 }
 
 /**
- * Build the exact semantic identity of one stale pinned re-execution. The key is
- * deliberately stricter than command equality: selector, intent/evidence kind,
- * cwd, effective timeout, and the audited timeout provenance must all match.
- * This keeps dedupe inside one refresh invocation without weakening immutable-pin
- * or timeout-boundary enforcement for any individual intent.
+ * Build the execution and assertion identities of one stale pinned row.
+ *
+ * The execution key contains only facts that can change this subprocess result:
+ * command, resolved cwd, and effective timeout. Selector, intent/evidence kind,
+ * and descriptive timeout provenance remain in the row-level assertion key. This
+ * allows one complete captured output to fan out safely while still detecting a
+ * concurrent pin or provenance change before the row consumes the result.
  */
 function staleReexecCandidate(
   root: string,
+  storyId: string,
   refreshGitCwd: string,
   item: ChecklistItem,
   intentRef: string,
@@ -1671,16 +1969,30 @@ function staleReexecCandidate(
 ): StaleReexecCandidate | undefined {
   const resolved = resolveIntentForRef(item, intentRef);
   const pin = resolved?.intent.verification;
-  // A deliberately pinned docs/manual intent is executable evidence too. The
-  // pin, rather than the descriptive intent type, is the authority boundary;
-  // unpinned attestations still take the metadata-only/demotion path.
+  // Any intent type with an explicit immutable pin is executable. Unpinned
+  // docs/manual rows remain attestations, but a pinned one must participate in
+  // the same selector-free refresh fan-out as logic/cli/browser rows.
   if (!resolved || !pin) return undefined;
+  if (evidence?.command && evidence.command !== pin.command) return undefined;
+  if (evidence?.receipt && isSplitVerificationReceipt(evidence.receipt)) {
+    const validation = validateVerificationReceipt(root, evidence.receipt, {
+      intentRef,
+      selector: pin.selector,
+      storyId,
+      command: pin.command,
+      ...(isCanonicalGitHeadHash(evidence.headHash) && isCanonicalSha256Hash(evidence.materialHash) && isCanonicalSha256Hash(evidence.storyFilesHash) ? {
+        freshness: { headHash: evidence.headHash, materialHash: evidence.materialHash, storyFilesHash: evidence.storyFilesHash },
+      } : {}),
+    });
+    if (!validation.ok) return undefined;
+  }
 
   const kind = intentTypeToEvidenceKind(resolved.intent.type);
   const priorOverride = evidence?.receipt?.timeoutOverride;
   const input: EvidenceWriteInput = {
     intentRef,
     kind,
+    ...(evidence?.file ? { file: evidence.file } : {}),
     command: pin.command,
     selector: pin.selector,
     result: 'pass',
@@ -1697,33 +2009,50 @@ function staleReexecCandidate(
   const effectiveTimeoutMs = validatedOverride?.timeoutMs
     ?? configuredTimeoutMs
     ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
-  const timeoutProvenance = priorOverride
-    ? {
-        source: 'carried-receipt-override',
-        timeoutMs: validatedOverride?.timeoutMs,
-        reason: validatedOverride?.reason,
-        priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
-      }
-    : {
-        source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
-        configuredTimeoutMs: configuredTimeoutMs ?? null,
-      };
-  const normalizedCommand = parseAllowlistedCommand(pin.command);
-  const rawExecutionKey = JSON.stringify({
-    version: 1,
-    command: normalizedCommand,
+  const manifestPath = dependencyManifestPath(evidence?.file);
+  const preparedIdentity = prepareVerificationExecutionIdentity({
+    command: pin.command,
     cwd: refreshGitCwd,
     effectiveTimeoutMs,
-    timeoutProvenance,
+    manifestPath,
   });
-  const executionKey = JSON.stringify({
+  const executionKey = createVerificationExecutionKey({
+    command: pin.command,
+    cwd: refreshGitCwd,
+    effectiveTimeoutMs,
+    preparedIdentity,
+  });
+  const assertionKey = JSON.stringify({
     version: 1,
-    rawExecutionKey,
     selector: pin.selector,
     intentType: resolved.intent.type,
     evidenceKind: kind,
+    timeoutProvenance: priorOverride
+      ? {
+          source: 'carried-receipt-override',
+          timeoutMs: validatedOverride?.timeoutMs,
+          reason: validatedOverride?.reason,
+          priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
+        }
+      : {
+          source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
+          configuredTimeoutMs: configuredTimeoutMs ?? null,
+        },
   });
-  return { item, input, rawExecutionKey, executionKey, rowKey: `${item.id}::${intentRef}` };
+  return {
+    item,
+    input,
+    executionKey,
+    assertionKey,
+    effectiveTimeoutMs,
+    ...(manifestPath ? { manifestPath } : {}),
+    ...(evidence?.headHash ? { evidenceHeadHash: evidence.headHash } : {}),
+    ...(evidence?.materialHash ? { evidenceMaterialHash: evidence.materialHash } : {}),
+    ...(evidence?.storyFilesHash ? { evidenceStoryFilesHash: evidence.storyFilesHash } : {}),
+    ...(evidence?.receipt ? { priorReceipt: evidence.receipt } : {}),
+    ...(validatedOverride ? { timeoutOverride: validatedOverride } : {}),
+    rowKey: `${item.id}::${intentRef}`,
+  };
 }
 
 /**
@@ -1732,9 +2061,11 @@ function staleReexecCandidate(
  *   - `reexecByKey` has a pass-stamp for the row (its pinned command was RE-RUN and
  *     PASSED, computed by the async handler before the lock) → re-stamp a fresh
  *     mechanical:true receipt bound to the CURRENT head/material — the row stays covered.
- *   - otherwise (no pin / not re-run / the re-run did NOT pass) → the pre-B-1507
- *     behavior: DEMOTE a stale mechanical receipt to a non-mechanical attestation, else
- *     freshness-only re-stamp. A covered receipt is NEVER minted here without a real pass.
+ *   - `reexecFailureByKey` has a current timeout/nonzero result → demote with its
+ *     truthful shared-execution diagnostic and no receipt.
+ *   - otherwise (no pin / not run / unavailable) → retain the existing unexecuted
+ *     demotion reason or freshness-only re-stamp. A covered receipt is NEVER minted
+ *     here without a real pass.
  */
 function writeStaleRefresh(
   ctx: HandlerContext,
@@ -1743,16 +2074,20 @@ function writeStaleRefresh(
   opts: {
     dryRun?: boolean;
     reexecByKey?: Map<string, ReexecStamp>;
+    reexecFailureByKey?: Map<string, ReexecFailure>;
+    diagnostics?: string[];
     commitCanonicalCausalEvidence?: CausalRefreshCommitter;
   } = {},
 ): string {
   const { store, root } = ctx;
   const { headHash, materialHash, storyFilesHash, stale } = computed;
   const reexecByKey = opts.reexecByKey ?? new Map<string, ReexecStamp>();
+  const reexecFailureByKey = opts.reexecFailureByKey ?? new Map<string, ReexecFailure>();
   return withChecklistLock(ctx, storyId, () => {
     const cl = store.readChecklist(storyId);
     const lines = [
       `${opts.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${storyId}: ${stale.length}`,
+      ...(opts.diagnostics ?? []),
     ];
     let refreshed = 0;
     const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>> = [];
@@ -1764,16 +2099,23 @@ function writeStaleRefresh(
       lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
       if (opts.dryRun || !item || idx < 0 || !ev) continue;
       const reexec = reexecByKey.get(`${entry.itemId}::${entry.intentRef}`);
+      const reexecFailure = reexecFailureByKey.get(`${entry.itemId}::${entry.intentRef}`);
+      const executionOutcome = reexec ?? reexecFailure;
       let currentExecutionKey: string | undefined;
-      if (reexec) {
+      if (executionOutcome) {
         try {
-          currentExecutionKey = staleReexecCandidate(
+          const currentCandidate = staleReexecCandidate(
             root,
+            storyId,
             computed.refreshGitCwd,
             item,
             entry.intentRef,
             ev,
-          )?.executionKey;
+          );
+          currentExecutionKey = currentCandidate
+            && currentCandidate.assertionKey === executionOutcome.assertionKey
+            ? currentCandidate.executionKey
+            : undefined;
         } catch {
           // A concurrently changed/invalid timeout provenance cannot consume a
           // receipt earned under the pre-lock snapshot; leave it on demotion.
@@ -1827,7 +2169,11 @@ function writeStaleRefresh(
       if (ev.mechanical === true || unexecutedCommandBackedPass) {
         refreshedMechanical = false;
         refreshedReceipt = undefined;
-        refreshedReason = ev.nonMechanicalReason
+        const currentFailure = reexecFailure && currentExecutionKey === reexecFailure.executionKey
+          ? reexecFailure
+          : undefined;
+        refreshedReason = currentFailure?.nonMechanicalReason
+          ?? ev.nonMechanicalReason
           ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
       }
       existing[idx] = makeEvidence({
@@ -1904,8 +2250,15 @@ export function refreshStaleEvidenceMetadataOnly(ctx: HandlerContext, storyId: s
   return writeStaleRefresh(ctx, storyId, computed, { dryRun });
 }
 
-export function createChecklistHandlers(ctx: HandlerContext) {
+export function createChecklistHandlers(ctx: HandlerContext & { verificationCommandRunner?: SingleCommandRunner }) {
   const { store, root } = ctx;
+  const executePinnedCommand: SingleCommandRunner = ctx.verificationCommandRunner
+    ?? ((command, cwd, timeoutMs) => {
+      const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+      return runSingleAllowlistedCommand(
+        command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+      );
+    });
   // B-75f0 CHK-001: resolve the authoritative git cwd for a story-scoped command.
   // Every verification-evidence handler here has args.storyId in scope, so it can
   // route freshness git probes through the single resolveGitCwd choke-point. On a
@@ -2682,7 +3035,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (args.waiverType && kind !== 'waiver') {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
-      const contradiction = detectEvidenceRowContradiction({ command: args.command, file: args.file });
+      const contradiction = dependencyManifestPath(args.file)
+        ? null
+        : detectEvidenceRowContradiction({ command: args.command, file: args.file });
       if (contradiction) {
         throw new Error(`verification_evidence_add: ${contradiction}`);
       }
@@ -2691,40 +3046,49 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // re-checks the same pair at the enforcement boundary.
       resolveEvidenceCommandTimeout('verification_evidence_add', args);
 
-      // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
-      // lock (execution is async; withChecklistLock releases synchronously). The
-      // pin write + evidence write then happen atomically inside the lock.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const preItem = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
-      if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      const evidenceInput: EvidenceWriteInput = {
+        storyId: args.storyId, intentRef: args.intentRef, kind, file: args.file, command: args.command, selector: args.selector,
+        result: args.result, nonMechanicalReason: args.nonMechanicalReason,
+        ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
+        ...(args.commandTimeoutReason !== undefined ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
+      };
+      const initialCl = store.readChecklist(args.storyId);
+      const initialItem = initialCl.items.find(i => i.id === args.itemId);
+      if (!initialItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      const initialPlan = verificationProducerPlan(root, initialItem, evidenceInput, gitCwd);
+      const initialPublicationDigests = initialPlan ? publicationDigestsForKey(initialCl, initialPlan) : new Set<string>();
       const causalBatch = createCausalEvidenceBatch();
-      const stamp = await enforceAndStampEvidence(
-        preItem,
-        {
-          storyId: args.storyId,
-          intentRef: args.intentRef, kind, command: args.command, selector: args.selector,
-          result: args.result, nonMechanicalReason: args.nonMechanicalReason,
-          ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
-          ...(args.commandTimeoutReason !== undefined ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
-        },
-        {
-          runCommand: (command, cwd, timeoutMs) => {
-            const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-            return runSingleAllowlistedCommand(
-              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-            );
-          },
+      const produce = async (): Promise<string> => {
+        const currentCl = store.readChecklist(args.storyId);
+        const preItem = currentCl.items.find(i => i.id === args.itemId);
+        if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+        const currentPlan = verificationProducerPlan(root, preItem, evidenceInput, gitCwd);
+        if (initialPlan && currentPlan?.executionKey !== initialPlan.executionKey) {
+          throw new Error('receiptIssued=false reason=input_changed_during_execution');
+        }
+        const sharedPublication = initialPlan && currentPlan
+          ? concurrentPublishedExecution(
+              root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
+            )
+          : undefined;
+        const stamp = await enforceAndStampEvidence(preItem, evidenceInput, {
+          runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: gitCwd,
-          storyId: args.storyId,
           projectRoot: root,
           metadataRoot: root,
           receiptStore: store,
           batch: causalBatch,
-        },
-      );
-
-      return withChecklistLock(ctx, args.storyId, () => {
+          storyId: args.storyId,
+          ...(sharedPublication ? {
+            sharedExecutionReceipt: sharedPublication.executionReceipt,
+            ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
+            sharedFreshness: sharedPublication.freshness,
+            ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
+          } : {}),
+        });
+        return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
@@ -2749,6 +3113,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
           ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
           ...hashes,
+          ...(isSplitVerificationReceipt(stamp.evidencePatch.receipt) && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5' ? stamp.evidencePatch.receipt.publicationBinding.freshness : {}),
         });
 
         const existing = item.verificationEvidence || [];
@@ -2771,7 +3136,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
         return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
-      });
+        });
+      };
+      return initialPlan
+        ? withVerificationExecutionLocks(root, [initialPlan.executionKey], produce)
+        : produce();
     },
 
     async verification_evidence_batch_add(args: {
@@ -2811,7 +3180,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (entry.waiverType && kind !== 'waiver') {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType can only be used with kind=waiver`);
         }
-        const entryContradiction = detectEvidenceRowContradiction({ command: entry.command, file: entry.file });
+        const entryContradiction = dependencyManifestPath(entry.file)
+          ? null
+          : detectEvidenceRowContradiction({ command: entry.command, file: entry.file });
         if (entryContradiction) {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} ${entryContradiction}`);
         }
@@ -2825,55 +3196,90 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         normalizedKinds.push(kind);
       }
 
-      // B-ec67: run enforcement (incl. pinned-command execution) for EVERY entry through
-      // the SAME shared helper as the single-add path, OUTSIDE the checklist lock. Any
-      // refusal throws before the all-or-nothing write below, so the batch path is never
-      // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
-        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-        return runSingleAllowlistedCommand(
-          command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-        );
-      };
-      const preCl = store.readChecklist(args.storyId);
-      const stamps: EnforceAndStampResult[] = [];
-      const causalBatch = createCausalEvidenceBatch();
-      for (let i = 0; i < args.evidences.length; i++) {
-        const entry = args.evidences[i];
-        const item = preCl.items.find(it => it.id === entry.itemId);
+      const runCommand: SingleCommandRunner = executePinnedCommand;
+      const evidenceInputs = args.evidences.map((entry, i): EvidenceWriteInput => ({
+        storyId: args.storyId, intentRef: entry.intentRef, kind: normalizedKinds[i], file: entry.file, command: entry.command,
+        selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
+        ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
+        ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
+      }));
+      const initialCl = store.readChecklist(args.storyId);
+      const initialPlans = args.evidences.map((entry, i) => {
+        const item = initialCl.items.find(it => it.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
-        stamps.push(await enforceAndStampEvidence(
-          item,
-          {
-            storyId: args.storyId,
-            intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command,
-            selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
-            ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
-            ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
-          },
-          {
+        return verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
+      });
+      const initialPublicationDigests = initialPlans.map(plan => plan
+        ? publicationDigestsForKey(initialCl, plan)
+        : new Set<string>());
+      const causalBatch = createCausalEvidenceBatch();
+      const produceBatch = async (): Promise<string> => {
+        const currentCl = store.readChecklist(args.storyId);
+        const stamps: EnforceAndStampResult[] = [];
+        const sharedExecutions = new Map<string, SharedVerificationPublication>();
+        const hashes = evidenceHashes(gitCwd, root);
+        for (let i = 0; i < args.evidences.length; i++) {
+          const entry = args.evidences[i];
+          const item = currentCl.items.find(it => it.id === entry.itemId);
+          if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          const currentPlan = verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
+          if (initialPlans[i] && currentPlan?.executionKey !== initialPlans[i]?.executionKey) {
+            throw new Error('receiptIssued=false reason=input_changed_during_execution');
+          }
+          const sharedPublication = currentPlan
+            ? sharedExecutions.get(currentPlan.executionKey)
+              ?? concurrentPublishedExecution(
+                root, args.storyId, currentCl, currentPlan, initialPublicationDigests[i], hashes,
+              )
+            : undefined;
+          const stamp = await enforceAndStampEvidence(item, evidenceInputs[i], {
             runCommand,
             preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
             cwd: gitCwd,
-            storyId: args.storyId,
             projectRoot: root,
             metadataRoot: root,
             receiptStore: store,
             batch: causalBatch,
-          },
-        ));
-      }
+            storyId: args.storyId,
+            ...(sharedPublication ? {
+              sharedExecutionReceipt: sharedPublication.executionReceipt,
+              ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
+              sharedFreshness: sharedPublication.freshness,
+              ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
+            } : {}),
+          });
+          stamps.push(stamp);
+          if (currentPlan && stamp.evidencePatch.receipt && isSplitVerificationReceipt(stamp.evidencePatch.receipt)) {
+            const execution = stamp.evidencePatch.receipt.executionReceipt;
+            if (execution.schemaVersion === 'proof-or-stop.verification-execution-receipt.v3' && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5') {
+              const currentReceipt = stamp.evidencePatch.receipt;
+              sharedExecutions.set(currentPlan.executionKey, {
+                executionReceipt: execution,
+                freshness: currentReceipt.publicationBinding.freshness,
+                ...(stamp.causalReceipt ? { causalReceipt: stamp.causalReceipt } : {}),
+                ...(currentReceipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5'
+                  && currentReceipt.publicationMode === 'reused'
+                  && currentReceipt.reuseReceipt
+                  ? { reuseReceipt: currentReceipt.reuseReceipt }
+                  : {}),
+              });
+            }
+          }
+        }
 
-      return withChecklistLock(ctx, args.storyId, () => {
+        return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
-        const hashes = evidenceHashes(gitCwd, root);
         let written = 0;
         args.evidences.forEach((entry, i) => {
           const kind = normalizedKinds[i];
           const stamp = stamps[i];
           const item = cl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          if (!stamp) {
+            written++;
+            return;
+          }
           if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
           const command = stamp.evidencePatch.command ?? (entry.command ? entry.command.trim() : undefined);
           const result = stamp.evidencePatch.result ?? entry.result;
@@ -2893,6 +3299,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
             ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
             ...hashes,
+            ...(isSplitVerificationReceipt(stamp.evidencePatch.receipt) && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5' ? stamp.evidencePatch.receipt.publicationBinding.freshness : {}),
           });
           const existing = item.verificationEvidence || [];
           const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
@@ -2912,7 +3319,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
         const causalMetrics = renderCausalMetrics(deriveCausalMetrics(causalBatch.ledger));
         return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}; ${causalMetrics}`;
-      });
+        });
+      };
+      return withVerificationExecutionLocks(
+        root,
+        initialPlans.flatMap(plan => plan ? [plan.executionKey] : []),
+        produceBatch,
+      );
     },
 
     /**
@@ -2982,6 +3395,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const gitCwd = resolveStoryGitCwd(args.storyId);
       const runCwd = args.cwd ? (isAbsolute(args.cwd) ? args.cwd : join(gitCwd, args.cwd)) : gitCwd;
       const kind = intentTypeToEvidenceKind(resolved.intent.type);
+      const existingManifestPath = preItem.verificationEvidence
+        ?.find(evidence => evidence.intentRef === args.intentRef)?.file;
       const causalBatch = createCausalEvidenceBatch();
 
       // Run the PINNED command through the shared enforcement boundary. We pass the pin's
@@ -2996,27 +3411,58 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // where the raise is attributable to a commandTimeoutReason. A timed-out run here
       // still gets the DISTINCT [receipt_command_timeout] diagnosis instead of a
       // misleading selector-absent refusal.
-      const stamp = await enforceAndStampEvidence(
-        preItem,
-        { storyId: args.storyId, intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
-        {
-          runCommand: (command, cwd, timeoutMs) => {
-            const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-            return runSingleAllowlistedCommand(
-              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-            );
-          },
+      const initialInput: EvidenceWriteInput = {
+        storyId: args.storyId, intentRef: args.intentRef, kind, file: existingManifestPath,
+        command: pin.command, selector: pin.selector, result: 'pass',
+      };
+      const initialPlan = verificationProducerPlan(root, preItem, initialInput, runCwd);
+      if (!initialPlan) throw new Error('verification_run refused: pinned verifier did not resolve an execution identity [verification_run_no_identity]');
+      const initialPublicationDigests = publicationDigestsForKey(preCl, initialPlan);
+      return withVerificationExecutionLocks(root, [initialPlan.executionKey], async () => {
+        const currentCl = store.readChecklist(args.storyId);
+        const currentItem = currentCl.items.find(item => item.id === itemId);
+        if (!currentItem) throw new Error(`Checklist item ${itemId} not found`);
+        const currentResolved = resolveIntentForRef(currentItem, args.intentRef);
+        const currentPin = currentResolved?.intent.verification;
+        if (!currentResolved || !currentPin) {
+          throw new Error('verification_run refused: authoritative pin disappeared inside producer lock [verification_run_no_pin]');
+        }
+        const currentManifestPath = currentItem.verificationEvidence
+          ?.find(evidence => evidence.intentRef === args.intentRef)?.file;
+        const currentInput: EvidenceWriteInput = {
+          storyId: args.storyId,
+          intentRef: args.intentRef,
+          kind: intentTypeToEvidenceKind(currentResolved.intent.type),
+          file: currentManifestPath,
+          command: currentPin.command,
+          selector: currentPin.selector,
+          result: 'pass',
+        };
+        const currentPlan = verificationProducerPlan(root, currentItem, currentInput, runCwd);
+        if (currentPlan?.executionKey !== initialPlan.executionKey) {
+          throw new Error('receiptIssued=false reason=input_changed_during_execution');
+        }
+        const sharedPublication = concurrentPublishedExecution(
+          root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
+        );
+        const stamp = await enforceAndStampEvidence(currentItem, currentInput, {
+          runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: runCwd,
-          storyId: args.storyId,
           projectRoot: root,
           metadataRoot: root,
           receiptStore: store,
           batch: causalBatch,
-        },
-      );
+          storyId: args.storyId,
+          ...(sharedPublication ? {
+            sharedExecutionReceipt: sharedPublication.executionReceipt,
+            ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
+            sharedFreshness: sharedPublication.freshness,
+            ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
+          } : {}),
+        });
 
-      return withChecklistLock(ctx, args.storyId, () => {
+        return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === itemId);
         if (!item) throw new Error(`Checklist item ${itemId} not found`);
@@ -3028,12 +3474,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const evidence = makeEvidence({
           intentRef: args.intentRef,
           kind,
+          ...(currentManifestPath ? { file: currentManifestPath } : {}),
           ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
           ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
           note,
           ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
           ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
           ...hashes,
+          ...(isSplitVerificationReceipt(stamp.evidencePatch.receipt) && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5' ? stamp.evidencePatch.receipt.publicationBinding.freshness : {}),
         });
         const existing = item.verificationEvidence || [];
         const idx = existing.findIndex(e => e.intentRef === args.intentRef);
@@ -3053,6 +3501,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
         return `Verification run recorded for ${itemId} → ${args.intentRef} (${kind}, ran pinned command${receiptNote})${commitHint}`;
+        });
       });
     },
 
@@ -3074,18 +3523,16 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned executable rows
-     * instead of demoting them. For every stale row whose intent carries an immutable
-     * `verification:{command,selector}` (a mechanical receipt or any pinned
-     * intent), the PINNED command is re-run OUTSIDE the checklist lock through the SAME
-     * `enforceAndStampEvidence` refusal path + `runSingleAllowlistedCommand` executor as
-     * `verification_run` / `verification_evidence_add` (no second executor). On a real
-     * pass a fresh receipt bound to the CURRENT head/material is re-stamped and the row
-     * stays `mechanical:true` covered. On ANY failure (exit != 0, selector absent,
-     * command unavailable / not allowlisted, resolution error) the re-run throws, no
-     * pass-stamp is recorded, and the row falls through to the pre-B-1507 demote path —
-     * a covered receipt is NEVER re-minted without a real pass (no laundering). Rows
-     * WITHOUT a pinned command keep the freshness-only / demote behavior unchanged.
+     * Stale executable rows are grouped by selector-free execution identity. Safe
+     * input-scoped reuse can publish the prior immutable execution with zero subprocesses
+     * only for a proven-unchanged policy-owned capsule. Otherwise freshness fails closed
+     * to at most one real rerun per affected execution key through the same executor used
+     * by verification_run / verification_evidence_add. Timeout/nonzero failure demotes
+     * every dependent row; selector mismatch demotes only that row because each immutable
+     * selector is evaluated independently over the complete output artifact. Invalid or
+     * incomplete reuse authority never restamps evidence: it forces that real rerun, and
+     * a failed or unavailable rerun leaves the row non-mechanical with no pass receipt.
+     * Rows without a pinned command retain freshness-only / demote behavior.
      *
      * In-process callers whose contract forbids running a command as a side effect
      * (`evidence_refresh`, `done_prepare`, `recover_evidence`) use the synchronous
@@ -3095,123 +3542,221 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       storyId: string;
       dryRun?: boolean;
     }): Promise<string> {
-      const computed = collectStaleRefreshContext(ctx, args.storyId);
-      if (computed.stale.length === 0) {
+      const initial = collectStaleRefreshContext(ctx, args.storyId);
+      if (initial.stale.length === 0) {
         return `No stale verification evidence for ${args.storyId}`;
       }
-
-      // Re-execute pinned executable rows OUTSIDE the checklist lock (execution is
-      // async; the write body is synchronous). Rows with byte-identical execution
-      // semantics share one invocation, but each row is independently pin/provenance
-      // validated before grouping and again under the write lock before consuming the
-      // shared receipt. Only a real mechanical pass records stamps for the group;
-      // every failure leaves every grouped row absent so all take the demotion path.
-      const reexecByKey = new Map<string, ReexecStamp>();
-      const rawProcessResults = new Map<string, Promise<SingleCommandExecutionResult>>();
-      const rawExecutionContext = causalCanonical({
-        schemaVersion: 1,
-        storyId: args.storyId,
-        materialHash: computed.materialHash ?? null,
-        storyFilesHash: computed.storyFilesHash ?? null,
-        effectiveEnvironment: effectiveCausalEnvironment(undefined, computed.refreshGitCwd),
-        runtimeVersion: process.version,
-        toolVersion: resolveCausalToolVersion(root) ?? null,
-      });
-      if (!args.dryRun) {
-        const groups = new Map<string, { representative: StaleReexecCandidate; rowKeys: string[] }>();
+      const buildGroups = (computed: StaleRefreshContext): Map<string, StaleReexecCandidate[]> => {
+        const groups = new Map<string, StaleReexecCandidate[]>();
         for (const entry of computed.stale) {
           const item = computed.cl.items.find(i => i.id === entry.itemId);
           if (!item) continue;
-          // Origin (B-022e) factored the per-row re-exec inputs into
-          // staleReexecCandidate(); our refresh body consumes candidate.item /
-          // candidate.input, so derive it here rather than duplicating the logic.
-          let candidate: StaleReexecCandidate | undefined;
           try {
-            candidate = staleReexecCandidate(
-              root,
-              computed.refreshGitCwd,
-              item,
-              entry.intentRef,
-              entry.evidence,
+            const candidate = staleReexecCandidate(
+              root, args.storyId, computed.refreshGitCwd,
+              item, entry.intentRef, entry.evidence,
             );
+            if (!candidate) continue;
+            const group = groups.get(candidate.executionKey);
+            if (group) group.push(candidate);
+            else groups.set(candidate.executionKey, [candidate]);
           } catch {
-            // Invalid timeout provenance or pin shape cannot join a group and
-            // therefore remains on the fail-closed demotion path.
+            // Invalid carried provenance remains on the fail-closed demotion path.
+          }
+        }
+        return groups;
+      };
+
+      if (args.dryRun) return writeStaleRefresh(ctx, args.storyId, initial, { dryRun: true });
+      const initialGroups = buildGroups(initial);
+      return withVerificationExecutionLocks(root, initialGroups.keys(), async () => {
+        // The lock protects production, not a stale caller snapshot. A waiter MUST
+        // observe the publisher's checklist evidence and reuse/return that result.
+        const computed = collectStaleRefreshContext(ctx, args.storyId);
+        if (computed.stale.length === 0) return `No stale verification evidence for ${args.storyId}`;
+        const groups = buildGroups(computed);
+        const lockedKeys = new Set(initialGroups.keys());
+        const reexecByKey = new Map<string, ReexecStamp>();
+        const reexecFailureByKey = new Map<string, ReexecFailure>();
+        const diagnostics: string[] = [];
+
+        for (const [executionKey, group] of groups) {
+          // Identity moved before this invocation acquired its declared lock. Never
+          // execute or publish under a lock for a different identity.
+          if (!lockedKeys.has(executionKey)) {
+            diagnostics.push('receiptIssued=false reason=input_changed_during_execution');
             continue;
           }
-          if (!candidate) continue;
-          const group = groups.get(candidate.executionKey);
-          if (group) group.rowKeys.push(candidate.rowKey);
-          else groups.set(candidate.executionKey, { representative: candidate, rowKeys: [candidate.rowKey] });
-        }
-
-        for (const group of groups.values()) {
-          const candidate = group.representative;
+          const representative = group[0];
           try {
-            const stamp = await enforceAndStampEvidence(
-              candidate.item,
-              candidate.input,
-              {
-                runCommand: (command, cwd, timeoutMs) => {
-                  const effectiveTimeoutMs = timeoutMs
-                    ?? resolvePinnedCommandTimeoutMs(root, command)
-                    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
-                  const cacheKey = causalCanonical({
-                    schemaVersion: 1,
-                    rawExecutionKey: candidate.rawExecutionKey,
-                    command: parseAllowlistedCommand(command),
-                    cwd,
-                    effectiveTimeoutMs,
-                    context: rawExecutionContext,
-                  });
-                  const existing = rawProcessResults.get(cacheKey);
-                  if (existing) return existing;
-                  const execution = runSingleAllowlistedCommand(
-                    command,
-                    root,
-                    { cwd, timeoutMs: effectiveTimeoutMs },
-                  ).then((result) => Object.freeze({ ...result }));
-                  rawProcessResults.set(cacheKey, execution);
-                  return execution;
-                },
-                preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
+            const publicationFreshness = captureVerificationFreshness(computed.refreshGitCwd, root);
+            const command = representative.input.command;
+            if (!command) continue;
+            const everyHashBindingCanonical = group.every(candidate =>
+              isCanonicalGitHeadHash(candidate.evidenceHeadHash)
+              && isCanonicalSha256Hash(candidate.evidenceMaterialHash)
+              && isCanonicalSha256Hash(candidate.evidenceStoryFilesHash));
+            const reuse = planVerificationExecutionReuse({
+              projectRoot: root,
+              storyId: args.storyId,
+              priorReceipt: representative.priorReceipt,
+              intentRef: representative.input.intentRef,
+              selector: representative.input.selector ?? '',
+              command,
+              cwd: computed.refreshGitCwd,
+              effectiveTimeoutMs: representative.effectiveTimeoutMs,
+              manifestPath: representative.manifestPath,
+              freshnessHashBinding: {
+                evidenceHeadHash: everyHashBindingCanonical ? representative.evidenceHeadHash : undefined,
+                evidenceMaterialHash: everyHashBindingCanonical ? representative.evidenceMaterialHash : undefined,
+                evidenceStoryFilesHash: everyHashBindingCanonical ? representative.evidenceStoryFilesHash : undefined,
+                currentHeadHash: computed.headHash,
+                currentMaterialHash: computed.materialHash,
+                currentStoryFilesHash: computed.storyFilesHash,
+              },
+            });
+            let executionReceipt = reuse.executionReceipt;
+            let causalStamp: Pick<ReexecStamp, 'causalReceipt' | 'causalPreflight'> | undefined;
+            if (executionReceipt) {
+              const beforeReuseIssue = prepareVerificationExecutionIdentity({
+                command, cwd: computed.refreshGitCwd,
+                effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                manifestPath: representative.manifestPath,
+              });
+              assertVerificationInputUnchanged(reuse.identity, beforeReuseIssue);
+            } else {
+              const beforeIdentity = prepareVerificationExecutionIdentity({
+                command, cwd: computed.refreshGitCwd,
+                effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                manifestPath: representative.manifestPath,
+              });
+              const preflightInput = {
+                command,
                 cwd: computed.refreshGitCwd,
+                timeoutMs: representative.effectiveTimeoutMs,
+              };
+              const initialPreflightFacts = causalPreflightFactsFor(args.storyId, computed.refreshGitCwd)(preflightInput);
+              const preflightFactsUnchanged = () => causalCanonical(
+                causalPreflightFactsFor(args.storyId, computed.refreshGitCwd)(preflightInput),
+              ) === causalCanonical(initialPreflightFacts);
+              const causalIdentity: CausalExecutionIdentityInput = {
                 storyId: args.storyId,
-                projectRoot: root,
-                metadataRoot: root,
+                cwd: computed.refreshGitCwd,
+                command,
+                bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
+                inputs: {
+                  storyId: args.storyId,
+                  materialHash: computed.materialHash ?? null,
+                  timeoutMs: representative.effectiveTimeoutMs,
+                  preflightFacts: initialPreflightFacts,
+                  verificationExecutionKey: executionKey,
+                  // Never enters buildGroups or the producer-lock key: this is
+                  // the address of one real observation, not physical identity.
+                  verificationObservationId: randomUUID(),
+                },
+                storyFilesHash: computed.storyFilesHash,
+                effectiveEnvironment: effectiveCausalEnvironment(undefined, computed.refreshGitCwd),
+                runtimeVersion: process.version,
+                toolVersion: resolveCausalToolVersion(root),
+                selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
+              };
+              const causalPreflight = preflightCausalEvidence(
+                initialPreflightFacts,
+                preflightFactsUnchanged,
+                causalIdentity,
+              );
+              if (!causalPreflight.ready || !preflightFactsUnchanged()) {
+                throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
+              }
+              let run: SingleCommandExecutionResult | undefined;
+              const causal = await executeCausalEvidence({
+                identity: causalIdentity,
+                selector: representative.input.selector ?? '',
+                intentRef: representative.input.intentRef,
                 receiptStore: store,
                 batch: createCausalEvidenceBatch(),
-                executionSemanticsKey: candidate.executionKey,
-              },
-            );
-            if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
-              if (!stamp.causalReceipt || !stamp.causalPreflight) continue;
-              const sharedStamp: ReexecStamp = {
-                ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
-                ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
-                mechanical: true,
-                receipt: stamp.evidencePatch.receipt,
-                executionKey: candidate.executionKey,
-                causalReceipt: stamp.causalReceipt,
-                causalPreflight: stamp.causalPreflight,
-              };
-              for (const rowKey of group.rowKeys) {
-                reexecByKey.set(rowKey, structuredClone(sharedStamp));
+                preflight: causalPreflight,
+                revalidateBeforeRun: preflightFactsUnchanged,
+                run: async () => {
+                  run = await executePinnedCommand(command, computed.refreshGitCwd, representative.effectiveTimeoutMs);
+                  return run;
+                },
+              });
+              if (!run) {
+                throw new Error('verification evidence refused: ordinary observation did not execute [verification_execution_observation_missing]');
               }
+              causalStamp = {
+                causalReceipt: causal.receipt,
+                causalPreflight: { input: preflightInput, facts: initialPreflightFacts },
+              };
+              if (run.timedOut || run.code !== 0) {
+                const failure = staleRefreshExecutionFailure({
+                  executionKey,
+                  timedOut: run.timedOut,
+                  timeoutMs: run.timeoutMs,
+                  exitCode: run.code,
+                });
+                diagnostics.push(failure.nonMechanicalReason);
+                for (const candidate of group) {
+                  reexecFailureByKey.set(candidate.rowKey, {
+                    ...failure,
+                    assertionKey: candidate.assertionKey,
+                  });
+                }
+                continue;
+              }
+              const afterIdentity = prepareVerificationExecutionIdentity({
+                command, cwd: computed.refreshGitCwd,
+                effectiveTimeoutMs: run.timeoutMs,
+                manifestPath: representative.manifestPath,
+              });
+              assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
+              assertVerificationFreshnessUnchanged(publicationFreshness, captureVerificationFreshness(computed.refreshGitCwd, root));
+              executionReceipt = createVerificationExecutionReceipt({
+                projectRoot: root, storyId: args.storyId, command,
+                cwd: computed.refreshGitCwd, run,
+                executedAt: causal.receipt.executedAt,
+                manifestPath: representative.manifestPath,
+                preparedIdentity: afterIdentity,
+              });
             }
-            // A non-mechanical / receiptless stamp is not a real pass → leave for demote.
-          } catch {
-            // exit != 0 / selector absent / command unavailable / not allowlisted /
-            // resolution error: leave ALL rows sharing this exact key on the demote
-            // path. NO laundering and no per-row retry that could exceed the watchdog.
+            let causalStampPending = causalStamp;
+            for (const candidate of group) {
+              const selector = candidate.input.selector;
+              if (!selector) continue;
+              const receipt = createCurrentVerificationAssertionReceipt({
+                freshness: publicationFreshness,
+                projectRoot: root, storyId: args.storyId, executionReceipt,
+                intentRef: candidate.input.intentRef, selector,
+                ...(reuse.reuseReceipt ? { reuseReceipt: reuse.reuseReceipt } : {}),
+                ...(candidate.timeoutOverride ? { timeoutOverride: {
+                  timeoutMs: candidate.timeoutOverride.timeoutMs,
+                  defaultTimeoutMs: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+                  reason: candidate.timeoutOverride.reason,
+                } } : {}),
+              });
+              if (!receipt.selectorMatched) continue;
+              reexecByKey.set(candidate.rowKey, {
+                command, result: 'pass', mechanical: true, receipt,
+                executionKey: candidate.executionKey, assertionKey: candidate.assertionKey,
+                ...(causalStampPending ?? {}),
+              });
+              causalStampPending = undefined;
+            }
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            if (message.includes('receiptIssued=false reason=input_changed_during_execution')) {
+              diagnostics.push('receiptIssued=false reason=input_changed_during_execution');
+            }
+            // No result is published; every dependent row remains fail-closed.
           }
         }
-      }
-
-      return writeStaleRefresh(ctx, args.storyId, computed, {
-        dryRun: args.dryRun,
-        reexecByKey,
-        commitCanonicalCausalEvidence,
+        return writeStaleRefresh(ctx, args.storyId, computed, {
+          reexecByKey,
+          reexecFailureByKey,
+          diagnostics: [...new Set(diagnostics)],
+          commitCanonicalCausalEvidence,
+        });
       });
     },
 

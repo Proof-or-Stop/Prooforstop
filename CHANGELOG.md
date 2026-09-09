@@ -1,5 +1,46 @@
 # Changelog
 
+## Lab baa5f-receipt-fanout - v0.3.286 - 2026-09-09
+
+Integrate the bounded verification-receipt repair developed and reviewed on local branch `story/B-aa5f` without importing formal Story state into the Lab release.
+
+Problem and measured impact:
+
+- Verification freshness was historically coupled to broad Story material, while selector-specific evidence and raw command execution were not represented as separate authenticated facts.
+- The original B-fe8f reproduction contained 71 verification intents backed by two executable command identities. Current main already shared the raw executions and produced the measured 2 subprocesses for 71 selectors, so the Lab correctly refused to record that already-green condition as a RED.
+- The remaining Lab RED reproduced the missing input-scoped path: latest main could not execute the policy-defined closed verifier capsule and therefore could not issue an auditable zero-execution reuse publication after unrelated Story drift.
+
+Repair:
+
+- Add authenticated, versioned ExecutionReceipt, AssertionReceipt, ReuseReceipt, and signed publication bindings while retaining read-only legacy compatibility.
+- Store complete verifier output as immutable content-addressed artifacts; selectors are evaluated independently against that complete output.
+- Scope reusable freshness to a policy-enforced dependency manifest and evidence input digest. Incomplete closures, dynamic or undeclared inputs, environment uncertainty, unsupported sandboxing, or integrity failures remain non-reusable and fail closed.
+- Bind live command, cwd, timeout, environment, Node/toolchain, input closure, output artifact, selector, intent, and publication context to the appropriate signed layer.
+- Serialize producers by raw execution identity, preserving one execution with independent assertion outcomes and preventing concurrent duplicate launches or receipt races.
+- Preserve broad material and Story hashes as audit/fallback bindings; old receipts are never silently rewritten.
+- Integrate the related lifecycle, admissibility, inventory-subject, narrowing, process-fact, runtime-fact, documentation, and validation updates required to consume the new receipt graph consistently.
+
+Fresh Lab evidence on the committed candidate:
+
+- Pinned Lab GREEN command: `npm run test:verification-run-and-guard-smoke`.
+- Fan-out: 71 intents, two command identities, exactly two subprocess executions, two ExecutionReceipts, 71 independent AssertionReceipts, and two immutable output artifacts.
+- Input-scoped freshness: unrelated drift produced zero subprocess executions and two authenticated ReuseReceipts; changing one verifier input produced one execution and one reuse publication.
+- Selector and failure isolation: selector verdicts remained independent; nonzero exit and timeout fan out failure to dependent assertions without manufacturing a passing receipt.
+- F-057 live environment and toolchain identity drift: PASS.
+- F-058 signed publication binding, legacy non-promotion, and tamper rejection: PASS.
+- F-062 authenticated command/selector narrowing witness and complete-output evaluation: PASS through `npm run test:narrowing-repin`.
+- F-063 authenticated review-inventory observation identity and same-output reexecution semantics: PASS through `npm run test:review-inventory-epoch`.
+- Process fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+- Runtime fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+
+Preserved source-branch audit context (not promoted as Lab or formal DONE credentials): branch `story/B-aa5f` at `15cf023860c8418e5681ac3b954e819de4448390` had 8/8 checklist items done, 29/29 required intents fresh, four current review lanes passing with zero findings, a 137/137 formal validation pass, and a 67/67 full-suite pass in approximately 1005 seconds. The signed Story artifacts remain on that branch; this Lab carries their implementation and human-readable provenance only.
+
+No remote push is performed by this Lab integration.
+
+Maintenance provenance: codex/lab-baa5f-receipt-fanout, repair a67e8fd6815d90ec5a636b3067b746011c40eace.
+Verification command (replayed before integration and on main): `["npm","run","test:verification-run-and-guard-smoke"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b-e40f-convergence-20260909 - v0.3.285 - 2026-09-09
 
 # B-e40f quorum smoke convergence

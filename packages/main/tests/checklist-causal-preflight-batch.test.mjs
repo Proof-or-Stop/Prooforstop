@@ -13,7 +13,7 @@ const source = readFileSync(new URL('../src/handlers/checklist.ts', import.meta.
 const probeStart = source.indexOf('function probeCausalPreflightFacts');
 const probeEnd = source.indexOf('/**\n * B-2296', probeStart);
 const enforcementStart = source.indexOf('const preflightInput');
-const enforcementEnd = source.indexOf('const receipt = causal.receipt;', enforcementStart);
+const enforcementEnd = source.indexOf('const exitOk =', enforcementStart);
 const batchStart = source.indexOf('async verification_evidence_batch_add');
 const batchEnd = source.indexOf('async verification_run', batchStart);
 

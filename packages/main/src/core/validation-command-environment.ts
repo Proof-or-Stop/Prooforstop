@@ -155,3 +155,20 @@ export function effectiveValidationCommandEnvironment(
   }
   return effective;
 }
+
+export const VERIFICATION_REUSE_CAPSULE_ENVIRONMENT_KEYS = ['LANG', 'LC_ALL', 'PATH', 'PWD', 'TZ'] as const;
+
+/**
+ * Closed environment for the policy-owned deterministic reuse capsule. Ambient
+ * values and overlays (especially NODE_OPTIONS/loaders/preloads) never enter it.
+ */
+export function closedVerificationReuseCapsuleEnvironment(cwd: string): Record<string, string> {
+  return {
+    LANG: 'C',
+    LC_ALL: 'C',
+    PATH: dirname(process.execPath),
+    PWD: cwd,
+    TZ: 'UTC',
+  };
+}
+import { dirname } from 'node:path';

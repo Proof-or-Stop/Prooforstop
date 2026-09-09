@@ -1,21 +1,28 @@
 /**
- * Evidence artifact types — candidate-only evidence platform primitives.
+ * Evidence artifact types for candidate intake and bounded local gate evidence.
  *
- * B-0aa1: Repro-first candidate-only evidence intake MVP.
- *
- * These types define the immutable artifact envelope plus typed payloads for
- * candidate (pre-story) repro evidence. Candidate artifacts use evidenceScope
- * "evidence-candidate" and are NOT production/DONE evidence. They cannot satisfy
- * REVIEW, TEST, DONE, Authority, or production-gate claims.
+ * Candidate artifacts use evidenceScope "evidence-candidate" and cannot
+ * independently satisfy REVIEW, TEST, or DONE gates. `local-gate-evidence` and
+ * `verification-output` are eligible as local lifecycle gate inputs only when a
+ * dedicated tool-owned producer creates them and the consuming gate verifies
+ * integrity, required signatures, and proof-admissibility. Eligibility is not
+ * authority: neither EvidenceScope nor ArtifactKind grants authority by itself.
  */
 
 export const EVIDENCE_SCHEMA_VERSION = 'lattice.evidence.v1' as const;
 export type EvidenceSchemaVersion = typeof EVIDENCE_SCHEMA_VERSION;
 
-/** Candidate-only scope — pre-story artifacts that cannot satisfy production gates. */
-export type EvidenceScope = 'evidence-candidate';
+/**
+ * Scope classification, not an authority grant. `evidence-candidate` is intake-only;
+ * `local-gate-evidence` is merely eligible for a dedicated validated local gate path.
+ */
+export type EvidenceScope = 'evidence-candidate' | 'local-gate-evidence';
 
-/** Artifact kinds for the repro-first workflow. */
+/**
+ * Artifact kind discriminants, not proof authority. Candidate workflow kinds remain
+ * non-authoritative; `verification-output` requires its tool-owned receipt producer
+ * and integrity/signature/proof-admissibility validator before any gate may consume it.
+ */
 export type ArtifactKind =
   | 'repro-probe'
   | 'repro-review'
@@ -26,18 +33,20 @@ export type ArtifactKind =
   // `red-green-evaluation` kept as legacy alias to preserve compatibility with pre-baseline stories.
   | 'red-green-evaluation'
   | 'regression-matrix-review'
-  | 'story-evidence-binding';
+  | 'story-evidence-binding'
+  | 'verification-output';
 
 /** Subject binding identifies what this artifact is about. */
 export interface SubjectBinding {
   candidateId: string;
   storyId?: string;
+  executionId?: string;
   probeId?: string;
   spikeId?: string;
   relationId?: string;
 }
 
-/** Immutable artifact envelope — wraps any typed payload. */
+/** Immutable artifact envelope; content addressing alone does not make its payload authoritative. */
 export interface EvidenceArtifact<TPayload = unknown> {
   artifactId: string;
   artifactKind: ArtifactKind;

@@ -736,6 +736,23 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  for (const file of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/proof-admissibility.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification-execution-evidence.ts',
+    'packages/main/src/core/verification.ts',
+    'packages/main/src/handlers/certification-window.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+  ]) write(root, file, 'export const verificationExecutionReceiptContract=true;\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");

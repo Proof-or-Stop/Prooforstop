@@ -28,7 +28,13 @@ export const CANCELLATION_POLICIES = ['cancel-on-first-failure', 'run-all'] as c
 export type CancellationPolicy = (typeof CANCELLATION_POLICIES)[number];
 
 /** Minimum shape the scheduler needs from a caller's entry record. */
-export interface SchedulableEntry { name: string; resources: ResourceClaim[]; priority?: number }
+export interface SchedulableEntry {
+  name: string;
+  resources: ResourceClaim[];
+  priority?: number;
+  /** Entries that must reach a terminal result before this entry may launch. */
+  after?: string[];
+}
 /** Minimum shape the scheduler needs from a caller's terminal result record. */
 export interface SchedulableResult {
   name: string;
@@ -152,16 +158,38 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
   if (cancellable && !options.cancelledResult) throw new Error('cancelledResult is required when cancellation can occur');
   for (const entry of entries) for (const claim of entry.resources) if (!claim.canonicalKey) throw new Error(`uncanonicalized resource for ${entry.name}`);
 
+  const entriesByName = new Map<string, TEntry>();
+  for (const entry of entries) {
+    if (entriesByName.has(entry.name)) throw new Error(`duplicate scheduled entry: ${entry.name}`);
+    entriesByName.set(entry.name, entry);
+  }
+  for (const entry of entries) for (const predecessor of entry.after ?? []) {
+    if (!predecessor.trim() || !entriesByName.has(predecessor)) throw new Error(`unknown scheduled predecessor for ${entry.name}: ${predecessor || '<empty>'}`);
+  }
+  const dependencyState = new Map<string, 'visiting' | 'visited'>();
+  const visitDependency = (entry: TEntry, lineage: string[]): void => {
+    const state = dependencyState.get(entry.name);
+    if (state === 'visited') return;
+    if (state === 'visiting') throw new Error(`scheduled predecessor cycle: ${[...lineage, entry.name].join(' -> ')}`);
+    dependencyState.set(entry.name, 'visiting');
+    for (const predecessor of entry.after ?? []) visitDependency(entriesByName.get(predecessor)!, [...lineage, entry.name]);
+    dependencyState.set(entry.name, 'visited');
+  };
+  for (const entry of entries) visitDependency(entry, []);
+
   // Per-run state. Nothing below is file-scoped, so concurrent runs stay isolated.
   const pending = entries.map((entry, index) => ({ entry, index })).sort((a, b) => (b.entry.priority ?? 0) - (a.entry.priority ?? 0) || a.index - b.index).map(({ entry }) => entry);
   const running = new Map<Promise<void>, TEntry>();
   const resourceBlockedAt = new Map<string, number>();
   const results: TResult[] = [];
+  const completed = new Set<string>();
   let terminalFailureName: string | undefined;
   let cancellationReason: string | undefined;
 
   const cancelCompleted = options.cancelCompletedResult ?? ((result: TResult, reason: string) => ({ ...result, status: 'INTERRUPTED' as const, reason }) as TResult);
-  const compatible = (entry: TEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
+  const predecessorsComplete = (entry: TEntry) => (entry.after ?? []).every(name => completed.has(name));
+  const resourcesCompatible = (entry: TEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
+  const compatible = (entry: TEntry) => predecessorsComplete(entry) && resourcesCompatible(entry);
   const launch = (entry: TEntry) => {
     const blockedAt = resourceBlockedAt.get(entry.name);
     const lockWaitMs = blockedAt === undefined ? 0 : performance.now() - blockedAt;
@@ -172,6 +200,7 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
         ? cancelCompleted(result, `cancelled after terminal failure ${terminalFailureName}`)
         : result;
       results.push({ ...effective, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs } as TResult);
+      completed.add(entry.name);
       if (options.cancellation === 'cancel-on-first-failure' && !terminalFailureName && (result.status === 'FAIL' || result.status === 'TIMEOUT')) {
         terminalFailureName = result.name;
         cancellationReason = `cancelled after terminal failure ${result.name}`;
@@ -185,7 +214,9 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
     if (cancelReason && pending.length) for (const entry of pending.splice(0)) results.push(options.cancelledResult!(entry, cancelReason));
     let launched = false;
     while (!terminalFailureName && running.size < jobs) {
-      for (const candidate of pending) if (!compatible(candidate) && !resourceBlockedAt.has(candidate.name)) resourceBlockedAt.set(candidate.name, performance.now());
+      for (const candidate of pending) if (predecessorsComplete(candidate) && !resourcesCompatible(candidate) && !resourceBlockedAt.has(candidate.name)) {
+        resourceBlockedAt.set(candidate.name, performance.now());
+      }
       const index = pending.findIndex(compatible); if (index < 0) break;
       launch(pending.splice(index, 1)[0]!); launched = true;
     }

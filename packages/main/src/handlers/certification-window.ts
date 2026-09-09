@@ -34,6 +34,7 @@ import {
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import {
   classifyDonePrepareWorktree,
@@ -305,6 +306,7 @@ function collectAdmitFacts(
         const recorded = evidence?.storyFilesHash;
         return Boolean(storyFilesHash && recorded && recorded === storyFilesHash);
       },
+      { receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId) },
     ).missingRequired;
   } catch {
     missingRequiredIntents = Number.MAX_SAFE_INTEGER;

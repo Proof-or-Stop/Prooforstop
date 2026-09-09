@@ -36,6 +36,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { closedEnvironmentForVerificationReuseCapsuleInvocation } from './verification-reuse-capsule.js';
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './done-prepare-generated-metadata.js';
 import { readBrandEnv } from './brand-env.js';
 
@@ -150,6 +151,8 @@ export interface RunValidationCommandOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  /** Exact tool-owned environment for the canonical reuse capsule only. */
+  exactEnvironment?: Record<string, string>;
 }
 
 interface CapturedValidationCommandResult {
@@ -1354,7 +1357,12 @@ function runValidationCommandWithCompleteOutput(
   const timeoutMs = deadlineRemainingMs === undefined
     ? configuredTimeoutMs
     : Math.min(configuredTimeoutMs, deadlineRemainingMs);
-  const effectiveEnv = effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+  // A policy-owned reuse capsule supplies its already-closed environment. Do not
+  // merge ambient variables back into that boundary while retaining the normal
+  // validation environment construction for every ordinary command.
+  const effectiveEnv = options.exactEnvironment
+    ? { ...options.exactEnvironment }
+    : effectiveValidationCommandEnvironment(process.env, command.env, cwd);
   const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
@@ -1371,7 +1379,10 @@ function runValidationCommandWithCompleteOutput(
     statusGitCwd = projectRoot;
   }
   const statusBefore = readGitStatus(statusGitCwd);
-  const tracer = runtimeTracerPath(projectRoot);
+  // The runtime tracer is a useful ordinary-command observation aid, but its
+  // NODE_OPTIONS injection would widen the capsule's exact environment and
+  // therefore invalidate the deterministic reuse authority contract.
+  const tracer = options.exactEnvironment ? undefined : runtimeTracerPath(projectRoot);
   const traceFile = tracer
     ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
     : undefined;
@@ -1688,7 +1699,17 @@ export async function runSingleAllowlistedCommand(
     ...(options.cwd ? { cwd: options.cwd } : {}),
     timeoutMs: options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   };
-  const { result, completeOutput } = await runValidationCommandWithCompleteOutput(validationCommand, projectRoot);
+  const capsuleEnvironment = closedEnvironmentForVerificationReuseCapsuleInvocation({
+    executable,
+    argv: args,
+    cwd: options.cwd ?? projectRoot,
+  });
+  const { result, completeOutput } = await runValidationCommandWithCompleteOutput(
+    validationCommand,
+    projectRoot,
+    DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    capsuleEnvironment ? { exactEnvironment: capsuleEnvironment } : {},
+  );
   return {
     executable,
     args,

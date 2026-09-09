@@ -1,9 +1,23 @@
+import type { VerificationEvidence } from './types.js';
+import {
+  isReusableVerificationReceipt,
+  isSplitVerificationReceipt,
+  prepareVerificationExecutionIdentity,
+  validateVerificationReceipt,
+  verificationReceiptHasCurrentReuseAuthority,
+  VERIFICATION_RECEIPT_BUNDLE_V5,
+} from './verification-execution-evidence.js';
+import {
+  checkStrictVerificationEvidenceFreshnessForGit,
+  currentGitHead,
+  isCanonicalGitHeadHash,
+  isCanonicalSha256Hash,
+} from './evidence-freshness.js';
+
 /**
- * Proof admissibility registry — classification-only MVP.
- *
- * This module is intentionally inert with respect to lifecycle gates. It gives
- * callers a shared vocabulary for proof-looking surfaces and a fail-closed
- * evaluator they can use before future gate integration.
+ * Proof admissibility registry and active lifecycle evidence evaluator.
+ * Gate admission, stale refresh, and DONE selection share the same fail-closed
+ * receipt authentication and current execution-identity classification.
  */
 
 import {
@@ -130,6 +144,12 @@ export const ADMISSIBILITY_REASON_CODES = [
   'local_diagnostic_non_gate',
   'reserved_key_detected',
   'legacy_downgrade',
+  'verification_receipt_missing',
+  'verification_receipt_legacy',
+  'verification_receipt_invalid',
+  'verification_receipt_stale',
+  'verification_receipt_not_passing',
+  'verification_reuse_incomplete',
 ] as const;
 export type AdmissibilityReasonCode = typeof ADMISSIBILITY_REASON_CODES[number];
 
@@ -228,6 +248,25 @@ const DONE_REQUIRED_EVIDENCE_SCHEMA_VERSIONS = [
 ] as const;
 
 export const PROOF_SURFACE_REGISTRY = [
+  {
+    artifactKind: 'verification-receipt-bundle',
+    aliases: ['verification-execution-assertion-reuse'],
+    scope: 'local-gate-evidence',
+    artifactRole: 'current-verification',
+    temporalRole: 'current-state',
+    producerBoundary: 'local-runtime-owned',
+    schemaVersions: [VERIFICATION_RECEIPT_BUNDLE_V5],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: true,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['REVIEW', 'TEST', 'DONE'],
+    allowedClaims: [
+      { claim: 'current-pass', consumers: ['REVIEW', 'TEST', 'DONE'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Tool-owned split verification evidence is admitted only through the authoritative receipt/artifact validator and current freshness policy.',
+    remediation: 'Run the pinned verifier again through verification_evidence_add or verification_evidence_refresh_stale; never repair receipt fields by hand.',
+  },
   {
     artifactKind: 'done-required-evidence',
     aliases: ['done-required-evidence.json'],
@@ -611,6 +650,153 @@ export const PROOF_SURFACE_REGISTRY = [
     remediation: 'Keep for audit or regenerate under a current proof policy before any gate claim.',
   },
 ] as const satisfies readonly ProofSurfaceDefinition[];
+
+export type VerificationGateAdmissibilityCode =
+  | 'verification_receipt_valid'
+  | 'verification_execution_strict_fallback'
+  | 'verification_receipt_missing'
+  | 'verification_receipt_legacy'
+  | 'verification_receipt_invalid'
+  | 'verification_receipt_stale'
+  | 'verification_receipt_not_passing'
+  | 'verification_reuse_incomplete';
+
+export interface VerificationGateAdmissibilityResult {
+  allowed: boolean;
+  state: 'current' | 'stale-needs-execution' | 'invalid';
+  code: VerificationGateAdmissibilityCode;
+  detail: string;
+}
+
+/**
+ * Authoritative lifecycle consumer for one executable verification row.
+ * Nothing in this input can assert its own validity: all digests, links, selector
+ * outcome and full-output artifact bytes are recomputed by the shared validator.
+ */
+export function evaluateVerificationEvidenceForGate(input: {
+  projectRoot: string;
+  storyId: string;
+  intentRef: string;
+  selector: string;
+  command?: string;
+  evidence: VerificationEvidence;
+}): VerificationGateAdmissibilityResult {
+  const denied = (code: Exclude<VerificationGateAdmissibilityCode, 'verification_receipt_valid' | 'verification_execution_strict_fallback'>, detail: string): VerificationGateAdmissibilityResult => ({
+    allowed: false,
+    state: code === 'verification_receipt_stale' || code === 'verification_receipt_legacy' ? 'stale-needs-execution' : 'invalid',
+    code,
+    detail: `${code}: ${detail}`,
+  });
+  if (input.evidence.mechanical === false && !input.evidence.receipt
+    && input.evidence.nonMechanicalReason?.startsWith('receipt invalidated by verification_evidence_refresh_stale:')) {
+    return denied('verification_receipt_stale', 'metadata-only refresh discarded stale authority; the immutable pinned command still needs real execution');
+  }
+  if (input.evidence.mechanical !== true || !input.evidence.receipt) {
+    return denied('verification_receipt_missing', 'executable intent requires a tool-owned receipt; narrative pass text is not gate evidence');
+  }
+  if (!isSplitVerificationReceipt(input.evidence.receipt)) {
+    return denied('verification_receipt_legacy', 'legacy combined receipt is readable only and cannot satisfy current lifecycle admission');
+  }
+  const command = input.command ?? input.evidence.command;
+  if (!command || input.evidence.command !== command || input.evidence.receipt.executionReceipt?.command !== command) {
+    return denied('verification_receipt_invalid', 'authenticated execution command must match the evidence command and immutable intent pin');
+  }
+  let validation: ReturnType<typeof validateVerificationReceipt>;
+  try {
+    validation = validateVerificationReceipt(input.projectRoot, input.evidence.receipt, {
+      intentRef: input.intentRef,
+      selector: input.selector,
+      storyId: input.storyId,
+      command,
+      ...(isCanonicalGitHeadHash(input.evidence.headHash) && isCanonicalSha256Hash(input.evidence.materialHash) && isCanonicalSha256Hash(input.evidence.storyFilesHash) ? {
+        freshness: { headHash: input.evidence.headHash, materialHash: input.evidence.materialHash, storyFilesHash: input.evidence.storyFilesHash },
+      } : {}),
+    });
+  } catch (error) {
+    return denied('verification_receipt_invalid', error instanceof Error ? error.message : String(error));
+  }
+  if (!validation.ok) {
+    return denied('verification_receipt_invalid', validation.errors.join('; ') || 'receipt or output artifact validation failed');
+  }
+  if (input.evidence.receipt.schemaVersion !== VERIFICATION_RECEIPT_BUNDLE_V5) {
+    return denied('verification_receipt_legacy', 'authentic legacy evidence is audit-only; current publication requires a real pinned execution renewal');
+  }
+  if (
+    !isCanonicalGitHeadHash(input.evidence.headHash)
+    || !isCanonicalSha256Hash(input.evidence.materialHash)
+    || !isCanonicalSha256Hash(input.evidence.storyFilesHash)
+  ) {
+    return denied('verification_receipt_stale', 'canonical full headHash, materialHash, and storyFilesHash bindings are required');
+  }
+  if (
+    input.evidence.receipt.exitCode !== 0
+    || input.evidence.receipt.executionReceipt.timedOut
+    || !input.evidence.receipt.selectorMatched
+    || !input.evidence.receipt.assertionReceipt.matched
+  ) {
+    return denied('verification_receipt_not_passing', 'execution and independently evaluated assertion must both pass');
+  }
+  const execution = input.evidence.receipt.executionReceipt;
+  const currentReuseAuthority = verificationReceiptHasCurrentReuseAuthority(input.evidence.receipt);
+  // Ordinary execution has environment/toolchain identity too. Incomplete input
+  // closure disables reuse, never this live identity check.
+  try {
+      const currentIdentity = prepareVerificationExecutionIdentity({
+        command: execution.command,
+        cwd: execution.cwd,
+        effectiveTimeoutMs: execution.effectiveTimeoutMs,
+        manifestPath: execution.dependencyManifest?.path,
+      });
+      if (
+        currentIdentity.executionIdentityDigest !== execution.executionIdentityDigest
+        || (currentReuseAuthority && (!currentIdentity.reusable
+          || currentIdentity.dependency.manifestBinding?.manifestDigest !== execution.dependencyManifest?.manifestDigest))
+      ) {
+        return denied('verification_receipt_stale', `current verifier input identity does not match (${currentIdentity.reason ?? 'execution_identity_changed'})`);
+      }
+  } catch (error) {
+    return denied('verification_receipt_stale', error instanceof Error ? error.message : String(error));
+  }
+  if (!currentReuseAuthority && execution.dependencyManifest?.schemaVersion === 'proof-or-stop.verifier-dependency-manifest-binding.v2') {
+    return denied('verification_receipt_stale', 'current policy-owned capsule input identity does not match');
+  } else if (!currentReuseAuthority) {
+    if (!currentGitHead(execution.cwd)) {
+      return denied('verification_receipt_stale', 'current git HEAD cannot be resolved for strict freshness fallback');
+    }
+    const freshness = checkStrictVerificationEvidenceFreshnessForGit(
+      execution.cwd,
+      input.evidence.headHash,
+      input.evidence.materialHash,
+      input.projectRoot,
+      input.evidence.storyFilesHash,
+    );
+    if (!freshness.fresh) {
+      return denied('verification_receipt_stale', freshness.reason);
+    }
+  }
+  if (input.evidence.receipt.reuseReceipt) {
+    if (!isReusableVerificationReceipt(input.evidence.receipt) || !validation.reusable || !currentReuseAuthority) {
+      return denied('verification_reuse_incomplete', 'reuse requires a complete dependency manifest, evidenceInputDigest, and valid reuse lineage');
+    }
+    return { allowed: true, state: 'current', code: 'verification_receipt_valid', detail: 'validated execution, assertion, reuse lineage, and full-output artifact' };
+  }
+  if (!validation.reusable) {
+    // A fresh real execution remains admissible under strict whole-story/material
+    // freshness. Incompleteness disables reuse; it does not erase observed work.
+    return {
+      allowed: true,
+      state: 'current',
+      code: 'verification_execution_strict_fallback',
+      detail: 'validated fresh execution/assertion; incomplete input closure requires strict freshness and future re-execution',
+    };
+  }
+  return { allowed: true, state: 'current', code: 'verification_receipt_valid', detail: 'validated execution, assertion, and full-output artifact' };
+}
+
+export function createVerificationEvidenceGateEvaluator(projectRoot: string, storyId: string) {
+  return (input: { intentRef: string; selector: string; command?: string; evidence: VerificationEvidence }): VerificationGateAdmissibilityResult =>
+    evaluateVerificationEvidenceForGate({ projectRoot, storyId, ...input });
+}
 
 const registryByKind = new Map<string, ProofSurfaceDefinition>();
 for (const definition of PROOF_SURFACE_REGISTRY) {
