@@ -2470,7 +2470,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
   }
 }
 
-async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
+async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(basisOnly = false): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-echo-'));
   const oldCwd = process.cwd();
   try {
@@ -2539,6 +2539,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
+    if (basisOnly) return;
     const output = await createStoryAdvanceHandlers({
       store,
       root,
@@ -5289,6 +5290,12 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
   }
+}
+
+if (process.argv.includes('--acceptance-basis-fixture')) {
+  await assertStoryAdvanceReviewEchoOmitsRetiredChannel(true);
+  console.log('PASS acceptance basis discovery fixture');
+  process.exit(0);
 }
 
 assertProductionHelperPassesProjectRootToClassifier();
