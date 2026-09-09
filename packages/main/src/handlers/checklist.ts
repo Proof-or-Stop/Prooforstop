@@ -68,6 +68,8 @@ import {
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
   causalCanonical,
+  causalDigest,
+  createCausalPublicationRecovery,
   deriveCausalMetrics,
   effectiveCausalEnvironment,
   executeCausalEvidence,
@@ -837,6 +839,7 @@ function dependencyManifestPath(file: string | undefined): string | undefined {
  * first selector-bearing write.
  */
 interface EnforceAndStampResult {
+  publicationRecoveryKey?: string;
   evidencePatch: {
     result?: 'pass' | 'fail';
     command?: string;
@@ -1884,7 +1887,7 @@ type CausalRefreshCommitter = (
   storyId: string,
   gitCwd: string,
   hashes: ReturnType<typeof evidenceHashes>,
-  stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
+  stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>>,
   commit: () => void,
 ) => void;
 
@@ -2100,7 +2103,7 @@ function writeStaleRefresh(
       ...(opts.diagnostics ?? []),
     ];
     let refreshed = 0;
-    const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>> = [];
+    const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>> = [];
     for (const entry of stale) {
       const item = cl.items.find(i => i.id === entry.itemId);
       const existing = item?.verificationEvidence || [];
@@ -2288,15 +2291,63 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           store,
           ...(input.timeoutMs !== undefined ? { timeoutMs: input.timeoutMs } : {}),
         });
+  // Recovery is limited to an uncommitted canonical publication. Ordinary invocations
+  // continue to obtain a fresh observation UUID after every successful write.
+  const enforceWithPublicationRecovery = async (
+    item: ChecklistItem, input: EvidenceWriteInput,
+    deps: Parameters<typeof enforceAndStampEvidence>[2],
+  ): Promise<EnforceAndStampResult> => {
+    const plan = verificationProducerPlan(root, item, input, deps.cwd);
+    if (!plan) return enforceAndStampEvidence(item, input, deps);
+    const freshness = captureVerificationFreshness(deps.cwd, root);
+    const requestKey = causalDigest({ schemaVersion: 'publication-attempt.v1',
+      storyId: deps.storyId, cwd: deps.cwd, itemId: item.id, input,
+      checklist: store.readChecklist(deps.storyId), freshness,
+      ownerGeneration: readOwnerLease(store.storyDirPath(deps.storyId))?.leaseId,
+      executionKey: plan.executionKey,
+      implementationDigest: executionImplementationIdentity().digest,
+    });
+    const pending = store.readPendingPublication(deps.storyId, requestKey, deps.cwd);
+    let publication: SharedVerificationPublication | undefined;
+    if (pending) {
+      const value = pending.publication as { receipt?: VerificationEvidenceReceipt; causalReceipt?: CausalEvidenceReceipt };
+      const receipt = value?.receipt;
+      if (!receipt || !isSplitVerificationReceipt(receipt)
+        || receipt.schemaVersion !== 'proof-or-stop.verification-receipt-bundle.v5'
+        || receipt.executionReceipt.schemaVersion !== 'proof-or-stop.verification-execution-receipt.v3'
+        || !executionMatchesPlan(receipt.executionReceipt, plan)
+        || !value.causalReceipt
+        || !validateVerificationReceipt(root, receipt, { storyId: deps.storyId,
+          intentRef: input.intentRef, selector: plan.selector, command: plan.command, freshness }).ok) {
+        throw new Error('Pending publication no longer proves this request [publication_recovery_invalid]');
+      }
+      publication = { executionReceipt: receipt.executionReceipt, freshness,
+        causalReceipt: value.causalReceipt,
+        ...(receipt.reuseReceipt ? { reuseReceipt: receipt.reuseReceipt } : {}) };
+    }
+    const stamp = await enforceAndStampEvidence(item, input, { ...deps,
+      ...(publication ? { sharedExecutionReceipt: publication.executionReceipt,
+        sharedCausalReceipt: publication.causalReceipt, sharedFreshness: publication.freshness,
+        ...(publication.reuseReceipt ? { sharedReuseReceipt: publication.reuseReceipt } : {}) } : {}),
+    });
+    if (stamp.evidencePatch.result === 'pass' && stamp.evidencePatch.receipt && stamp.causalReceipt) {
+      // Selector validation has already passed; missing selectors never mint a recovery capability.
+      store.writePendingPublication(createCausalPublicationRecovery(deps.storyId, requestKey, deps.cwd,
+        { receipt: stamp.evidencePatch.receipt, causalReceipt: stamp.causalReceipt }));
+      stamp.publicationRecoveryKey = requestKey;
+    }
+    return stamp;
+  };
+
   const commitCanonicalCausalEvidence = (
     storyId: string,
     gitCwd: string,
     hashes: ReturnType<typeof evidenceHashes>,
-    stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
+    stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>>,
     commit: () => void,
     batch?: CausalEvidenceBatch,
   ): void => {
-    const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
+    const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
     if (stamps.some(stamp => Boolean(stamp.causalReceipt) !== Boolean(stamp.causalPreflight))) {
       throw new Error('causal evidence commit refused: receipt/preflight identity pairing is incomplete [causal_commit_identity_missing]');
     }
@@ -2424,6 +2475,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     const commitWithCacheInvalidation = (): void => {
       try {
         commit();
+        for (const stamp of usable) if (stamp.publicationRecoveryKey) {
+          store.removePendingPublication(storyId, stamp.publicationRecoveryKey);
+        }
       } catch (error) {
         // importCausalEvidenceReceipt retries the same transaction after a
         // commit failure. The retry must not reuse a pre-failure snapshot.
@@ -3107,7 +3161,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
             )
           : undefined;
-        const stamp = await enforceAndStampEvidence(preItem, evidenceInput, {
+        const stamp = await enforceWithPublicationRecovery(preItem, evidenceInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: gitCwd,
@@ -3270,7 +3324,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 root, args.storyId, currentCl, currentPlan, initialPublicationDigests[i], hashes,
               )
             : undefined;
-          const stamp = await enforceAndStampEvidence(item, evidenceInputs[i], {
+          const stamp = await enforceWithPublicationRecovery(item, evidenceInputs[i], {
             runCommand,
             preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
             cwd: gitCwd,
@@ -3483,7 +3537,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const sharedPublication = concurrentPublishedExecution(
           root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
         );
-        const stamp = await enforceAndStampEvidence(currentItem, currentInput, {
+        const stamp = await enforceWithPublicationRecovery(currentItem, currentInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: runCwd,

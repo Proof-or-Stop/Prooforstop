@@ -9202,7 +9202,9 @@ const inventory = [
     {relPath:'docs/validation-performance.md',patterns:['verification_intent_recover','INIT/PLAN','checkpoint']},
   ]},
   {name:'Pinned implementation and original batch publication',files:[
-    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['implementationDigest','currentImplementationDigest','execution_implementation_changed','rawImplementationDigest']},
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['implementationDigest','currentImplementationDigest','execution_implementation_changed','enforceWithPublicationRecovery','publicationRecoveryKey']},
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['createCausalPublicationRecovery','verifyCausalPublicationRecovery','proof-or-stop.causal-publication-recovery.v1']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readPendingPublication','writePendingPublication','removePendingPublication','publication_recovery_invalid']},
     {relPath:'packages/main/src/cli-engine.ts',patterns:['enforceExecutionImplementationPin();','--implementation-identity','enforcedImplementationIdentity ?? executionImplementationIdentity()']},
     {relPath:'packages/main/src/handlers/checklist.ts',patterns:["withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add'","withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add'",'commitCanonicalCausalEvidence']},
     {relPath:'docs/validation-performance.md',patterns:['PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN','verification_evidence_batch_add','opt-in']},

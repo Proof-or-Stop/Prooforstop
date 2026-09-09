@@ -13,10 +13,11 @@ const {StoryStore}=await import('file://'+join(runtime,'packages/main/dist/core/
 const {createChecklistHandlers}=await import('file://'+join(runtime,'packages/main/dist/handlers/checklist.js'));
 const {acquireOwnerLease}=await import('file://'+join(runtime,'packages/main/dist/core/story-owner-lease.js'));
 process.env.PROOF_OR_STOP_SESSION_ID='five-item-long-output';
-const request={storyId,evidences:[{itemId:'CHK-001',intentRef:{first:'I-1',same:'I-2',changed:'I-3',restored:'I-4'}[process.argv[4]]??'I-1',kind:'integration_test',command:'node witness.mjs',selector:'PUBLISH_RESTART_OK',note:'Recover the original successful execution after the publishing process exits.'}]};
+const request={storyId,evidences:[{itemId:'CHK-001',intentRef:'I-1',kind:'integration_test',command:'node witness.mjs',selector:'PUBLISH_RESTART_OK',note:'Recover the original successful execution after the publishing process exits.'}]};
 if(process.argv[2]==='--worker'){
  const [fixture,mode]=process.argv.slice(3),store=new StoryStore(fixture);
  const handlers=createChecklistHandlers({store,root:fixture,scanRoot:join(fixture,'packages/main')});
+ if(mode!=='restored')store.writeChecklist=()=>{throw new Error('INJECTED_PENDING_PUBLICATION_FAILURE');};
 
  try{console.log(await handlers.verification_evidence_batch_add(request));}
  catch(error){console.error(String(error.stack));process.exitCode=70;}
@@ -46,14 +47,15 @@ if(process.argv[2]==='--worker'){
    const start=performance.now();const result=spawnSync(process.execPath,[script,'--worker',fixture,mode],{cwd:fixture,encoding:'utf8',timeout:60000,env:{...process.env}});
    writeFileSync(join(output,mode+'.log'),result.stdout+result.stderr);
    runs.push({mode,elapsedMs:performance.now()-start,exitCode:result.status,executions:readFileSync(join(fixture,'.counts'),'utf8').trim().split('\n').length});
-   assert.equal(result.status,0,'EVIDENCE_HANDLER_EXECUTION_FAILED: '+result.stdout+result.stderr);
-   if(mode==='same'||mode==='restored')assert.match(result.stdout,/commandExecutions=0/);
+   assert.equal(result.status,mode==='restored'?0:70,'EVIDENCE_HANDLER_EXECUTION_FAILED: '+result.stdout+result.stderr);
+   if(mode!=='restored')assert.match(result.stderr,/INJECTED_PENDING_PUBLICATION_FAILURE/);
+   if(mode==='restored')assert.match(result.stdout,/commandExecutions=0/);
    assert.equal(runs.at(-1).executions,['changed','restored'].includes(mode)?2:1,'EVIDENCE_HANDLER_IMPLEMENTATION_NOT_BOUND');
 
   }
   assert.equal(runs[0].executions,1);assert.equal(runs[1].executions,1,'LONG_OUTPUT_FANOUT_RERAN_COMMAND');
-  const allEvidence=store.readChecklist(storyId).items[0].verificationEvidence;assert.equal(allEvidence.length,4);const evidence=allEvidence[0];assert.equal(evidence.result,'pass');assert.equal(evidence.receipt.exitCode,0);
-  writeFileSync(join(output,'results.json'),JSON.stringify({runs,evidence,commandExecutions:2,consumers:4,limitations:['This fixture exercises complete-output selection across independent handler processes; it does not measure full-Story delivery time.']},null,2));
+  const allEvidence=store.readChecklist(storyId).items[0].verificationEvidence;assert.equal(allEvidence.length,1);const evidence=allEvidence[0];assert.equal(evidence.result,'pass');assert.equal(evidence.receipt.exitCode,0);
+  writeFileSync(join(output,'results.json'),JSON.stringify({runs,evidence,commandExecutions:2,publicationAttempts:4,canonicalConsumers:1,limitations:['This fixture exercises pending-publication recovery and same-version implementation invalidation across independent handler processes; it does not measure full-Story delivery time.']},null,2));
   console.log('EVIDENCE_HANDLER_IMPLEMENTATION_GREEN');
  }finally{rmSync(fixture,{recursive:true,force:true});}
 }

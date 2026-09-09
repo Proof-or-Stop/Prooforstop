@@ -336,6 +336,35 @@ function verifyCausalAuthorityPayload(
   );
 }
 
+/** A pending publication is a signed recovery capability, never an ordinary cache hit.
+ * The caller binds its exact request, pre-write checklist, owner generation and current
+ * execution inputs into requestKey. A successful checklist write changes that key. */
+export interface CausalPublicationRecovery {
+  schemaVersion: 'proof-or-stop.causal-publication-recovery.v1';
+  storyId: string;
+  requestKey: string;
+  cwd: string;
+  publication: unknown;
+  signerPublicKey: PublicKeyBase64;
+  signature: SignatureBase64;
+}
+export function createCausalPublicationRecovery(
+  storyId: string, requestKey: string, cwd: string, publication: unknown,
+): CausalPublicationRecovery {
+  const payload = { schemaVersion: 'proof-or-stop.causal-publication-recovery.v1' as const,
+    storyId, requestKey, cwd, publication: cloneCanonical(publication) };
+  return { ...payload, ...signCausalAuthorityPayload(payload, cwd) };
+}
+export function verifyCausalPublicationRecovery(
+  value: CausalPublicationRecovery, storyId: string, requestKey: string, cwd: string,
+): boolean {
+  if (!value || value.schemaVersion !== 'proof-or-stop.causal-publication-recovery.v1'
+    || value.storyId !== storyId || value.requestKey !== requestKey || value.cwd !== cwd
+    || !/^[a-f0-9]{64}$/.test(requestKey)) return false;
+  const { signerPublicKey, signature, ...payload } = value;
+  return verifyCausalAuthorityPayload(payload, signerPublicKey, signature, cwd);
+}
+
 function cloneCanonical<T>(value: T): T {
   return JSON.parse(causalCanonical(value)) as T;
 }

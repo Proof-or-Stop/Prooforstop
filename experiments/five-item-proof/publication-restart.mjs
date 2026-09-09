@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,readdirSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -34,16 +34,18 @@ if(process.argv[2]==='--worker'){
   store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Preserve original command receipt',context:'Retry canonical publication without running again',status:'in_progress',startTime:null,endTime:null,verificationIntent:{happy:[{id:'I-1',desc:'Original successful command receipt is imported',type:'cli',priority:'must'}],edge:[],adversarial:[]}}]});
   acquireOwnerLease(store.storyDirPath(storyId),{command:'isolated-fixture',cwd:fixture});
   const runs=[];
-  for(const mode of ['fail','recover']){
+  for(const mode of ['fail','recover','ordinary']){
    const start=performance.now();const result=spawnSync(process.execPath,[script,'--worker',fixture,mode],{cwd:fixture,encoding:'utf8',timeout:60000,env:{...process.env}});
    writeFileSync(join(output,mode+'.log'),result.stdout+result.stderr);
    runs.push({mode,elapsedMs:performance.now()-start,exitCode:result.status,executions:readFileSync(join(fixture,'.counts'),'utf8').trim().split('\n').length});
    if(mode==='fail'){assert.equal(result.status,70,result.stdout+result.stderr);assert.match(result.stderr,/INJECTED_PERSISTENT_PUBLICATION_FAILURE/);assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.length??0,0);}
-   else{assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,/commandExecutions=0/);assert.match(result.stdout,/commandReruns=0/);}
+   else{assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,mode==='recover'?/commandExecutions=0/:/commandExecutions=1/);assert.match(result.stdout,/commandReruns=0/);}
   }
   assert.equal(runs[0].executions,1);assert.equal(runs[1].executions,1,'CROSS_PROCESS_PUBLICATION_RERAN_COMMAND');
+  assert.equal(runs[2].executions,2,'A new ordinary request must not recover an already published observation');
+  assert.deepEqual(readdirSync(join(store.storyDirPath(storyId),'causal-evidence/pending-publications')),[],'Successful publication retires its recovery capabilities');
   const evidence=store.readChecklist(storyId).items[0].verificationEvidence[0];assert.equal(evidence.result,'pass');assert.equal(evidence.receipt.exitCode,0);
-  writeFileSync(join(output,'results.json'),JSON.stringify({runs,evidence,commandExecutions:1,recoveryCommandExecutions:0,limitations:['Publishing worker exited after exhausting canonical write retries; this is not a kill at every possible instruction or a power-loss durability proof.','The same valid owner lease, command, material and inputs are preserved across processes.']},null,2));
+  writeFileSync(join(output,'results.json'),JSON.stringify({runs,evidence,commandExecutions:2,recoveryCommandExecutions:0,ordinaryReexecutionCommands:1,limitations:['Publishing worker exited after exhausting canonical write retries; this is not a kill at every possible instruction or a power-loss durability proof.','The same valid owner lease, command, material and inputs are preserved across processes.']},null,2));
   console.log('CROSS_PROCESS_PUBLICATION_RECOVERY_GREEN');
  }finally{rmSync(fixture,{recursive:true,force:true});}
 }

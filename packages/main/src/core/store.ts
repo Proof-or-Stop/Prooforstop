@@ -68,6 +68,8 @@ import {
   type LedgerRecord,
 } from './finding-ledger.js';
 import {
+  type CausalPublicationRecovery,
+  verifyCausalPublicationRecovery,
   CAUSAL_RECEIPT_DIRECTORY,
   CAUSAL_OUTPUT_DIRECTORY,
   CAUSAL_RECEIPT_INDEX_FILE,
@@ -954,6 +956,32 @@ export class StoryStore {
     } finally {
       if (causalEvidenceFlights.get(lockPath) === flight) causalEvidenceFlights.delete(lockPath);
     }
+  }
+
+  private pendingPublicationPath(storyId: string, requestKey: string): string {
+    if (!/^[a-f0-9]{64}$/.test(requestKey)) throw new Error('publication recovery key invalid');
+    return this.storyFilePath(storyId, `causal-evidence/pending-publications/${requestKey}.json`);
+  }
+
+  readPendingPublication(storyId: string, requestKey: string, cwd: string): CausalPublicationRecovery | null {
+    const path = this.pendingPublicationPath(storyId, requestKey);
+    if (!existsSync(path)) return null;
+    const value = JSON.parse(readFileSync(path, 'utf8')) as CausalPublicationRecovery;
+    if (!verifyCausalPublicationRecovery(value, storyId, requestKey, cwd)) {
+      throw new Error('Pending publication signature or subject invalid [publication_recovery_invalid]');
+    }
+    return value;
+  }
+
+  writePendingPublication(value: CausalPublicationRecovery): void {
+    if (!verifyCausalPublicationRecovery(value, value.storyId, value.requestKey, value.cwd)) {
+      throw new Error('Pending publication signature invalid [publication_recovery_invalid]');
+    }
+    this.writeJsonFile(this.pendingPublicationPath(value.storyId, value.requestKey), value);
+  }
+
+  removePendingPublication(storyId: string, requestKey: string): void {
+    rmSync(this.pendingPublicationPath(storyId, requestKey), { force: true });
   }
 
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void {
