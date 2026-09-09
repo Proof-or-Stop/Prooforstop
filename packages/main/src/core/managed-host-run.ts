@@ -3440,7 +3440,10 @@ export async function getManagedHostRunStatus(args: {
   const deadline = now() + waitMs;
   while (true) {
     run = projectionFor(paths);
-    const changed = run.generation !== baseline || run.terminal !== null;
+    // A cursor acknowledges terminal delivery as well as provider progress.
+    // A new observer still receives an already completed run immediately.
+    const changed = run.generation !== baseline
+      || (args.afterGeneration === undefined && run.terminal !== null);
     if (changed || now() >= deadline || waitMs === 0) {
       return {
         schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,

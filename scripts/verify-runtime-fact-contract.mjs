@@ -68,6 +68,11 @@ async function main() {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
   check(registrySource.includes('MANAGED_SUPERVISOR_RUNTIME_POLICY'), 'autonomous managed supervisor policy must be registered');
+  check(registrySource.includes('MANAGED_STATUS_OBSERVATION_POLICY'), 'managed status cursor semantics must be registered');
+  const managedStatusSource = read(root, 'packages/main/src/core/managed-host-run.ts');
+  check(managedStatusSource.includes('args.afterGeneration === undefined && run.terminal !== null')
+    && managedStatusSource.includes('target.afterGeneration === undefined && status.run.terminal !== null'),
+  'single and aggregate observers must acknowledge terminal delivery through generation cursors');
   check(registrySource.includes('diagnosticGraceMs: 5_000') && registrySource.includes('stalledStageMs: 30_000'), 'provider absence and stalled-stage diagnostics require bounded registered deadlines');
   check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('await launchManagedSupervisor(request, logFd)'), 'provider worker requires independent supervisor readiness');
   check(read(root, 'packages/main/src/cli/managed-host-run-supervisor.ts').includes('runManagedHostRunSupervisor'), 'detached entry must run the production recovery loop');

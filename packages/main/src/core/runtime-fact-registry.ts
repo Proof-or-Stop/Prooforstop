@@ -183,6 +183,15 @@ export const MANAGED_BURN_RUNTIME_POLICY = {
   closeAuthority: 'provider-child-close-before-cleanup',
 } as const;
 
+/** Single and aggregate observers share delivery acknowledgement semantics. */
+export const MANAGED_STATUS_OBSERVATION_POLICY = {
+  observation: 'read-only',
+  cursor: 'generation-acknowledges-progress-and-terminal-delivery',
+  firstTerminalObservation: 'immediately-actionable',
+  heartbeat: 'not-provider-progress',
+  implementation: 'core/managed-host-run.ts',
+} as const;
+
 /** Independent recovery must survive both the submitting CLI and its worker. */
 export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
   readyTimeoutMs: 5_000,

@@ -57,10 +57,11 @@ proof-or-stop host_run_status '{"targets":[{"runId":"<run-a>","afterGeneration":
 The result contains `changed` and ordered `runs`, including terminal receipts.
 Pass each returned generation on the next call to acknowledge that snapshot,
 including terminal delivery. Heartbeats and acknowledged terminals do not wake
-the aggregate wait; actual generation changes do. An unchanged timeout is an
+either the single-run or aggregate wait; actual generation changes do. A first
+observer without a cursor receives an already terminal run immediately. An unchanged timeout is an
 observation result. Up to 32 distinct runs with the same immutable Story subject
 (or all without a Story) can be observed together. The ordinary ownership gate
-still applies because status may reconcile a deadline or cancellation. Aggregate
+still applies to the immutable Story subject; status remains read-only. Aggregate
 arguments cannot be combined with single-run cursors or output-frame selection.
 
 `waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
