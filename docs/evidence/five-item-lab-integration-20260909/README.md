@@ -65,3 +65,8 @@ an independent unpack/checksum check. Failed/cancelled trials remain explicit.
 The native25-control RED/GREEN command and native finish status are separate
 local maintenance records; no global141-command PASS or Story-wide speedup is
 claimed. The Lab finish framework itself is unchanged.
+
+The final native-gate follow-up is preserved in resource-followup-evidence.tar.gz
+and claude-resource-followup.md/json:48 resource assertions pass at65bd543535.
+The Lab also incorporates main6adc226976 (0.3.293), including its current strict
+Story-carry rules. Ordinary clean-main integration rules remain in force.

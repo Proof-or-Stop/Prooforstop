@@ -1,0 +1,51 @@
+{
+  "audit": "claude-resource-followup",
+  "date": "2026-09-09",
+  "repo": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-resource-followup-i5cwnrov/repo",
+  "head": "65bd543535fa917ae4dc60af6548d3554cb2ab24",
+  "baseline": "c750ab3c11",
+  "verdict": "PASS",
+  "scope": "packages/main/tests/validate-resource-claims.test.mjs only",
+  "delta": {
+    "files_changed": 1,
+    "insertions": 23,
+    "deletions": 11,
+    "commits": ["65bd543535 test: verify explicit admission conflicts and quorum observation isolation"],
+    "scheduler_or_detector_changed": false,
+    "production_or_config_changed_since_3da2f2f4": false
+  },
+  "checks": {
+    "test_only_delta": "PASS",
+    "admission_pairs_conflict_biconditional": "PASS",
+    "min_two_admission_and_two_independent_readers": "PASS",
+    "non_admission_pairs_still_required_compatible": "PASS",
+    "quorum_jobs_2_retained": "PASS",
+    "quorum_exact_shared_git_plus_exclusive_outer_barrier": "PASS",
+    "quorum_conflicts_with_every_other_local_command": "PASS",
+    "quorum_wrong_missing_extra_claim_refused": "PASS",
+    "generic_disjoint_unknown_undeclared_tests_retained": "PASS",
+    "no_safety_check_suppressed": "PASS"
+  },
+  "execution": {
+    "command": "node packages/main/tests/validate-resource-claims.test.mjs",
+    "modified": false,
+    "exit_code": 0,
+    "assertions": 48,
+    "result": "PASS",
+    "stderr_empty": true,
+    "configured_plan": { "commands": 141, "declared": 141, "exclusive_by_default": 0 }
+  },
+  "hashes": {
+    "sha256_test_source": "713e14efe3a28a4c4181b1fffd14ca9656e7ad7d65005586d1dbc243b2af39fc",
+    "sha256_stdout_log": "e35b7a05a97e32280e9148d67c92c241918395abbe1f4c81c21a4d0307bbdb9f",
+    "sha256_stderr_log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256_exit_file": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "sha256_verification_context_log": "b0d06534c8047dc999ded58a7f09cd38272f6abfd1a6240bbf90efe301899e8e"
+  },
+  "bounds": [
+    "Single test file and single execution only",
+    "No full-141 suite claim",
+    "No Story-wide performance claim",
+    "Prior audit invariants remain as previously bounded"
+  ]
+}

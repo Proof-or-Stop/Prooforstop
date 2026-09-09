@@ -1,6 +1,6 @@
 # Five-item managed Lab integration evidence
 
-The user authorized this new managed Lab and a local-main integration on 2026-09-09. The original experimental Lab is retained. The implementation source reviewed for the final disposition is `3da2f2f4ba29aab8e724a5ea94b6d76965e26752`, incorporating main `1300d7ad83d3bf7629755adf36a59c91f1be7741` (0.3.292). Subsequent changes in this Lab only package evidence and documentation. No Story is created and no remote publication is authorized.
+The user authorized this new managed Lab and a local-main integration on 2026-09-09. The original experimental Lab is retained. The implementation source reviewed for the final disposition is `3da2f2f4ba29aab8e724a5ea94b6d76965e26752`, incorporating main `1300d7ad83d3bf7629755adf36a59c91f1be7741` (0.3.292). A later test-only follow-up at65bd543535, independently checked by Claude, aligns the general resource-claim assertions with the accepted admission mutex and outer quorum barrier. The Lab then synchronizes main6adc226976 (0.3.293); that upstream change hardens Story carry evidence and does not change the ordinary clean-main finish requirement or this Lab’s production repair. No Story is created and no remote publication is authorized.
 
 ## What is being integrated
 
@@ -49,3 +49,20 @@ The failed-row recheck and any later specific control are individually source-bo
 `historical-evidence.tar.gz` is byte-identical to the previous final experimental package (SHA256 `8221371def0e3bd30cea8d0da0328ffba4a3fab3f223b023c3439ee2264ce307`); all 1969 payload hashes were checked. `initial-integration-evidence.tar.gz` retains the 215-file first integration trial. `current-integration-evidence.tar.gz` adds the current raw logs, failed/cancelled trials, source bindings and Claude reports with a new per-file checksum manifest and unpack verification.
 
 Only the repository's native `lab:worktree finish ... --confirm` may prepare the patch release, update local main and clean the new Lab. Clean-main, lock, version, build, replay and cleanup requirements are preserved. Other work's pending main files must not be silently committed, discarded or stashed. Native finish status and any refusal are recorded separately. The original Lab remains available regardless of the new Lab's eventual cleanup.
+
+## Native-gate resource follow-up
+
+The first native GREEN passed21 checks, then rejected the old general assertion
+that every declared reader must be mutually compatible. The accepted resource
+policy deliberately serializes three admission readers. Commit65bd543535 updates
+only that test: all non-barrier pairs conflict exactly when both hold the audited
+admission mutex, independent readers still overlap, and quorum retains internal
+jobs=2 plus its exact outer barrier. Removing, changing or adding claims is still
+rejected. The real scheduler controls and all writer barriers remain. Independent
+Claude execution reports PASS with48 assertions; report and original failed native
+logs are in resource-followup-evidence.tar.gz. Earlier native failure is retained.
+
+The latest synchronized main is6adc226976 (0.3.293). Its13-file Lab carry hardening
+was merged without conflicts and utils/main rebuilt. Ordinary Lab integration still
+requires clean main. Native GREEN is replayed at the final committed candidate;
+its record is published separately instead of making this document self-sign.
