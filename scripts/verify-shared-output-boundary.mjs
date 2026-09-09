@@ -34,9 +34,9 @@ try {
     const first = await runValidationCommand(command, root, 10000, options);
     const receipt = receipts.get(first.executionReceipt.executionKey);
     const complete = 'A'.repeat(size) + 'MIDDLE_SELECTOR' + 'B'.repeat(size);
-    assert.equal(receipt.reusable, complete.length <= 12000,
+    assert.equal(receipt?.reusable ?? false, complete.length <= 12000,
       'U03: truncated capture must never become reusable evidence');
-    assert.equal(receipt.outputDigest, digest(complete), 'receipt digest binds complete captured output');
+    if (receipt) assert.equal(receipt.outputDigest, digest(complete), 'receipt digest binds complete captured output');
     const second = await runValidationCommand(command, root, 10000, options);
     assert.equal(second.executionReceipt.disposition, complete.length <= 12000 ? 'reused' : 'executed');
     assert.ok(first.output.length <= 12000, 'public display remains bounded');

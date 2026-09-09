@@ -85,3 +85,9 @@ NUL-framed Git names when looking up blobs, including Unicode and control
 characters. See [the hash decision](requirements/decisions/story-files-hash-material-drift.md)
 for migration boundaries and the independent oracle regression. This correction
 carries no percentage performance claim.
+
+Shared execution signs the complete executor capture, independently of the
+bounded prefix/suffix shown to users. Output beyond the 12,000-character selector
+window produces a partial, non-reusable receipt; an exactly 12,000-character
+complete result remains eligible. The v2 complete-capture execution identity
+prevents earlier display-derived receipts from being consumed after this repair.

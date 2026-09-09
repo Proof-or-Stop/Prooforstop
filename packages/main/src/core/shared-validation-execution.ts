@@ -34,8 +34,9 @@ export function sharedValidationReuseAllowed(command: ValidationCommand): boolea
 
 export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
-  run: () => Promise<ValidationCommandResult>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
+  capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
 ): Promise<ValidationCommandResult> {
+  const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
   if (!context || !sharedValidationReuseAllowed(command)) return run();
   assertActive();
@@ -73,7 +74,7 @@ export async function executeSharedValidationCommand(
   const identity = {
     storyId:context.storyId, cwd:normalized.cwd,
     command:{executable:command.command,args:command.args,shell:normalized.shell,env:command.env},
-    bootstrap:{executable:'proof-or-stop',args:['shared-validation-execution-v1']},
+    bootstrap:{executable:'proof-or-stop',args:['shared-validation-execution-v2-complete-capture']},
     inputs:{execution,workspace,inputFiles,materialHash:initial.gitMaterial?.materialHash,
       policy:{executionReuse:command.executionReuse,closurePolicy:command.closurePolicy ?? null,
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
@@ -90,9 +91,11 @@ export async function executeSharedValidationCommand(
   let fresh: ValidationCommandResult | undefined;
   const causal=await executeCausalEvidence({identity,selector:'',receiptStore:context.receiptStore,preflight,revalidateBeforeRun:unchanged,
     run:async()=>{
-      fresh=await run();
-      return {code:fresh.code,output:fresh.output,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
-        partial:Boolean(fresh.worktreePollution?.paths.length) || fresh.output.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
+      const captured = await capture();
+      fresh = captured.result;
+      // Receipt identity belongs to complete execution bytes, never the bounded display.
+      return {code:fresh.code,output:captured.completeOutput,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
+        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
     },
   });
   assertActive();
