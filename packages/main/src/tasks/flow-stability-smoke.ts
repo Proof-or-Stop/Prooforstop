@@ -117,6 +117,12 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  // Current registered producer/consumer snapshots must exist even though this
+  // fixture isolates discovery and does not execute those dependency modules.
+  for (const name of ['evidence-freshness', 'material-path-policy', 'review-convergence',
+    'shared-validation-execution', 'story-aware-validation', 'story-owner-lease', 'validation-execution-lock']) {
+    write(root, `packages/main/src/core/${name}.ts`, 'export const fixtureDependency = true;\n');
+  }
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
