@@ -155,7 +155,13 @@
     "test:residue-inject-repro": "node scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
-    "test:signing-guard-mutation-proof": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js"
+    "test:signing-guard-mutation-proof": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js",
+    "precert:fast": "node scripts/run-precert-fast.mjs",
+    "precert:case:selector-integrity": "node scripts/precert-fast-case.mjs selector-integrity",
+    "precert:case:real-port-collision": "node scripts/precert-fast-case.mjs real-port-collision",
+    "precert:case:causal-launches-zero": "node scripts/precert-fast-case.mjs causal-launches-zero",
+    "precert:case:terminal-process-cleanup": "node scripts/precert-fast-case.mjs terminal-process-cleanup",
+    "precert:case:source-dist-launches-zero": "node scripts/precert-fast-case.mjs source-dist-launches-zero"
   },
   "repository": {
     "type": "git"

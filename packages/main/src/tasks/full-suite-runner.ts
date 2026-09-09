@@ -587,11 +587,11 @@ function killRunStateChildren(state: FullSuiteRunState): void {
   }
 }
 
-function requestInterrupt(signal: NodeJS.Signals, state: FullSuiteRunState): void {
+export function interruptFullSuiteRun(signal: NodeJS.Signals, state: FullSuiteRunState): void {
   state.interruptSignal = signal;
   killRunStateChildren(state);
 }
-export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal, defaultRunState); }
+export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { interruptFullSuiteRun(signal, defaultRunState); }
 export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
@@ -743,8 +743,8 @@ async function main(): Promise<void> {
   let processLaunchCount = 0;
   // One run state per invocation: the scheduler never reads runner globals.
   const runState = createFullSuiteRunState();
-  process.once('SIGINT', () => requestInterrupt('SIGINT', runState));
-  process.once('SIGTERM', () => requestInterrupt('SIGTERM', runState));
+  process.once('SIGINT', () => interruptFullSuiteRun('SIGINT', runState));
+  process.once('SIGTERM', () => interruptFullSuiteRun('SIGTERM', runState));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
     // Declared budgets are standalone; enforce them scaled to the concurrency this runner chose.
     const result = await runEntry(withConcurrencyHeadroom(entry, jobs), cwd, 'npm', () => { processLaunchCount++; }, runState);

@@ -67,6 +67,11 @@ async function main() {
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
+  check(registrySource.includes('PRECERT_FAST_RUNTIME_POLICY'), 'precert runtime contract must be registered');
+  const fastRunner = read(root, 'scripts/run-precert-fast.mjs');
+  check(fastRunner.includes('createFullSuiteRunState()') && fastRunner.includes('interruptFullSuiteRun(signal, state)')
+    && fastRunner.includes('validateFastResult(contract,result)') && fastRunner.includes('verifyBuildBinding(root)'),
+    'fast diagnostics must retain isolated process supervision, binding and contract result checks');
   check(registrySource.includes('ENTRY_PREFLIGHT_RUNTIME_POLICY'), 'entry preflight runtime boundary must be registered');
   const entryPreflight = read(root, 'scripts/entry-preflight.mjs');
   check(entryPreflight.includes('timeout: 30_000') && entryPreflight.includes('diagnosticOnly: true')

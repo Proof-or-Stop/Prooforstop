@@ -36,7 +36,18 @@ fs.linkSync = function(from, to, ...rest) {
 };
 syncBuiltinESMExports();
 const {runManagedHostRunWorker} = await import(${JSON.stringify(pathToFileURL(core).href)});
-await runManagedHostRunWorker({root:process.argv[2],runId:process.argv[3]});
+const {defaultHostRunRunner} = await import(${JSON.stringify(pathToFileURL(join(repository, 'packages/main/dist/core/host-run.js')).href)});
+// This fixture inherits its outer runner's process group so cancellation contains
+// every witness process. Use the real runner seam to keep identity facts honest.
+await runManagedHostRunWorker({root:process.argv[2],runId:process.argv[3]}, {
+  // This scratch-only fixture does not test native admission/attestation. The
+  // outer test runner owns its group; it must never claim an isolated provider.
+  runner: async ({onSpawn, reviewInvocationPayload, ...plan}) => {
+    const result = await defaultHostRunRunner(plan, {processGroupIsolated:false});
+    if (result.exitCode !== 7) throw new Error('scratch fixture provider must really execute and exit 7');
+    return result;
+  },
+});
 `);
   let exited;
   const run = await submitManagedHostRun({root,cwd:root,host:'codex',storyId:'B-terminal-cleanup',
@@ -48,7 +59,7 @@ await runManagedHostRunWorker({root:process.argv[2],runId:process.argv[3]});
     reviewBinding:{headHash:git('rev-parse','HEAD'),materialHash:currentMaterialHash(root),
       storyFilesHash:'fixture-story-files',promptHash:'fixture-prompt',managedPromptDigest:`sha256:${'a'.repeat(64)}`,envelopeId:null},
   }, {launchWorker:async request => {
-    const child = spawn(process.execPath, [worker, root, request.runId], {stdio:'ignore',detached:true});
+    const child = spawn(process.execPath, [worker, root, request.runId], {stdio:'ignore',detached:false});
     exited = new Promise(resolve => child.once('exit', (code, signal) => resolve({code,signal})));
     return {pid:child.pid};
   }});

@@ -211,3 +211,15 @@ export const ENTRY_PREFLIGHT_RUNTIME_POLICY = {
   unavailable: 'not-pass',
   authority: 'diagnostic-only',
 } as const;
+
+/** Local fast diagnostics execute actual negative controls; elapsed time is not cohort evidence. */
+export const PRECERT_FAST_RUNTIME_POLICY = {
+  entry: 'scripts/run-precert-fast.mjs',
+  registry: 'scripts/precert-fast-contracts.mjs',
+  invocationBudgetMs: 180_000,
+  result: 'exit-pass-and-exact-unique-contract-marker',
+  unsupported: 'not-pass',
+  scheduling: 'serial-within-invocation',
+  processOwner: 'full-suite-runner-isolated-run-state',
+  authority: 'diagnostic-until-consumed-by-validate',
+} as const;

@@ -9341,6 +9341,14 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+const fastDiagnosticSource = readFileSync(join(root, 'scripts/run-precert-fast.mjs'), 'utf8');
+assert(fastDiagnosticSource.includes("authority:'diagnostic-only'") && fastDiagnosticSource.includes('writesStoryEvidence:false'),
+  'local pre-cert fast diagnostics must not mint Story authority');
+const configuredFastSet = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'), 'utf8')).validate.commands
+  .filter(command => command.args?.[0] === 'scripts/run-precert-fast.mjs');
+assert(configuredFastSet.length === 1 && configuredFastSet[0].focus.includes('fast')
+  && configuredFastSet[0].fullBaselineReusePolicy === 'forbidden',
+  'pre-cert fast set must be consumed exactly once by fresh configured validation');
 const entryDiagnosticSource = readFileSync(join(root, 'scripts/entry-preflight.mjs'), 'utf8');
 assert(entryDiagnosticSource.includes('diagnosticOnly: true') && entryDiagnosticSource.includes('writesEvidence: false')
   && entryDiagnosticSource.includes('advancesPhase: false') && entryDiagnosticSource.includes('UNAVAILABLE'),

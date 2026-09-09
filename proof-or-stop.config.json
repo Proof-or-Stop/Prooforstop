@@ -96,6 +96,28 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-precert-fast.mjs"
+        ],
+        "timeoutMs": 195000,
+        "focus": [
+          "fast"
+        ],
+        "resources": [
+          {
+            "class": "fixed-port",
+            "key": "43127",
+            "access": "exclusive"
+          }
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "precert-adversarial-v1"
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/milestone-status.test.mjs"
         ],
         "resources": [
