@@ -1937,10 +1937,10 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     name: 'runtime:story_scope_budget', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'],
     producer: 'core/story-scope-budget',
-    producerSourceRefs: ['packages/main/src/core/story-scope-budget.ts', 'packages/main/src/core/story-scope-budget-decisions.ts'],
+    producerSourceRefs: ['packages/main/src/core/story-scope-budget.ts', 'packages/main/src/core/story-scope-budget-decisions.ts', 'packages/main/src/core/story-scope-decomposition.ts'],
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/core/acceptance-amendment-journal.ts', 'packages/main/src/handlers/story-review.ts'],
     consumerGate: 'Every DEV entry and additive acceptance application consume the same configured semantic budget, including APPLYING recovery',
-    rationale: 'Explicit responsibility mappings, registered process facts and commands, topology nodes and edges, validation groups and semantic DEV delta determine scope cost. Files are not the budget unit. Unknown enforced mappings and malformed opted-in policy block; rollback cannot swallow the budget failure. Read-only diagnostic output cannot grant scope approval. Unconfigured legacy projects retain compatibility.',
+    rationale: 'Explicit responsibility mappings, registered process facts and commands, topology nodes and edges, validation groups and semantic DEV delta determine scope cost. Files are not the budget unit. Unknown enforced mappings and malformed opted-in policy block; rollback cannot swallow the budget failure. Read-only diagnostic output cannot grant scope approval. Live declared decompositions require complete real child assignments, independent budgets and acceptance mappings; they never exempt parent implementation scope or prove child delivery. Unconfigured legacy projects retain compatibility.',
   },
   ...PROCESS_FACT_MANAGED_SUPERVISION,
   {

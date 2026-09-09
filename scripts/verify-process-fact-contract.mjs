@@ -8652,6 +8652,9 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/handlers/proofstory.ts').includes('DEV topology growth requires acceptance_amendment_propose'), 'DEV topology cannot bypass additive approval');
   const amendmentJournal = read('packages/main/src/core/acceptance-amendment-journal.ts');
   assert(registrySource.includes("name: 'runtime:story_scope_budget'"), 'semantic scope budget process fact must be registered');
+  const decomposition = read('packages/main/src/core/story-scope-decomposition.ts');
+  for (const invariant of ['readTrustedProofStoryScopeArtifacts', 'inspectChild(id)', 'store.storyExists(id)', 'parentLedgerId', 'verificationIntentRefs', 'decomposition must cover every parent milestone']) assert(decomposition.includes(invariant), `scope decomposition requires ${invariant}`);
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('readScopeDecomposition(store, subject'), 'scope budget must consume live decomposition coverage');
   const budgetDecision = read('packages/main/src/core/story-scope-budget-decisions.ts');
   for (const invariant of ['assertOperator(args)', 'withReviewInventoryMutationLock', 'verifyValidationArtifact', 'report.bindingDigest !== args.bindingDigest', 'currentScopeBudgetApproval', 'expiresAt']) {
     assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);

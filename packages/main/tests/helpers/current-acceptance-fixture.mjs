@@ -212,7 +212,7 @@ try {
         }));
         write(root, 'tsconfig.json', '{}\n');
         writeRegistration(root);
-        for (const name of ['convergence-progress-gate', 'convergence-progress-journal', 'story-scope-budget', 'story-scope-budget-decisions', 'acceptance-amendment-journal'])
+        for (const name of ['convergence-progress-gate', 'convergence-progress-journal', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-decomposition', 'acceptance-amendment-journal'])
             write(root, 'packages/main/src/core/' + name + '.ts', 'export const fixtureDependency=true;\n');
         write(root, 'packages/main/src/handlers/story-review.ts', 'export const fixtureDependency=true;\n');
         write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');

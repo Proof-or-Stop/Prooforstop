@@ -816,6 +816,7 @@ function writeRegistration(root: string): void {
         'packages/main/src/core/convergence-progress-journal.ts',
         'packages/main/src/core/story-scope-budget.ts',
         'packages/main/src/core/story-scope-budget-decisions.ts',
+        'packages/main/src/core/story-scope-decomposition.ts',
         'packages/main/src/core/acceptance-amendment-journal.ts',
         'packages/main/src/handlers/story-review.ts',
   ]) write(root, path, 'export const fixtureDependency=true;\n');

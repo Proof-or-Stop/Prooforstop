@@ -58,8 +58,34 @@ terminal possession is an acknowledgement channel, not cryptographic human ident
 
 For a pending DEV amendment, pass its `--amendmentId` to both check and approval.
 Obtain scope approval before independent amendment review; the decision does not
-replace that review. Read projections never create authority. Parent/child
-coverage decisions remain separate work.
+replace that review. Read projections never create authority.
+
+Declared decomposition uses existing `milestone_ledger_set`, `slice_plan_set` and
+`parent_ledger_rollup_set` artifacts. Create the child Stories through the normal
+CLI, assign every parent milestone to exactly one child in all three artifacts,
+and link each child's milestone through `parentLedgerId`. Child claim, doneMeans
+and required evidence must preserve the assigned parent requirement. Child
+checklist intents and structurally valid acceptance bindings must cover that row.
+The tools do not infer new child requirements or create child Stories automatically.
+
+For projects with this policy, `scope_budget_check` reads the live decomposition.
+It requires at least two real, independently within-budget children, complete
+assignment agreement, and non-overlapping declared paths across the entire tree.
+Missing children, partial plans, stale artifact hashes, invalid acceptance and
+cyclic assignments block enforced admission. Child scope and acceptance changes
+change the parent report digest; there is no cached readiness permission.
+A parent must narrow its own implementation scope and still meet its own budget.
+A ready decomposition never makes an oversized parent eligible for DEV.
+
+The returned `decomposition.authority` is `planning_only`. Candidate ledger rows
+can demonstrate a plan; their `planned`, `covered` or `done` labels do not certify
+delivery. Each child's ordinary review, validation and DONE gates remain required.
+Unconfigured legacy projects retain their existing partial-plan behavior.
+
+`node scripts/verify-story-scope-decomposition.mjs` verifies phantom children,
+coverage/assignment errors, independent budgets, parent and recursive subtree
+scope conflicts, changed acceptance, digest freshness, read-only projection and
+legacy compatibility against isolated real StoryStore artifacts.
 
 Verification: `node scripts/verify-story-scope-budget.mjs` exercises actual DEV
 guards, all seven dimensions, unknown inputs, unchanged read projections, actual

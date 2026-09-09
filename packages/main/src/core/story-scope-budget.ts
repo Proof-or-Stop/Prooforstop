@@ -8,6 +8,7 @@ import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { CANONICAL_REVIEW_HOSTS } from './host-execution-readiness.js';
 import { collectVerificationIntents } from './verification.js';
 import { canonicalFilesystemPath } from './keyed-scheduler.js';
+import { readScopeDecomposition, type ScopeDecompositionReport } from './story-scope-decomposition.js';
 import { currentScopeBudgetApproval } from './story-scope-budget-decisions.js';
 import { isMalformedScopeGlob, pathMatchesScopePattern } from './scope-path-classifier.js';
 import type { StoryStore } from './store.js';
@@ -44,6 +45,7 @@ export interface StoryScopeBudgetReport {
   diagnostics: string[];
   bindingDigest: string;
   paths: string[];
+  decomposition?: ScopeDecompositionReport;
 }
 const emptyFacts = (): Record<ScopeBudgetDimension, string[]> => Object.fromEntries(
   SCOPE_BUDGET_DIMENSIONS.map(key => [key, [] as string[]]),
@@ -217,6 +219,12 @@ export function evaluateStoryScopeBudget(subject: ScopeBudgetSubject, config: Pr
 }
 
 export function readStoryScopeBudget(store: StoryStore, root: string, storyId: string, next?: ScopeBudgetSubject, base?: ScopeBudgetSubject): StoryScopeBudgetReport {
+  return readScopeBudgetWithLineage(store, root, storyId, next, base, new Set());
+}
+
+function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: string, next: ScopeBudgetSubject | undefined, base: ScopeBudgetSubject | undefined, lineage: Set<string>): StoryScopeBudgetReport {
+  if (lineage.has(storyId)) throw new Error(`cyclic scope decomposition: ${storyId}`);
+  lineage = new Set([...lineage, storyId]);
   // loadConfig preserves a legacy syntax-error fallback. A malformed policy file
   // cannot turn an enforced budget into that fallback's absent configuration.
   const configPath = pickProjectConfigPath(root);
@@ -237,6 +245,17 @@ export function readStoryScopeBudget(store: StoryStore, root: string, storyId: s
   if (report.diagnostics.length) {
     report.status = 'unknown';
     report.blocking = report.blocking || report.mode === 'enforce';
+  }
+  if (report.mode !== 'disabled') {
+    report.decomposition = readScopeDecomposition(store, subject, report.paths,
+      childId => readScopeBudgetWithLineage(store, root, childId, undefined, undefined, lineage));
+    if (report.decomposition) {
+      report.bindingDigest = canonicalDigest({ budget: report.bindingDigest, decomposition: report.decomposition.bindingDigest });
+      if (report.decomposition.status !== 'ready') {
+        report.diagnostics.push(...report.decomposition.diagnostics);
+        report.status = 'unknown'; report.blocking = report.blocking || report.mode === 'enforce';
+      }
+    }
   }
   if (report.status === 'decision_required') {
     try {
