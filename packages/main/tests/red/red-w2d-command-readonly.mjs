@@ -113,7 +113,7 @@
 import { strict as assert } from 'node:assert';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, realpathSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { createRequire, syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 
@@ -138,6 +138,9 @@ for (const fn of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFil
     return real.apply(this, args);
   };
 }
+// A validation preload may already have linked builtin ESM exports. Publish
+// this recorder too so its negative control remains meaningful in that case.
+syncBuiltinESMExports();
 /** The test's own fixture commands go through the recorder too; windows exclude them. */
 const spawnSync = (...args) => childProcess.spawnSync(...args);
 const spawnWindow = () => {
