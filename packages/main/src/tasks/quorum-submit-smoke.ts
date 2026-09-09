@@ -32,6 +32,8 @@ import { evaluateHostVerdictRounds } from '../core/host-independence.js';
 import { acquireMkdirLock } from '../core/mkdir-lock.js';
 import { eventsWithStoryFilesHashDowngrade } from '../core/review-escalation.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
 import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
@@ -186,7 +188,12 @@ function checklist(): ChecklistData {
       endTime: null,
       relatedDocs: [],
       files: { modify: [], create: [], test: [] },
-      verificationIntent: { happy: [], edge: [], adversarial: [] },
+      // Declared fixture intent; no execution receipt or completed coverage is claimed here.
+      verificationIntent: { happy: [{
+        id: `context-${index + 1}`,
+        desc: `Context requirement ${index + 1} remains present in the full reviewer snapshot.`,
+        type: 'logic' as const, priority: 'must' as const,
+      }], edge: [], adversarial: [] },
     }))],
   };
 }
@@ -1371,6 +1378,12 @@ try {
       });
       git(fixture.root, ['add', '.proof-or-stop/story']);
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed TEST failure baseline']);
+      // Establish the current test-only admission prerequisite before introducing
+      // the dirty baseline whose refusal this case actually verifies.
+      persistSyntheticAdmittedWindowForTest({
+        store: fixture.store, storyId: STORY_ID, projectRoot: fixture.root,
+        causalInputHashes: deriveCertificationDomainInputHashes(fixture.root, 'HEAD', fixture.root),
+      });
       for (let index = 0; index < 6; index += 1) {
         fixture.store.appendProcessEvent(STORY_ID, {
           type: 'host_verdict',
@@ -1490,7 +1503,12 @@ try {
           endTime: null,
           relatedDocs: [],
           files: { modify: [], create: [], test: [] },
-          verificationIntent: { happy: [], edge: [], adversarial: [] },
+          // Declared fixture intent; the retained replay/drift checks exercise the envelope boundary.
+          verificationIntent: { happy: [{
+            id: `pad-context-${index + 1}`,
+            desc: `Padding requirement ${index + 1} remains in the full authoritative reviewer snapshot.`,
+            type: 'logic' as const, priority: 'must' as const,
+          }], edge: [], adversarial: [] },
         })),
       ],
     });
@@ -1668,7 +1686,7 @@ try {
       root,
       store,
       storyId: STORY_ID,
-      agent: 'lattice-review-quality',
+      agent: qualityRun.lane,
       reviewRunId: qualityRun.reviewRunId,
     });
     postRunFinding._hash = signFinding(
