@@ -8428,7 +8428,7 @@ const inventory = [
   {name:'Governed acceptance revision and durable recovery',files:[
     {relPath:'packages/main/src/handlers/checklist.ts',patterns:['createIntentRevision','verification_intent_recover','restoreIntentCheckpoint','AMENDMENT_RECOVERY_REASON_REQUIRED']},
     {relPath:'packages/main/src/core/verification-intent-amendment.ts',patterns:['proof-or-stop.intent-revision.v1','AMENDMENT_REPLAN_REQUIRED','IntentAmendmentIntegrityError','beforeScopeHash']},
-    {relPath:'packages/main/src/core/verification-intent-checkpoint.ts',patterns:['proof-or-stop-intent-checkpoints','verifyValidationArtifact','AMENDMENT_CHECKPOINT_HISTORY_GAP','linkSync(temp,path)','AMENDMENT_CHECKPOINT_PROJECTION_MISMATCH','refs/proof-or-stop/intent-checkpoints/','update-ref','commit-tree','AMENDMENT_CHECKPOINT_ANCHOR_INVALID']},
+    {relPath:'packages/main/src/core/verification-intent-checkpoint.ts',patterns:['proof-or-stop-intent-checkpoints','verifyValidationArtifact','AMENDMENT_CHECKPOINT_HISTORY_GAP','linkSync(temp,path)','AMENDMENT_CHECKPOINT_PROJECTION_MISMATCH','refs/proof-or-stop/intent-checkpoints/','update-ref','commit-tree','AMENDMENT_CHECKPOINT_ANCHOR_INVALID','for-each-ref','cat-file','AMENDMENT_CHECKPOINT_ROLLBACK','AMENDMENT_CHECKPOINT_MIRROR_CONFLICT','AMENDMENT_CHECKPOINT_ANCHOR_WRITE_FAILED','reconcileMirror(directory,records)']},
     {relPath:'packages/main/src/core/store.ts',patterns:['assertIntentCheckpointProjection','writeIntentCheckpoint','restoreIntentCheckpoint','digestCanonicalJson(prefix ?? null)']},
     {relPath:'packages/main/src/core/canonical-story.ts',patterns:['rethrowIntentAmendmentIntegrityError(error)']},
     {relPath:'docs/validation-performance.md',patterns:['verification_intent_recover','INIT/PLAN','checkpoint']},

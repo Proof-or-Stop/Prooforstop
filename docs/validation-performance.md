@@ -179,7 +179,7 @@ The `proof-or-stop-intent-checkpoints` directory is a local file mirror; removin
 that mirror and the projection history together cannot erase the anchored
 obligation. Canonical reads use the verified anchor and reject a different
 projection. Old unanchored records retain the contiguous-file verification path
-and acquire an anchor on their next changed canonical write. No caller can
+and acquire a complete-chain anchor on their next authorized canonical write, including unchanged data. No caller can
 supply a replacement signature or silently truncate old history.
 Typed integrity errors propagate through gate/roster/query fallbacks. A reordered
 JSON object is equivalent under canonical comparison.
@@ -320,3 +320,5 @@ Use internal partitioning only when the measured reduction exceeds additional
 process/fixture setup and aggregation cost. Tiny units and conflicting shared
 fixtures remain serial. This is an applicable test-workload decomposition, not
 proof that splitting arbitrary product Stories improves development time.
+
+Checkpoint audit recovery: Git refs are resolved through Git, including reftable and in-place backend migration. Every canonical write, including an unchanged write, anchors the complete verified legacy chain. Missing mirror generations are reconciled from retained signed Git objects before successful projection publication; conflicting or newer mirrors refuse recovery rather than roll acceptance backward. Root generation and predecessor checks cover the full chain, and CAS/publication failures propagate typed integrity errors. Reads remain read-only; a legacy record needs an authorized canonical write to migrate. Git ref/object/signing-key destruction remains outside the local recovery trust boundary.
