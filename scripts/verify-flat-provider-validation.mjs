@@ -77,6 +77,12 @@ syncBuiltinESMExports();
   const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
   assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
   assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
+  if (filename === 'host-run-usage-smoke.js') {
+    assert.match(child.stdout, /host-run usage canonical core passed/);
+    assert.match(child.stdout, /candidate overflow boundary checked/);
+    assert.doesNotMatch(child.stdout, /host-run usage smoke passed \(8[35] checks\)/,
+      'canonical mode must not emit full historical receipt selectors');
+  }
   }
   for (const filename of ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'host-run-usage-smoke.js', 'dispatch-run-smoke.js', 'provider-claude-smoke.js',

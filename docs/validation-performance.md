@@ -228,3 +228,10 @@ checks. The W2B private-copy registration-removal probes still run both contract
 those executions prove mutation detectability, not repeated baseline validation.
 No-argument invocations retain their complete legacy receipts. Canonical output
 explicitly identifies the narrower execution instead of claiming the full receipt.
+
+Host-run usage canonical validation retains all 85 core checks, its four
+extension checks, and the candidate-overflow boundary. It leaves the already
+registered managed watchdog contract to its own canonical entry. The no-argument
+command still runs both evidence-mapping boundaries and emits its original
+83/85-check compatibility selectors; canonical mode emits only a distinct core
+selector and never represents itself as that full historical receipt.

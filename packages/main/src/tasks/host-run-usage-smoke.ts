@@ -199,6 +199,7 @@ let supervisorHardeningPassed = 0;
 let streamHardeningPassed = 0;
 let evidenceMappingPassed = 0;
 const failures: string[] = [];
+const canonicalCore = process.argv.includes('--canonical-core');
 const tasksDir = dirname(fileURLToPath(import.meta.url));
 
 function check(label: string, fn: () => void): void {
@@ -3812,11 +3813,13 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     'candidate-spec-routing-smoke.js',
     'candidate-spec-routing smoke: PASS',
   );
-  evidenceMappingCheck(
-    'CHK-007:adversarial:2 pinned command executes the CLI runtimeContinuation/watchdog boundary',
-    'managed-host-run-command-smoke.js',
-    'managed-host-run-command-smoke PASS',
-  );
+  if (!canonicalCore) {
+    evidenceMappingCheck(
+      'CHK-007:adversarial:2 pinned command executes the CLI runtimeContinuation/watchdog boundary',
+      'managed-host-run-command-smoke.js',
+      'managed-host-run-command-smoke PASS',
+    );
+  }
 }
 
 main()
@@ -3834,7 +3837,13 @@ main()
     assert.equal(extensionPassed, 2, 'final-output proposal extension must retain its own two-check selector');
     assert.equal(supervisorHardeningPassed, 1, 'stdin EPIPE supervisor hardening retains its independent selector');
     assert.equal(streamHardeningPassed, 1, 'late stream settlement hardening retains its independent selector');
-    assert.equal(evidenceMappingPassed, 2, 'frozen verification pins retain two independent executable boundary checks');
+    assert.equal(evidenceMappingPassed, canonicalCore ? 1 : 2,
+      'canonical execution retains candidate overflow; full receipts also execute the independently scheduled watchdog');
+    if (canonicalCore) {
+      console.log(`✓ host-run usage canonical core passed (${corePassed} core checks; ${extensionPassed + supervisorHardeningPassed + streamHardeningPassed} extension checks; candidate overflow boundary checked)`);
+      console.log('Managed watchdog contract is scheduled independently; no full historical receipt is emitted.');
+      return;
+    }
     // Six immutable verification receipts select this exact historical line.
     // Keep it as an explicitly-labelled compatibility selector, then emit the
     // truthful current count separately so no consumer mistakes legacy proof
