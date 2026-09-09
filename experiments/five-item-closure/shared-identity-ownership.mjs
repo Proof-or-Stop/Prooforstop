@@ -23,4 +23,3 @@ for (const [name, mutate] of cases) {
   console.log('PASS shared identity ownership refusal: '+name);
 }
 console.log('SHARED_IDENTITY_OPERATION_OWNERSHIP_GREEN');
-if (process.env.LAB_SHARED_OWNERSHIP_ONLY !== '1') await import('./observe-reuse.mjs');
