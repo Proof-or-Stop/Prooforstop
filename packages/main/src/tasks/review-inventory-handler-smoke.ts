@@ -181,6 +181,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
   const topology = setup();
   const fixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
   try {
+    if (process.argv.includes('--metadata-batch-fixture')) git(fixture.root, ['checkout', '-b', `story/${storyId}`]);
     assert.match(cli(topology.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-topology-control')), /topology/);
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-default-refusal')), /implementation|author|provenance/i);
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
