@@ -296,3 +296,27 @@ and must be classified as missing preparation, not as a passing full CLI profile
 Build before starting readers, then derive the implementation pin from the final
 prepared runtime. The frozen pre-preparation measurements remain separately bound
 to their original runtime; do not relabel their implementation identity.
+
+
+### Conditional internal quorum partitioning
+
+The full quorum regression suite has 73 explicit case IDs. Its 13 shared-state
+cases stay in one ordered group; independently owned temporary Git fixtures form
+the other units. `--jobs=2` through `--jobs=4`, or
+`PROOF_OR_STOP_QUORUM_JOBS`, selects internal process partitioning. The default
+remains serial unless the invoking workload explicitly enables the measured
+option. The one outer capacity ticket and its exclusive plan barrier remain
+unchanged: other validation commands cannot overlap this process tree.
+
+Each child reports its executed IDs and live callback digests. The parent requires
+all 73 exactly once, the same names/bodies as its live listing, and successful
+exit from every child before printing the original full-suite success marker.
+Missing/duplicate/unknown/empty selections, a split of the shared group, changed
+names/bodies and failed children are rejected. Diagnostic `--grep` selections
+expand shared groups and emit a distinct diagnostic marker, never full-suite
+success. All existing assertion callback bodies are retained unchanged.
+
+Use internal partitioning only when the measured reduction exceeds additional
+process/fixture setup and aggregation cost. Tiny units and conflicting shared
+fixtures remain serial. This is an applicable test-workload decomposition, not
+proof that splitting arbitrary product Stories improves development time.

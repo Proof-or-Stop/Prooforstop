@@ -8419,6 +8419,12 @@ const inventory = [
     {relPath:'packages/main/src/handlers/done-required-validation.ts',patterns:['captureLifecycleMetadataTransaction','readLifecycleMetadataOutputHashes','commitLifecycleMetadataTransaction',"kind: 'certification-running'",'realpathSync(gitCwd)']},
     {relPath:'packages/main/src/core/auto-commit-metadata.ts',patterns:["'certification-running'","['certification-window.json']"]},
   ]},
+  {name:'Exact quorum assertion inventory and internal partitioning',files:[
+    {relPath:'packages/main/src/tasks/quorum-case-plan.ts',patterns:['MISSING_QUORUM_PLAN_CASE','QUORUM_DEPENDENCY_SPLIT','QUORUM_SOURCE_OR_MANIFEST_DRIFT','QUORUM_SHARD_COVERAGE_MISMATCH']},
+    {relPath:'packages/main/src/tasks/quorum-submit-smoke.ts',patterns:['MISSING_QUORUM_REGISTRATION','QUORUM_DIAGNOSTIC_SELECTION_PASSED','QUORUM_EXECUTION_COVERAGE_MISMATCH']},
+    {relPath:'packages/main/src/tasks/quorum-case-parallel.ts',patterns:['verifyQuorumResults(plan,results,manifest)','QUORUM_SHARD_FAILED','PROOF_OR_STOP_QUORUM_JOBS']},
+    {relPath:'docs/validation-performance.md',patterns:['73','13','outer capacity ticket']},
+  ]},
   {name:'Governed acceptance revision and durable recovery',files:[
     {relPath:'packages/main/src/handlers/checklist.ts',patterns:['createIntentRevision','verification_intent_recover','restoreIntentCheckpoint','AMENDMENT_RECOVERY_REASON_REQUIRED']},
     {relPath:'packages/main/src/core/verification-intent-amendment.ts',patterns:['proof-or-stop.intent-revision.v1','AMENDMENT_REPLAN_REQUIRED','IntentAmendmentIntegrityError','beforeScopeHash']},

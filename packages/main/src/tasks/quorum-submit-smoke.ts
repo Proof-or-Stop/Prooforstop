@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {performance} from 'node:perf_hooks';
+import {QUORUM_CASES} from './quorum-case-registry.js';
+import {validateQuorumSelection,type QuorumRunResult} from './quorum-case-plan.js';
+import {runParallelQuorum} from './quorum-case-parallel.js';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { appendFileSync, chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -670,19 +675,41 @@ function quorumFloorRounds(fixture: ReturnType<typeof makeFixture>) {
 // per-command override — it always runs the pinned command under the 270s default — so a
 // mechanical receipt can never be earned against the unfiltered command for any intent whose
 // evidence happens to require the LATER portion of this 70+-check suite. `--grep=<substring>`
-// is an opt-in, additive-only narrowing: every check still runs its real, unmodified body and
-// assertions when selected; only which checks execute (and print) changes. Default (unfiltered)
-// behavior — used by `npm run build`'s consumers, `proof-or-stop validate`, and CI — is untouched.
-const GREP_FILTER = (() => {
-  const arg = process.argv.find(a => a.startsWith('--grep='));
-  return arg ? arg.slice('--grep='.length) : null;
-})();
-
+// selects diagnostic cases and expands any shared-state dependency group atomically.
+// Empty/unknown selections refuse and diagnostics never emit the full-suite marker.
+// Full execution registers and verifies all 73 case identities. Explicit --jobs=2..4
+// (or PROOF_OR_STOP_QUORUM_JOBS) runs independent groups in private child processes
+// within the unchanged outer command capacity ticket; default is serial until
+// the invoking workload has measured and enabled the parallel option.
+const quorumArgsRaw=process.argv.slice(2);
+const uniqueArg=(prefix:string)=>{const hits=quorumArgsRaw.filter(a=>a.startsWith(prefix));assert.ok(hits.length<=1,'DUPLICATE_QUORUM_OPTION '+prefix);return hits[0]?.slice(prefix.length);};
+const GREP_FILTER=uniqueArg('--grep=');
+const requestedCases=uniqueArg('--case-ids=');
+const resultFile=uniqueArg('--result-file=');
+const listCases=quorumArgsRaw.includes('--list-cases');
+const jobsRaw=uniqueArg('--jobs=')??process.env.PROOF_OR_STOP_QUORUM_JOBS??'1';
+assert.match(jobsRaw,/^[1-4]$/,'QUORUM_JOBS_OUT_OF_RANGE');const quorumJobs=Number(jobsRaw);
+assert.ok(quorumArgsRaw.every(a=>['--grep=','--case-ids=','--result-file=','--jobs='].some(p=>a.startsWith(p))||a==='--list-cases'),'UNKNOWN_QUORUM_OPTION');
+assert.ok(!(GREP_FILTER!==undefined&&requestedCases!==undefined),'AMBIGUOUS_QUORUM_SELECTION');
+assert.ok(!listCases||(quorumArgsRaw.length===1&&GREP_FILTER===undefined&&requestedCases===undefined),'AMBIGUOUS_QUORUM_LIST');
+assert.ok((requestedCases===undefined)===(resultFile===undefined),'QUORUM_SHARD_REQUIRES_RESULT_FILE');
+let selected=QUORUM_CASES.map(c=>c.id);
+if(GREP_FILTER!==undefined){const groups=new Set(QUORUM_CASES.filter(c=>c.name.includes(GREP_FILTER)).map(c=>c.group));selected=QUORUM_CASES.filter(c=>groups.has(c.group)).map(c=>c.id);}
+if(requestedCases!==undefined)selected=requestedCases.split(',');
+validateQuorumSelection(selected);
+assert.deepEqual(selected,QUORUM_CASES.filter(c=>selected.includes(c.id)).map(c=>c.id),'QUORUM_SELECTION_ORDER_MISMATCH');
+const liveManifest:QuorumRunResult['manifest']=[];
+const executedCases:QuorumRunResult['cases']=[];
 let passed = 0;
-function check(name: string, fn: () => void): void {
-  if (GREP_FILTER !== null && !name.includes(GREP_FILTER)) return;
-  fn();
-  passed += 1;
+function check(id:string,name: string, fn: () => void): void {
+  const declared=QUORUM_CASES[liveManifest.length];
+  assert.equal(id,declared?.id,'QUORUM_REGISTRATION_ORDER_OR_COUNT_DRIFT');
+  assert.equal(name,declared.name,'QUORUM_CASE_NAME_DRIFT');
+  const bodyDigest=createHash('sha256').update(fn.toString()).digest('hex');
+  liveManifest.push({...declared,bodyDigest});
+  if(listCases||!selected.includes(id))return;
+  const started=performance.now();fn();passed++;
+  executedCases.push({id,bodyDigest,elapsedMs:performance.now()-started});
   console.log(`  ✓ ${name}`);
 }
 
@@ -761,13 +788,17 @@ if (dyn5Case) {
   process.exit(0);
 }
 
+if(!listCases&&GREP_FILTER===undefined&&requestedCases===undefined&&quorumJobs>1){
+  await runParallelQuorum(fileURLToPath(import.meta.url),quorumJobs);process.exit(0);
+}
+
 const previousCwd = process.cwd();
 const { root, store, registry } = makeFixture();
 
 try {
   process.chdir(root);
 
-  check('every production process-event writer honors the shared append lock', () => {
+  check("Q001", 'every production process-event writer honors the shared append lock', () => {
     const lockFixture = mkdtempSync(join(tmpdir(), 'proof-or-stop-process-event-lock-'));
     try {
       const storyDirRel = '.proof-or-stop/story/actives';
@@ -826,7 +857,7 @@ try {
     }
   });
 
-  check('reviewer provider mapping is explicit and unsupported providers fail closed', () => {
+  check("Q002", 'reviewer provider mapping is explicit and unsupported providers fail closed', () => {
     assert.equal(reviewerPromptHostForProvider('codex'), 'codex');
     assert.equal(reviewerPromptHostForProvider('codex-cli'), 'codex');
     assert.equal(reviewerPromptHostForProvider('claude-code'), 'claude');
@@ -839,7 +870,7 @@ try {
     }
   });
 
-  check('explicit invalid provider wins over competing host inference while true absence still infers', () => {
+  check("Q003", 'explicit invalid provider wins over competing host inference while true absence still infers', () => {
     const inputs = { hostname: 'quorum-smoke-host', root, ppid: 4242 };
     for (const competingEnv of [
       { CODEX_THREAD_ID: 'competing-codex-thread' },
@@ -865,7 +896,7 @@ try {
     assert.equal(absentClaude.hostProvider, 'claude-code', 'absent explicit provider preserves Claude inference');
   });
 
-  check('real story-owned fixture delta is host-independent and requires case-level Story intent closure', () => {
+  check("Q004", 'real story-owned fixture delta is host-independent and requires case-level Story intent closure', () => {
     withClearedSessionEnvironment(() => {
       withFreshFixture((fixture) => {
         recordReviewerPasses(fixture.registry);
@@ -909,7 +940,7 @@ try {
     });
   });
 
-  check('duplicate fixture identities always force full regardless of alias or ordering', () => {
+  check("Q005", 'duplicate fixture identities always force full regardless of alias or ordering', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
@@ -940,7 +971,7 @@ try {
     });
   });
 
-  check('review_run_start CLI records reviewer-requested full escalation in envelope and signed run', () => {
+  check("Q006", 'review_run_start CLI records reviewer-requested full escalation in envelope and signed run', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const dispatch = runFixtureCli(fixture.root, [
@@ -973,7 +1004,7 @@ try {
     });
   });
 
-  check('unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain', () => {
+  check("Q007", 'unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain', () => {
     const cases = [
       { label: 'agy', provider: 'agy', diagnostic: 'antigravity', competingEnv: {} },
       { label: 'antigravity', provider: 'antigravity', diagnostic: 'antigravity', competingEnv: {} },
@@ -1034,7 +1065,7 @@ try {
     }
   });
 
-  check('Codex and Claude CLI provider aliases complete the thin zero-asset review chain', () => {
+  check("Q008", 'Codex and Claude CLI provider aliases complete the thin zero-asset review chain', () => {
     const primaryCwd = process.cwd();
     for (const selected of [
       { provider: 'codex-cli', host: 'codex' },
@@ -1069,7 +1100,7 @@ try {
     }
   });
 
-  check('shared binding derivation is byte-identical to the former quorum envelopes', () => {
+  check("Q009", 'shared binding derivation is byte-identical to the former quorum envelopes', () => {
     const vector = {
       storyId: STORY_ID,
       headHash: 'head-vector',
@@ -1108,7 +1139,7 @@ try {
     assert.equal(HOST_VERDICT_PROMPT_PURPOSE, 'local voluntary 3x2 review quorum after signed reviewer passes');
   });
 
-  check('shared derivation preserves optional-head and missing-evidence envelopes', () => {
+  check("Q010", 'shared derivation preserves optional-head and missing-evidence envelopes', () => {
     const base = {
       storyId: STORY_ID,
       materialDigest: 'material-vector',
@@ -1130,7 +1161,7 @@ try {
     assert.notEqual(absent.validationDigest, present.validationDigest);
   });
 
-  check('shared derivation fails closed on every required envelope field', () => {
+  check("Q011", 'shared derivation fails closed on every required envelope field', () => {
     const valid = {
       storyId: STORY_ID,
       materialDigest: 'material-vector',
@@ -1148,7 +1179,7 @@ try {
     assert.throws(() => deriveCanonicalHostKeyId('../not-a-story', 'host-vector'), /canonical storyId/);
   });
 
-  check('shared derivation binds every replay-sensitive input', () => {
+  check("Q012", 'shared derivation binds every replay-sensitive input', () => {
     const base = {
       storyId: STORY_ID,
       headHash: 'head-vector',
@@ -1173,7 +1204,7 @@ try {
     assert.notEqual(changedEvidence.validationDigest, original.validationDigest);
   });
 
-  check('worktree-local CLI commits the exact quorum batch through the production entrypoint', () => {
+  check("Q013", 'worktree-local CLI commits the exact quorum batch through the production entrypoint', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -1187,7 +1218,7 @@ try {
     });
   });
 
-  check('mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission', () => {
+  check("Q014", 'mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission', () => {
     withFreshFixture((fixture) => {
       const configPath = join(fixture.root, 'proof-or-stop.config.json');
       const config = JSON.parse(readFileSync(configPath, 'utf8'));
@@ -1214,7 +1245,7 @@ try {
     });
   });
 
-  check('production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt', () => {
+  check("Q015", 'production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt', () => {
     const cases: Array<{
       name: string;
       mutate: (fixture: ReturnType<typeof makeFixture>) => string;
@@ -1263,7 +1294,7 @@ try {
     }
   });
 
-  check('historical RED dirty baseline makes CLI validation refuse canonical PASS persistence', () => {
+  check("Q016", 'historical RED dirty baseline makes CLI validation refuse canonical PASS persistence', () => {
     execFileSync('git', ['cat-file', '-e', `${HISTORICAL_RED_COMMIT}^{commit}`], {
       cwd: IMPLEMENTATION_REPO_ROOT,
       stdio: 'ignore',
@@ -1329,11 +1360,11 @@ try {
     });
   });
 
-  check('refuses when required reviewer passes are absent and writes no verdicts', () => {
+  check("Q017", 'refuses when required reviewer passes are absent and writes no verdicts', () => {
     assertQuorumRefuses(registry, store, root, 'absent reviewer pass refusal');
   });
 
-  check('numerically sufficient compatibility/retired-only receipts cannot authorize quorum', () => {
+  check("Q018", 'numerically sufficient compatibility/retired-only receipts cannot authorize quorum', () => {
     const headHash = currentGitHead(root)!;
     const materialHash = currentMaterialHash(root)!;
     const storyFilesHash = currentStoryFilesHash(root)!;
@@ -1392,7 +1423,7 @@ try {
     store.writeReviewPasses(STORY_ID, { passes: [] });
   });
 
-  check('refuses when reviewer passes are stale and writes no verdicts', () => {
+  check("Q019", 'refuses when reviewer passes are stale and writes no verdicts', () => {
     const checklist = store.readChecklist(STORY_ID);
     store.writeChecklist(STORY_ID, {
       items: [
@@ -1415,7 +1446,7 @@ try {
     assertQuorumRefuses(registry, store, root, 'stale reviewer pass refusal');
   });
 
-  check('machine REVIEW and quorum consume the same full-envelope replay/tamper proof', () => {
+  check("Q020", 'machine REVIEW and quorum consume the same full-envelope replay/tamper proof', () => {
     recordReviewerPasses(registry);
     const machineContext: StoryMachineContext = {
       storyId: STORY_ID,
@@ -1455,7 +1486,7 @@ try {
     assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact envelope bytes restores REVIEW evidence');
   });
 
-  check('explicit full-asset mode binds Claude and Codex independently and rejects selected-host drift', () => {
+  check("Q021", 'explicit full-asset mode binds Claude and Codex independently and rejects selected-host drift', () => {
     const primaryCwd = process.cwd();
     for (const selected of [
       {
@@ -1516,7 +1547,7 @@ try {
   });
 
   let result: any;
-  check('emits exactly rounds x 2 verdicts after current reviewer passes', () => {
+  check("Q022", 'emits exactly rounds x 2 verdicts after current reviewer passes', () => {
     recordReviewerPasses(registry);
     const machineContext: StoryMachineContext = {
       storyId: STORY_ID,
@@ -1662,7 +1693,7 @@ try {
     );
   });
 
-  check('review_escalation_status and review assurance floor report complete voluntary 3x2 rounds', () => {
+  check("Q023", 'review_escalation_status and review assurance floor report complete voluntary 3x2 rounds', () => {
     assert.equal(result.reviewEscalationStatus.voluntaryLocalRounds.validRoundCount, 3);
     assert.equal(result.reviewEscalationStatus.voluntaryLocalRounds.requiredRounds, 3);
     assert.equal(result.reviewEscalationStatus.voluntaryLocalRounds.requiredPassingHostsPerRound, 2);
@@ -1713,7 +1744,7 @@ try {
     assert.equal(assurance.localRounds.ok, true);
   });
 
-  check('auto-computed materialDigest and storyFilesHash match current helpers', () => {
+  check("Q024", 'auto-computed materialDigest and storyFilesHash match current helpers', () => {
     assert.equal(result.materialDigest, currentMaterialHash(root));
     assert.equal(result.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root));
     assert.match(result.validationDigest, /^[0-9a-f]{64}$/);
@@ -1721,7 +1752,7 @@ try {
     assert.match(result.promptDigests.hostB, /^[0-9a-f]{64}$/);
   });
 
-  check('hosts are independent by hostId, sessionId, and keyId', () => {
+  check("Q025", 'hosts are independent by hostId, sessionId, and keyId', () => {
     const { hostA, hostB } = result.hosts;
     assert.notEqual(hostA.hostId.toLowerCase(), hostB.hostId.toLowerCase());
     assert.notEqual(hostA.sessionId.toLowerCase(), hostB.sessionId.toLowerCase());
@@ -1734,7 +1765,7 @@ try {
     }
   });
 
-  check('never sets authorityDone, fullAuthorityDone, or productionDone', () => {
+  check("Q026", 'never sets authorityDone, fullAuthorityDone, or productionDone', () => {
     assert.equal(result.authorityDone, false);
     assert.equal(result.fullAuthorityDone, false);
     assert.equal(result.productionDone, false);
@@ -1749,7 +1780,7 @@ try {
     }
   });
 
-  check('refuses a same-material re-submit and writes no new verdicts', () => {
+  check("Q027", 'refuses a same-material re-submit and writes no new verdicts', () => {
     // No material change since the rounds=3 quorum above, so runIds r1..r3 already carry
     // verdicts at the current materialDigest. A second quorum_submit must refuse instead of
     // silently piling duplicate verdicts onto the same runIds.
@@ -1774,7 +1805,7 @@ try {
     assert.equal(verdictFileCount(root), beforeVerdicts, 'same-material refusal writes no verdict files');
   });
 
-  check('same-material duplicate refusal survives deletion of the ignored verdict cache', () => {
+  check("Q028", 'same-material duplicate refusal survives deletion of the ignored verdict cache', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       fixture.registry.get('quorum_submit')!(quorumArgs());
@@ -1790,7 +1821,7 @@ try {
     });
   });
 
-  check('allows a fresh quorum after a material change', () => {
+  check("Q029", 'allows a fresh quorum after a material change', () => {
     // A real material change (new commit) yields a different materialDigest, so the guard
     // does not collide and a fresh quorum is allowed for the same runIds.
     commitMaterialChange(root);
@@ -1818,7 +1849,7 @@ try {
     }
   });
 
-  check('--rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds', () => {
+  check("Q030", '--rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds', () => {
     // INIT product-reviewer advisory: prove the rounds knob is honored for N != 3.
     // Advance the material first so the rounds=2 quorum runs at a fresh materialDigest and
     // does not collide with the r1/r2 verdicts already written at earlier materials.
@@ -1855,7 +1886,7 @@ try {
     assert.equal(customResult.productionDone, false);
   });
 
-  check('refuses a redundant re-submit when the standing quorum drift-accepts', () => {
+  check("Q031", 'refuses a redundant re-submit when the standing quorum drift-accepts', () => {
     // B-3144 RED: after a merge that moves materialHash but NOT storyFilesHash, the floor
     // still accepts the standing quorum (eventsWithStoryFilesHashDowngrade rewrites its
     // verdicts to the current material), so a redundant re-submit must be REFUSED. Pre-fix,
@@ -1952,7 +1983,7 @@ try {
     });
   });
 
-  check('blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch', () => {
+  check("Q032", 'blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch', () => {
     // CHK-002:edge:0 (OQ-1): legacy verdict events written before storyFilesHash existed carry
     // no drift-accept claim, so the guard must not fabricate a collision from a blank field —
     // the resubmission proceeds exactly as it did pre-fix.
@@ -1978,7 +2009,7 @@ try {
     });
   });
 
-  check('EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)', () => {
+  check("Q033", 'EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)', () => {
     // F-035: mirrors eventsWithStoryFilesHashDowngrade's top-level EMPTY_STORY_FILES_HASH
     // exclusion (review-escalation.ts:975). When the story owns ZERO files (current
     // storyFilesHash === sha256('')), the floor never drift-accepts ANY event -- two
@@ -2015,7 +2046,7 @@ try {
     });
   });
 
-  check('a second main drift does not circumvent the drift-accept refusal', () => {
+  check("Q034", 'a second main drift does not circumvent the drift-accept refusal', () => {
     // CHK-002:adversarial:0: merging main twice moves the material again but the story-owned
     // diff is still untouched, so the standing quorum still drift-accepts and the guard must
     // keep refusing.
@@ -2033,7 +2064,7 @@ try {
     });
   });
 
-  check('a story-owned file change after main drift makes the re-quorum genuine again', () => {
+  check("Q035", 'a story-owned file change after main drift makes the re-quorum genuine again', () => {
     // CHK-002:adversarial:1 boundary: once the story-owned diff itself changes (storyFilesHash
     // moves), the old verdicts no longer drift-accept and a fresh quorum is legitimate even
     // though a main drift also happened.
@@ -2050,7 +2081,7 @@ try {
     });
   });
 
-  check('refuses pre-existing user dirt before writing any verdict', () => {
+  check("Q036", 'refuses pre-existing user dirt before writing any verdict', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       write(fixture.root, 'user-notes.txt', 'preserve me\n');
@@ -2066,7 +2097,7 @@ try {
     });
   });
 
-  check('foreign append fails exact verification and rolls back only the six owned verdicts', () => {
+  check("Q037", 'foreign append fails exact verification and rolls back only the six owned verdicts', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2086,7 +2117,7 @@ try {
     });
   });
 
-  check('capture-time failure rolls back the just-written event and verdict JSON', () => {
+  check("Q038", 'capture-time failure rolls back the just-written event and verdict JSON', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
@@ -2102,7 +2133,7 @@ try {
     });
   });
 
-  check('between-row foreign append preserves foreign bytes and rolls back row two', () => {
+  check("Q039", 'between-row foreign append preserves foreign bytes and rolls back row two', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
@@ -2119,7 +2150,7 @@ try {
     });
   });
 
-  check('writer-owned append identity never claims a foreign row inserted before host_verdict', () => {
+  check("Q040", 'writer-owned append identity never claims a foreign row inserted before host_verdict', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
@@ -2148,7 +2179,7 @@ try {
     });
   });
 
-  check('rollback never deletes an owned-row byte sequence embedded inside foreign binary', () => {
+  check("Q041", 'rollback never deletes an owned-row byte sequence embedded inside foreign binary', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
@@ -2188,7 +2219,7 @@ try {
     });
   });
 
-  check('same-verdictId mutation of a gate-consumed field is refused and rolled back', () => {
+  check("Q042", 'same-verdictId mutation of a gate-consumed field is refused and rolled back', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2212,7 +2243,7 @@ try {
     });
   });
 
-  check('rollback preserves a concurrently changed verdict JSON with the same verdictId', () => {
+  check("Q043", 'rollback preserves a concurrently changed verdict JSON with the same verdictId', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       let changedPath = '';
@@ -2237,7 +2268,7 @@ try {
     });
   });
 
-  check('rollback preserves non-UTF8 blank and unterminated foreign suffix bytes exactly', () => {
+  check("Q044", 'rollback preserves non-UTF8 blank and unterminated foreign suffix bytes exactly', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
@@ -2254,7 +2285,7 @@ try {
     });
   });
 
-  check('commit-hook rejection rolls back all rows and a clean retry succeeds once', () => {
+  check("Q045", 'commit-hook rejection rolls back all rows and a clean retry succeeds once', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2277,7 +2308,7 @@ try {
     });
   });
 
-  check('atomic quorum commit hashes process-events larger than one MiB', () => {
+  check("Q046", 'atomic quorum commit hashes process-events larger than one MiB', () => {
     withFreshFixture((fixture) => {
       seedLargeCommittedProcessEvents(fixture);
       recordReviewerPasses(fixture.registry);
@@ -2299,7 +2330,7 @@ try {
     });
   });
 
-  check('large atomic quorum commit still rejects a post-manifest mutation', () => {
+  check("Q047", 'large atomic quorum commit still rejects a post-manifest mutation', () => {
     withFreshFixture((fixture) => {
       const processEvents = seedLargeCommittedProcessEvents(fixture);
       recordReviewerPasses(fixture.registry);
@@ -2320,7 +2351,7 @@ try {
     });
   });
 
-  check('HEAD movement loses the CAS without reverting the competing HEAD', () => {
+  check("Q048", 'HEAD movement loses the CAS without reverting the competing HEAD', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2343,7 +2374,7 @@ try {
     });
   });
 
-  check('rollback conflict preserves competing prefix bytes and removes every countable verdict', () => {
+  check("Q049", 'rollback conflict preserves competing prefix bytes and removes every countable verdict', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
@@ -2366,7 +2397,7 @@ try {
     });
   });
 
-  check('rejects non-independent host identity before writing additional verdicts', () => {
+  check("Q050", 'rejects non-independent host identity before writing additional verdicts', () => {
     const beforeEvents = hostVerdictEventCount(store);
     const beforeVerdicts = verdictFileCount(root);
     const handler = registry.get('quorum_submit')!;
@@ -2385,7 +2416,7 @@ try {
     assert.equal(verdictFileCount(root), beforeVerdicts);
   });
 
-  check('quorum_prune dry-run lists the poisoned duplicates without mutating', () => {
+  check("Q051", 'quorum_prune dry-run lists the poisoned duplicates without mutating', () => {
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
       const eventsPath = quorumProcessEventsPath(fixture);
@@ -2422,7 +2453,7 @@ try {
     });
   });
 
-  check('quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2', () => {
+  check("Q052", 'quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2', () => {
     withFreshFixture((fixture) => {
       const { originalHostVerdictLines } = injectPoisonedDuplicates(fixture);
       const eventsPath = quorumProcessEventsPath(fixture);
@@ -2459,7 +2490,7 @@ try {
     });
   });
 
-  check('quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)', () => {
+  check("Q053", 'quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)', () => {
     // CHK-003:happy:2 (F-004): every in-scope wiring point, including the config.ts
     // DEFAULT_PHASE_TOOLS entry, is verified BEHAVIORALLY by this bound command.
     assert.ok(
@@ -2491,7 +2522,7 @@ try {
     });
   });
 
-  check('quorum_prune refuses when there is nothing to prune', () => {
+  check("Q054", 'quorum_prune refuses when there is nothing to prune', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       fixture.registry.get('quorum_submit')!(quorumArgs());
@@ -2506,7 +2537,7 @@ try {
     });
   });
 
-  check('quorum_prune apply refuses on a dirty tree before any mutation', () => {
+  check("Q055", 'quorum_prune apply refuses on a dirty tree before any mutation', () => {
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
       const eventsPath = quorumProcessEventsPath(fixture);
@@ -2524,7 +2555,7 @@ try {
     });
   });
 
-  check('quorum_prune keeps exactly one event per group for a triple-duplicate', () => {
+  check("Q056", 'quorum_prune keeps exactly one event per group for a triple-duplicate', () => {
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture, { copies: 2 });
       const dry: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, json: true });
@@ -2543,7 +2574,7 @@ try {
     });
   });
 
-  check('quorum_prune runIds filter prunes only the specified runIds', () => {
+  check("Q057", 'quorum_prune runIds filter prunes only the specified runIds', () => {
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
       const targetRunId = `${STORY_ID}-q-r1`;
@@ -2561,7 +2592,7 @@ try {
     });
   });
 
-  check('quorum_prune preserves interleaved non-host_verdict lines byte-identically', () => {
+  check("Q058", 'quorum_prune preserves interleaved non-host_verdict lines byte-identically', () => {
     withFreshFixture((fixture) => {
       const interleave = JSON.stringify({ type: 'review_run', marker: 'B-3144-preserve-interleaved', reviewRunId: 'B-3144-interleave' });
       const { originalHostVerdictLines } = injectPoisonedDuplicates(fixture, { interleaveLine: interleave });
@@ -2577,7 +2608,7 @@ try {
     });
   });
 
-  check('quorum_prune keep:oldest-material inverts which duplicate survives', () => {
+  check("Q059", 'quorum_prune keep:oldest-material inverts which duplicate survives', () => {
     withFreshFixture((fixture) => {
       const { first } = injectPoisonedDuplicates(fixture);
       const applied: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, keep: 'oldest-material', json: true });
@@ -2594,7 +2625,7 @@ try {
     });
   });
 
-  check('quorum_prune refuses an uncommitted process-events file', () => {
+  check("Q060", 'quorum_prune refuses an uncommitted process-events file', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
       fixture.registry.get('quorum_submit')!(quorumArgs());
@@ -2621,7 +2652,7 @@ try {
     });
   });
 
-  check('quorum_prune never overwrites a previous run backup', () => {
+  check("Q061", 'quorum_prune never overwrites a previous run backup', () => {
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
       const firstPrune: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
@@ -2646,7 +2677,7 @@ try {
     });
   });
 
-  check('quorum_prune apply leaves a clean worktree and a second apply needs no manual git', () => {
+  check("Q062", 'quorum_prune apply leaves a clean worktree and a second apply needs no manual git', () => {
     // F-002/F-007 RED: the pre-prune backup is written into the GIT-TRACKED story dir while the
     // prune transaction stages only process-events.jsonl. Unless the backup name genuinely
     // matches the repository's `*.bak` ignore pattern it survives as untracked dirt, and both
@@ -2698,7 +2729,7 @@ try {
     });
   });
 
-  check('quorum_prune apply through the production CLI under codex leaves no process-event dirt', () => {
+  check("Q063", 'quorum_prune apply through the production CLI under codex leaves no process-event dirt', () => {
     // F-001 RED: cli-engine's generic post-handler codex_cli process-event append must exclude
     // quorum_prune exactly as it excludes quorum_submit, otherwise it re-dirties the very
     // process-events.jsonl the handler just atomically committed. runFixtureCli sets
@@ -2728,7 +2759,7 @@ try {
     });
   });
 
-  check('quorum_prune --dryRun is a real declared flag, is honored, and refuses when combined with --apply', () => {
+  check("Q064", 'quorum_prune --dryRun is a real declared flag, is honored, and refuses when combined with --apply', () => {
     // F-008/F-009 RED: without a `dryRun` schema field, `--dryRun` is silently swallowed by the
     // non-strict flag parser and help-renderer falls through to "Dry-run: always-on", which
     // inverts the safety boundary for a command whose apply path really does mutate git state.
@@ -2767,7 +2798,7 @@ try {
     });
   });
 
-  check('quorum_prune dryRun:false executes instead of being a silent no-op', () => {
+  check("Q065", 'quorum_prune dryRun:false executes instead of being a silent no-op', () => {
     // F-010 RED: an explicit dryRun:false used to fall through to the projection path, so an
     // operator who said "do not dry-run" got a dry run anyway and CHK-003's userSees promise
     // ("without --dryRun it backs up, removes them, commits") was false. Omitting dryRun must
@@ -2799,7 +2830,7 @@ try {
     });
   });
 
-  check('quorum_prune refuses the symmetric apply:false + dryRun:false conflict', () => {
+  check("Q066", 'quorum_prune refuses the symmetric apply:false + dryRun:false conflict', () => {
     // F-012 RED: the F-010 fix resolved `apply === true || dryRun === false`, so {apply:false,
     // dryRun:false} silently EXECUTED a backup+rewrite+commit against an explicit apply:false —
     // resolving a contradiction toward the more dangerous side, which is exactly what the
@@ -2822,7 +2853,7 @@ try {
     });
   });
 
-  check('every quorum_prune apply/dryRun description states both executors', () => {
+  check("Q067", 'every quorum_prune apply/dryRun description states both executors', () => {
     // F-011 RED: the F-010 fix updated only the dryRun field description and one comment, leaving
     // five other prose sites claiming apply:true was the sole mutation trigger — including the
     // catalog's top-level description, which is the FIRST line of --help and contradicted the
@@ -3090,7 +3121,7 @@ try {
     });
   });
 
-  check('quorum_prune refuses a non-pass duplicate group instead of laundering the round (F-024)', () => {
+  check("Q068", 'quorum_prune refuses a non-pass duplicate group instead of laundering the round (F-024)', () => {
     // F-024 RED: grouping by runId + host/session/key with NO look at `decision` or the required
     // binding fields makes this recovery command able to CHANGE a verdict. A decision=fail row
     // standing before a passing row with the same identities is a duplicate group like any other,
@@ -3191,7 +3222,7 @@ try {
     });
   });
 
-  check('quorum_prune never deletes a verdict cache path outside the story verdict dir (F-025)', () => {
+  check("Q069", 'quorum_prune never deletes a verdict cache path outside the story verdict dir (F-025)', () => {
     // F-025 RED: the losing rows' verdictIds come from a committed log, i.e. untrusted input, and
     // were joined straight into `<verdictId>.json`. A crafted id resolves out of the gitignored
     // verdict cache and rmSync deletes a real repository file — after the evidence commit, so the
@@ -3250,7 +3281,7 @@ try {
     });
   });
 
-  check('quorum_prune holds the shared append lock across read and rewrite (F-026)', () => {
+  check("Q070", 'quorum_prune holds the shared append lock across read and rewrite (F-026)', () => {
     // F-026 RED: the source bytes were read at the TOP of the handler — before the clean checks and
     // the transaction capture — and the rewrite never took the append lock ordinary process-event
     // writers must take (core/process-events.ts). Any row appended between that read and the
@@ -3311,7 +3342,7 @@ try {
     });
   });
 
-  check('quorum_prune installs the pruned log by atomic rename, never an in-place overwrite (F-027)', () => {
+  check("Q071", 'quorum_prune installs the pruned log by atomic rename, never an in-place overwrite (F-027)', () => {
     // F-027 RED: the rewrite was a plain in-place writeFileSync, which truncates first. A SIGKILL
     // or power loss between the truncate and the final write leaves a PARTIAL canonical log and the
     // catch-path rollback never runs, while the surrounding prose called the operation atomic. The
@@ -3347,7 +3378,7 @@ try {
     });
   });
 
-  check('quorum_submit re-checks the duplicate guard against the captured HEAD (F-028)', () => {
+  check("Q072", 'quorum_submit re-checks the duplicate guard against the captured HEAD (F-028)', () => {
     // F-028 RED: the committed-event duplicate check ran BEFORE the clean-baseline check and the
     // transaction capture, so it answered a question about a HEAD the transaction never used. Two
     // reviewer-write invocations can both observe "no standing quorum"; if one commits before the
@@ -3404,7 +3435,7 @@ try {
     });
   });
 
-  check('quorum_submit compares the same-material guard on the normalized digest (F-029)', () => {
+  check("Q073", 'quorum_submit compares the same-material guard on the normalized digest (F-029)', () => {
     // F-029 RED: the same-material branch compared the RAW committed value while the consumer
     // (core/host-independence.ts) normalizes it. A verdict whose materialDigest carries surrounding
     // whitespace therefore COUNTS at the floor but escapes BOTH producer branches: raw equality is
@@ -3481,7 +3512,16 @@ try {
     });
   });
 
-  console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);
+  assert.equal(liveManifest.length,QUORUM_CASES.length,'MISSING_QUORUM_REGISTRATION');
+  if(listCases)console.log('QUORUM_CASE_MANIFEST:'+JSON.stringify(liveManifest));
+  else {
+    assert.deepEqual(executedCases.map(c=>c.id),selected,'QUORUM_EXECUTION_COVERAGE_MISMATCH');
+    const result:QuorumRunResult={schema:'quorum-case-run.v1',cases:executedCases,manifest:liveManifest};
+    if(resultFile)writeFileSync(resultFile,JSON.stringify(result,null,2)+'\n');
+    if(process.env.PROOF_OR_STOP_QUORUM_REPORT)writeFileSync(process.env.PROOF_OR_STOP_QUORUM_REPORT,JSON.stringify(result,null,2)+'\n');
+    if(GREP_FILTER!==undefined||requestedCases!==undefined)console.log(`QUORUM_DIAGNOSTIC_SELECTION_PASSED (${passed} checks)`);
+    else console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);
+  }
 } finally {
   process.chdir(previousCwd);
   rmSync(root, { recursive: true, force: true });
