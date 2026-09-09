@@ -487,7 +487,7 @@ const treeMemo = new Map<string, { sha: string; raw: string; bytes: number }>();
 let treeMemoBytes = 0;
 function readCommittedTree(gitCwd: string, ref: string): string {
   const cwd = realpathSync(gitCwd);
-  const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{tree}`], {
+  const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], {
     cwd, ...GIT_EXEC_OPTS,
   }).trim();
   const previous = treeMemo.get(cwd);
