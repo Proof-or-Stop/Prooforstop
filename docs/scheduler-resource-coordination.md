@@ -35,3 +35,21 @@ machine resource coordination.
 `node scripts/verify-reviewer-temp-isolation.mjs` launches two real Node provider
 processes, checks their distinct source and temporary roots, and verifies terminal
 cleanup of the files they actually created.
+
+Declared fixed ports now use a shared queue under the OS user's runtime directory,
+independent of repository and TMPDIR. Actual validation command capture and
+full-suite members acquire this queue; outer workspace capacity remains separate.
+Exclusive ports receive real bind/close probes for both address families and
+concrete local interface addresses before a child starts. macOS permits a wildcard
+listener alongside a concrete-address listener, so wildcard probes alone are insufficient.
+An unavailable address family fails closed; IPv4-only operation is not yet a declared mode. This
+rejects a listener left by a dead owner too, but cannot prevent an unrelated
+application from claiming the port after preflight. Shared claims can use an
+existing service. Queue waits consume the command deadline and observe cancellation.
+
+Declare the port on its actual executing member. The precert aggregate delegates
+to those members and does not hold their ports while waiting. A conflicting
+ancestor-owned ticket is refused instead of allowing a parent/child wait cycle.
+The SIGINT runner fixture preserves the complete canonical inventory and starts
+a port-free synthetic hanger first; cancellation prevents pending members from launching. This layer coordinates fixed ports for the same OS user;
+machine CPU/process capacity and undeclared cross-repository resources are separate.

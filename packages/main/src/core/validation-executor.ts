@@ -1,3 +1,4 @@
+import { withMachineFixedPorts } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
@@ -1357,6 +1358,14 @@ function runValidationCommandWithCompleteOutput(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<CapturedValidationCommandResult> {
+  if (!command.resources?.some(claim => claim.class === 'fixed-port')) return captureValidationCommand(command, projectRoot, defaultTimeoutMs, options);
+  const deadlineAt = Math.min(options.deadlineAt ?? Infinity, Date.now() + resolveCommandTimeoutMs(command, defaultTimeoutMs));
+  return withMachineFixedPorts({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
+    resources: command.resources, abortSignal: options.abortSignal, deadlineAt,
+    deadlineError: options.deadlineError }, () => captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }));
+}
+
+function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions): Promise<CapturedValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);

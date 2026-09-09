@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { withMachineFixedPorts } from '../core/validation-execution-lock.js';
 
 import { spawn, execFileSync } from 'node:child_process';
 import { availableParallelism, tmpdir } from 'node:os';
@@ -595,6 +596,20 @@ export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { int
 export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
+  if (!entry.resources.some(claim => claim.class === 'fixed-port')) return executeFullSuiteEntry(entry, cwd, npmCommand, onSpawn, state);
+  const deadlineAt = Date.now() + (entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  try {
+    return await withMachineFixedPorts({ root: cwd, workspaceRoot: cwd, command: entry.name, resources: entry.resources, deadlineAt,
+      externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
+      () => executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state));
+  } catch (error) {
+    const reason = state.cancellationReason ?? state.interruptSignal ?? (error instanceof Error ? error.message : String(error));
+    const status = state.cancellationReason || state.interruptSignal ? 'INTERRUPTED' : Date.now() >= deadlineAt ? 'TIMEOUT' : 'FAIL';
+    return { ...cancelledFullSuiteResult(entry, reason), status, failureOutcome: { status, reason } };
+  }
+}
+
+async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);

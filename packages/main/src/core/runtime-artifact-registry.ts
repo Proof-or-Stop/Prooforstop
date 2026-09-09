@@ -1,3 +1,4 @@
+export const MACHINE_FIXED_PORT_ARTIFACT = { directoryName: 'machine-fixed-port-capacity', location: 'os-user-home-runtime-locks' } as const;
 export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
 
 import { execFileSync } from 'node:child_process';

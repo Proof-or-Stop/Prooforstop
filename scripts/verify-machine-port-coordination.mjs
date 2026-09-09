@@ -33,6 +33,7 @@ try {
  const same=await pair(a,a,port,'same');assert.deepEqual(same.map(x=>x.code),[0,0],JSON.stringify(same));
  const cross=await pair(a,b,port,'cross');assert.deepEqual(cross.map(x=>x.code),[0,0],`U08 actual validation children must coordinate fixed ports across repositories: ${JSON.stringify(cross)}`);
  assert.ok(cross.every(x=>x.output.includes('BOUND')),'both real providers execute successfully');
+ execFileSync(process.execPath, [resolve('scripts/verify-machine-port-boundaries.mjs')], { stdio: 'inherit', timeout: 60000 });
  console.log('PASS U08 real cross-process cross-repository fixed-port coordination');
 } finally {
  for(const child of children)if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');

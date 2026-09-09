@@ -64,6 +64,12 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');
+  check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
+    && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),
+    'machine port coordination must bind OS-user location, real preflight and ancestor refusal');
+  for (const path of ['packages/main/src/core/validation-executor.ts', 'packages/main/src/tasks/full-suite-runner.ts'])
+    check(read(root,path).includes('withMachineFixedPorts'), `${path} must acquire machine ports at actual child execution`);
   const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
   check(managedHost.includes("if (!readManagedReviewScratchCleanupDiagnostic(paths)) throw new Error"),
     'cleanup diagnostic idempotency must not swallow non-file persistence failures');
