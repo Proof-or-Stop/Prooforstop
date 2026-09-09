@@ -4,6 +4,7 @@
   "mode": "maintenance",
   "allowed": [
     "Create docs/audits/repro-first-gate-enforce-plan-claude-audit.md",
+    "Repair the stale plan backlink in docs/requirements/decisions/red-evidence-subsystem-spec.md",
     "Revise docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
     "Run read-only inspection and Claude CLI audit commands",
     "Use the full Story lifecycle for the documentation change"
@@ -14,9 +15,9 @@
     "RED/GREEN subsystem implementation",
     "Runtime source changes"
   ],
-  "confirmedBy": "codex-main",
-  "confirmationNote": "The user explicitly requested a Markdown plan followed by Claude CLI audit on 2026-09-09.",
-  "createdAt": "2026-09-09T22:32:35.126Z",
-  "updatedAt": "2026-09-09T22:32:35.126Z",
-  "_hash": "fcaaf286d9407e4434962ba94e1e293689e29b2a4e46f0d4a4e593a8d13aa171"
+  "confirmedBy": "jek",
+  "confirmationNote": "The user requested a Markdown enforcement plan and Claude CLI audit; related spec backlink repair is necessary to keep the chosen truth source coherent.",
+  "createdAt": "2026-09-09T22:51:58.006Z",
+  "updatedAt": "2026-09-09T22:51:58.006Z",
+  "_hash": "9005f19e12c3138b9e4ba64662f4d6cec2f1aaebb894731bb6712fd970f36907"
 }
