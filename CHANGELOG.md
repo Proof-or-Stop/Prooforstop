@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab b03b7-review-context-trigger-intent - v0.3.295 - 2026-09-09
+
+# B-03b7 historical-recall verification-intent repair
+
+## Problem
+
+After the first nominal trigger-list repair, B-03b7 REVIEW advanced to its frozen CHK-004 happy verification intent and stopped before creating any reviewer run. The intent asks tests to exercise severity escalation and owner invalidation as separate historical-recall triggers. The prompt safety scanner treated their co-occurrence as a claim that severity alone decides Story ownership.
+
+## Behavior change
+
+The scanner now recognizes the exact two-sentence B-03b7 historical-recall verification intent as test metadata. The allowance requires verificationIntent provenance, exactly two normalized segments, the complete closed trigger inventory, and the complete non-authoritative once-only recall outcome. Any added sentence, altered authority relation, or use on a Story/checklist surface falls back to the normal fail-closed scanner.
+
+## Verification
+
+RED reproduced the exact frozen intent and failed with `B03B7_TRIGGER_INTENT_SAFE` plus `severity used as sole ownership or scope authority`. GREEN replays the identical `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js` command. The regression includes a mutation control that appends `Severity alone decides Story scope`; that variant remains rejected. The full prompt-envelope attack matrix must also retain `B7ABB_SETUP_CONTROLS PASS`, `B7ABB_REFERENCE_ASSEMBLY PASS`, `B7ABB_SIGNED_LAUNCH PASS`, and `prompt full-context envelope smoke PASS`.
+
+Maintenance provenance: codex/lab-b03b7-review-context-trigger-intent, repair 60b8c6fc252483ee7bcfb4d19b342d4265c39de3.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b03b7-review-context-trigger-list - v0.3.294 - 2026-09-09
 
 # B-03b7 reviewer-context trigger-list repair
