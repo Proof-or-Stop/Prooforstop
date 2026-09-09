@@ -1,3 +1,4 @@
+import { runSupervisedProviderProcess } from '../providers/supervised-process.js';
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
@@ -1807,7 +1808,8 @@ function compactProcessOutputForWarning(...values: string[]): string {
     .slice(0, 500);
 }
 
-function spawnTimedOut(result: ReturnType<typeof spawnSync>, timeoutMs: number): boolean {
+function spawnTimedOut(result: Pick<ReturnType<typeof spawnSync>, 'status' | 'error'> & { signal?: NodeJS.Signals | null; timedOut?: boolean }, timeoutMs: number): boolean {
+  if (typeof result.timedOut === 'boolean') return result.timedOut;
   const error = result.error as NodeJS.ErrnoException | undefined;
   const message = String(error?.message || '');
   return error?.code === 'ETIMEDOUT'
@@ -1816,7 +1818,7 @@ function spawnTimedOut(result: ReturnType<typeof spawnSync>, timeoutMs: number):
     || (result.status === null && timeoutMs > 0 && Boolean(error));
 }
 
-function spawnExitCode(result: ReturnType<typeof spawnSync>, timedOut: boolean): number {
+function spawnExitCode(result: Pick<ReturnType<typeof spawnSync>, 'status' | 'error'> & { signal?: NodeJS.Signals | null }, timedOut: boolean): number {
   if (typeof result.status === 'number') return result.status;
   return timedOut ? 124 : 1;
 }
@@ -2496,6 +2498,7 @@ function runBoundedRealLeafDispatch(
   let result;
   try {
     result = runner({
+      admission,
       provider: hostKind,
       argv,
       cwd: worktreeAbs,
@@ -2738,12 +2741,11 @@ function runClaudeCodeRealLeafDispatch(
   }
   let result;
   try {
-    result = spawnSync('claude', spawnArgs, {
+    result = runSupervisedProviderProcess('claude', spawnArgs, {
+      admission,
       cwd: worktreeAbs,
       env: commandEnv,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: timeoutMs,
+      timeoutMs,
     });
   } finally {
     releaseProviderProcessAdmission(admission);

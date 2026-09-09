@@ -8656,6 +8656,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   for (const invariant of ['readTrustedProofStoryScopeArtifacts', 'inspectChild(id)', 'store.storyExists(id)', 'parentLedgerId', 'verificationIntentRefs', 'decomposition must cover every parent milestone']) assert(decomposition.includes(invariant), `scope decomposition requires ${invariant}`);
   assert(read('packages/main/src/core/story-scope-budget.ts').includes('readScopeDecomposition(store, subject'), 'scope budget must consume live decomposition coverage');
   assert(registrySource.includes("name: 'runtime:machine_provider_admission'"), 'machine provider admission must be a registered process fact');
+  assert(registrySource.includes('packages/main/src/providers/supervised-process-worker.ts'), 'synchronous provider lifecycle must be registered');
   const budgetDecision = read('packages/main/src/core/story-scope-budget-decisions.ts');
   for (const invariant of ['assertOperator(args)', 'withReviewInventoryMutationLock', 'verifyValidationArtifact', 'report.bindingDigest !== args.bindingDigest', 'currentScopeBudgetApproval', 'expiresAt']) {
     assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);

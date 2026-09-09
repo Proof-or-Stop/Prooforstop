@@ -34,6 +34,7 @@ export interface ProviderProcessAdmissionRequest {
 
 export interface ProviderProcessAdmission {
   admitted: boolean;
+  supervisedLifecycle?: { replacementSafe: boolean };
   slot: AcquiredProviderProcessSlot | null;
   machineSlot?: AcquiredProviderProcessSlot | null;
   capacityScope?: 'project' | 'machine';
@@ -85,7 +86,7 @@ export function releaseProviderProcessAdmission(
   admission: ProviderProcessAdmission | null,
   options: ProviderProcessAdmissionReleaseOptions = {},
 ): void {
-  if (!admission) return;
+  if (!admission || admission.supervisedLifecycle?.replacementSafe === false) return;
   try {
     if (admission.slot) releaseProviderProcessSlotBestEffort(admission.slot.file, admission.slot.token,
       options.onFailure, options.lockTiming, options.mutationOps);

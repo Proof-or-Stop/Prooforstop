@@ -117,6 +117,13 @@ zero launch on refusal, rollback, and a real detached provider surviving its
 worker and then exiting naturally. Tests isolate the OS-home lookup in their own
 processes; production has no alternate-pool environment switch.
 
-This admission contract does not establish descendant supervision for legacy
-synchronous provider launchers. Their lifecycle integration remains a separate
-requirement; neither this test nor a Lab GREEN is full U-08 product acceptance.
+Synchronous planned/dispatch providers now execute through an isolated bridge.
+The bridge transfers both slots before spawning a provider into its own process
+group. Provider output cannot write the separate control pipe. Release and retry
+require a control result plus observed group exit; missing control proof retains
+capacity. A normal provider exit also triggers cleanup of ordinary same-group
+descendants. Daemon/setsid escape is outside this process-group contract.
+`node scripts/verify-planned-provider-group-lifecycle.mjs` exercises the actual
+planned executor; `node scripts/verify-supervised-provider-boundaries.mjs` covers
+output fidelity, missing binaries and timeout cleanup. These bounded checks do
+not establish full U-08 product acceptance.

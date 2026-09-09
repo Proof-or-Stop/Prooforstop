@@ -1937,9 +1937,9 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     name: 'runtime:machine_provider_admission', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state'], producer: 'core/provider-process-admission',
     producerSourceRefs: ['packages/main/src/core/provider-process-admission.ts', 'packages/main/src/core/provider-process-registry.ts'],
-    consumerSourceRefs: ['packages/main/src/core/host-run.ts', 'packages/main/src/core/proof-or-stop-dispatch.ts', 'packages/main/src/core/planned-steps-executor.ts'],
+    consumerSourceRefs: ['packages/main/src/core/host-run.ts', 'packages/main/src/core/proof-or-stop-dispatch.ts', 'packages/main/src/core/planned-steps-executor.ts', 'packages/main/src/providers/supervised-process.ts', 'packages/main/src/providers/supervised-process-worker.ts'],
     consumerGate: 'Every admission adapter acquisition requires both project capacity and canonical OS-user machine capacity before launch',
-    rationale: 'Project configuration cannot raise the machine pool. Machine refusal releases the local reservation. Identity-aware launchers transfer both tokens to provider groups; release attempts both and unsafe provider results retain capacity. Admission does not itself prove that legacy synchronous launchers supervise descendants.',
+    rationale: 'Project configuration cannot raise the machine pool. Machine refusal releases the local reservation. Identity-aware launchers transfer both tokens to provider groups; release attempts both and unsafe provider results retain capacity. Synchronous launchers transfer both tokens before provider execution and release only after an independent control result and observed group exit; unknown cleanup forbids retry. Ordinary same-group descendants are covered, not daemon process-group escape.',
   },
   {
     name: 'runtime:story_scope_budget', kind: 'runtime-behavior', level: 'L4',

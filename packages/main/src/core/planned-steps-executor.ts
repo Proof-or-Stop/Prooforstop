@@ -459,6 +459,7 @@ function executeRealProviderStep(
   let result: ProviderExecResult;
   try {
     result = ctx.executor.run({
+      admission,
       provider,
       argv,
       cwd: ctx.root,

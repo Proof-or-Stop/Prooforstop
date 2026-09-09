@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
@@ -34,14 +35,26 @@ console.log('ACTUAL_PLANNED_EXECUTED');
 `);
  worker=spawn(process.execPath,[workerFile],{detached:true,stdio:['ignore','pipe','pipe']});let out='';worker.stdout.on('data',x=>out+=x);worker.stderr.on('data',x=>out+=x);
  const code=await new Promise(r=>worker.once('close',r));assert.equal(code,0,out);assert.match(out,/ACTUAL_PLANNED_EXECUTED/);
- const identity=JSON.parse(readFileSync(identityFile,'utf8'));providerPid=identity.pgid;assert.equal(identity.pgid,worker.pid,'ordinary descendant stays in isolated worker group');process.kill(-providerPid,0);
- const denied=api.acquireProviderProcessAdmission(request(contenderRoot));held.push(denied);console.log('OBSERVED admission while actual planned-provider descendant alive:',denied.admitted);assert.equal(denied.admitted,false,'RED: actual planned executor released machine slot while provider descendant still alive');
- console.log('PASS worker exited; live actual provider PGID retains machine slot');
- writeFileSync(stop,'exit');let gone=false;for(let i=0;i<200;i++){try{process.kill(-providerPid,0);}catch(e){if(e.code==='ESRCH'){gone=true;break;}if(e.code!=='EPERM')throw e; const rows=execFileSync('ps',['-axo','pgid='],{encoding:'utf8'}).trim().split(/\s+/);if(!rows.includes(String(providerPid))){gone=true;break;}}await sleep(25);}assert.ok(gone,'provider group naturally exited');providerGone=true;providerPid=undefined;
- const after=api.acquireProviderProcessAdmission(request(contenderRoot));held.push(after);assert.ok(after.admitted,'machine slot reclaimed after actual group exit');console.log('PASS natural group exit releases machine capacity for another repo');
+ const identity=JSON.parse(readFileSync(identityFile,'utf8'));providerPid=identity.pgid;
+ assert.ok(Number.isSafeInteger(providerPid)&&providerPid>1);
+ assert.notEqual(providerPid,Number(execFileSync('ps',['-o','pgid=','-p',String(process.pid)],{encoding:'utf8'}).trim()),'provider group must be isolated from test controller');
+ const rows=execFileSync('ps',['-axo','pgid='],{encoding:'utf8'}).trim().split(/\s+/);
+ const remains=rows.includes(String(providerPid));
+ const denied=api.acquireProviderProcessAdmission(request(contenderRoot));held.push(denied);
+ assert.equal(remains&&denied.admitted,false,'RED: actual planned executor released machine slot while provider descendant still alive');
+ if(!remains){assert.ok(denied.admitted,'cleaned process group permits replacement');providerGone=true;providerPid=undefined;console.log('PASS actual planned executor cleans its ordinary descendant group before capacity reuse');}
+ else { assert.equal(denied.capacityScope,'machine');console.log('PASS live actual provider group retains machine capacity'); }
+ if(providerPid){writeFileSync(stop,'exit');let gone=false;for(let i=0;i<200;i++){try{process.kill(-providerPid,0);}catch(e){if(e.code==='ESRCH'){gone=true;break;}if(e.code!=='EPERM')throw e; const rows=execFileSync('ps',['-axo','pgid='],{encoding:'utf8'}).trim().split(/\s+/);if(!rows.includes(String(providerPid))){gone=true;break;}}await sleep(25);}assert.ok(gone,'provider group naturally exited');providerGone=true;providerPid=undefined;
+ const after=api.acquireProviderProcessAdmission(request(contenderRoot));held.push(after);assert.ok(after.admitted,'machine slot reclaimed after actual group exit');console.log('PASS natural group exit releases machine capacity for another repo');}
 } finally {
  if(!providerPid&&!providerGone&&existsSync(identityFile))providerPid=JSON.parse(readFileSync(identityFile,'utf8')).pgid;
  if(providerPid){try{process.kill(-providerPid,'SIGKILL');}catch(e){if(e.code!=='ESRCH')console.error('CLEANUP_SIGNAL',e.code);}}
  if(worker?.exitCode===null&&worker.signalCode===null)worker.kill('SIGKILL');
  held.forEach(a=>api.releaseProviderProcessAdmission(a));os.userInfo=original;syncBuiltinESMExports();rmSync(base,{recursive:true,force:true});
 }
+
+execFileSync(process.execPath,[fileURLToPath(new URL('./verify-supervised-provider-boundaries.mjs',import.meta.url))],{stdio:'inherit',timeout:30000});
+
+execFileSync(process.execPath,[fileURLToPath(new URL('./verify-supervised-provider-control.mjs',import.meta.url)),repo],{stdio:'inherit',timeout:30000});
+
+execFileSync(process.execPath,[fileURLToPath(new URL('./verify-supervised-provider-worker-exit.mjs',import.meta.url)),repo],{stdio:'inherit',timeout:30000});

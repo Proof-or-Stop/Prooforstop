@@ -731,6 +731,8 @@ export function isProviderExecutionSurfaceCandidate(relativePath: string, source
 
 /** Auditable inventory; the source-contract smoke rejects unclassified spawns. */
 export const PROVIDER_EXECUTION_SURFACES: readonly ProviderExecutionSurface[] = Object.freeze([
+  { path: 'providers/supervised-process.ts', status: 'admission_only', admissionOwner: 'core/provider-process-admission.ts', note: 'Synchronous bridge launch retains both admission slots unless control proof and group exit establish cleanup.' },
+  { path: 'providers/supervised-process-worker.ts', status: 'admission_only', admissionOwner: 'core/provider-process-admission.ts', note: 'Bridge transfers both slots to its isolated group before launching an ordinary provider child.' },
   { path: 'core/managed-host-run.ts', status: 'managed', admissionOwner: 'core/provider-process-registry.ts', note: 'Detached durable owner delegates its provider spawn through runHostRun.' },
   { path: 'core/host-run.ts', status: 'admission_only', admissionOwner: 'core/provider-process-registry.ts', note: 'Canonical low-level launch owns shared admission for every provider spawn while remaining outside ManagedHostRun durable lifecycle.' },
   { path: 'core/codex-review-leaf.ts', status: 'admission_only', admissionOwner: 'core/provider-process-registry.ts', note: 'Legacy standalone leaf remains bounded and admitted; formal durable review uses ManagedHostRun.' },
