@@ -730,6 +730,9 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   // Independently gated completeness process fact. Writing it after REVIEW
   // must not be treated as an untrusted closeout artifact.
   'review-inventory-epochs.json',
+  // Signed progress is verified by its own convergence gate; observing an epoch
+  // does not change the material or scope inspected by its reviewers.
+  'convergence-progress.json',
   // Independently signed topology-critic protocol evidence. The receipt is
   // reviewer-owned metadata, not DONE closeout evidence; retaining it here
   // prevents the critic's own receipt from invalidating the ReviewRun that

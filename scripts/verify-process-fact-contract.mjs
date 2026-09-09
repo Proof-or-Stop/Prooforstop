@@ -9419,3 +9419,8 @@ for (const path of ['packages/main/src/core/review-run.ts', 'packages/main/src/c
 
 assert(read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewInventoryMutationLock') && read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewMetadataTicketLock'), 'prompt GC must serialize with prompt publication');
 assert(read('packages/main/src/handlers/review-inventory.ts').includes('collectOrphanPromptBodies'), 'prompt GC must have a registered production consumer');
+
+for (const path of ['packages/main/src/handlers/finding.ts', 'packages/main/src/handlers/managed-review-evidence.ts']) {
+  assert(read(path).includes('commitReviewResultMetadata'), `${path}: native and managed results must share epoch commit deferral`);
+}
+assert(read('packages/main/src/core/review-metadata-batch.ts').includes('commitImmutableMetadataTree'), 'epoch commits must preserve isolated-index exact manifest and HEAD CAS semantics');

@@ -203,3 +203,14 @@ to reclaim orphan prompt bodies. Collection shares publication locks, retains
 all historical run/envelope references, and refuses corrupt metadata, missing
 referenced bodies or dangling terminal references before deleting anything.
 It never prunes signed metadata or migrates legacy inline history.
+
+### Epoch metadata commits
+
+Native and managed reviewer results inside an OPEN inventory epoch retain their
+individual signatures and are written before success is reported. Their Git
+commit is deferred until `review_inventory_finalize` or `review_inventory_cancel`.
+Finalization commits only the explicit review artifacts and referenced prompt
+bodies using an isolated index, normal hooks, verified bytes and a HEAD
+compare-and-swap. Unrelated staged files remain untouched. A failed commit leaves
+the signed results intact: retry the original finalize or cancel command without launching reviewers again. Preserve `--remediation` for repair-only receipts and the original reason for cancellation; retries cannot change receipt authority or rewrite cancellation history. Ordinary CLI telemetry alone never triggers another epoch commit.
+Outside an eligible epoch, the existing immediate-commit behavior remains.

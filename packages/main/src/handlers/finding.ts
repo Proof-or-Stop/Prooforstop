@@ -1,3 +1,4 @@
+import { commitReviewResultMetadata } from '../core/review-metadata-batch.js';
 /**
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
@@ -739,7 +740,7 @@ function recordReviewPass(
     } catch (e) {
       console.warn(`[process-events] append failed for ${storyId}:`, (e as Error).message);
     }
-    const commitHint = autoCommitStoryMetadata(ctx.root, storyId, 'review_pass_set');
+    const commitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId, reviewRunId, reason: 'review_pass_set' });
     // B-3b05: the same-session flag must be visible in the SAME output the
     // operator reads, not only on stderr.
     const provenanceHint = provenance.provenanceFlag
@@ -1036,7 +1037,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         // string is a FROZEN role ID (subagent_type value) and must NOT be renamed.
         ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="proof-or-stop-review-*", otherwise it will not count as reviewer evidence.`
         : '';
-      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
+      const commitHint = commitReviewResultMetadata({ root: ctx.root, store, storyId: args.storyId, reviewRunId: args.reviewRunId, reason: 'finding_add' });
       const advisoryHint = evidence.evidenceState === 'suspected'
         ? '\n→ evidenceState=suspected: does not block REVIEW→TEST; treated only as an advisory/attention item in the review summary.'
         : evidence.evidenceState === 'disproven'

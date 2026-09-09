@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { commitReviewResultMetadata } from '../core/review-metadata-batch.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
   readManagedHostRunBinding,
@@ -467,12 +467,12 @@ export function createManagedReviewEvidenceHandlers(
           ...(proposal.readLog ? { readLog: proposal.readLog } : {}),
         });
       }
-      const commitHint = autoCommitStoryMetadata(ctx.root, proposal.storyId, 'managed_review_evidence_import', {
+      const commitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId, reason: 'managed_review_evidence_import', options: {
         exactStoryArtifactNames: [
           proposal.conclusion === 'pass' ? 'review-passes.json' : 'findings.json',
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
         ],
-      });
+      } });
       const summary = created
         ? `Managed review evidence imported from ${runId}: ${importedIds.join(', ')}`
         : `Managed review evidence already imported from ${runId}: ${importedIds.join(', ')}`;

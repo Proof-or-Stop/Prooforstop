@@ -733,7 +733,7 @@ Behavior:
   { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
     storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
   }},
-  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
+  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false. Commit epoch metadata once; on commit failure retry this command without rerunning reviewers.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
     remediation: z.boolean().optional().describe('Finalize a complete critic-certified wave for repair only, including new findings. This receipt never grants certification or TEST authority.'),
   }},
@@ -741,7 +741,7 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID.'),
     reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
   }},
-  { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
+  { name: 'review_pass_set', description: 'Record a durable signed reviewer pass credential. Inside a frozen epoch, Git metadata is committed together at finalize/cancel.', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),

@@ -1,3 +1,4 @@
+import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
@@ -12,6 +13,7 @@ import {
   currentOpenReviewInventory,
   evaluateReviewInventoryWave,
   finalizedUnconsumedReviewInventory,
+  finalizedLiveAggregateError,
   reviewInventoryDigest,
   reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryAggregateFamilies,
@@ -593,7 +595,6 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       return inventoryLock(ctx, args.storyId, () => {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
         if (!epoch) {
-          if (args.remediation) throw new Error('REVIEW_INVENTORY_REMEDIATION_REQUIRES_COMPLETE_OPEN_WAVE');
           const story = ctx.store.readStory(args.storyId);
           const cutoff = capture(ctx, args.storyId);
           if (!cutoff.headHash || !cutoff.materialHash || !cutoff.storyFilesHash) {
@@ -601,6 +602,24 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
               'review_inventory_finalize: current headHash/materialHash/storyFilesHash are missing; refuse rather than invent a second freshness hash',
             );
           }
+          const retained = finalizedUnconsumedReviewInventory(ctx.store, args.storyId);
+          if (retained && retained.epoch.waves.length > 0 && retained.epoch.requiredLanes.length > 0) {
+            if ((args.remediation === true) !== (retained.receipt.authority === 'review-remediation-only')) {
+              throw new Error('REVIEW_INVENTORY_FINALIZE_REPLAY_AUTHORITY: retry must preserve the original remediation flag and receipt authority');
+            }
+            if (retained.epoch.reviewRound !== (story.currentReviewRound ?? '')
+              || retained.epoch.cutoff.materialHash !== cutoff.materialHash
+              || (retained.epoch.cutoff.storyFilesHash ?? '') !== (cutoff.storyFilesHash ?? '')
+              || retained.epoch.scopeDigest !== reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, args.storyId)) {
+              throw new Error('REVIEW_INVENTORY_FINALIZE_REPLAY_DRIFT: the completed epoch subject changed; cancel and begin a fresh review');
+            }
+            const invalid = finalizedLiveAggregateError(ctx.store, retained);
+            if (invalid) throw new Error(`REVIEW_INVENTORY_FINALIZE_REPLAY_INVALID: ${invalid}`);
+            return renderFinalizedReviewInventory(retained.epoch, retained.receipt)
+              + captureConvergenceProgress(ctx, args.storyId, retained.epoch.epochId)
+              + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize');
+          }
+          if (args.remediation) throw new Error('REVIEW_INVENTORY_REMEDIATION_REQUIRES_COMPLETE_OPEN_WAVE');
           const persisted = persistFinalizedReviewInventoryUnlocked({
             store: ctx.store,
             storyId: args.storyId,
@@ -611,7 +630,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           // Retry that observation, but never count a zero-wave compatibility receipt.
           const progress = persisted.epoch.waves.length && persisted.epoch.requiredLanes.length
             ? captureConvergenceProgress(ctx, args.storyId, persisted.epoch.epochId) : '';
-          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt) + progress;
+          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt) + progress
+            + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize');
         }
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
@@ -679,7 +699,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
       });
     },
 
@@ -728,6 +748,10 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       return inventoryLock(ctx, args.storyId, () => {
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         const epoch = data.epochs.at(-1);
+        if (epoch?.state === 'CANCELLED' && verifyReviewInventoryEpoch(epoch)) {
+          if (epoch.cancelReason !== args.reason.trim()) throw new Error('review_inventory_cancel: retry must preserve the original cancellation reason');
+          return renderReviewInventoryStatus(epoch) + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, 'review_inventory_cancel');
+        }
         if (!epoch || !verifyReviewInventoryEpoch(epoch)
           || (epoch.state !== 'OPEN' && !(epoch.state === 'FINALIZED' && !epoch.consumedAt))) {
           throw new Error(`review_inventory_cancel: no OPEN or unconsumed FINALIZED epoch for ${args.storyId}`);
@@ -766,7 +790,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           });
         }
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return renderReviewInventoryStatus(cancelled);
+        return renderReviewInventoryStatus(cancelled) + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, 'review_inventory_cancel');
       });
     },
   };
