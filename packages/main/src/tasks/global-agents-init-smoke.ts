@@ -34,7 +34,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  isActiveModularReviewerRoleId,
+  isModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from '../core/prompt-registry.js';
@@ -100,7 +100,7 @@ function listProjectAgentMd(root: string): string[] {
       assert.match(content, /^tools:/m, `${basename} shim must keep tools: frontmatter`);
       const role = basename.replace(/\.md$/, '');
       // Require the supported CLI and independently reject the retired command.
-      if (isActiveModularReviewerRoleId(role)) {
+      if (isModularReviewerRoleId(role)) {
         assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
         assert.doesNotMatch(content, /lattice review_run_start/, `${basename} must not teach the deprecated bin`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
