@@ -31,7 +31,7 @@ import {
   verifyReviewInventoryReceipt,
   type ReviewInventoryEvaluation,
 } from '../core/review-inventory-epoch.js';
-import { signReviewRun } from '../core/review-run.js';
+import { signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { CURRENT_PROMPT_IDENTITIES, domainSeparatedDigest } from '../core/prompt-contracts.js';
 import { signReviewPass, signFinding, verifyReviewPass, verifyFinding } from '../core/finding-verify.js';
 import type {
@@ -375,7 +375,8 @@ function criticEvidence(
   criticRun.inventoryBinding = reviewInventoryPurposeBinding(subjectEpoch);
   criticRun._hash = signReviewRun(criticRun.storyId, criticRun.reviewRunId, criticRun.agent, criticRun.lane,
     criticRun.reviewRound, criticRun.startedAt, criticRun.headHash, criticRun.materialHash, criticRun.promptHash,
-    undefined, undefined, criticRun.storyFilesHash, undefined, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
+    undefined, undefined, criticRun.storyFilesHash, criticRun.envelopeId, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
+  assert.equal(verifyReviewRun(criticRun), true, 'The purpose-bound critic fixture retains its signed prompt envelope');
   const criticPass = pass(criticRun, id);
   const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
     schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
@@ -495,14 +496,14 @@ for (const [label, check] of [
       const changed = { ...critic.run, ...mutation };
       changed._hash = signReviewRun(changed.storyId, changed.reviewRunId, changed.agent, changed.lane,
         changed.reviewRound, changed.startedAt, changed.headHash, changed.materialHash, changed.promptHash,
-        undefined, undefined, changed.storyFilesHash, undefined, undefined, changed.reviewPurpose, changed.inventoryBinding);
+        undefined, undefined, changed.storyFilesHash, changed.envelopeId, undefined, changed.reviewPurpose, changed.inventoryBinding);
       assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, changed] }).rawFindingIds, [],
         'signed wrong-purpose/subject/role critic cannot supply inventory discovery');
     }
     const canonical = { ...critic.run, lane: 'proof-or-stop-review-topology-critic', agent: 'proof-or-stop-review-topology-critic' };
     canonical._hash = signReviewRun(canonical.storyId, canonical.reviewRunId, canonical.agent, canonical.lane,
       canonical.reviewRound, canonical.startedAt, canonical.headHash, canonical.materialHash, canonical.promptHash,
-      undefined, undefined, canonical.storyFilesHash, undefined, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
+      undefined, undefined, canonical.storyFilesHash, canonical.envelopeId, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
     assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, canonical] }).rawFindingIds, [discovered.id],
       'canonical and registered critic alias share the exact purpose contract');
     const tampered = { ...critic.run, _hash: 'tampered' };
@@ -728,7 +729,7 @@ for (const changes of [
 for (const changes of [{ reviewPurpose: undefined, inventoryBinding: undefined }, { reviewPurpose: 'topology' as const, inventoryBinding: undefined }, { inventoryBinding: { ...firstCritic.run.inventoryBinding!, wave: 99 } }]) {
   const changed = { ...firstCritic.run, ...changes };
   changed._hash = signReviewRun(changed.storyId, changed.reviewRunId, changed.agent, changed.lane, changed.reviewRound, changed.startedAt,
-    changed.headHash, changed.materialHash, changed.promptHash, undefined, undefined, changed.storyFilesHash, undefined, undefined, changed.reviewPurpose, changed.inventoryBinding);
+    changed.headHash, changed.materialHash, changed.promptHash, undefined, undefined, changed.storyFilesHash, changed.envelopeId, undefined, changed.reviewPurpose, changed.inventoryBinding);
   assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, runs: [...firstRuns, changed], receipt: firstCritic.receipt }).ok, false, 'a signed default/topology/wrong-wave run cannot become inventory authority');
 }
 for (const terminal of [undefined, { ...firstCritic.pass, readManifest: undefined }, { ...firstCritic.pass, _hash: 'tampered' }]) {
