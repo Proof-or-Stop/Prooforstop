@@ -258,7 +258,37 @@ async function observeOverlap(plan, jobs) {
   console.log(`VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
 }
 
-// ── 7. CHK-005: commands the audit could NOT prove isolated stay barriers ───
+// ── 7. B-e40f: quorum smoke has one exact shared-read declaration ───────────
+{
+  const configured = configuredValidationCommands(repoRoot);
+  const quorumRows = configured.filter((entry) => entry.command === 'node'
+    && Array.isArray(entry.args)
+    && entry.args.includes('packages/main/dist/tasks/quorum-submit-smoke.js'));
+  ok('the configured plan contains exactly one quorum-submit smoke row', quorumRows.length === 1);
+  const quorum = quorumRows[0];
+  const exactDeclaration = (entry) => entry.command === 'node'
+    && JSON.stringify(entry.args) === JSON.stringify([
+      'packages/main/dist/tasks/quorum-submit-smoke.js',
+      '--jobs=2',
+    ])
+    && JSON.stringify(entry.resources) === JSON.stringify([REPO_READ]);
+  ok('quorum smoke selects jobs=2 and declares only the raw shared git-common-dir claim',
+    exactDeclaration(quorum));
+  const [resolved] = resolveValidationPlanEntries({ provider: 'b-e40f-quorum', commands: [quorum] });
+  ok('the quorum claim resolves as non-barrier shared access',
+    resolved.exclusiveByDefault === false
+      && resolved.resources.length === 2
+      && isBarrier(resolved.resources[0], 'shared')
+      && resolved.resources[1].class === REPO_READ.class
+      && resolved.resources[1].key === REPO_READ.key
+      && resolved.resources[1].access === REPO_READ.access);
+  ok('a wrong or extra quorum claim is rejected by the exact declaration guard',
+    !exactDeclaration({ ...quorum, resources: [{ ...REPO_READ, access: 'exclusive' }] })
+      && !exactDeclaration({ ...quorum, resources: [REPO_READ, { class: 'fixed-path', key: 'extra', access: 'exclusive' }] }));
+  console.log('VI-OK B-E40F-CHK005-QUORUM-EXACT-SHARED-CLAIM quorum smoke has one jobs=2 row and one raw shared repository-read claim');
+}
+
+// ── 8. CHK-005: commands the audit could NOT prove isolated stay barriers ───
 //
 // CHK-005 read every undeclared command's source and declared the ones that
 // write only inside a per-process temp root (`mkdtempSync` / `$TMPDIR/<name>-<pid>`)
@@ -277,8 +307,6 @@ async function observeOverlap(plan, jobs) {
       'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
-    ['node packages/main/dist/tasks/quorum-submit-smoke.js',
-      'explicitly out of CHK-005 scope; splitting it is its own change'],
     ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
       'sweepLegacyProbeDebris rmSync-es marker-gated paths under repoRoot and BLOCK D asserts whole-tree git status'],
     ['node packages/main/tests/red/red-b49d4-chk002-receipt.mjs',

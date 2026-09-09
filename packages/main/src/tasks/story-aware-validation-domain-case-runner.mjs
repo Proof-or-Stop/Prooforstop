@@ -7,6 +7,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { validationChildEnvironment } from './validation-child-environment.mjs';
 
 const [domain, caseId] = process.argv.slice(2);
 if (!domain || !caseId) throw new Error('domain and caseId are required');
@@ -20,17 +21,12 @@ const smoke = domain === 'review-pass'
   : 'packages/main/dist/tasks/quorum-submit-smoke.js';
 const execution = spawnSync(process.execPath, [resolve(process.cwd(), smoke)], {
   cwd: process.cwd(),
-  // The parent adapter is the traced command boundary.  The historical smoke
-  // fixtures intentionally mutate process.env while modelling host/session
-  // isolation; inheriting the tracer's Proxy into that child would make those
-  // legitimate mutations throw before the scenario runs.  Keep the adapter
-  // registry/spawn trace, and run the real scenario body in its native env.
-  env: (() => {
-    const childEnv = { ...process.env, PROOF_OR_STOP_DYN5_CASE: caseId };
-    delete childEnv.NODE_OPTIONS;
-    delete childEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE;
-    return childEnv;
-  })(),
+  // Preserve the official tracer through the complete descendant closure and
+  // pass only the finite, declared environment plus the selected DYN case.
+  env: validationChildEnvironment({
+    PROOF_OR_STOP_DYN5_CASE: caseId,
+    PWD: process.cwd(),
+  }),
   encoding: 'utf8',
   // B-45a0 F-447: canonical name preferred, deprecated spelling still read.
   timeout: Number(process.env.PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS
