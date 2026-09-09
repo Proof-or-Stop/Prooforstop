@@ -42,9 +42,32 @@ try {
   git('replace', originalHead, replacementHead);
   assert.equal(currentMaterialHash(root, originalHead), replacementHash,
     'U17: replacement refs must invalidate cached committed trees');
+  git('pack-refs', '--all');
+  assert.equal(currentMaterialHash(root, originalHead), replacementHash, 'packed replacement refs remain visible');
+  const oldNoReplace = process.env.GIT_NO_REPLACE_OBJECTS;
+  try {
+    process.env.GIT_NO_REPLACE_OBJECTS = '1';
+    assert.equal(currentMaterialHash(root, originalHead), originalHash, 'disabled replacement uses original bytes');
+    delete process.env.GIT_NO_REPLACE_OBJECTS;
+    assert.equal(currentMaterialHash(root, originalHead), replacementHash, 'reenabled replacement cannot reuse original bytes');
+  } finally {
+    if (oldNoReplace === undefined) delete process.env.GIT_NO_REPLACE_OBJECTS;
+    else process.env.GIT_NO_REPLACE_OBJECTS = oldNoReplace;
+  }
   git('replace', '-d', originalHead);
   assert.equal(currentMaterialHash(root, originalHead), originalHash,
     'deleting a replacement must restore the original tree');
+  const oldBase = process.env.GIT_REPLACE_REF_BASE;
+  try {
+    process.env.GIT_REPLACE_REF_BASE = 'refs/lab-replacements/';
+    git('update-ref', `refs/lab-replacements/${originalHead}`, replacementHead);
+    assert.equal(currentMaterialHash(root, originalHead), replacementHash, 'custom replacement namespace invalidates memo');
+    git('update-ref', '-d', `refs/lab-replacements/${originalHead}`);
+    assert.equal(currentMaterialHash(root, originalHead), originalHash);
+  } finally {
+    if (oldBase === undefined) delete process.env.GIT_REPLACE_REF_BASE;
+    else process.env.GIT_REPLACE_REF_BASE = oldBase;
+  }
   assert.equal(currentMaterialHash(root, 'missing'), undefined);
   console.log('PASS U17 material-tree-memo');
 } finally {

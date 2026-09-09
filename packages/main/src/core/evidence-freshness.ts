@@ -483,7 +483,18 @@ function readCommittedTree(gitCwd: string, ref: string): string {
   const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], {
     cwd, ...GIT_EXEC_OPTS,
   }).trim();
+  // Replacement refs can redirect commits or nested trees without changing
+  // the requested object id. Ask Git so packed refs and linked worktrees work
+  // too; conservatively bypass caching whenever the selected namespace is used.
+  const replacementBase = process.env.GIT_REPLACE_REF_BASE ?? 'refs/replace/';
+  const replacements = execFileSync('git', ['for-each-ref', '--format=%(refname)', replacementBase], {
+    cwd, ...GIT_EXEC_OPTS,
+  }).trim();
   const previous = treeMemo.get(cwd);
+  if (replacements) {
+    if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
+    return execFileSync('git', ['ls-tree', '-r', '-z', sha], { cwd, ...GIT_EXEC_OPTS });
+  }
   if (previous?.sha === sha) return previous.raw;
   const raw = execFileSync('git', ['ls-tree', '-r', '-z', sha], { cwd, ...GIT_EXEC_OPTS });
   if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
