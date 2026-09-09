@@ -1,3 +1,5 @@
+import { buildValidationCommandInventory } from './validation-command-identity.js';
+import { configuredValidationCommandEntries } from './validation-command-config.js';
 /** Semantic scope accounting. No file-count proxy and no approval side effects. */
 import { canonicalDigest } from './authority-signing.js';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
@@ -24,8 +26,8 @@ export interface StoryScopeBudgetPolicy {
   mode: 'observe' | 'enforce';
   limits: Record<ScopeBudgetDimension, number>;
   responsibilities: Array<{ id: string; paths: string[]; hostAdapters: string[]; validationGroups: string[] }>;
-  /** Explicit grouping of registered validation command labels; focus is not a domain. */
-  validationGroups?: Array<{ id: string; commandLabels: string[] }>;
+  /** Canonical command IDs; legacy labels must resolve uniquely. Focus is not a domain. */
+  validationGroups?: Array<{ id: string; commandIds?: string[]; commandLabels?: string[] }>;
 }
 export interface ScopeBudgetSubject {
   storyId: string;
@@ -107,14 +109,23 @@ function subjectFacts(subject: ScopeBudgetSubject, policy: StoryScopeBudgetPolic
     ...subject.checklist.items.filter(item => item.status !== 'withdrawn').flatMap(item =>
       ['modify', 'create', 'test'].flatMap(kind => names(item.files?.[kind as 'modify'] ?? [], `checklist.${kind}`))),
   ].map(sourcePath));
-  const commands = config.validate?.commands ?? config.validation?.commands ?? [];
-  const commandLabels = new Set(commands.map(command => typeof command === 'string' ? command : command.label ?? command.command));
+  const { commands, legacyLabels } = configuredValidationCommandEntries(config);
+  const inventory = buildValidationCommandInventory({ commands });
   const groups = new Map<string, string[]>();
   for (const group of policy.validationGroups ?? []) {
     if (!group?.id?.trim() || groups.has(group.id)) throw new Error('scope budget validation group identity is missing or duplicated');
-    const labels = names(group.commandLabels, `${group.id}.commandLabels`);
-    if (!labels.length || labels.some(label => !commandLabels.has(label))) throw new Error(`scope budget validation group ${group.id} references an unregistered command`);
-    groups.set(group.id, labels);
+    if ((group.commandIds !== undefined) === (group.commandLabels !== undefined)) {
+      throw new Error(`scope budget validation group ${group.id} must use exactly one command reference form`);
+    }
+    const byId = group.commandIds !== undefined;
+    const refs = names(byId ? group.commandIds : group.commandLabels, `${group.id}.commands`);
+    if (!refs.length) throw new Error(`scope budget validation group ${group.id} requires registered commands`);
+    const ids = refs.map(ref => {
+      const matches = inventory.entries.filter(entry => byId ? entry.id === ref : entry.label === ref || legacyLabels[entry.index] === ref);
+      if (matches.length !== 1) throw new Error(`scope budget validation group ${group.id} has unknown or ambiguous command reference: ${ref}`);
+      return matches[0]!.id;
+    });
+    groups.set(group.id, ids);
   }
   for (const path of paths) {
     if (!path || path.startsWith('/') || /^[A-Za-z]:/.test(path) || path.split('/').includes('..') || /[*?[\]{}\x00-\x1f]/.test(path)) {

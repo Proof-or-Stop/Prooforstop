@@ -127,3 +127,14 @@ descendants. Daemon/setsid escape is outside this process-group contract.
 planned executor; `node scripts/verify-supervised-provider-boundaries.mjs` covers
 output fidelity, missing binaries and timeout cleanup. These bounded checks do
 not establish full U-08 product acceptance.
+
+### Scope budget validation groups
+
+New `storyScopeBudget.validationGroups` mappings use `commandIds`, resolved by
+the same canonical inventory as validation. Declared IDs remain stable; derived
+IDs bind command, argv, cwd and shell. Legacy `commandLabels` remain accepted
+only when every label resolves to exactly one configured command. Missing or
+ambiguous references, duplicate command IDs and mixed reference forms yield an
+unknown budget and block enforce mode. Distinct commands using `node` cannot
+stand in for each other. This identity repair does not enable or calibrate the
+root repository scope budget policy.
