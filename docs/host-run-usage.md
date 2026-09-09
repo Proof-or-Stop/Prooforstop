@@ -609,3 +609,10 @@ particular) at least visible.
   they are report-only via `usage_sweep`, never through `host_run`.
 - `usage_sweep` never mutates story, ledger, or lifecycle state and never
   backfills the ledger.
+
+For retry-safe ad hoc submissions, pass a stable `host_run --idempotencyKey`.
+Formal managed reviews derive the logical identity from host, Story, review run
+and lane automatically. Concurrent callers and restarted controllers receive
+the same durable run; changed inputs for that identity are refused. A partial
+submission reports its run ID for recovery, and an archived run reports its
+terminal-receipt anchor. Neither condition authorizes another provider launch.

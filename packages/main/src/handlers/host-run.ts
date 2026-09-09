@@ -70,6 +70,7 @@ import {
 } from './proofstory.js';
 
 export interface HostRunCommandArgs extends FormatArgs {
+  idempotencyKey?: string;
   host?: string;
   storyId?: string;
   agentType?: string;
@@ -481,6 +482,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         : undefined;
       const submitted = await submitManagedHostRun(
         {
+          idempotencyKey: args.idempotencyKey,
           host,
           storyId,
           agentType,

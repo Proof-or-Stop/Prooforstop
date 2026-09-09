@@ -264,7 +264,7 @@ async function main(): Promise<void> {
     claimTimeoutMs: 10,
     claimPollMs: 5,
   });
-  const foreign = await submitManagedHostRun(submitArgs(swappedIdentityRoot, 'foreign identity'), {
+  const foreign = await submitManagedHostRun({ ...submitArgs(swappedIdentityRoot, 'foreign identity'), reviewRunId: 'B-managed:RR-002' }, {
     launchWorker: async () => ({ pid: process.pid }),
     claimTimeoutMs: 10,
     claimPollMs: 5,

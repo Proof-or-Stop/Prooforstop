@@ -160,6 +160,8 @@ function classifyManagedHostRunCancellation(reason: string): ManagedHostRunCance
 }
 
 export interface ManagedHostRunSubmitArgs {
+  /** Stable caller request identity. Formal reviews derive it from their review tuple. */
+  idempotencyKey?: string;
   root: string;
   cwd: string;
   host: HostRunHost;
@@ -483,6 +485,8 @@ export interface ManagedReviewScratchCleanupDiagnostic {
 }
 
 interface ManagedHostRunSpec {
+  /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
+  submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
   runId: string;
   host: HostRunHost;
@@ -2122,11 +2126,48 @@ export async function submitManagedHostRun(
   const deadlineMs = boundedPositiveMs(args.deadlineMs, MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS, MANAGED_HOST_RUN_MAX_DEADLINE_MS);
   const timeoutMs = boundedPositiveMs(args.timeoutMs, deadlineMs, deadlineMs);
   const deadlineAt = new Date(createdMs + deadlineMs).toISOString();
-  const runId = (deps.randomId ?? randomUUID)();
+  mkdirSync(managedHostRunsRoot(args.root), { recursive: true, mode: 0o700 });
+  if (args.idempotencyKey !== undefined && (!args.idempotencyKey.trim() || args.idempotencyKey.length > 512)) {
+    throw new Error('managed host run: idempotency key must contain 1 to 512 characters');
+  }
+  const logicalIdentity = args.profile === 'managed_reviewer'
+    ? ['review', args.host, args.storyId, args.reviewRunId, args.lane]
+    : args.idempotencyKey !== undefined
+      ? ['request', args.idempotencyKey]
+      : null;
+  const submissionDigest = logicalIdentity ? sha256(canonicalJson({
+    ...args, root: realpathSync(args.root), cwd: realpathSync(args.cwd),
+    deadlineMs, timeoutMs,
+  })) : undefined;
+  const runId = logicalIdentity
+    ? `request-${createHash('sha256').update(canonicalJson(logicalIdentity)).digest('hex')}`
+    : (deps.randomId ?? randomUUID)();
   assertRunId(runId);
   const paths = pathsFor(args.root, runId);
   mkdirSync(managedHostRunsRoot(args.root), { recursive: true, mode: 0o700 });
-  mkdirSync(paths.dir, { mode: 0o700 });
+  if (logicalIdentity && existsSync(managedHostRunReceiptArchivePath(args.root, runId))) {
+    managedHostRunReceipt(args.root, runId); // Verify the archive before reporting its recovery anchor.
+    throw new Error(`managed host run ${runId}: idempotent run archived; consume its terminal receipt, never redispatch`);
+  }
+  try {
+    // Atomic directory creation is the cross-process single-dispatch claim.
+    mkdirSync(paths.dir, { mode: 0o700 });
+  } catch (error) {
+    if (!logicalIdentity || (error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    const until = Date.now() + boundedPositiveMs(deps.claimTimeoutMs, MANAGED_HOST_RUN_CLAIM_TIMEOUT_MS, MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS);
+    while (Date.now() < until) {
+      if (existsSync(paths.spec) && existsSync(paths.owner) && existsSync(paths.snapshot)) {
+        const existing = readManagedHostRunSpec(paths).value;
+        if (existing.submissionDigest !== submissionDigest) {
+          throw new Error(`managed host run ${runId}: idempotency input conflict; keep the original run`);
+        }
+        const projection = projectionFor(paths);
+        if (projection.state !== 'submitted') return projection;
+      }
+      await sleep(20);
+    }
+    throw new Error(`managed host run ${runId}: idempotent submission pending or interrupted; inspect this run, never redispatch`);
+  }
 
   let managedReviewScratch: ManagedReviewScratchWorktree | null = null;
   try {
@@ -2149,6 +2190,7 @@ export async function submitManagedHostRun(
   const proposalInvocationKeys = args.profile === 'managed_reviewer' ? generateEd25519KeyPair() : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
+    ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
     host: args.host,

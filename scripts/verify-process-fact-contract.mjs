@@ -6761,6 +6761,9 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
   }
   const managedHostRunText = read('packages/main/src/core/managed-host-run.ts');
+  for (const token of ['submissionDigest', 'idempotency input conflict', 'idempotent submission pending or interrupted']) {
+    assert(managedHostRunText.includes(token), `managed submission must retain durable duplicate-dispatch protection: ${token}`);
+  }
   for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', "mismatches.push('live-output')", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', "launchProfile: 'managed_reviewer'", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', "descriptor.once('finish'", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', "reason === 'absolute_deadline_exceeded'", "state: 'timed_out'"]) {
     assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required final-result/seal authority token missing: ${token}`);
   }
