@@ -28,7 +28,10 @@ suite's execution claim.
 
 Session and transition hints follow this order. When a certification window
 already exists, inspect its status and recovery command before starting another;
-session status alone does not establish that its evidence is current.
+session status alone does not establish that its evidence is current. In REVIEW,
+certification status checks the same signed PASS, coverage and freshness inputs
+as the TEST gate and recommends entering TEST once they pass. A consumed RUNNING
+window alone is not evidence that a validation process is still executing.
 
 ## Identical command results
 

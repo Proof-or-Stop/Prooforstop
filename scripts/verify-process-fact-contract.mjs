@@ -5710,6 +5710,9 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
   const verifier = read('packages/main/src/handlers/verifier.ts');
   const phaseGate = read('packages/main/src/handlers/phase-gates.ts');
   const doneRequired = read('packages/main/src/handlers/done-required-validation.ts');
+  for (const consumer of ['packages/main/src/handlers/phase-gates.ts', 'packages/main/src/handlers/certification-window.ts']) {
+    assert(read(consumer).includes("from './validation-pass-admissibility.js'"), `${consumer}: status and TEST must share routine PASS admissibility`);
+  }
   assert(registry.get('runtime:precert_routine_single_execution')?.level === 'L4', 'PRE_CERT single execution must be a real registered L4 fact');
   assert(/claimTestAdmissibleRoutineValidationWindow/.test(verifier), 'routine validation requires an execution claim');
   assert(/persistPrecertCheapCheckIfQualified/.test(verifier), 'fast validation must publish its own bound receipt');

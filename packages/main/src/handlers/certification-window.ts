@@ -1,3 +1,4 @@
+import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { currentPrecertFastIdentity } from './validation-identity.js';
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
@@ -55,6 +56,7 @@ import {
   persistBlockedCertificationWindow,
   persistCancelledCertificationWindow,
   projectCertificationWindowStatus,
+  windowAuthorizesHeavyCertification,
   refreshCertificationWindowLineage,
   renderCertificationWindowStatus,
   PRECERT_TEST_IDENTITY,
@@ -620,7 +622,19 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         storyId,
         current: currentCertificationIdentity(ctx, storyId),
       });
-      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
+      const projection = projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory);
+      if (windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
+        try {
+          // Consume exactly the same signature/coverage/freshness predicate as
+          // REVIEW -> TEST. RUNNING means allocation consumed, not necessarily
+          // that a validation child is still alive.
+          if (ctx.store.readStory(storyId).phase === 'REVIEW'
+            && assessStoredValidationPassAdmissibility(ctx, storyId).ok) {
+            projection.nextCommand = `proof-or-stop story_advance --storyId=${storyId} --phase=TEST`;
+          }
+        } catch { /* Unavailable evidence never authorizes advancement. */ }
+      }
+      return render(projection);
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {
