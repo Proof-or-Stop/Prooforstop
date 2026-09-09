@@ -16,8 +16,11 @@ export function verifyResourceAudit(config,audit){
   assert.ok(!supersession?.effectiveArgv,'AUDITED_ARGV_SUPERSESSION_INVALID');
   if(supersession){
    const buildPrecheck=supersession.classification==='exclusive-build-precheck'&&entry.argv==='node scripts/verify-lab-worktree.mjs'&&config.validate.commands[0]===command&&argvOf(config.validate.commands[1])==='npm --prefix packages/main run build'&&config.validate.commands[1].resources.some(barrier);
-   assert.ok(supersession.classification==='exclusive-local-writer'||buildPrecheck,'RESOURCE_AUDIT_SUPERSESSION_INVALID');
-   assert.ok(supersession.reference&&supersession.effectiveResources.some(barrier),'RESOURCE_AUDIT_SUPERSESSION_INVALID');
+   const admissionReader=supersession.classification==='exclusive-admission-reader'
+    &&supersession.reference==='packages/main/tests/red/red-bcae-admission-coscheduling.mjs'
+    &&supersession.effectiveResources.some(r=>r.class==='runtime-lock'&&r.key==='proof-or-stop-real-root-admission'&&r.access==='exclusive');
+   assert.ok(supersession.classification==='exclusive-local-writer'||buildPrecheck||admissionReader,'RESOURCE_AUDIT_SUPERSESSION_INVALID');
+   assert.ok(supersession.reference&&(supersession.effectiveResources.some(barrier)||admissionReader),'RESOURCE_AUDIT_SUPERSESSION_INVALID');
    for(const claim of entry.suggestedResources)assert.ok(supersession.effectiveResources.some(actual=>JSON.stringify(actual)===JSON.stringify(claim)),'RESOURCE_AUDIT_WITHDRAWN_CLAIM: '+entry.argv);
    supersededReaders++;
   }

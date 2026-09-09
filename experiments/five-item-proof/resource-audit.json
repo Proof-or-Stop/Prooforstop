@@ -365,7 +365,29 @@
       "commandIdentity": [
         "node",
         "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
-      ]
+      ],
+      "supersededBy": {
+        "classification": "exclusive-admission-reader",
+        "reference": "packages/main/tests/red/red-bcae-admission-coscheduling.mjs",
+        "reason": "Current bootstrap takes shared real-root admission through a common runtime mutex. Serialize admission takers with one explicit lock while retaining independent-reader concurrency. Original reviewed claims remain present.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 36,
@@ -1394,7 +1416,34 @@
       "commandIdentity": [
         "node",
         "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
-      ]
+      ],
+      "supersededBy": {
+        "classification": "exclusive-admission-reader",
+        "reference": "packages/main/tests/red/red-bcae-admission-coscheduling.mjs",
+        "reason": "Current bootstrap takes shared real-root admission through a common runtime mutex. Serialize admission takers with one explicit lock while retaining independent-reader concurrency. Original reviewed claims remain present.",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 126,

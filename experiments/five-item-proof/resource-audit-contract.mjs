@@ -9,7 +9,14 @@ const audit=JSON.parse(readFileSync(root+'/experiments/five-item-proof/resource-
 assert.equal(audit.schema,'lab-resource-integration.v1');
 assert.equal(audit.integration.supersededQuorumReview.length,1);
 assert.equal(audit.integration.supersededQuorumReview[0].argv,'node packages/main/dist/tasks/quorum-submit-smoke.js');
-const summary=verifyResourceAudit(config,audit);assert.deepEqual(summary,{auditedReaders:20,effectivelySharedReaders:14,supersededReaders:6});
+const summary=verifyResourceAudit(config,audit);assert.deepEqual(summary,{auditedReaders:20,effectivelySharedReaders:14,supersededReaders:8});
+const admission=audit.entries.find(e=>e.supersededBy?.classification==='exclusive-admission-reader');
+assert.ok(admission, 'A reviewed admission reader must retain explicit supersession');
+const admissionConfig=structuredClone(config),admissionAudit=structuredClone(audit);
+const removeAdmission=claims=>claims.filter(r=>r.key!=='proof-or-stop-real-root-admission');
+commandFor(admissionConfig,admission.argv).resources=removeAdmission(commandFor(admissionConfig,admission.argv).resources);
+admissionAudit.entries.find(e=>e.argv===admission.argv).supersededBy.effectiveResources=removeAdmission(admission.supersededBy.effectiveResources);
+assert.throws(()=>verifyResourceAudit(admissionConfig,admissionAudit),/RESOURCE_AUDIT_SUPERSESSION_INVALID/,'Coordinated config/audit removal must not erase admission protection');
 const precheck='node scripts/verify-lab-worktree.mjs';
 const writer=audit.entries.find(e=>e.supersededBy?.classification==='exclusive-local-writer').argv;
 const reader=audit.entries.find(e=>e.recommendation==='safe-to-declare-shared'&&!e.supersededBy).argv;
