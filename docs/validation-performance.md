@@ -243,3 +243,18 @@ canonical command. Distinct required canonical markers cover each retained
 clean-input assertion, so skipping the child cannot manufacture its digest or
 its legacy combined receipt. No-argument receipts retain the original digest
 execution and all pinned markers.
+
+CHK007 canonical mode compares the current invariance pin against the historical
+baseline Git blob and keeps its malformed-input and registration controls; the
+independent invariance command executes the live verdict comparison. CHK009
+canonical mode retains its own same-bytes bypass/validated-boundary differential,
+while the independent artifact command owns the permutation and exhaustive
+quarantine matrix. Both modes emit distinct required evidence for what they
+actually execute. The full no-argument receipts retain their combined proofs.
+
+The two excluded pre-fix attestations (CHK001 and CHK010) remain an explicit
+property-test exception under CHK007: each must observe the live artifact result
+and emit no obsolete failure receipt on the fixed tree. The nesting probe permits
+only those exact parent paths and the single artifact argument. This retains
+CHK007's silence proof, alongside the existing CHK011 same/different-seed proof;
+registration-only probes still never execute these complete receipts.

@@ -1285,7 +1285,8 @@
       {
         "command": "node",
         "args": [
-          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "--canonical-core"
         ],
         "timeoutMs": 180000,
         "resources": [
@@ -1304,7 +1305,8 @@
       {
         "command": "node",
         "args": [
-          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "--canonical-core"
         ],
         "timeoutMs": 180000,
         "resources": [

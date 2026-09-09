@@ -57,7 +57,11 @@ for (const name of ['execFileSync', 'execFile', 'spawnSync', 'spawn']) {
           ].join('\\n');
       } catch { mutationProbe = false; }
     }
-    if (entry && !mutationProbe && !fixtureModes[basename(entry)]?.includes(args[entryIndex + 1])) {
+    // These two unregistered pre-fix attestations must actually observe a GREEN
+    // artifact to prove they emit no misleading historical failure receipt.
+    const historicalSilenceProbe = entry === ${JSON.stringify(join(root, 'packages/main/tests/red/red-b2aa7-artifact-validation.mjs'))}
+      && args.length === 1 && ${JSON.stringify(['001', '010'].map(num => join(root, 'packages/main/tests/red', 'red-b2aa7-chk' + num + '-receipt.mjs')))}.includes(resolve(process.argv[1] ?? ''));
+    if (entry && !mutationProbe && !historicalSilenceProbe && !fixtureModes[basename(entry)]?.includes(args[entryIndex + 1])) {
       appendFileSync(${JSON.stringify(log)}, JSON.stringify({command,args})+'\\n');
       throw new Error('Nested canonical command observed before launch');
     }
@@ -86,6 +90,15 @@ syncBuiltinESMExports();
   const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
   assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
   assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
+  if (filename === 'red-b2aa7-chk007-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_HISTORICAL_PIN_PRESERVED/);
+    assert.match(child.stdout, /VACUOUS_PREFIX_RECEIPTS_EXCLUDED/);
+    assert.doesNotMatch(child.stdout, /INVARIANCE_DIGEST_UNCHANGED_POST_FIX/);
+  }
+  if (filename === 'red-b2aa7-chk009-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_O2_BOUNDARY_DIFFERENTIAL/);
+    assert.doesNotMatch(child.stdout, /ORDER_INDEPENDENT_VERDICT|MALFORMED_REPORTED_BEHIND_SATISFIER|O2_SILENT_CORRUPTION_PINNED/);
+  }
   if (filename === 'red-b2aa7-chk004-receipt.mjs') {
     assert.match(child.stdout, /CANONICAL_WELL_FORMED_ARTIFACT/);
     assert.doesNotMatch(child.stdout, /WELL_FORMED_ARTIFACT_LOADS_UNCHANGED/);

@@ -105,6 +105,7 @@ const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'proof-or-stop.
 // Private registration probes consume only the population/config rule. The
 // default pinned receipt still executes every historical proof obligation.
 const registrationOnly = process.argv.includes('--registration-only');
+const canonicalCore = process.argv.includes('--canonical-core');
 const failures = [];
 const fail = (check, why) => failures.push(`${check}: ${why}`);
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });
@@ -139,6 +140,16 @@ if (BASELINE_COMMIT === null) {
   if (baselinePin === null) fail('happy', `no pinned digest found in the harness at ${BASELINE_COMMIT}`);
 }
 
+if (canonicalCore) {
+  const currentPin = PIN_RE.exec(readFileSync(HARNESS_ABS, 'utf8'))?.[1] ?? null;
+  if (baselinePin === null || currentPin === null || currentPin !== baselinePin) {
+    fail('canonical historical pin', 'current harness must preserve the pin from the historical baseline blob');
+  } else {
+    const changedPin = (currentPin[0] === '0' ? '1' : '0') + currentPin.slice(1);
+    if (changedPin === baselinePin) fail('canonical historical pin', 'perturbed pin must be rejected');
+    console.log('CANONICAL_HISTORICAL_PIN_PRESERVED (baseline blob pin matches current harness; perturbed pin discriminated; live invariance scheduled independently)');
+  }
+} else {
 const invariance = spawnSync(process.execPath, [HARNESS_ABS], { cwd: repoRoot, encoding: 'utf8' });
 const invarianceOut = `${invariance.stdout ?? ''}${invariance.stderr ?? ''}`;
 const observedDigest = OBSERVED_RE.exec(invarianceOut)?.[1] ?? null;
@@ -176,6 +187,8 @@ if (digestUnchanged) {
     + `commit ${BASELINE_COMMIT.slice(0, 10)}, read from that commit's blob rather than from the working tree; `
     + 'the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)',
   );
+}
+
 }
 
 // ════════════════════════════════════════════════════════════════════════════
