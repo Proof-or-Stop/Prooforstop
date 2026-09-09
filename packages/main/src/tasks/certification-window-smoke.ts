@@ -160,6 +160,7 @@ function makeStore(root: string, storyId: string, phase: 'DEV' | 'REVIEW' | 'TES
     endedAt: null,
     events: [],
   });
+  store.writeChecklist(storyId, { items: [] });
   acquireOwnerLease(store.storyDirPath(storyId), { command: 'fixture-owner', cwd: root });
   return store;
 }
