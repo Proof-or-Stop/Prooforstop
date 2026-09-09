@@ -21,7 +21,7 @@
  *     when the output is not the Claude Code JSON envelope.
  */
 
-import { type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
+import { adaptAnthropicUsage, type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
 import { adaptCodexTurnUsage } from './adapters/openai.js';
 import {
   buildProviderRecord,
@@ -1381,4 +1381,31 @@ export function recordBudgetBlock(
     // An unexpected assembly error before the record was committed -> fail-open.
     return notBlocked;
   }
+}
+
+/** A validated lower bound from one canonical provider stdout event, not billing authority. */
+export interface LiveProviderUsage {
+  provider: 'codex' | 'claude';
+  tokens: number;
+  payloadDigest: string;
+}
+
+/** Pure parser shared by live supervision and the existing provider normalization seam. */
+export function parseLiveProviderUsage(host: string, line: string): LiveProviderUsage | null {
+  try {
+    const event = JSON.parse(line);
+    if (!event || typeof event !== 'object' || Array.isArray(event)) return null;
+    const type = ownProp(event, 'type') ? event.type : undefined;
+    if ((host === 'codex' && type !== 'turn.completed') || (host === 'claude' && type !== 'result')) return null;
+    if (host !== 'codex' && host !== 'claude') return null;
+    const usage = host === 'codex' ? adaptCodexTurnUsage(ownProp(event, 'usage') ? event.usage : undefined)
+      : adaptAnthropicUsage(ownProp(event, 'usage') ? event.usage : undefined);
+    if (usage.source !== 'provider-reported' || !usage.canonical || !usage.raw) return null;
+    const values = Object.values(usage.canonical);
+    if (values.some(value => value !== null && (!Number.isSafeInteger(value) || value < 0))) return null;
+    if (usage.canonical.input === null || usage.canonical.output === null) return null;
+    const tokens = values.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+    if (!Number.isSafeInteger(tokens)) return null;
+    return { provider: host, tokens, payloadDigest: usage.raw.payloadDigest };
+  } catch { return null; }
 }

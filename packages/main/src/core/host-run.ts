@@ -67,6 +67,8 @@ import {
 import {
   isUsageLedgerEnabled,
   parseClaudeCliOutput,
+  parseLiveProviderUsage,
+  type LiveProviderUsage,
   recordBudgetBlock,
   recordConcurrencyBlock,
   recordDispatchFinal,
@@ -365,6 +367,8 @@ export interface HostRunArgs {
 }
 
 export interface HostRunDeps {
+  /** Complete bounded provider stdout usage events, never arbitrary tool text or stderr. */
+  onProviderUsage?: (usage: LiveProviderUsage) => void;
   /** Injected runner (default: the async streaming child_process.spawn runner). */
   runner?: HostRunRunner;
   /**
@@ -2165,7 +2169,14 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         promptFile: launch.promptFile,
         host: args.host,
         finalResultSchema: args.finalResultSchema,
-        retainUsageLine: usageLineRetainerFor(args.host),
+        retainUsageLine: line => {
+          const retained = usageLineRetainerFor(args.host)?.(line) ?? false;
+          if (retained && deps.onProviderUsage) {
+            const usage = parseLiveProviderUsage(args.host, line);
+            if (usage) deps.onProviderUsage(usage);
+          }
+          return retained;
+        },
         // B-3ddc: the second bounded failure lane (codex-only retainer).
         retainFailureLine: failureLineRetainerFor(args.host),
         stdinText: launch.stdinText,
