@@ -129,6 +129,20 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+const verificationReceiptModelPaths = [
+  'docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md',
+  'packages/main/src/core/process-fact-levels.ts',
+  'packages/main/src/core/runtime-fact-registry.ts',
+  'packages/main/src/core/types.ts',
+  'packages/main/src/tasks/certification-window-smoke.ts',
+  'packages/main/src/tasks/verification-run-and-guard-smoke.ts',
+];
+const bundleV3SubjectPattern = String.raw`(?:VerificationReceiptBundleV3|Bundle\s*V3|V3\s+(?:receipt\s+)?bundle)`;
+const positiveCurrentBundleV3Patterns = [
+  new RegExp(String.raw`\b${bundleV3SubjectPattern}\b[^.!?;]{0,180}\b(?:is|remains|continues\s+to\s+be|serves\s+as)\s+(?:still\s+)?(?:the\s+)?(?:current|authoritative|admissible|eligible)\b`, 'i'),
+  new RegExp(String.raw`\b${bundleV3SubjectPattern}\b[^.!?;]{0,180}\b(?:can|may)\s+(?:still\s+)?(?:satisfy\s+lifecycle\s+admission|authorize\s+reuse)\b`, 'i'),
+  new RegExp(String.raw`\b(?:current|authoritative|admissible)\s+(?:receipt\s+)?bundle\b[^.!?;]{0,100}\b(?:is|remains)\s+(?:still\s+)?(?:the\s+)?${bundleV3SubjectPattern}\b`, 'i'),
+];
 // B-cdf6 CHK-005: the validate-command term follows the renamed canonical bin. Every doc in
 // activeLifecycleDocPaths is an ACTIVE doc that tells a reader what to run now, so per
 // docs/requirements/decisions/brand-rename-mapping.md it is RENAMED, not frozen. The assertion is
@@ -191,9 +205,10 @@ const requiredProcessFactSemantics = {
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
-  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
@@ -274,6 +289,8 @@ const requiredRuntimeFactSemantics = {
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  'runtime:verification_execution_key_producer_lock': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
@@ -1590,6 +1607,19 @@ function assertProofStoryProgressiveBoundary() {
   );
   const topologyPolicy = commandPolicyEntries.get('acceptance_topology_check');
   assert(
+    basisText.includes('canonicalStaticTopologyPath')
+      && basisText.includes('!discoveredPaths.has(path)')
+      && basisText.includes('sourceRefValue(producer) === consumerValue')
+      && basisText.includes('matchingRecords.length !== 1')
+      && basisText.includes('endpoint.id !== sourceRef.endpointRef')
+      && basisText.includes("endpoint.role !== 'producer'")
+      && basisText.includes('endpoint.expectedFileRef !== staticCall[1]')
+      && basisText.includes('endpoint.expectedSymbolOrFact !== staticCall[2]')
+      && processRegistryText.includes('Exact static topology projection requires a discovery-owned path')
+      && read('packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts').includes('two different discovered paths despite both commandRefs'),
+    'acceptance basis static edge projection must preserve discovery membership and exact producer identity, not manufacture relationships from topology references',
+  );
+  assert(
     catalogText.includes("name: 'acceptance_topology_check'")
       && catalogText.includes("mode: z.never()")
       && handlerText.includes('acceptance_topology_check(args')
@@ -2096,7 +2126,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776',
+    '1c2b56a892daaa9b1a9c6dbbb6dc8bed7946ba03faa56143905e79d70d0e519d',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -4585,39 +4615,64 @@ function assertReviewInventoryRemediationContract() {
   assert(read(processFactRegistryPath).includes('every immutable pinned intent, including docs/manual'),
     'stale pinned docs/manual recovery must remain registered as mechanical gate evidence');
   const stampBody = findFunctionDeclaration(refreshSource, 'enforceAndStampEvidence')?.body?.getText(refreshSource) ?? '';
-  assert(stampBody.includes('executedAt: receipt.executedAt')
+  const actualLaunches = [];
+  const inspectLaunch = (node) => {
+    if (ts.isCallExpression(node)
+      && ['deps.runCommand', 'executePinnedCommand'].includes(node.expression.getText(refreshSource))) {
+      actualLaunches.push(node);
+      let owner = node.parent;
+      while (owner && !ts.isPropertyAssignment(owner)) owner = owner.parent;
+      assert(owner?.name?.getText(refreshSource) === 'run'
+        && ts.isCallExpression(owner.parent.parent)
+        && owner.parent.parent.expression.getText(refreshSource) === 'executeCausalEvidence',
+      'actual verification launch must occur inside the causal run callback, after its last-moment preflight');
+    }
+    ts.forEachChild(node, inspectLaunch);
+  };
+  inspectLaunch(refreshSource);
+  assert(actualLaunches.length === 2, 'both existing verification launch paths retain causal launch ownership');
+  assert(read(processFactRegistryPath).includes('actual child launch occurs inside the causal runner'),
+    'causal last-moment preflight launch ownership remains a registered process fact');
+  assert(stampBody.includes('sharedExecution?.executedAt ?? causal?.receipt.executedAt')
+    && stampBody.includes('executedAt: sourceExecutedAt')
+    && checklistHandlerText.includes('executedAt: causal.receipt.executedAt')
     && !stampBody.includes('executedAt: new Date()'),
-    'verification execution time must project the signed causal receipt, never per-intent restamping time');
+    'V3 execution time must project the actual signed causal source and V5 fan-out must preserve it, never per-intent restamping time');
   for (const binding of [
-    'verificationExecutionSemanticsKey: deps.executionSemanticsKey',
-    'executionSemanticsKey: candidate.executionKey',
-    'rawExecutionKey: candidate.rawExecutionKey',
-    'context: rawExecutionContext',
-    'rawProcessResults.get(cacheKey)',
-    'rawProcessResults.set(cacheKey, execution)',
-    'Object.freeze({ ...result })',
+    'verificationExecutionKey: createVerificationExecutionKey({',
+    'verificationExecutionKey: executionKey',
+    'verificationObservationId: randomUUID()',
+    'inputs: sharedCausalReceipt?.identity.inputs ?? {',
+    'const causal = !sharedExecution || sharedCausalReceipt',
+    'causalReceipt: stamp.causalReceipt',
+    'groups.get(candidate.executionKey)',
+    'currentExecutionKey === reexec.executionKey',
+    'currentCandidate.assertionKey === executionOutcome.assertionKey',
     'preflightInputKey(input, sourceReceipt.executionKey)',
     'preflightInputKey(input, receipt.executionKey)',
     'preflightInputKey(causalPreflight.input, receipt.executionKey)',
     'preflightInputKey(firstPreflight.input, firstReceipt.executionKey)',
-  ]) assert(checklistHandlerText.includes(binding), `layered refresh identity binding missing: ${binding}`);
-  assert(/const rawExecutionKey = JSON\.stringify\(\{\s*version: 1,\s*command: normalizedCommand,\s*cwd: refreshGitCwd,\s*effectiveTimeoutMs,\s*timeoutProvenance,\s*\}\)/.test(refreshCandidate)
-    && /const executionKey = JSON\.stringify\(\{\s*version: 1,\s*rawExecutionKey,\s*selector: pin\.selector,\s*intentType: resolved\.intent\.type,\s*evidenceKind: kind,\s*\}\)/.test(refreshCandidate),
-    'refresh must separate exact command/cwd/timeout/provenance process keys from selector/type/kind evidence keys');
-  assert(/const rawExecutionContext = causalCanonical\(\{\s*schemaVersion: 1,\s*storyId: args\.storyId,\s*materialHash: computed\.materialHash \?\? null,\s*storyFilesHash: computed\.storyFilesHash \?\? null,\s*effectiveEnvironment: effectiveCausalEnvironment\(undefined, computed\.refreshGitCwd\),\s*runtimeVersion: process\.version,\s*toolVersion: resolveCausalToolVersion\(root\) \?\? null,\s*\}\)/.test(checklistHandlerText),
-    'raw refresh reuse must bind current material, story, environment and runtime context');
-  assert(read(processFactRegistryPath).includes('raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context')
-    && read(processFactRegistryPath).includes('selector/type/kind bind distinct signed causal identities and receipt-keyed import checks'),
-    'layered refresh physical/CAS/import identity and signed execution time must remain registered');
+  ]) assert(checklistHandlerText.includes(binding), `strict refresh identity binding missing: ${binding}`);
+  assert(!refreshCandidate.includes('verificationObservationId')
+    && !refreshCandidate.includes('randomUUID'),
+    'observation addressing must never split physical execution grouping');
+  assert(read(processFactRegistryPath).includes('selector-free physical execution keys bind signed causal identity')
+    && read(processFactRegistryPath).includes('observation-only identifier'),
+    'physical/CAS/import identity, independent assertions and actual signed execution time must remain registered');
   const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
   for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
     'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
-    'shared rows bind cloned facts from the same execution',
-    'three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct',
+    'shared rows bind the same selector-free execution receipt', 'only different effective timeout values split execution',
     'selector-specific evidence identities remain distinct over one raw run',
-    'selector-specific causal receipts remain independently bound',
+    'independent selector assertions preserve the same signed source execution',
     'nonmatching selector receives no mechanical receipt',
-    'same timeout with different audited provenance is not collapsed']) {
+    'raw verifier refreshed git index without cross-receipt identity mismatch',
+    'cross-identity cached preflight is refused before execution', 'actual production import refuses substituted signed CAS receipt',
+    'cross-identity refusal leaves prior receipts and pins unchanged', 'fan-out retains source signed execution time, never publication time',
+    'new ordinary executions borrowed an older same-key CAS observation', 'B-aa5f CHK008 causal-import-integration PASS',
+    'causal ledger counts every independently evaluated intent, including shared-execution followers',
+    'bounded causal diagnostic honestly misses a middle-of-large-output selector',
+    'only authenticated complete-output V5 assertion controls selector admission']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(
@@ -4786,6 +4841,60 @@ function assertArrayPropertyIncludesValue(block, propertyName, value, label) {
 }
 
 function assertProcessFactMappedSourceContracts(sourceText) {
+  const runtimeSourceRefsInitializer = extractConstInitializer(sourceText, 'RUNTIME_PROCESS_FACT_SOURCE_REFS', processFactRegistryPath);
+  const sourceContracts = [
+    {
+      name: 'verification_pin_narrow',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/core/verification.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+    },
+    {
+      name: 'runtime:verification_execution_assertion_reuse_gate',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/core/evidence-freshness.ts',
+        'packages/main/src/core/proof-admissibility.ts',
+        'packages/main/src/core/verification.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/core/machine.ts',
+        'packages/main/src/core/lifecycle-readiness.ts',
+        'packages/main/src/handlers/phase-gates.ts',
+        'packages/main/src/handlers/verifier.ts',
+        'packages/main/src/handlers/done-prepare.ts',
+        'packages/main/src/handlers/certification-window.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+    },
+    {
+      name: 'runtime:verification_execution_key_producer_lock',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/handlers/checklist.ts',
+        'packages/main/src/core/proof-admissibility.ts',
+        'packages/main/src/core/verification.ts',
+      ],
+    },
+  ];
+  for (const contract of sourceContracts) {
+    const match = new RegExp(`['"]${contract.name}['"]\\s*:\\s*\\{`).exec(runtimeSourceRefsInitializer);
+    assert(Boolean(match), `${processFactRegistryPath}: ${contract.name} must declare explicit source refs`);
+    if (!match) continue;
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(runtimeSourceRefsInitializer, openIndex, '{', '}', `${processFactRegistryPath} ${contract.name}`);
+    for (const ref of contract.producerSourceRefs) assertArrayPropertyIncludesValue(block, 'producerSourceRefs', ref, contract.name);
+    for (const ref of contract.consumerSourceRefs) assertArrayPropertyIncludesValue(block, 'consumerSourceRefs', ref, contract.name);
+  }
+
   const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
   assertInitializerPattern(
     commandFactsInitializer,
@@ -4798,6 +4907,12 @@ function assertProcessFactMappedSourceContracts(sourceText) {
     'COMMAND_PROCESS_FACTS',
     /\bconst\s+policy\s*=\s*commandPolicy\(entry\.name\)\s*;/,
     'must derive lifecycle policy from commandPolicy(entry.name)',
+  );
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bconst\s+sourceRefs\s*=\s*RUNTIME_PROCESS_FACT_SOURCE_REFS\[entry\.name\]\s*;/,
+    'must derive explicit runtime producer/consumer sources from RUNTIME_PROCESS_FACT_SOURCE_REFS',
   );
   assertInitializerPattern(
     commandFactsInitializer,
@@ -4823,7 +4938,9 @@ function assertProcessFactMappedSourceContracts(sourceText) {
     ['gateEvidence', /\bgateEvidence\s*,/],
     ['destructiveRisk', /\bdestructiveRisk:\s*policy\?\.destructiveRisk\b/],
     ['producer', /\bproducer:\s*entry\.owner\b/],
+    ['producerSourceRefs', /\bproducerSourceRefs:\s*sourceRefs\?\.producerSourceRefs\s*\?\?/],
     ['consumerGate', /\bconsumerGate:\s*entry\.gateConsumer\b/],
+    ['consumerSourceRefs', /\bconsumerSourceRefs:\s*sourceRefs\?\.consumerSourceRefs\s*\?\?/],
     ['artifact', /\bartifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]/],
     ['reviewerLane', /\breviewerLane:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]\?\.reviewerLane\b/],
     ['rationale', /\brationale:\s*entry\.rationale\b/],
@@ -6756,6 +6873,260 @@ function assertEvidenceBoundaryDocs() {
     for (const phrase of requiredEvidenceBoundaryPhrases) {
       assert(text.includes(phrase), `${relPath}: missing process evidence boundary phrase "${phrase}"`);
     }
+  }
+}
+
+function assertCurrentVerificationReceiptModel() {
+  // Collapse whitespace before matching so a claim cannot evade the contract by
+  // wrapping its subject and predicate onto different Markdown/comment lines.
+  // Positive grammatical predicates are matched directly; legacy keywords do
+  // not waive a contradictory later clause, and negative/historical predicates
+  // are outside the accepted positive forms by construction.
+  const staleClaim = (text) => {
+    const bounded = text.replace(/\s+/g, ' ').trim();
+    return positiveCurrentBundleV3Patterns.some(pattern => pattern.test(bounded));
+  };
+  for (const sample of [
+    'VerificationReceiptBundleV3 is current and admissible.',
+    'BundleV3 is legacy but remains current/admissible.',
+    'VerificationReceiptBundleV3\ncontinues to be authoritative for lifecycle admission.',
+    'The authoritative receipt bundle\nis VerificationReceiptBundleV3.',
+  ]) {
+    assert(staleClaim(sample), `receipt-model scanner must reject positive current/admissible Bundle V3 claim: ${JSON.stringify(sample)}`);
+  }
+  for (const sample of [
+    'VerificationReceiptBundleV3 is not current or admissible.',
+    'VerificationReceiptBundleV3 cannot satisfy lifecycle admission or authorize reuse.',
+    'VerificationReceiptBundleV3 was historically authoritative before V5.',
+    'VerificationReceiptBundleV3 is legacy read-only and non-reusable.',
+    'The current authoritative receipt bundle is VerificationReceiptBundleV5; VerificationReceiptBundleV3 remains readable for audit only.',
+  ]) {
+    assert(!staleClaim(sample), `receipt-model scanner must allow negative/historical/legacy Bundle V3 description: ${JSON.stringify(sample)}`);
+  }
+  for (const relPath of verificationReceiptModelPaths) {
+    assert(
+      !staleClaim(read(relPath)),
+      `${relPath}: Bundle V3 / V1 assertion are legacy read-only compatibility; current authoritative evidence is Bundle V5 with a V3 execution component`,
+    );
+  }
+  const decisionDoc = read('docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md');
+  assert(
+    decisionDoc.includes('`VerificationReceiptBundleV5`')
+      && decisionDoc.includes('is the only split bundle eligible for lifecycle admission and reuse'),
+    'verification receipt decision must identify Bundle V5 as the sole lifecycle-admissible/reusable split bundle',
+  );
+  assert(
+    decisionDoc.includes('`VerificationAssertionReceiptV1`, `VerificationReceiptBundleV2`, `VerificationReceiptBundleV3`')
+      && decisionDoc.includes('cannot satisfy lifecycle admission'),
+    'verification receipt decision must identify V1 assertion and Bundle V2/V3/V4 as legacy non-admissible compatibility',
+  );
+  assert(
+    decisionDoc.includes('SHA-256 of the top-level compatibility selector must equal the selector digest carried by the independently signed assertion')
+      && decisionDoc.includes('ExecutionReceipt remains selector-free'),
+    'verification receipt decision must bind the V5 compatibility selector to the signed assertion without polluting the execution identity',
+  );
+  const narrowingDecision = read('docs/requirements/decisions/narrowing-only-evidence-repin.md');
+  const normalizedNarrowingDecision = narrowingDecision.replace(/\s+/g, ' ');
+  // B-aa5f F-048: an authenticated selector does not authenticate a persisted
+  // display tail. Trace the validated complete-output value into every decision.
+  const receiptValidator = extractNamedFunctionBody(
+    read('packages/main/src/core/verification-execution-evidence.ts'), 'validateVerificationReceipt',
+  ) ?? '';
+  assert(
+    receiptValidator.includes('receipt.outputTail !== boundedOutputTail(output)')
+      && receiptValidator.includes('receipt outputTail compatibility mismatch'),
+    'V5 receipt validation must compare the display projection with complete authenticated output',
+  );
+  const verificationSource = read('packages/main/src/core/verification.ts');
+  const narrowingLabelSource = read('packages/main/src/handlers/checklist.ts');
+  assert(narrowingLabelSource.includes('Proved from current signed authoritative V5 receipts')
+    && !narrowingLabelSource.includes('Proved from current signed authoritative V4 receipts'),
+    'successful current narrowing must truthfully identify its required V5 authority');
+  assert(verificationSource.includes('Complete output returned by authoritative receipt/artifact validation.'),
+    'validated complete-output consumer documentation must not imply obsolete V4-only authority');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('unprovable executable resolution fails closed'),
+    'verification process facts must retain actual-spawn toolchain currentness and fail-closed resolution');
+  assert(receiptValidator.includes('authenticated execution command mismatch'), 'receipt reader must authenticate the requested command');
+  assert(receiptValidator.includes('publication freshness binding mismatch'), 'receipt reader must bind unsigned outer coordinates to the signed context');
+  const inventoryProjection = read('packages/main/src/core/review-inventory-epoch.ts');
+  assert(inventoryProjection.includes('proof-or-stop.inventory-verification-observation.v1')
+    && inventoryProjection.includes('validateVerificationReceipt')
+    && inventoryProjection.includes('executionIdentityDigest: execution.executionIdentityDigest'),
+    'inventory projection must authenticate first and retain versioned execution-input semantics');
+  const publicationIssuer = extractNamedFunctionBody(read('packages/main/src/core/verification-execution-evidence.ts'), 'createCurrentVerificationAssertionReceipt') ?? '';
+  assert(publicationIssuer.includes("'publication', digested") && publicationIssuer.includes('freshness: { ...input.freshness }'),
+    'current publication must sign the exact freshness tuple in its own authenticity domain');
+  const collector = extractNamedFunctionBody(verificationSource, 'collectRecordedPinnedReceipts') ?? '';
+  const narrowing = extractNamedFunctionBody(verificationSource, 'evaluateSelectorNarrowing') ?? '';
+  const narrowingHandler = extractNamedFunctionBody(read('packages/main/src/handlers/checklist.ts'), 'narrowVerificationPin') ?? '';
+  assert(
+    collector.includes('const output = readValidatedOutput(') && !collector.includes('receipt.outputTail'),
+    'narrowing collection must require validated complete output without a compatibility-tail fallback',
+  );
+  assert(
+    narrowingHandler.includes("typeof validation.output !== 'string'")
+      && narrowingHandler.includes('return validation.output;'),
+    'narrowing handler must fail closed without complete output and return the authoritative validator output',
+  );
+  for (const expression of [
+    'r.output.includes(selector) && !r.output.includes(previousSelector)',
+    'judgedByPin.filter(r => !r.output.includes(selector))',
+    'passing.filter(r => !r.output.includes(selector))',
+  ]) {
+    assert(narrowing.includes(expression), `narrowing must decide against complete output: ${expression}`);
+  }
+  assert(!narrowing.includes('outputTail'), 'narrowing evaluator must never use a display tail as proof');
+  assert(
+    normalizedNarrowingDecision.includes('complete authenticated output')
+      && normalizedNarrowingDecision.includes('never a proof fallback')
+      && decisionDoc.includes('`outputTail` is display-only'),
+    'receipt and narrowing decisions must distinguish complete-output proof from display tails',
+  );
+  const narrowingSmoke = read('packages/main/src/tasks/narrowing-repin-smoke.ts');
+  for (const regression of ['CHK-002/B16', 'CHK-002/B17', 'CHK-002/B18']) {
+    assert(narrowingSmoke.includes(regression), `registered narrowing smoke must retain ${regression}`);
+  }
+  assert(
+    normalizedNarrowingDecision.includes('The narrowing consumer runs')
+      && normalizedNarrowingDecision.includes('authoritative receipt validation before reading any projected witness fields')
+      && normalizedNarrowingDecision.includes('narrowing_recorded_receipt_invalid')
+      && normalizedNarrowingDecision.includes('Legacy combined receipts and Bundle V2/V3/V4 remain')
+      && normalizedNarrowingDecision.includes('narrowing_recorded_receipt_not_authoritative'),
+    'narrowing decision must require current signed V5 authority before consuming projected selector witnesses',
+  );
+  const commandCatalog = read('packages/main/src/cli/command-catalog.ts').replace(/\s+/g, ' ');
+  assert(
+    commandCatalog.includes('Only current signed authoritative VerificationReceiptBundleV5 receipts recorded by this tool for that pinned command may be proof witnesses')
+      && commandCatalog.includes('legacy combined and Bundle V2/V3/V4 receipts remain audit-readable but are rejected with narrowing_recorded_receipt_not_authoritative')
+      && commandCatalog.includes('record current signed V5 evidence first'),
+    'verification_pin_narrow help must state the signed V5-only witness boundary, legacy refusal code, and remediation',
+  );
+  assert(
+    !commandCatalog.includes('the proof is drawn ONLY from receipts this tool recorded for that pinned command'),
+    'verification_pin_narrow help must not describe every tool-recorded legacy receipt as an authoritative witness',
+  );
+  const receiptTypes = read('packages/main/src/core/types.ts');
+  assert(
+    receiptTypes.includes('Current V3 execution component carried by the authoritative V5 bundle'),
+    'verification receipt types must identify Execution V3 as the current V5 bundle execution component',
+  );
+  assert(
+    receiptTypes.includes('Legacy V1 assertion: read-only, non-reusable, and non-admissible compatibility'),
+    'verification receipt types must identify Assertion V1 as legacy read-only/non-reusable/non-admissible compatibility',
+  );
+  assert(
+    receiptTypes.includes('Legacy V2 split bundle')
+      && receiptTypes.includes('Legacy V3 split bundle: read-only, non-reusable, non-promotable, and')
+      && receiptTypes.includes('cannot satisfy lifecycle admission'),
+    'verification receipt types must identify Bundle V2/V3/V4 as legacy read-only/non-reusable/non-admissible compatibility',
+  );
+  const runtimeReceiptFacts = read('packages/main/src/core/runtime-fact-registry.ts');
+  assert(
+    runtimeReceiptFacts.includes('V2 assertions and V5 bundles bind executed versus reused publication'),
+    'verification receipt runtime fact must assign publication mode and reuse binding to Assertion V2 / Bundle V5',
+  );
+  assert(
+    runtimeReceiptFacts.includes('validates the V5 bundle, V3 execution, V2 assertion, required mode-specific V1 reuse lineage'),
+    'verification gate runtime fact must name the current V5/V3/V2/V1 record model exactly',
+  );
+  assert(
+    read(processFactLevelRegistryPath).includes('V5 bundle links across its V3 execution, V2 assertion, and optional V1 reuse components'),
+    `${processFactLevelRegistryPath}: verification gate fact must name the current V5/V3/V2/V1 component model`,
+  );
+  assert(
+    read('packages/main/src/tasks/certification-window-smoke.ts').includes('authoritative V5 bundle and V3 execution component'),
+    'certification-window smoke fixture must describe the current V5 bundle rather than an authoritative V3 receipt',
+  );
+  assert(
+    read('packages/main/src/tasks/verification-run-and-guard-smoke.ts').includes('authoritative V5 bundle and its V3 execution component'),
+    'verification lifecycle smoke must describe the current V5 bundle rather than authoritative V3 validation',
+  );
+  const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  assert(
+    verificationReceiptSmoke.includes('expected VerificationReceiptBundleV5 with VerificationAssertionReceiptV2 and VerificationExecutionReceiptV3'),
+    'verification split-receipt helper diagnostic must name Bundle V5, Assertion V2, and Execution V3 exactly',
+  );
+  assert(
+    verificationReceiptSmoke.includes('expected reuse-capable VerificationReceiptBundleV5 with VerificationExecutionReceiptV3 component'),
+    'verification reusable-receipt helper diagnostic must name reuse-capable Bundle V5 and its Execution V3 component',
+  );
+  for (const staleDiagnostic of [
+    'expected a v2 split receipt',
+    'expected a v3 reuse-capable receipt',
+  ]) {
+    assert(
+      !verificationReceiptSmoke.includes(staleDiagnostic),
+      `verification receipt helper must reject stale ambiguous diagnostic: ${JSON.stringify(staleDiagnostic)}`,
+    );
+  }
+
+  const refreshHelp = read('packages/main/src/cli/command-catalog.ts');
+  for (const phrase of [
+    'may reuse immutable evidence with zero subprocesses',
+    'fails closed to at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes every dependent row, selector mismatch demotes only that row',
+  ]) {
+    assert(refreshHelp.includes(phrase), `verification_evidence_refresh_stale help must state: ${JSON.stringify(phrase)}`);
+  }
+  const normalizeCommentSurface = (text) => text
+    .replace(/^\s*\/\*+\s?/gmu, ' ')
+    .replace(/^\s*\*\/?\s?/gmu, ' ')
+    .replace(/\s+/g, ' ');
+  const refreshHandler = read('packages/main/src/handlers/checklist.ts');
+  const normalizedRefreshHandler = normalizeCommentSurface(refreshHandler);
+  for (const phrase of [
+    'Safe input-scoped reuse can publish the prior immutable execution with zero subprocesses',
+    'freshness fails closed',
+    'at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes',
+    'selector mismatch demotes only that row',
+  ]) {
+    assert(normalizedRefreshHandler.includes(phrase), `stale-refresh implementation contract must state: ${JSON.stringify(phrase)}`);
+  }
+  const normalizedVerificationReceiptSmoke = normalizeCommentSurface(verificationReceiptSmoke);
+  for (const phrase of [
+    'may reuse immutable evidence with zero subprocesses',
+    'freshness fails closed to at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes every',
+    'selector mismatch demotes only its row',
+  ]) {
+    assert(normalizedVerificationReceiptSmoke.includes(phrase), `stale-refresh smoke contract must state: ${JSON.stringify(phrase)}`);
+  }
+  for (const refreshDocPath of [
+    'docs/step2-evidence-receipts-handoff.md',
+    'docs/requirements/decisions/testing-infra.md',
+    'docs/requirements/decisions/story-lifecycle.md',
+  ]) {
+    const refreshDoc = normalizeCommentSurface(read(refreshDocPath));
+    for (const phrase of [
+      'policy-owned deterministic capsule',
+      'signed `ReuseReceipt` with zero subprocesses',
+      'at most once per affected execution key',
+      'fails closed',
+    ]) {
+      assert(refreshDoc.includes(phrase), `${refreshDocPath}: stale-refresh contract must state ${JSON.stringify(phrase)}`);
+    }
+  }
+  const storyFilesHashDecision = normalizeCommentSurface(read('docs/requirements/decisions/story-files-hash-material-drift.md'));
+  for (const phrase of [
+    'Bounded input-closure exception for checklist verification',
+    'current `VerificationReceiptBundleV5`, not a legacy bundle',
+    'policy-owned deterministic capsule, not an arbitrary command',
+    '`evidenceInputDigest` and selector-free execution identity are unchanged',
+    'signed `ReuseReceipt` referencing the immutable prior execution',
+    '`storyFilesHash` remains the strict fallback',
+  ]) {
+    assert(storyFilesHashDecision.includes(phrase), `story-files-hash drift decision must state ${JSON.stringify(phrase)}`);
+  }
+  for (const diagnostic of [
+    ['[verification_refresh_execution_timeout]', 'shared execution was attempted and timed out'],
+    ['[verification_refresh_execution_nonzero]', 'shared execution was attempted and exited nonzero'],
+  ]) {
+    const [code, phrase] = diagnostic;
+    assert(refreshHandler.includes(code) && refreshHandler.includes(phrase),
+      `stale-refresh handler must persist truthful execution-failure provenance ${code}`);
+    assert(verificationReceiptSmoke.includes(code.slice(1, -1)) && verificationReceiptSmoke.includes(phrase),
+      `stale-refresh smoke must assert handler and persisted provenance ${code}`);
   }
 }
 
@@ -8915,6 +9286,39 @@ for (const dir of promptDirs) {
 }
 await comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
+{
+  const admissibility = read('packages/main/src/core/proof-admissibility.ts');
+  const verification = read('packages/main/src/core/verification.ts');
+  assert(admissibility.includes('evaluateVerificationEvidenceForGate'), 'verification receipt lifecycle evaluator must be authoritative in proof-admissibility');
+  assert(admissibility.includes('validateVerificationReceipt'), 'verification lifecycle evaluator must validate receipt and full-output artifact integrity');
+  assert(admissibility.includes('VERIFICATION_RECEIPT_BUNDLE_V5'), 'verification lifecycle evaluator must require the publication-bound v5 receipt bundle');
+  for (const code of ['verification_receipt_missing', 'verification_receipt_legacy', 'verification_receipt_invalid', 'verification_receipt_stale', 'verification_receipt_not_passing', 'verification_reuse_incomplete']) {
+    assert(admissibility.includes(code), `verification lifecycle evaluator missing stable diagnostic: ${code}`);
+  }
+  assert(verification.includes('receiptAdmissibility'), 'verification coverage must consume a gate-owned receipt admissibility callback');
+  assert(verification.includes('nonMechanicalReason: decision.detail'), 'verification coverage must preserve stable receipt diagnostics on denied rows');
+  const maintenance = read('packages/main/src/handlers/checklist.ts');
+  for (const token of ['hasStaleLegacyMetadata', "entry.status !== 'non_mechanical'", 'evidence.receipt',
+    'evidence.mechanical === true', '!evidence.headHash', "evidence.kind === 'waiver'", "evidence.result === 'fail'",
+    'resolved.intent.verification', 'checkEvidenceFreshnessForGit(', 'createVerificationEvidenceGateEvaluator(root, storyId)']) {
+    assert(maintenance.includes(token), `legacy metadata maintenance must preserve its narrow non-authoritative boundary: ${token}`);
+  }
+  const regression = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  for (const token of ['partMLegacyMetadataMaintenance', 'partNLiveProducerOwnership',
+    'metadata never grants execution authority', 'dry-run is read-only', 'unexecuted command-backed PASS is explicitly demoted']) {
+    assert(regression.includes(token), `receipt maintenance and producer ownership regression missing: ${token}`);
+  }
+  for (const consumerPath of [
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/certification-window.ts',
+  ]) {
+    assert(read(consumerPath).includes('createVerificationEvidenceGateEvaluator'), `${consumerPath}: actual gate/reader must use authoritative verification receipt evaluator`);
+  }
+}
 for (const relPath of [
   'packages/main/src/cli-engine.ts',
   commandPolicyPath,
@@ -8932,6 +9336,7 @@ for (const issue of scanCodeLikeStringArrayConst(
 assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
+assertCurrentVerificationReceiptModel();
 assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
@@ -8986,4 +9391,5 @@ if (failures.length) {
 
 console.log('');
 console.log('Process fact contract verified');
+console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');

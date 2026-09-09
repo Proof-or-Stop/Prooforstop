@@ -20,6 +20,16 @@ const requiredFacts = [
   ['external-reference-policy', 'externalReferencePolicy'],
 ];
 
+const requiredEvidenceFacts = [
+  'verification-output-integrity',
+  'verification-receipt-layering',
+  'verification-receipt-authenticity',
+  'verification-input-scoped-reuse',
+  'verification-reuse-capsule-authority',
+  'verification-execution-producer-lock',
+  'verification-lifecycle-admissibility',
+];
+
 function fail(message) {
   failures.push(message);
 }
@@ -71,6 +81,15 @@ async function main() {
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
   const doctorSource = read(root, 'packages/main/src/handlers/doctor.ts');
   const processFactSource = read(root, 'packages/main/src/core/process-fact-registry.ts');
+  const runtimeArtifactSource = read(root, 'packages/main/src/core/runtime-artifact-registry.ts');
+  const verificationEvidenceSource = read(root, 'packages/main/src/core/verification-execution-evidence.ts');
+  const proofAdmissibilitySource = read(root, 'packages/main/src/core/proof-admissibility.ts');
+  const verificationCoverageSource = read(root, 'packages/main/src/core/verification.ts');
+  const checklistSource = read(root, 'packages/main/src/handlers/checklist.ts');
+  const capsuleSource = read(root, 'packages/main/src/core/verification-reuse-capsule.ts');
+  const validationEnvironmentSource = read(root, 'packages/main/src/core/validation-command-environment.ts');
+  const validationExecutorSource = read(root, 'packages/main/src/core/validation-executor.ts');
+  const evidenceTypesSource = read(root, 'packages/main/src/core/evidence/types.ts');
 
   for (const [id, outputKey] of requiredFacts) {
     check(registrySource.includes(`id: '${id}'`), `missing runtime fact: ${id}`);
@@ -111,6 +130,82 @@ async function main() {
     'runtime authority checker must narrowly bind the explicit global fallback',
   );
   check(checksSource.includes("input.command === 'session_brief'"), 'global fallback exemption must be session_brief-only');
+  check(runtimeArtifactSource.includes("id: 'verification-evidence-artifacts'"), 'verification evidence artifact store must be runtime-registered');
+  for (const id of requiredEvidenceFacts) {
+    check(registrySource.includes(`id: '${id}'`), `missing ${id} runtime evidence fact`);
+  }
+  check(verificationEvidenceSource.includes('readVerificationOutputArtifact'), 'verification output must have one authoritative read boundary');
+  check(verificationEvidenceSource.includes('verifyArtifactDigest'), 'verification output reads must verify canonical artifact digest');
+  check(verificationEvidenceSource.includes('embedded output digest verification'), 'verification output reads must verify embedded output digest');
+  check(verificationEvidenceSource.includes("reusable: false"), 'split and legacy compatibility receipts must not gain CHK-003 reuse implicitly');
+  check(verificationEvidenceSource.includes('withVerificationExecutionLocks'), 'verification execution must expose the repository-local producer lock');
+  for (const token of ['verificationExecutionTicketOwnerIsDead', "error?.code === 'ESRCH'", 'readVerificationExecutionTickets',
+    'await delay(25)', 'verification_execution_lock_legacy_layout', 'verification_execution_lock_invalid_owner',
+    'utimesSync(ticketPath, now, now)', 'rmSync(ticketPath, { force: true })',
+    "if (error?.code === 'ENOENT') continue snapshot;", 'a.name < b.name ? -1 : a.name > b.name ? 1 : 0']) {
+    check(verificationEvidenceSource.includes(token), `verification producer ticket ownership protection missing: ${token}`);
+  }
+  check(!verificationEvidenceSource.includes('Date.now() - statSync(lockPath).mtimeMs'), 'producer ownership must not expire by heartbeat age');
+  check(!verificationEvidenceSource.includes('renameSync(lockPath, stalePath)'), 'producer reclaim must not rename a reusable shared lock path');
+  check(verificationEvidenceSource.includes('signCanonical'), 'verification records must use the shared Ed25519 signing primitive');
+  check(verificationEvidenceSource.includes('trustedVerificationPublicKey'), 'verification signatures must resolve a trusted repository key');
+  check(verificationEvidenceSource.includes('VERIFICATION_SIGNING_DOMAIN'), 'verification signatures must be domain separated');
+  check(checklistSource.includes('concurrentPublishedExecution'), 'verification waiters must search for cross-intent execution publications');
+  check(checklistSource.includes('verificationReceiptLostCurrentReuseAuthority'), 'lost capsule authority must force stale classification');
+  check(verificationEvidenceSource.includes('assertVerificationInputUnchanged'), 'verification execution must fail closed when inputs move during execution');
+  check(capsuleSource.includes('VERIFICATION_REUSE_CAPSULE_POLICY_DIGEST'), 'reuse capsule must expose a policy digest');
+  check(capsuleSource.includes("'--permission'"), 'reuse capsule must enable Node permission enforcement');
+  check(capsuleSource.includes("'--allow-fs-read'"), 'reuse capsule must bind declared read permissions');
+  check(capsuleSource.includes('isExactVerificationReuseCapsuleInvocation'), 'reuse capsule authority must require exact argv');
+  check(validationEnvironmentSource.includes('closedVerificationReuseCapsuleEnvironment'), 'reuse capsule must have a closed environment constructor');
+  check(validationExecutorSource.includes('closedEnvironmentForVerificationReuseCapsuleInvocation'), 'executor must select the closed environment only for exact capsule argv');
+  check(verificationEvidenceSource.includes('closedEnvironmentForVerificationReuseCapsuleInvocation({')
+    && verificationEvidenceSource.includes('effectiveValidationCommandEnvironment(process.env, undefined, input.cwd)'),
+  'verification identity must use the actual invocation-selected environment, not manifest reuse eligibility');
+  check(verificationEvidenceSource.includes('Object.entries(environment).sort(')
+    && verificationEvidenceSource.includes('executableFileIdentity(parsed.executable, input.cwd, environment)')
+    && verificationEvidenceSource.includes('executableFileIdentity(process.execPath, input.cwd, environment)'),
+  'verification identity must bind actual child environment/cwd and absolute host runtime separately');
+  check(!verificationEvidenceSource.includes("execFileSync('which'")
+    && !verificationEvidenceSource.includes("executable === 'node'"),
+  'verification identity must not substitute ambient which or host node for the actual child');
+  check(verificationEvidenceSource.includes('throw new Error(\'verification executable resolution is unprovable [incomplete_toolchain_identity]\')'),
+    'unprovable toolchain identity must fail closed before ordinary evidence issuance');
+  check(registrySource.includes('Unprovable executable resolution fails closed'),
+    'runtime currentness fact must declare the unprovable executable boundary');
+  check(verificationEvidenceSource.includes('buildValidationExecutableLookup(executable, environment, process.platform)')
+    && verificationEvidenceSource.includes('validationCommandUsesShell({}, process.platform)')
+    && verificationEvidenceSource.includes("environment.ComSpec ?? environment.COMSPEC ?? 'cmd.exe'")
+    && verificationEvidenceSource.includes('(usesShell && !shellIdentity)'),
+  'verification identity must retain the existing Windows lookup/shell envelope and require provable shell bytes');
+  for (const phrase of [
+    'Candidate artifacts use evidenceScope "evidence-candidate"',
+    'independently satisfy REVIEW, TEST, or DONE gates',
+    'dedicated tool-owned producer',
+    'integrity, required signatures, and proof-admissibility',
+    'neither EvidenceScope nor ArtifactKind grants authority by itself',
+    'content addressing alone does not make its payload authoritative',
+  ]) {
+    check(evidenceTypesSource.includes(phrase), `evidence artifact type boundary must state: ${JSON.stringify(phrase)}`);
+  }
+  for (const staleClaim of [
+    'candidate-only evidence platform primitives',
+    'Candidate-only scope',
+    'Artifact kinds for the repro-first workflow',
+  ]) {
+    check(!evidenceTypesSource.includes(staleClaim), `evidence artifact type boundary must remove stale over-broad claim: ${JSON.stringify(staleClaim)}`);
+  }
+  check(verificationEvidenceSource.includes('verificationReceiptHasCurrentReuseAuthority'), 'reuse admission must recompute current capsule authority');
+  check(checklistSource.includes('withVerificationExecutionLocks'), 'verification publishers must use the execution-key lock');
+  check(checklistSource.includes('receiptIssued=false reason=input_changed_during_execution'), 'verification publisher must preserve the stable input-drift diagnostic');
+  check(proofAdmissibilitySource.includes('validateVerificationReceipt'), 'lifecycle admissibility must call the authoritative verification receipt validator');
+  check(proofAdmissibilitySource.includes('VERIFICATION_RECEIPT_BUNDLE_V5'), 'lifecycle admissibility must require the mode-bound v5 receipt bundle');
+  check(verificationEvidenceSource.includes("'publication', digested"), 'current publication context must be independently signed');
+  check(verificationEvidenceSource.includes('publication freshness binding mismatch'), 'unsigned evidence coordinates must match the signed publication');
+  check(proofAdmissibilitySource.includes("'stale-needs-execution'"), 'currentness classifier must distinguish renewable drift from invalid evidence');
+  check(checklistSource.includes('createCurrentVerificationAssertionReceipt'), 'canonical publishers must issue current V5 publication context');
+  check(!checklistSource.includes('createVerificationAssertionReceipt('), 'historical V4 issuer must not be a canonical publication path');
+  check(verificationCoverageSource.includes('receiptAdmissibility'), 'verification coverage must consume gate-owned receipt admissibility');
   const authorityPreflight = cliEngineSource.indexOf('raw-argv-safe runtime authority preflight');
   check(authorityPreflight >= 0, 'CLI engine must declare the raw-argv-safe runtime authority preflight');
   for (const [label, needle] of [
@@ -129,6 +224,7 @@ async function main() {
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
   const configModule = await importDist(root, 'packages/main/dist/core/config.js');
+  const verificationEvidenceModule = await importDist(root, 'packages/main/dist/core/verification-execution-evidence.js');
 
   if (registryModule) {
     const registry = registryModule.RUNTIME_FACT_REGISTRY ?? [];
@@ -145,6 +241,38 @@ async function main() {
       check(Boolean(entry?.externalSeverity), `runtime fact ${id} missing externalSeverity`);
       check(checksSource.includes(`case '${entry?.checker}'`), `runtime checker not wired: ${entry?.checker} for ${id}`);
     }
+  }
+
+  if (verificationEvidenceModule) {
+    check(
+      verificationEvidenceModule.VERIFICATION_EXECUTION_RECEIPT_VERSION === 'proof-or-stop.verification-execution-receipt.v2',
+      'verification execution receipt version mismatch',
+    );
+    check(
+      verificationEvidenceModule.VERIFICATION_EXECUTION_RECEIPT_V3 === 'proof-or-stop.verification-execution-receipt.v3',
+      'verification execution v3 receipt version mismatch',
+    );
+    check(
+      verificationEvidenceModule.VERIFICATION_ASSERTION_RECEIPT_VERSION === 'proof-or-stop.verification-assertion-receipt.v1',
+      'verification assertion receipt version mismatch',
+    );
+    check(
+      verificationEvidenceModule.VERIFICATION_ASSERTION_RECEIPT_V2 === 'proof-or-stop.verification-assertion-receipt.v2',
+      'verification publication-bound assertion receipt version mismatch',
+    );
+    check(
+      verificationEvidenceModule.VERIFICATION_RECEIPT_BUNDLE_V5 === 'proof-or-stop.verification-receipt-bundle.v5',
+      'verification publication-bound bundle version mismatch',
+    );
+    check(verificationEvidenceModule.VERIFICATION_RECEIPT_BUNDLE_V4 === 'proof-or-stop.verification-receipt-bundle.v4', 'historical V4 audit schema must remain available');
+    check(typeof verificationEvidenceModule.createCurrentVerificationAssertionReceipt === 'function', 'current signed publication issuer missing');
+    check(
+      verificationEvidenceModule.VERIFICATION_RECORD_AUTHENTICITY_V1 === 'proof-or-stop.verification-record-authenticity.v1',
+      'verification signed-record authenticity version mismatch',
+    );
+    check(typeof verificationEvidenceModule.validateVerificationReceipt === 'function', 'split verification receipt validator missing');
+    check(typeof verificationEvidenceModule.readVerificationOutputArtifact === 'function', 'verification output artifact reader missing');
+    check(typeof verificationEvidenceModule.withVerificationExecutionLocks === 'function', 'verification execution producer lock missing');
   }
 
   if (configModule) {
@@ -300,6 +428,7 @@ async function main() {
   }
 
   console.log(`Runtime fact contract verified (${requiredFacts.map(([id]) => id).join(', ')})`);
+  console.log('execution_assertion_reuse_contract=PASS');
 }
 
 main().catch((error) => {

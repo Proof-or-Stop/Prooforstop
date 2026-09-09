@@ -61,6 +61,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
@@ -800,7 +801,11 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       cl,
       head,
       (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
-      { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
+      {
+        deferredGateEvidence: 'missing',
+        evidenceQualityProfile: effectivePolicy.profile,
+        receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+      },
     );
   } catch {
     return result;
@@ -860,7 +865,11 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
     checklist,
     head,
     (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
-    { deferredGateEvidence: 'missing', evidenceQualityProfile: workflowPolicy.profile },
+    {
+      deferredGateEvidence: 'missing',
+      evidenceQualityProfile: workflowPolicy.profile,
+      receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+    },
   );
   return {
     checklist,
@@ -2497,7 +2506,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               cl,
               head,
               (headHash, evidence) => evidenceFreshness(handlerGitCwd, projectRoot, headHash, evidence).fresh,
-              { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
+              {
+                deferredGateEvidence: 'missing',
+                evidenceQualityProfile: effectivePolicy.profile,
+                receiptAdmissibility: createVerificationEvidenceGateEvaluator(projectRoot, args.story),
+              },
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);

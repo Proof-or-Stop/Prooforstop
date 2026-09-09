@@ -9,6 +9,59 @@ export const REQUIRED_RUNTIME_FACT_IDS = [
   'external-reference-policy',
 ] as const;
 
+/**
+ * Gate-evidence runtime facts are not doctor/environment checks. They describe
+ * the local execution/capture boundary and are verified by the runtime contract
+ * alongside (but never inserted into) REQUIRED_RUNTIME_FACT_IDS.
+ */
+export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
+  {
+    id: 'verification-output-integrity',
+    owner: 'verification-execution-evidence',
+    semantics: 'Canonical artifact digest and embedded complete-output digest are both verified on every authoritative read.',
+  },
+  {
+    id: 'verification-receipt-layering',
+    owner: 'verification-execution-evidence',
+    semantics: 'Selector-free execution receipts and per-intent assertion receipts are independently digested; V2 assertions and V5 bundles bind executed versus reused publication and the exact reuse digest, while legacy receipts remain readable but non-reusable and non-promotable.',
+  },
+  {
+    id: 'verification-receipt-authenticity',
+    owner: 'verification-execution-evidence + authority-signing',
+    semantics: 'Execution, every per-intent assertion, reuse lineage, and V5 publication context are independently Ed25519-signed with domain separation and verified against the fixed git-common-dir trusted key; publication binds Story, exact freshness tuple, mode, and every component/artifact link. Embedded key replacement, unsigned outer tuple rewrites, and whole-graph digest recomputation fail closed.',
+  },
+  {
+    id: 'verification-input-scoped-reuse',
+    owner: 'verification-execution-evidence',
+    semantics: 'A v5 reused publication is admissible only when its required ReuseReceipt and digest-bound mode agree and command, argv, cwd, effective timeout, capture semantics, closed environment, toolchain, platform, architecture, Node, policy-owned capsule manifest, and evidence input digest are mechanically complete and unchanged.',
+  },
+  {
+    id: 'verification-reuse-capsule-authority',
+    owner: 'verification-reuse-capsule',
+    semantics: 'Only the exact policy-owned declarative capsule may authorize input-scoped reuse; self-attested v1 manifests and arbitrary commands remain strict-fallback evidence, while Node permissions and a closed environment deny undeclared reads, network, writes, child processes, loaders, preloads, and permission widening.',
+  },
+  {
+    id: 'verification-execution-producer-lock',
+    owner: 'verification-execution-evidence',
+    semantics: 'One selector-free repository-local execution key serializes add, batch, run, and stale-refresh publishers with asynchronous unique acquisition tickets. Live or uncertain owners survive heartbeat expiry; only a proven-dead local owner permits exact-ticket reclaim. Release and heartbeat never touch a successor, and legacy, mixed or malformed ownership fails closed. Batches lock sorted unique keys; waiters independently assert newly published full output while coordination is held through atomic publication.',
+  },
+  {
+    id: 'verification-lifecycle-admissibility',
+    owner: 'proof-admissibility',
+    semantics: 'Lifecycle coverage validates the V5 bundle, V3 execution, V2 assertion, required mode-specific V1 reuse lineage, immutable selector, bundle cross-links, and full-output artifact integrity; prose, legacy, malformed, or caller-shaped records cannot satisfy executable gates.',
+  },
+  {
+    id: 'verification-current-execution-identity',
+    owner: 'proof-admissibility + checklist + done-prepare',
+    semantics: 'Gate, refresh, and DONE share current/stale-needs-execution/invalid classification for every tool-executed pin, including docs/manual and ordinary non-reusable commands. Receipt-less unpinned legacy metadata maintenance remains a separate non-authoritative scheduling path: it cannot mint execution authority and demotes unexecuted command-backed passes. Child executable bytes are resolved through the actual invocation environment and child cwd, with the absolute host runtime bound separately; invocation-selected closed environment is independent of manifest reuse eligibility. Unprovable executable resolution fails closed. Live environment/toolchain/input drift requires actual execution; invalid authenticated command or publication bindings cannot be renewed implicitly. Authentic V4 is audit-only and needs true V5 renewal.',
+  },
+  {
+    id: 'verification-inventory-observation-projection',
+    owner: 'review-inventory-epoch',
+    semantics: 'The store-backed inventory consumer authenticates the complete receipt and artifact before applying a versioned observation/input whitelist; genuine same-output same-input re-execution and authorized reuse preserve semantics, while changed inputs/output, tamper, and independent epoch material/scope cutoffs remain enforced.',
+  },
+] as const;
+
 export type RuntimeFactId = typeof REQUIRED_RUNTIME_FACT_IDS[number];
 
 export type RuntimeFactScope = 'all' | 'self' | 'external';

@@ -265,7 +265,7 @@ function assertPostCommandHookMutationFailsTerminalCloseout(): void {
   const storyId = 'B-terminal-hook';
   const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
   try {
-    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n', 'utf8');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\n', 'utf8');
     writeFileSync(join(root, 'probe.mjs'), [
       "import { appendFileSync } from 'node:fs';",
       "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n');",
@@ -360,7 +360,7 @@ function assertPhaseHookMutationFailsTransitionCloseout(): void {
   const storyId = 'B-phase-hook';
   const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
   try {
-    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n', 'utf8');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\n', 'utf8');
     writeFileSync(join(root, 'probe.mjs'), [
       "import { appendFileSync } from 'node:fs';",
       "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n');",
@@ -461,6 +461,7 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     writeFileSync(join(root, '.gitignore'), [
       '.proof-or-stop/activity.jsonl',
       '.proof-or-stop/locks/',
+      '.proof-or-stop/runtime/',
       '',
     ].join('\n'), 'utf8');
     writeFileSync(join(root, 'probe.mjs'), [
@@ -682,7 +683,7 @@ function assertHandlerExecutedThenReused(
   const counterPath = join(tmpdir(), `proof-or-stop-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
   const storyId = 'B-reuse-handler';
   try {
-    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n', 'utf8');
+    writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\n', 'utf8');
     writeFileSync(join(root, 'probe.mjs'), `import { appendFileSync } from 'node:fs'; appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n'); console.log('handler probe PASS');\n`, 'utf8');
     writeFileSync(join(root, 'source.ts'), 'export const handlerReuse = true;\n', 'utf8');
     writeFileSync(join(root, 'hook-unrelated.txt'), 'base\n', 'utf8');

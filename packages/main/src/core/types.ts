@@ -1123,6 +1123,250 @@ export interface VerificationExecutionReceipt {
   commandReruns?: 0;
 }
 
+/**
+ * B-aa5f CHK-002: reference to the immutable full-output artifact produced by one
+ * verifier execution. `artifactDigest` protects the canonical envelope while
+ * `outputDigest` independently protects the embedded complete output bytes.
+ */
+export interface VerificationOutputArtifactRef {
+  artifactId: string;
+  artifactDigest: string;
+  outputDigest: string;
+}
+
+/** Tool-owned Ed25519 authentication bound to a repository trusted key. */
+export interface VerificationRecordAuthenticityV1 {
+  schemaVersion: 'proof-or-stop.verification-record-authenticity.v1';
+  domain: 'execution' | 'assertion' | 'reuse' | 'publication';
+  keyId: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+/**
+ * B-aa5f CHK-002: selector-free execution facts. Selector identity and outcome
+ * deliberately do not exist on this object; one execution can support many
+ * independently signed assertions without implying that any selector matched.
+ */
+export interface VerificationExecutionReceiptV2 {
+  schemaVersion: 'proof-or-stop.verification-execution-receipt.v2';
+  command: string;
+  commandDigest: string;
+  executable: string;
+  argv: string[];
+  cwd: string;
+  cwdDigest: string;
+  effectiveTimeoutMs: number;
+  environmentDigest: string;
+  toolchainDigest: string;
+  evidenceInputDigest: string | null;
+  inputClosureComplete: boolean;
+  captureSemantics: 'combined-stdout-stderr.v1';
+  outputArtifact: VerificationOutputArtifactRef;
+  exitCode: number;
+  timedOut: boolean;
+  durationMs: number;
+  executedAt: string;
+  executionReceiptDigest: string;
+}
+
+/**
+ * Legacy caller-authored verifier declaration. It remains readable for audit,
+ * but its completeness/determinism booleans never authorize reuse.
+ */
+export interface VerifierDependencyManifestV1 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v1';
+  fileClosure: 'complete' | 'partial';
+  files: string[];
+  environmentVariables: string[];
+  deterministic: boolean;
+  dynamicFileReads: boolean;
+  networkInputs: boolean;
+  undeclaredEnvironment: boolean;
+  sideEffects: boolean;
+}
+
+/**
+ * Declarative input to the policy-owned reuse capsule. Unlike v1, this schema
+ * contains no caller-authored claims about completeness or determinism: the
+ * fixed capsule semantics are the authority for those properties.
+ */
+export interface VerifierDependencyManifestV2 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2';
+  capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1';
+  files: string[];
+}
+
+export interface VerificationDependencyManifestBindingV1 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest-binding.v1';
+  path: string;
+  manifestDigest: string;
+}
+
+export interface VerificationDependencyManifestBindingV2 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest-binding.v2';
+  path: string;
+  manifestDigest: string;
+  capsulePolicyDigest: string;
+}
+
+/** Current V3 execution component carried by the authoritative V5 bundle. */
+export interface VerificationExecutionReceiptV3 extends Omit<VerificationExecutionReceiptV2,
+  'schemaVersion' | 'executionReceiptDigest'> {
+  schemaVersion: 'proof-or-stop.verification-execution-receipt.v3';
+  dependencyManifest: VerificationDependencyManifestBindingV1 | VerificationDependencyManifestBindingV2 | null;
+  platform: string;
+  architecture: string;
+  nodeVersion: string;
+  executionIdentityDigest: string;
+  reuseDeniedReason: string | null;
+  executionReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/** Legacy V1 assertion: read-only, non-reusable, and non-admissible compatibility. */
+export interface VerificationAssertionReceiptV1 {
+  schemaVersion: 'proof-or-stop.verification-assertion-receipt.v1';
+  intentRef: string;
+  selectorDigest: string;
+  matcherVersion: 'literal-includes.v1';
+  executionReceiptDigest: string;
+  outputDigest: string;
+  matched: boolean;
+  assertionReceiptDigest: string;
+}
+
+/**
+ * CHK-005 assertion whose digest also commits to how the execution was
+ * published.  A reused assertion must name the exact reuse receipt; an
+ * executed assertion must commit to the absence of one.
+ */
+export interface VerificationAssertionReceiptV2 {
+  schemaVersion: 'proof-or-stop.verification-assertion-receipt.v2';
+  intentRef: string;
+  selectorDigest: string;
+  matcherVersion: 'literal-includes.v1';
+  executionReceiptDigest: string;
+  outputDigest: string;
+  publicationMode: 'executed' | 'reused';
+  reuseReceiptDigest: string | null;
+  matched: boolean;
+  assertionReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/** Immutable audit record proving why a prior execution was reused. */
+export interface VerificationReuseReceiptV1 {
+  schemaVersion: 'proof-or-stop.verification-reuse-receipt.v1';
+  priorExecutionReceiptDigest: string;
+  priorOutputArtifactDigest: string;
+  outputDigest: string;
+  dependencyManifestDigest: string;
+  evidenceInputDigest: string;
+  executionIdentityDigest: string;
+  reusedAt: string;
+  reuseReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/**
+ * Legacy V2 split bundle. Its top-level fields are a read-only adapter for
+ * existing consumers; the bundle and its V1 assertion are non-reusable,
+ * non-promotable, and cannot satisfy lifecycle admission.
+ */
+export interface VerificationReceiptBundleV2 extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v2';
+  executionReceipt: VerificationExecutionReceiptV2;
+  assertionReceipt: VerificationAssertionReceiptV1;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/**
+ * Legacy V3 split bundle: read-only, non-reusable, non-promotable, and
+ * non-admissible. Its V3 execution component remains the execution component
+ * used by the current V5 bundle and historical V4; the V3 bundle and V1 assertion do not.
+ */
+export interface VerificationReceiptBundleV3 extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v3';
+  executionReceipt: VerificationExecutionReceiptV3;
+  assertionReceipt: VerificationAssertionReceiptV1;
+  reuseReceipt?: VerificationReuseReceiptV1;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/** Canonical component cross-links; V5 additionally signs publication context. */
+export interface VerificationReceiptBundleBindingV1 {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle-binding.v1';
+  publicationMode: 'executed' | 'reused';
+  executionReceiptDigest: string;
+  assertionReceiptDigest: string;
+  reuseReceiptDigest: string | null;
+  outputArtifactDigest: string;
+  outputDigest: string;
+}
+
+interface VerificationReceiptBundleV4Common extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v4';
+  executionReceipt: VerificationExecutionReceiptV3;
+  assertionReceipt: VerificationAssertionReceiptV2;
+  bundleBinding: VerificationReceiptBundleBindingV1;
+  bundleReceiptDigest: string;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/** Historical V4 bundle: authenticated audit data, not current admission authority. */
+export type VerificationReceiptBundleV4 =
+  | (VerificationReceiptBundleV4Common & {
+      publicationMode: 'executed';
+      reuseReceiptDigest: null;
+      reuseReceipt?: never;
+    })
+  | (VerificationReceiptBundleV4Common & {
+      publicationMode: 'reused';
+      reuseReceiptDigest: string;
+      reuseReceipt: VerificationReuseReceiptV1;
+    });
+
+export interface VerificationFreshnessBinding {
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+}
+
+/** Separately authenticated publication context; never an unsigned hash re-pin. */
+export interface VerificationPublicationBindingV1 extends Omit<VerificationReceiptBundleBindingV1, 'schemaVersion'> {
+  schemaVersion: 'proof-or-stop.verification-publication-binding.v1';
+  storyId: string;
+  freshness: VerificationFreshnessBinding;
+  publicationDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+type CurrentVerificationBundle<T> = T extends VerificationReceiptBundleV4
+  ? Omit<T, 'schemaVersion'> & {
+      schemaVersion: 'proof-or-stop.verification-receipt-bundle.v5';
+      publicationBinding: VerificationPublicationBindingV1;
+    }
+  : never;
+export type VerificationReceiptBundleV5 = CurrentVerificationBundle<VerificationReceiptBundleV4>;
+
+export type VerificationSplitReceipt = VerificationReceiptBundleV2 | VerificationReceiptBundleV3 | VerificationReceiptBundleV4 | VerificationReceiptBundleV5;
+
+/** Legacy combined receipt or the explicit split-receipt compatibility bundle. */
+export type VerificationEvidenceReceipt = VerificationExecutionReceipt | VerificationSplitReceipt;
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -1136,8 +1380,8 @@ export interface VerificationEvidence {
    * audited escape). Undefined on legacy evidence written before B-ec67 (grandfathered).
    */
   mechanical?: boolean;
-  /** B-ec67: tool-owned execution receipt, present only when mechanical === true. */
-  receipt?: VerificationExecutionReceipt;
+  /** Tool-owned legacy or split receipt, present only when mechanical === true. */
+  receipt?: VerificationEvidenceReceipt;
   /**
    * B-ec67: attributable, gate-visible reason recorded when an executable intent is
    * deliberately covered by a non-mechanical attestation via the audited escape path

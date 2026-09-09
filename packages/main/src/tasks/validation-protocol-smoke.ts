@@ -2285,6 +2285,9 @@ try {
       currentReviewRound: aliasNow, events: [],
     });
     aliasStore.writeChecklist('B-alias-smoke', { items: [] });
+    // Direct handler fixture: the real story-scoped CLI acquires this lease
+    // before entering the shared validation execution/preflight boundary.
+    acquireOwnerLease(aliasStore.storyDirPath('B-alias-smoke'), { command: 'validate', cwd: storyIdAliasRoot });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2323,6 +2326,7 @@ try {
       currentReviewRound: storyFlagNow, events: [],
     });
     storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
+    acquireOwnerLease(storyFlagStore.storyDirPath('B-story-flag-smoke'), { command: 'validate', cwd: storyFlagRoot });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,

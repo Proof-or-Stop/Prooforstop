@@ -99,6 +99,8 @@ import { repairGlobalProofOrStopLinkBeforeWorktreeDelete } from '../handlers/wor
 import { assertDonePreparePassConvergence, collectDonePrepareConvergenceFacts, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
 import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { deriveAcceptanceCoverageBasis } from '../core/acceptance-coverage-basis.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -149,6 +151,26 @@ function writeAcceptanceBasisDiscoveryFixture(root: string): void {
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_rollout_report verifier-owned signed flat-project rollout report";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
+  // F090: registered runtime source refs are physical snapshot inputs even
+  // when this fixture exercises only the acceptance-basis command paths.
+  // Empty test modules supply those inputs without inventing extra call edges.
+  for (const path of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/proof-admissibility.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification-execution-evidence.ts',
+    'packages/main/src/core/verification.ts',
+    'packages/main/src/handlers/certification-window.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+  ]) write(root, path, 'export {};\n');
 }
 
 function git(root: string, args: string[]): void {
@@ -2429,8 +2451,17 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       root,
       scanRoot: join(root, 'packages/main'),
     }).acceptance_basis_generate({ storyId });
-    assert.match(basisOutput, /Acceptance coverage basis: complete/);
     const planArtifact = store.readAcceptanceBasis(storyId);
+    assert.match(
+      basisOutput,
+      /Acceptance coverage basis: complete/,
+      `acceptance basis fixture must remain complete: ${JSON.stringify({
+        output: basisOutput,
+        status: planArtifact?.basis.status,
+        blindSpots: planArtifact?.basis.blindSpots,
+        snapshotSeal: planArtifact?.basis.snapshotSeal,
+      })}`,
+    );
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
     const output = await createStoryAdvanceHandlers({
@@ -2445,6 +2476,34 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     );
     assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
+
+    // Removing one genuinely present fixture source must still fail the seal.
+    // This calls only the pure derivation API: no negative receipt is signed,
+    // and all file/git mutations stay inside this test's mkdtemp-owned root.
+    const missingSource = 'packages/main/src/core/proof-admissibility.ts';
+    assert.equal(readFileSync(join(root, missingSource), 'utf8'), 'export {};\n');
+    rmSync(join(root, missingSource));
+    git(root, ['add', missingSource]);
+    git(root, ['commit', '-m', 'remove required fixture snapshot input']);
+    const missing = deriveAcceptanceCoverageBasis({
+      storyId, workspaceRoot: root,
+      checklist: store.readChecklist(storyId),
+      contract: store.readProofStoryContract(storyId),
+      scopeCheck: store.readScopeCheck(storyId),
+      scopeContract: store.readScopeContract(storyId),
+      headHash: currentGitHead(root)!,
+      materialHash: currentMaterialHash(root, 'HEAD', root)!,
+      storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
+      phaseBasis: 'plan',
+    });
+    assert.equal(missing.basis.status, 'partial', 'F090: missing registered source cannot yield a complete basis');
+    assert.equal(missing.basis.snapshotSeal.status, 'partial');
+    assert.ok(missing.basis.snapshotSeal.issues.some(issue => issue.code === 'snapshot_missing'
+      && issue.targetKind === 'source_file' && issue.canonicalRef === missingSource),
+    'F090: partial seal identifies the exact missing registered source');
+    assert.deepEqual(missing.basis.enumeratedPathRefs, planArtifact!.basis.enumeratedPathRefs,
+      'F090: physical snapshot completeness remains independent of the same discovered command paths');
+    console.log('B-aa5f F090 fixture-snapshot-inputs PASS complete-control=complete missing-input=partial');
   } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
@@ -4184,6 +4243,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
         endTime: now,
       }],
     });
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: failRoot });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     let rejectionMessage = '';

@@ -169,7 +169,7 @@ Process facts must be protected by two layers of code policy and gate, not only 
 | `done_required_validate` | Opt-in DONE-required validation entry point, writes `done-required-evidence.json`; advisory when no policy exists |
 | `checklist_update` | Records the checklist status, `verificationIntent`, and `verificationEvidence` in the DEV phase |
 | `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context; not gateEvidence, produces no validation evidence |
-| `verification_evidence_refresh_stale` | Re-stamps stale evidence freshness: a pinned verifier is re-executed (real pass keeps its receipt); otherwise a command-backed `result:pass` is demoted to a non-mechanical attestation and must be re-run + re-recorded via `verification_evidence_add` |
+| `verification_evidence_refresh_stale` | Refreshes stale evidence without copying hashes: a current V5 policy-owned deterministic capsule with a complete unchanged input closure and valid signed lineage may publish a signed `ReuseReceipt` with zero subprocesses; otherwise the pinned verifier is really run at most once per affected execution key, and uncertainty or failure fails closed by demoting dependent evidence |
 | `test_auto` | legacy/compat full fixture runner, used only when maintaining old fixtures |
 | `test_story` | legacy/compat story fixture runner |
 | `test_fixture` | legacy/compat single-fixture/chain runner |

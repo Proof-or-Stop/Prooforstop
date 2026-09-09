@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { hostname, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ChecklistData } from '../core/types.js';
 import {
   assertReviewInventoryCutoff,
@@ -15,6 +17,7 @@ import {
   findingFamily,
   reviewInventoryAggregateFamilies,
   reviewInventoryAcceptanceSubjectDigest,
+  reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryDigest,
   reviewInventoryPurposeBinding,
   reviewInventoryLaneCoverageDigest,
@@ -40,8 +43,201 @@ import type {
   ReviewPass,
   ReviewRun,
 } from '../core/types.js';
-import { renderReviewInventoryBegin, renderReviewInventoryStatus } from '../handlers/review-inventory.js';
+import { assertOpenInventoryFresh, createReviewInventoryHandlers, renderReviewInventoryBegin, renderReviewInventoryStatus } from '../handlers/review-inventory.js';
+import { StoryStore } from '../core/store.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
+import { resetConfigCache } from '../core/config.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { validateVerificationReceipt } from '../core/verification-execution-evidence.js';
+import { buildVerificationReuseCapsuleInvocation, verificationReuseCapsuleEnforcementSupported } from '../core/verification-reuse-capsule.js';
+import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
+import { entriesFromSerialReference, validateInventory } from './full-suite-runner.js';
 import { acquireMkdirLock, MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
+
+// B-aa5f F063: actual producer receipts and a real OPEN epoch, not synthetic
+// timestamp edits. Existing historical flat-projection cases remain below.
+async function authenticatedInventoryRegression(): Promise<void> {
+  const semanticKey = 'B_AA5F_INVENTORY_REAL_ENVIRONMENT';
+  const priorSemanticValue = process.env[semanticKey];
+  const root = mkdtempSync(join(tmpdir(), 'baa5f-inventory-observation-'));
+  const external = mkdtempSync(join(tmpdir(), 'baa5f-inventory-input-'));
+  const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
+  const write = (path: string, value: string) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), value); };
+  const input = join(external, 'observation.txt');
+  const launches = join(external, 'children.txt');
+  writeFileSync(input, 'INVENTORY_OK\n');
+  writeFileSync(launches, '');
+  write('proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }));
+  write('packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }));
+  write('packages/main/src/base.ts', 'export const base = true;\n');
+  git('init', '-b', 'work'); git('config', 'user.email', 'smoke@example.test'); git('config', 'user.name', 'Baa5f inventory smoke');
+  git('add', '.'); git('commit', '-m', 'seed'); git('branch', 'main');
+  resetConfigCache();
+  const store = new StoryStore(root);
+  const sid = 'B-aa5f-inventory-real';
+  const at = '2026-09-06T00:00:00.000Z';
+  store.writeStory(sid, { storyId: sid, name: 'inventory-real', title: 'real observation compatibility', description: 'smoke', type: 'chore', phase: 'DEV',
+    priority: 'medium', createdAt: at, startedAt: at, endedAt: null });
+  store.writeChecklist(sid, { items: [{ id: 'CHK-001', title: 'observation', context: 'real output', status: 'in_progress', startTime: null, endTime: null,
+    verificationIntent: { happy: [{ id: 'OBS', desc: 'observe complete output', type: 'cli', priority: 'must' }], edge: [], adversarial: [] } }] });
+  acquireOwnerLease(store.storyDirPath(sid), { command: 'smoke_fixture_setup', cwd: root });
+  const ctx = { store, root, scanRoot: join(root, 'packages/main') };
+  let childCount = 0;
+  const handlers = createChecklistHandlers({ ...ctx, verificationCommandRunner: async (command, cwd, timeoutMs) => {
+    childCount++;
+    return runSingleAllowlistedCommand(command, root, { cwd, timeoutMs });
+  } });
+  const code = `const fs=require('fs');fs.appendFileSync(${JSON.stringify(launches)},process.pid+'\\n');process.stdout.write(fs.readFileSync(${JSON.stringify(input)},'utf8'))`;
+  const command = `node -e ${JSON.stringify(code)}`;
+  const record = () => handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS', kind: 'integration_test', command,
+    selector: 'INVENTORY_OK', result: 'pass', note: 'identical observation contract' });
+  const row = () => store.readChecklist(sid).items[0].verificationEvidence!.find(value => value.intentRef === 'OBS')!;
+  const validated = () => {
+    const evidence = row();
+    const expected = { storyId: sid, intentRef: 'OBS', selector: 'INVENTORY_OK', command };
+    assert.ok(evidence.receipt);
+    const result = validateVerificationReceipt(root, evidence.receipt, expected);
+    assert.equal(result.ok, true, `F063 genuine producer graph/artifact valid: ${result.errors.join('; ')}`);
+    assert.equal(result.output, 'INVENTORY_OK\n');
+    return structuredClone(evidence);
+  };
+  try {
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
+    const pkg = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8'));
+    const chain = [pkg.scripts['test:serial-reference-prefix'], pkg.scripts['test:serial-reference']].filter(Boolean).join(' && ');
+    const entries = entriesFromSerialReference(chain, pkg.scripts);
+    validateInventory(entries, chain, pkg.scripts);
+    assert.ok(entries.some(entry => entry.name === 'test:review-inventory-epoch'));
+    assert.equal(pkg.scripts['test:review-inventory-epoch'], 'node packages/main/dist/tasks/review-inventory-epoch-smoke.js');
+    const config = JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8'));
+    assert.ok(config.validate.commands.some((entry: { command: string; args?: string[] }) => entry.command === 'node' && entry.args?.join(' ') === 'packages/main/dist/tasks/review-inventory-epoch-smoke.js'),
+      'F063 inventory smoke registered in configured validation as well as full npm inventory');
+    await record();
+    const first = validated();
+    const subject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    const cutoff = { materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root) };
+    store.writeStory(sid, { ...store.readStory(sid), phase: 'REVIEW', currentReviewRound: at });
+    createReviewInventoryHandlers(ctx).review_inventory_begin({ storyId: sid });
+    const opened = store.readReviewInventoryEpochs(sid).epochs.at(-1)!;
+    assert.equal(opened.state, 'OPEN');
+    assertOpenInventoryFresh(ctx, sid);
+    await record();
+    const second = validated();
+    assert.equal(childCount, 2, 'F063 two actual executions, no metadata-only simulation');
+    assert.equal(new Set(readFileSync(launches, 'utf8').trim().split('\n')).size, 2, 'F063 child-written PID log proves two processes');
+    assert.notDeepEqual(second.receipt, first.receipt, 'F063 the two authentic receipt graphs are independently issued');
+    assert.equal(second.receipt!.outputDigest, first.receipt!.outputDigest);
+    assert.deepEqual({ materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root) }, cutoff,
+      'F063 real reexecution leaves epoch material/scope cutoff unchanged');
+    console.log('F063 controls realExecutions=2 completeOutputEqual=true receiptsAuthentic=true cutoffUnchanged=true registration=PASS');
+    const failures: string[] = [];
+    const check = (label: string, fn: () => unknown) => {
+      try { fn(); } catch (error) {
+        const detail = `${label}: ${error instanceof Error ? error.message : String(error)}`;
+        failures.push(detail); console.error(`[F063 assertion FAIL] ${detail}`);
+      }
+    };
+    check('F063 same-output reexecution keeps authenticated observation subject', () => {
+      assert.equal(reviewInventoryAcceptanceSubjectDigestForStore(store, sid), subject);
+    });
+    check('F063 same-output reexecution preserves real OPEN inventory', () => {
+      assertOpenInventoryFresh(ctx, sid);
+      assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1)?.state, 'OPEN');
+    });
+    assert.equal(failures.length, 0, failures.join('\n'));
+
+    // Tamper rejection is INDEPENDENT of semantic equality. Never drop a bad
+    // signature/context because its projected observation would look unchanged.
+    const authenticChecklist = store.readChecklist(sid);
+    for (const attack of ['signature', 'command', 'freshness'] as const) {
+      const changed = structuredClone(authenticChecklist);
+      const evidence = changed.items[0].verificationEvidence![0];
+      const receipt = evidence.receipt as unknown as Record<string, any>;
+      if (attack === 'signature') receipt.executionReceipt.authenticity.signature = 'invalid-signature';
+      if (attack === 'command') evidence.command = 'node never-executed-inventory.js';
+      if (attack === 'freshness') evidence.materialHash = 'f'.repeat(64);
+      store.writeChecklist(sid, changed);
+      assert.throws(() => reviewInventoryAcceptanceSubjectDigestForStore(store, sid), /invalid|mismatch|signature|command|freshness|binding/i,
+        `F063 ${attack} cannot normalize to a valid observation`);
+      store.writeChecklist(sid, authenticChecklist);
+    }
+    const artifact = (second.receipt as unknown as Record<string, any>).executionReceipt.outputArtifact;
+    const artifactPath = join(root, '.proof-or-stop/evidence/objects/sha256', `${artifact.artifactDigest}.json`);
+    const artifactBytes = readFileSync(artifactPath, 'utf8');
+    writeFileSync(artifactPath, artifactBytes.replace('INVENTORY_OK', 'INVENTORY_NO'));
+    assert.throws(() => reviewInventoryAcceptanceSubjectDigestForStore(store, sid), /artifact|digest|integrity|invalid/i, 'F063 full artifact tamper rejected before projection');
+    writeFileSync(artifactPath, artifactBytes);
+    process.env[semanticKey] = 'real-environment-change-with-identical-output';
+    await record();
+    const changedInput = row();
+    assert.equal(changedInput.receipt!.outputDigest, second.receipt!.outputDigest,
+      'F063 isolated input-semantics control keeps complete output exactly equal');
+    assert.notEqual((changedInput.receipt as any).executionReceipt.executionIdentityDigest, (second.receipt as any).executionReceipt.executionIdentityDigest,
+      'F063 actual subprocess observed a different live environment identity');
+    assert.notEqual(reviewInventoryAcceptanceSubjectDigestForStore(store, sid), subject,
+      'F063 changed execution-input semantics change subject even when output is identical');
+    assert.throws(() => assertOpenInventoryFresh(ctx, sid), /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
+    createReviewInventoryHandlers(ctx).review_inventory_begin({ storyId: sid });
+    const changedInputSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    writeFileSync(input, 'INVENTORY_OK changed observation\n');
+    await record();
+    assert.notEqual(reviewInventoryAcceptanceSubjectDigestForStore(store, sid), changedInputSubject, 'genuine changed observation changes subject');
+    assert.throws(() => assertOpenInventoryFresh(ctx, sid), /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
+
+    // A policy-owned capsule is the only zero-child reuse control. Its subject
+    // may stay equal after unrelated material drift; the cutoff must NOT.
+    assert.equal(verificationReuseCapsuleEnforcementSupported(), true, 'F063 capsule reuse cannot be skipped');
+    store.writeStory(sid, { ...store.readStory(sid), phase: 'DEV' });
+    const capInput = 'packages/main/src/capsule-input.txt';
+    const manifest = 'packages/main/capsule.verification-dependencies.json';
+    write(capInput, 'CAPSULE_INVENTORY_OK\n');
+    write(manifest, JSON.stringify({ schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2', capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1', files: [capInput] }));
+    git('add', capInput, manifest); git('commit', '-m', 'capsule input');
+    const capCommand = buildVerificationReuseCapsuleInvocation({ cwd: root, manifestPath: manifest, files: [capInput] }).command;
+    const capChecklist = store.readChecklist(sid);
+    capChecklist.items[0].verificationIntent!.happy.push({ id: 'CAP', desc: 'capsule observation', type: 'cli', priority: 'must' });
+    store.writeChecklist(sid, capChecklist);
+    await handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'CAP', kind: 'integration_test', command: capCommand,
+      selector: 'CAPSULE_INVENTORY_OK', result: 'pass', file: manifest, note: 'capsule observation contract' });
+    // Keep only the capsule item when comparing the reuse observation; the
+    // unrelated ordinary command correctly needs a real execution after drift.
+    const capsuleOnly = store.readChecklist(sid);
+    capsuleOnly.items[0].verificationIntent!.happy = capsuleOnly.items[0].verificationIntent!.happy.filter(value => value.id === 'CAP');
+    capsuleOnly.items[0].verificationEvidence = capsuleOnly.items[0].verificationEvidence!.filter(value => value.intentRef === 'CAP');
+    store.writeChecklist(sid, capsuleOnly);
+    const capSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    store.writeStory(sid, { ...store.readStory(sid), phase: 'REVIEW' });
+    createReviewInventoryHandlers(ctx).review_inventory_begin({ storyId: sid });
+    write('packages/main/src/unrelated.ts', 'export const unrelated = true;\n');
+    git('add', 'packages/main/src/unrelated.ts'); git('commit', '-m', 'unrelated material drift');
+    assert.throws(() => assertOpenInventoryFresh(ctx, sid), /OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION/);
+    store.writeStory(sid, { ...store.readStory(sid), phase: 'DEV' });
+    childCount = 0;
+    await handlers.verification_evidence_refresh_stale({ storyId: sid });
+    const reused = store.readChecklist(sid).items[0].verificationEvidence![0];
+    assert.equal(childCount, 0, 'F063 actual authorized capsule reuse launches zero children');
+    assert.equal((reused.receipt as unknown as Record<string, any>).publicationMode, 'reused');
+    assert.ok(reused.receipt);
+    assert.equal(validateVerificationReceipt(root, reused.receipt, { storyId: sid, intentRef: 'CAP', selector: 'CAPSULE_INVENTORY_OK' }).ok, true);
+    assert.equal(reviewInventoryAcceptanceSubjectDigestForStore(store, sid), capSubject, 'F063 valid reuse preserves observation identity');
+    write(capInput, 'CAPSULE_INVENTORY_OK changed input\n');
+    git('add', capInput); git('commit', '-m', 'actual capsule input change');
+    await handlers.verification_evidence_refresh_stale({ storyId: sid });
+    assert.equal(childCount, 1);
+    assert.notEqual(reviewInventoryAcceptanceSubjectDigestForStore(store, sid), capSubject, 'genuine execution-input changes alter subject');
+  } finally {
+    if (priorSemanticValue === undefined) delete process.env[semanticKey]; else process.env[semanticKey] = priorSemanticValue;
+    rmSync(root, { recursive: true, force: true });
+    rmSync(external, { recursive: true, force: true });
+  }
+}
+
+let authenticatedInventoryFailure: unknown;
+try { await authenticatedInventoryRegression(); } catch (error) {
+  authenticatedInventoryFailure = error;
+  console.error(`[CHK-007 RED] F063: ${error instanceof Error ? error.message : String(error)}`);
+}
 
 const storyId = 'B-cdf6-replay';
 const reviewRound = '2026-08-14T00:00:00.000Z';
@@ -1061,3 +1257,5 @@ for (const [name, value] of Object.entries(qualityRegressionCounters)) {
   console.log(`Quality regression counter ${name}: ${value}`);
 }
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));
+if (authenticatedInventoryFailure) process.exit(1);
+console.log('B-aa5f F063 authenticated-inventory-projection PASS');
