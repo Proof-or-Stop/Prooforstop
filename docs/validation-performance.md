@@ -265,3 +265,19 @@ validation executor with a tiny scratch workload that verifies cwd and literal
 arguments, emits stdout/stderr, and fails on a negative-control argument. This
 retains executor observation without rerunning the envelope suite. Its default
 entry preserves the original complete pipeline invocation and receipt.
+
+The bounded U18 static audit of the 146 configured entries also retains these
+property executions explicitly:
+
+| Parent | Retained execution | Reason |
+| --- | --- | --- |
+| W2B/W2C wiring contracts | Registry contracts with removed registration | The mutant must fail for the named missing registration. |
+| Proof-admissibility registry smoke | Reviewer/dispatch/managed contracts in private mutated dist | Detect a removed admission guard against its baseline. |
+| B49d4 registration derivation and CHK002 receipt | Real registration guard plus private newcomer/config mutations | Verify that the actual registration authority detects an uncovered receipt. |
+| B2aa7 CHK011 | Three artifact runs | Same seed reproduces; different seed changes the generated proof inputs. |
+| B2aa7 CHK007 via excluded CHK001/010 | Artifact observation in each historical attestation | Prove obsolete pre-fix attestations remain silent on the fixed tree. |
+
+These executions are paired property controls, not independent repeated baseline
+suite obligations. The runtime nesting witness covers the eleven changed
+canonical parents; the static inventory review covers all 146 entries. Neither
+is a claim that the entire production workload has been benchmarked.

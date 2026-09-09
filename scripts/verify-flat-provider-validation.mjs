@@ -14,7 +14,10 @@ try {
     : process.argv.includes('--receipts-only') ? ['red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs']
     : process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
-    'red-w2b-wiring-contract.mjs'];
+    'red-w2b-wiring-contract.mjs', 'host-run-usage-smoke.js',
+    'red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs',
+    'red-b2aa7-chk007-receipt.mjs', 'red-b2aa7-chk009-receipt.mjs',
+    'red-w2d-command-readonly.mjs'];
   const trace = join(scratch, 'trace.mjs');
   const log = join(scratch, 'nested.jsonl');
   writeFileSync(trace, `
