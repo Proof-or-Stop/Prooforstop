@@ -2,7 +2,7 @@
 import './lab-source-loader.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFileSync, renameSync, unlinkSync, realpathSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -43,6 +43,25 @@ function assertClean(cwd, override) {
   for (const marker of ['MERGE_HEAD', 'CHERRY_PICK_HEAD', 'REVERT_HEAD', 'rebase-merge', 'rebase-apply']) {
     if (existsSync(resolve(cwd, git(cwd, 'rev-parse', '--git-path', marker)))) fail(`Unfinished Git operation: ${marker}`);
   }
+}
+function dirtySnapshot(cwd) {
+  const readList = args => execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }).split('\0').filter(Boolean);
+  const paths = [...new Set([
+    ...readList(['diff', '--name-only', '-z']),
+    ...readList(['diff', '--cached', '--name-only', '-z']),
+    ...readList(['ls-files', '--others', '--exclude-standard', '-z']),
+  ])].sort();
+  const tracked = new Set(readList(['ls-files', '-z']));
+  const digest = createHash('sha256');
+  digest.update(execFileSync('git', ['diff', '--binary'], { cwd, maxBuffer: 32 * 1024 * 1024 }));
+  digest.update(execFileSync('git', ['diff', '--cached', '--binary'], { cwd, maxBuffer: 32 * 1024 * 1024 }));
+  for (const path of paths.filter(candidate => !tracked.has(candidate))) {
+    const full = join(cwd, path);
+    const stat = lstatSync(full);
+    digest.update(`\0${path}\0${stat.mode}\0`);
+    digest.update(stat.isSymbolicLink() ? readlinkSync(full) : readFileSync(full));
+  }
+  return { paths, fingerprint: digest.digest('hex') };
 }
 function assertAncestor(cwd, ancestor, child) {
   try { git(cwd, 'merge-base', '--is-ancestor', ancestor, child); } catch { fail(`${ancestor} is not integrated into ${child}.`); }
@@ -296,13 +315,35 @@ async function main() {
     }
     const notes = read(notesPath).trim();
     if (notes.length < 40 || notes.length > 100000) fail('Provide substantive English release notes (40-100000 characters).');
-    assertClean(mainRoot);
+    const mainDirty = dirtySnapshot(mainRoot);
+    let preservedMainDirty = null;
+    if (mainDirty.paths.length > 0) {
+      if (!s.storyCarry) fail(`Uncommitted or untracked work in ${mainRoot}; preserve/commit it before continuing.`);
+      const candidatePaths = git(s.path, 'diff', '--name-only', 'main...HEAD').split('\n').filter(Boolean);
+      const overlap = mainDirty.paths.filter(path => candidatePaths.includes(path));
+      if (overlap.length) fail(`Story carry-forward candidate overlaps dirty main paths: ${overlap.join(', ')}`);
+      if (s.storyCarry.preservedMainDirty && s.storyCarry.preservedMainDirty.fingerprint !== mainDirty.fingerprint) {
+        fail('Dirty main changed after release preparation; preserve the candidate and inspect before retrying.');
+      }
+      preservedMainDirty = mainDirty;
+      s.storyCarry.preservedMainDirty = { ...mainDirty, capturedAt: new Date().toISOString() };
+      save(s);
+    }
+    const assertMainStable = () => {
+      if (!preservedMainDirty) return assertClean(mainRoot);
+      const current = dirtySnapshot(mainRoot);
+      if (current.fingerprint !== preservedMainDirty.fingerprint || JSON.stringify(current.paths) !== JSON.stringify(preservedMainDirty.paths)) {
+        fail('Dirty main changed during Story carry-forward integration; workspace retained.');
+      }
+    };
+    assertMainStable();
     const versions = await core('version-bump');
     const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const check = (root, kind) => {
       const before = sha(root), r = run(root, s.red.command);
       s.history.push({ kind, ...r }); save(s);
-      assertClean(root, root === s.path ? s.override : undefined);
+      if (root === mainRoot) assertMainStable();
+      else assertClean(root, s.override);
       if (!passed(r) || sha(root) !== before) fail(`${kind} failed or modified the checkout; workspace retained.`);
     };
     const build = root => {
@@ -347,7 +388,7 @@ async function main() {
       else {
         if (sha(mainRoot) !== s.releaseBase) fail('main moved after preparation; preserve candidate for explicit re-preparation.');
         build(s.path); check(s.path, 'candidate-green');
-        assertClean(mainRoot); assertClean(s.path, s.override);
+        assertMainStable(); assertClean(s.path, s.override);
         if (sha(mainRoot) !== s.releaseBase || sha(s.path) !== s.candidate) fail('HEAD changed during verification; refusing merge.');
         if (git(mainRoot, 'branch', '--show-current') !== 'main') fail('The main checkout changed branches.');
         git(mainRoot, 'merge', '--ff-only', s.candidate);

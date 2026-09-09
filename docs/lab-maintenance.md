@@ -75,6 +75,13 @@ other lifecycle metadata are never copied or rewritten. Commit and review the
 staged patch, then rerun `green`. Release notes disclose the source Story and
 state explicitly that the carry-forward is not Story DONE.
 
+Ordinary Lab finish still requires clean main. For a Story carry-forward only,
+pre-existing dirty main files may remain when they do not overlap any candidate
+path. Finish records their path set and content/index fingerprint, checks it
+before integration and after every main-side build or verification step, and
+stops if any byte, staging state, path, or overlap changes. It never stashes,
+commits, restores, or copies those unrelated files.
+
 This rule preserves evidence instead of treating a repository-wide FAIL as a
 PASS. It proves only that all remaining failed commands also fail on main at the
 time of capture; different failure output remains visible in the record and is

@@ -105,6 +105,13 @@ try {
   assert.equal(state.storyCarry.baselineWitnesses.length, 1);
   assert.equal(state.storyCarry.baselineWitnesses[0].mainExitCode, 1);
   assert.equal(state.storyCarry.verificationIntentCount, 1);
+  invoke(repo, ['green', 'carry']);
+  write(repo, 'unrelated-user-draft.txt', 'preserve me byte-for-byte\n');
+  const notes = join(temp, 'carry-notes.md');
+  write(temp, 'carry-notes.md', 'Carry a mechanically verified Story patch while preserving unrelated main work and without claiming formal Story DONE.');
+  invoke(repo, ['finish', 'carry', '--notes', notes, '--confirm'], 0, /worktree and branch removed/);
+  assert.equal(readFileSync(join(repo, 'feature.txt'), 'utf8'), 'new\n');
+  assert.equal(readFileSync(join(repo, 'unrelated-user-draft.txt'), 'utf8'), 'preserve me byte-for-byte\n');
   console.log('STORY_CARRY_FORWARD PASS');
 } finally {
   rmSync(temp, { recursive: true, force: true });
