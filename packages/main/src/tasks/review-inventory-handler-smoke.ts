@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
+import { enforceConvergenceBreakerGate } from '../core/convergence-breaker.js';
+import { evaluateReviewMintStallAdjudication } from '../core/review-convergence.js';
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
-import { readConvergenceProgress, recordConvergenceProgress } from '../core/convergence-progress-journal.js';
+import { readConvergenceProgress, recordConvergenceProgress, acknowledgeConvergenceProgress } from '../core/convergence-progress-journal.js';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -377,6 +380,47 @@ async function inventoryPurposeRecovery(): Promise<void> {
       console.log('PASS U11 finalize retry recovers one verified observation');
     }
 
+    if (process.argv.includes('--effective-progress-fixture')) {
+      for (let iteration = 0; iteration < 2; iteration++) {
+        const completed = finalizedUnconsumedReviewInventory(fixture.store, storyId)!;
+        consumeReviewInventoryReceipt(fixture.store, storyId, reviewRound, completed.receipt.cutoff);
+        cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
+        const next = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+        for (const lane of next.requiredLanes) {
+          const laneEnv = env(lane, `progress-${iteration}-${lane}`);
+          cli(fixture.root, 'dispatch', { storyId, agentType: lane }, laneEnv);
+          const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
+          const id = started.match(/Review run (\S+) started/)?.[1]; assert.ok(id, started);
+          await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: lane, reviewRunId: id, command: 'review_pass_set',
+            payload: { storyId, agent: lane, reviewRunId: id, note: 'Independent fixture reviewer inspected the unchanged subject and found no new blockers.', readManifest, readEvents } });
+        }
+        const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: next.epochId };
+        const criticEnv = env(actor, `progress-critic-${iteration}`);
+        cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv);
+        const started = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, criticEnv);
+        const id = started.match(/Review run (\S+) started/)?.[1]; assert.ok(id, started);
+        await runBrokeredNativeReviewCli({ root: fixture.root, store: fixture.store, storyId, agent: actor, reviewRunId: id, command: 'review_pass_set',
+          payload: { storyId, agent: actor, reviewRunId: id, note: 'Independent fixture critic checked every required lane and the exact unchanged empty finding set.', readManifest, readEvents } });
+        cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: next.epochId, reviewRunId: id, agent: actor, findingDispositions: [] }, criticEnv);
+        cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner'));
+        const progress = readConvergenceProgress(fixture.store, storyId, fixture.root)!;
+        assert.equal(progress.state.snapshot.completedEpochIds.length, iteration + 2);
+        assert.equal(progress.state.stagnantEpochIds.length, iteration + 1, 'only separately completed stagnant epochs accumulate');
+        assert.equal(assessConvergenceProgressGate(fixture.store, storyId).blocked, iteration === 1);
+      }
+      const gate = { command: 'story_advance', storyId, store: fixture.store, env: {}, isTakeoverCommand: false };
+      assert.throws(() => enforceConvergenceBreakerGate(gate), /FROZEN/);
+      assert.equal(evaluateReviewMintStallAdjudication(fixture.store, storyId).blocked, true);
+      const bytes = readFileSync(progressPath, 'utf8');
+      assert.throws(() => enforceConvergenceBreakerGate(gate), /FROZEN/);
+      assert.equal(readFileSync(progressPath, 'utf8'), bytes, 'blocked retries do not add epochs or observations');
+      assert.equal(acknowledgeConvergenceProgress(fixture.store, storyId, fixture.root, 'Fixture human decision authorizes another bounded attempt.'), true);
+      assert.doesNotThrow(() => enforceConvergenceBreakerGate(gate));
+      assert.equal(evaluateReviewMintStallAdjudication(fixture.store, storyId).blocked, false);
+      assert.equal(readConvergenceProgress(fixture.store, storyId, fixture.root)!.humanDecisions?.length, 1);
+      console.log('PASS U11 two actual complete stagnant epochs gate both entries and one signed decision resumes');
+      return;
+    }
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|FINALIZED/i);
     assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|sealed/i);
     assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /OPEN|epoch|sealed/i);

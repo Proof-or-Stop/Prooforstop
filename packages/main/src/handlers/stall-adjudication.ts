@@ -1,7 +1,7 @@
 /**
  * B-7813 CHK-002: stall_resolution_set — persist a signed, current-round-bound
- * stall-adjudication.json that clears the CHK-001 convergence-stall block for
- * EXACTLY the next ordinary review round.
+ * stall-adjudication.json for compatibility diagnosis. It does not clear the
+ * completed-epoch gate; human continuation uses story_resume.
  *
  * The five structured actions (single source: STALL_RESOLUTION_ACTIONS in
  * core/review-convergence.ts) are:
@@ -102,13 +102,7 @@ export function createStallAdjudicationHandlers(ctx: HandlerContext): Record<str
           store.writeStallAdjudication(args.storyId, data);
 
           const commitHint = autoCommitStoryMetadata(root, args.storyId, 'stall_resolution_set');
-          // CHK-003: override_budget is the PRIVILEGED action — it clears the
-          // hard-ceiling block (which an ordinary per-round resolution cannot),
-          // and is likewise current-round-bound (authorizes exactly the next round).
-          const isOverride = normalized.action === PRIVILEGED_OVERRIDE_ACTION;
-          const clearLine = isOverride
-            ? '\n→ This PRIVILEGED override clears the hard-ceiling block for exactly the next ordinary review round (an ordinary per-round resolution cannot clear the ceiling). It is not a permanent budget increase — each further round past the ceiling needs its own override.'
-            : '\n→ This clears the convergence-stall block for exactly the next ordinary review round.';
+          const clearLine = `\n→ This compatibility decision does not clear the completed-epoch convergence gate. A human must use proof-or-stop story_resume --storyId=${args.storyId} --ack --reason="<why continuation is justified>" for a verified stagnation freeze.`;
           const closeLine = normalized.action === 'declare_unreachable'
             ? `\n→ Checklist item ${normalized.itemId} withdrawn (B-1909 disposition${withdrawalDecisionRef ? ` ${withdrawalDecisionRef}` : ''}); the stall loop is closed for that item — no further ordinary round is required for it.`
             : '';

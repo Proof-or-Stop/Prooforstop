@@ -340,7 +340,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('Actor; INIT reviewer lanes may not directly change story-level scope fields.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change story-level scope fields.'),
   }},
-  { name: 'story_resume', description: 'Human-only ack that clears a convergence-breaker freeze (B-bbaf); refused under autopilot/non-interactive sessions', schema: {
+  { name: 'story_resume', description: 'Append a signed human continuation decision after two complete stagnant review epochs; requires an interactive session and explicit acknowledgement', schema: {
     storyId: z.string().describe('Story ID of the frozen story.'),
     ack: z.boolean().optional().describe('Required: confirms a human is deliberately clearing the freeze.'),
     reason: z.string().optional().describe('Required human explanation (>=10 chars) of why it is safe to continue.'),
@@ -2617,16 +2617,12 @@ Behavior:
     })).optional().describe('Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.'),
   }},
 
-  // B-7813 CHK-002: stall_resolution_set — record one structured, signed,
-  // current-review-round-bound resolution that clears the CHK-001 convergence-stall
-  // mint block for exactly the next ordinary review round. action enum + reason
-  // min length are re-validated at the handler runtime AND at the gate
-  // consumption point (isValidCurrentRoundStallResolution), per the Handler
-  // encoding convention.
-  { name: 'stall_resolution_set', description: 'Record a signed, current-round-bound resolution that clears the convergence-stall mint block (CHK-001) for the next ordinary review round', schema: {
+  // Signed compatibility diagnosis; only declare_unreachable changes acceptance
+  // through the existing scope-shrinkage path. It cannot release an epoch stall.
+  { name: 'stall_resolution_set', description: 'Record a signed compatibility diagnosis or checklist withdrawal; does not clear the completed-epoch convergence gate', schema: {
     storyId: z.string().describe('Story ID'),
-    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget (CHK-003) is the PRIVILEGED hard-ceiling override — the ONLY action that clears the mint block once total ordinary review rounds exceed the hard ceiling; an ordinary per-round resolution cannot.'),
-    reason: z.string().min(20, 'reason must be at least 20 characters (why you are consciously clearing the convergence-stall block for this review round).').describe('Why you are consciously clearing the convergence-stall block for this review round (>= 20 chars after trim).'),
+    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget retains compatibility diagnostic meaning; human continuation of a verified epoch stall requires story_resume.'),
+    reason: z.string().min(20, 'reason must be at least 20 characters (why this compatibility diagnosis or withdrawal is justified).').describe('Why this compatibility diagnosis or withdrawal is justified (>= 20 chars after trim).'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx) to withdraw as unreachable; REQUIRED when action=declare_unreachable, ignored otherwise.'),
     approvedBy: z.string().optional().describe('Optional operator identifier recorded on the resolution (and on the B-1909 decision for declare_unreachable).'),
     actor: z.string().optional().describe('Optional actor identifier; used for approvedBy attribution when approvedBy is omitted.'),

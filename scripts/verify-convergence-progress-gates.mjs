@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { enforceConvergenceBreakerGate, writeBreakerState, readBreakerState } from '../packages/main/dist/core/convergence-breaker.js';
+import { reviewRoundMintStallAdjudication } from '../packages/main/dist/core/machine.js';
 import { evaluateReviewMintStallAdjudication } from '../packages/main/dist/core/review-convergence.js';
 const root = mkdtempSync(join(tmpdir(), 'progress-gates-')), priorCwd = process.cwd();
 const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' });
@@ -29,6 +30,7 @@ try {
   const journalPath = store.storyFilePath(storyId, 'convergence-progress.json');
   writeFileSync(journalPath, '{invalid');
   assert.throws(() => enforceConvergenceBreakerGate(base), /progress.*unavailable|progress.*invalid/i, 'corrupt new authority is an integrity error, not a design conclusion');
+  assert.equal(reviewRoundMintStallAdjudication({ store, storyId, projectRoot: root }).blocked, true, 'U11 machine guard must not swallow progress integrity failures');
   assert.equal(readFileSync(journalPath, 'utf8'), '{invalid', 'gate never repairs or re-signs caller-authored state');
   console.log('PASS U11 both hard gates require verified completed-epoch progress');
 } finally { process.chdir(priorCwd); rmSync(root, { recursive: true, force: true }); }

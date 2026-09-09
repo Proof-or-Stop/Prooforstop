@@ -1,3 +1,4 @@
+import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
 /**
  * REVIEW convergence-stall diagnostic shared by advisory and mint-gate consumers.
  *
@@ -639,42 +640,16 @@ export function hasCurrentRoundPrivilegedOverride(store: StoryStore, storyId: st
   }
 }
 
-/**
- * CHK-001: store-consuming mint-site gate. Reads the observable round history
- * from the store, runs the EXISTING trend detector over the COMPLETED rounds
- * visible at the mint site, and returns the pure adjudication.
- *
- * Round-count semantics at the MINT site (vs assessReviewConvergenceAtEntry):
- *   The mint gate runs while the story is still at DEV, BEFORE the new round's
- *   REVIEW/advance event is written — so every round resolveReviewRoundCount
- *   counts here is a COMPLETED round whose reviewers have run. Therefore, unlike
- *   the render-time advisory (which drops the just-entered, not-yet-reviewed
- *   current round), this gate feeds the FULL dense per-round array to
- *   assessReviewConvergence with NO trailing drop. The advisory entry point
- *   (assessReviewConvergenceAtEntry) is intentionally left untouched.
- *
- * Pure-ish: only reads via the store, no writes, no transition side effects;
- * evaluateStallAdjudication stays PURE.
- *
- * CHK-003: the hard ceiling is resolved from `env` (default process.env) at this
- * I/O boundary and passed INTO the pure evaluator — mirroring how
- * resolveConvergenceThresholds(env) feeds assessBreaker in convergence-breaker.ts.
- * The privileged-override presence is read via hasCurrentRoundPrivilegedOverride.
- * This gate reads ONLY the review-round history + stall-adjudication.json; it
- * never touches breaker-state.json — the two brakes stay independent.
+/** Read-only machine mint entry sharing completed-epoch authority with the CLI.
+ * The env argument remains source-compatible; raw thresholds are diagnostic only.
  */
 export function evaluateReviewMintStallAdjudication(
   store: StoryStore,
   storyId: string,
   env: Record<string, string | undefined> = process.env,
 ): StallAdjudication {
-  const { roundCount, perRoundBlockingCounts } = collectReviewConvergenceInputs(store, storyId);
-  const assessment = assessReviewConvergence(roundCount, perRoundBlockingCounts);
-  return evaluateStallAdjudication({
-    assessment,
-    hasCurrentRoundResolution: hasCurrentRoundStallResolution(store, storyId),
-    roundCount,
-    ceiling: resolveStallHardCeiling(env),
-    hasPrivilegedOverride: hasCurrentRoundPrivilegedOverride(store, storyId),
-  });
+  // Legacy round trends and ceilings remain advisory diagnostics. Both hard
+  // entries consume the same verified completed-epoch decision.
+  void env;
+  return assessConvergenceProgressGate(store, storyId);
 }

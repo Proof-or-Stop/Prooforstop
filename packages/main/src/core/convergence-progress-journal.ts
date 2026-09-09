@@ -21,6 +21,7 @@ export interface ConvergenceProgressJournal {
   openVerifiedFindingIds: string[];
   completedEpochBindings: { epochId: string; claimDigest: string }[];
   revokedCompletedEpochIds: string[];
+  humanDecisions?: { reason: string; completedEpochIds: string[]; snapshotDigest: string }[];
   signature: string;
 }
 function completedClaim(store: StoryStore, storyId: string, epochId: string, allowRevoked = false) {
@@ -144,11 +145,29 @@ export function recordConvergenceProgressUnlocked(store: StoryStore, storyId: st
   const revocation = revocationState(store, storyId, prior);
   const assessment = assessEffectiveProgress(revocation.state, current.snapshot);
   const claims = { schemaVersion: 'proofbound.convergence_progress_journal.v1' as const, storyId,
-    state: assessment.state, revokedCompletedEpochIds: revocation.revokedIds, openVerifiedFindingIds: current.openVerifiedFindingIds, completedEpochBindings: bindings };
+    state: assessment.state, humanDecisions: prior?.humanDecisions ?? [], revokedCompletedEpochIds: revocation.revokedIds, openVerifiedFindingIds: current.openVerifiedFindingIds, completedEpochBindings: bindings };
   // Compare claims explicitly so repeated observations remain byte-identical.
   const previousClaims = prior ? (({ signature: _signature, ...rest }: ConvergenceProgressJournal) => rest)(prior) : null;
   if (!previousClaims || canonicalDigest(previousClaims) !== canonicalDigest(claims)) {
     store.writeConvergenceProgress(storyId, { ...claims, signature: signValidationArtifact(claims, root) });
   }
   return assessment;
+}
+
+/** Called only after the human-only story_resume handler validates TTY, ack and reason. */
+export function acknowledgeConvergenceProgress(store: StoryStore, storyId: string, root: string, reason: string): boolean {
+  if (reason.trim().length < 10) throw new Error('Convergence decision requires a substantive reason');
+  return withReviewInventoryMutationLock(store, storyId, () => {
+    if (!readConvergenceProgress(store, storyId, root)) return false;
+    const assessment = recordConvergenceProgressUnlocked(store, storyId, root);
+    if (assessment.decision !== 'request-decision') return false;
+    const journal = readConvergenceProgress(store, storyId, root)!;
+    const { signature: _signature, ...prior } = journal;
+    const claims = { ...prior,
+      state: { ...assessment.state, epochBaseline: structuredClone(assessment.state.snapshot), stagnantEpochIds: [], stablePassProgress: [] },
+      humanDecisions: [...(journal.humanDecisions ?? []), { reason: reason.trim(), completedEpochIds: [...assessment.state.snapshot.completedEpochIds], snapshotDigest: canonicalDigest(assessment.state.snapshot) }],
+    };
+    store.writeConvergenceProgress(storyId, { ...claims, signature: signValidationArtifact(claims, root) });
+    return true;
+  });
 }

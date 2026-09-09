@@ -1,3 +1,7 @@
+> Historical handoff: the count-based hard gates described below are superseded
+> by signed completed-epoch progress. See docs/validation-performance.md for the
+> current shared gate and human continuation contract.
+
 # Step 3 handoff — Review-budget circuit breaker / stall adjudication (fixes class ②)
 
 Audience: a fresh session picking this up cold. Self-contained. Parent program:

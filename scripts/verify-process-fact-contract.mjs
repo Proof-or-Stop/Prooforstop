@@ -9399,3 +9399,12 @@ console.log('Process-fact contract verification passed');
 }
 
 assert(read('packages/main/src/handlers/review-remediation.ts').includes('hasMechanicalExecutionAuthority'), 'remediation and progress must share exact mechanical execution authority');
+
+// U11 hard gates and human decisions share one authority boundary.
+for (const path of ['packages/main/src/core/convergence-breaker.ts', 'packages/main/src/core/review-convergence.ts']) {
+  assert(read(path).includes('assessConvergenceProgressGate'), `${path}: shared effective-progress gate missing`);
+}
+assert(read('packages/main/src/core/machine.ts').includes('return convergenceProgressUnavailable(error)'), 'machine must convert progress integrity failures into explicit blocked results');
+assert(read('packages/main/src/handlers/story.ts').includes('acknowledgeConvergenceProgress'), 'human resume must reset signed epoch authority');
+assert(read('packages/main/src/core/convergence-progress-journal.ts').includes('humanDecisions: [...'), 'human decisions must append signed history');
+assert(read('packages/main/src/handlers/stall-adjudication.ts').includes('does not clear the completed-epoch convergence gate'), 'compatibility decisions must not claim new gate authority');

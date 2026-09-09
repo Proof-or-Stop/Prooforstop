@@ -154,7 +154,14 @@ Finding metadata and compatibility dismissal cannot prove repair. A later signed
 cancellation preserves the observed completion history and interrupts consecutive
 stagnation. Zero-wave compatibility receipts do not count as completed reviews.
 Unavailable progress is reported explicitly without undoing a valid inventory
-publication. This observation layer does not yet replace the legacy hard gates.
+publication. Both CLI advance/takeover and machine REVIEW mint now consume this same signed
+progress decision. Two complete stagnant epochs request a human decision; raw
+advance, takeover, review-run and round counts remain diagnostics. Live verified
+progress releases a stall. Corrupt new authority is a distinct integrity block.
+Human continuation uses interactive story_resume with acknowledgement and a reason;
+the signed decision resets the comparison boundary and preserves history.
+Compatibility stall_resolution_set records do not release this new gate; their
+checklist withdrawal behavior remains available.
 
 Mechanical coverage gains also require the actual CAS execution receipt, matching
 command and selector pin, output digest and source identities. Missing receipt

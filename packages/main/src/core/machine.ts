@@ -1,3 +1,4 @@
+import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
 import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
@@ -472,16 +473,14 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
  * assessReviewConvergence trend detector — no raw round ceiling here). Returns
  * the adjudication; the caller refuses the mint when blocked.
  *
- * FAIL-OPEN: a guard must never throw (an exception pushes the actor into its
- * error state). Any store/config read error degrades to { blocked: false } so a
- * gate/infra error can never strand a legitimate review round. This mirrors the
- * fail-open discipline of the other DEV-door guards.
+ * A guard must not throw into the actor. Observation-integrity errors become
+ * explicit blocked results, distinct from a verified no-progress conclusion.
  */
 export function reviewRoundMintStallAdjudication(context: StoryMachineContext): StallAdjudication {
   try {
     return evaluateReviewMintStallAdjudication(context.store, context.storyId);
-  } catch {
-    return { blocked: false };
+  } catch (error) {
+    return convergenceProgressUnavailable(error);
   }
 }
 
@@ -1452,8 +1451,8 @@ export function getGuardFailureReason(
     const stall = (() => {
       try {
         return evaluateReviewMintStallAdjudication(store, storyId);
-      } catch {
-        return { blocked: false } as StallAdjudication;
+      } catch (error) {
+        return convergenceProgressUnavailable(error);
       }
     })();
     if (stall.blocked && stall.prompt) {
