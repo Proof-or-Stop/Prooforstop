@@ -62,9 +62,13 @@
     "commands": [
       {
         "command": "node",
-        "args": ["scripts/verify-lab-worktree.mjs"],
+        "args": [
+          "scripts/verify-lab-worktree.mjs"
+        ],
         "timeoutMs": 180000,
-        "focus": ["fast"],
+        "focus": [
+          "fast"
+        ],
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
@@ -99,7 +103,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -130,6 +161,16 @@
         "fullBaselineReusePolicy": "not-applicable",
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
           {
             "class": "fixed-path",
             "key": "packages/main/dist",
@@ -198,6 +239,16 @@
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
           {
             "class": "fixed-path",
             "key": "packages/main/dist",
@@ -876,6 +927,11 @@
         "expectedP50Ms": 643000,
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
           {
             "class": "git-common-dir",
             "key": ".",
@@ -1612,6 +1668,11 @@
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
           {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
@@ -1643,7 +1704,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1657,6 +1745,16 @@
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
           {
             "class": "fixed-path",
             "key": "scripts",
@@ -1674,7 +1772,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1686,7 +1811,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2101,6 +2253,11 @@
         "policySource": "explicit-dyn1-audit-v1",
         "resources": [
           {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
@@ -2503,7 +2660,27 @@
           "run",
           "check"
         ],
-        "timeoutMs": 290000
+        "timeoutMs": 290000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/graph",
+            "access": "exclusive"
+          }
+        ],
+        "env": {
+          "GRAPH_VERIFY_PORT": "0"
+        }
       },
       {
         "command": "node",
@@ -2681,7 +2858,29 @@
         "build"
       ],
       "timeoutMs": 290000,
-      "providesBuildProof": "packages-main-build"
+      "providesBuildProof": "packages-main-build",
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        }
+      ]
     },
     {
       "label": "root full test suite",
@@ -2690,7 +2889,39 @@
         "test"
       ],
       "timeoutMs": 7200000,
-      "requiresBuildProof": "packages-main-build"
+      "requiresBuildProof": "packages-main-build",
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-port",
+          "key": "43127",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".",
+          "access": "exclusive"
+        }
+      ]
     }
   ],
   "baselineRiskAcceptedLocalPaths": [

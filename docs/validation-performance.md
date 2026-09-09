@@ -228,3 +228,17 @@ condition. The original client bytes are restored after both recovery probes.
 JSON mode is observed for zero Node listener calls, including inherited children.
 The isolated missing-output control also requires refusal before any listener.
 These checks do not authorize shared access while a verifier rebuilds local assets.
+
+## Explicit local barriers and cross-worktree capacity in this Lab
+
+All 134 routine and both DONE entries now declare resources. Eleven audited or
+conservatively retained routine writers carry an explicit exclusive local plan
+barrier. This preserves serialization against every command in their own checkout;
+it does not turn a local build into a global writer. Six older shared declarations
+are tightened to match the existing writer guard. The historical 21-reader audit
+is retained as evidence, with these six superseded by the conservative barrier.
+DONE build and full-suite execution remain non-reusable. The full suite retains
+its machine-wide exclusive TCP 43127 claim. Graph checks use OS-assigned ports
+and retain exclusive local asset access. Independent routine invocations may
+share the configured two-invocation capacity only when all actual claims agree.
+This configuration change alone does not prove all 134 commands pass or run faster.

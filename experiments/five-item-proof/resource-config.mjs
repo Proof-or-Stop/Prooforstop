@@ -16,10 +16,11 @@ for(const entry of safe){
  const command=config.validate.commands[entry.commandIndex];
  assert.equal([command.command,...command.args].join(' '),entry.argv,'AUDITED_COMMAND_DRIFT');
  assert.equal(resolveValidationCommandResourceClaims(command,entry.argv).exclusiveByDefault,false,'AUDITED_READERS_STILL_SERIAL');
- assert.deepEqual(command.resources,entry.suggestedResources,'RESOURCE_AUDIT_DRIFT');
+ for(const resource of entry.suggestedResources)assert.ok(command.resources.some(actual=>JSON.stringify(actual)===JSON.stringify(resource)),'RESOURCE_AUDIT_DRIFT');
 }
-for(const index of [1,80,82,83,125])assert.equal(resolveValidationCommandResourceClaims(config.validate.commands[index],String(index)).exclusiveByDefault,true,'WRITER_BARRIER_REMOVED');
-for(const command of config.doneRequiredCommands)assert.equal(resolveValidationCommandResourceClaims(command,'DONE').exclusiveByDefault,true,'DONE_WRITER_BARRIER_REMOVED');
+const hasBarrier=command=>resolveValidationCommandResourceClaims(command,'writer').claims.some(r=>r.class==='fixed-path'&&r.key==='.proof-or-stop/runtime/validate-plan-barrier'&&r.access==='exclusive');
+for(const index of [1,3,6,40,79,80,81,82,83,105,125])assert.ok(hasBarrier(config.validate.commands[index]),'WRITER_BARRIER_REMOVED');
+for(const command of config.doneRequiredCommands)assert.ok(hasBarrier(command),'DONE_WRITER_BARRIER_REMOVED');
 const output=process.env.FIVE_ITEM_PROOF_OUTPUT||join('/tmp','five-resource-'+Date.now());mkdirSync(output,{recursive:true});
 const indices=[117,118,119,120]; // Real deterministic independent assertion suites, no artificial delay.
 const commands=indices.map(index=>({...config.validate.commands[index],label:String(index)}));
@@ -41,5 +42,5 @@ for(let pair=1;pair<=3;pair++)for(const mode of pair%2?['RED','GREEN']:['GREEN',
 }
 const median=xs=>xs.toSorted((a,b)=>a-b)[Math.floor(xs.length/2)];
 const red=median(rows.filter(x=>x.mode==='RED').map(x=>x.elapsedMs)),green=median(rows.filter(x=>x.mode==='GREEN').map(x=>x.elapsedMs));
-writeFileSync(join(output,'results.json'),JSON.stringify({sourceHashes,rows,redMedianMs:red,greenMedianMs:green,wallTimeReductionPercent:100*(1-green/red),auditedReaders:21,remainingRoutineWriterBarriers:5,limitations:['Four actual assertion suites measured through production scheduler/executor; not all 134 commands or whole Story elapsed time.','RED removes only the new resource declarations; executable, argv, source and assertions remain identical.','No speed threshold: actual overlap and correctness are required; measured overhead or slowdown is retained.','Twenty-one declarations have static source review; only four have this live timing comparison.']},null,2));
+writeFileSync(join(output,'results.json'),JSON.stringify({sourceHashes,rows,redMedianMs:red,greenMedianMs:green,wallTimeReductionPercent:100*(1-green/red),auditedReaders:21,remainingRoutineWriterBarriers:11,limitations:['Four actual assertion suites measured through production scheduler/executor; not all 134 commands or whole Story elapsed time.','RED removes only the new resource declarations; executable, argv, source and assertions remain identical.','No speed threshold: actual overlap and correctness are required; measured overhead or slowdown is retained.','Twenty-one declarations have static source review; only four have this live timing comparison.']},null,2));
 console.log('AUDITED_RESOURCE_CONFIG_GREEN');
