@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab story-evidence-carry-forward-log-correction - v0.3.290 - 2026-09-09
+
+Correct the final baseline-result sentence in the Story evidence carry-forward release log.
+
+The original entry accurately recorded that B-7abb supplied three historical failing baseline witnesses. During final integration, however, concurrent main maintenance repaired all three commands. The signed Lab audit record shows exit code 0 for each latest-main witness, candidate replay, and post-merge replay. This maintenance replaces the stale intermediate statement that two failures remained with that final observed result.
+
+The correction is documentation-only. A focused RED command detects the obsolete sentence and the same command passes after the edit. No Story state, product implementation, validation result, or lifecycle credential is changed.
+
+Maintenance provenance: codex/lab-story-evidence-carry-forward-log-correction, repair 9d0e9f40c99caf8f6ea2b4dceb402a637a1b10c5.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"CHANGELOG.md\",\"utf8\");const n=[\"the two remaining validation-planner\",\"protocol failures stayed isolated as baseline evidence\"].join(\"/\");if(s.includes(n)){console.error(\"STALE_CARRY_FORWARD_BASELINE_SUMMARY\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab bcae-dist-promotion-integration-20260909 - v0.3.290 - 2026-09-09
 
 # B-bcae dist-promotion integration
@@ -34,7 +46,7 @@ The carried patch excludes all `.proof-or-stop/` Story state. Its source head, e
 
 For carry-forward only, unrelated dirty main files may remain when they do not overlap the candidate. Their path set, content, and index state are fingerprinted and checked around every main-side action. The Lab never stashes, restores, commits, copies, or removes that unrelated work. Ordinary Lab maintenance continues to require clean main.
 
-The rule was developed with a committed RED fixture and a GREEN fixture covering explicit confirmation, registered Story identity, evidence admission, baseline reproduction, Story-metadata exclusion, patch import, provenance retention, latest-main recheck, dirty-main byte preservation, fast-forward integration, and cleanup. The existing Lab worktree regression suite also passes. B-7abb was captured with 11 mechanical intents, 134 executed validation commands, three failures reproduced on the then-current main, and eight non-Story paths imported. Before finish, the latest main had repaired the ProofStory acceptance-basis failure and the Lab oracle recognized that PASS; the two remaining validation-planner/protocol failures stayed isolated as baseline evidence. Its focused signed reviewer-launch, process-fact, and Graph write-boundary checks pass on the combined Lab candidate.
+The rule was developed with a committed RED fixture and a GREEN fixture covering explicit confirmation, registered Story identity, evidence admission, baseline reproduction, Story-metadata exclusion, patch import, provenance retention, latest-main recheck, dirty-main byte preservation, fast-forward integration, and cleanup. The existing Lab worktree regression suite also passes. B-7abb was captured with 11 mechanical intents, 134 executed validation commands, three failures reproduced on the then-current main, and eight non-Story paths imported. By final finish, subsequent main changes had repaired all three former failures; the latest-main oracle, candidate replay, and post-merge replay each recorded exit code 0 for all three commands. Its focused signed reviewer-launch, process-fact, and Graph write-boundary checks pass on the combined Lab candidate.
 
 This release integrates the B-7abb product patch through the disclosed Lab exception. It does not mark B-7abb DONE, convert its failed repository-wide validation into PASS, or copy formal Story credentials into Lab.
 
