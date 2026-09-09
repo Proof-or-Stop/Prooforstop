@@ -46,7 +46,14 @@ for (const name of ['execFileSync', 'execFile', 'spawnSync', 'spawn']) {
         mutationProbe = expected !== originalPolicy && patch === join(dirname(args[1]), 'command-policy.patched.js')
           && readFileSync(patch, 'utf8') === expected
           && readFileSync(args[1], 'utf8') === "import { register } from 'node:module';\\nregister('./patch-loader.mjs', import.meta.url);\\n"
-          && readFileSync(join(dirname(args[1]), 'patch-loader.mjs'), 'utf8').includes('source: PATCHED, shortCircuit: true');
+          && readFileSync(join(dirname(args[1]), 'patch-loader.mjs'), 'utf8') === [
+            "import { readFileSync } from 'node:fs';",
+            "const PATCHED = readFileSync(process.env.RED_W2B_PATCHED_POLICY, 'utf8');",
+            'export async function load(url, context, nextLoad) {',
+            "  if (url.endsWith('/core/command-policy.js')) {",
+            "    return { format: 'module', source: PATCHED, shortCircuit: true };",
+            '  }', '  return nextLoad(url, context);', '}', '',
+          ].join('\\n');
       } catch { mutationProbe = false; }
     }
     if (entry && !mutationProbe && !fixtureModes[basename(entry)]?.includes(args[entryIndex + 1])) {
