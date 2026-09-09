@@ -134,6 +134,12 @@ existing pinned receipts. Canonical variants emit distinct core selectors.
 rejects a canonical entry launching another registered command; it also checks
 that every former nested provider contract remains independently scheduled.
 
+Registration mutation probes use the CHK-007 receipt's `--registration-only`
+entry to exercise its population/config/exclusion rule in private mirrors.
+That entry emits registration evidence only; it does not run or claim the
+historical invariance and silent-prefix receipts. The default CHK-007 command
+retains every original proof obligation and remains registered unchanged.
+
 The legacy review-round stall check recognizes a measured blocker reduction
 within its trailing comparison window. A plateau followed by a decrease, such as
 `[2,2,1]`, no longer blocks DEV to REVIEW. Flat or rising counts retain the stall

@@ -522,7 +522,13 @@ const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
 /** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
-const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', join(mirrorRoot, rel)], mirrorRoot);
+// This receipt also carries independent historical invariance proofs. The
+// newcomer oracle needs its actual registration rule, not those nested suites.
+// The exact mode leaves source bytes unchanged and emits no full-proof marker.
+const runInMirror = (mirrorRoot, rel) => runNode([
+  '--preserve-symlinks-main', join(mirrorRoot, rel),
+  ...(rel === `${RED_DIR_REL}/red-b2aa7-chk007-receipt.mjs` ? ['--registration-only'] : []),
+], mirrorRoot);
 
 const gitStatusFor = (paths) => {
   try {

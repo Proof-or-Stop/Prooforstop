@@ -14,8 +14,8 @@ import { syncBuiltinESMExports } from 'node:module';
 import { appendFileSync } from 'node:fs';
 const original = cp.spawnSync;
 cp.spawnSync = function(command, args, ...rest) {
-  if (args?.some(arg => typeof arg === 'string' && arg.endsWith('/red-w2c-v1-verdict-invariance.mjs'))) {
-    appendFileSync(${JSON.stringify(log)}, 'nested canonical invariance suite\\n');
+  if (command === process.execPath) {
+    appendFileSync(${JSON.stringify(log)}, 'nested receipt execution\\n');
     throw new Error('registration-only guard entered canonical invariance suite');
   }
   return original.call(this, command, args, ...rest);
