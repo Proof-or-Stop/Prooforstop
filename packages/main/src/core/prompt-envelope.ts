@@ -982,6 +982,7 @@ function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
 function hasDynamicFindingAuthorityAmendmentAssertion(
   segment: string,
   wholeSourceIsInvariantAssertion: boolean,
+  isWholeSourceProhibition: boolean,
 ): boolean {
   const referenceOnly = new RegExp(
     `^(?:(?:use|consult|follow)\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+as\\s+(?:the\\s+)?(?:governing\\s+reference|source\\s+of\\s+truth)\\s+for\\s+this\\s+story|read\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+before\\s+(?:implementing|reviewing)\\s+this\\s+story|this\\s+story\\s+depends\\s+on\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+and\\s+does\\s+not\\s+amend\\s+it)$`,
@@ -1014,8 +1015,13 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
     if (subordinateBefore && subordinateAfter) continue;
 
     const negativeAction = '(?:amend|change|modify|rewrite|override|replace|extend|update)';
-    const actorNegativeLead = new RegExp(`^(?:(?:(?:it\\s+is\\s+never|retired\\s+verdict\\s+vocabulary\\s+is\\s+never)\\s+(?:retained|used|accepted)\\s+as\\s+an\\s+active\\s+alias\\s+and\\s+)?(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${negativeAction}(?:\\s+the)?)$`, 'u').test(beforeAuthority);
-    const imperativeNegativeLead = new RegExp(`^do\\s+not\\s+${negativeAction}(?:\\s+runtime\\s+finding\\s+schemas\\s+handlers\\s+predicates\\s+process\\s+fact\\s+registries\\s+lifecycle\\s+gates\\s+or)?(?:\\s+the)?$`, 'u').test(beforeAuthority);
+    // Admit the whole-object form only as a complete source assertion. A
+    // following clause can refer back with `it`/`its` and reverse the ban.
+    const prohibitionObjectLead = isWholeSourceProhibition
+      ? '(?:\\s+any\\s+part\\s+of)?(?:\\s+the)?'
+      : '(?:\\s+the)?';
+    const actorNegativeLead = new RegExp(`^(?:(?:(?:it\\s+is\\s+never|retired\\s+verdict\\s+vocabulary\\s+is\\s+never)\\s+(?:retained|used|accepted)\\s+as\\s+an\\s+active\\s+alias\\s+and\\s+)?(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${negativeAction}${prohibitionObjectLead})$`, 'u').test(beforeAuthority);
+    const imperativeNegativeLead = new RegExp(`^do\\s+not\\s+${negativeAction}(?:\\s+runtime\\s+finding\\s+schemas\\s+handlers\\s+predicates\\s+process\\s+fact\\s+registries\\s+lifecycle\\s+gates\\s+or)?${prohibitionObjectLead}$`, 'u').test(beforeAuthority);
     const closedProhibitionObject = /^(?:document(?:\s+in\s+this\s+story)?|or\s+(?:its\s+runtime|lifecycle\s+gate\s+predicates))?$/u.test(afterAuthority);
     if ((actorNegativeLead || imperativeNegativeLead) && closedProhibitionObject) continue;
 
@@ -1041,7 +1047,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
   );
   if (controlledViolation) return controlledViolation;
   for (const segment of segments) {
-    if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
+    if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion, segments.length === 1)) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }
     if (RETIRED_APPLICABILITY_ALIAS.test(segment)) {
