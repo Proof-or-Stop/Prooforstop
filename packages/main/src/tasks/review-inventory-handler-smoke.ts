@@ -609,13 +609,15 @@ if (process.argv.includes('--discovery-only')) {
   await criticDiscoveryRecovery();
   process.exit(0);
 }
-await inventoryPurposeRecovery();
-if (process.argv.includes('--progress-capture-fixture')) {
-  console.log('PASS U11 real inventory finalization captures verified progress');
-  process.exit(0);
+if (!process.argv.includes('--lifecycle-only')) {
+  await inventoryPurposeRecovery();
+  if (process.argv.includes('--progress-capture-fixture')) {
+    console.log('PASS U11 real inventory finalization captures verified progress');
+    process.exit(0);
+  }
+  await criticDiscoveryRecovery();
+  if (process.argv.includes('--purpose-only')) process.exit(0);
 }
-await criticDiscoveryRecovery();
-if (process.argv.includes('--purpose-only')) process.exit(0);
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
 const first = setup(undefined, true);
