@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-0208",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:42c8e41fc365596efeb3219ecf4f0b7b935fa296f25a0e4178c1a94d072c2657",
+  "acceptanceBindings": [
+    {
+      "id": "REQ-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The recorded causal identity toolVersion equals the executing CLI version with missing, malformed, and conflicting business manifests."
+    }
+  ],
+  "diagnosticGaps": [],
+  "createdAt": "2026-09-08T06:17:25.380Z",
+  "updatedAt": "2026-09-08T06:17:54.991Z"
+}

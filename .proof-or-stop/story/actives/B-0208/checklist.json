@@ -19,9 +19,125 @@
           "packages/main/src/tasks/causal-evidence-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-08T06:18:12.819Z",
+      "endTime": "2026-09-08T14:53:19.939Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The built causal-evidence smoke proves external-project resolution returns the compiled CLI version and signed execution identity persists that same version.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+              "selector": "causal-evidence-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The built causal-evidence smoke proves missing and malformed target-project and current-directory packages/main/package.json never omit or change the executing CLI version.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+              "selector": "causal-evidence-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The built causal-evidence smoke proves unrelated business manifests, including conflicting target and cwd versions, cannot replace the executing CLI version.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+              "selector": "causal-evidence-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+          "result": "pass",
+          "note": "Compiled CLI version resolves across external layouts and is preserved in a verified signed causal receipt.",
+          "headHash": "6c1bfc6bf2c600b77e247765372644e76a90ff54",
+          "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
+          "storyFilesHash": "449d1a8d779f8cc0533d6399351475d455faa3ffacc21783f6fb280c4244069f",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "658721892781ac5504674d908596ef2a00f7a326c8667ce2b1de919ef40db676",
+            "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
+            "selectorMatched": true,
+            "selector": "causal-evidence-smoke: PASS",
+            "executedAt": "2026-09-08T15:36:50.538Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:d5e01acfefbe0d1057df33d6e258863a54755529bc46f8f970b78181adb2c04a",
+            "causalReceiptHash": "45f8f4670aea77d7b877e47812843bb0e928e6dcb086a114c52665f70b20461d",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-08T15:36:50.641Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+          "result": "pass",
+          "note": "Missing and malformed target and cwd manifests retain CLI version.",
+          "headHash": "6c1bfc6bf2c600b77e247765372644e76a90ff54",
+          "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
+          "storyFilesHash": "449d1a8d779f8cc0533d6399351475d455faa3ffacc21783f6fb280c4244069f",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "658721892781ac5504674d908596ef2a00f7a326c8667ce2b1de919ef40db676",
+            "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
+            "selectorMatched": true,
+            "selector": "causal-evidence-smoke: PASS",
+            "executedAt": "2026-09-08T15:36:50.538Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:d5e01acfefbe0d1057df33d6e258863a54755529bc46f8f970b78181adb2c04a",
+            "causalReceiptHash": "45f8f4670aea77d7b877e47812843bb0e928e6dcb086a114c52665f70b20461d",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-08T15:36:50.641Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
+          "result": "pass",
+          "note": "Conflicting business manifests and copied stale tool package manifests cannot substitute tool version.",
+          "headHash": "6c1bfc6bf2c600b77e247765372644e76a90ff54",
+          "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
+          "storyFilesHash": "449d1a8d779f8cc0533d6399351475d455faa3ffacc21783f6fb280c4244069f",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "658721892781ac5504674d908596ef2a00f7a326c8667ce2b1de919ef40db676",
+            "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
+            "selectorMatched": true,
+            "selector": "causal-evidence-smoke: PASS",
+            "executedAt": "2026-09-08T15:36:50.538Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:d5e01acfefbe0d1057df33d6e258863a54755529bc46f8f970b78181adb2c04a",
+            "causalReceiptHash": "45f8f4670aea77d7b877e47812843bb0e928e6dcb086a114c52665f70b20461d",
+            "commandReruns": 0
+          },
+          "timestamp": "2026-09-08T15:36:50.641Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d15e66604783177c2e86fd944712f1327b66ca7f3fb5242cbf9c8629aba8e2c7",
+        "storyFilesHash": "319dc3a78e3fb3b2decdc8d4d66d6eb5432c78e8c0fc55278ea795cdb784e01e",
+        "headHash": "bea28cea82d81cfe2af08cde295543b882ec8386",
+        "attestedAt": "2026-09-08T06:21:22.533Z",
+        "materialHash": "5d833cd03c751c182930510e46e970f172a170bf7997b523f3d28bf9ab8d3bd9"
+      }
     }
   ]
 }
