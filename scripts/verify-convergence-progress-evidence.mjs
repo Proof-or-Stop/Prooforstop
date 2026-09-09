@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { createChecklistHandlers } from '../packages/main/dist/handlers/checklist.js';
 import { acquireOwnerLease } from '../packages/main/dist/core/story-owner-lease.js';
-import { recordConvergenceProgress, readConvergenceProgress } from '../packages/main/dist/core/convergence-progress-journal.js';
+import { evaluateConvergenceProgress, recordConvergenceProgress, readConvergenceProgress } from '../packages/main/dist/core/convergence-progress-journal.js';
 const root = mkdtempSync(join(tmpdir(), 'progress-evidence-')), originalCwd = process.cwd();
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
 try {
@@ -38,6 +38,12 @@ try {
   rmSync(receiptPath);
   assert.throws(() => recordConvergenceProgress(store, storyId, root), /execution authority|receipt/i);
   writeFileSync(receiptPath, receiptBytes);
+  const indexPath = store.storyFilePath(storyId, 'causal-evidence/index.json');
+  const indexBytes = readFileSync(indexPath);
+  rmSync(indexPath);
+  assert.equal(evaluateConvergenceProgress(store, storyId, root).state.snapshot.missingRequired, 0);
+  assert.equal(existsSync(indexPath), false, 'U11 read-only progress must not repair the receipt index');
+  writeFileSync(indexPath, indexBytes);
   const complete = readFileSync(path, 'utf8');
   writeFileSync(join(root, 'subject.cjs'), 'module.exports=2;\n');
   assert.throws(() => recordConvergenceProgress(store, storyId, root), /dirty|source/i, 'dirty source cannot borrow a committed PASS');
