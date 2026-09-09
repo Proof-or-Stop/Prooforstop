@@ -896,11 +896,12 @@ for (const entry of registry.agents) {
   }
   if (isComplexRole) {
     const legacy = restoreLegacyPromptTemplate(entry);
-    const canonicalLegacy = legacy
-      .replace('<!-- lattice:start -->', '<!-- proof-or-stop:start -->')
-      .replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->');
-    assert.equal(expectedClaude, canonicalLegacy, `${entry.file} default full-context Claude render canonicalizes historical markers`);
-    assert.equal(expectedCodex, renderCodexAgentContent(canonicalLegacy), `${entry.file} default full-context Codex render canonicalizes historical markers`);
+    // Exact host bytes are pinned by the independent 18-role prompt baseline.
+    // Assert visible marker contracts here instead of reconstructing an expected renderer.
+    for (const rendered of [expectedClaude, expectedCodex]) {
+      assert.match(rendered, /<!-- proof-or-stop:start -->/, `${entry.file} renders canonical managed markers`);
+      assert.doesNotMatch(rendered, /<!-- lattice:start -->/, `${entry.file} does not materialize historical markers`);
+    }
     assert.match(legacy, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/, `${entry.file} retains legacy markers only in historical reconstruction`);
     assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
     assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);

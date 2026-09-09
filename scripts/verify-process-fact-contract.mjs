@@ -9436,3 +9436,8 @@ assert(/host_run_status: \{[^\n]*ownershipClass: 'readOnly'[^\n]*destructiveRisk
 assert(read('scripts/verify-managed-status-readonly.mjs').includes('status observation must not write runtime files'), 'managed observation requires a filesystem non-mutation witness');
 assert(read('scripts/verify-managed-provider-missing.mjs').includes("process.kill(workerPid,'SIGSTOP')"), 'missing-provider diagnostics require a real live-worker disappearance witness');
 assert(read('packages/main/src/core/managed-host-run.ts').includes("type:'provider_closed'"), 'provider close must be a durable event before asynchronous finalization');
+for (const file of ['packages/main/src/handlers/agent-prompt.ts', 'packages/main/src/core/prompt-role-contract-registry.ts']) {
+  const source = read(file);
+  assert(!source.includes('purposeSelectedCriticBody') && !source.includes('resolvePromptTemplateBody'), `${file} must consume prompt projection rather than reconstructing selected role bodies`);
+}
+assert(read('packages/main/src/core/prompt-registry.ts').includes('export function projectPromptAsset('), 'host assets and reviewer contract bodies share one projection boundary');

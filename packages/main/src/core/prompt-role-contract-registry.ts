@@ -14,12 +14,8 @@ import {
 import {
   MODULAR_COMPLEX_ROLE_IDS,
   isModularReviewerRoleId,
-  isModularRoleId,
   readPromptRegistry,
-  readPromptTemplate,
-  renderPromptEntryForHost,
-  renderPromptForHost,
-  resolvePromptTemplateBody,
+  projectPromptAsset,
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
@@ -35,11 +31,6 @@ export const PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY = 'proofbound.prompt-envelop
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
-/** Live composition only: the frozen historical template/reconstruction stays byte-identical. */
-function purposeSelectedCriticBody(roleId: string, body: string): string {
-  if (canonicalAgentRoleId(roleId) !== 'proof-or-stop-review-topology-critic') return body;
-  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
-}
 
 export interface ResolvedPromptRoleBody {
   roleId: string;
@@ -181,13 +172,14 @@ export function reviewerHostRenderIdentity(
     && !agentRoleIdsEqual(canonicalRoleId, 'proof-or-stop-review-delivery')) {
     throw new PromptRoleContractRegistryError(`role "${canonicalRoleId}" is not eligible for reviewer host rendering`);
   }
-  const packageTemplate = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, rolloutMode));
+  const projection = projectPromptAsset(entry, host, {roleMode:rolloutMode});
+  const packageTemplate = projection.roleBody;
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   // B-cc10 F-018: derive the adapter dir; this file already uses read-both
   // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
   // deprecated spelling here made the fallback branch miss canonical-only projects.
   const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
-  const bootstrap = renderPromptEntryForHost(entry, host);
+  const bootstrap = projection.materialized;
   const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {
     assertExactHostAsset(
@@ -196,7 +188,7 @@ export function reviewerHostRenderIdentity(
       host,
     );
   }
-  const selectedRoleBody = renderPromptForHost(packageTemplate, host);
+  const selectedRoleBody = projection.hostRoleBody;
   const semantic = {
     schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' as const,
     roleId: canonicalRoleId,
@@ -457,9 +449,7 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
       semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(entry.agentId, policy)),
       renderDigest: domainSeparatedDigest(
         'role-contract.render.v1',
-        purposeSelectedCriticBody(entry.agentId, isModularReviewerRoleId(entry.agentId)
-          ? resolvePromptTemplateBody(entry, 'full-envelope')
-          : readPromptTemplate(entry)),
+        projectPromptAsset(entry, 'claude').contractBody,
       ),
     };
     validateRoleContract(contract);
@@ -688,12 +678,13 @@ export function resolvePromptRoleBody(
   const mode = resolvePromptEnvelopeRolloutMode(canonicalRoleId, config);
   const entry = snapshot.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
-  const body = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, mode));
+  const projection = projectPromptAsset(entry, 'claude', {roleMode:mode});
+  const body = projection.roleBody;
   return Object.freeze({
     roleId: canonicalRoleId,
     mode,
     body,
     bodyDigest: domainSeparatedDigest(`reviewer-role-body.${mode}.raw-utf8.v1`, body),
-    legacyBytesRestored: mode === 'legacy-full-context' && isModularRoleId(roleId),
+    legacyBytesRestored: projection.legacyBytesRestored,
   });
 }

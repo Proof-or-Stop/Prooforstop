@@ -530,9 +530,6 @@ export function resolvePromptTemplateBody(
     throw new Error(`reviewer prompt ${entry.agentId} already contains ${REVIEW_FINDING_TRIAGE_CONTRACT_MARKER}`);
   }
   return `${body.trimEnd()}\n\n${REVIEW_FINDING_TRIAGE_CONTRACT}\n`;
-  if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
-  const source = readPromptTemplate(entry);
-  return canonicalizePromptRoleText(source);
 }
 
 /**
@@ -667,15 +664,49 @@ export function renderReviewerRunBootstrapForTemplate(raw: string, file: string,
 export function renderPromptEntryForHost(
   entry: PromptRegistryEntry,
   host: PromptHost,
-  mode: 'legacy-full-context' | 'full-envelope' = isModularComplexRoleId(entry.agentId)
-    ? 'legacy-full-context'
-    : 'full-envelope',
+  mode?: 'legacy-full-context' | 'full-envelope',
 ): string {
-  const selectedTemplate = canonicalizeRenderedManagedMarkers(isModularComplexRoleId(entry.agentId)
-    ? resolvePromptTemplateBody(entry, mode)
-    : canonicalizePromptRoleText(readPromptTemplate(entry)));
-  const hostTemplate = renderPromptForHost(selectedTemplate, host);
-  return isActiveModularReviewerRoleId(entry.agentId)
-    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, canonicalAgentRoleId(entry.agentId))
-    : hostTemplate;
+  return projectPromptAsset(entry, host, {assetMode:mode}).materialized;
+}
+
+function memoizePromptProjection<T>(read: () => T): () => T {
+  let cached: {value:T} | undefined;
+  return () => (cached ??= {value:read()}).value;
+}
+
+/** Shared package, materialization and managed comparison projection. */
+export function projectPromptAsset(
+  entry: PromptRegistryEntry,
+  host: PromptHost,
+  options: {roleMode?: 'legacy-full-context' | 'full-envelope'; assetMode?: 'legacy-full-context' | 'full-envelope'} = {},
+) {
+  const complex = isModularComplexRoleId(entry.agentId);
+  const reviewer = isModularReviewerRoleId(entry.agentId);
+  const assetMode = options.assetMode ?? (complex ? 'legacy-full-context' : 'full-envelope');
+  const roleMode = options.roleMode ?? 'full-envelope';
+  // Consumers request only their purpose. Contract inspection must not also
+  // reconstruct an unrelated legacy host asset or perform extra file reads.
+  const materialized = memoizePromptProjection(() => {
+    const selectedTemplate = canonicalizeRenderedManagedMarkers(complex
+      ? resolvePromptTemplateBody(entry, assetMode)
+      : canonicalizePromptRoleText(readPromptTemplate(entry)));
+    const hostTemplate = renderPromptForHost(selectedTemplate, host);
+    return isActiveModularReviewerRoleId(entry.agentId)
+      ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, canonicalAgentRoleId(entry.agentId))
+      : hostTemplate;
+  });
+  const roleBody = memoizePromptProjection(() => purposeSelectedCriticBody(entry.agentId, resolvePromptTemplateBody(entry, roleMode)));
+  const contractBody = memoizePromptProjection(() => purposeSelectedCriticBody(entry.agentId, reviewer
+    ? resolvePromptTemplateBody(entry, 'full-envelope') : readPromptTemplate(entry)));
+  const hostRoleBody = memoizePromptProjection(() => renderPromptForHost(roleBody(), host));
+  return Object.freeze({get materialized() {return materialized();}, get roleBody() {return roleBody();},
+    get hostRoleBody() {return hostRoleBody();}, get contractBody() {return contractBody();},
+    roleClass:reviewer ? 'reviewer' as const : complex ? 'complex' as const : 'plain' as const,
+    legacyBytesRestored:roleMode === 'legacy-full-context' && (complex || reviewer)});
+}
+
+/** Live composition only: the frozen historical template/reconstruction stays byte-identical. */
+function purposeSelectedCriticBody(roleId: string, body: string): string {
+  if (canonicalAgentRoleId(roleId) !== 'proof-or-stop-review-topology-critic') return body;
+  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
 }

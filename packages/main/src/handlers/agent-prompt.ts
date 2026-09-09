@@ -19,7 +19,6 @@
  */
 
 import {
-  isActiveModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
   type PromptRegistryEntry,
@@ -141,9 +140,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       );
       const rolePrompt = resolvedRoleBody.body;
       if (!args.storyId || !ctx) {
-        return isActiveModularReviewerRoleId(role)
-          ? renderPromptEntryForHost(entry, 'claude')
-          : renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
+        return renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
 
       // Rollback is exact: a disabled role follows the original no-Story path
