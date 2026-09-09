@@ -92,6 +92,62 @@ function outputTail(value, limit = 4000) {
   const text = typeof value === 'string' ? value : '';
   return text.length <= limit ? text : text.slice(-limit);
 }
+function failureIdentity(value, roots = []) {
+  let text = typeof value === 'string' ? value : '';
+  for (const root of [...new Set(roots.filter(Boolean))].sort((a, b) => b.length - a.length)) {
+    text = text.split(root).join('<ROOT>');
+    try { text = text.split(realpathSync(root)).join('<ROOT>'); } catch { /* absent path */ }
+  }
+  const normalized = text
+    .replace(/\u001b\[[0-9;]*m/g, '')
+    .replace(/\b[a-f0-9]{40,64}\b/gi, '<HASH>')
+    .replace(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\b/g, '<TIME>')
+    .replace(/:\d+:\d+/g, ':<LINE>:<COL>')
+    .replace(/\b\d+(?:\.\d+)?\s*ms\b/gi, '<DURATION>')
+    .split(/\r?\n/)
+    .map(line => line.trim().replace(/\s+/g, ' '))
+    .filter(line => line && /fail|error|assert|refus|missing|mismatch|invalid|unclassified|expected|actual/i.test(line));
+  return hash((normalized.length ? [...new Set(normalized)].sort() : [text.trim()]).join('\n'));
+}
+function repositoryTraceProfile(row, sourcePath) {
+  const trace = row?.runtimeTrace;
+  const inputs = new Set();
+  const add = candidate => {
+    if (typeof candidate !== 'string' || !candidate) return;
+    const absolute = isAbsolute(candidate) ? candidate : resolve(sourcePath, candidate);
+    const rel = relative(sourcePath, absolute).replace(/\\/g, '/');
+    if (rel && rel !== '..' && !rel.startsWith('../') && !isAbsolute(rel)) inputs.add(rel);
+  };
+  add(row?.command);
+  for (const arg of Array.isArray(row?.args) ? row.args : []) {
+    if (typeof arg === 'string' && !arg.startsWith('-')) add(arg);
+  }
+  for (const field of ['readPaths', 'loadedPaths', 'spawnedPaths']) {
+    for (const candidate of Array.isArray(trace?.[field]) ? trace[field] : []) add(candidate);
+  }
+  const repositoryInputs = [...inputs].sort();
+  const traceComplete = Boolean(trace)
+    && Array.isArray(trace.unknownRuntimeInputs)
+    && trace.unknownRuntimeInputs.length === 0
+    && repositoryInputs.length > 0
+    && repositoryInputs.length <= 2000;
+  return { repositoryInputs: repositoryInputs.slice(0, 2000), traceComplete };
+}
+function changedPathsBetween(cwd, from, to = 'HEAD') {
+  return git(cwd, 'diff', '--name-only', from, to).split('\n').filter(Boolean).sort();
+}
+function impactedProfile(profile, changedPaths) {
+  if (!profile.traceComplete) return { impacted: true, reasons: ['trace_incomplete'] };
+  const inputs = new Set(profile.repositoryInputs || []);
+  const direct = changedPaths.filter(path => inputs.has(path));
+  const sibling = changedPaths.filter(path => [...inputs].some(input => {
+    const inputDir = input.includes('/') ? input.slice(0, input.lastIndexOf('/')) : '';
+    const changedDir = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
+    return inputDir === changedDir;
+  }));
+  const reasons = [...new Set([...direct, ...sibling])].sort();
+  return { impacted: reasons.length > 0, reasons };
+}
 function instructions(name) {
   return `# Temporary Lab maintenance: ${name}\n\n` +
     `The user authorized this local Lab repair channel outside the formal Story lifecycle.\n` +
@@ -234,38 +290,91 @@ async function main() {
       if (!items.length || items.some(item => item.status !== 'done')) fail('Every Story checklist item must be done.');
       const findings = Array.isArray(findingsRaw) ? findingsRaw : (Array.isArray(findingsRaw.findings) ? findingsRaw.findings : []);
       if (findings.some(row => row && row.status === 'open')) fail('Story carry-forward refuses open Findings.');
-      if (testEvidence.disposition !== 'executed' || !/^[a-f0-9]{64}$/.test(testEvidence.storyFilesHash || '')) {
+      if (testEvidence.disposition !== 'executed' || !/^[a-f0-9]{40}$/.test(testEvidence.headHash || '')
+        || !/^[a-f0-9]{64}$/.test(testEvidence.materialHash || '') || !/^[a-f0-9]{64}$/.test(testEvidence.storyFilesHash || '')) {
         fail('Story test evidence must be an executed, storyFilesHash-bound validation result.');
+      }
+      const [{ currentMaterialHash, currentStoryFilesHash, checkEvidenceFreshnessForGit }, verification, admissibility] = await Promise.all([
+        core('evidence-freshness'),
+        core('verification'),
+        core('proof-admissibility'),
+      ]);
+      const computedMaterialHash = currentMaterialHash(sourcePath, sourceHead, sourcePath);
+      const computedStoryFilesHash = currentStoryFilesHash(sourcePath, sourceHead, sourcePath);
+      const freshness = checkEvidenceFreshnessForGit(
+        sourcePath,
+        testEvidence.headHash,
+        testEvidence.materialHash,
+        sourcePath,
+        testEvidence.storyFilesHash,
+      );
+      const authoritativeCoverage = verification.buildVerificationCoverage(
+        checklist,
+        sourceHead,
+        (headHash, evidence) => checkEvidenceFreshnessForGit(
+          sourcePath,
+          headHash,
+          evidence?.materialHash,
+          sourcePath,
+          evidence?.storyFilesHash,
+        ).fresh,
+        {
+          evidenceQualityProfile: 'strict',
+          receiptAdmissibility: admissibility.createVerificationEvidenceGateEvaluator(sourcePath, storyId),
+        },
+      );
+      if (!computedMaterialHash || computedMaterialHash !== testEvidence.materialHash
+        || !computedStoryFilesHash || computedStoryFilesHash !== testEvidence.storyFilesHash
+        || !freshness.fresh || authoritativeCoverage.required < 1
+        || authoritativeCoverage.missingRequired !== 0
+        || authoritativeCoverage.entries.some(row => row.priority === 'must' && row.status !== 'covered')) {
+        fail('Story evidence authenticity or hash binding is invalid; renew it through the official Story verifier.');
       }
       const rendered = typeof testEvidence.output === 'string' ? parseJsonText(testEvidence.output, 'Story test output') : testEvidence.output;
       const commands = Array.isArray(rendered?.commands) ? rendered.commands : [];
       if (!commands.length || rendered.commandExecutions !== commands.length) fail('Story validation must record every planned command execution.');
-      const coverage = rendered.verificationCoverage;
-      if (!coverage || coverage.required < 1 || coverage.covered !== coverage.required || coverage.missingRequired !== 0) {
+      const reportedCoverage = rendered.verificationCoverage;
+      if (!reportedCoverage || reportedCoverage.required !== authoritativeCoverage.required
+        || reportedCoverage.covered !== authoritativeCoverage.covered || reportedCoverage.missingRequired !== 0) {
         fail('Story validation must carry complete required verification coverage.');
       }
-      const covered = Array.isArray(coverage.entries) ? coverage.entries : [];
-      if (covered.length < coverage.required || covered.some(row => row.status !== 'covered'
+      const covered = Array.isArray(authoritativeCoverage.entries) ? authoritativeCoverage.entries : [];
+      if (covered.length < authoritativeCoverage.required || covered.some(row => row.priority === 'must' && (row.status !== 'covered'
         || row.evidence?.result !== 'pass' || row.evidence?.mechanical !== true
         || row.evidence?.storyFilesHash !== testEvidence.storyFilesHash
-        || row.evidence?.receipt?.exitCode !== 0 || row.evidence?.receipt?.selectorMatched !== true)) {
+        || row.evidence?.receipt?.exitCode !== 0 || row.evidence?.receipt?.selectorMatched !== true))) {
         fail('Every required intent needs current mechanical PASS evidence bound to the same storyFilesHash.');
       }
-      if (!testEvidence.headHash || !/^[a-f0-9]{40}$/.test(testEvidence.headHash)) fail('Story test evidence headHash is missing.');
       assertAncestor(sourcePath, testEvidence.headHash, sourceHead);
       const afterEvidence = git(sourcePath, 'diff', '--name-only', testEvidence.headHash, sourceHead).split('\n').filter(Boolean);
       if (afterEvidence.some(path => !path.startsWith(`.proof-or-stop/story/actives/${storyId}/`))) {
         fail('Story source has product changes after its recorded validation head.');
       }
+      if (commands.some(row => typeof row?.command !== 'string' || !row.command
+        || !Array.isArray(row.args) || row.args.some(arg => typeof arg !== 'string'))) {
+        fail('Every validation row must carry an executable plus argv.');
+      }
       const failures = commands.filter(row => Number(row?.code ?? row?.exitCode ?? 0) !== 0);
       if (rendered.status === 'pass' ? failures.length !== 0 : failures.length < 1) fail('Story validation status and command failures disagree.');
       if (failures.length > 5) fail('Story carry-forward refuses more than five baseline failures.');
+      const passCommandProfiles = commands
+        .filter(row => Number(row?.code ?? row?.exitCode ?? 0) === 0)
+        .map(row => ({
+          label: row.label,
+          command: [row.command, ...row.args],
+          sourceExitCode: 0,
+          sourceOutputDigest: hash(row.output || ''),
+          sourceOutputTail: outputTail(row.output),
+          ...repositoryTraceProfile(row, sourcePath),
+        }));
       const mainBefore = git(mainRoot, 'status', '--porcelain=v1', '-uall', '-z');
       const mainHead = sha(mainRoot);
+      const mainBuild = runCaptured(mainRoot, ['node', 'scripts/ensure-dist.mjs']);
+      if (!passed(mainBuild) || sha(mainRoot) !== mainHead
+        || git(mainRoot, 'status', '--porcelain=v1', '-uall', '-z') !== mainBefore) {
+        fail('Current main build is unavailable or changed tracked workspace state; baseline evidence was not captured.');
+      }
       const baselineWitnesses = failures.map(row => {
-        if (typeof row.command !== 'string' || !row.command || !Array.isArray(row.args) || row.args.some(arg => typeof arg !== 'string')) {
-          fail('Each failing validation row must carry an executable plus argv.');
-        }
         const witness = runCaptured(mainRoot, [row.command, ...row.args]);
         if (passed(witness) || witness.status !== Number(row.code ?? row.exitCode)) {
           fail(`Story-only validation failure is not reproducible on main: ${row.command} ${row.args.join(' ')}`);
@@ -300,14 +409,16 @@ async function main() {
       s.storyCarry = {
         storyId, sourcePath, sourceBranch: `story/${storyId}`, sourceHead, sourceBase: base,
         evidenceHead: testEvidence.headHash, materialHash: testEvidence.materialHash,
-        storyFilesHash: testEvidence.storyFilesHash, verificationIntentCount: coverage.required,
+        storyFilesHash: testEvidence.storyFilesHash, verificationIntentCount: authoritativeCoverage.required,
         fullCommandCount: commands.length, sourceValidationResult: testEvidence.result,
-        baselineWitnesses, importedPaths, patchHash: hash(patch), capturedAt: new Date().toISOString(),
+        baselineWitnesses, passCommandProfiles, importedPaths, patchHash: hash(patch),
+        mainBuildAtCapture: { head: mainHead, outputDigest: hash(mainBuild.output), elapsedMs: mainBuild.elapsedMs },
+        capturedAt: new Date().toISOString(),
       };
       s.green = null;
       s.history.push({ kind: 'story-carry', ...s.storyCarry });
       save(s);
-      console.log(`Story evidence captured and patch applied: ${storyId}; ${coverage.required} intents, ${commands.length} commands, ${failures.length} reproduced baseline failures, ${importedPaths.length} imported paths.`);
+      console.log(`Story evidence captured and patch applied: ${storyId}; ${authoritativeCoverage.required} intents, ${commands.length} commands, ${failures.length} reproduced baseline failures, ${importedPaths.length} imported paths.`);
       return;
     }
     if (action === 'baseline') {
@@ -323,6 +434,10 @@ async function main() {
       }
       const mainBefore = dirtySnapshot(mainRoot);
       const mainHead = sha(mainRoot);
+      const mainBuild = runCaptured(mainRoot, ['node', 'scripts/ensure-dist.mjs']);
+      if (!passed(mainBuild) || sha(mainRoot) !== mainHead) {
+        fail('Current main build is unavailable; supplemental baseline evidence was not captured.');
+      }
       const witness = runCaptured(mainRoot, command);
       if (passed(witness) || witness.status === null || witness.signal || witness.error || !witness.output.includes(expected)) {
         fail('Expected new main baseline failure was not observed; no supplemental witness recorded.');
@@ -363,11 +478,17 @@ async function main() {
     }
     const notes = read(notesPath).trim();
     if (notes.length < 40 || notes.length > 100000) fail('Provide substantive English release notes (40-100000 characters).');
+    const versions = await core('version-bump');
+    const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const mainDirty = dirtySnapshot(mainRoot);
     let preservedMainDirty = null;
     if (mainDirty.paths.length > 0) {
       if (!s.storyCarry) fail(`Uncommitted or untracked work in ${mainRoot}; preserve/commit it before continuing.`);
-      const candidatePaths = git(s.path, 'diff', '--name-only', 'main...HEAD').split('\n').filter(Boolean);
+      const candidatePaths = [...new Set([
+        ...git(s.path, 'diff', '--name-only', 'main...HEAD').split('\n').filter(Boolean),
+        'CHANGELOG.md',
+        ...(versions.VERSION_SYNC_PATHS || []),
+      ])];
       const overlap = mainDirty.paths.filter(path => candidatePaths.includes(path));
       if (overlap.length) fail(`Story carry-forward candidate overlaps dirty main paths: ${overlap.join(', ')}`);
       if (s.storyCarry.preservedMainDirty && s.storyCarry.preservedMainDirty.fingerprint !== mainDirty.fingerprint) {
@@ -386,6 +507,9 @@ async function main() {
     };
     assertMainStable();
     if (s.storyCarry && ['active', 'prepared'].includes(s.phase)) {
+      const latestMainBuild = runCaptured(mainRoot, ['node', 'scripts/ensure-dist.mjs']);
+      if (!passed(latestMainBuild)) fail('Latest main build failed before Story carry-forward witness replay.');
+      assertMainStable();
       const finishBaselineWitnesses = s.storyCarry.baselineWitnesses.map(previous => {
         const witness = runCaptured(mainRoot, previous.command);
         if (witness.status === null || witness.signal || witness.error) fail(`Story baseline command could not run on latest main: ${previous.command.join(' ')}`);
@@ -395,12 +519,30 @@ async function main() {
           mainExitCode: witness.status,
           mainOutputDigest: hash(witness.output),
           mainOutputTail: outputTail(witness.output),
+          failureIdentity: witness.status === 0 ? null : failureIdentity(witness.output, [mainRoot]),
           mainElapsedMs: witness.elapsedMs,
           observedAt: witness.at,
         };
       });
       assertMainStable();
+      const latestMainChanges = changedPathsBetween(mainRoot, s.storyCarry.sourceBase, 'HEAD');
+      const baselineCommandKeys = new Set(s.storyCarry.baselineWitnesses.map(row => JSON.stringify(row.command)));
+      const integrationWitnesses = (s.storyCarry.passCommandProfiles || [])
+        .filter(profile => !baselineCommandKeys.has(JSON.stringify(profile.command)))
+        .map(profile => ({ profile, impact: impactedProfile(profile, latestMainChanges) }))
+        .filter(row => row.impact.impacted)
+        .map(row => ({
+          label: row.profile.label,
+          command: row.profile.command,
+          sourceExitCode: 0,
+          sourceOutputDigest: row.profile.sourceOutputDigest,
+          traceComplete: row.profile.traceComplete,
+          triggerPaths: row.impact.reasons,
+        }));
       s.storyCarry.finishBaselineWitnesses = finishBaselineWitnesses;
+      s.storyCarry.integrationWitnesses = integrationWitnesses;
+      s.storyCarry.latestMainChangedPaths = latestMainChanges;
+      s.storyCarry.latestMainBuild = { head: sha(mainRoot), outputDigest: hash(latestMainBuild.output), elapsedMs: latestMainBuild.elapsedMs };
       s.storyCarry.finishBaselineMainHead = sha(mainRoot);
       save(s);
     }
@@ -411,9 +553,32 @@ async function main() {
         if (observed.status === null || observed.signal || observed.error || observed.status !== expected.mainExitCode) {
           fail(`${kind} changed latest-main baseline outcome for: ${expected.command.join(' ')}`);
         }
+        const observedFailureIdentity = observed.status === 0 ? null : failureIdentity(observed.output, [root, mainRoot, s.storyCarry.sourcePath]);
+        if (expected.failureIdentity && observedFailureIdentity !== expected.failureIdentity) {
+          fail(`${kind} changed latest-main baseline failure identity for: ${expected.command.join(' ')}`);
+        }
         return {
           command: expected.command,
           expectedExitCode: expected.mainExitCode,
+          observedExitCode: observed.status,
+          outputDigest: hash(observed.output),
+          outputTail: outputTail(observed.output),
+          failureIdentity: observedFailureIdentity,
+          elapsedMs: observed.elapsedMs,
+          observedAt: observed.at,
+        };
+      });
+      s.history.push({ kind, rows });
+      save(s);
+    };
+    const checkStoryIntegrationWitnesses = (root, kind) => {
+      if (!s.storyCarry?.integrationWitnesses) return;
+      const rows = s.storyCarry.integrationWitnesses.map(expected => {
+        const observed = runCaptured(root, expected.command);
+        if (!passed(observed)) fail(`${kind} failed impacted Story PASS command: ${expected.command.join(' ')}`);
+        return {
+          command: expected.command,
+          triggerPaths: expected.triggerPaths,
           observedExitCode: observed.status,
           outputDigest: hash(observed.output),
           outputTail: outputTail(observed.output),
@@ -424,8 +589,6 @@ async function main() {
       s.history.push({ kind, rows });
       save(s);
     };
-    const versions = await core('version-bump');
-    const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const check = (root, kind) => {
       const before = sha(root), r = run(root, s.red.command);
       s.history.push({ kind, ...r }); save(s);
@@ -475,7 +638,8 @@ async function main() {
       if (sha(mainRoot) === s.candidate) { s.phase = 'integrated'; save(s); }
       else {
         if (sha(mainRoot) !== s.releaseBase) fail('main moved after preparation; preserve candidate for explicit re-preparation.');
-        build(s.path); checkStoryBaselineParity(s.path, 'candidate-story-baseline'); check(s.path, 'candidate-green');
+        build(s.path); checkStoryBaselineParity(s.path, 'candidate-story-baseline');
+        checkStoryIntegrationWitnesses(s.path, 'candidate-story-integration'); check(s.path, 'candidate-green');
         assertMainStable(); assertClean(s.path, s.override);
         if (sha(mainRoot) !== s.releaseBase || sha(s.path) !== s.candidate) fail('HEAD changed during verification; refusing merge.');
         if (git(mainRoot, 'branch', '--show-current') !== 'main') fail('The main checkout changed branches.');
@@ -485,7 +649,8 @@ async function main() {
     }
     if (s.phase === 'integrated') {
       if (sha(mainRoot) !== s.candidate) fail('main moved before post-merge verification; workspace retained for recovery.');
-      build(mainRoot); checkStoryBaselineParity(mainRoot, 'main-story-baseline'); check(mainRoot, 'main-green');
+      build(mainRoot); checkStoryBaselineParity(mainRoot, 'main-story-baseline');
+      checkStoryIntegrationWitnesses(mainRoot, 'main-story-integration'); check(mainRoot, 'main-green');
       if (versions.readSyncedVersion(mainRoot) !== s.version) fail('main version drift after integration.');
       s.phase = 'verified'; save(s);
     }

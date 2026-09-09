@@ -62,10 +62,15 @@ npm run lab:worktree -- carry repair-name \
 The action accepts only the matching registered `story/B-xxxx` worktree in
 REVIEW or TEST. The source must be clean, every checklist item must be done,
 there must be no open Finding, and the executed validation artifact must report
-complete mechanical intent coverage bound to one `storyFilesHash`. Every failed
-validation command is rerun on current local main with the same executable and
-argv; a command that passes on main, changes exit code, cannot execute, or would
-raise the bounded failure count above five stops the import.
+complete mechanical intent coverage bound to one `storyFilesHash`. Carry does
+not trust those JSON fields by shape: it recomputes the material and Story-files
+hashes and runs every required intent through the same strict authoritative
+receipt evaluator used by lifecycle gates. Legacy, unsigned, tampered, stale,
+or self-authored receipt claims are refused. Current main is built before every
+baseline capture. Every failed validation command is then rerun on that built
+main with the same executable and argv; a command that passes on main, changes
+exit code, cannot execute, or would raise the bounded failure count above five
+stops the import.
 
 If main advances after capture and a command that PASSed in the source evidence
 now fails, preserve it without repairing unrelated code:
@@ -102,9 +107,19 @@ time of capture; different failure output remains visible in the record and is
 not claimed to have the same root cause. Finish repeats those exact baseline
 commands against the latest main and treats its current exit codes as the
 integration oracle. A failure fixed on main must remain fixed in the built
-candidate; a failure still present on main must retain the same exit code. The
-built candidate and post-merge main both replay every carried command, and any
-parity change stops the release.
+candidate; a failure still present on main must retain both the same exit code
+and normalized diagnostic identity.
+
+PASS evidence is reused only when its recorded runtime trace proves it is not
+affected by changes between the Story base and latest main. A traced command is
+replayed when a changed repository path intersects its recorded read/load/spawn
+inputs. Missing, incomplete, unknown, or oversized trace input fails closed by
+replaying that command. Explicit supplemental baseline commands are removed
+from this PASS set because their current-main failure is checked by the stricter
+baseline path. The resulting impacted/fallback command set is run on both the
+built candidate and post-merge main. This is bounded dynamic revalidation, not
+a narrative claim that all historical commands ran again; if trace closure is
+unavailable for every PASS, it deliberately falls back to replaying every PASS.
 
 ## Explicit release and cleanup
 

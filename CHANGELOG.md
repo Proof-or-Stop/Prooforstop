@@ -1,5 +1,60 @@
 # Changelog
 
+## Lab story-carry-evidence-hardening - v0.3.293 - 2026-09-09
+
+# Lab maintenance log: Story evidence carry-forward hardening
+
+## Objective
+
+Harden the existing Lab Story evidence carry-forward path so it can reuse valid historical evidence without trusting caller-authored JSON, while preserving fail-closed behavior for stale, unauthenticated, or incompletely traced inputs.
+
+## Audit basis
+
+The change implements the bounded findings from an independent Claude CLI audit and a local source review:
+
+1. Recompute Story material and Story-file hashes from the source commit instead of trusting reported values.
+2. Re-evaluate verification coverage with the official receipt/admissibility evaluator and reject legacy, unsigned, tampered, stale, or incomplete required evidence.
+3. Build current main before collecting baseline witnesses so ignored distribution output cannot silently lag source.
+4. Compare normalized failure identity as well as exit status for historical non-zero witnesses.
+5. Replay passed commands selected by repository runtime traces when latest main changed relevant inputs; conservatively replay commands with incomplete traces.
+6. Expand rejection fixtures for tampered hashes, unauthenticated receipts, open findings, excessive failure carry, post-evidence product edits, and dirty-main overlap.
+
+## RED
+
+Command: `node scripts/verify-lab-story-carry-forward.mjs`
+
+Expected marker: `STORY_CARRY_ADMISSION_HARDENING_MISSING`
+
+The RED commit demonstrated that the previous implementation did not invoke the official evidence evaluator, did not recompute authoritative hashes, did not record integration witnesses, did not compare failure identities, and lacked the required authenticity rejection contract.
+
+## GREEN implementation
+
+- `scripts/lab-worktree.mjs` now authenticates and revalidates carried Story evidence, records trace profiles, builds main before witness capture, normalizes failure identities, selects impacted or trace-incomplete PASS commands, replays those commands on the candidate and post-merge main, and extends dirty-main overlap protection to shared version files.
+- `scripts/verify-lab-story-carry-forward.mjs` now proves the positive flow and the bounded negative/adversarial cases.
+- `docs/lab-maintenance.md` documents exact admission, replay, failure-parity, and fail-closed behavior without claiming that every historical command is always rerun.
+- The process-fact registry and its verifier pin the new mechanical contract.
+
+## Verification
+
+- Focused GREEN: `node scripts/verify-lab-story-carry-forward.mjs` — PASS (`STORY_CARRY_FORWARD PASS`).
+- Lab GREEN wrapper — PASS.
+- Full Lab regression: `node scripts/verify-lab-worktree.mjs` — PASS (53 command checks plus state, version, and cleanup assertions).
+- Process-fact contract: `node scripts/verify-process-fact-contract.mjs --quiet` — PASS.
+- Build order: `npm --prefix packages/main run build`, then `npm --prefix packages/utils run build` — PASS.
+- Diff hygiene: `git diff --check 1300d7ad83..HEAD` — PASS.
+
+## Scope and safety
+
+No Story lifecycle state, unrelated draft, remote ref, or GitHub release is changed by this Lab. The Lab finish is authorized only for local-main integration and must preserve the main dirty-state guard, HMAC record, fast-forward-only merge, post-merge GREEN, and cleanup semantics.
+
+## Independent review note
+
+The first Claude CLI audit produced the six bounded concerns listed above, all addressed here. A later redundant read-only recheck was stopped by Claude's configured USD budget before producing a verdict; it made no filesystem changes and is not represented as review evidence.
+
+Maintenance provenance: codex/lab-story-carry-evidence-hardening, repair 5ae49f4b669cbe212af0102a56d0f07e1da5587a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-story-carry-forward.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b49df-config-identity-count-20260909 - v0.3.292 - 2026-09-09
 
 The active-identity boundary pinned the exact number of canonical
