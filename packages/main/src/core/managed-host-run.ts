@@ -1777,6 +1777,14 @@ function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
   };
 }
 
+/** Recovery and its observation share the worker's transaction lock. */
+function recoverAndProjectManagedHostRun(paths: ManagedHostRunPaths): ManagedHostRunProjection {
+  return withTerminalAuthorityLock(paths, () => {
+    recoverPendingSnapshotEventTransitionUnlocked(paths);
+    return projectionFor(paths);
+  });
+}
+
 function updateSnapshotUnlocked(
   paths: ManagedHostRunPaths,
   update: (current: ManagedHostRunSnapshot) => ManagedHostRunSnapshot,
@@ -3326,15 +3334,13 @@ export async function runManagedHostRunSupervisor(
 ): Promise<void> {
   const paths = pathsFor(request.root, request.runId);
   // Validate the immutable spec/owner binding before reporting launch readiness.
-  recoverPendingSnapshotEventTransition(paths);
-  projectionFor(paths);
+  recoverAndProjectManagedHostRun(paths);
   onReady();
   while (existsSync(paths.spec)) {
     let terminal = false;
     try {
       terminal = await withManagedReconcileLock(paths, async () => {
-      recoverPendingSnapshotEventTransition(paths);
-      const run = projectionFor(paths);
+      const run = recoverAndProjectManagedHostRun(paths);
       if (run.terminal) {
         await reconcileManagedHostRunUnlocked(paths, Date.now());
         return true;
@@ -3478,7 +3484,7 @@ export async function cancelManagedHostRun(args: {
 }): Promise<ManagedHostRunProjection> {
   const paths = pathsFor(args.root, args.runId);
   if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${args.runId}`);
-  projectionFor(paths);
+  recoverAndProjectManagedHostRun(paths);
   if (!readTerminal(paths)) ensureCancelRequest(paths, args.runId, args.reason ?? 'operator_cancelled', Date.now());
   await reconcileManagedHostRun(paths, Date.now());
   return projectionFor(paths);

@@ -345,15 +345,13 @@ async function main(): Promise<void> {
   const originalEntrypoint = process.argv[1];
   try {
     process.argv[1] = descriptorFailureEntrypoint;
-    await assert.rejects(
-      async () => defaultManagedHostRunWorkerLauncher({
-        root: descriptorFailureRoot,
-        runId: descriptorFailureRunId,
-        proposalInvocationPrivateKey: 'x'.repeat(2 * 1024 * 1024),
-      }),
-      /worker capability descriptor failed:.*EPIPE/,
-      'a real async fd3 EPIPE is returned as a supervised launcher failure',
-    );
+    const failedDescriptor = await submitManagedHostRun(submitArgs(descriptorFailureRoot, 'descriptor failure'), {
+      randomId: () => descriptorFailureRunId,
+      launchWorker: request => defaultManagedHostRunWorkerLauncher({ ...request,
+        proposalInvocationPrivateKey: 'x'.repeat(2 * 1024 * 1024) }),
+    });
+    assert.match(failedDescriptor.terminal!.reason, /worker capability descriptor failed:.*EPIPE/,
+      'a real async fd3 EPIPE is returned as a supervised launcher failure');
   } finally {
     process.argv[1] = originalEntrypoint;
   }
@@ -377,15 +375,19 @@ async function main(): Promise<void> {
   const descriptorDeliveryEntrypointOriginal = process.argv[1];
   try {
     process.argv[1] = descriptorDeliveryEntrypoint;
-    const startedAt = Date.now();
-    const launched = await defaultManagedHostRunWorkerLauncher({
-      root: descriptorDeliveryRoot,
-      runId: descriptorDeliveryRunId,
-      proposalInvocationPrivateKey: 'descriptor-delivery-test-key',
+    let launched!: { pid: number };
+    await submitManagedHostRun(submitArgs(descriptorDeliveryRoot, 'descriptor delivery'), {
+      randomId: () => descriptorDeliveryRunId, claimTimeoutMs: 10,
+      launchWorker: async request => {
+        const startedAt = Date.now();
+        launched = await defaultManagedHostRunWorkerLauncher({ ...request,
+          proposalInvocationPrivateKey: 'descriptor-delivery-test-key' });
+        assert.ok(launched.pid > 1, 'successful descriptor delivery returns the detached worker pid');
+        assert.ok(Date.now() - startedAt < 700,
+          'descriptor delivery settles before the worker closes fd 3, including supervisor readiness');
+        return launched;
+      },
     });
-    assert.ok(launched.pid > 1, 'successful descriptor delivery returns the detached worker pid');
-    assert.ok(Date.now() - startedAt < 500,
-      'descriptor delivery must settle on local write finish, not wait for the long-lived worker to close fd 3');
     await eventually(
       async () => existsSync(descriptorDeliveryPayloadPath),
       'worker did not receive the descriptor-only capability payload',
@@ -533,7 +535,7 @@ async function main(): Promise<void> {
   assert.deepEqual(submittedEvents, ['submitted', 'worker_claimed'],
     'the worker-claim event is journaled before its snapshot generation is exposed to status/attach readers');
   // F-251: a crash after publishing the next snapshot but before appending its
-  // journal event leaves a durable transition record. The next reader must
+  // journal event leaves a durable transition record. The explicit recovery owner must
   // finish that exact transition before exposing either artifact or allowing a
   // terminal seal, rather than silently sealing an incomplete event digest.
   const recoveredSnapshot = { ...submittedSnapshot, generation: submittedSnapshot.generation + 1 };
@@ -959,7 +961,7 @@ async function main(): Promise<void> {
   await eventually(async () => launchFenceRunnerCalls === 1, 'worker did not reach the pre-spawn launch fence');
   await cancelManagedHostRun({ root: launchFenceRoot, runId: launchFenced.runId, reason: 'cancel during provider launch fence' });
   await new Promise(resolve => setTimeout(resolve, 550));
-  const launchFenceStatus = await getManagedHostRunStatus({ root: launchFenceRoot, runId: launchFenced.runId, waitMs: 0 });
+  const launchFenceStatus = await recoverManagedHostRun({ root: launchFenceRoot, runId: launchFenced.runId, waitMs: 0 });
   assert.equal(launchFenceStatus.run.state, 'cancelled',
     'a live launch-authorized worker with no provider identity converges after the bounded cooperative recovery window');
   assert.equal(launchFenceStatus.run.replacementSafe, false,
@@ -1509,10 +1511,17 @@ async function main(): Promise<void> {
       reason: 'concurrent foreground attach cancellation',
     }),
   ]);
-  const concurrentStatuses = [firstConcurrentStatus, secondConcurrentStatus, attachedConcurrentStatus];
+  const concurrentStatuses = [firstConcurrentStatus, secondConcurrentStatus];
   assert.ok(concurrentStatuses.every(status => status.run.state === 'timed_out'));
-  assert.equal(attachedConcurrentStatus.changed, true,
-    'the generation-waiting foreground attach converges on the same terminal reconciliation');
+  assert.ok(['running', 'timed_out'].includes(attachedConcurrentStatus.run.state),
+    'a read-only attach may observe cancellation generation before the recovery owner seals terminal');
+  // A bounded read may time out before the recovery owner's cleanup finishes.
+  // Attaching again with the same cursor must then observe the terminal.
+  const settledAttach = await getManagedHostRunStatus({root:concurrentReconcileRoot,
+    runId:concurrentReconcile.runId, afterGeneration:concurrentReconcile.generation});
+  assert.equal(settledAttach.run.state, 'timed_out',
+    'after both recovery owners settle, a fresh observation sees their terminal');
+  assert.equal(settledAttach.changed, true, 'the unchanged cursor observes the completed recovery');
   assert.equal(concurrentCancel.runId, concurrentReconcile.runId,
     'the concurrent cancellation participant returns the same durable run identity');
   assert.deepEqual(

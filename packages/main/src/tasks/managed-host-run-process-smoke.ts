@@ -18,6 +18,7 @@ import {
   cancelManagedHostRun,
   getManagedHostRunStatus,
   recoverManagedHostRun,
+  runManagedHostRunSupervisor,
   managedHostRunDirectory,
   readManagedHostRunResult,
   managedHostRunsRoot,
@@ -229,6 +230,7 @@ async function main(): Promise<void> {
     stdinText: '',
   });
   const liveTreeLauncher: ManagedHostRunWorkerLauncher = async request => {
+    void runManagedHostRunSupervisor(request);
     void runManagedHostRunWorker(request, {
       runner: liveTreeRunner,
       env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },

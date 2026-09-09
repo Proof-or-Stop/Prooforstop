@@ -12,6 +12,7 @@ import {
   cancelManagedHostRun,
   getManagedHostRunStatus,
   recoverManagedHostRun,
+  runManagedHostRunSupervisor,
   inspectManagedHostRunFiles,
   MANAGED_HOST_RUN_OUTPUT_RETENTION_MAX_BYTES,
   managedHostRunDirectory,
@@ -506,7 +507,7 @@ async function main(): Promise<void> {
     } catch { return false; }
   }, 'preclaim cancellation request did not reach the submitted run');
   await new Promise(resolve => setTimeout(resolve, 270));
-  await getManagedHostRunStatus({ root: preclaimRoot, runId: 'preclaim-cancel-run' });
+  await recoverManagedHostRun({ root: preclaimRoot, runId: 'preclaim-cancel-run' });
   const preclaim = await preclaimSubmission;
   assert.equal(preclaim.state, 'cancelled', 'cancel before worker claim converges without a provider spawn');
   assert.equal(preclaimInputMode, 0o600, 'preclaim one-shot prompt is mode 0600');
@@ -620,6 +621,7 @@ async function main(): Promise<void> {
   }, {
     launchWorker: async request => {
       const workerLogFd = openSync(join(managedHostRunDirectory(request.root, request.runId), 'worker.log'), 'a', 0o600);
+      void runManagedHostRunSupervisor(request);
       try {
         const child = spawn(process.execPath, [
           CLI,
