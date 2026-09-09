@@ -1,0 +1,14 @@
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { writeFileSync } from 'node:fs';
+const impl = resolve(dirname(fileURLToPath(import.meta.url)), '../../packages/main/dist');
+const { StoryStore } = await import(impl + '/core/store.js');
+const { createVerifierHandlers } = await import(impl + '/handlers/verifier.js');
+const { acquireOwnerLease } = await import(impl + '/core/story-owner-lease.js');
+const [root, output, options] = process.argv.slice(2);
+const store = new StoryStore(root), storyId = 'B-labreuse';
+acquireOwnerLease(store.storyDirPath(storyId), { command: 'isolated-observe-reuse-test', cwd: root });
+const ctx = { store, root, scanRoot: join(root, 'src'), log: line => process.stderr.write(line + '\n') };
+const result = await createVerifierHandlers(ctx).validate({ story: storyId, json: true, noSync: true, ...JSON.parse(options) });
+writeFileSync(output, typeof result === 'string' ? result : JSON.stringify(result));
+console.log(result);
