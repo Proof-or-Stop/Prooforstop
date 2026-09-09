@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,readdirSync,chmodSync,existsSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,readdirSync,chmodSync,existsSync,cpSync,renameSync} from 'node:fs';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {join,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
@@ -59,5 +59,15 @@ run('foreign session and terminal owner remain refused',f=>{
  writeFileSync(join(f.mirror,'000000000001.json'),'{broken');const session=process.env.PROOF_OR_STOP_SESSION_ID;
  const child=spawnSync(process.execPath,['--input-type=module','-e',`import {StoryStore} from ${JSON.stringify(runtime+'/packages/main/dist/core/store.js')};import {createChecklistHandlers} from ${JSON.stringify(runtime+'/packages/main/dist/handlers/checklist.js')};const root=${JSON.stringify(f.root)};try{createChecklistHandlers({store:new StoryStore(root),root,scanRoot:root}).verification_intent_recover({storyId:${JSON.stringify(storyId)}});process.exitCode=2;}catch(e){console.log(String(e));process.exitCode=String(e).includes('AMENDMENT_OWNER_REQUIRED')?0:3;}`],{cwd:f.root,encoding:'utf8',env:{...process.env,PROOF_OR_STOP_SESSION_ID:'foreign-owner'}});assert.equal(child.status,0,child.stdout+child.stderr);
  const story=f.store.readStory(storyId);f.store.writeStory(storyId,{...story,phase:'DONE'});assert.throws(()=>inspect(f),/AMENDMENT_RECOVERY_ACTIVE_STORY_REQUIRED/);
+});
+
+run('owner advances stale legacy tip only through complete matching signed lineage',f=>{
+ f.append('TWO');const second=f.git(['rev-parse',f.ref]);f.append('THREE');const snapshot=f.store.readChecklist(storyId);const bad=f.git(['commit-tree',f.git(['rev-parse',second+'^{tree}'])],'Old retained parentless checkpoint\n');f.git(['update-ref',f.ref,bad]);
+ const plan=inspect(f);assert.equal(plan.generation,3);apply(f,plan.expectedCheckpointDigest);assert.equal(Number(f.git(['rev-list','--count',f.ref])),3);assert.deepEqual(f.store.readChecklist(storyId),snapshot);
+});
+run('successful owner recovery removes only verified duplicate replacement storage',f=>{
+ const snapshot=f.store.readChecklist(storyId),orphan=f.mirror+'.replacement-00000000-0000-4000-8000-000000000001';cpSync(f.mirror,orphan,{recursive:true});renameSync(f.mirror,f.mirror+'.quarantine-simulated-crash');
+ const unknown=f.mirror+'.replacement-00000000-0000-4000-8000-000000000002';mkdirSync(unknown);writeFileSync(join(unknown,'operator-note.txt'),'Must retain unrecognized data');
+ const plan=inspect(f);apply(f,plan.expectedCheckpointDigest);assert.deepEqual(f.store.readChecklist(storyId),snapshot);assert.equal(existsSync(orphan),false,'Verified duplicate replacement must not leak after recovery');assert.equal(readFileSync(join(unknown,'operator-note.txt'),'utf8'),'Must retain unrecognized data');
 });
 const output=process.env.FIVE_ITEM_PROOF_OUTPUT;if(output){mkdirSync(output,{recursive:true});writeFileSync(join(output,'checkpoint-owner-recovery.json'),JSON.stringify(results,null,2)+'\n');}assert.ok(results.every(r=>r.passed),'CHECKPOINT_GOVERNED_RECOVERY_GAPS: available signed history must have an owner repair path');console.log('CHECKPOINT_OWNER_RECOVERY_GREEN',results.length);

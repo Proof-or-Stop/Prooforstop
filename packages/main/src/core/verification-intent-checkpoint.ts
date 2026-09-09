@@ -1,11 +1,11 @@
 import {execFileSync} from 'node:child_process';
-import {existsSync,mkdirSync,readFileSync,readdirSync,linkSync,writeFileSync,unlinkSync,renameSync} from 'node:fs';
-import {dirname,join,resolve} from 'node:path';
+import {existsSync,mkdirSync,readFileSync,readdirSync,linkSync,writeFileSync,unlinkSync,renameSync,rmSync,lstatSync} from 'node:fs';
+import {basename,dirname,join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import type {ChecklistData} from './types.js';
 import {digestCanonicalJson} from './digest.js';
-import {signValidationArtifact,verifyValidationArtifact} from './validation-artifact-signing.js';
-import {assertIntentAmendments,IntentAmendmentIntegrityError} from './verification-intent-amendment.js';
+import {signValidationArtifact,verifyValidationArtifacts} from './validation-artifact-signing.js';
+import {assertIntentAmendmentItems,IntentAmendmentIntegrityError} from './verification-intent-amendment.js';
 
 /** Durable process evidence in shared Git metadata; never a disposable runtime cache. */
 export const INTENT_CHECKPOINT_DIRECTORY = 'proof-or-stop-intent-checkpoints';
@@ -32,12 +32,17 @@ const anchorRef=(storyId:string)=>'refs/proof-or-stop/intent-checkpoints/'+diges
 function checkpointGit(gitCwd:string,args:string[],input?:string):string {
   return execFileSync('git',args,{cwd:gitCwd,input,encoding:'utf8',maxBuffer:64*1024*1024,stdio:['pipe','pipe','pipe']}).trim();
 }
+function validateCheckpoints(records:IntentCheckpoint[],storyId:string,gitCwd:string):void {
+  for(const record of records){
+    if(!record||record.schema!=='proof-or-stop.intent-checkpoint.v1'||record.storyId!==storyId||!Number.isSafeInteger(record.generation)||record.generation<1
+      ||!Array.isArray(record.data?.items)||record.dataDigest!==digestCanonicalJson(record.data))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_INVALID');
+  }
+  const verified=verifyValidationArtifacts(records.map(({signature,...value})=>({value,signature})),gitCwd);
+  if(verified.some(valid=>!valid))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_INVALID');
+  assertIntentAmendmentItems(records.flatMap(record=>record.data.items),storyId,gitCwd);
+}
 function validateCheckpoint(record:IntentCheckpoint,storyId:string,gitCwd:string):IntentCheckpoint {
-  const {signature,...payload}=record;
-  if(record.schema!=='proof-or-stop.intent-checkpoint.v1'||record.storyId!==storyId||!Number.isSafeInteger(record.generation)||record.generation<1
-    ||record.dataDigest!==digestCanonicalJson(record.data)||!verifyValidationArtifact(payload,signature,gitCwd))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_INVALID');
-  for(const item of record.data.items)assertIntentAmendments(item,storyId,gitCwd);
-  return record;
+  validateCheckpoints([record],storyId,gitCwd);return record;
 }
 interface CheckpointAnchor {commit:string;records:IntentCheckpoint[];legacyTruncated?:boolean}
 function assertCheckpointChain(records:IntentCheckpoint[]):void {
@@ -69,10 +74,10 @@ function readAnchor(storyId:string,gitCwd:string,inspectLegacyRoot=false):Checkp
       const header=output.subarray(offset,end).toString('utf8').match(/^[a-f0-9]+ blob (\d+)$/);if(!header)throw new Error('missing or invalid checkpoint blob');
       const size=Number(header[1]);offset=end+1;
       if(!Number.isSafeInteger(size)||size<0||offset+size>=output.length||output[offset+size]!==10)throw new Error('truncated checkpoint blob');
-      records.push(validateCheckpoint(JSON.parse(output.subarray(offset,offset+size).toString('utf8')),storyId,gitCwd));offset+=size+1;
+      records.push(JSON.parse(output.subarray(offset,offset+size).toString('utf8')) as IntentCheckpoint);offset+=size+1;
     }
     if(offset!==output.length)throw new Error('unexpected checkpoint object output');
-    records.reverse();
+    records.reverse();validateCheckpoints(records,storyId,gitCwd);
     // Recovery may inspect precisely the old parentless-tip format. Normal reads
     // still require the complete chain; no other malformed history is admitted.
     const legacyTruncated=inspectLegacyRoot&&records.length===1&&records[0].generation>1;
@@ -148,7 +153,7 @@ function checkpointRecoveryPlan(storyId:string,gitCwd:string):CheckpointRecovery
   const anchor=readAnchor(storyId,gitCwd,true);
   if(anchor?.legacyTruncated){
     const records=mirrorRecords(storyId,gitCwd);const checkpoint=records.at(-1);
-    if(!checkpoint||digestCanonicalJson(checkpoint)!==digestCanonicalJson(anchor.records[0]))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_LEGACY_TIP_MISMATCH');
+    if(!checkpoint||digestCanonicalJson(records[anchor.records[0].generation-1]??null)!==digestCanonicalJson(anchor.records[0]))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_LEGACY_TIP_MISMATCH');
     return {checkpoint,anchor,records,repair:'rebuild-legacy-anchor'};
   }
   if(!anchor){const records=mirrorRecords(storyId,gitCwd);const checkpoint=records.at(-1);return checkpoint?{checkpoint,anchor,records,repair:'none'}:null;}
@@ -170,6 +175,22 @@ function checkpointRecoveryPlan(storyId:string,gitCwd:string):CheckpointRecovery
   }
   return {checkpoint:anchor.records.at(-1)!,anchor,records:anchor.records,repair:corrupt?'quarantine-mirror':'none'};
 }
+/** Remove only generated, byte-equivalent duplicates after successful repair.
+ * Unknown files, symlinks, corrupt bytes and quarantine evidence are retained. */
+function removeDuplicateReplacements(directory:string,records:IntentCheckpoint[]):void {
+  const parent=dirname(directory),prefix=basename(directory)+'.replacement-';
+  for(const name of readdirSync(parent)){
+    if(!name.startsWith(prefix)||!/^[-a-f0-9]{36}$/.test(name.slice(prefix.length)))continue;
+    const path=join(parent,name);if(!lstatSync(path).isDirectory())continue;
+    const files=readdirSync(path,{withFileTypes:true});
+    const duplicate=files.every(file=>{
+      if(!file.isFile()||!/^\d{12}\.json$/.test(file.name))return false;
+      const expected=records[Number(file.name.slice(0,12))-1];if(!expected)return false;
+      try{return digestCanonicalJson(JSON.parse(readFileSync(join(path,file.name),'utf8')))===digestCanonicalJson(expected);}catch{return false;}
+    });
+    if(duplicate)rmSync(path,{recursive:true});
+  }
+}
 export function inspectIntentCheckpointRecovery(storyId:string,gitCwd:string):{checkpoint:IntentCheckpoint;storageRepair:string}|null {
   const plan=checkpointRecoveryPlan(storyId,gitCwd);return plan?{checkpoint:plan.checkpoint,storageRepair:plan.repair}:null;
 }
@@ -186,11 +207,14 @@ export function repairIntentCheckpointStorage(storyId:string,gitCwd:string,expec
     reconcileMirror(replacement,plan.records);
     // Preserve every original byte. If replacement publication is interrupted,
     // the retained Git anchor still supports a subsequent owner recovery.
-    renameSync(directory,directory+'.quarantine-'+randomUUID());
-    renameSync(replacement,directory);
+    try{
+      renameSync(directory,directory+'.quarantine-'+randomUUID());
+      renameSync(replacement,directory);
+    }finally{if(existsSync(replacement))rmSync(replacement,{recursive:true});}
   }else reconcileMirror(directory,plan.records);
   const result=readIntentCheckpoint(storyId,gitCwd);
   if(!result||result.dataDigest!==expectedDigest)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_STALE_OR_MISSING');
+  removeDuplicateReplacements(directory,plan.records);
   return result;
 }
 export function readIntentCheckpoint(storyId:string,gitCwd:string):IntentCheckpoint|null {

@@ -3257,14 +3257,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
     },
 
-    /**
-     * B-4e06 CHK-001: audited legacy repair. Reconstructs ONLY missing
-     * verificationIntent lanes from existing PASSING verificationEvidence, for
-     * mid-flight stories adopted after evidence was already recorded. Never
-     * overwrites authored intent; fail-closed on malformed refs; synthesized
-     * intents are priority='should' so the backfill can never retroactively
-     * weaponize the hard coverage gate. Refused in INIT/INIT_CHECK/terminal.
-     */
+    /** Owner-governed restoration of an exact signed acceptance checkpoint.
+     * Inspection writes nothing. Apply repairs retained storage and restores the
+     * signed projection; it synthesizes no intent, coverage, or PASS evidence. */
     verification_intent_recover(args: {storyId: string; expectedCheckpointDigest?: string; reason?: string; apply?: boolean}): string {
       return withChecklistLock(ctx,args.storyId,()=>{
         const story=assertChecklistMutationCwd(store,args.storyId);

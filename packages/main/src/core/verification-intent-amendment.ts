@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { ChecklistItem, VerificationIntent } from './types.js';
 import { digestCanonicalJson } from './digest.js';
-import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
+import { signValidationArtifact, verifyValidationArtifacts } from './validation-artifact-signing.js';
 
 const lanes = ['happy', 'edge', 'adversarial'] as const;
 interface IntentChangeProvenance {
@@ -94,7 +94,20 @@ export function createIntentRevision(args: {
 }
 /** Every canonical checklist read/write validates the chain before gates consume it. */
 export function assertIntentAmendments(item: ChecklistItem, storyId: string, gitCwd: string): void {
-  if (item.verificationIntentAmendments === undefined) return;
+  assertIntentAmendmentItems([item],storyId,gitCwd);
+}
+/** Batch key resolution only; every signature, predecessor and current binding
+ * is still checked. There is no trusted-result input or cross-call cache. */
+export function assertIntentAmendmentItems(items:ReadonlyArray<ChecklistItem>,storyId:string,gitCwd:string):void {
+  const envelopes=items.flatMap(item=>{
+    const rows=item.verificationIntentAmendments;
+    if(rows===undefined)return [];
+    if(!Array.isArray(rows)||!rows.length||!item.verificationIntent||rows.some(record=>!record||typeof record!=='object'))throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_CHAIN');
+    return rows.map(({signature,...value})=>({value,signature}));
+  });
+  const verified=verifyValidationArtifacts(envelopes,gitCwd);let signatureIndex=0;
+  for(const item of items){
+  if (item.verificationIntentAmendments === undefined) continue;
   const rows = item.verificationIntentAmendments;
   if (!Array.isArray(rows) || !rows.length || !item.verificationIntent) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_CHAIN');
   let previous: IntentAmendment | undefined;
@@ -102,7 +115,7 @@ export function assertIntentAmendments(item: ChecklistItem, storyId: string, git
     if (!record || typeof record !== 'object') throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_CHAIN');
     const {signature,...payload} = record;
     if (!['proof-or-stop.intent-amendment.v1','proof-or-stop.intent-revision.v1'].includes(record.schema) || record.storyId !== storyId || record.itemId !== item.id
-        || !verifyValidationArtifact(payload,signature,gitCwd)
+        || !verified[signatureIndex++]
         || record.previousSignature !== (previous?.signature ?? null)
         || (previous && record.beforeHash !== previous.afterHash)
         || record.beforeHash !== acceptanceIntentHash(record.beforeIntent)) throw new IntentAmendmentIntegrityError('AMENDMENT_INVALID_SIGNATURE_OR_BINDING');
@@ -113,4 +126,5 @@ export function assertIntentAmendments(item: ChecklistItem, storyId: string, git
     previous=record;
   }
   if (previous!.scopeHash !== acceptanceScopeHash(item) || previous!.afterHash !== acceptanceIntentHash(item.verificationIntent)) throw new IntentAmendmentIntegrityError('AMENDMENT_CURRENT_INTENT_MISMATCH');
+  }
 }
