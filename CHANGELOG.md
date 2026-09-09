@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab story-evidence-carry-forward-log-correction - v0.3.290 - 2026-09-09
+
+Correct the final baseline-result sentence in the Story evidence carry-forward release log.
+
+The original entry accurately recorded that B-7abb supplied three historical failing baseline witnesses. During final integration, however, concurrent main maintenance repaired all three commands. The signed Lab audit record shows exit code 0 for each latest-main witness, candidate replay, and post-merge replay. This maintenance replaces the stale intermediate statement that two failures remained with that final observed result.
+
+The correction is documentation-only. A focused RED command detects the obsolete sentence and the same command passes after the edit. No Story state, product implementation, validation result, or lifecycle credential is changed.
+
+Maintenance provenance: codex/lab-story-evidence-carry-forward-log-correction, repair a0e6f1dca521ac767ced8af5d2f275c8e9105fd8.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"CHANGELOG.md\",\"utf8\");if(s.includes(\"the two remaining validation-planner/protocol failures stayed isolated as baseline evidence\")){console.error(\"STALE_CARRY_FORWARD_BASELINE_SUMMARY\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab bcae-dist-promotion-integration-20260909 - v0.3.290 - 2026-09-09
 
 # B-bcae dist-promotion integration
