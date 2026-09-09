@@ -1,3 +1,5 @@
+export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
+
 export const REQUIRED_RUNTIME_FACT_IDS = [
   'entrypoint-authority',
   'cli-entrypoint',

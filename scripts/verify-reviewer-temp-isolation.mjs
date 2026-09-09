@@ -9,6 +9,7 @@ const {defaultHostRunRunner}=await import(repo+'/packages/main/dist/core/host-ru
 const {currentMaterialHash}=await import(repo+'/packages/main/dist/core/evidence-freshness.js');
 const root=mkdtempSync(join(tmpdir(),'reviewer-temp-fixture-'));
 const observed=[];
+const originalTempEnvironment=[process.env.TMPDIR,process.env.TMP,process.env.TEMP];
 const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:'pipe'}).trim();
 try {
  git('init','-b','main');git('config','user.name','Temp isolation fixture');git('config','user.email','fixture@example.test');
@@ -17,7 +18,7 @@ try {
  for(const runId of ['reviewer-temp-a','reviewer-temp-b']) {
   let worker;
   const submitted=await submitManagedHostRun({root,cwd:root,host:'codex',storyId:'B-temp',phase:'REVIEW',agentType:'lattice-review-quality',reviewRunId:'B-temp:'+runId,lane:'lattice-review-quality',
-   promptText:'Isolated provider temp regression '+runId,deadlineMs:15000,projectRootHash:'sha256:temp-fixture',profile:'managed_reviewer',isolateManagedReview:true,
+   promptText:'Isolated provider temp regression '+runId,deadlineMs:15000,projectRootHash:'sha256:temp-fixture',profile:'managed_reviewer',isolateManagedReview:true,environment:{TMPDIR:tmpdir(),TMP:tmpdir(),TEMP:tmpdir()},
    reviewBinding:{headHash,materialHash,storyFilesHash:'sha256:fixture',promptHash:'sha256:fixture',managedPromptDigest:'sha256:'+'a'.repeat(64),envelopeId:null}},
    {randomId:()=>runId,claimTimeoutMs:2000,claimPollMs:5,launchWorker:request=>{
     worker=runManagedHostRunWorker(request,{env:{PROOF_OR_STOP_USAGE_LEDGER:'0'},runner:async plan=>{
@@ -40,5 +41,6 @@ try {
   assert.equal(existsSync(lane.marker),false,'terminal cleanup removes provider temp writes');
   assert.equal(existsSync(lane.scratch.parent),false,'terminal cleanup removes owned parent');
  }
+ assert.deepEqual([process.env.TMPDIR,process.env.TMP,process.env.TEMP],originalTempEnvironment,'worker does not mutate parent environment');
  console.log('PASS U08 real provider temporary roots are isolated and cleaned');
 } finally {for(const lane of observed) rmSync(lane.marker,{recursive:true,force:true});rmSync(root,{recursive:true,force:true});}

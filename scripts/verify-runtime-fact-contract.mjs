@@ -64,6 +64,12 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
+  check(registrySource.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY')
+    && managedHost.includes('...managedReviewTemporaryEnvironment(spec)')
+    && managedHost.includes('MANAGED_REVIEW_TEMP_ARTIFACT.directoryName')
+    && managedHost.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys'),
+    'managed reviewer temporary isolation must consume registered path and environment policy');
   const scopeDecision = read(root, 'packages/main/src/core/story-scope-budget-decisions.ts');
   for (const field of ['approvalLifetimeMs', 'agentEnvironmentMarkers']) {
     check(registrySource.includes('SCOPE_BUDGET_DECISION_RUNTIME_POLICY') && scopeDecision.includes(`SCOPE_BUDGET_DECISION_RUNTIME_POLICY.${field}`), `scope decision runtime policy must consume ${field}`);

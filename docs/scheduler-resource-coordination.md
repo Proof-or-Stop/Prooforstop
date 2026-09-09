@@ -23,3 +23,15 @@ outstanding U-08 requirement.
 compatible readers, unrelated resources, exception cleanup and cancellation.
 The full-suite runner smoke additionally checks canonical aliases, real port
 conflicts, process cleanup and the existing per-invocation failure policy.
+
+Managed reviewers with a sealed detached scratch use a private `provider-temp`
+directory beside that worktree. The worker overrides `TMPDIR`, `TMP` and `TEMP`
+for the provider, including caller-supplied aliases, without changing the parent
+process environment. Existing marker-bound terminal cleanup removes that directory
+with the owned scratch parent. Source integrity remains checked before and after
+execution; this is not an operating-system read-only source mount or global
+machine resource coordination.
+
+`node scripts/verify-reviewer-temp-isolation.mjs` launches two real Node provider
+processes, checks their distinct source and temporary roots, and verifies terminal
+cleanup of the files they actually created.

@@ -1,6 +1,6 @@
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
-import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
@@ -82,7 +82,7 @@ import {
   type ExistingMkdirLockState,
 } from './mkdir-lock.js';
 import { getSessionIdentity } from './owner-session.js';
-import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
+import { resolveCanonicalRuntimeProjectRoot, MANAGED_REVIEW_TEMP_ARTIFACT } from './runtime-artifact-registry.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
@@ -964,6 +964,19 @@ function cleanupManagedReviewScratchWorktree(gitCwd: string, scratch: ManagedRev
     });
   }
   rmSync(scratch.parent, { recursive: true, force: true, maxRetries: 3, retryDelay: 20 });
+}
+
+/** Temp state belongs beside the detached source, never in the source tree. */
+function managedReviewTemporaryEnvironment(spec: ManagedHostRunSpec): NodeJS.ProcessEnv {
+  if (!spec.managedReviewScratch) return {};
+  const scratch = spec.managedReviewScratch;
+  assertManagedReviewScratchShape(scratch);
+  const temporaryRoot = join(scratch.parent, MANAGED_REVIEW_TEMP_ARTIFACT.directoryName);
+  if (!existsSync(temporaryRoot)) mkdirSync(temporaryRoot, { mode: MANAGED_REVIEW_TEMP_RUNTIME_POLICY.directoryMode });
+  if (!lstatSync(temporaryRoot).isDirectory() || lstatSync(temporaryRoot).isSymbolicLink()
+    || realpathSync(temporaryRoot) !== temporaryRoot) throw new Error('managed review temporary root is not an owned canonical directory');
+  chmodSync(temporaryRoot, MANAGED_REVIEW_TEMP_RUNTIME_POLICY.directoryMode);
+  return Object.fromEntries(MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys.map(key => [key, temporaryRoot]));
 }
 
 /**
@@ -2708,6 +2721,7 @@ export async function runManagedHostRunWorker(
     }
     const providerEnvironment: NodeJS.ProcessEnv = {
       ...(oneShotEnvironment ?? deps.env ?? process.env),
+      ...managedReviewTemporaryEnvironment(spec),
       LATTICE_MANAGED_HOST_RUN_ID: spec.runId,
       PROOF_OR_STOP_AGENT: spec.agentType,
       // Injected runners are an explicit in-process test seam. Production

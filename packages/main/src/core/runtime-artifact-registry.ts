@@ -1,3 +1,5 @@
+export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
+
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
