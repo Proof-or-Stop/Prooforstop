@@ -13,6 +13,7 @@ const { acquireOwnerLease, releaseOwnerLease } = await load('core/story-owner-le
 const { persistSyntheticAdmittedWindowForTest } = await load('core/certification-window.js');
 const { deriveCertificationDomainInputHashes } = await load('handlers/certification-window.js');
 const { executeValidationPlan } = await load('core/validation-executor.js');
+const {isReusableCommandPass} = await load('core/validation-evidence-reuse.js');
 const { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } = await load('handlers/story-aware-validation.js');
 async function runCase(phase, full) {
     const root = mkdtempSync(join(tmpdir(), 'u09-full-authority-'));
@@ -50,9 +51,27 @@ async function runCase(phase, full) {
         const result = JSON.parse(await createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log: message => console.log('HANDLER', message) }).validate({ story: storyId, ...(full ? { full: true } : {}), json: true, noSync: true }));
         const parsed = typeof result === 'string' ? JSON.parse(result) : result;
         assert.equal(parsed.status, 'pass', JSON.stringify(parsed));
-        assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'unaffected'], 'U09: full or TEST validation must execute the complete canonical plan');
-        assert.equal(parsed.commandExecutions, 2);
-        assert.equal(store.readTestEvidence(storyId).commandExecution.commandCount, 2);
+        if (phase === 'DEV' && !full) {
+            assert.deepEqual(parsed.commands.map(c => c.label), ['build'], 'eligible DEV iteration retains dynamic reuse');
+            assert.equal(parsed.dynamicValidation.manifest.totals.reused, 1);
+            const priorEvidence = store.readTestEvidence(storyId);
+            assert.equal(priorEvidence.commandExecution.commandCount, 1);
+            assert.equal(isReusableCommandPass(priorEvidence.commandExecution, 2), false,
+                'a persisted selective result cannot prove two canonical executions');
+            store.writeStory(storyId, {...store.readStory(storyId), phase:'TEST'});
+            persistSyntheticAdmittedWindowForTest({store, storyId, projectRoot:root,
+                causalInputHashes:deriveCertificationDomainInputHashes(root,'HEAD',root)});
+            const finalResult = JSON.parse(await createVerifierHandlers({root,scanRoot:join(root,'packages/main'),store,
+                causalPreflightFacts:()=>structuredClone(facts)}).validate({story:storyId,json:true,noSync:true}));
+            assert.equal(finalResult.status,'pass',JSON.stringify(finalResult));
+            assert.deepEqual(finalResult.commands.map(c=>c.label),['build','unaffected'],
+                'TEST cannot reuse prior persisted selective evidence as complete execution');
+
+        } else {
+            assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'unaffected'], 'U09: full or TEST validation must execute the complete canonical plan');
+            assert.equal(parsed.commandExecutions, 2);
+            assert.equal(store.readTestEvidence(storyId).commandExecution.commandCount, 2);
+        }
         console.log(`PASS U09 complete plan phase=${phase} full=${full}`);
     }
     finally {
@@ -65,3 +84,4 @@ async function runCase(phase, full) {
 await runCase("TEST", true);
 await runCase("TEST", false);
 await runCase("DEV", true);
+await runCase("DEV", false);

@@ -1517,13 +1517,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // configured gitRoot is authoritative, however: if it cannot resolve,
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
-      const dynamicMode = resolveDynamicMode(
+      const configuredDynamicMode = resolveDynamicMode(
         args.dynamicMode
         || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
         || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
             || projectConfig.validation?.dynamic?.mode
             || projectConfig.validate?.dynamic?.mode,
       );
+      // Selective command groups are an iteration optimization, not final
+      // certification. Explicit full and non-DEV/REVIEW Story invocations use
+      // the complete configured plan, even with reusable dynamic receipts.
+      const validationPhase = args.story ? ctx.store.readStory(args.story).phase : undefined;
+      const requiresCanonicalFullPlan = args.full !== undefined
+        || (validationPhase !== undefined && validationPhase !== 'DEV' && validationPhase !== 'REVIEW');
+      const dynamicMode = requiresCanonicalFullPlan ? 'off' : configuredDynamicMode;
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
