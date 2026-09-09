@@ -258,3 +258,10 @@ and emit no obsolete failure receipt on the fixed tree. The nesting probe permit
 only those exact parent paths and the single artifact argument. This retains
 CHK007's silence proof, alongside the existing CHK011 same/different-seed proof;
 registration-only probes still never execute these complete receipts.
+
+The readonly command canonical check still resolves the real envelope validation
+entry and checks its command/argv/timeout contract. It exercises the real
+validation executor with a tiny scratch workload that verifies cwd and literal
+arguments, emits stdout/stderr, and fails on a negative-control argument. This
+retains executor observation without rerunning the envelope suite. Its default
+entry preserves the original complete pipeline invocation and receipt.

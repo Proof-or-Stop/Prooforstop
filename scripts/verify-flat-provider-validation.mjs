@@ -92,6 +92,11 @@ syncBuiltinESMExports();
   const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
   assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
   assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
+  if (filename === 'red-w2d-command-readonly.mjs') {
+    assert.match(child.stdout, /red-w2d-command-readonly: CANONICAL PASS/);
+    assert.match(child.stdout, /child failure propagation verified/);
+    assert.doesNotMatch(child.stdout, /red-w2d-command-readonly: PASS|validate pipeline:.*run via runValidationCommand/);
+  }
   if (filename === 'red-b2aa7-chk007-receipt.mjs') {
     assert.match(child.stdout, /CANONICAL_HISTORICAL_PIN_PRESERVED/);
     assert.match(child.stdout, /VACUOUS_PREFIX_RECEIPTS_EXCLUDED/);

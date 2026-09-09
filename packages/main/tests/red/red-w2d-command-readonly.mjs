@@ -151,6 +151,7 @@ const spawnWindow = () => {
 const DIST = new URL('../../dist', import.meta.url).pathname;
 /** The repository root, so the validate-pipeline section reads the REAL config. */
 const REPO_ROOT = new URL('../../../../', import.meta.url).pathname.replace(/\/$/, '');
+const canonicalCore = process.argv.includes('--canonical-core');
 
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { createMainRegistry } = await import(`${DIST}/registry.js`);
@@ -498,19 +499,46 @@ try {
   assert.notEqual(smokeCommand.shell, true, 'the entry is argv-shaped, never shell-interpreted');
   assert.ok(typeof smokeCommand.timeoutMs === 'number' && smokeCommand.timeoutMs > 0,
     'the entry declares a positive per-command timeout the pipeline can enforce');
-  const pipelineResult = await runValidationCommand(smokeCommand, REPO_ROOT);
+  let executorCommand = smokeCommand;
+  if (canonicalCore) {
+    const probePath = join(root, 'executor-capture-probe.mjs');
+    writeFileSync(probePath, [
+      "import assert from 'node:assert/strict';",
+      `assert.deepEqual(process.argv.slice(2), ['--canonical-core', 'literal argument with spaces']);`,
+      `assert.equal(process.cwd(), ${JSON.stringify(REPO_ROOT)});`,
+      "console.log('CANONICAL_EXECUTOR_STDOUT');",
+      "console.error('CANONICAL_EXECUTOR_STDERR');",
+    ].join('\n'));
+    assert.equal(smokeCommand.args[0], SMOKE_ENTRY, 'configured executable script remains the first Node argument');
+    executorCommand = { ...smokeCommand,
+      args: [probePath, ...smokeCommand.args.slice(1), 'literal argument with spaces'] };
+  }
+  const pipelineResult = await runValidationCommand(executorCommand, REPO_ROOT);
   assert.equal(pipelineResult.code, 0,
     `${SMOKE_ENTRY} must exit 0 when run through the validate pipeline's own executor; got code=${pipelineResult.code}\n${pipelineResult.output}`);
   assert.notEqual(pipelineResult.timedOut, true, 'the entry completes inside its configured timeout');
-  assert.match(pipelineResult.output, /red-evidence-envelope-smoke: OK/,
-    'the pipeline captured the smoke\'s own success transcript, so the entry really ran');
+  if (canonicalCore) {
+    assert.match(pipelineResult.output, /CANONICAL_EXECUTOR_STDOUT/);
+    assert.match(pipelineResult.output, /CANONICAL_EXECUTOR_STDERR/);
+    const failure = await runValidationCommand({ ...executorCommand,
+      args: [executorCommand.args[0], '--wrong-argument'] }, REPO_ROOT);
+    assert.notEqual(failure.code, 0, 'executor must propagate a real child assertion failure');
+    assert.match(failure.output, /AssertionError/, 'executor retains failing child diagnostics');
+  } else {
+    assert.match(pipelineResult.output, /red-evidence-envelope-smoke: OK/,
+      'the pipeline captured the smoke\'s own success transcript, so the entry really ran');
+  }
 
-  console.log('red-w2d-command-readonly: PASS');
+  console.log(canonicalCore ? 'red-w2d-command-readonly: CANONICAL PASS' : 'red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
   console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .proof-or-stop manifest of file paths and content hashes NET identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)`);
   console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
-  console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
+  if (canonicalCore) {
+    console.log('  canonical validate executor: configured argv/cwd, stdout/stderr capture and child failure propagation verified; envelope scheduled independently');
+  } else {
+    console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
+  }
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

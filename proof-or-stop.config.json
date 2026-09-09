@@ -2206,7 +2206,8 @@
       {
         "command": "node",
         "args": [
-          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "--canonical-core"
         ],
         "timeoutMs": 180000
       },
