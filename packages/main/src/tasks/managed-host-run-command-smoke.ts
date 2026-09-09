@@ -591,6 +591,7 @@ async function main(): Promise<void> {
     'setTimeout(() => {',
     '  process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:1,output_tokens:1}}) + "\\n");',
     '}, 2000);',
+    'setInterval(() => {}, 1000);',
   ].join('\n'), { mode: 0o755 });
   chmodSync(fakeCodex, 0o755);
   const watchdogEnv = {
@@ -655,19 +656,15 @@ async function main(): Promise<void> {
   assert.equal(ordinaryStatus.status, 2,
     `ordinary CLI status wait remains watchdog-bounded instead of borrowing runtimeContinuation: ${ordinaryStatus.stderr}`);
   assert.match(ordinaryStatus.stderr, /without output|exceeded max timeout/);
-  const watchdogDeadlineAt = Date.parse(watchdogSubmission.deadlineAt);
-  assert.ok(Number.isFinite(watchdogDeadlineAt), 'watchdog fixture exposes a parseable managed deadline');
-  await getManagedHostRunStatus({
-    root: watchdogRoot,
-    runId: watchdogSubmission.runId,
-    waitMs: 0,
-    now: () => watchdogDeadlineAt,
-  });
+  // Use the provider's actual clock: a future injected cancellation timestamp
+  // cannot establish ordering against a real child-close timestamp.
+  assert.ok(Number.isFinite(Date.parse(watchdogSubmission.deadlineAt)),
+    'watchdog fixture exposes a parseable managed deadline');
+  await eventually(async () => (await getManagedHostRunStatus({
+    root: watchdogRoot, runId: watchdogSubmission.runId,
+  })).run.terminal !== null, 'the real absolute deadline must terminate the live provider', 6000);
   const watchdogTerminal = await getManagedHostRunStatus({
-    root: watchdogRoot,
-    runId: watchdogSubmission.runId,
-    waitMs: 0,
-    now: () => watchdogDeadlineAt + 300,
+    root: watchdogRoot, runId: watchdogSubmission.runId,
   });
   assert.equal(watchdogTerminal.run.state, 'timed_out');
   assert.equal(watchdogTerminal.run.terminal?.reason, 'absolute_deadline_exceeded');
