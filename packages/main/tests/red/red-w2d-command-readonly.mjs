@@ -422,6 +422,7 @@ try {
     const argv = argvOf(call);
     return `${call.api} ${argv[0]} ${argv[1] ?? ''}`.trim();
   }))].sort();
+  // U17 replaced the shell-based cwd probe with argv-based resolution.
   // THE EXACT OBSERVED SPAWN SET. Two families, both read-only:
   //   - repository/worktree RESOLUTION (which git dir and toplevel this story's
   //     root maps to), which the handler needs before it can name a committed
@@ -434,7 +435,6 @@ try {
     [
       'execFileSync git rev-parse',
       'execFileSync git worktree',
-      'execSync git rev-parse',
       'spawnSync git rev-parse',
       'spawnSync git show',
     ],
