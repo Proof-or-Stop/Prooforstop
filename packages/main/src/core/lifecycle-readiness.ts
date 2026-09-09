@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
 import { tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
@@ -206,7 +207,7 @@ function currentBlockingSeverities(store: StoryStore, storyId: string, projectRo
 function activeReviewersForStory(store: StoryStore, storyId: string, projectRoot: string) {
   const story = store.readStory(storyId);
   let checklist: { items: unknown[] } = { items: [] };
-  try { checklist = store.readChecklist(storyId); } catch { /* missing checklist is handled by review target rows */ }
+  try { checklist = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* missing checklist is handled by review target rows */ }
   let decision = null;
   try { decision = store.readDecision(storyId); } catch { /* decision is optional for reviewer routing */ }
   const understanding = store.readUnderstanding(storyId);
@@ -252,7 +253,7 @@ function collectVerificationEvidence(store: StoryStore, storyId: string): Array<
     return store.readChecklist(storyId).items.flatMap((item) =>
       (item.verificationEvidence ?? []).map((ev) => ({ ...ev, itemId: item.id })),
     );
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return [];
   }
 }
@@ -262,7 +263,7 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
   let checklist;
   try {
     checklist = store.readChecklist(storyId);
-  } catch (err) {
+  } catch (err) { rethrowIntentAmendmentIntegrityError(err);
     rows.push(row({
       id: 'review.checklist',
       status: 'blocked',

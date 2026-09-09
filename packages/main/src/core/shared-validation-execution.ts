@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
@@ -39,11 +40,14 @@ export async function executeSharedValidationCommand(
   const context = explicitContext ?? contexts.getStore();
   if (!context || !sharedValidationReuseAllowed(command)) return run();
   assertActive();
+  // Automatic producer/consumer binding: a caller cannot opt out of the
+  // implementation digest while opting into reuse. Version strings alone do
+  // not describe the code that actually executes this protocol.
+  const implementationDigest = executionImplementationIdentity().digest;
   const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
   if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return run();
   const input = { command: causalCanonical({command:command.command,args:command.args,shell:normalized.shell}), cwd:normalized.cwd, timeoutMs };
   const probe = () => context.probe(input);
-  const initial = probe();
   const additionalInputs = () => command.executionInputs!.map(path => {
     const actual = realpathSync(resolve(normalized.cwd,path));
     return {path:actual,digest:createHash('sha256').update(readFileSync(actual)).digest('hex')};
@@ -62,13 +66,17 @@ export async function executeSharedValidationCommand(
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
   if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return run();
-  const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles);
+  // git status may refresh index stat caches. Freeze raw index facts only after
+  // the clean-workspace probe has completed its own legitimate refresh.
+  const initial = probe();
+  const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles)
+    && executionImplementationIdentity().digest === implementationDigest;
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
   const identity = {
     storyId:context.storyId, cwd:normalized.cwd,
     command:{executable:command.command,args:command.args,shell:normalized.shell,env:command.env},
     bootstrap:{executable:'proof-or-stop',args:['shared-validation-execution-v1']},
-    inputs:{execution,workspace,inputFiles,materialHash:initial.gitMaterial?.materialHash,
+    inputs:{execution,workspace,inputFiles,implementationDigest,materialHash:initial.gitMaterial?.materialHash,
       policy:{executionReuse:command.executionReuse,closurePolicy:command.closurePolicy ?? null,
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
         resources:command.resources ?? null}},

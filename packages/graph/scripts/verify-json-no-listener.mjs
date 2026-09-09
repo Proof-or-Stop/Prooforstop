@@ -1,49 +1,25 @@
-/**
- * Proves `--json` prints status and exits WITHOUT starting a listener.
- *
- * The flag's whole point is machine-readable status with no server, so a regression
- * that quietly started listening would be invisible from the output alone. The port is
- * checked free before and after, and the command must exit 0 with parseable JSON.
- */
-import { execFileSync } from 'node:child_process';
+/** --json must complete without the long-running serve path or a listener. */
+import assert from 'node:assert/strict';
 import path from 'node:path';
-
-const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', '..');
-const PORT = Number(process.env.GRAPH_VERIFY_PORT ?? 8815);
-
-const holders = p => {
-  try {
-    return execFileSync('lsof', ['-ti', `:${p}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
-      .split('\n').filter(Boolean);
-  } catch { return [] }
-};
-
-const failures = [];
-if (holders(PORT).length) {
-  console.error(`PORT_BUSY: ${PORT} already in use; set GRAPH_VERIFY_PORT to a free port.`);
-  process.exit(1);
-}
-
-const out = execFileSync('node', ['bin/proof-or-stop.js', 'graph', '--json', `--port=${PORT}`],
-  { cwd: repo, encoding: 'utf8' });
-
-const after = holders(PORT);
-if (after.length) failures.push(`--json left a listener on ${PORT}: pids ${after.join(',')}`);
-
-// The CLI prefixes progress lines, so take the JSON object out of the output.
-const start = out.indexOf('{');
-const end = out.lastIndexOf('}');
-let status = null;
-if (start < 0 || end < 0) failures.push('--json printed no JSON object');
-else {
-  try { status = JSON.parse(out.slice(start, end + 1)) } catch (e) { failures.push(`--json output is not valid JSON: ${e.message}`) }
-}
-if (status && typeof status.stories !== 'number') failures.push('--json status has no numeric story count');
-
-if (failures.length) {
-  console.error('JSON_MODE_BROKEN');
-  for (const f of failures) console.error(`  ${f}`);
-  process.exit(1);
-}
-console.log(`--json → ${status.stories} stories, ${status.edges} edges, no listener on ${PORT}`);
-console.log('JSON_NO_LISTENER_OK');
+import {fileURLToPath} from 'node:url';
+import fs from 'node:fs';
+import {tmpdir} from 'node:os';
+import {pathToFileURL} from 'node:url';
+import {launchGraph} from './graph-process.mjs';
+const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
+// Observe every Node listen call, including subprocesses and unref'ed servers;
+// delegate to the original method unchanged. The observer exists only in this verifier.
+const scratch=fs.mkdtempSync(path.join(tmpdir(),'graph-json-listen-'));
+const listenLog=path.join(scratch,'listen.jsonl');
+const observer=path.join(scratch,'observer.mjs');
+fs.writeFileSync(observer,`import net from 'node:net';import fs from 'node:fs';const original=net.Server.prototype.listen;net.Server.prototype.listen=function(...args){fs.appendFileSync(${JSON.stringify(listenLog)},JSON.stringify({pid:process.pid})+'\\n');return Reflect.apply(original,this,args);};`);
+const env={...process.env,NODE_OPTIONS:[process.env.NODE_OPTIONS??'','--import='+JSON.stringify(pathToFileURL(observer).href)].join(' ')};
+const graph=launchGraph(repo,['--json','--port='+Number(process.env.GRAPH_VERIFY_PORT??0)],30000,env);
+let timer;
+try {
+ const result=await Promise.race([graph.completion,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('JSON command did not exit without a listener')),30000);})]);
+ assert.equal(result.code,0,result.log);assert.ok(!fs.existsSync(listenLog),'JSON mode must make zero net.Server.listen calls');assert.ok(!/graph serving http:/.test(result.log),'JSON mode must not enter serving');
+ const start=result.log.indexOf('{'),end=result.log.lastIndexOf('}');assert.ok(start>=0&&end>start);
+ const status=JSON.parse(result.log.slice(start,end+1));assert.equal(typeof status.stories,'number');
+ console.log('--json returned '+status.stories+' stories and exited without serving');console.log('JSON_NO_LISTENER_OK');
+} finally {clearTimeout(timer);await graph.stop();fs.rmSync(scratch,{recursive:true,force:true});}

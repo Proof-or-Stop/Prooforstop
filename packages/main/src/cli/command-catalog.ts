@@ -553,6 +553,14 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
+  { name: 'verification_intent_recover', description: 'Owner-only recovery of the exact signed acceptance checkpoint after missing/corrupt history or interrupted canonical publication. Default inspects the checkpoint without writes; apply requires its current digest and a reason. No test runs or evidence re-attestation.', schema: {
+    storyId:z.string(), expectedCheckpointDigest:z.string().regex(/^[a-f0-9]{64}$/).optional(),reason:z.string().min(30).optional(),apply:z.boolean().optional(),
+  }},
+  { name: 'verification_intent_append', description: 'Owner-only DEV repair: append signed must-level executable acceptance within an existing item scope. Original intents and scope remain unchanged; new coverage and fresh final review remain mandatory.', schema: {
+    storyId: z.string(), itemId: z.string(), expectedIntentHash: z.string().regex(/^[a-f0-9]{64}$/),
+    reason: z.string().min(30),
+    addition: z.object({happy:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional(),edge:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional(),adversarial:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional()}).strict(),
+  }},
   { name: 'verification_intent_repair', description: 'Controlled legacy repair: back-fill only the missing verificationIntent lanes inferred from existing PASSING verificationEvidence (never overwrites authored intent; synthesized intent uses should priority)', schema: {
     storyId: z.string().describe('Story ID'),
     mode: z.literal('fromEvidence').describe('Only supported mode: infer the missing intent from verificationEvidence.intentRef'),
@@ -2140,7 +2148,7 @@ a browsable graph plus full-text search and per-story detail.
 
 Options:
   --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).
-  --port=<n>     HTTP port (default: 8731).
+  --port=<n>     HTTP port (default: 8731; 0 lets the OS choose a free port).
   --no-open      Do not launch a browser.
   --json         Print status as JSON and exit without serving.
   --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead
@@ -2161,7 +2169,7 @@ Behavior:
     foreground until interrupted.`,
     schema: {
     root: z.string().optional().describe('Repository to read (default: nearest Proof-or-Stop root from cwd).'),
-    port: z.number().optional().describe('HTTP port (default: 8731).'),
+    port: z.number().optional().describe('HTTP port (default: 8731; 0 lets the OS choose a free port).'),
     // Default true, applied in the handler (`args.open !== false`), NOT via
     // `.default(true)`: the help renderer detects optionality with
     // `instanceof ZodOptional`, and a ZodDefault wrapper would render this flag

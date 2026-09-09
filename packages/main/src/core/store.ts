@@ -1,3 +1,6 @@
+import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
+import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
+import { digestCanonicalJson } from './digest.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -66,6 +69,7 @@ import {
 } from './finding-ledger.js';
 import {
   CAUSAL_RECEIPT_DIRECTORY,
+  CAUSAL_OUTPUT_DIRECTORY,
   CAUSAL_RECEIPT_INDEX_FILE,
   causalDigest,
   computeCausalReceiptHash,
@@ -757,11 +761,37 @@ export class StoryStore {
   // ── Checklist ──
 
   readChecklist(storyId: string): ChecklistData {
-    return this.readJson<ChecklistData>(storyId, 'checklist.json');
+    const checkpoint = readIntentCheckpoint(storyId,this.storyDirPath(storyId));
+    let data: ChecklistData;
+    try {data = this.readJson<ChecklistData>(storyId, 'checklist.json');}
+    catch (error) {if(checkpoint)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKLIST_UNREADABLE','restore the signed checkpoint with verification_intent_recover');throw error;}
+    assertIntentCheckpointProjection(data,checkpoint);
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    return data;
   }
 
   writeChecklist(storyId: string, data: ChecklistData): void {
+    // Canonical writers cannot erase an existing signed amendment by dropping
+    // its field, its item, or a prefix of its history on a later metadata write.
+    if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
+      const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
+      assertIntentCheckpointProjection(previous,readIntentCheckpoint(storyId,this.storyDirPath(storyId)));
+      for (const old of previous.items) {
+        if (!old.verificationIntentAmendments?.length) continue;
+        const next = data.items.find(item => item.id === old.id);
+        const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
+        if (digestCanonicalJson(prefix ?? null) !== digestCanonicalJson(old.verificationIntentAmendments)) throw new IntentAmendmentIntegrityError('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+      }
+    }
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    writeIntentCheckpoint(storyId,data,this.storyDirPath(storyId));
     this.writeJson(storyId, 'checklist.json', data);
+  }
+
+  restoreIntentCheckpoint(storyId: string, expectedDigest: string): void {
+    const checkpoint=repairIntentCheckpointStorage(storyId,this.storyDirPath(storyId),expectedDigest);
+    // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
+    this.writeJson(storyId,'checklist.json',checkpoint.data);
   }
 
   // ── Bug ──
@@ -837,6 +867,29 @@ export class StoryStore {
     const [receipt] = matches;
     this.writeCausalEvidenceReceipt(storyId, receipt);
     return receipt;
+  }
+
+  readCausalSelectorOutput(storyId: string, digest: string): string {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    try {
+      const data = JSON.parse(readFileSync(this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`), 'utf8'));
+      if (typeof data.output !== 'string') throw new Error('Invalid output type');
+      return data.output;
+    } catch {
+      throw new Error('Complete selector output is missing or unreadable [causal_selector_output_invalid]');
+    }
+  }
+
+  writeCausalSelectorOutput(storyId: string, digest: string, output: string): void {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    const outputPath = this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`);
+    // The execution-key lock serializes producers; equal content addresses can
+    // also be produced by different keys, where identical bytes are harmless.
+    if (existsSync(outputPath)) {
+      if (this.readCausalSelectorOutput(storyId, digest) !== output) throw new Error('Output address collision [causal_selector_output_invalid]');
+      return;
+    }
+    this.writeJsonFile(outputPath, { output });
   }
 
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {

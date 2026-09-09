@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * B-7c1b CHK-005: Artifact contract -- per-phase completeness check.
  *
@@ -134,7 +135,7 @@ function isChecklistAllDone(store: StoryStore, storyId: string): boolean {
     // B-1909 CHK-002: a withdrawn item is terminal (accounted for), so a
     // checklist of done+withdrawn items counts as all-done for phase readiness.
     return cl.items.length > 0 && cl.items.every(i => isTerminalChecklistStatus(i.status));
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return false;
   }
 }

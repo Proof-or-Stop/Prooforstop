@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * Lifecycle Readiness P7: reviewer_batch — a READ-ONLY reviewer-launcher PLAN
  * producer.
@@ -293,7 +294,7 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     let checklist: { items: unknown[] } = { items: [] };
     try {
       checklist = ctx.store.readChecklist(storyId);
-    } catch {
+    } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
       /* no checklist yet — computeChannel treats as express */
     }
     let decision = null;

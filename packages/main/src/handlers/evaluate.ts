@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * Evaluate handler — proof-or-stop evaluate
  *
@@ -60,7 +61,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
         checklistSummary = cl.items
           .map(it => `- ${it.id}: ${it.title}${it.userSees ? ` (userSees: ${it.userSees})` : ''}`)
           .join('\n');
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         checklistSummary = '(checklist not found)';
       }
 

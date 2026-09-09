@@ -366,7 +366,8 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
-  ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
+  // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
+  ['packages/main/src/handlers/delivery-context-pack.ts', '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9'],
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.
@@ -472,7 +473,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271'],
+  // Lab reapproval: the last approved loader source predates both the strict
+  // identity entry and its adjacent single-scan output reuse. The complete
+  // nine-line insertion leaves both dynamic import sites and initPath unchanged.
+  ['packages/main/src/cli-engine.ts', '90001d2bbfc38f27f9bc06d59883b15439a72551aa8eba4a67313139c703326d'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -534,7 +538,12 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -1690,7 +1699,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-8a40 current-Story admission: this is a single test-only call site, not a
   // general loader exemption. Executable drift revokes it; the provenance
   // controls below also reject rebinding/widening even under a refreshed hash.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '3c932df7aa37d3f489dacf3bb8696e2c895dfeee625033d595a5aa9275d26633'],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '895187c6121e3be076bc1528950ad147452dd89da922ca43cd02be2923d5cb50'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -1755,7 +1764,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -5354,8 +5368,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
  * refreshed the digest to make the guard green. That is the whole point: if these controls
  * relied on fingerprint drift they would prove nothing about the provenance check.
  */
-function assertLoaderArgumentProvenance(): void {
+function assertLoaderArgumentProvenance(onlyFile?: string): { filesChecked: number; mutantsChecked: number } {
+  if (onlyFile !== undefined) assert.ok(APPROVED_LOADER_ARGUMENT_PROVENANCE.has(onlyFile), 'selected loader proof must exist');
+  let filesChecked = 0;
+  let mutantsChecked = 0;
   for (const [file, pin] of APPROVED_LOADER_ARGUMENT_PROVENANCE) {
+    if (onlyFile !== undefined && file !== onlyFile) continue;
+    filesChecked += 1;
     const original = readRel(file);
     assert.ok(original.includes(pin.argument), `provenance pin argument must exist verbatim in ${file}`);
     assert.deepEqual(
@@ -5525,6 +5544,7 @@ function assertLoaderArgumentProvenance(): void {
     ];
 
     for (const [label, mutated] of mutants) {
+      mutantsChecked += 1;
       assert.notEqual(mutated, original, `${label} control must actually mutate ${file}`);
       assert.ok(mutated.includes(pin.argument), `${label} control must keep the pinned argument text byte-identical`);
       const mutantFingerprint = canonicalAstFingerprint(file, mutated);
@@ -5536,6 +5556,7 @@ function assertLoaderArgumentProvenance(): void {
       );
     }
   }
+  return { filesChecked, mutantsChecked };
 }
 
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
@@ -5888,6 +5909,18 @@ function assertGeneratedHelp(): Violation[] {
     ['story_export', '--help'],
   ];
   return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
+}
+
+// Explicit Lab proof scope. The configured no-argument entry below still runs
+// every original guard, including unrelated baseline failures. Its PASS marker
+// is never emitted by this focused maintenance proof.
+if (process.argv.includes('--lab-graph-loader-proof')) {
+  assert.deepEqual(process.argv.slice(2), ['--lab-graph-loader-proof'], 'Lab proof does not accept combined or ambiguous selection');
+  assertDynamicCodeGenerationPositiveControls();
+  const coverage = assertLoaderArgumentProvenance('packages/main/src/handlers/graph.ts');
+  assert.deepEqual(coverage, { filesChecked: 1, mutantsChecked: 14 }, 'Graph proof retains every current provenance mutant');
+  process.stdout.write(`LAB_GRAPH_LOADER_PROOF_GREEN ${JSON.stringify(coverage)}\n`);
+  process.exit(0);
 }
 
 const violations: Violation[] = [];

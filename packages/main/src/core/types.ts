@@ -1252,6 +1252,7 @@ export interface ChecklistItem {
    * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
    */
   verificationIntent?: VerificationIntent;
+  verificationIntentAmendments?: import('./verification-intent-amendment.js').IntentAmendment[];
   verificationEvidence?: VerificationEvidence[];
   /**
    * B-2296 (evidence-integrity §5 follow-on, Phase 1): immutable frozen-claim

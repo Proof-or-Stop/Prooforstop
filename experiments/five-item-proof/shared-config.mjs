@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {sharedValidationReuseAllowed} from '../../packages/main/dist/core/shared-validation-execution.js';
+import {configuredValidationCommands} from '../../packages/main/dist/handlers/verifier.js';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..'),config=JSON.parse(readFileSync(resolve(root,'proof-or-stop.config.json')));
+assert.equal(config.validate.sharedExecution,true,'REAL_HEAVY_REUSE_DISABLED');
+assert.equal(config.validate.dynamic.mode,'observe','Execution sharing must not change dynamic selection policy');
+const eligible=configuredValidationCommands(root).filter(sharedValidationReuseAllowed);
+assert.equal(eligible.length,1,'Enable only the measured eligible heavy command');
+assert.deepEqual(eligible[0].args,['packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js']);
+assert.deepEqual(eligible[0].executionInputs,['packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js']);
+assert.ok(config.doneRequiredCommands.every(c=>!sharedValidationReuseAllowed(c)),'Build and full-suite proof never become reusable');
+for(const policy of [{fullBaselineReusePolicy:'forbidden'},{closurePolicy:'never-reuse'},{riskTier:'gate'},{riskTier:'validation-infra'},{requiresBuildProof:'x'},{providesBuildProof:'x'}])assert.equal(sharedValidationReuseAllowed({...eligible[0],...policy}),false,'An explicit exclusion dominates the opt-in');
+console.log('MEASURED_HEAVY_COMMAND_REUSE_ENABLED_WITH_EXCLUSIONS');

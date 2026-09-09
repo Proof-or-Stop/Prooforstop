@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
@@ -133,7 +134,7 @@ function projectScopeFreezeChecklist(store: StoryStore, storyId: string): ScopeF
       ...(item.context ? { context: item.context } : {}),
       ...(item.excludes && item.excludes.length > 0 ? { excludes: [...item.excludes] } : {}),
     }));
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return [];
   }
 }
@@ -159,7 +160,8 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, projectRo
   let checklist;
   try {
     checklist = store.readChecklist(storyId);
-  } catch {
+  } catch (error) { rethrowIntentAmendmentIntegrityError(error);
+    rethrowIntentAmendmentIntegrityError(error);
     checklist = { items: [] };
   }
   const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
@@ -766,7 +768,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     // wrapper: a gate/config infra error must never strand the express channel.
     if (parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) !== null) return false;
     return true;
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return false;
   }
 }
@@ -880,7 +882,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         // canonical impact closure; unknown impact fails closed to all active lanes.
         // Round number alone never narrows the required set.
         let checklist: { items: unknown[] } = { items: [] };
-        try { checklist = context.store.readChecklist(context.storyId); } catch {}
+        try { checklist = context.store.readChecklist(context.storyId); } catch (error) { rethrowIntentAmendmentIntegrityError(error); rethrowIntentAmendmentIntegrityError(error); }
         let decision = null;
         try { decision = context.store.readDecision(context.storyId); } catch {}
         const understanding = context.store.readUnderstanding(context.storyId);
@@ -943,7 +945,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
       };
     }
     return { ok: true };
-  } catch (error) {
+  } catch (error) { rethrowIntentAmendmentIntegrityError(error);
     return { ok: false, code: 'review_verdict_error', message: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -1346,11 +1348,11 @@ export function getGuardFailureReason(
             if (cl.items.length > policy.quickPath.maxChecklistItems) {
               reasons.push(`Checklist has ${cl.items.length} items (> ${policy.quickPath.maxChecklistItems}); must go through the full PLAN`);
             }
-          } catch {
+          } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             reasons.push('No checklist; must run story_advance PLAN first');
           }
         }
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         reasons.push('Unable to load configuration; must go through the full PLAN');
       }
       if (reasons.length > 0) {

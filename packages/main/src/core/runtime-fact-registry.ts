@@ -167,7 +167,16 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
 /** Conservative defaults consumed by official validation, independent of Lab. */
 export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   declaredInvocationCapacity: 2,
+  duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
+} as const;
+
+/** Optional explicit host transport pin; no package-version equality fallback. */
+export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
+  schema: 'execution-implementation.v1',
+  mismatch: 'refuse-before-dispatch',
+  missingWhenRequired: 'refuse',
+  scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;

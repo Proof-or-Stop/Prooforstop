@@ -137,6 +137,14 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // Complete selector objects are durable evidence. They remain non-material
+    // alongside their receipt, but must never be offered as disposable runtime data.
+    id: 'causal-complete-selector-output',
+    description: 'Signed-receipt-bound complete selector output objects.',
+    matchers: [{kind:'regexp',value:rx(String.raw`(?:^|/)(?:\.lattice|\.proof-or-stop)/story/actives/[^/]+/causal-evidence/outputs(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence/outputs(?:/|$)`)}],
+    ignorePatterns: [], materialHash: 'exclude', volatile: false, repairableTrackedArtifact: false,
+  },
+  {
     // B-5a15: immutable command receipts are lookup/runtime state, not story
     // source material. The CAS bytes remain auditable and story-scoped, but
     // writing them must not invalidate materialHash or make DONE's clean-tree

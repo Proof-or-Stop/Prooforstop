@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
@@ -306,7 +307,7 @@ function collectAdmitFacts(
         return Boolean(storyFilesHash && recorded && recorded === storyFilesHash);
       },
     ).missingRequired;
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     missingRequiredIntents = Number.MAX_SAFE_INTEGER;
   }
   let openBlockingFindingIds: string[] = [];

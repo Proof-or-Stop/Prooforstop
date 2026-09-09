@@ -64,6 +64,11 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  check(registrySource.includes("duplicateResourceClaims: 'one-per-exact-normalized-claim'"), 'exact normalized capacity claim semantics must be registered');
+  const { declaredValidationCapacity } = await import(pathToFileURL(join(root, 'packages/main/dist/core/validation-execution-lock.js')).href);
+  const duplicateClaim = { class: 'fixed-path', key: 'runtime-contract-probe', access: 'shared' };
+  const capacity = declaredValidationCapacity([{ label: 'duplicate probe', resources: [duplicateClaim, duplicateClaim] }], root);
+  check(capacity.resources.length === 2 && capacity.maxConcurrent === 2, 'duplicate capacity claims must collapse without changing invocation capacity');
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
@@ -80,6 +85,9 @@ async function main() {
     check(checksSource.includes(outputKey), `missing runtime checker output key reference: ${outputKey}`);
   }
 
+  check(registrySource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY'), 'runtime registry must define optional implementation pin policy');
+  const pinSource=readFileSync(join(root,'packages/main/src/core/execution-implementation.ts'),'utf8');
+  check(pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.schema') && pinSource.includes('IMPLEMENTATION_PIN_MISMATCH'), 'implementation pin must consume registry and refuse mismatch');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');
