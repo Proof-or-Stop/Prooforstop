@@ -270,8 +270,8 @@ async function observeOverlap(plan, jobs) {
       'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
-    ['node packages/main/dist/tasks/quorum-submit-smoke.js',
-      'explicitly out of CHK-005 scope; splitting it is its own change'],
+    ['node packages/main/dist/tasks/quorum-submit-smoke.js --jobs=4',
+      'bounded internal shards retain the parent exclusive barrier for repository-wide probes'],
     ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
       'sweepLegacyProbeDebris rmSync-es marker-gated paths under repoRoot and BLOCK D asserts whole-tree git status'],
     ['node packages/main/tests/red/red-b49d4-chk002-receipt.mjs',
@@ -314,6 +314,11 @@ async function observeOverlap(plan, jobs) {
     caught.length === 1 && caught[0].startsWith(injected));
   ok('the probe reports WHY the audit refused it, so a later author cannot re-declare it by accident',
     caught[0].includes(PROVEN_UNSAFE_TO_SHARE.get(injected)));
+  for (const target of PROVEN_UNSAFE_TO_SHARE.keys()) {
+    const weakened = configured.map(command => argvOf(command) === target ? { ...command, resources: [REPO_READ] } : command);
+    const rejected = auditedBarrierRegressions(weakened);
+    ok(`every audited writer retains its own rejection control: ${target}`, rejected.length === 1 && rejected[0].startsWith(target));
+  }
   console.log('VI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted');
 }
 
