@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
+import { acquireOwnerLease } from '../packages/main/dist/core/story-owner-lease.js';
 import { createVerifierHandlers } from '../packages/main/dist/handlers/verifier.js';
 import { isOfficialHeavyValidateInvocation } from '../packages/main/dist/core/certification-window.js';
 
@@ -21,6 +22,7 @@ try {
     description: 'Isolated invocation witness', type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(),
     startedAt: null, endedAt: null, events: [] });
   store.writeChecklist('B-precert-witness', { items: [] });
+  acquireOwnerLease(store.storyDirPath('B-precert-witness'), { command: 'fixture-owner', cwd: root });
   const handlers = createVerifierHandlers({ store, root, scanRoot: root, log() {} });
   await assert.rejects(() => handlers.validate({ story: 'B-precert-witness', json: true }), /pre_cert_/);
   assert.equal(existsSync(marker), false, 'PRE_CERT refusal must precede child launch');

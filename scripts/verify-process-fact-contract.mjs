@@ -8506,6 +8506,7 @@ const inventory = [
   {
     name: 'Production validation sharing and bounded repair authority',
     files: [
+      {relPath:'scripts/verify-routine-precert-entry.mjs',patterns:['PRE_CERT refusal must precede child launch',"focus: 'fast'"]},
       {relPath:'packages/main/src/core/store.ts',patterns:['causalEvidenceOutputPaths','verifyCausalEvidenceReceipt(receipt)','verified.get(key) === hash']},
       {relPath:'scripts/verify-shared-receipt-publication.mjs',patterns:['new StoryStore(root)','dirty material cannot consume a shared receipt']},
       {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},

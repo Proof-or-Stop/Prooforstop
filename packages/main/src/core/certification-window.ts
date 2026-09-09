@@ -1051,11 +1051,15 @@ export function refuseHeavyCertificationUnlessAdmitted(args: {
 }
 
 export function isOfficialHeavyValidateInvocation(args: {
+  story?: string;
   full?: string | boolean;
+  focus?: string;
   channel?: boolean;
   concept?: boolean;
   lint?: boolean;
 }): boolean {
-  if (args.channel || args.concept || args.lint) return false;
-  return args.full === true || (typeof args.full === 'string' && args.full.length > 0);
+  if (!args.story || args.channel || args.concept || args.lint) return false;
+  // Ported from B-14ae: full+focus remains heavy; focused preparation alone
+  // remains available before admission. Default routine validates TEST input.
+  return args.full !== undefined || !args.focus;
 }

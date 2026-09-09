@@ -743,8 +743,9 @@ assert.equal(isOfficialHeavyValidateInvocation({ channel: true }), false);
 assert.equal(isOfficialHeavyValidateInvocation({ concept: true }), false);
 assert.equal(isOfficialHeavyValidateInvocation({ lint: true }), false);
 assert.equal(isOfficialHeavyValidateInvocation({}), false);
-assert.equal(isOfficialHeavyValidateInvocation({ full: true }), true);
-assert.equal(isOfficialHeavyValidateInvocation({ full: 'filter' }), true);
+assert.equal(isOfficialHeavyValidateInvocation({ full: true }), false);
+assert.equal(isOfficialHeavyValidateInvocation({ story: 'B-cw20', full: true }), true);
+assert.equal(isOfficialHeavyValidateInvocation({ story: 'B-cw20', full: 'filter' }), true);
 
 const heavyMarker = 'HEAVY_RAN';
 function writeHeavyConfig(dir: string, commit = false): void {
