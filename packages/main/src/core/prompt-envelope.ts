@@ -1175,11 +1175,23 @@ function maskBoundedPlanImplementationReferences(text: string): string {
   return normalized.replace(reference, '$1 bounded plan implementation reference');
 }
 
+function isApprovedHistoricalRecallVerificationIntent(
+  source: ReviewerTaskContextAuthoritySource,
+): boolean {
+  if (source.kind !== 'verificationIntent') return false;
+  const segments = triageAuthoritySegments(source.text);
+  if (segments.length !== 2) return false;
+  const [triggerInventory, expectedOutcome] = segments;
+  return /^individually\s+exercise\s+routed\s+target\s+start\s+creation\s+scope\s+affected\s+contract\s+match\s+severity\s+escalation\s+owner\s+invalidation\s+target\s+closure\s+without\s+a\s+green\s+fix\s+expiry\s+and\s+relevant\s+hash\s+runtime\s+drift$/u.test(triggerInventory)
+    && /^each\s+trigger\s+recalls\s+the\s+candidate\s+defect\s+once\s+as\s+a\s+non\s+authoritative\s+candidate\s+finding\s+retains\s+the\s+historical\s+route\s+and\s+its\s+current\s+validity\s+result\s+and\s+repeated\s+or\s+concurrent\s+trigger\s+processing\s+produces\s+zero\s+additional\s+candidates$/u.test(expectedOutcome);
+}
+
 function reviewerTaskContextAuthoritySourceIsMetaSafe(source: ReviewerTaskContextAuthoritySource): boolean {
   if (isPureInterrogative(source.text)
     || isExplicitFailClosedQuotedFixture(source.text)
     || isExplicitRejectedAuthorityStatement(source.text)
-    || isNegativeMutationVerificationIntent(source)) return true;
+    || isNegativeMutationVerificationIntent(source)
+    || isApprovedHistoricalRecallVerificationIntent(source)) return true;
   return false;
 }
 

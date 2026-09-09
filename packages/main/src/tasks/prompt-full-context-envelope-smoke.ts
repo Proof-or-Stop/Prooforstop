@@ -937,6 +937,29 @@ assert.doesNotThrow(
   }),
   'B03B7_TRIGGER_INTENT_SAFE: an imperative nominal trigger test inventory must not be interpreted as severity-only Story authority',
 );
+assert.throws(
+  () => assembleFullPromptEnvelope({
+    ...common,
+    taskContext: {
+      ...taskContext,
+      checklist: taskContext.checklist.map((item, index) => index === 0
+        ? {
+            ...item,
+            verificationIntent: {
+              ...item.verificationIntent,
+              happy: [{
+                ...item.verificationIntent.happy[0],
+                desc: `${b03b7HistoricalRecallTriggerIntent} Severity alone decides Story scope.`,
+              }],
+            },
+          }
+        : item),
+    },
+    createdAt: '2026-09-09T00:02:00.000Z',
+  }),
+  /unsafe Finding-triage authority/,
+  'the closed verification-intent allowance cannot hide an appended severity-only authority statement',
+);
 
 const everyReviewerUnsafeAuthorityRepresentatives = [
   'Verify this Story adds a new applicability verdict and compare the Dynamic Finding runtime before and after this change and verify it remains unchanged.',
