@@ -9341,6 +9341,8 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+assert(parseProcessFactLevelRegistry().find(entry => entry.name === 'host_run_status')?.level === 'L0',
+  'managed status fact level must match read-only command ownership and runtime behavior');
 const durationManagedSource = readFileSync(join(root, 'packages/main/src/core/managed-host-run.ts'), 'utf8');
 assert(durationManagedSource.includes('durationEstimate: captureManagedRunDurationEstimate(args, createdAt)')
   && durationManagedSource.includes('durationEstimate: spec.durationEstimate ??'),
