@@ -13,6 +13,7 @@ const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote pus
   node scripts/lab-worktree.mjs reopen NAME --confirm
   node scripts/lab-worktree.mjs red NAME --expect TEXT -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs carry NAME --story B-xxxx --source PATH --confirm
+  node scripts/lab-worktree.mjs baseline NAME --expect TEXT --confirm -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs green NAME
   node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm
 
@@ -118,12 +119,17 @@ function instructions(name) {
 async function main() {
   const [action, name, ...rest] = process.argv.slice(2);
   if (!action || action === '--help') { console.log(help); return; }
-  if (!['create', 'sync', 'status', 'red', 'carry', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
+  if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
   let notesPath, expected, command, storyId, sourcePath;
   if (action === 'red') {
     if (rest[0] !== '--expect' || !rest[1]?.trim() || rest[2] !== '--' || !rest[3]) fail('red requires --expect TEXT -- EXECUTABLE ARG...');
     expected = rest[1]; command = rest.slice(3);
+  } else if (action === 'baseline') {
+    if (rest[0] !== '--expect' || !rest[1]?.trim() || rest[2] !== '--confirm' || rest[3] !== '--' || !rest[4]) {
+      fail('baseline requires --expect TEXT --confirm -- EXECUTABLE ARG...');
+    }
+    expected = rest[1]; command = rest.slice(4);
   } else if (action === 'finish') {
     if (rest.length !== 3 || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm') fail('finish requires --notes FILE --confirm (explicit local integration request).');
     notesPath = resolve(rest[1]);
@@ -302,6 +308,48 @@ async function main() {
       s.history.push({ kind: 'story-carry', ...s.storyCarry });
       save(s);
       console.log(`Story evidence captured and patch applied: ${storyId}; ${coverage.required} intents, ${commands.length} commands, ${failures.length} reproduced baseline failures, ${importedPaths.length} imported paths.`);
+      return;
+    }
+    if (action === 'baseline') {
+      if (s.phase !== 'active' || !s.storyCarry) fail('Supplemental baseline evidence requires an active Story carry-forward Lab.');
+      if (s.storyCarry.baselineWitnesses.some(row => JSON.stringify(row.command) === JSON.stringify(command))) fail('This baseline command is already recorded.');
+      const storyRoot = join(s.storyCarry.sourcePath, '.proof-or-stop', 'story', 'actives', s.storyCarry.storyId);
+      const testEvidence = parseJson(join(storyRoot, 'test-evidence.json'), 'Story test evidence');
+      const rendered = typeof testEvidence.output === 'string' ? parseJsonText(testEvidence.output, 'Story test output') : testEvidence.output;
+      const sourceRow = (Array.isArray(rendered?.commands) ? rendered.commands : []).find(row => row.command === command[0]
+        && JSON.stringify(row.args || []) === JSON.stringify(command.slice(1)));
+      if (!sourceRow || Number(sourceRow.code ?? sourceRow.exitCode ?? 0) !== 0) {
+        fail('Supplemental baseline command must be an exact PASS command from the carried Story validation.');
+      }
+      const mainBefore = dirtySnapshot(mainRoot);
+      const mainHead = sha(mainRoot);
+      const witness = runCaptured(mainRoot, command);
+      if (passed(witness) || witness.status === null || witness.signal || witness.error || !witness.output.includes(expected)) {
+        fail('Expected new main baseline failure was not observed; no supplemental witness recorded.');
+      }
+      const mainAfter = dirtySnapshot(mainRoot);
+      if (sha(mainRoot) !== mainHead || mainAfter.fingerprint !== mainBefore.fingerprint || JSON.stringify(mainAfter.paths) !== JSON.stringify(mainBefore.paths)) {
+        fail('Supplemental baseline reproduction changed main; refusing the witness.');
+      }
+      const row = {
+        label: sourceRow.label,
+        command,
+        sourceExitCode: 0,
+        sourceOutputDigest: hash(sourceRow.output || ''),
+        sourceOutputTail: outputTail(sourceRow.output),
+        mainExitCode: witness.status,
+        mainOutputDigest: hash(witness.output),
+        mainOutputTail: outputTail(witness.output),
+        mainElapsedMs: witness.elapsedMs,
+        observedAt: witness.at,
+        supplemental: true,
+        expected,
+      };
+      s.storyCarry.baselineWitnesses.push(row);
+      s.history.push({ kind: 'story-baseline-supplement', ...row });
+      s.green = null;
+      save(s);
+      console.log(`Supplemental main baseline witness recorded: ${command.join(' ')}`);
       return;
     }
     if (action === 'green') {

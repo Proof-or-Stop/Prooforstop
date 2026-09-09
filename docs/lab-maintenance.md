@@ -67,6 +67,20 @@ validation command is rerun on current local main with the same executable and
 argv; a command that passes on main, changes exit code, cannot execute, or would
 raise the bounded failure count above five stops the import.
 
+If main advances after capture and a command that PASSed in the source evidence
+now fails, preserve it without repairing unrelated code:
+
+```sh
+npm run lab:worktree -- baseline repair-name \
+  --expect 'specific current-main failure marker' --confirm -- \
+  node path/to/exact-recorded-command.js
+```
+
+The command must exactly match a PASS row in the carried full validation, must
+now fail on main with the named marker, and must not change main. Duplicate or
+invented commands are refused. The supplemental witness invalidates GREEN and
+joins the same latest-main, built-candidate, and post-merge parity checks.
+
 The Lab stores the source head, evidence head, material and Story-files hashes,
 command counts, both failure-output digests and bounded tails, patch digest, and
 imported paths in its HMAC-bound local record. It applies only the source diff

@@ -55,6 +55,7 @@ try {
   write(repo, 'feature.txt', 'old\n');
   write(repo, 'target.cjs', "const fs=require('fs'); if(fs.readFileSync('feature.txt','utf8')!=='new\\n'){console.error('TARGET_STORY_CHANGE_MISSING');process.exit(1)} console.log('TARGET PASS');\n");
   write(repo, 'baseline.cjs', "console.error('BASELINE_STABLE'); process.exit(1);\n");
+  write(repo, 'supplemental.cjs', "console.log('SUPPLEMENTAL PASS');\n");
   commit(repo, 'fixture baseline');
 
   const story = join(repo, '.worktrees/B-test');
@@ -76,10 +77,11 @@ try {
   write(story, `${storyDir}/test-evidence.json`, JSON.stringify({
     result: 'FAIL', headHash: evidenceHead, materialHash: 'b'.repeat(64), storyFilesHash: binding, disposition: 'executed',
     output: JSON.stringify({
-      status: 'fail', allPass: false, commandExecutions: 2,
+      status: 'fail', allPass: false, commandExecutions: 3,
       verificationCoverage: { total: 1, required: 1, covered: 1, missingRequired: 0, entries: [{ intentRef: 'CHK-001:happy:0', status: 'covered', evidence }] },
       commands: [
         { label: 'target', command: 'node', args: ['target.cjs'], code: 0, output: 'TARGET PASS\n' },
+        { label: 'supplemental', command: 'node', args: ['supplemental.cjs'], code: 0, output: 'SUPPLEMENTAL PASS\n' },
         { label: 'baseline', command: 'node', args: ['baseline.cjs'], code: 1, output: 'BASELINE_STABLE\n' },
       ],
     }),
@@ -106,8 +108,12 @@ try {
   assert.equal(state.storyCarry.baselineWitnesses[0].mainExitCode, 1);
   assert.equal(state.storyCarry.verificationIntentCount, 1);
   invoke(repo, ['green', 'carry']);
+  write(repo, 'supplemental.cjs', "console.error('NEW_MAIN_REGRESSION'); process.exit(1);\n");
+  commit(repo, 'test: introduce unrelated main regression');
+  invoke(repo, ['baseline', 'carry', '--expect', 'NEW_MAIN_REGRESSION', '--confirm', '--', 'node', 'supplemental.cjs'], 0, /Supplemental main baseline witness recorded/);
   write(repo, 'baseline.cjs', "console.log('BASELINE FIXED');\n");
   commit(repo, 'fix: resolve carried baseline on main');
+  invoke(repo, ['green', 'carry']);
   write(repo, 'unrelated-user-draft.txt', 'preserve me byte-for-byte\n');
   const notes = join(temp, 'carry-notes.md');
   write(temp, 'carry-notes.md', 'Carry a mechanically verified Story patch while preserving unrelated main work and without claiming formal Story DONE.');
@@ -115,8 +121,9 @@ try {
   assert.equal(readFileSync(join(repo, 'feature.txt'), 'utf8'), 'new\n');
   assert.equal(readFileSync(join(repo, 'unrelated-user-draft.txt'), 'utf8'), 'preserve me byte-for-byte\n');
   const closed = JSON.parse(invoke(repo, ['status', 'carry']));
-  assert.equal(closed.storyCarry.finishBaselineWitnesses.length, 1);
+  assert.equal(closed.storyCarry.finishBaselineWitnesses.length, 2);
   assert.equal(closed.storyCarry.finishBaselineWitnesses[0].mainExitCode, 0);
+  assert.equal(closed.storyCarry.finishBaselineWitnesses[1].mainExitCode, 1);
   assert.equal(closed.storyCarry.finishBaselineMainHead, closed.releaseBase);
   console.log('STORY_CARRY_FORWARD PASS');
 } finally {
