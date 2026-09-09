@@ -486,8 +486,9 @@ function readCommittedTree(gitCwd: string, ref: string): string {
   // Replacement refs can redirect commits or nested trees without changing
   // the requested object id. Ask Git so packed refs and linked worktrees work
   // too; conservatively bypass caching whenever the selected namespace is used.
-  const replacementBase = process.env.GIT_REPLACE_REF_BASE ?? 'refs/replace/';
-  const replacements = execFileSync('git', ['for-each-ref', '--format=%(refname)', replacementBase], {
+  const customReplacementBase = process.env.GIT_REPLACE_REF_BASE !== undefined;
+  // A custom prefix need not end in '/', unlike for-each-ref path matching.
+  const replacements = customReplacementBase || execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], {
     cwd, ...GIT_EXEC_OPTS,
   }).trim();
   const previous = treeMemo.get(cwd);
