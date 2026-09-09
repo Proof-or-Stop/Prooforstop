@@ -359,6 +359,14 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.equal(verifyPromptEnvelopeIntegrity({ ...fullEnvelope, eligibilityRoleSemanticDigest: '0'.repeat(64) }), false);
     cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv);
     assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'later dispatch preserves historical signed run');
+    if (process.argv.includes('--prompt-cas-fixture')) {
+      assert.equal(Object.hasOwn(fullRun, 'assembledPrompt'), false,
+        'U12 new signed review runs must reference prompt CAS instead of duplicating full body');
+      assert.ok(fullRun.promptHash);
+      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, fullRun).ok, true, 'CAS references retain full prompt assembly verification');
+      console.log('PASS U12 actual reviewer run stores a body reference and retains native review authority');
+      return;
+    }
     const fullData = fixture.store.readReviewInventoryEpochs(storyId);
     if (process.argv.includes('--progress-recovery-fixture')) {
       const observationPath = fixture.store.storyFilePath(storyId, 'convergence-progress.json');
