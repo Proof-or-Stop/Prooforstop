@@ -28,6 +28,9 @@ const {
   PRECERT_VERIFIER_IDENTITY,
   setReviewInventoryAdmitApisForTest,
   persistSyntheticAdmittedWindowForTest,
+  PRECERT_CHEAP_CHECK_AUTHORITY,
+  PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
+  withSignedPrecertCheapCheckReceipt,
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
 );
@@ -38,6 +41,8 @@ const {
 } = await import(
   pathToFileURL(join(distRoot, 'handlers/certification-window.js')).href,
 );
+const { buildRoutineValidationIdentity } = await import(pathToFileURL(join(distRoot, 'core/validation-evidence-reuse.js')).href);
+
 const {
   currentMaterialHash,
   currentStoryFilesHash,
@@ -2415,18 +2420,36 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   // regression deleting the findings, coverage or dirty-tree checks would have stayed green.
   // Fixed by (a) a POSITIVE CONTROL proving the unmutated fixture is admitted, and (b)
   // asserting the SPECIFIC blockerCode each mutation is supposed to produce.
+  // Signed evaluator fixture: this establishes admission prerequisites; it
+  // does not claim an actual fast command was executed by this pure gate test.
+  const routineValidationIdentity = buildRoutineValidationIdentity({
+    projectRoot: repoRoot, sourceKind: 'configured',
+    sourceInputs: { fixture: 'causal-metrics-admission' },
+    commands: [{ label: 'fast', command: 'node', args: ['--version'], timeoutMs: 15000, focus: ['fast'] }],
+    focus: 'fast', profile: 'standard', verificationPolicyInputs: { fixture: 'causal-metrics-admission' },
+  });
+  const cheapCheckReceipt = withSignedPrecertCheapCheckReceipt({
+    schemaVersion: PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
+    receiptId: 'B-causal-test:CHEAP-1', storyId: 'B-causal-test',
+    authority: PRECERT_CHEAP_CHECK_AUTHORITY, result: 'PASS', routineValidationIdentity,
+    commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1,
+      status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+    headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1', createdAt: new Date().toISOString(),
+  });
   const admittableGateFacts = {
     ...metricGateFacts,
+    inventorySaturated: true,
+    cheapCheckReceipt,
     // Shape per inventoryLineageRefusal (certification-window.ts:447-468): a receipt whose
     // cutoff is on the CURRENT materialHash/storyFilesHash lineage for this story.
     inventory: {
       epoch: {
         storyId: 'B-causal-test',
-        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+        cutoff: { headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1' },
       },
       receipt: {
         storyId: 'B-causal-test',
-        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+        cutoff: { headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1' },
       },
     },
     causalDecision: undefined,
