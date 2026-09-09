@@ -34,6 +34,7 @@ export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
 export const CAUSAL_AUTHORITY_KEY_FILE = 'lattice-causal-evidence-authority-v1.key';
 export const CAUSAL_OUTPUT_TAIL_CHARS = 4_000;
 export const CAUSAL_MAX_OUTPUT_CHARS = 12_000;
+export const CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES = 1024 * 1024;
 export const CAUSAL_PREFLIGHT_CHECK_NAMES = [
   'cli',
   'worktree',
@@ -126,6 +127,10 @@ export interface CausalEvidenceReceipt {
   outputTail: string;
   /** A bounded prefix+tail probe used for independent selector verdicts. */
   outputProbe: string;
+  /** Matching text uses NUL redaction boundaries, which cannot synthesize a valid text selector. */
+  selectorProbe?: string;
+  /** Bounded proof of only this selector when complete storage is unavailable or too large. */
+  selectorWitness?: { selectorDigest: string; matched: boolean };
   outputLength: number;
   /** Signed binding to complete redacted selector bytes, stored separately from the display probe. */
   selectorOutput?: { digest: string; length: number };
@@ -544,6 +549,9 @@ export function verifyCausalEvidenceReceipt(
   )) return false;
   if (typeof receipt.outputProbe !== 'string' || receipt.outputProbe.length > CAUSAL_MAX_OUTPUT_CHARS) return false;
   if (typeof receipt.outputTail !== 'string' || receipt.outputTail.length > CAUSAL_OUTPUT_TAIL_CHARS) return false;
+  if (receipt.selectorProbe !== undefined && (typeof receipt.selectorProbe !== 'string' || receipt.selectorProbe.length > CAUSAL_MAX_OUTPUT_CHARS)) return false;
+  if (receipt.selectorWitness !== undefined && (!receipt.selectorWitness || typeof receipt.selectorWitness.matched !== 'boolean'
+      || !/^[a-f0-9]{64}$/.test(receipt.selectorWitness.selectorDigest) || receipt.selectorOutput)) return false;
   if (receipt.selectorOutput && (!/^[a-f0-9]{64}$/.test(receipt.selectorOutput.digest)
       || !Number.isSafeInteger(receipt.selectorOutput.length) || receipt.selectorOutput.length < 0)) return false;
   if (receipt.identity.schemaVersion !== CAUSAL_EXECUTION_KEY_SCHEMA) return false;
@@ -551,7 +559,7 @@ export function verifyCausalEvidenceReceipt(
   if (receipt.executionKey !== `ce:v1:${receipt.identityDigest}`) return false;
   if (receipt.storyId !== receipt.identity.storyId) return false;
   const statusAllowsReuse = receipt.status === 'pass' && receipt.exitCode === 0;
-  if (receipt.reusable !== (receipt.identity.complete && statusAllowsReuse)) return false;
+  if (receipt.reusable !== (receipt.identity.complete && statusAllowsReuse && !receipt.selectorWitness)) return false;
   if (receipt.commandReruns !== 0) return false;
   if (!['pass', 'fail', 'timeout', 'cancelled', 'partial'].includes(receipt.status)) return false;
   return true;
@@ -577,19 +585,19 @@ function boundedOutputProbe(output: string): string {
   return `${output.slice(0, headLength)}${gap}${output.slice(-tailLength)}`;
 }
 
-function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined): string {
+function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined, replacement = REDACTED): string {
   let redacted = String(output ?? '');
   for (const [rawKey, rawValue] of Object.entries(effectiveEnvironment ?? {})) {
     if (rawValue === undefined || rawValue === null) continue;
     const value = String(rawValue);
     if (!value || value === REDACTED) continue;
     if (SECRET_ENV_KEY.test(rawKey)) {
-      redacted = redacted.split(value).join(REDACTED);
+      redacted = redacted.split(value).join(replacement);
     }
   }
   return redacted
-    .replace(/(authorization\s*[:=]\s*|bearer\s+)[^\s,;]+/gi, `$1${REDACTED}`)
-    .replace(/((?:token|secret|password|passwd|api[_-]?key|credential)\s*[:=]\s*)[^\s,;]+/gi, `$1${REDACTED}`);
+    .replace(/(authorization\s*[:=]\s*|bearer\s+)[^\s,;]+/gi, `$1${replacement}`)
+    .replace(/((?:token|secret|password|passwd|api[_-]?key|credential)\s*[:=]\s*)[^\s,;]+/gi, `$1${replacement}`);
 }
 
 function recordExecution(batch: CausalEvidenceBatch | undefined, entry: CausalExecutionLedgerEntry): void {
@@ -636,7 +644,7 @@ export function verifyCausalEvidenceLedger(ledger: CausalEvidenceLedger): boolea
 const liveSelectorOutput = new WeakMap<CausalEvidenceReceipt, string>();
 
 export function readCausalSelectorOutput(receipt: CausalEvidenceReceipt, store?: CausalEvidenceReceiptStore): string {
-  if (!receipt.selectorOutput) return receipt.outputProbe;
+  if (!receipt.selectorOutput) return receipt.selectorProbe ?? receipt.outputProbe;
   const output = liveSelectorOutput.get(receipt) ?? store?.readCausalSelectorOutput?.(receipt.storyId, receipt.selectorOutput.digest);
   if (typeof output !== 'string' || output.length !== receipt.selectorOutput.length
       || createHash('sha256').update(output).digest('hex') !== receipt.selectorOutput.digest) {
@@ -651,8 +659,11 @@ function selectorVerdict(
   intentRef?: string,
   store?: CausalEvidenceReceiptStore,
 ): CausalSelectorVerdict {
-  const matched = readCausalSelectorOutput(receipt, store).includes(selector) || (!receipt.selectorOutput && receipt.outputTail.includes(selector))
-    || (receipt.status === 'pass' && selector.length === 0);
+  const matched = selector.length === 0 ? receipt.status === 'pass'
+    : selector.includes('\0') ? false
+    : receipt.selectorWitness ? receipt.selectorWitness.selectorDigest === createHash('sha256').update(selector).digest('hex') && receipt.selectorWitness.matched
+    : readCausalSelectorOutput(receipt, store).includes(selector)
+      || (!receipt.selectorOutput && receipt.selectorProbe === undefined && receipt.outputTail.includes(selector));
   const result = receipt.status === 'pass' && matched ? 'pass' : 'fail';
   return {
     ...(intentRef ? { intentRef } : {}),
@@ -733,9 +744,16 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       }
       const run = await args.run();
       const runStatus = statusForRun(run);
-      const redactedOutput = redactCausalOutput(run.output, { ...process.env, ...args.identity.effectiveEnvironment });
-      const selectorOutput = redactedOutput.length > CAUSAL_MAX_OUTPUT_CHARS
-        ? { digest: createHash('sha256').update(redactedOutput).digest('hex'), length: redactedOutput.length } : undefined;
+      const matchingOutput = redactCausalOutput(run.output, { ...process.env, ...args.identity.effectiveEnvironment }, '\0');
+      const redactedOutput = matchingOutput.replace(/\0/g, REDACTED);
+      const longOutput = matchingOutput.length > CAUSAL_MAX_OUTPUT_CHARS;
+      const durableOutput = longOutput && args.selector.length > 0 && args.receiptStore?.readCausalSelectorOutput && args.receiptStore?.writeCausalSelectorOutput
+        && matchingOutput.length <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES
+        && Buffer.byteLength(JSON.stringify({output:matchingOutput}), 'utf8') <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES;
+      const selectorOutput = durableOutput
+        ? { digest: createHash('sha256').update(matchingOutput).digest('hex'), length: matchingOutput.length } : undefined;
+      const selectorWitness = longOutput && !selectorOutput
+        ? {selectorDigest:createHash('sha256').update(args.selector).digest('hex'), matched:!args.selector.includes('\0') && matchingOutput.includes(args.selector)} : undefined;
       const receiptWithoutAuthority: Omit<CausalEvidenceReceipt, 'receiptHash' | 'signerPublicKey' | 'signature'> = {
         schemaVersion: CAUSAL_EVIDENCE_SCHEMA,
         storyId: key.identity.storyId,
@@ -751,10 +769,12 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         outputProbe: boundedOutputProbe(redactedOutput),
         outputLength: run.output.length,
         ...(selectorOutput ? { selectorOutput } : {}),
+        ...(selectorWitness ? { selectorWitness } : {}),
+        ...(!longOutput ? {selectorProbe:matchingOutput} : {}),
         executedAt: new Date().toISOString(),
         ...(run.durationMs !== undefined ? { durationMs: run.durationMs } : {}),
         ...(run.timeoutMs !== undefined ? { timeoutMs: run.timeoutMs } : {}),
-        reusable: key.reusable && runStatus === 'pass' && run.code === 0,
+        reusable: key.reusable && runStatus === 'pass' && run.code === 0 && !selectorWitness,
         commandReruns: 0,
       };
       const authority = signCausalAuthorityPayload(receiptWithoutAuthority, key.identity.cwd);
@@ -764,10 +784,10 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         receiptHash: computeCausalReceiptHash({ ...receiptWithoutAuthority, ...authority } as CausalEvidenceReceipt),
       } as CausalEvidenceReceipt;
       if (selectorOutput) {
-        liveSelectorOutput.set(receipt, redactedOutput);
+        liveSelectorOutput.set(receipt, matchingOutput);
         // Publish complete bytes first. A receipt can never advertise an output
         // object whose write failed; an orphan output object grants no authority.
-        if (receipt.reusable) args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, redactedOutput);
+        if (receipt.reusable) args.receiptStore?.writeCausalSelectorOutput?.(key.identity.storyId, selectorOutput.digest, matchingOutput);
       }
       // A non-PASS result is an execution outcome, not a reusable CAS value.
       // Leaving it at this address would both turn a transient failure into a

@@ -207,3 +207,13 @@ receipt. The handler checks bytes before launch, after execution and at canonica
 publication. Mutation during execution refuses receipt publication; stale-refresh
 raw-process fanout also refuses implementation drift. This does not claim that
 unrelated running owner/reviewer sessions have adopted a common CLI installation.
+
+Complete output objects have a 1 MiB serialized-byte ceiling. If a store lacks
+both complete-output methods, or output exceeds that ceiling, the fresh command
+still proves its own selector using a bounded signed witness. That receipt is not
+shared with later requests: another selector or a publication recovery request may
+need a fresh execution in this fallback. There is no poisoned reusable receipt or
+unbounded Story file. Exit-only checks never read selector objects. Matching uses
+NUL boundaries for redactions and rejects NUL-bearing selectors; display placeholders
+cannot become proof of text the command never printed. Redaction itself is preserved
+behavior, not an additional performance gain claimed by this repair.
