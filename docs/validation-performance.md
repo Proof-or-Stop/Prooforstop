@@ -155,3 +155,9 @@ cancellation preserves the observed completion history and interrupts consecutiv
 stagnation. Zero-wave compatibility receipts do not count as completed reviews.
 Unavailable progress is reported explicitly without undoing a valid inventory
 publication. This observation layer does not yet replace the legacy hard gates.
+
+Mechanical coverage gains also require the actual CAS execution receipt, matching
+command and selector pin, output digest and source identities. Missing receipt
+objects and dirty material produce unavailable observations, never a claimed
+coverage gain. Remediation uses the same execution-authority verifier. Legacy
+compatibility coverage remains governed by the existing coverage policy.

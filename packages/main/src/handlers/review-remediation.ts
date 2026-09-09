@@ -1,3 +1,4 @@
+import { hasMechanicalExecutionAuthority } from '../core/verification-receipt-authority.js';
 /** Owner-driven repair closeout. Evidence is checked before any terminal fact is published. */
 import { execFileSync } from 'node:child_process';
 import { readFileSync, realpathSync } from 'node:fs';
@@ -10,8 +11,8 @@ import type { MkdirLockFence } from '../core/mkdir-lock.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
-import { createCausalExecutionKey, verifyCausalEvidenceReceipt } from '../core/causal-evidence.js';
-import { buildVerificationCoverage, collectVerificationIntents } from '../core/verification.js';
+import { verifyCausalEvidenceReceipt } from '../core/causal-evidence.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -114,17 +115,7 @@ export function createReviewRemediationHandlers(ctx: HandlerContext, dependencie
                 || evidence.kind === 'waiver' || evidence.receipt?.exitCode !== 0 || evidence.receipt?.selectorMatched !== true
                 || !coverage.entries.some(e => e.itemId === proof.itemId && e.intentRef === proof.intentRef && e.status === 'covered')
                 || !checkEvidenceFreshnessForGit(gitCwd, evidence.headHash, evidence.materialHash, ctx.root, evidence.storyFilesHash).fresh) throw new Error(`Finding ${repair.findingId} requires current mechanical verification evidence`);
-              const executed = evidence.receipt;
-              const pin = item && collectVerificationIntents(item).find(i => i.ref === proof.intentRef)?.intent.verification;
-              if (!pin || pin.command !== evidence.command || pin.selector !== executed?.selector) throw new Error(`Finding ${repair.findingId} verification pin does not match execution`);
-              const causal = executed?.executionKey ? ctx.store.readCausalEvidenceReceipt(args.storyId, executed.executionKey) : undefined;
-              if (!causal || !verifyCausalEvidenceReceipt(causal, executed?.executionKey) || causal.storyId !== args.storyId
-                || causal.receiptHash !== executed?.causalReceiptHash || causal.status !== 'pass' || causal.exitCode !== 0
-                || causal.outputDigest !== executed.outputDigest || causal.executedAt !== executed.executedAt
-                || !executed.selector || !(causal.outputProbe.includes(executed.selector) || causal.outputTail.includes(executed.selector))
-                || !evidence.command || canonicalHash(createCausalExecutionKey({ ...causal.identity, command: evidence.command }).identity.command) !== canonicalHash(causal.identity.command)
-                || (causal.identity.inputs as Record<string, unknown>)?.materialHash !== evidence.materialHash
-                || causal.identity.storyFilesHash !== evidence.storyFilesHash) throw new Error(`Finding ${repair.findingId} verification execution authority is missing or invalid`);
+              if (!item || !hasMechanicalExecutionAuthority(ctx.store, args.storyId, item, evidence)) throw new Error(`Finding ${repair.findingId} verification execution authority is missing or invalid`);
               git('merge-base', '--is-ancestor', args.repairCommit, evidence.headHash);
             }
           }

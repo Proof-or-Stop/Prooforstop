@@ -9390,10 +9390,12 @@ console.log('Process-fact contract verification passed');
 // U11 tool-owned progress must stay bound to real inventory and evidence verifiers.
 {
   const progress = read('packages/main/src/core/convergence-progress-journal.ts');
-  for (const token of ['verifyValidationArtifact', 'signValidationArtifact', 'finalizedLiveAggregateError', 'readFindingLedger', 'buildVerificationCoverage', 'collectReviewerEvidenceState', 'revokedCompletedEpochIds', 'assessEffectiveProgress']) {
+  for (const token of ['verifyValidationArtifact', 'signValidationArtifact', 'finalizedLiveAggregateError', 'readFindingLedger', 'buildVerificationCoverage', 'collectReviewerEvidenceState', 'revokedCompletedEpochIds', 'assessEffectiveProgress', 'hasMechanicalExecutionAuthority', 'captureEvidenceHashSnapshot']) {
     assert(progress.includes(token), `U11 progress authority missing ${token}`);
   }
   assert(read('packages/main/src/handlers/review-inventory.ts').includes('captureConvergenceProgress(ctx, args.storyId, finalized.epochId)'), 'U11 actual inventory finalization must record verified progress');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('artifact:convergence-progress.json'), 'U11 signed progress artifact must be registered');
   assert(read('packages/main/src/handlers/finding.ts').includes('reviewPurpose: run.reviewPurpose, inventoryBinding: run.inventoryBinding'), 'native direct terminal authority must retain the signed review purpose');
 }
+
+assert(read('packages/main/src/handlers/review-remediation.ts').includes('hasMechanicalExecutionAuthority'), 'remediation and progress must share exact mechanical execution authority');

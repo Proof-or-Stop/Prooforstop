@@ -1,3 +1,4 @@
+import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 /** Tool-owned observation boundary. Callers supply identifiers, never progress counts. */
 import { existsSync, readFileSync } from 'node:fs';
 import type { StoryStore } from './store.js';
@@ -8,7 +9,7 @@ import { finalizedLiveAggregateError, verifyReviewInventoryEpoch, verifyReviewIn
 import { collectReviewerEvidenceState } from './review-run.js';
 import { verifyFinding } from './finding-verify.js';
 import { buildVerificationCoverage, collectVerificationIntents } from './verification.js';
-import { currentGitHead, currentMaterialHash, checkEvidenceFreshnessForGit } from './evidence-freshness.js';
+import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { ACTIVE_PHASE_ORDER } from './phase-flow.js';
@@ -85,19 +86,26 @@ function collect(store: StoryStore, storyId: string, root: string, prior: Conver
   // A compatibility dismissal is not proof of repair and cannot reduce outstanding work.
   const open = verified.filter(f => f.status === 'open' || (f.status === 'dismissed' && prior?.openVerifiedFindingIds.includes(f.id)));
   const story = store.readStory(storyId), checklist = store.readChecklist(storyId);
-  const head = currentGitHead(root), materialHash = currentMaterialHash(root);
+  const metadataRoot = store.projectRoot;
+  const source = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot });
+  if (source.materialDirtyFiles.length) throw new Error('Convergence source has dirty material; current committed PASS cannot prove progress');
+  const head = source.headHash, materialHash = source.materialHash;
   if (!head || !materialHash) throw new Error('Convergence source identity unavailable');
-  const profile = resolveWorkflowPolicy(loadConfig(root), story).profile;
+  const profile = resolveWorkflowPolicy(loadConfig(metadataRoot), story).profile;
+  for (const item of checklist.items) for (const evidence of item.verificationEvidence ?? []) {
+    if (evidence.mechanical === true && evidence.result === 'pass' && !hasMechanicalExecutionAuthority(store, storyId, item, evidence))
+      throw new Error(`Convergence verification execution authority missing or invalid: ${evidence.intentRef}`);
+  }
   const coverage = buildVerificationCoverage(checklist, head,
-    (evidenceHead, evidence) => checkEvidenceFreshnessForGit(root, evidenceHead, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
+    (evidenceHead, evidence) => checkEvidenceFreshnessForGit(root, evidenceHead, evidence?.materialHash, metadataRoot, evidence?.storyFilesHash).fresh,
     { deferredGateEvidence: 'missing', evidenceQualityProfile: profile });
   const emptyItems = checklist.items.filter(i => i.status !== 'withdrawn' && !collectVerificationIntents(i).length && !(i.verificationEvidence?.length));
-  const evidence = collectReviewerEvidenceState(store, storyId, root);
+  const evidence = collectReviewerEvidenceState(store, storyId, metadataRoot);
   const currentPassLanes = [...new Set(evidence.valid.filter(row => row.kind === 'pass').map(row => row.agent))].sort();
   const rank = (phase: string) => (ACTIVE_PHASE_ORDER as readonly string[]).indexOf(phase);
   const snapshot: EffectiveProgressSnapshot = {
     completedEpochIds, openVerifiedFindings: open.length, missingRequired: coverage.missingRequired + emptyItems.length,
-    blockingSignature: canonicalDigest({ findings: open.map(f => ({ id: f.id, severity: f.severity, ...(authenticated(f) ? { category: f.category } : {}) })).sort((a, b) => a.id.localeCompare(b.id)),
+    blockingSignature: canonicalDigest({ findings: open.map(f => ({ id: f.id, severity: f.severity })).sort((a, b) => a.id.localeCompare(b.id)),
       verification: coverage.entries.filter(e => e.priority === 'must' && !['covered', 'waived', ...(profile === 'strict' ? [] : ['weak'])].includes(e.status)).map(e => ({ ref: e.intentRef, status: e.status })).sort((a, b) => a.ref.localeCompare(b.ref)),
       emptyItems: emptyItems.map(i => i.id).sort() }),
     materialHash, currentPassLanes,
