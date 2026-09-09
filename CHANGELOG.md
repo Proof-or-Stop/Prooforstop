@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab b03b7-review-context-trigger-list - v0.3.294 - 2026-09-09
+
+# B-03b7 reviewer-context trigger-list repair
+
+## Problem
+
+The REVIEW prompt safety guard rejected B-03b7 before any reviewer run could be created. Its frozen checklist title lists historical-recall triggers including scope match, severity, owner, closure, expiry, and hash/runtime changes. The guard treated the co-occurrence of `severity` and `owner` as an assertion that severity alone decides Story ownership, even though the text contains no deciding or authorizing relation.
+
+## Behavior change
+
+The guard now recognizes one closed grammar for nominal historical recall, lookup, or query trigger inventories. The allowlist is limited to named trigger nouns and cannot contain a deciding or authority verb. Existing severity-only authority statements continue to fail closed.
+
+## Verification
+
+The RED fixture reproduces the exact B-03b7 checklist title and expects the `B03B7_TRIGGER_LIST_SAFE` assertion marker. Before the repair, the complete prompt-envelope smoke rejected that title with `severity used as sole ownership or scope authority`. GREEN replayed the identical command and passed the complete prompt-envelope attack matrix, including the adjacent control that `Severity alone decides Story scope` remains rejected.
+
+Command: `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js`
+
+GREEN result: `B7ABB_SETUP_CONTROLS PASS`, `B7ABB_REFERENCE_ASSEMBLY PASS`, `B7ABB_SIGNED_LAUNCH PASS`, and `prompt full-context envelope smoke PASS`.
+
+Maintenance provenance: codex/lab-b03b7-review-context-trigger-list, repair aec7aae5dc5dead3c8c8c1c5bef161e65d64ee8d.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab story-carry-evidence-hardening - v0.3.293 - 2026-09-09
 
 # Lab maintenance log: Story evidence carry-forward hardening
