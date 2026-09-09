@@ -212,8 +212,9 @@ try {
         }));
         write(root, 'tsconfig.json', '{}\n');
         writeRegistration(root);
-        for (const name of ['convergence-progress-gate', 'convergence-progress-journal'])
+        for (const name of ['convergence-progress-gate', 'convergence-progress-journal', 'story-scope-budget', 'story-scope-budget-decisions', 'acceptance-amendment-journal'])
             write(root, 'packages/main/src/core/' + name + '.ts', 'export const fixtureDependency=true;\n');
+        write(root, 'packages/main/src/handlers/story-review.ts', 'export const fixtureDependency=true;\n');
         write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
         write(root, 'packages/main/src/consumer.ts', consumerControlSource);
         write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);

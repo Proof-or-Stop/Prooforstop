@@ -506,10 +506,12 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'original_intent_snapshot_set',
   ],
   INIT_CHECK: [
+    'scope_budget_approve',
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'scope_budget_approve',
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
@@ -537,6 +539,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'scope_budget_approve',
     'acceptance_amendment_propose', 'acceptance_amendment_review', 'acceptance_amendment_approve', 'acceptance_amendment_cancel',
     'review_remediation_close', // Complete inventory-bound repair sets with one atomic ledger publication.
     'candidate_spec_route', // B-8038: owner development and focused verification
@@ -570,6 +573,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
+    'scope_budget_approve',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
     // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
@@ -603,6 +607,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   TEST: [
+    'scope_budget_approve',
     'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',

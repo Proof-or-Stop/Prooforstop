@@ -8,6 +8,11 @@ import {resetConfigCache} from '../packages/main/dist/core/config.js';
 import {canStartDevGuard} from '../packages/main/dist/core/machine.js';
 import {createStoryScopeBudgetHandlers} from '../packages/main/dist/handlers/story-scope-budget.js';
 
+import {base,delta} from './verify-acceptance-amendment-delta.mjs';
+import {createAcceptanceAmendmentController} from '../packages/main/dist/core/acceptance-amendment-journal.js';
+import {deriveAcceptanceAmendment} from '../packages/main/dist/core/acceptance-amendment.js';
+import {readStoryScopeBudget} from '../packages/main/dist/core/story-scope-budget.js';
+
 const root=mkdtempSync(join(tmpdir(),'scope-budget-approval-'));
 const storyId='B-budget-approval',at=new Date().toISOString();
 const config={scanRoot:'packages/main',rootDir:'src',storyDir:'.proof-or-stop/story/actives',workflow:{profile:'light'},
@@ -62,6 +67,30 @@ try {
   const clock=Date.now;
   try {Date.now=()=>Date.parse(accepted.decision.expiresAt)+1;assert.equal(canStartDevGuard(context),false,'expired approval is not authority');}
   finally {Date.now=clock;}
+  const amendmentConfig=structuredClone(config);
+  amendmentConfig.storyScopeBudget.responsibilities=[{id:'addition',paths:['src/**','tests/**'],hostAdapters:[],validationGroups:[]}];
+  amendmentConfig.storyScopeBudget.limits.acceptanceTopology=1;
+  amendmentConfig.storyScopeBudget.limits.devScopeDelta=0;
+  writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify(amendmentConfig));resetConfigCache();
+  const amendmentStory=base.storyId;
+  store.writeStory(amendmentStory,{storyId:amendmentStory,name:amendmentStory,title:'Scope amendment approval',phase:'DEV',priority:'medium',createdAt:at});
+  store.writeChecklist(amendmentStory,base.checklist);store.writeScopeContract(amendmentStory,base.scope);store.writeProofStoryContract(amendmentStory,base.proofStory);
+  const controller=createAcceptanceAmendmentController(store,root);
+  controller.propose({storyId:amendmentStory,amendmentId:'AM-budget',delta,submitterSessionId:'fixture-owner'});
+  const projected=JSON.parse(handlers.scope_budget_check({storyId:amendmentStory,amendmentId:'AM-budget'}));
+  const amendmentArgs={...args,storyId:amendmentStory,amendmentId:'AM-budget',bindingDigest:projected.bindingDigest,confirmationToken:projected.confirmationToken};
+  const drift=structuredClone(base.checklist);drift.items[0].title+=' drift';store.writeChecklist(amendmentStory,drift);
+  assert.throws(()=>handlers.scope_budget_check({storyId:amendmentStory,amendmentId:'AM-budget'}),/base drift/);
+  assert.throws(()=>handlers.scope_budget_approve(amendmentArgs),/base drift/);
+  assert.equal(store.readScopeBudgetDecisions(amendmentStory),null,'stale amendment cannot acquire approval');
+  store.writeChecklist(amendmentStory,base.checklist);
+  handlers.scope_budget_approve(amendmentArgs);
+  const next=deriveAcceptanceAmendment(base,delta);
+  assert.equal(readStoryScopeBudget(store,root,amendmentStory,next,base).status,'approved_large_story','exact growth is authorized');
+  assert.equal(readStoryScopeBudget(store,root,amendmentStory,next).status,'approved_large_story','resulting scope retains permission after application');
+  const otherBase=structuredClone(base);otherBase.checklist.items[0].title+=' different base';
+  assert.equal(readStoryScopeBudget(store,root,amendmentStory,next,otherBase).blocking,true,'same next does not authorize growth from another base');
+  execFileSync(process.execPath,['scripts/verify-acceptance-amendment-journal.mjs','--scope-budget-approval'],{stdio:'pipe',timeout:60000});
   console.log('PASS U06 explicit large scope approval, channel refusal, exact binding, tamper and expiry');
 } finally {
   for(const key of Object.keys(process.env)) if(!(key in env)) delete process.env[key];Object.assign(process.env,env);

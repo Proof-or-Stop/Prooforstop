@@ -13,7 +13,8 @@ const { createAcceptanceAmendmentController, acceptanceAmendmentBlocker } = awai
 const root = mkdtempSync(join(tmpdir(), 'amendment-journal-'));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
 const workers = [];
-const scopeBudgetCase = process.argv.includes('--scope-budget');
+const scopeApprovalCase = process.argv.includes('--scope-budget-approval');
+const scopeBudgetCase = scopeApprovalCase || process.argv.includes('--scope-budget');
 try {
   git('init', '-q', '-b', 'main'); git('config', 'user.name', 'Lab witness'); git('config', 'user.email', 'lab@example.invalid');
   writeFileSync(join(root, '.gitignore'), '.proof-or-stop/runtime/\n.proof-or-stop/locks/\n');
@@ -66,9 +67,24 @@ try {
     workers.push(runManagedHostRunWorker(worker, { env: { PROOF_OR_STOP_USAGE_LEDGER: '0' }, runner: plan => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', `console.log(${JSON.stringify(JSON.stringify(event))})`], stdinText: '' }) }));
     return { pid: process.pid };
   }, claimPollMs: 5, claimTimeoutMs: 2000 };
+  if (scopeApprovalCase) {
+  const {createStoryScopeBudgetHandlers}=await import('../packages/main/dist/handlers/story-scope-budget.js');
+  const approvalHandlers=createStoryScopeBudgetHandlers({store,root});
+  const report=JSON.parse(approvalHandlers.scope_budget_check({storyId,amendmentId:'AM-1'}));
+  const savedEnv={...process.env};
+  const descriptors=[process.stdin,process.stdout].map(stream=>Object.getOwnPropertyDescriptor(stream,'isTTY'));
+  try {
+    for(const key of Object.keys(process.env)) if(/(?:CODEX|CLAUDE|LATTICE|PROOF_OR_STOP|AUTOPILOT|NON_INTERACTIVE)/.test(key)||key==='CI') delete process.env[key];
+    for(const stream of [process.stdin,process.stdout]) Object.defineProperty(stream,'isTTY',{value:true,configurable:true});
+    approvalHandlers.scope_budget_approve({storyId,amendmentId:'AM-1',bindingDigest:report.bindingDigest,confirmationToken:report.confirmationToken,ack:true,reason:'Isolated operator fixture approves this exact additive scope before its independent review.'});
+  } finally {
+    for(const key of Object.keys(process.env)) if(!(key in savedEnv)) delete process.env[key];Object.assign(process.env,savedEnv);
+    [process.stdin,process.stdout].forEach((stream,i)=>{if(descriptors[i]) Object.defineProperty(stream,'isTTY',descriptors[i]);else delete stream.isTTY;});
+  }
+  }
   await controller.startReview({ storyId, amendmentId: 'AM-1', host: 'codex' }, launch);
   await Promise.all(workers);
-  if (scopeBudgetCase) {
+  if (scopeBudgetCase && !scopeApprovalCase) {
     const beforeBudget = [store.readChecklist(storyId), store.readScopeContract(storyId), store.readProofStoryContract(storyId), store.readAcceptanceAmendments(storyId)];
     assert.throws(() => controller.approve({storyId,amendmentId:'AM-1'}), /Scope budget.*devScopeDelta/,
       'independent approval cannot bypass the configured semantic delta budget');

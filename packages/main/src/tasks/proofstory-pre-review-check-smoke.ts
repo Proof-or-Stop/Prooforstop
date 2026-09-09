@@ -814,6 +814,10 @@ function writeRegistration(root: string): void {
         'packages/main/src/core/validation-execution-lock.ts',
         'packages/main/src/core/convergence-progress-gate.ts',
         'packages/main/src/core/convergence-progress-journal.ts',
+        'packages/main/src/core/story-scope-budget.ts',
+        'packages/main/src/core/story-scope-budget-decisions.ts',
+        'packages/main/src/core/acceptance-amendment-journal.ts',
+        'packages/main/src/handlers/story-review.ts',
   ]) write(root, path, 'export const fixtureDependency=true;\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');

@@ -8,6 +8,7 @@ import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { CANONICAL_REVIEW_HOSTS } from './host-execution-readiness.js';
 import { collectVerificationIntents } from './verification.js';
 import { canonicalFilesystemPath } from './keyed-scheduler.js';
+import { currentScopeBudgetApproval } from './story-scope-budget-decisions.js';
 import { isMalformedScopeGlob, pathMatchesScopePattern } from './scope-path-classifier.js';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ProofStoryContractData, ScopeContractData } from './types.js';
@@ -35,7 +36,7 @@ export interface StoryScopeBudgetReport {
   schemaVersion: 'story-scope-budget-report.v1';
   storyId: string;
   mode: 'disabled' | 'observe' | 'enforce';
-  status: 'disabled' | 'within_budget' | 'decision_required' | 'unknown';
+  status: 'disabled' | 'within_budget' | 'decision_required' | 'approved_large_story' | 'unknown';
   blocking: boolean;
   counts: Record<ScopeBudgetDimension, number>;
   facts: Record<ScopeBudgetDimension, string[]>;
@@ -202,7 +203,7 @@ export function evaluateStoryScopeBudget(subject: ScopeBudgetSubject, config: Pr
       report.counts[key] = report.facts[key].length;
       if (report.counts[key] > policy.limits[key]) report.exceeded.push(key);
     }
-    report.bindingDigest = canonicalDigest({ policy, paths: report.paths, facts: report.facts,
+    report.bindingDigest = canonicalDigest({ policy, amendmentBaseDigest: base ? canonicalDigest(base) : null, paths: report.paths, facts: report.facts,
       requirements: subject.checklist.items.map(({ id, title, context, userSees, excludes, files, verificationIntent }) =>
         ({ id, title, context, userSees, excludes, files, verificationIntent })),
       topology: subject.proofStory.acceptanceBindings, validation: config.validate ?? config.validation ?? null });
@@ -236,6 +237,16 @@ export function readStoryScopeBudget(store: StoryStore, root: string, storyId: s
   if (report.diagnostics.length) {
     report.status = 'unknown';
     report.blocking = report.blocking || report.mode === 'enforce';
+  }
+  if (report.status === 'decision_required') {
+    try {
+      if (currentScopeBudgetApproval(store, root, storyId, report.bindingDigest)) {
+        report.status = 'approved_large_story'; report.blocking = false;
+      }
+    } catch (error) {
+      report.status = 'unknown'; report.blocking = true;
+      report.diagnostics.push(error instanceof Error ? error.message : String(error));
+    }
   }
   return report;
 }

@@ -48,8 +48,18 @@ scope, topology, review and full validation gates remain independently required.
 
 The binding digest includes policy, paths, semantic facts, requirements, topology
 and validation configuration. It is a diagnostic identity, not a signed approval.
-Large-Story approval and parent/child decomposition decisions are separate work;
-until those paths are available, enforced over-budget scope must be narrowed.
+For known over-budget scope, an operator can run `scope_budget_approve` from an
+interactive terminal with `--storyId`, the report's exact `--bindingDigest` and
+`--confirmationToken`, `--ack`, and a substantive `--reason`. The tool signs the
+journal and each decision; it preserves the configured limits. Approval expires
+after seven days and is invalid for changed scope, acceptance or policy. Unknown
+scope cannot be approved. Noninteractive and recognized agent sessions are refused;
+terminal possession is an acknowledgement channel, not cryptographic human identity.
+
+For a pending DEV amendment, pass its `--amendmentId` to both check and approval.
+Obtain scope approval before independent amendment review; the decision does not
+replace that review. Read projections never create authority. Parent/child
+coverage decisions remain separate work.
 
 Verification: `node scripts/verify-story-scope-budget.mjs` exercises actual DEV
 guards, all seven dimensions, unknown inputs, unchanged read projections, actual

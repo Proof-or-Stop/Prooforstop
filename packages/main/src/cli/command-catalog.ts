@@ -2261,7 +2261,11 @@ Behavior:
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
   { name: 'scope_budget_check', description: 'Read semantic scope budget dimensions, unknown mappings and required decomposition before DEV. No approval or state mutation.', schema: {
-    storyId: z.string().min(1), json: z.boolean().optional(),
+    storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), json: z.boolean().optional(),
+  }},
+  { name: 'scope_budget_approve', description: 'Record an interactive operator acknowledgement bound to exact known over-budget scope. Does not replace independent review.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), bindingDigest: z.string().min(1),
+    ack: z.boolean(), confirmationToken: z.string().min(1), reason: z.string().min(20),
   }},
   { name: 'acceptance_amendment_propose', description: 'Propose additive DEV acceptance with frozen original scope, intents and topology; no acceptance is changed until independent approval.', schema: {
     storyId: z.string().min(1), amendmentId: z.string().min(1),

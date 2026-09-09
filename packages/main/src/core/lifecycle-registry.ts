@@ -349,6 +349,7 @@ export const LIFECYCLE_ARTIFACTS = [
   // remediation receipts written by StoryStore and consumed by REVIEW -> DEV.
   'review-inventory-epochs.json',
   'acceptance-amendments.json',
+  'scope-budget-decisions.json',
   'convergence-progress.json',
   'prompt-envelopes.json',
   'findings.json',

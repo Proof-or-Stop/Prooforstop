@@ -1,6 +1,7 @@
 import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
 import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
+import type { ScopeBudgetDecisionJournal } from './story-scope-budget-decisions.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -1643,6 +1644,15 @@ export class StoryStore {
   readAcceptanceAmendments(storyId: string): AcceptanceAmendmentJournal | null {
     try { return this.readJson<AcceptanceAmendmentJournal>(storyId, 'acceptance-amendments.json'); }
     catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  readScopeBudgetDecisions(storyId: string): ScopeBudgetDecisionJournal | null {
+    try { return this.readJson<ScopeBudgetDecisionJournal>(storyId, 'scope-budget-decisions.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  writeScopeBudgetDecisions(storyId: string, data: ScopeBudgetDecisionJournal): void {
+    this.writeJson(storyId, 'scope-budget-decisions.json', data);
   }
 
   writeAcceptanceAmendments(storyId: string, data: AcceptanceAmendmentJournal): void {

@@ -64,6 +64,10 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  const scopeDecision = read(root, 'packages/main/src/core/story-scope-budget-decisions.ts');
+  for (const field of ['approvalLifetimeMs', 'agentEnvironmentMarkers']) {
+    check(registrySource.includes('SCOPE_BUDGET_DECISION_RUNTIME_POLICY') && scopeDecision.includes(`SCOPE_BUDGET_DECISION_RUNTIME_POLICY.${field}`), `scope decision runtime policy must consume ${field}`);
+  }
   check(registrySource.includes('KEYED_SCHEDULER_RUNTIME_POLICY')
     && read(root, 'packages/main/src/core/keyed-scheduler.ts').includes('KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs'),
   'scheduler coordination scope and cancellable wait cadence must be registered and consumed');

@@ -179,6 +179,14 @@ export const KEYED_SCHEDULER_RUNTIME_POLICY = {
   blockedCancellationPollMs: 50,
 } as const;
 
+export const SCOPE_BUDGET_DECISION_RUNTIME_POLICY = {
+  approvalLifetimeMs: 7 * 24 * 60 * 60 * 1000,
+  agentEnvironmentMarkers: ['PROOF_OR_STOP_AGENT', 'LATTICE_AGENT', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID',
+    'CLAUDE_CODE_SESSION_ID', 'CLAUDE_SESSION_ID', 'AGY_SESSION_ID', 'ANTIGRAVITY_SESSION_ID',
+    'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT', 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK'],
+  authority: 'interactive-operator-acknowledgement-not-proof-of-human-identity',
+} as const;
+
 /** Sealed at managed submit; provider text cannot change these supervisor limits. */
 export const MANAGED_BURN_RUNTIME_POLICY = {
   tokenLimitEnvironment: 'PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT',

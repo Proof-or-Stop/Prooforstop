@@ -348,6 +348,11 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  scope_budget_approve: {
+    name: 'scope-budget-decisions.json', path: 'scope-budget-decisions.json', signed: true,
+    signature: 'signValidationArtifact/verifyValidationArtifact for journal and every scope-bound expiring decision',
+    producerCommand: 'scope_budget_approve', consumerGate: 'machine DEV guards and acceptance amendment application',
+  },
   certification_window_begin: {
     name: 'certification-window.json',
     path: 'certification-window.json',
@@ -1608,6 +1613,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Only independently validated completed review epochs enter signed completion history; zero-wave compatibility receipts do not. Repeated observations preserve bytes. Current coverage and admissible pass lanes come from existing verifiers; claimed mechanical PASS additionally requires the exact pinned command/selector and authenticated CAS execution receipt shared with remediation. Dirty source makes observation unavailable. Finding decreases require authenticated ledger transitions, and unsigned legacy categories, heartbeats, run counts and metadata commits do not constitute progress. Signed later cancellation preserves observed completion history but interrupts consecutive stagnation. Missing or corrupt input is unavailable rather than fabricated progress. Only two complete stagnant epochs request a human decision; live effective progress releases the stall. Integrity failures are distinct blocked results. Human-only acknowledged decisions append signed history and reset the comparison boundary without erasing completed epochs.',
   },
   {
+    name: 'artifact:scope-budget-decisions.json', kind: 'signed-artifact', level: 'L4',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+    producer: 'handlers/story-scope-budget.scope_budget_approve',
+    producerSourceRefs: ['packages/main/src/core/story-scope-budget-decisions.ts'],
+    consumerSourceRefs: ['packages/main/src/core/story-scope-budget.ts'],
+    consumerGate: 'machine DEV guards and acceptance amendment application',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_budget_approve,
+    rationale: 'Interactive operator acknowledgement binds exact scope and amendment base plus resulting scope. Signed journal and entries enforce identity, seven-day expiry, immutable configured limits and agent refusal; unknown scope cannot be approved.',
+  },
+  {
     name: 'artifact:acceptance-amendments.json',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'atomic-persistence', 'verification-policy', 'workspace-binding', 'gate-evidence'],
@@ -1922,7 +1937,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     name: 'runtime:story_scope_budget', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'],
     producer: 'core/story-scope-budget',
-    producerSourceRefs: ['packages/main/src/core/story-scope-budget.ts'],
+    producerSourceRefs: ['packages/main/src/core/story-scope-budget.ts', 'packages/main/src/core/story-scope-budget-decisions.ts'],
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/core/acceptance-amendment-journal.ts', 'packages/main/src/handlers/story-review.ts'],
     consumerGate: 'Every DEV entry and additive acceptance application consume the same configured semantic budget, including APPLYING recovery',
     rationale: 'Explicit responsibility mappings, registered process facts and commands, topology nodes and edges, validation groups and semantic DEV delta determine scope cost. Files are not the budget unit. Unknown enforced mappings and malformed opted-in policy block; rollback cannot swallow the budget failure. Read-only diagnostic output cannot grant scope approval. Unconfigured legacy projects retain compatibility.',

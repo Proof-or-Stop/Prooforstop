@@ -8652,6 +8652,12 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/handlers/proofstory.ts').includes('DEV topology growth requires acceptance_amendment_propose'), 'DEV topology cannot bypass additive approval');
   const amendmentJournal = read('packages/main/src/core/acceptance-amendment-journal.ts');
   assert(registrySource.includes("name: 'runtime:story_scope_budget'"), 'semantic scope budget process fact must be registered');
+  const budgetDecision = read('packages/main/src/core/story-scope-budget-decisions.ts');
+  for (const invariant of ['assertOperator(args)', 'withReviewInventoryMutationLock', 'verifyValidationArtifact', 'report.bindingDigest !== args.bindingDigest', 'currentScopeBudgetApproval', 'expiresAt']) {
+    assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);
+  }
+  assert(registrySource.includes("name: 'scope-budget-decisions.json'"), 'scope approval signed artifact must be registered');
+  assert(read('packages/main/src/core/lifecycle-registry.ts').includes("'scope-budget-decisions.json'"), 'scope decisions must be lifecycle metadata');
   const budgetMachine = read('packages/main/src/core/machine.ts');
   for (const guard of ['canStartDevGuard', 'canSkipPlanGuard', 'canReenterDevGuard']) {
     assert(budgetMachine.includes(`export function ${guard}(context: StoryMachineContext): boolean {\n  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;`),
