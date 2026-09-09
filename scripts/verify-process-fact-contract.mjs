@@ -8422,7 +8422,7 @@ const inventory = [
   {name:'Exact quorum assertion inventory and internal partitioning',files:[
     {relPath:'packages/main/src/tasks/quorum-case-plan.ts',patterns:['MISSING_QUORUM_PLAN_CASE','QUORUM_DEPENDENCY_SPLIT','QUORUM_SOURCE_OR_MANIFEST_DRIFT','QUORUM_SHARD_COVERAGE_MISMATCH']},
     {relPath:'packages/main/src/tasks/quorum-submit-smoke.ts',patterns:['MISSING_QUORUM_REGISTRATION','QUORUM_DIAGNOSTIC_SELECTION_PASSED','QUORUM_EXECUTION_COVERAGE_MISMATCH']},
-    {relPath:'packages/main/src/tasks/quorum-case-parallel.ts',patterns:['verifyQuorumResults(plan,results,manifest)','QUORUM_SHARD_FAILED','PROOF_OR_STOP_QUORUM_JOBS']},
+    {relPath:'packages/main/src/tasks/quorum-case-parallel.ts',patterns:['verifyQuorumResults(plan,results,manifest)','QUORUM_SHARD_FAILED','QUORUM_INTERRUPTED','QUORUM_SPAWN_FAILED','PROOF_OR_STOP_QUORUM_JOBS']},
     {relPath:'docs/validation-performance.md',patterns:['73','13','outer capacity ticket']},
   ]},
   {name:'Governed acceptance revision and durable recovery',files:[
