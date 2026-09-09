@@ -304,7 +304,11 @@
         "riskTier": "shared",
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "executionReuse": "exact-inputs",
+        "executionInputs": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ]
       },
       {
         "command": "node",
@@ -2845,7 +2849,8 @@
           }
         ]
       }
-    ]
+    ],
+    "sharedExecution": true
   },
   "doneRequiredCommands": [
     {

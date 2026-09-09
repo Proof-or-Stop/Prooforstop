@@ -54,3 +54,20 @@ Each may use FIVE_ITEM_PROOF_OUTPUT to preserve raw output in a fresh directory.
 Publication recovery verifies both one failed canonical write inside the same process
 and exhausted write retries followed by a new publishing process, with no second
 child command execution. Neither is a power-loss durability claim.
+
+## Followthrough on 2026-09-09
+
+Additional executable evidence: `acceptance-revision.mjs` and
+`acceptance-checkpoint.mjs` cover signed PLAN revision, retained history and
+projection recovery; `evidence-implementation.mjs` covers actual checklist runtime
+binding; `complete-output-adversarial.mjs`, `output-retention-contract.mjs` and
+`exit-legacy-output.mjs` cover complete selector output, bounded storage and
+historical display-text refusal. `capacity-config.mjs` checks all real resource
+declarations and effective local barriers. `shared-config.mjs` checks the narrow
+heavy-command opt-in and exclusion guards. `graph-ephemeral.mjs` and
+`graph-missing-control.mjs` exercise real owned servers and failure before listen.
+
+The root policy is a Lab candidate. Nothing in these artifacts migrates unrelated
+active sessions, creates formal Story credentials, integrates main, or proves
+whole-Story delivery time. Independent Claude reports and all before/after logs
+are packaged separately in the followthrough artifact directory.

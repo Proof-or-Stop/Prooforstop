@@ -249,3 +249,13 @@ fallback remains non-reusable. Historical v1 receipts that contain truncated or
 redacted display text cannot prove a nonempty selector; they refuse with
 `causal_legacy_selector_output_unproven` and require fresh execution. Plain complete
 legacy output remains compatible. No historical credential is silently rewritten.
+
+The Lab root opts into shared execution for one measured eligible heavy command:
+`tool-executed-evidence-receipt-smoke.js`. Its explicit input binds the command
+artifact in addition to automatic implementation, material, environment and
+workspace bindings. Dynamic selection remains observe. Short assertion suites
+are not opted in merely to increase the eligibility count. Both DONE commands
+retain build/full-suite exclusions; 0/2 DONE eligibility is the intended policy,
+not a switch left disconnected. The root full-suite inventory does not contain
+this heavy command, so the isolated two-consumer experiment proves conditional
+reuse, not that those two root inventories duplicate this work.
