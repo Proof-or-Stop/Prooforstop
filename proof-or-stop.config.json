@@ -84,6 +84,11 @@
             "class": "fixed-path",
             "key": "scripts",
             "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
           }
         ]
       },

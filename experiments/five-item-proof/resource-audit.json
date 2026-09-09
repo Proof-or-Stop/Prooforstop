@@ -58,7 +58,29 @@
           "access": "shared"
         }
       ],
-      "unknowns": []
+      "unknowns": [],
+      "supersededBy": {
+        "classification": "exclusive-build-precheck",
+        "reason": "The precheck remains read-only, but its local barrier ensures the following exclusive build runs before later compiled consumers. A real executor stale/missing-build control reproduces the ordering failure without it.",
+        "reference": "docs/validation-performance.md; independent claude-build-order-audit/report.md and experiments/five-item-proof/build-order.mjs",
+        "effectiveResources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
+      }
     },
     {
       "commandIndex": 1,
@@ -442,7 +464,8 @@
             "key": "proof-or-stop.config.json",
             "access": "shared"
           }
-        ]
+        ],
+        "effectiveArgv": "node packages/main/dist/tasks/quorum-submit-smoke.js --jobs=4"
       }
     },
     {

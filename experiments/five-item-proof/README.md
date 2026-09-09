@@ -41,6 +41,8 @@ node experiments/five-item-proof/evidence-implementation.mjs
 node experiments/five-item-proof/complete-output-adversarial.mjs
 node experiments/five-item-proof/output-retention-contract.mjs
 node experiments/five-item-proof/exit-legacy-output.mjs
+node experiments/five-item-proof/build-order.mjs
+node experiments/five-item-proof/resource-audit-contract.mjs
 node experiments/five-item-proof/capacity-config.mjs
 node experiments/five-item-proof/shared-config.mjs
 node experiments/five-item-proof/quorum-plan-controls.mjs
