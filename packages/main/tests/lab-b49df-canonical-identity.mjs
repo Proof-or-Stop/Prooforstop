@@ -42,7 +42,7 @@ assert.ok(storyWriters.length > 0);
 const admitted = storyWriters.filter((command) => classifyRuntimeEntrypointAuthority({
   command,
   commandArgs: ['{"storyId":"B-lab"}'],
-  projectRoot: resolve(repoRoot, '..'),
+  projectRoot: resolve(repoRoot, '..', '..'),
   invokedEntrypoint: join(repoRoot, 'bin', 'proof-or-stop.js'),
   loadedCorePackageRoot: packageRoot,
   env: {},
