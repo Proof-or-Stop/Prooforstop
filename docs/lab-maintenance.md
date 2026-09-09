@@ -45,6 +45,67 @@ Keep hooks enabled and preserve prompt plus mechanical enforcement for process
 facts. Local records are not formal Story REVIEW, TEST, DONE, or signed
 artifact/capability-release evidence. No Story JSON is created or advanced.
 
+## Carry a blocked Story patch
+
+An explicitly authorized Lab may carry one clean Story patch when its intended
+behavior is complete but unrelated repository-baseline failures prevent lifecycle
+closure. This is an integration exception, not a way to mark the source Story
+DONE:
+
+```sh
+npm run lab:worktree -- carry repair-name \
+  --story B-xxxx \
+  --source /absolute/path/to/.worktrees/B-xxxx \
+  --confirm
+```
+
+The action accepts only the matching registered `story/B-xxxx` worktree in
+REVIEW or TEST. The source must be clean, every checklist item must be done,
+there must be no open Finding, and the executed validation artifact must report
+complete mechanical intent coverage bound to one `storyFilesHash`. Every failed
+validation command is rerun on current local main with the same executable and
+argv; a command that passes on main, changes exit code, cannot execute, or would
+raise the bounded failure count above five stops the import.
+
+If main advances after capture and a command that PASSed in the source evidence
+now fails, preserve it without repairing unrelated code:
+
+```sh
+npm run lab:worktree -- baseline repair-name \
+  --expect 'specific current-main failure marker' --confirm -- \
+  node path/to/exact-recorded-command.js
+```
+
+The command must exactly match a PASS row in the carried full validation, must
+now fail on main with the named marker, and must not change main. Duplicate or
+invented commands are refused. The supplemental witness invalidates GREEN and
+joins the same latest-main, built-candidate, and post-merge parity checks.
+
+The Lab stores the source head, evidence head, material and Story-files hashes,
+command counts, both failure-output digests and bounded tails, patch digest, and
+imported paths in its HMAC-bound local record. It applies only the source diff
+outside `.proof-or-stop/`; Story state, phases, findings, passes, receipts, and
+other lifecycle metadata are never copied or rewritten. Commit and review the
+staged patch, then rerun `green`. Release notes disclose the source Story and
+state explicitly that the carry-forward is not Story DONE.
+
+Ordinary Lab finish still requires clean main. For a Story carry-forward only,
+pre-existing dirty main files may remain when they do not overlap any candidate
+path. Finish records their path set and content/index fingerprint, checks it
+before integration and after every main-side build or verification step, and
+stops if any byte, staging state, path, or overlap changes. It never stashes,
+commits, restores, or copies those unrelated files.
+
+This rule preserves evidence instead of treating a repository-wide FAIL as a
+PASS. It proves only that all remaining failed commands also fail on main at the
+time of capture; different failure output remains visible in the record and is
+not claimed to have the same root cause. Finish repeats those exact baseline
+commands against the latest main and treats its current exit codes as the
+integration oracle. A failure fixed on main must remain fixed in the built
+candidate; a failure still present on main must retain the same exit code. The
+built candidate and post-merge main both replay every carried command, and any
+parity change stops the release.
+
 ## Explicit release and cleanup
 
 Only after the user asks to integrate the repair, prepare an English notes file

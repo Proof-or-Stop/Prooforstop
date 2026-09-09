@@ -1736,9 +1736,10 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-8a40 current-Story admission: this is a single test-only call site, not a
   // general loader exemption. Executable drift revokes it; the provenance
   // controls below also reject rebinding/widening even under a refreshed hash.
-  // B-49df keeps the independently reviewed active-identity mutation controls
-  // while the main receipt-fanout merge leaves this loader call site unchanged.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '96360e090f024bc7f7edbef940306c1deea141ed381ea6daf42da95eecd739b0'],
+  // B-7abb's bounded reference witnesses and B-49df's active-identity mutation
+  // controls are both present. The fixed producer, loader relation, anchor,
+  // argument and node:url provenance remain protected.
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '202e04839a3e2eac0ef6b9ec93ff00052f55047a8d0d39575c72396ad9d56399'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH

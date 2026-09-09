@@ -1021,6 +1021,151 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
   return false;
 }
 
+/**
+ * Recognize a complete implementation-reference sentence before generic sentence
+ * segmentation splits decimal section numbers. This is a finite relation, not
+ * an exemption for a Story ID, a source field, or the rest of the input. The
+ * dependency tail is prose only: dependency completion still belongs to its gate.
+ * Keep controlled-triage evaluation on the original input below.
+ */
+const BOUNDED_PLAN_REFERENCE_SOURCE = 'implement\\s+section\\s+([1-9][0-9]*(?:\\.[0-9]+)*)\\s+of\\s+the\\s+(?:accepted|approved)\\s+dynamic\\s+finding(?:\\s+system)?(?:\\s+execution)?\\s+plan';
+const BOUNDED_PLAN_DEPENDENCY_SOURCE = '\\s+after\\s+b\\s+([a-f0-9]{4})\\s+is\\s+accepted\\s+and\\s+merged';
+const BOUNDED_PLAN_COREFERENT_AUTHORITY_SOURCE = '(?:its|this|that)\\s+(?:rules?|authority|runtime|contract|policy|policies)';
+const BOUNDED_PLAN_COREFERENT_PRONOUN_SOURCE = '(?:it|them|these|those|the\\s+(?:same|former|latter))';
+const BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE = '(?:this|that)';
+const BOUNDED_PLAN_CONTINUATION_TARGET_SOURCE = `(?:${BOUNDED_PLAN_COREFERENT_AUTHORITY_SOURCE}|${BOUNDED_PLAN_COREFERENT_PRONOUN_SOURCE}|${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE})`;
+const BOUNDED_PLAN_CONTINUATION_MODIFIER_TOKEN_SOURCE = '(?:then|please|kindly|immediately|promptly|now|next|also)';
+const BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE = `(?:${BOUNDED_PLAN_CONTINUATION_MODIFIER_TOKEN_SOURCE}\\s+){0,5}`;
+const BOUNDED_PLAN_CONTINUATION_MODIFIER_SUFFIX_SOURCE = `(?:\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_TOKEN_SOURCE}){0,5}`;
+const BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE = `(?:${BOUNDED_PLAN_CONTINUATION_MODIFIER_TOKEN_SOURCE}\\s+)*`;
+const BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE = `(?:\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_TOKEN_SOURCE})*`;
+const BOUNDED_PLAN_CONTINUATION_COPULA_SOURCE = '(?:am|is|are|was|were)';
+const BOUNDED_PLAN_OBLIGATION_DETECTION_SOURCE = `${BOUNDED_PLAN_CONTINUATION_COPULA_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:required\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}to\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}|to\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?)`;
+const BOUNDED_PLAN_OBLIGATION_SAFE_NEGATIVE_SOURCE = `${BOUNDED_PLAN_CONTINUATION_COPULA_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:required\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE})?(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}to\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}|to\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE})`;
+const BOUNDED_PLAN_CONTINUATION_ACTOR_SOURCE = '(?:(?:i|you|we|they|it|this\\s+story|the\\s+story|this\\s+implementation|the\\s+implementation)\\s+)?';
+const BOUNDED_PLAN_SAFE_ACTIVE_ACTOR_SOURCE = '(?:(?:i|you|we|they|it|this|that|this\\s+story|the\\s+story|this\\s+implementation|the\\s+implementation)\\s+)?';
+const BOUNDED_PLAN_CONTINUATION_MODAL_SOURCE = '(?:(?:(?:must|should|shall|will|may|can|could|would)\\s+)|(?:(?:need|needs|ought)\\s+to\\s+))?';
+const BOUNDED_PLAN_SAFE_INSPECTION_SOURCE = '(?:audit\\w*|check\\w*|cite\\w*|describe\\w*|inspect\\w*|quote\\w*|read\\w*|review\\w*|summarize\\w*|test\\w*|validate\\w*|verify\\w*)';
+const BOUNDED_PLAN_NEGATED_MUTATION_SOURCE = '(?:amend\\w*|alter\\w*|chang\\w*|modif\\w*|rewrit\\w*|overrid\\w*|replac\\w*|revis\\w*|extend\\w*|updat\\w*)';
+const BOUNDED_PLAN_STABLE_STATE_SOURCE = '(?:unchanged|preserved|retained|unmodified)';
+const BOUNDED_PLAN_UNSAFE_RESIDUAL_PREDICATE_SOURCE = `(?:${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}|review\\w*)`;
+
+function boundedPlanReferenceMatcher(withCanonicalRawDependency: boolean): RegExp {
+  const dependency = withCanonicalRawDependency
+    ? '\\s+after\\s+b-([a-f0-9]{4})\\s+is\\s+accepted\\s+and\\s+merged'
+    : BOUNDED_PLAN_DEPENDENCY_SOURCE;
+  return new RegExp(`(^|[.!?;])\\s*${BOUNDED_PLAN_REFERENCE_SOURCE}${dependency}(?=\\s*(?:[.!?;]|$))`, 'giu');
+}
+
+function hasMalformedBoundedPlanDependency(text: string): boolean {
+  const normalizedMatches = [...normalizeTriageAuthorityText(text).matchAll(boundedPlanReferenceMatcher(false))];
+  if (normalizedMatches.length === 0) return false;
+  const canonicalRawMatches = [...text.normalize('NFKC').matchAll(boundedPlanReferenceMatcher(true))];
+  return canonicalRawMatches.length !== normalizedMatches.length;
+}
+
+function hasUnsafeBoundedPlanReferenceContinuation(text: string): boolean {
+  const normalized = normalizeTriageAuthorityText(text);
+  const matcher = new RegExp(
+    `(^|[.!?;])\\s*${BOUNDED_PLAN_REFERENCE_SOURCE}(?:${BOUNDED_PLAN_DEPENDENCY_SOURCE})?(?=\\s*(?:[.!?;]|$))`,
+    'giu',
+  );
+  const coreferentAuthority = new RegExp(`\\b${BOUNDED_PLAN_COREFERENT_AUTHORITY_SOURCE}\\b`, 'u');
+  const coreferentPronoun = new RegExp(`\\b${BOUNDED_PLAN_COREFERENT_PRONOUN_SOURCE}\\b`, 'u');
+  const bareDemonstrativeObjectTarget = new RegExp(
+    `\\b${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE}\\b${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  const bareDemonstrativeSubjectTarget = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:`
+      + `(?:(?:(?:must|should|shall|will|may|can|could|would|is|are|was|were)\\s+)|(?:(?:need|needs|ought)\\s+to\\s+)|(?:${BOUNDED_PLAN_OBLIGATION_DETECTION_SOURCE}))`
+      + `${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?`
+      + `(?:(?:be|been|being)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}`
+      + `(?=${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}(?:$|\\s+(?:${BOUNDED_PLAN_COREFERENT_AUTHORITY_SOURCE}|${BOUNDED_PLAN_COREFERENT_PRONOUN_SOURCE})${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}$))`
+      + `|(?:is|are|was|were|remain|remains|remained)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:unchanged|preserved|retained|unmodified)${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}$)`,
+    'u',
+  );
+  const bareDemonstrativeResidualTarget = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:`
+      + `(?:(?:(?:must|should|shall|will|may|can|could|would|is|are|was|were)\\s+)|(?:(?:need|needs|ought)\\s+to\\s+)|(?:${BOUNDED_PLAN_OBLIGATION_DETECTION_SOURCE}))`
+      + `${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?`
+      + `(?:be|been|being)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}`
+      + `|(?:is|are|was|were)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}`
+      + `|(?:is|are|was|were|remain|remains|remained)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:unchanged|preserved|retained|unmodified)${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE})\\s+\\S`,
+    'u',
+  );
+  const bareDemonstrativeActiveResidualTarget = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}`
+      + `(?:(?:(?:must|should|shall|will|may|can|could|would)\\s+)|(?:(?:need|needs|ought)\\s+to\\s+))`
+      + `${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}`
+      + `\\s+(?:(?:and|but|or|yet|so)\\s+)?${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}`
+      + `(?:(?:be|been|being)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?`
+      + `${BOUNDED_PLAN_UNSAFE_RESIDUAL_PREDICATE_SOURCE}${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  const bareDemonstrativeNegativeStableStateTarget = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_BARE_DEMONSTRATIVE_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}`
+      + `(?:`
+      + `(?:(?:do|does|did|must|should|shall|will|may|can|could|would)\\s+)${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}`
+      + `(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:remain|remains|remained)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}${BOUNDED_PLAN_STABLE_STATE_SOURCE}`
+      + `|(?:(?:must|should|shall|will|may|can|could|would|is|are|was|were)\\s+)${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}`
+      + `(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE}(?:(?:be|been|being)\\s+${BOUNDED_PLAN_CONTINUATION_DETECTION_MODIFIER_SOURCE})?${BOUNDED_PLAN_STABLE_STATE_SOURCE}`
+      + `)\\b`,
+    'u',
+  );
+  const safeInspection = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_CONTINUATION_ACTOR_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODAL_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_SAFE_INSPECTION_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_TARGET_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  const safeActiveNegative = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_SAFE_ACTIVE_ACTOR_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:(?:(?:(?:do|does|did|must|should|shall|will|may|can|could|would)\\s+)?${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:to\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE})?)|${BOUNDED_PLAN_OBLIGATION_SAFE_NEGATIVE_SOURCE})${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_TARGET_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  const safePassiveNegative = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_CONTINUATION_TARGET_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:(?:(?:must|should|shall|will|may|can|could|would|is|are|was|were)\\s+)${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:not|never)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}|${BOUNDED_PLAN_OBLIGATION_SAFE_NEGATIVE_SOURCE})(?:(?:be|been|being)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE})?${BOUNDED_PLAN_NEGATED_MUTATION_SOURCE}${BOUNDED_PLAN_CONTINUATION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  const safeStableState = new RegExp(
+    `^${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}${BOUNDED_PLAN_CONTINUATION_TARGET_SOURCE}\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:is|are|was|were|remain|remains|remained)\\s+${BOUNDED_PLAN_CONTINUATION_MODIFIER_SOURCE}(?:unchanged|preserved|retained|unmodified)${BOUNDED_PLAN_CONTINUATION_MODIFIER_SUFFIX_SOURCE}$`,
+    'u',
+  );
+  for (const match of normalized.matchAll(matcher)) {
+    const tail = normalized.slice((match.index ?? 0) + match[0].length);
+    const continuations = tail.split(/[.!?;\n]+/u).map(value => value.trim()).filter(Boolean);
+    // The bounded plan reference itself is the antecedent. Keep that authority
+    // live for every remaining clause, including an immediate bare pronoun or
+    // finite nominal shorthand such as "the same" and "the latter".
+    let coreferentAuthoritySeen = true;
+    for (const continuation of continuations) {
+      const hasDirectAuthority = coreferentAuthority.test(continuation);
+      const hasLivePronoun = coreferentAuthoritySeen
+        && (coreferentPronoun.test(continuation)
+          || bareDemonstrativeObjectTarget.test(continuation)
+          || bareDemonstrativeSubjectTarget.test(continuation)
+          || bareDemonstrativeResidualTarget.test(continuation)
+          || bareDemonstrativeActiveResidualTarget.test(continuation)
+          || bareDemonstrativeNegativeStableStateTarget.test(continuation));
+      if (!hasDirectAuthority && !hasLivePronoun) continue;
+      const explicitlySafe = safeInspection.test(continuation)
+        || safeActiveNegative.test(continuation)
+        || safePassiveNegative.test(continuation)
+        || safeStableState.test(continuation);
+      if (!explicitlySafe) return true;
+      if (hasDirectAuthority) coreferentAuthoritySeen = true;
+    }
+  }
+  return false;
+}
+
+function maskBoundedPlanImplementationReferences(text: string): string {
+  const normalized = normalizeTriageAuthorityText(text);
+  const reference = new RegExp(
+    `(^|[.!?;])\\s*${BOUNDED_PLAN_REFERENCE_SOURCE}(?:${BOUNDED_PLAN_DEPENDENCY_SOURCE})?(?=\\s*(?:[.!?;]|$))`,
+    'giu',
+  );
+  return normalized.replace(reference, '$1 bounded plan implementation reference');
+}
+
 function reviewerTaskContextAuthoritySourceIsMetaSafe(source: ReviewerTaskContextAuthoritySource): boolean {
   if (isPureInterrogative(source.text)
     || isExplicitFailClosedQuotedFixture(source.text)
@@ -1031,13 +1176,19 @@ function reviewerTaskContextAuthoritySourceIsMetaSafe(source: ReviewerTaskContex
 
 function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySource): ReviewTriageAuthorityViolation | null {
   if (reviewerTaskContextAuthoritySourceIsMetaSafe(source)) return null;
+  if (hasMalformedBoundedPlanDependency(source.text)
+    || hasUnsafeBoundedPlanReferenceContinuation(source.text)) {
+    return 'Dynamic Finding authority amendment asserted from Task Context';
+  }
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   const segments = triageAuthoritySegments(source.text);
   const controlledViolation = controlledTriageViolation(
     classifyControlledTriageRelations(source.text, segments),
   );
   if (controlledViolation) return controlledViolation;
-  for (const segment of segments) {
+  // Only the complete bounded reference is projected away. Other sentences,
+  // conjunction tails and fields retain the same fail-closed authority checks.
+  for (const segment of triageAuthoritySegments(maskBoundedPlanImplementationReferences(source.text))) {
     if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }

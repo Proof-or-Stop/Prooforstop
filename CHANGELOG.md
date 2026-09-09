@@ -1,5 +1,43 @@
 # Changelog
 
+## Lab story-evidence-carry-forward - v0.3.289 - 2026-09-09
+
+Add an open, bounded Story evidence carry-forward rule to Temporary Lab maintenance.
+
+The rule addresses a lifecycle convergence case where a Story has completed its scoped implementation, checklist, mechanical verification intents, and a full configured validation run, but cannot advance because a small set of repository-baseline commands also fail on current main. Previously, the only options were to expand the Story into unrelated repairs, repeat the full suite without a state change, or leave the completed patch stranded.
+
+`lab-worktree carry` now accepts one explicitly identified, clean `story/B-xxxx` worktree in REVIEW or TEST. It verifies that every checklist item is done, no Finding remains open, required verification coverage is complete and mechanical, all receipts bind the same Story-files hash, the validation plan ran every recorded command, and no product change followed the evidence head. It permits at most five failed commands and reruns each exact executable and argv on current main. The command records source and main output digests and bounded tails without asserting that different output has the same root cause.
+
+The carried patch excludes all `.proof-or-stop/` Story state. Its source head, evidence head, material hash, Story-files hash, patch hash, command counts, baseline witnesses, and imported paths are retained in the HMAC-bound local Lab record. Finish reruns the baseline witnesses against the latest main before integration and treats those fresh results as the release oracle. If main has already repaired a former failure, the candidate and post-merge main must preserve that PASS; if a failure remains, both must reproduce its latest-main exit code. This prevents stale historical failures from blocking a safe improvement while still rejecting a regression caused by the carried patch.
+
+For carry-forward only, unrelated dirty main files may remain when they do not overlap the candidate. Their path set, content, and index state are fingerprinted and checked around every main-side action. The Lab never stashes, restores, commits, copies, or removes that unrelated work. Ordinary Lab maintenance continues to require clean main.
+
+The rule was developed with a committed RED fixture and a GREEN fixture covering explicit confirmation, registered Story identity, evidence admission, baseline reproduction, Story-metadata exclusion, patch import, provenance retention, latest-main recheck, dirty-main byte preservation, fast-forward integration, and cleanup. The existing Lab worktree regression suite also passes. B-7abb was captured with 11 mechanical intents, 134 executed validation commands, three failures reproduced on the then-current main, and eight non-Story paths imported. Before finish, the latest main had repaired the ProofStory acceptance-basis failure and the Lab oracle recognized that PASS; the two remaining validation-planner/protocol failures stayed isolated as baseline evidence. Its focused signed reviewer-launch, process-fact, and Graph write-boundary checks pass on the combined Lab candidate.
+
+This release integrates the B-7abb product patch through the disclosed Lab exception. It does not mark B-7abb DONE, convert its failed repository-wide validation into PASS, or copy formal Story credentials into Lab.
+
+Maintenance provenance: codex/lab-story-evidence-carry-forward, repair e5becc330833bed937eaa4224914af29717885da.
+Story carry-forward provenance (not Story DONE): B-7abb at 3ba5cbc15ae022508f2f3bffe4515ad65066c731; storyFilesHash 0629e60fb56b0d329f14fdee47eacb26a56c108c0a0ae3b7dd2ab6981a8841eb; 11 mechanical intents; 134 validation commands; 3 failures reproduced on main.
+
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-story-carry-forward.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-main-topology-green-20260909 - v0.3.288 - 2026-09-09
+
+The B-49df canonical-identity regression test derived the main repository root by
+walking up a fixed number of directories. That worked inside a nested Lab
+worktree but failed after the candidate was integrated into the main checkout.
+
+The test now resolves Git's absolute common directory and derives the canonical
+main checkout from it. The focused source invariant changed from RED to GREEN,
+and the complete canonical-identity test passes from the Lab topology. This is a
+test-fixture portability repair only; it does not change product behavior or
+historical Story data.
+
+Maintenance provenance: codex/lab-b49df-main-topology-green-20260909, repair e3f56d74f3b9b3ba9447700383c0e5644c98dbfc.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"scripts/lab-worktree.mjs\",\"utf8\");if(s.includes(\"...(s.bump ? versions.VERSION_SYNC_PATHS : [])\")){console.error(\"dynamic version files are not staged\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b49df-canonical-identity-20260909 - v0.3.287 - 2026-09-09
 
 # Canonical active Proof-or-Stop identity

@@ -35,23 +35,30 @@ const pkgRoot = path.resolve(here, '..');
 const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: pkgRoot, encoding: 'utf8' }).trim();
 
 const STRUCTURAL_PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)/;
-const STATE_DIR_VOLATILE = /^(?:\.proof-or-stop|\.lattice)\/(?:activity\.jsonl$|(?:runtime|locks|traces|usage|learning)\/|artifacts\/baseline\/|benchmarks\/memory-playbook\/|story\/actives\/[^/]+\/(?:activity\.jsonl$|owner-lease\.json$|takeover-count\.json$|gate-failure-counts\.json$|breaker-state\.json$|causal-evidence\/))/;
+const STATE_DIR_VOLATILE = /^(?:\.proof-or-stop|\.lattice)\/(?:activity\.jsonl$|(?:[^/]+\/)*[^/]+\.lock\/|(?:runtime|locks|traces|usage|learning)\/|artifacts\/baseline\/|benchmarks\/memory-playbook\/|story\/actives\/[^/]+\/(?:activity\.jsonl$|owner-lease\.json$|takeover-count\.json$|gate-failure-counts\.json$|breaker-state\.json$|causal-evidence\/))/;
 const ROOT_VOLATILE = /^(?:docs\/story\/activity\.jsonl|\.proof-or-stop-serve\.json|proof-or-stop-debug\.log|browser-test\.log|\.proof-or-stop-tmp-[^/]+(?:\/.*)?)$/;
 const shouldPrune = (rel) => STRUCTURAL_PRUNED.test(rel) || STATE_DIR_VOLATILE.test(rel) || ROOT_VOLATILE.test(rel);
 
-/* Regression contract for the validator race seen while closing B-aa5f. These
+/* Regression contract for the validator races seen in B-7abb and B-aa5f. These
    files are runtime-owned and may change while this subprocess is running;
-   ordinary Story evidence, source, and ignored graph assets must remain measured. */
+   ordinary Story evidence, source, and ignored graph assets remain measured. */
 const expectedRuntimePrunes = [
   '.proof-or-stop/activity.jsonl',
-  '.proof-or-stop/runtime/validation-traces/B-aa5f.jsonl',
+  '.proof-or-stop/runtime/validation-traces/B-7abb.jsonl',
   '.proof-or-stop/locks/validation-capacity.lock/heartbeat.json',
+  '.proof-or-stop/story/actives/B-7abb/review-runs.json.lock/holder.json',
+  '.proof-or-stop/story/actives/B-7abb/activity.jsonl',
+  '.proof-or-stop/story/actives/B-7abb/owner-lease.json',
+  '.proof-or-stop/story/actives/B-7abb/breaker-state.json',
+  '.lattice/story/actives/B-7abb/gate-failure-counts.json',
+  '.proof-or-stop/runtime/validation-traces/B-aa5f.jsonl',
   '.proof-or-stop/story/actives/B-aa5f/activity.jsonl',
   '.proof-or-stop/story/actives/B-aa5f/owner-lease.json',
   '.proof-or-stop/story/actives/B-aa5f/breaker-state.json',
   '.lattice/story/actives/B-aa5f/gate-failure-counts.json',
 ];
 const expectedMeasuredPaths = [
+  '.proof-or-stop/story/actives/B-7abb/index.json',
   '.proof-or-stop/story/actives/B-aa5f/index.json',
   '.proof-or-stop/dev-memory/experience.jsonl',
   'packages/graph/assets/index.html',
@@ -92,8 +99,8 @@ const snapshot = () => {
     .split('\0').filter(Boolean);
   const listed = [...new Set([
     ...run(['ls-files', '-z', '--cached', '--others', '--exclude-standard']),
-    ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']).filter(p => !shouldPrune(p)),
-  ])];
+    ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']),
+  ])].filter(p => !shouldPrune(p));
   const hash = createHash('sha256');
   for (const rel of listed.sort()) {
     hash.update(rel);
