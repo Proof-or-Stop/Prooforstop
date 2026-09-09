@@ -32,6 +32,7 @@ import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { resetConfigCache } from '../core/config.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -1068,6 +1069,12 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       timestamp: now,
     } as any);
 
+    // Generate the verifier-owned PLAN artifact through its handler before
+    // introducing drift; the transition now consumes this prerequisite.
+    process.chdir(root);
+    createProofStoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .acceptance_basis_generate({ storyId, json: true });
+
     // ── 3. Simulate the main merge: change material file + commit ──────────
     // (This drifts both headHash and materialHash relative to the pinned
     //  evidence; freshness check should report stale.)
@@ -1208,6 +1215,15 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       'story_advance and validate blocks must be byte-identical');
     assert.equal(briefBlock, validateBlock,
       'session_brief and validate blocks must be byte-identical');
+
+    // Heavy recovery runs only after ownership and certification admission.
+    const recoveryStory = store.readStory(storyId);
+    recoveryStory.phase = 'TEST';
+    store.writeStory(storyId, recoveryStory);
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'recover-evidence-smoke', cwd: root });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
 
     // ── 8. End-to-end recover_evidence happy path ──────────────────────────
     // No non-metadata dirt in worktree → recover must refresh + revalidate.
