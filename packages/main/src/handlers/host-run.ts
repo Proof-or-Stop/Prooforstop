@@ -1,3 +1,4 @@
+import { renderManagedRunDurationEstimate } from '../core/managed-run-duration-estimate.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the `host_run` CLI command.
  *
@@ -862,7 +863,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         ? ` terminal=${status.run.terminal.state}:${status.run.terminal.reason}`
         : '';
       const receipt = status.receipt ? ` receiptId=${status.receipt.receiptId}` : '';
-      return `${status.run.runId} state=${status.run.state} stage=${status.run.stage.number}/${status.run.stage.total}:${status.run.stage.name} generation=${status.run.generation} deadlineAt=${status.run.deadlineAt} workerHeartbeatAt=${status.run.workerHeartbeatAt ?? 'none'} providerProgressMode=${status.run.providerProgressMode} lastProviderProgressAt=${status.run.lastProviderProgressAt ?? 'none'} replacementSafe=${status.run.replacementSafe}${status.run.supervisionDiagnostic ? ` diagnostic=${status.run.supervisionDiagnostic.code}: ${status.run.supervisionDiagnostic.action}` : ''}${terminal}${receipt}`;
+      return `${status.run.runId} state=${status.run.state} stage=${status.run.stage.number}/${status.run.stage.total}:${status.run.stage.name} generation=${status.run.generation} deadlineAt=${status.run.deadlineAt} ${renderManagedRunDurationEstimate(status.run.durationEstimate)} workerHeartbeatAt=${status.run.workerHeartbeatAt ?? 'none'} providerProgressMode=${status.run.providerProgressMode} lastProviderProgressAt=${status.run.lastProviderProgressAt ?? 'none'} replacementSafe=${status.run.replacementSafe}${status.run.supervisionDiagnostic ? ` diagnostic=${status.run.supervisionDiagnostic.code}: ${status.run.supervisionDiagnostic.action}` : ''}${terminal}${receipt}`;
     },
 
     async host_run_cancel(args: HostRunCancelCommandArgs) {

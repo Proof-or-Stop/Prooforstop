@@ -80,6 +80,10 @@ async function main() {
   check([...entryPreflight.matchAll(/^import .* from ['"]([^'"]+)['"]/gm)].every(match => match[1].startsWith('node:')),
     'entry diagnostics must bootstrap using only Node builtins');
   check(registrySource.includes('MANAGED_SUPERVISOR_RUNTIME_POLICY'), 'autonomous managed supervisor policy must be registered');
+  check(registrySource.includes('MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY'), 'historical duration observation boundary must be registered');
+  const durationSource = read(root, 'packages/main/src/core/managed-run-duration-estimate.ts');
+  check(durationSource.includes('MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY') && durationSource.includes('historical_estimate')
+    && durationSource.includes('unavailable'), 'duration estimates must share runtime policy and retain explicit uncertainty');
   check(registrySource.includes('MANAGED_STATUS_OBSERVATION_POLICY'), 'managed status cursor semantics must be registered');
   const managedStatusSource = read(root, 'packages/main/src/core/managed-host-run.ts');
   check(managedStatusSource.includes('args.afterGeneration === undefined && run.terminal !== null')

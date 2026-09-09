@@ -9341,6 +9341,10 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+const durationManagedSource = readFileSync(join(root, 'packages/main/src/core/managed-host-run.ts'), 'utf8');
+assert(durationManagedSource.includes('durationEstimate: captureManagedRunDurationEstimate(args, createdAt)')
+  && durationManagedSource.includes('durationEstimate: spec.durationEstimate ??'),
+  'managed duration estimates must be sampled at submit and projected from sealed spec, not status IO');
 const fastDiagnosticSource = readFileSync(join(root, 'scripts/run-precert-fast.mjs'), 'utf8');
 assert(fastDiagnosticSource.includes("authority:'diagnostic-only'") && fastDiagnosticSource.includes('writesStoryEvidence:false'),
   'local pre-cert fast diagnostics must not mint Story authority');

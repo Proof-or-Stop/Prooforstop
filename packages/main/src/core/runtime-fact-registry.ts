@@ -223,3 +223,16 @@ export const PRECERT_FAST_RUNTIME_POLICY = {
   processOwner: 'full-suite-runner-isolated-run-state',
   authority: 'diagnostic-until-consumed-by-validate',
 } as const;
+
+/** Local duration estimates are optional observations, never progress or evidence. */
+export const MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY = {
+  minSamples: 5, maxSamples: 20, maxDirectoryEntries: 256,
+  maxCandidateArtifactBytes: 16 * 1024 * 1024, maxArtifactBytes: 1024 * 1024,
+  scanTargetMs: 200, maxAgeMs: 30 * 24 * 60 * 60 * 1000,
+  sampleBoundary: 'same-host-phase-agent-profile-lane-completed-replacement-safe',
+  acquisition: 'once-before-spec-sealing',
+  timeBudgetBoundary: 'between-candidates-not-hard-IO-deadline',
+  byteBudgetBoundary: 'candidate-artifact-size-not-physical-read-count',
+  statusHistoryReads: 'none',
+  authority: 'diagnostic-only',
+} as const;

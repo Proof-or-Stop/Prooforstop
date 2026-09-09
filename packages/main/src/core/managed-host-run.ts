@@ -1,3 +1,4 @@
+import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
 import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
@@ -24,6 +25,8 @@ import {
   mkdirSync,
   mkdtempSync,
   openSync,
+  opendirSync,
+  lstatSync,
   realpathSync,
   readFileSync,
   readSync,
@@ -332,6 +335,7 @@ export interface ManagedHostRunProjection {
   state: ManagedHostRunState;
   generation: number;
   stage: ManagedRunStage;
+  durationEstimate: ManagedRunDurationEstimate;
   supervisionDiagnostic: ManagedSupervisionDiagnostic | null;
   providerClosedAt: string | null;
   createdAt: string;
@@ -497,6 +501,8 @@ export interface ManagedReviewScratchCleanupDiagnostic {
 }
 
 interface ManagedHostRunSpec {
+  /** Sampled once at submission; sealed by the existing immutable spec binding. */
+  durationEstimate?: ManagedRunDurationEstimate;
   /** Immutable supervisor cost limit; absent only for older managed specs. */
   burnTokenLimit?: number;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
@@ -1719,6 +1725,50 @@ function pidAlive(pid: number | null): boolean {
   }
 }
 
+/** Bounded read-only history sampling happens once, never in status/heartbeat polling. */
+function captureManagedRunDurationEstimate(args: ManagedHostRunSubmitArgs, createdAt: string): ManagedRunDurationEstimate {
+  const policy = MANAGED_DURATION_ESTIMATE_POLICY;
+  const samples: ManagedRunDurationSample[] = [];
+  const started = performance.now();
+  let remainingBytes = policy.maxCandidateArtifactBytes as number;
+  let directory: ReturnType<typeof opendirSync> | undefined;
+  try {
+    directory = opendirSync(managedHostRunsRoot(args.root));
+    for (let index=0; index<policy.maxDirectoryEntries && performance.now()-started<policy.scanTargetMs; index++) {
+      const entry=directory.readSync(); if (!entry) break;
+      if (!entry.isDirectory()) continue;
+      try {
+        const paths=pathsFor(args.root,entry.name);
+        const files=[paths.spec,paths.owner,paths.snapshot,paths.terminal,paths.result,paths.events,
+          paths.output,paths.evidenceProposal,paths.evidenceBinding,paths.evidenceBindingSeal];
+        let bytes=0;
+        for (const path of files) {
+          if (!existsSync(path)) continue;
+          const stat=lstatSync(path);
+          if (!stat.isFile() || stat.size>policy.maxArtifactBytes) throw new Error('history artifact exceeds bounded read policy');
+          bytes+=stat.size;
+        }
+        if (bytes>remainingBytes) continue;
+        remainingBytes-=bytes;
+        const spec=readManagedHostRunSpec(paths).value;
+        if (spec.host!==args.host || spec.phase!==args.phase || spec.agentType!==args.agentType
+          || spec.profile!==(args.profile??null) || spec.lane!==(args.lane??null)) continue;
+        const terminal=readTerminal(paths);
+        if (!terminal || terminal.state!=='completed' || !terminal.replacementSafe) continue;
+        // Full current artifact bindings must hold; partial/tampered/censored runs are not samples.
+        assertSealedManagedHostRunArtifacts(paths,terminal);
+        const owner=readManagedHostRunOwner(paths);
+        if (owner.specDigest!==terminal.specDigest) continue;
+        const snapshot=readManagedHostRunSnapshot(paths);
+        if (snapshot.state!==terminal.state || snapshot.generation!==terminal.generation) continue;
+        samples.push({runId:spec.runId,durationMs:Date.parse(terminal.terminalAt)-Date.parse(spec.createdAt),terminalAt:terminal.terminalAt});
+      } catch { /* A malformed or concurrently reclaimed sample never changes the run's authority. */ }
+    }
+  } catch { /* History is optional diagnostics; an empty sample yields unavailable, never an invented ETA. */ }
+  finally { try { directory?.closeSync(); } catch { /* Optional diagnostics cannot fail submission. */ } }
+  return estimateManagedRunDuration(samples,createdAt);
+}
+
 function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
   if (existsSync(paths.snapshotEventTransition)) {
     throw new Error(`managed host run ${paths.expectedRunId}: snapshot/event recovery pending; supervisor recovery required`);
@@ -1771,6 +1821,7 @@ function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
     profile: spec.profile,
     state: terminal?.state ?? snapshot.state,
     generation: terminal?.generation ?? snapshot.generation,
+    durationEstimate: spec.durationEstimate ?? {kind:'unavailable',source:'bounded-local-completed-runs',sampleCount:0,reason:'legacy-run-without-estimate'},
     stage: managedRunStage({terminal:terminal !== null,state:snapshot.state,
       providerStarted:snapshot.providerIdentity !== null,providerClosed:!!snapshot.providerClosedAt}),
     supervisionDiagnostic: terminal ? null : snapshot.supervisionDiagnostic ?? null,
@@ -2273,6 +2324,7 @@ export async function submitManagedHostRun(
   const proposalInvocationKeys = isIsolatedReviewerProfile(args.profile) ? generateEd25519KeyPair() : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
+    durationEstimate: captureManagedRunDurationEstimate(args, createdAt),
     burnTokenLimit,
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
