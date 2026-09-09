@@ -2,7 +2,7 @@ import { executeSharedValidationCommand, type SharedValidationExecutionContext }
 import { execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
-import { loadConfig } from './config.js';
+import { loadConfig, type EvidenceCommandTimeoutOverrideConfig } from './config.js';
 import {
   classifyGitStatusRows,
   dirtyWorktreeClassifierOptionsForStory,
@@ -271,8 +271,20 @@ function commandCwd(projectRoot: string, cwd?: string): string {
 
 function trimOutput(output: string): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
-  const omitted = output.length - MAX_OUTPUT_CHARS;
-  return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
+  // Receipts verify exact selectors against this bounded capture. Retaining
+  // only the prefix made successful commands whose terminal proof line is at
+  // EOF indistinguishable from a selector-absent command. Keep both ends while
+  // preserving the same hard cap and making the omitted middle explicit.
+  let marker = '\n...[truncated output; retained prefix and suffix]...\n';
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const retained = Math.max(0, MAX_OUTPUT_CHARS - marker.length);
+    const omitted = output.length - retained;
+    marker = `\n...[truncated ${omitted} chars; retained prefix and suffix]...\n`;
+  }
+  const retained = Math.max(0, MAX_OUTPUT_CHARS - marker.length);
+  const prefixLength = Math.ceil(retained / 2);
+  const suffixLength = retained - prefixLength;
+  return output.slice(0, prefixLength) + marker + output.slice(-suffixLength);
 }
 
 /**
@@ -1503,7 +1515,10 @@ function runValidationCommandWithCompleteOutput(
     // a race with natural exit (ESRCH) or a missing pid degrades to a direct child.kill().
     const killTree = (signal: 'SIGTERM' | 'SIGKILL'): void => {
       const pid = child.pid;
-      if (pid === undefined) return;
+      // A non-positive/one PID is never a detached child process we own. In
+      // particular, negating 1 is POSIX's broadcast process target, so leave
+      // ambiguous state for normal close handling rather than signal it.
+      if (pid === undefined || !Number.isSafeInteger(pid) || pid <= 1) return;
       try {
         if (isWindows) {
           // Windows has no process groups/POSIX signals; force-kill the whole tree.
@@ -1587,6 +1602,71 @@ export const VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST: ReadonlySet<string> = ne
   'bun',
 ]);
 
+export interface EvidenceCommandIdentity {
+  executable: string;
+  args: string[];
+}
+
+function parseEvidenceTimeoutOverride(value: unknown): EvidenceCommandTimeoutOverrideConfig | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const keys = Object.keys(row).sort();
+  if (keys.join('\0') !== ['args', 'command', 'timeoutMs'].join('\0')) return null;
+  if (
+    typeof row.command !== 'string'
+    || row.command.length === 0
+    || row.command.trim() !== row.command
+    || /\s/.test(row.command)
+    || !VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST.has(row.command)
+  ) return null;
+  if (!Array.isArray(row.args) || !row.args.every(arg => typeof arg === 'string')) return null;
+  if (
+    typeof row.timeoutMs !== 'number'
+    || !Number.isSafeInteger(row.timeoutMs)
+    || row.timeoutMs <= 0
+    || row.timeoutMs > MAX_NODE_TIMER_DELAY_MS
+  ) return null;
+  return {
+    command: row.command,
+    args: [...row.args] as string[],
+    timeoutMs: row.timeoutMs,
+  };
+}
+
+/**
+ * Resolve an evidence-only timeout override by exact parsed executable and
+ * ordered argv identity. The complete override collection is one policy unit:
+ * malformed rows or duplicate identities fail closed to the bounded default.
+ * This never registers a routine validation command and never weakens the
+ * outer abort/deadline, which {@link runValidationCommand} still caps first.
+ */
+export function resolveEvidenceCommandTimeoutMs(
+  identity: EvidenceCommandIdentity,
+  overrides: unknown,
+  defaultMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+): number {
+  const boundedDefault = Math.max(1, Math.min(MAX_NODE_TIMER_DELAY_MS, Math.floor(defaultMs)));
+  if (!Array.isArray(overrides)) return boundedDefault;
+
+  const parsed: EvidenceCommandTimeoutOverrideConfig[] = [];
+  const identities = new Set<string>();
+  for (const value of overrides) {
+    const row = parseEvidenceTimeoutOverride(value);
+    if (!row) return boundedDefault;
+    const key = JSON.stringify([row.command, row.args]);
+    if (identities.has(key)) return boundedDefault;
+    identities.add(key);
+    parsed.push(row);
+  }
+
+  const match = parsed.find(row => (
+    row.command === identity.executable
+    && row.args.length === identity.args.length
+    && row.args.every((arg, index) => arg === identity.args[index])
+  ));
+  return match?.timeoutMs ?? boundedDefault;
+}
+
 /**
  * B-ec67: tokenize a pinned command string into executable + argv WITHOUT a shell.
  * Supports single/double quotes and backslash escapes so a command like
@@ -1664,6 +1744,11 @@ export interface SingleCommandExecutionResult {
   timeoutMs: number;
 }
 
+export interface SingleCommandExecutionOptions extends RunValidationCommandOptions {
+  cwd?: string;
+  timeoutMs?: number;
+}
+
 /**
  * B-ec67: run ONE allowlisted pinned command via the shared {@link runValidationCommand}
  * spawn path (per-command timeout, output capture, no shell on POSIX). Used by the
@@ -1678,17 +1763,60 @@ export interface SingleCommandExecutionResult {
 export async function runSingleAllowlistedCommand(
   command: string,
   projectRoot: string,
-  options: { cwd?: string; timeoutMs?: number } = {},
+  options: SingleCommandExecutionOptions = {},
 ): Promise<SingleCommandExecutionResult> {
   const { executable, args } = parseAllowlistedCommand(command);
+  const { cwd, timeoutMs } = options;
+  // Build the pass-through EXPLICITLY instead of a `...rest` spread. A rest type
+  // erases the callable provenance of `progress` / `deadlineError`, which makes
+  // the retired-authority guard's type analysis fail closed
+  // (`unresolved-known-property.progress`). Listing the fields keeps the exact
+  // same values while staying statically resolvable.
+  const runOptions: RunValidationCommandOptions = {
+    ...(options.progress ? { progress: options.progress } : {}),
+    ...(options.commandIndex !== undefined ? { commandIndex: options.commandIndex } : {}),
+    ...(options.totalCommands !== undefined ? { totalCommands: options.totalCommands } : {}),
+    ...(options.heartbeatMs !== undefined ? { heartbeatMs: options.heartbeatMs } : {}),
+    ...(options.abortSignal ? { abortSignal: options.abortSignal } : {}),
+    ...(options.deadlineAt !== undefined ? { deadlineAt: options.deadlineAt } : {}),
+    ...(options.deadlineError ? { deadlineError: options.deadlineError } : {}),
+  };
+  const configuredTimeoutMs = timeoutMs ?? resolveEvidenceCommandTimeoutMs(
+    { executable, args },
+    loadConfig(projectRoot).validate?.evidenceCommandTimeoutOverrides,
+  );
   const validationCommand: ValidationCommand = {
     label: 'verification-evidence-command',
     command: executable,
     args,
-    ...(options.cwd ? { cwd: options.cwd } : {}),
-    timeoutMs: options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    ...(cwd ? { cwd } : {}),
+    timeoutMs: configuredTimeoutMs,
   };
-  const { result, completeOutput } = await runValidationCommandWithCompleteOutput(validationCommand, projectRoot);
+  const { result, completeOutput } = await runValidationCommandWithCompleteOutput(
+    validationCommand,
+    projectRoot,
+    DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    runOptions,
+  );
+  // Read the abort/deadline controls from the DECLARED `options` type rather than
+  // the rest-spread `runOptions`. Both hold the same values (runOptions is options
+  // minus cwd/timeoutMs), but a rest type hides `deadlineError`'s callable
+  // provenance from the retired-authority guard's type analysis, which then fails
+  // closed with `unresolved-known-property.deadlineError`. `runOptions` stays the
+  // pass-through payload for runValidationCommand.
+  if (options.abortSignal?.aborted) {
+    throw options.abortSignal.reason instanceof Error
+      ? options.abortSignal.reason
+      : new Error('verification evidence command aborted');
+  }
+  if (
+    result.timedOut
+    && typeof options.deadlineAt === 'number'
+    && Date.now() >= options.deadlineAt
+  ) {
+    throw options.deadlineError?.()
+      ?? new Error(`verification evidence command deadline exceeded at ${options.deadlineAt}`);
+  }
   return {
     executable,
     args,

@@ -91,6 +91,12 @@ import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { createMainRegistry } from '../registry.js';
+import {
+  issueBrokeredNativeReviewBinding,
+  nativeReviewFixtureBrokers,
+  withNativeReviewFixtureHostIdentity,
+} from './native-review-fixture.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
@@ -159,11 +165,40 @@ function localCliPath(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 }
 
+const nativeReviewFixtureContexts = new Map<string, { root: string; store: StoryStore }>();
+
+function registerNativeReviewFixtureContexts(
+  root: string,
+  store: StoryStore,
+  storyId: string,
+  runs: ReviewRun[],
+): void {
+  const registry = createMainRegistry({ root, store, scanRoot: join(root, 'packages/main') });
+  const dispatch = registry.get('dispatch');
+  assert.ok(dispatch, 'flow native review fixture dispatch handler is registered');
+  for (const agent of new Set(runs.map(run => run.agent))) {
+    withNativeReviewFixtureHostIdentity({
+      agent,
+      invoke: () => dispatch({ storyId, agentType: agent }),
+    });
+  }
+  for (const run of runs) {
+    nativeReviewFixtureContexts.set(`${storyId}\0${run.agent}\0${run.reviewRunId}`, { root, store });
+  }
+}
+
+function fixtureNativeBinding(storyId: string, agent: string, reviewRunId: string) {
+  const context = nativeReviewFixtureContexts.get(`${storyId}\0${agent}\0${reviewRunId}`);
+  if (!context || !existsSync(context.root)) return undefined;
+  return issueBrokeredNativeReviewBinding({ ...context, storyId, agent, reviewRunId });
+}
+
 function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string): Finding {
   const id = `${storyId}:F-${idSuffix}`;
   const createdAt = `2026-04-27T12:00:${idSuffix}.000Z`;
   const desc = `${agent} clean finding`;
   const severity = 'low';
+  const nativeEvidenceBinding = fixtureNativeBinding(storyId, agent, reviewRunId);
   return {
     id,
     desc,
@@ -174,7 +209,28 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
     createdAt,
     reviewRound,
     reviewRunId,
-    _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, reviewRunId),
+    ...(nativeEvidenceBinding ? { nativeEvidenceBinding } : {}),
+    _hash: signFinding(
+      storyId,
+      id,
+      desc,
+      severity,
+      createdAt,
+      reviewRound,
+      reviewRunId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      nativeEvidenceBinding,
+      nativeEvidenceBinding ? {
+        category: 'happy',
+        evidenceState: null,
+        uncertaintyReason: null,
+        files: [],
+      } : undefined,
+    ),
   };
 }
 
@@ -200,6 +256,11 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
   const id = `${storyId}:RP-${idSuffix}`;
   const createdAt = `2026-04-27T12:10:${idSuffix}.000Z`;
   const note = `${agent} checked the story and found no blocking issue`;
+  const nativeEvidenceBinding = fixtureNativeBinding(storyId, agent, reviewRunId);
+  const provenance = nativeEvidenceBinding ? {
+    writerSessionId: nativeEvidenceBinding.writerSessionId,
+    sessionSource: nativeEvidenceBinding.sessionSource,
+  } : undefined;
   return {
     id,
     agent,
@@ -207,7 +268,27 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
     createdAt,
     reviewRound,
     reviewRunId,
-    _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound, reviewRunId),
+    ...(nativeEvidenceBinding ? {
+      nativeEvidenceBinding,
+      writerSessionId: nativeEvidenceBinding.writerSessionId,
+      sessionSource: nativeEvidenceBinding.sessionSource,
+    } : {}),
+    _hash: signReviewPass(
+      storyId,
+      id,
+      agent,
+      note,
+      createdAt,
+      reviewRound,
+      reviewRunId,
+      undefined,
+      undefined,
+      undefined,
+      provenance,
+      undefined,
+      undefined,
+      nativeEvidenceBinding,
+    ),
   };
 }
 
@@ -255,6 +336,7 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
     };
   });
   store.writeReviewRuns(storyId, { runs });
+  registerNativeReviewFixtureContexts(root, store, storyId, runs);
   return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
 }
 
@@ -274,8 +356,18 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
   resetConfigCache();
+
+  write(root, 'README.md', 'flow review fixture\n');
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'flow-review@example.invalid']);
+  git(root, ['config', 'user.name', 'Flow Review Fixture']);
+  // B-137a main-merge fix: the fixture writes proof-or-stop.config.json (above),
+  // so staging the retired filename failed with 'did not match any files'.
+  git(root, ['add', 'proof-or-stop.config.json', 'README.md']);
+  git(root, ['commit', '-m', 'fixture']);
 
   const store = new StoryStore(root);
   const storyId = 'B-smoke';
@@ -1371,6 +1463,7 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
       ),
     });
     store.writeReviewRuns(storyId, runsData);
+    registerNativeReviewFixtureContexts(root, store, storyId, runsData.runs);
 
     store.writeFindings(storyId, {
       findings: [
@@ -1667,6 +1760,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
     git(root, ['init']);
@@ -1715,6 +1809,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     assert.notEqual(run1.storyFilesHash, EMPTY_STORY_FILES_HASH, 'story-branch run must carry a non-empty storyFilesHash');
     assert.ok(run1.storyFilesHash, 'story-branch run must carry a storyFilesHash');
     store.writeReviewRuns(storyId, { runs: [run1, run2] });
+    registerNativeReviewFixtureContexts(root, store, storyId, [run1, run2]);
 
     // CORE: a PASS bound to the NON-latest run1 (material+scope fresh) is ACCEPTED.
     // Pre-fix this threw "is not the current latest reviewer run".
@@ -2059,6 +2154,7 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
     git(root, ['init']);
@@ -2127,6 +2223,7 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, legacyPromptHash(agent), undefined, undefined, recordedStoryFiles),
     };
     store.writeReviewRuns(storyId, { runs: [run] });
+    registerNativeReviewFixtureContexts(root, store, storyId, [run]);
     store.writeReviewPasses(storyId, {
       passes: [makeReviewPass(storyId, agent, reviewRound, '099', reviewRunId)],
     });
@@ -3051,7 +3148,9 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.detail ?? '', /^fail: blocking=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /passed=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /proof_or_stop_metadata_changes=/);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
+    // The three broker-backed reviewer dispatches above intentionally append
+    // three runtime audit artifacts in addition to this test's activity row.
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=4/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /unexpected_dirty_files=1/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);

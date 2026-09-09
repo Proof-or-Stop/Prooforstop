@@ -148,6 +148,15 @@ export interface LifecycleControlConfig {
   runtimeEnforcement?: 'unavailable' | 'warn' | 'enforce';
 }
 
+export interface EvidenceCommandTimeoutOverrideConfig {
+  /** Exact allowlisted executable token (for example `node`). */
+  command: string;
+  /** Exact ordered argv vector; prefix or approximate matching is forbidden. */
+  args: string[];
+  /** Positive finite integer total wall-clock ceiling for this evidence command. */
+  timeoutMs: number;
+}
+
 export interface ProofOrStopConfig {
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
@@ -196,6 +205,15 @@ export interface ProofOrStopConfig {
       'legacy-full-context' | 'full-envelope'
     >>;
   };
+  /** Public trust registrations for external host-adapter review invocation brokers. */
+  nativeReviewInvocation?: {
+    brokers?: Array<{
+      brokerId: string;
+      adapterId: string;
+      host: 'codex' | 'claude';
+      publicKey: string;
+    }>;
+  };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';
     candidateBudget?: number;
@@ -243,6 +261,11 @@ export interface ProofOrStopConfig {
       optional?: boolean;
       focus?: string[] | string;
     }>;
+    /**
+     * Evidence-writer-only per-command ceilings. These entries do not register
+     * commands in routine `lattice validate` and match exact executable+argv.
+     */
+    evidenceCommandTimeoutOverrides?: EvidenceCommandTimeoutOverrideConfig[];
   };
   /** Legacy config alias accepted by the verifier for dynamic validation. */
   validation?: ProofOrStopConfig['validate'];
@@ -551,6 +574,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'acceptance_basis_generate',
     'review_run_start',
     'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_wave_advance', 'review_inventory_finalize', 'review_inventory_cancel',
+    'managed_review_proposal_set', 'managed_review_evidence_import',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',

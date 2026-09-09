@@ -38,9 +38,14 @@ import type { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { getSessionId } from './owner-session.js';
 import { canonicalReviewHostLauncherSpec } from './host-execution-readiness.js';
+import {
+  acquireProviderProcessAdmission,
+  releaseProviderProcessAdmission,
+} from './provider-process-admission.js';
 // B-ceed: codex + legacy gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
+import type { ProviderExecRequest, ProviderExecResult } from '../providers/types.js';
 // THIN ONE-WAY SEAM: dispatch imports the usage ledger only through this single
 // in-module orchestrator. dispatch-usage.ts keeps zero cross-module imports, so
 // the dependency is strictly one-way (dispatch -> usage-ledger, never back).
@@ -48,6 +53,7 @@ import {
   isUsageLedgerEnabled,
   parseClaudeCliOutput,
   recordBudgetBlock,
+  recordConcurrencyBlock,
   recordDispatchFinal,
   recordDispatchFinalForProvider,
   recordDispatchPreflight,
@@ -439,6 +445,8 @@ type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
   executionPolicy?: DispatchCommandExecutionPolicy;
   allowRealHostSubprocess?: boolean;
+  /** Injectable bounded provider seam; admission must complete before this is invoked. */
+  providerRunner?: (request: ProviderExecRequest) => ProviderExecResult;
 };
 
 type DispatchReassignArgs = {
@@ -1617,6 +1625,10 @@ function runtimeTemplateHasPromptPlaceholder(template: string[] | undefined): bo
   return (template ?? []).includes('<prompt>');
 }
 
+function runtimeTemplateUsesPromptStdin(template: string[] | undefined): boolean {
+  return (template ?? []).at(-1) === '-';
+}
+
 function gitOutput(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd,
@@ -2337,6 +2349,39 @@ function buildBudgetBlockedDispatchResult(
   };
 }
 
+function buildProviderAdmissionBlockedDispatchResult(
+  root: string,
+  record: DispatchRecord,
+  pack: HandoffPack,
+  transcriptPath: string,
+  detail: string,
+): DispatchRunResult {
+  const warning = `provider process admission refused before spawn: ${detail}`;
+  appendTranscript(transcriptPath, [`[${nowIso()}] ${warning}`]);
+  const blocked = writeRecord(root, {
+    ...record,
+    status: 'failed',
+    warnings: [...removeScaffoldedOnlyWarnings(record.warnings), warning],
+    nextAction: `Provider launch ${record.dispatchId} was refused by the shared provider-process registry. Wait for a live holder to finish or repair the registry; do not bypass the cap.`,
+  });
+  writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
+  return {
+    schemaVersion: 'lattice.dispatch_run.v1',
+    dispatchId: blocked.dispatchId,
+    storyId: blocked.storyId,
+    host: blocked.selectedHost,
+    status: 'failed',
+    parallel: blocked.parallel,
+    runtime: blocked.runtime,
+    workers: [],
+    warnings: [...blocked.warnings],
+    nextAction: blocked.nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
 /**
  * B-ceed: minimal real-leaf dispatch for codex + legacy gemini hosts.
  *
@@ -2353,12 +2398,16 @@ function runBoundedRealLeafDispatch(
   runtime: HostRuntimeProbe,
   executionPolicy: DispatchCommandExecutionPolicy,
   hostKind: 'codex' | 'gemini',
+  providerRunner?: (request: ProviderExecRequest) => ProviderExecResult,
 ): DispatchRunResult {
   const startedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   const transcriptPath = resolve(root, record.transcriptFile);
   const worktreeAbs = resolve(root, record.worktree.worktreePath);
-  const usesPromptStdin = hostKind === 'codex' && (runtime.invocationTemplate ?? []).includes('<prompt>');
+  const usesPromptStdin = hostKind === 'codex' && (
+    (runtime.invocationTemplate ?? []).includes('<prompt>')
+    || runtimeTemplateUsesPromptStdin(runtime.invocationTemplate)
+  );
   const promptStdin = usesPromptStdin ? readFileSync(promptFile, 'utf8') : undefined;
   const invocation = renderRuntimeInvocationTemplate(runtime.invocationTemplate, {
     promptFile,
@@ -2367,7 +2416,7 @@ function runBoundedRealLeafDispatch(
   });
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
-  const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
+  const runner = providerRunner ?? (hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider);
   const pack = readPack(root, record.dispatchId);
   const providerEnv = buildCanonicalHostRuntimeEnv(
     executionPolicy,
@@ -2379,9 +2428,10 @@ function runBoundedRealLeafDispatch(
     },
   );
 
-  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
-  // All new work below is inside `if (ledgerOn)` blocks, so when the flag is OFF
-  // this function behaves exactly as before (no preflight, no final, no extra I/O).
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in) ----
+  // Ledger-specific work below is inside `if (ledgerOn)` blocks. With the flag
+  // OFF there is no usage preflight/final/budget I/O, while the separate shared
+  // provider-admission registry remains mandatory before spawn.
   // Each ledger call is fail-open: any error is transcribed non-fatally and the
   // dispatch proceeds. Models the claude seam (runClaudeCodeRealLeafDispatch).
   const ledgerOn = isUsageLedgerEnabled();
@@ -2415,15 +2465,48 @@ function runBoundedRealLeafDispatch(
     }
   }
 
-  const result = runner({
-    provider: hostKind,
-    argv,
-    cwd: worktreeAbs,
-    timeoutMs,
-    maxAttempts: 1,
-    env: providerEnv,
-    ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
-  });
+  let admission;
+  try {
+    admission = acquireProviderProcessAdmission({
+      root,
+      env: process.env,
+      host: hostKind,
+      storyId: record.storyId,
+      agentType: ledgerCtx.agentType,
+      startedAt,
+    });
+  } catch (error) {
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `registry_error:${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!admission.admitted) {
+    if (ledgerOn) {
+      recordConcurrencyBlock(
+        root,
+        ledgerCtx,
+        ledgerHandle,
+        promptStdin ?? readFileSync(promptFile, 'utf8'),
+        admission.cap,
+        ledgerOpts,
+        { name: hostKind === 'codex' ? 'openai' : 'gemini', model: null },
+      );
+    }
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `concurrency_cap_exceeded(cap=${admission.cap})`);
+  }
+
+  let result;
+  try {
+    result = runner({
+      provider: hostKind,
+      argv,
+      cwd: worktreeAbs,
+      timeoutMs,
+      maxAttempts: 1,
+      env: providerEnv,
+      ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
+    });
+  } finally {
+    releaseProviderProcessAdmission(admission);
+  }
 
   if (ledgerOn) {
     try {
@@ -2489,8 +2572,9 @@ function runCodexRealLeafDispatch(
   record: DispatchRecord,
   runtime: HostRuntimeProbe,
   executionPolicy: DispatchCommandExecutionPolicy,
+  providerRunner?: (request: ProviderExecRequest) => ProviderExecResult,
 ): DispatchRunResult {
-  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'codex');
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'codex', providerRunner);
 }
 
 function runGeminiRealLeafDispatch(
@@ -2498,8 +2582,9 @@ function runGeminiRealLeafDispatch(
   record: DispatchRecord,
   runtime: HostRuntimeProbe,
   executionPolicy: DispatchCommandExecutionPolicy,
+  providerRunner?: (request: ProviderExecRequest) => ProviderExecResult,
 ): DispatchRunResult {
-  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'gemini');
+  return runBoundedRealLeafDispatch(root, record, runtime, executionPolicy, 'gemini', providerRunner);
 }
 
 function runClaudeCodeRealLeafDispatch(
@@ -2592,7 +2677,7 @@ function runClaudeCodeRealLeafDispatch(
 
   // ---- B-dd44: FAIL-CLOSED HARD-BUDGET PRE-SPAWN GUARD (env-gated) ----
   // INV-A: this block only runs when ledgerOn (the existing gate). When the ledger
-  //   flag is OFF this is never reached, so dispatch is byte-identical to today.
+  //   flag is OFF this is never reached; provider admission remains independent.
   // INV-B: recordBudgetBlock returns blocked=true ONLY when a hard budget is
   //   configured AND the preflight estimate strictly exceeds it; otherwise (no
   //   budget env) it is a no-op and we proceed to spawnSync exactly as today.
@@ -2634,13 +2719,35 @@ function runClaudeCodeRealLeafDispatch(
     `[${nowIso()}] prompt argument rendered from ${promptFile}`,
   ]);
 
-  const result = spawnSync('claude', spawnArgs, {
-    cwd: worktreeAbs,
-    env: commandEnv,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: timeoutMs,
-  });
+  let admission;
+  try {
+    admission = acquireProviderProcessAdmission({
+      root,
+      env: process.env,
+      host: 'claude',
+      storyId: record.storyId,
+      agentType: ledgerCtx.agentType,
+      startedAt: runnerStartedAt,
+    });
+  } catch (error) {
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `registry_error:${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!admission.admitted) {
+    if (ledgerOn) recordConcurrencyBlock(root, ledgerCtx, ledgerHandle, promptText, admission.cap, ledgerOpts, { name: 'anthropic', model: null });
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `concurrency_cap_exceeded(cap=${admission.cap})`);
+  }
+  let result;
+  try {
+    result = spawnSync('claude', spawnArgs, {
+      cwd: worktreeAbs,
+      env: commandEnv,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: timeoutMs,
+    });
+  } finally {
+    releaseProviderProcessAdmission(admission);
+  }
   const timedOut = spawnTimedOut(result, timeoutMs);
   const exitCode = spawnExitCode(result, timedOut);
   const rawStdout = spawnOutputText(result.stdout).trimEnd();
@@ -3026,7 +3133,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   // (per user (a3) decision 2026-06-17) with a logged degradation reason.
   if (record.selectedHost === 'codex' && args.allowRealHostSubprocess === true && args.executionPolicy) {
     if (codexCliAvailable()) {
-      return runCodexRealLeafDispatch(root, record, runtime, args.executionPolicy);
+      return runCodexRealLeafDispatch(root, record, runtime, args.executionPolicy, args.providerRunner);
     }
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] codex CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
@@ -3035,7 +3142,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   }
   if (record.selectedHost === 'gemini' && args.allowRealHostSubprocess === true && args.executionPolicy) {
     if (geminiCliAvailable()) {
-      return runGeminiRealLeafDispatch(root, record, runtime, args.executionPolicy);
+      return runGeminiRealLeafDispatch(root, record, runtime, args.executionPolicy, args.providerRunner);
     }
     appendTranscript(resolve(root, record.transcriptFile), [
       `[${nowIso()}] gemini CLI unavailable in PATH; falling back to claude-code real dispatch (B-ceed fallback policy)`,
@@ -3050,16 +3157,20 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
     promptMode: 'reference',
   });
   const hasPromptPlaceholder = runtimeTemplateHasPromptPlaceholder(runtime.invocationTemplate);
+  const usesPromptStdin = runtimeTemplateUsesPromptStdin(runtime.invocationTemplate);
   appendTranscript(resolve(root, record.transcriptFile), [
     `[${nowIso()}] scaffolded runtime ${runtime.host}`,
     `[${nowIso()}] worktree ready ${record.worktree.worktreePath} (${worktreeAbs})`,
     invocation.length > 0 ? invocation.join(' ') : '(no invocation template)',
     ...(hasPromptPlaceholder ? [`[${nowIso()}] replace the prompt reference with the contents of ${promptFile} before launching manually`] : []),
+    ...(usesPromptStdin ? [`[${nowIso()}] pipe the contents of ${promptFile} to the command stdin before launching manually`] : []),
   ]);
   const status: DispatchLifecycleStatus = 'needs_receipt';
   const promptInstruction = hasPromptPlaceholder
     ? ` The prompt argument shown above is a compact reference; replace it with the contents of ${promptFile} before launching.`
-    : '';
+    : usesPromptStdin
+      ? ` Pipe the contents of ${promptFile} to the command stdin.`
+      : '';
   const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.${promptInstruction}`;
   const scaffoldedRunner = buildScaffoldedRunnerRecord({
     dispatchId: record.dispatchId,

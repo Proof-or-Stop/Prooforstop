@@ -2,7 +2,7 @@
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the host-run choke point.
  *
  * `runHostRun` is the single core entry that LAUNCHES a canonical reviewer/quorum
- * host (codex / claude / agy) via the B-d8ef canonical launcher argv AND writes
+ * host — codex or claude only — via the B-d8ef canonical launcher argv AND writes
  * the usage-ledger preflight + final rows (bound to storyId / phase / agentType /
  * provider, plus reviewRunId -> threadId and lane -> subagentId), enforcing the
  * per-dispatch hard-budget cap and the host-run concurrency cap BEFORE the spawn.
@@ -36,27 +36,24 @@
  *     preflight estimate (sequence 1) -> budget guard -> concurrency guard ->
  *     spawn -> provider/unavailable final (sequence 2, supersedes the estimate).
  *     Every ledger call is fail-open (never throws to the caller).
- *   - PROOF_OR_STOP_USAGE_LEDGER=0 keeps the run byte-identical: no preflight, no budget
- *     guard, no concurrency slots (no dirs), no final — just build argv + spawn.
+ *   - PROOF_OR_STOP_USAGE_LEDGER=0 disables usage preflight/budget/final rows only.
+ *     Shared provider-process admission remains mandatory before every spawn.
  *   - This core imports the usage seam ONLY through usage-ledger/dispatch-usage.js
  *     (the single thin import surface); it never reaches into other ledger modules.
  */
 
-import { spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { execFileSync, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
-  readFileSync,
   rmSync,
-  statSync,
-  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { StringDecoder } from 'node:string_decoder';
 
 import {
   canonicalReviewHostLauncherSpec,
@@ -79,7 +76,22 @@ import {
   type DispatchUsageContext,
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
-import { readBrandEnv } from './brand-env.js';
+import {
+  acquireProviderProcessAdmission,
+  releaseProviderProcessAdmission,
+  transferProviderProcessAdmissionToProvider,
+  type ProviderProcessAdmission,
+} from './provider-process-admission.js';
+import type {
+  AcquiredProviderProcessSlot,
+  ProviderProcessLiveDescriptor,
+} from './provider-process-registry.js';
+import { providerProcessSlotsDir } from './provider-process-registry.js';
+import {
+  diagnoseManagedReviewerReadEvidence,
+  normalizeReviewerReadLogEvidence,
+  normalizeReviewerReadManifest,
+} from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export type HostRunHost = CanonicalReviewHost;
@@ -108,9 +120,51 @@ export type HostRunPassthrough = (chunk: HostRunChunk) => void;
  */
 export type HostRunUsageLineRetainer = (line: string) => boolean;
 
+/**
+ * Stable-enough identity for later managed-run reconciliation. A pid/pgid by
+ * itself is never sufficient because the OS may reuse it; `startFingerprint`
+ * is captured from the live process immediately after spawn. When that capture
+ * is unavailable, a detached supervisor may observe but must not blindly kill.
+ */
+export interface HostRunProcessIdentity {
+  pid: number;
+  pgid: number | null;
+  spawnedAt: string;
+  startFingerprint: string | null;
+  processGroupIsolated: boolean;
+}
+
+export interface HostRunProcessCleanup {
+  termSent: boolean;
+  killSent: boolean;
+  reaped: boolean;
+  residualProcessGroup: boolean;
+}
+
+/**
+ * `detached: true` creates a new POSIX process group whose leader is the
+ * spawned provider itself. Never signal a persisted/injected identity unless
+ * it still names exactly that shape: a malformed pgid of 1 would turn
+ * `process.kill(-pgid, signal)` into the POSIX broadcast form.
+ */
+export function isSafeIsolatedProviderProcessGroup(
+  identity: HostRunProcessIdentity | null,
+): identity is HostRunProcessIdentity & { pgid: number; startFingerprint: string } {
+  return identity !== null
+    && identity.processGroupIsolated
+    && Number.isSafeInteger(identity.pid)
+    && identity.pid > 1
+    && identity.pgid !== null
+    && Number.isSafeInteger(identity.pgid)
+    && identity.pgid > 1
+    && identity.pgid === identity.pid
+    && typeof identity.startFingerprint === 'string'
+    && identity.startFingerprint.length > 0;
+}
+
 /** The plan handed to the injected runner (or the default streaming runner). */
 export interface HostRunSpawnPlan {
-  /** Executable name (host command: codex / claude / agy). */
+  /** Executable name for a supported managed host (codex or claude). */
   command: string;
   /** Args passed to the executable (argv WITHOUT the leading command token). */
   argv: string[];
@@ -133,6 +187,15 @@ export interface HostRunSpawnPlan {
   host?: HostRunHost;
   /** Which complete lines to retain for usage parsing (bounded, last-wins). */
   retainUsageLine?: HostRunUsageLineRetainer;
+  /** Prompt bytes written to child stdin and then closed (Codex uses `exec ... -`). */
+  stdinText?: string;
+  /** Called exactly once after a successful spawn and identity capture. */
+  onSpawn?: (identity: HostRunProcessIdentity) => void;
+  /**
+   * Managed-review adapter seam. The worker holds the signing key in memory;
+   * the runner exposes only this signed, identity-bound payload on child fd 3.
+   */
+  reviewInvocationPayload?: (identity: HostRunProcessIdentity) => string;
   /**
    * B-3ddc: which complete lines to retain in the SECOND bounded failure lane
    * (codex turn.failed / terminal `error`), same cap + last-wins discipline as
@@ -155,9 +218,29 @@ export interface HostRunSpawnPlan {
  */
 export interface HostRunSpawnResult {
   stdout: string;
+  /**
+   * Digest of every raw stdout byte observed by the runner. The production
+   * runner retains only bounded parser state, so provenance must not be
+   * reconstructed from `stdout` (which may be only the retained usage line).
+   */
+  stdoutDigest?: string;
   stderr: string;
   exitCode: number;
   timedOut: boolean;
+  /**
+   * The default runner observed the child's authoritative `close` boundary
+   * before any later deadline callback. Consumers use this only to keep a
+   * managed terminal from contradicting the sealed provider result while
+   * post-close process-group cleanup is still running.
+   */
+  closeObserved?: boolean;
+  /**
+   * Exact wall-clock close boundary from the production runner. A managed
+   * close fence may accept a deadline request only when it was persisted at
+   * or after this boundary; injected runners without this proof stay
+   * fail-closed.
+   */
+  closeObservedAt?: string | null;
   timeoutKind?: 'startup_no_output_timeout' | 'total_timeout' | null;
   terminalReason?: 'completed' | 'exit_nonzero' | 'spawn_error' | 'child_error' | 'aborted' | 'startup_no_output_timeout' | 'total_timeout';
   firstOutputMs?: number | null;
@@ -199,12 +282,27 @@ export interface HostRunSpawnResult {
    */
   failureRetentionTruncated?: boolean;
   /**
+   * Provider-adapter-owned final assistant result. This is a separate bounded
+   * lane from `stdout`: the latter is only the usage parser lane for the
+   * production runner and arbitrary live chunks remain passthrough-only.
+   */
+  finalAssistantResult?: string | null;
+  /** Number of trusted terminal assistant-result candidates observed. */
+  finalAssistantResultCount?: number;
+  /** A trusted terminal result candidate exceeded the bounded lane. */
+  finalAssistantResultTruncated?: boolean;
+  /**
    * F-008: non-null when the live passthrough sink threw (e.g. EPIPE after the
    * consumer closed the pipe). Delivery stopped at the FIRST failure (no
    * per-chunk retry) but the run itself completed and usage scanning continued;
    * the message surfaces the degradation honestly instead of crashing the run.
    */
   passthroughError?: string | null;
+  processIdentity?: HostRunProcessIdentity | null;
+  /** True only after the child closed and its isolated process group is empty. */
+  replacementSafe?: boolean;
+  residualProcessGroup?: boolean;
+  processCleanup?: HostRunProcessCleanup | null;
 }
 
 export type HostRunRunner = (plan: HostRunSpawnPlan) => HostRunSpawnResult | Promise<HostRunSpawnResult>;
@@ -238,9 +336,18 @@ export interface HostRunArgs {
   startupTimeoutMs?: number;
   /** Optional caller cancellation. */
   signal?: AbortSignal;
-  /** agy --print-timeout override (e.g. '30m'); must match /^\d+[smh]$/. */
-  agyPrintTimeout?: string;
+  /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
+  launchProfile?: 'cross_host_review_codex' | 'managed_reviewer';
+  /**
+   * Internal durable-run identity for the managed Claude prompt custody path.
+   * It is deliberately not a public CLI argument: the managed worker supplies
+   * its sealed spec.runId so terminal reconciliation can remove only this
+   * run's cwd-local one-shot prompt leaf after an abnormal worker exit.
+   */
+  managedRunId?: string;
   env: NodeJS.ProcessEnv;
+  /** Optional accounting/admission env; provider still receives only `env`. */
+  usageEnv?: NodeJS.ProcessEnv;
   /**
    * F-011: the working directory for the host subprocess. The handler binds
    * this to the SAME resolved project root it passes as `root` (the ledger
@@ -265,6 +372,9 @@ export interface HostRunDeps {
   resolveStory?: HostRunStoryResolver;
   /** F-006: live host-output passthrough sink (default: no-op). */
   passthrough?: HostRunPassthrough;
+  /** Durable supervisor hook for provider pid/pgid/fingerprint persistence. */
+  onProcessSpawn?: (identity: HostRunProcessIdentity) => void;
+  reviewInvocationPayload?: (identity: HostRunProcessIdentity) => string;
 }
 
 /** A compact description of what the ledger recorded for this run. */
@@ -293,12 +403,18 @@ export interface HostRunResult {
   liveRuns: HostRunLiveDescriptor[] | null;
   exitCode: number;
   timedOut: boolean;
+  /** See HostRunSpawnResult.closeObserved; injected legacy runners project false. */
+  closeObserved?: boolean;
+  /** See HostRunSpawnResult.closeObservedAt; null without a production close timestamp. */
+  closeObservedAt?: string | null;
   timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null;
   terminalReason: HostRunSpawnResult['terminalReason'] | null;
   firstOutputMs: number | null;
   durationMs: number | null;
   failureKind: HostExecutionFailureKind | null;
   stdout: string;
+  /** Complete raw stdout digest when the runner can observe the full stream. */
+  stdoutDigest?: string;
   stderr: string;
   usageSummary: HostRunUsageSummary;
   /**
@@ -308,70 +424,42 @@ export interface HostRunResult {
    * or the run never spawned.
    */
   passthroughError: string | null;
+  processIdentity: HostRunProcessIdentity | null;
+  replacementSafe: boolean;
+  residualProcessGroup: boolean;
+  processCleanup: HostRunProcessCleanup | null;
+  finalAssistantResult: string | null;
+  finalAssistantResultCount: number;
+  finalAssistantResultTruncated: boolean;
 }
 
 /** Nonzero process-exit sentinel for a fail-closed cap refusal. */
 export const HOST_RUN_REFUSAL_EXIT_CODE = 3;
 
-const HOST_RUN_SLOTS_RELATIVE = join(PROOF_OR_STOP_DIR, 'usage', 'host-run-slots');
-
-export const HOST_RUN_MAX_CONCURRENT_DEFAULT = 4;
-/**
- * Orphan backstop: a slot whose meta is MISSING/CORRUPT (the holder crashed in
- * the tiny window between the wx create and the meta bytes landing, or the file
- * was externally damaged) is reclaimed once older than this. F-025: the age
- * backstop applies ONLY to that meta-less case — a slot with a valid recorded
- * pid is judged by pid liveness alone (dead => reclaim at any age; ALIVE =>
- * never age-reclaimed, however long the host run takes).
- */
-const HOST_RUN_SLOT_STALE_MS_DEFAULT = 6 * 60 * 60 * 1000; // 6h
 
 // ---------------------------------------------------------------------------
 // Attribution / phase resolution
 // ---------------------------------------------------------------------------
 
-/** The canonical ledger host.kind for each launcher host. */
 function ledgerHostKind(host: HostRunHost): string {
   return host === 'codex' ? 'codex' : host === 'claude' ? 'claude-code' : 'antigravity';
 }
 
-/**
- * B-70e9 F-004: the ledger provider.name for each launcher host, threaded into
- * the blocked-record paths (budget + concurrency) so a codex/agy refusal is
- * recorded under openai/antigravity — never mis-attributed to anthropic. Mirrors
- * the provider names the per-host FINAL recorders already bind.
- */
 function hostProviderName(host: HostRunHost): string {
   return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
 }
 
-/**
- * Resolve the attribution phase WITHOUT any story-path/config knowledge (F-005).
- *
- *   - storyId null            -> explicit phase else 'adhoc' (no store read).
- *   - explicit --phase given  -> used AS-IS, the store is NEVER consulted (so an
- *                                explicit phase works with or without a storyId,
- *                                even if the store cannot resolve the story).
- *   - storyId + no --phase    -> resolved through the injected `resolveStory`
- *                                seam; an unknown story (resolver returns null)
- *                                refuses pre-spawn with a clear error.
- *
- * The store is only ever touched on the storyId+no-phase path, which is exactly
- * the case the configured StoryStore can answer.
- */
 function resolvePhase(
   storyId: string | null,
   explicitPhase: string | undefined,
   resolveStory: HostRunStoryResolver | undefined,
 ): string {
-  if (storyId === null) {
-    return explicitPhase && explicitPhase.length > 0 ? explicitPhase : 'adhoc';
-  }
+  if (storyId === null) return explicitPhase && explicitPhase.length > 0 ? explicitPhase : 'adhoc';
   if (explicitPhase && explicitPhase.length > 0) return explicitPhase;
   if (!resolveStory) {
     throw new Error(
-      `host_run: cannot resolve a phase for story "${storyId}" without --phase and without a configured story resolver ` +
-      `(internal: the handler must inject resolveStory); pass --phase or run adhoc`,
+      `host_run: cannot resolve a phase for story "${storyId}" without --phase and without a configured story resolver `
+      + '(internal: the handler must inject resolveStory); pass --phase or run adhoc',
     );
   }
   const meta = resolveStory(storyId);
@@ -381,339 +469,35 @@ function resolvePhase(
   return meta.phase && meta.phase.length > 0 ? meta.phase : 'adhoc';
 }
 
-/**
- * Validate the reviewRunId binding: when both storyId and reviewRunId are given,
- * the reviewRunId MUST start with `<storyId>:` so a ledger row cannot silently
- * mis-join a cross-story review run. Refused pre-spawn.
- */
-function assertReviewRunIdBinding(storyId: string | null, reviewRunId: string | null | undefined): void {
+function assertReviewRunIdBinding(
+  storyId: string | null,
+  reviewRunId: string | null | undefined,
+): void {
   if (!reviewRunId) return;
   if (storyId && !reviewRunId.startsWith(`${storyId}:`)) {
     throw new Error(
-      `host_run: reviewRunId "${reviewRunId}" does not belong to story "${storyId}" ` +
-      `(a reviewRunId must be "<storyId>:..."); refuse pre-spawn to avoid a cross-story ledger mis-join`,
+      `host_run: reviewRunId "${reviewRunId}" does not belong to story "${storyId}" `
+      + '(a reviewRunId must be "<storyId>:..."); refuse pre-spawn to avoid a cross-story ledger mis-join',
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Concurrency slot registry (CHK-007b)
-// ---------------------------------------------------------------------------
-
-export interface HostRunLiveDescriptor {
-  pid: number;
-  startedAt: string;
-  host: string;
-  storyId: string | null;
-  agentType: string;
-}
-
-interface SlotMeta {
-  pid: number;
-  startedAt: string;
-  host: string;
-  storyId: string | null;
-  agentType: string;
-}
-
 /**
- * F-025: the on-disk slot record — the caller meta plus an acquire-minted
- * ownership token (crypto.randomUUID), mirroring the F-018 usage-ledger lock
- * owner.json. The token is what releaseSlot must present to unlink the file,
- * so a slot that was reclaimed and re-acquired by a NEW holder survives the
- * ORIGINAL holder's late release. Metadata-only; never copied into a ledger row.
+ * Deprecated compatibility aliases. The canonical implementation and all
+ * ownership/reclaim semantics live exclusively in provider-process-registry.
  */
-interface SlotFileMeta extends SlotMeta {
-  token: string;
-}
-
-/** What acquireHostRunSlot hands an admitted caller: the slot path + the release token (F-025). */
-export interface AcquiredHostRunSlot {
-  file: string;
-  token: string;
-}
-
-/** Result of reading a slot file's on-disk record for ownership/staleness decisions (F-025). */
-type SlotOccupant =
-  | { state: 'valid'; pid: number; token: string | null; meta: Record<string, unknown> }
-  | { state: 'corrupt' } // present but unreadable, unparseable, or missing a valid pid
-  | { state: 'missing' };
-
-/** Read + classify a slot file's occupant. Never throws. */
-function readSlotOccupant(file: string): SlotOccupant {
-  let raw: string;
-  try {
-    raw = readFileSync(file, 'utf8');
-  } catch (err) {
-    return (err as NodeJS.ErrnoException)?.code === 'ENOENT' ? { state: 'missing' } : { state: 'corrupt' };
-  }
-  let meta: Record<string, unknown>;
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { state: 'corrupt' };
-    meta = parsed as Record<string, unknown>;
-  } catch {
-    return { state: 'corrupt' };
-  }
-  const pid = ownNumber(meta, 'pid');
-  if (pid === null) return { state: 'corrupt' };
-  return { state: 'valid', pid, token: ownString(meta, 'token'), meta };
-}
-
-/** Same occupant as judged earlier? (valid occupants must match pid AND token.) */
-function sameSlotOccupant(a: SlotOccupant, b: SlotOccupant): boolean {
-  if (a.state !== b.state) return false;
-  if (a.state === 'valid' && b.state === 'valid') return a.pid === b.pid && a.token === b.token;
-  return true;
-}
-
-/** Absolute host-run slot registry dir under a project root. */
-export function hostRunSlotsDir(root: string): string {
-  return join(root, HOST_RUN_SLOTS_RELATIVE);
-}
-
-/** Resolve the concurrency cap; invalid / <=0 / unset falls back to the default. */
-export function resolveMaxConcurrent(env: NodeJS.ProcessEnv): number {
-  const raw = readBrandEnv('HOST_RUN_MAX_CONCURRENT', env);
-  if (typeof raw !== 'string' || raw.trim().length === 0) return HOST_RUN_MAX_CONCURRENT_DEFAULT;
-  const value = Number(raw.trim());
-  if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) return HOST_RUN_MAX_CONCURRENT_DEFAULT;
-  return value;
-}
-
-/** Resolve the slot staleness window; invalid / <=0 / unset falls back to 6h. */
-export function resolveSlotStaleMs(env: NodeJS.ProcessEnv): number {
-  const raw = readBrandEnv('HOST_RUN_SLOT_STALE_MS', env);
-  if (typeof raw !== 'string' || raw.trim().length === 0) return HOST_RUN_SLOT_STALE_MS_DEFAULT;
-  const value = Number(raw.trim());
-  if (!Number.isFinite(value) || value <= 0) return HOST_RUN_SLOT_STALE_MS_DEFAULT;
-  return value;
-}
-
-/** True when the pid is (or may be) a running process. ESRCH => dead; EPERM => alive. */
-function isPidAlive(pid: number): boolean {
-  if (!Number.isInteger(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (err) {
-    return (err as NodeJS.ErrnoException)?.code === 'EPERM';
-  }
-}
-
-function ownString(obj: Record<string, unknown>, key: string): string | null {
-  if (!Object.prototype.hasOwnProperty.call(obj, key)) return null;
-  const value = obj[key];
-  return typeof value === 'string' ? value : null;
-}
-
-function ownNumber(obj: Record<string, unknown>, key: string): number | null {
-  if (!Object.prototype.hasOwnProperty.call(obj, key)) return null;
-  const value = obj[key];
-  return typeof value === 'number' && Number.isInteger(value) ? value : null;
-}
-
-/**
- * Scan the slot registry: reclaim (unlink) any RECLAIMABLE slot — dead recorded
- * pid (any age), or missing/corrupt meta past the mtime orphan backstop (F-025:
- * a LIVE recorded pid is never reclaimed by age; see isSlotReclaimable) — and
- * return the live descriptors. A missing dir yields an empty list (no dir is
- * created here).
- *
- * B-70e9 F-003: this scan is REPORTING + reclaim-backstop only — the cap
- * admission decision is acquireHostRunSlot's atomic per-index wx create, never
- * a count taken here (a scan-then-acquire count is exactly the TOCTOU that let
- * concurrent starts all pass). It reads EVERY live slot file, including any at
- * index >= a lowered cap, so the refusal live-list stays honest mid-flight.
- */
-export function scanLiveSlots(dir: string, now: number, staleMs: number): HostRunLiveDescriptor[] {
-  let entries: string[];
-  try {
-    entries = readdirSync(dir);
-  } catch {
-    return [];
-  }
-  const live: HostRunLiveDescriptor[] = [];
-  for (const name of entries) {
-    if (!name.endsWith('.json')) continue;
-    const file = join(dir, name);
-    const occupant = readSlotOccupant(file);
-    if (isSlotReclaimable(occupant, file, now, staleMs)) {
-      // F-025: re-verify the occupant immediately before the unlink so a racing
-      // reclaim-then-reacquire (a NEW holder now on this path) is never deleted.
-      if (occupant.state !== 'missing' && sameSlotOccupant(readSlotOccupant(file), occupant)) {
-        try {
-          unlinkSync(file);
-        } catch {
-          // Best-effort reclaim; a racing reclaim by another run is fine.
-        }
-      }
-      continue;
-    }
-    if (occupant.state !== 'valid') continue; // young meta-less orphan: not live, not yet reclaimable
-    live.push({
-      pid: occupant.pid,
-      startedAt: ownString(occupant.meta, 'startedAt') ?? '',
-      host: ownString(occupant.meta, 'host') ?? '',
-      storyId: ownString(occupant.meta, 'storyId'),
-      agentType: ownString(occupant.meta, 'agentType') ?? '',
-    });
-  }
-  return live;
-}
-
-/**
- * Attempt an ATOMIC exclusive create of a slot file (`wx` flag). Returns true when
- * this call created the file, false when the file already existed (the race
- * loser). Other fs errors propagate (an unwritable registry is a real failure).
- * The file content (caller meta + the F-025 ownership token) is metadata only
- * and is NEVER copied into a ledger row.
- */
-export function writeSlotFileExclusive(file: string, meta: SlotFileMeta): boolean {
-  try {
-    writeFileSync(file, JSON.stringify(meta), { encoding: 'utf8', flag: 'wx', mode: 0o600 });
-    return true;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException)?.code === 'EEXIST') return false;
-    throw err;
-  }
-}
-
-/**
- * Reclaimability judgment for an occupied slot (F-025, narrowing the old
- * "dead pid OR old mtime" rule to the F-018 ownership doctrine):
- *
- *   - valid meta (a recorded pid): pid liveness ALONE decides. A DEAD pid is
- *     reclaimable at any age; a LIVE pid is NEVER reclaimed by age — a long
- *     host run legitimately outlives any window, and the old age rule reclaimed
- *     exactly such live slots (re-issuing the same fixed slot-N path to a new
- *     holder whom the original holder's late release then deleted, breaking the
- *     cap). Accepted residual: a dead holder's pid may have been reused by an
- *     unrelated live process (standard pid-reuse residual) — such a slot is
- *     simply never age-reclaimed and waiters refuse at cap.
- *   - missing/corrupt meta (the holder crashed between the wx create and the
- *     meta bytes landing, or external damage): pid liveness is unknowable, so
- *     the PROOF_OR_STOP_HOST_RUN_SLOT_STALE_MS mtime backstop is the only signal
- *     left — reclaim only past that age (env semantics unchanged; its scope is
- *     just narrowed to this meta-less window). A YOUNG meta-less slot is
- *     waited out, never stolen.
- *   - a file that VANISHED between the wx failure and the probe is treated as
- *     reclaimable — the wx re-create is what decides.
- */
-function isSlotReclaimable(occupant: SlotOccupant, file: string, now: number, staleMs: number): boolean {
-  if (occupant.state === 'missing') return true;
-  if (occupant.state === 'valid') return !isPidAlive(occupant.pid);
-  // Corrupt/meta-less: the mtime orphan backstop is the only remaining signal.
-  let mtimeMs: number;
-  try {
-    mtimeMs = statSync(file).mtimeMs;
-  } catch {
-    return true;
-  }
-  const ageMs = now - mtimeMs;
-  return !Number.isFinite(ageMs) || ageMs > staleMs;
-}
-
-/**
- * B-70e9 F-003: ATOMIC cap admission via FIXED numbered slots.
- *
- * The admission decision IS the exclusive create: slot files are named
- * `slot-0.json` .. `slot-(cap-1).json`, and each index is tried in order with an
- * atomic `wx` create — success on index i means this process is admitted (only
- * `cap` contenders can ever hold the `cap` fixed names, so N concurrent starts
- * can never all pass the way the old scan-then-unique-acquire TOCTOU allowed).
- *
- * Per-index reclaim: when an index is occupied, a FRESH reclaimability probe
- * runs immediately before any reclaim (F-025 semantics — see isSlotReclaimable:
- * dead recorded pid at any age, or meta-less past the mtime orphan backstop; a
- * LIVE recorded pid is never age-reclaimed). A reclaimable slot is reclaimed by
- * re-verify -> unlink -> a NEW wx create: the occupant is RE-READ immediately
- * before the unlink and the unlink is skipped when it no longer matches the
- * judged occupant (F-018 pattern) — a racing reclaimer may have already won and
- * a NEW holder re-created this slot, and unlinking then would delete the new
- * holder's live admission. The wx decides the winner among racing reclaimers —
- * a lost race (EEXIST after our unlink, because another reclaimer re-created
- * first) just moves on to the next index; unlink+create is NEVER treated as
- * guaranteed admission.
- *
- * Cap semantics under a mid-flight change: a cap RAISE simply exposes more
- * indexes to try; a cap LOWER means live slots at index >= cap still count as
- * "live" for reporting (scanLiveSlots reads every slot file) but new acquires
- * only ever try slot-0..slot-(cap-1), so admissions converge onto the lowered
- * cap as the high-index runs drain.
- *
- * Returns the acquired slot path PLUS the acquire-minted ownership token that
- * releaseSlot must present (F-025), or null when every index 0..cap-1 is held
- * by a live run (the caller refuses fail-closed). Slot content stays
- * metadata-only (pid/startedAt/host/storyId/agentType + token) and is never
- * copied into a ledger row.
- */
-export function acquireHostRunSlot(
-  dir: string,
-  cap: number,
-  staleMs: number,
-  now: number,
-  meta: SlotMeta,
-): AcquiredHostRunSlot | null {
-  mkdirSync(dir, { recursive: true });
-  const boundedCap = Number.isFinite(cap) && Number.isInteger(cap) && cap > 0 ? cap : HOST_RUN_MAX_CONCURRENT_DEFAULT;
-  const token = randomUUID();
-  const record: SlotFileMeta = { ...meta, token };
-  for (let index = 0; index < boundedCap; index++) {
-    const file = join(dir, `slot-${index}.json`);
-    // Free index: the exclusive create IS the atomic admission.
-    if (writeSlotFileExclusive(file, record)) return { file, token };
-
-    // Occupied: fresh reclaimability probe immediately before any reclaim.
-    const judged = readSlotOccupant(file);
-    if (!isSlotReclaimable(judged, file, now, staleMs)) continue;
-
-    // Reclaimable: re-verify -> unlink -> a fresh exclusive create. The re-read
-    // backs off when the occupant changed since we judged it (a racing reclaimer
-    // won and a NEW holder re-created the slot: unlinking now would delete that
-    // holder's live admission — the same ownership class F-025 closes on
-    // release). The remaining read -> unlink gap is the pid-reuse-class residual
-    // documented on releaseSlot.
-    if (judged.state !== 'missing') {
-      if (!sameSlotOccupant(readSlotOccupant(file), judged)) continue;
-      try {
-        unlinkSync(file);
-      } catch {
-        // Another reclaimer unlinked first; the wx below still decides the winner.
-      }
-    }
-    if (writeSlotFileExclusive(file, record)) return { file, token };
-    // Lost the reclaim race to another contender — move on to the next index.
-  }
-  return null;
-}
-
-/**
- * Ownership-verified slot release (F-025, mirroring the F-018 ledger-lock
- * release guard): read-verify-then-unlink. The slot file is unlinked ONLY while
- * its on-disk token still matches the token minted at OUR acquire. A mismatch —
- * or a missing/corrupt slot file — means the slot was legitimately reclaimed
- * after we were judged dead/orphaned and may already be a NEW holder's live
- * admission: return WITHOUT touching it (the old blind unlink deleted the new
- * holder's slot and let subsequent runs bypass the cap). A null file/token is a
- * no-op (the ledger-OFF paths). The tiny read-verify -> unlink window is the
- * same pid-reuse-class residual documented on the usage-ledger lock (F-018);
- * a slot leaked by a skipped release is reclaimed by pid-death (or, for
- * meta-less files, the mtime orphan backstop).
- *
- * Exported so the autopilot claude repair path (F-016) and the codex review
- * leaf (F-017) release their admission slots the same way host_run does.
- */
-export function releaseSlot(file: string | null, token: string | null): void {
-  if (!file || !token) return;
-  try {
-    const occupant = readSlotOccupant(file);
-    if (occupant.state !== 'valid' || occupant.token !== token) return;
-    unlinkSync(file);
-  } catch {
-    // Best-effort release; pid-death / the orphan backstop reclaims a leak.
-  }
-}
+export {
+  PROVIDER_PROCESS_MAX_CONCURRENT_DEFAULT as HOST_RUN_MAX_CONCURRENT_DEFAULT,
+  acquireProviderProcessSlot as acquireHostRunSlot,
+  providerProcessSlotsDir as hostRunSlotsDir,
+  releaseProviderProcessSlot as releaseSlot,
+  resolveProviderProcessMaxConcurrent as resolveMaxConcurrent,
+  resolveProviderProcessSlotStaleMs as resolveSlotStaleMs,
+  scanLiveProviderProcessSlots as scanLiveSlots,
+  writeProviderProcessSlotExclusive as writeSlotFileExclusive,
+} from './provider-process-registry.js';
+export interface AcquiredHostRunSlot extends AcquiredProviderProcessSlot {}
+export type HostRunLiveDescriptor = ProviderProcessLiveDescriptor;
 
 // ---------------------------------------------------------------------------
 // Codex turn.completed usage scan (CHK-001)
@@ -889,6 +673,7 @@ function codexTurnFailedDigest(message: string | null): string {
 /** Per-retained-line cap. A single line over this is dropped (not retained). */
 export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
 export const HOST_RUN_FAILURE_TEXT_CAP = 64 * 1024;
+export const HOST_RUN_FINAL_ASSISTANT_RESULT_CAP = 256 * 1024;
 const HOST_RUN_FAILURE_CLASSIFICATION_WINDOW = 2 * 1024;
 
 // Stable precedence for concurrently observable terminal facts. More specific
@@ -1030,6 +815,495 @@ export class UsageLineScanner {
 }
 
 /**
+ * Bounded, provider-specific terminal-result lane. It accepts only the
+ * canonical adapter events emitted by the provider CLI and never examines
+ * stderr, tool-log payloads, or arbitrary passthrough chunks as evidence.
+ */
+export const MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION = 'lattice.managed_review_final_proposal.v1' as const;
+export const MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES = 16 * 1024;
+
+export interface ManagedReviewFinalEnvelopeReadManifest extends Record<string, unknown> {
+  filesReadFully: string[];
+  filesTriagedByName: string[];
+  scanEscalationReason: string | null;
+  candidateSpecSetDigest: string;
+  corpusDigest: string;
+}
+
+export interface ManagedReviewFinalEnvelopeFinding extends Record<string, unknown> {
+  desc: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  category: 'happy' | 'edge' | 'adversarial' | 'missing';
+  files?: string[];
+  evidenceState?: 'suspected' | 'verified';
+  uncertaintyReason?: string;
+}
+
+export interface ManagedReviewFinalEnvelopeRecord extends Record<string, unknown> {
+  schemaVersion: typeof MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION;
+  storyId: string;
+  providerAgent: string;
+  lane: string;
+  reviewRunId: string;
+  conclusion: 'pass' | 'findings';
+  note?: string;
+  findings?: ManagedReviewFinalEnvelopeFinding[];
+  readManifest: ManagedReviewFinalEnvelopeReadManifest;
+  readLog: Record<string, unknown>;
+}
+
+/**
+ * Claude Code's structured-output schema is necessarily a CLI argument. Keep it
+ * bounded and non-secret: it contains only the already-auditable managed review
+ * tuple plus public vocabulary, never prompt bytes, capabilities, or verdicts.
+ */
+function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
+  if (!args.storyId || !args.reviewRunId || !args.lane || args.agentType !== args.lane) {
+    throw new Error('host_run: managed Claude JSON Schema requires exact storyId/reviewRunId/lane/agentType binding');
+  }
+  // Keep the provider schema inside Claude Structured Outputs' supported core
+  // subset. Richer semantic constraints (non-blank text, digests, non-empty
+  // findings, and pass/findings exclusivity) are still enforced by the exact
+  // local envelope parser before any bytes are sealed as evidence.
+  const nonBlankString = { type: 'string' };
+  const stringArray = { type: 'array', items: { type: 'string' } };
+  const digest = { type: 'string' };
+  const readManifest = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest'],
+    properties: {
+      filesReadFully: stringArray,
+      filesTriagedByName: stringArray,
+      scanEscalationReason: { type: ['string', 'null'] },
+      candidateSpecSetDigest: digest,
+      corpusDigest: digest,
+    },
+  };
+  const readLog = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['filesReadFully', 'filesTriagedByName', 'summary', 'digest'],
+    properties: {
+      filesReadFully: stringArray,
+      filesTriagedByName: stringArray,
+      summary: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['readCount', 'tokenCount'],
+        properties: {
+          // B-137a: state the constraint the gate actually enforces.
+          // diagnoseManagedReviewerReadEvidence requires
+          // readCount === filesReadFully.length (unique paths), but the schema
+          // previously said only "integer". A provider reasonably read this as
+          // "number of read operations I performed" and reported its tool-call
+          // count (e.g. 14) against a 1-entry filesReadFully, so a substantive,
+          // otherwise-valid verdict was discarded as malformed with no hint at
+          // which field was wrong. Describing the invariant here is the prompt
+          // half of the two-layer process-fact contract; the gate remains the
+          // hard fallback and is unchanged.
+          readCount: {
+            type: 'integer',
+            description: 'MUST equal the number of unique paths in filesReadFully (not the number of read operations performed).',
+          },
+          tokenCount: { type: ['integer', 'null'] },
+        },
+      },
+      digest: { type: 'string', pattern: '^[a-f0-9]{64}$' },
+    },
+  };
+  const finding = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['desc', 'severity', 'category'],
+    properties: {
+      desc: nonBlankString,
+      severity: { enum: ['critical', 'high', 'medium', 'low'] },
+      category: { enum: ['happy', 'edge', 'adversarial', 'missing'] },
+      files: { type: 'array', items: nonBlankString },
+      evidenceState: { enum: ['suspected', 'verified'] },
+      uncertaintyReason: nonBlankString,
+    },
+  };
+  const schema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion', 'readManifest', 'readLog'],
+    properties: {
+      schemaVersion: { const: MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION },
+      storyId: { const: args.storyId },
+      providerAgent: { const: args.agentType },
+      lane: { const: args.lane },
+      reviewRunId: { const: args.reviewRunId },
+      conclusion: { enum: ['pass', 'findings'] },
+      // Claude's raw provider schema rejects minLength. The exact local parser
+      // below enforces the trimmed 10-character diagnostic-note minimum before
+      // any proposal can reach persistence.
+      note: nonBlankString,
+      findings: { type: 'array', items: finding },
+      readManifest,
+      readLog,
+      readDiagnostics: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['code', 'severity', 'message'],
+          properties: {
+            code: { enum: [
+              'read_manifest_missing_full_read',
+              'read_manifest_extra_full_read',
+              'read_manifest_missing_triage',
+              'read_manifest_extra_triage',
+              'full_scan_without_scanEscalationReason',
+            ] },
+            severity: { const: 'finding' },
+            message: nonBlankString,
+            path: nonBlankString,
+          },
+        },
+      },
+    },
+    // Claude Code forwards this raw provider input_schema, whose top level
+    // rejects oneOf/allOf/anyOf. Keep provider-facing common shape constraints
+    // flat; the unchanged local parser remains authoritative for conclusion-
+    // specific note/findings presence, exclusivity, and non-empty semantics.
+  };
+  const encoded = JSON.stringify(schema);
+  if (Buffer.byteLength(encoded, 'utf8') > MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES) {
+    throw new Error(`host_run: managed Claude JSON Schema exceeds ${MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES} bytes`);
+  }
+  return encoded;
+}
+
+export type ManagedReviewFinalEnvelopeClassification =
+  | { kind: 'ordinary' }
+  | { kind: 'malformed' }
+  | { kind: 'valid'; envelope: ManagedReviewFinalEnvelopeRecord };
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
+
+/** Shared strict validator consumed at adapter, persistence, and import/gate boundaries. */
+export function isStrictManagedReviewFindingProposal(value: unknown): value is ManagedReviewFinalEnvelopeFinding {
+  if (!isPlainRecord(value)) return false;
+  const allowed = new Set(['desc', 'severity', 'category', 'files', 'evidenceState', 'uncertaintyReason']);
+  if (Object.keys(value).some(key => !allowed.has(key))) return false;
+  if (typeof value.desc !== 'string' || value.desc.trim().length === 0) return false;
+  if (typeof value.severity !== 'string' || !['critical', 'high', 'medium', 'low'].includes(value.severity)) return false;
+  if (typeof value.category !== 'string' || !['happy', 'edge', 'adversarial', 'missing'].includes(value.category)) return false;
+  if (value.files !== undefined
+    && (!isStringArray(value.files) || value.files.some(file => file.trim().length === 0))) return false;
+  if (value.evidenceState !== undefined
+    && value.evidenceState !== 'suspected'
+    && value.evidenceState !== 'verified') return false;
+  if (value.evidenceState === 'suspected') {
+    if (typeof value.uncertaintyReason !== 'string' || value.uncertaintyReason.trim().length === 0) return false;
+  } else if (value.uncertaintyReason !== undefined) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * A formal managed verdict cannot be a bare assertion. The provider must
+ * supply non-empty read evidence and both routing digests; the managed import
+ * handler then binds those digests to the current candidate artifact even
+ * while that artifact's rollout mode is shadow.
+ */
+export function hasRequiredManagedReviewReadEvidence(
+  readManifest: unknown,
+  readLog: unknown,
+): boolean {
+  try {
+    const manifest = normalizeReviewerReadManifest(readManifest);
+    const log = normalizeReviewerReadLogEvidence(readLog);
+    return manifest.filesReadFully.length > 0
+      && log.filesReadFully.length > 0
+      && log.summary.readCount > 0
+      && !!manifest.candidateSpecSetDigest
+      && !!manifest.corpusDigest
+      && diagnoseManagedReviewerReadEvidence({ readManifest: manifest, readLog: log }).length === 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Classify one provider-owned final assistant text without treating ordinary
+ * Codex progress messages as proposal candidates. A message that explicitly
+ * names the managed proposal schema remains fail-closed when malformed; valid
+ * envelopes receive a second semantic/provenance validation in the managed
+ * worker before any immutable proposal is written.
+ */
+export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewFinalEnvelopeClassification {
+  const trimmed = text.trim();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+      ? { kind: 'malformed' }
+      : { kind: 'ordinary' };
+  }
+  if (!isPlainRecord(parsed)) return { kind: 'ordinary' };
+  if (parsed.schemaVersion !== MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION) {
+    return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+      ? { kind: 'malformed' }
+      : { kind: 'ordinary' };
+  }
+
+  const conclusion = parsed.conclusion;
+  const allowed = new Set([
+    'schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
+    'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings',
+  ]);
+  const readManifest = parsed.readManifest;
+  const validReadManifest = isPlainRecord(readManifest)
+    && isStringArray(readManifest.filesReadFully)
+    && isStringArray(readManifest.filesTriagedByName)
+    && (readManifest.scanEscalationReason === null || typeof readManifest.scanEscalationReason === 'string')
+    && typeof readManifest.candidateSpecSetDigest === 'string'
+    && typeof readManifest.corpusDigest === 'string';
+  const validDiagnosticNote = typeof parsed.note === 'string' && parsed.note.trim().length >= 10;
+  const validConclusionPayload = conclusion === 'pass'
+    ? validDiagnosticNote
+      && (parsed.findings === undefined || (Array.isArray(parsed.findings) && parsed.findings.length === 0))
+    : conclusion === 'findings'
+      && Array.isArray(parsed.findings)
+      && parsed.findings.length > 0
+      && parsed.findings.every(isStrictManagedReviewFindingProposal)
+      && (parsed.note === undefined || validDiagnosticNote);
+  if (Object.keys(parsed).some(key => !allowed.has(key))
+    || typeof parsed.storyId !== 'string'
+    || typeof parsed.providerAgent !== 'string'
+    || typeof parsed.lane !== 'string'
+    || typeof parsed.reviewRunId !== 'string'
+    || !validReadManifest
+    || !hasRequiredManagedReviewReadEvidence(readManifest, parsed.readLog)
+    || !validConclusionPayload
+    || (parsed.readDiagnostics !== undefined && !Array.isArray(parsed.readDiagnostics))) {
+    return { kind: 'malformed' };
+  }
+  return { kind: 'valid', envelope: parsed as ManagedReviewFinalEnvelopeRecord };
+}
+
+export class FinalAssistantResultScanner {
+  private partial = '';
+  private skippingCandidate = false;
+  /**
+   * Codex's ordinary `exec` transport is not JSONL. Retain only one bounded
+   * contiguous raw stdout block, so an exact standalone proposal can be
+   * recognized at terminal flush without treating arbitrary lines as evidence.
+   */
+  private rawCodexStdout = '';
+  private rawCodexStdoutTruncated = false;
+  private result: string | null = null;
+  private candidateCount = 0;
+  private candidateTruncated = false;
+
+  constructor(
+    private readonly host: HostRunHost | undefined,
+    private readonly cap: number = HOST_RUN_FINAL_ASSISTANT_RESULT_CAP,
+  ) {}
+
+  push(text: string): void {
+    if ((this.host !== 'codex' && this.host !== 'claude') || text.length === 0) return;
+    let data = text;
+    while (data.length > 0) {
+      const nl = data.indexOf('\n');
+      if (nl === -1) {
+        if (this.skippingCandidate) return;
+        if (this.partial.length + data.length > this.cap) {
+          this.markOversizeCandidate(`${this.partial}${data.slice(0, Math.max(0, this.cap - this.partial.length))}`);
+          this.partial = '';
+          this.skippingCandidate = true;
+          return;
+        }
+        this.partial += data;
+        return;
+      }
+      const segment = data.slice(0, nl);
+      data = data.slice(nl + 1);
+      if (this.skippingCandidate) {
+        this.skippingCandidate = false;
+        this.partial = '';
+        continue;
+      }
+      if (this.partial.length + segment.length > this.cap) {
+        this.markOversizeCandidate(`${this.partial}${segment.slice(0, Math.max(0, this.cap - this.partial.length))}`);
+        this.partial = '';
+        continue;
+      }
+      this.consider(this.partial + segment, true);
+      this.partial = '';
+    }
+  }
+
+  flush(): void {
+    if (this.skippingCandidate) {
+      this.skippingCandidate = false;
+      this.partial = '';
+      return;
+    }
+    if (this.partial.length > 0) this.consider(this.partial, false);
+    this.partial = '';
+    this.flushRawCodexStdout();
+  }
+
+  /**
+   * B-137a:F-104 — record that a canonical-looking candidate was too large.
+   *
+   * `candidateTruncated` is a LATCH on purpose: an oversize canonical candidate
+   * must never be silently forgotten, because
+   * parseManagedReviewFinalProposal() checks finalAssistantResultTruncated
+   * first and refuses the run rather than accept a possibly-truncated verdict.
+   * That is deliberately fail-closed.
+   *
+   * The asymmetry the reviewer flagged is real but intended. Note the reset in
+   * consider() is CODEX-ONLY (it sits inside `if (this.host === 'codex')`):
+   * codex may emit several assistant messages, so later ordinary prose proves
+   * an earlier candidate was not the terminal one and the latch may be cleared.
+   * For claude there is no such reset at all — one result envelope is expected,
+   * so nothing can retroactively prove an earlier candidate non-terminal.
+   *
+   * Either way an oversize candidate carries no proof of non-terminality: a
+   * following valid proposal could be a second verdict rather than a
+   * correction, and silently preferring it would let a provider retry its way
+   * past the single-verdict guard. So the latch stays, and the run fails closed
+   * with managed_review_final_result_oversize.
+   */
+  private markOversizeCandidate(prefix: string): void {
+    const looksCanonical = this.host === 'codex'
+      ? prefix.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+        && (!prefix.includes('"item.completed"') || prefix.includes('"agent_message"'))
+      : prefix.includes('"type":"result"') || prefix.includes('"type": "result"');
+    if (looksCanonical) {
+      this.candidateCount += 1;
+      this.candidateTruncated = true;
+      this.result = null;
+    } else if (this.host === 'codex' && !prefix.includes('"item.completed"')) {
+      // A non-JSONL raw block after a wrapped proposal proves that proposal was
+      // not the exact terminal assistant result. Do not let an oversized
+      // ordinary stdout line preserve earlier REVIEW evidence.
+      this.clearCodexCandidate();
+    }
+  }
+
+  private consider(line: string, terminated: boolean): void {
+    const event = parseJsonObjectLine(line);
+    let candidate: unknown;
+    if (this.host === 'codex') {
+      // `codex exec` without --json writes the final assistant text directly
+      // to stdout. A top-level managed envelope (including malformed text that
+      // names the schema) is a bounded raw candidate. JSONL events retain the
+      // existing item.completed/agent_message-only behavior.
+      if (!event) {
+        this.appendRawCodexStdout(`${line}${terminated ? '\n' : ''}`);
+        return;
+      }
+      if (Object.prototype.hasOwnProperty.call(event, 'schemaVersion') || typeof event.type !== 'string') {
+        this.appendRawCodexStdout(`${line}${terminated ? '\n' : ''}`);
+        return;
+      }
+      this.flushRawCodexStdout();
+      if (event.type !== 'item.completed') return;
+      const item = event.item;
+      if (typeof item !== 'object' || item === null || Array.isArray(item)) return;
+      const record = item as Record<string, unknown>;
+      if (record.type !== 'agent_message') return;
+      candidate = record.text;
+    } else if (this.host === 'claude') {
+      if (!event) return;
+      if (event.type !== 'result') return;
+      // F-142: only a successful provider-validated structured_output is a
+      // proposal candidate. Error/non-success result events and success events
+      // without structured_output are ignored; event.result is never used.
+      if (event.subtype !== 'success') return;
+      if (!Object.prototype.hasOwnProperty.call(event, 'structured_output')) return;
+      candidate = JSON.stringify(event.structured_output);
+    } else {
+      return;
+    }
+    if (typeof candidate !== 'string') return;
+    if (this.host === 'codex') {
+      this.considerCodexCandidate(candidate);
+      return;
+    }
+    this.recordCandidate(candidate);
+  }
+
+  private appendRawCodexStdout(text: string): void {
+    if (this.rawCodexStdoutTruncated) return;
+    const next = `${this.rawCodexStdout}${text}`;
+    if (Buffer.byteLength(next, 'utf8') > this.cap) {
+      this.rawCodexStdout = Buffer.from(next, 'utf8').subarray(0, this.cap).toString('utf8');
+      this.rawCodexStdoutTruncated = true;
+      return;
+    }
+    this.rawCodexStdout = next;
+  }
+
+  private flushRawCodexStdout(): void {
+    if (this.host !== 'codex') return;
+    const raw = this.rawCodexStdout;
+    const truncated = this.rawCodexStdoutTruncated;
+    this.rawCodexStdout = '';
+    this.rawCodexStdoutTruncated = false;
+    const candidate = raw.trim();
+    if (candidate.length === 0) return;
+    if (truncated) {
+      if (classifyManagedReviewFinalEnvelope(candidate).kind === 'ordinary') {
+        this.clearCodexCandidate();
+      } else {
+        this.candidateCount += 1;
+        this.candidateTruncated = true;
+        this.result = null;
+      }
+      return;
+    }
+    this.considerCodexCandidate(candidate);
+  }
+
+  private considerCodexCandidate(candidate: string): void {
+    const classification = classifyManagedReviewFinalEnvelope(candidate);
+    if (classification.kind === 'ordinary') {
+      // Codex may emit multiple assistant messages. Only the terminal one is
+      // authoritative: later ordinary prose invalidates any earlier proposal
+      // candidate instead of letting a progress message masquerade as final.
+      this.clearCodexCandidate();
+      return;
+    }
+    this.recordCandidate(candidate);
+  }
+
+  private clearCodexCandidate(): void {
+    this.result = null;
+    this.candidateCount = 0;
+    this.candidateTruncated = false;
+  }
+
+  private recordCandidate(candidate: string): void {
+    this.candidateCount += 1;
+    if (Buffer.byteLength(candidate, 'utf8') > this.cap) {
+      this.candidateTruncated = true;
+      this.result = null;
+      return;
+    }
+    this.result = candidate;
+  }
+
+  snapshot(): { result: string | null; count: number; truncated: boolean } {
+    return { result: this.result, count: this.candidateCount, truncated: this.candidateTruncated };
+  }
+}
+
+/**
  * Build the per-host usage-line retainer. codex keeps the last `turn.completed`
  * event that carries a usage object; claude keeps the last stream-json `result`
  * envelope; agy has no usage surface, so nothing is retained.
@@ -1098,16 +1372,103 @@ export interface HostRunRunnerRuntime {
   spawnChild?: (command: string, argv: string[], options: {
     cwd: string;
     env: NodeJS.ProcessEnv;
-    stdio: ['pipe', 'pipe', 'pipe'];
+    stdio: ['pipe', 'pipe', 'pipe'] | ['pipe', 'pipe', 'pipe', 'pipe'];
+    detached?: boolean;
   }) => ReturnType<typeof spawn>;
   schedule?: (callback: () => void, delayMs: number) => NodeJS.Timeout;
   cancel?: (timer: NodeJS.Timeout) => void;
+  /** Testable process-boundary seams; production uses POSIX probes/signals. */
+  processGroupIsolated?: boolean;
+  readProcessStartFingerprint?: (pid: number) => string | null;
+  isProcessGroupAlive?: (pgid: number | null) => boolean;
+  signalProcessGroup?: (pgid: number, signal: NodeJS.Signals) => boolean;
+  /** Test seam invoked after the authoritative child-close fence is installed. */
+  onChildCloseObserved?: () => void;
+}
+
+const HOST_RUN_PROCESS_GROUP_TERM_GRACE_MS = 250;
+const HOST_RUN_PROCESS_GROUP_KILL_GRACE_MS = 250;
+function processStartFingerprint(pid: number): string | null {
+  if (process.platform === 'win32' || !Number.isSafeInteger(pid) || pid <= 0) return null;
+  // `spawn()` publishes a pid before the child has necessarily entered the
+  // process table. A single immediate `ps` probe can therefore return an
+  // empty result for a perfectly valid detached provider. Treat that as a
+  // transient observation gap and retry briefly; otherwise the old fallback
+  // fingerprint would permanently make the real group unverified, causing a
+  // timeout to wait forever because the PGID (and the direct pid fallback) are
+  // correctly refused. This retry never widens signalling authority: only an
+  // exact OS start fingerprint can authorize a PGID signal.
+  const waitBuffer = new Int32Array(new SharedArrayBuffer(4));
+  const attempts = 4;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
+        encoding: 'utf8',
+        timeout: 1_000,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+      if (value.length > 0) return value;
+    } catch {
+      // The process may not have reached the table yet; retry below.
+    }
+    if (attempt + 1 < attempts) Atomics.wait(waitBuffer, 0, 0, 10);
+  }
+  return null;
+}
+
+function isolatedProcessGroupAlive(pgid: number | null): boolean {
+  if (process.platform === 'win32' || !pgid || pgid <= 1) return false;
+  try {
+    process.kill(-pgid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM';
+  }
+}
+
+function signalIsolatedProcessGroup(
+  identity: HostRunProcessIdentity | null,
+  signal: NodeJS.Signals,
+  readStartFingerprint: (pid: number) => string | null,
+  send: (pgid: number, signal: NodeJS.Signals) => boolean,
+): boolean {
+  if (!isSafeIsolatedProviderProcessGroup(identity)) return false;
+  // A stale PID/PGID must never be signalled. This exact revalidation mirrors
+  // managed reconciliation: the detached group leader is authority only while
+  // its observed start fingerprint still names the spawned leader.
+  if (readStartFingerprint(identity.pid) !== identity.startFingerprint) return false;
+  return send(identity.pgid, signal);
+}
+
+function signalProcessGroup(pgid: number, signal: NodeJS.Signals): boolean {
+  if (process.platform === 'win32' || pgid <= 1) return false;
+  try {
+    process.kill(-pgid, signal);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ESRCH') return true;
+    return false;
+  }
 }
 
 export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRunnerRuntime = {}): Promise<HostRunSpawnResult> {
   return new Promise<HostRunSpawnResult>((resolve) => {
     const schedule = runtime.schedule ?? ((callback: () => void, delayMs: number) => setTimeout(callback, delayMs));
     const cancel = runtime.cancel ?? ((timer: NodeJS.Timeout) => clearTimeout(timer));
+    const readStartFingerprint = runtime.readProcessStartFingerprint ?? processStartFingerprint;
+    // Keep injected fingerprint seams deterministic while giving a custom
+    // seam the same bounded retry contract as the production `ps` probe.
+    const readStartFingerprintWithRetry: (pid: number) => string | null = runtime.readProcessStartFingerprint
+      ? (pid: number) => {
+        for (let attempt = 0; attempt < 4; attempt += 1) {
+          const value = readStartFingerprint(pid);
+          if (value) return value;
+        }
+        return null;
+      }
+      : processStartFingerprint;
+    const groupAlive = runtime.isProcessGroupAlive ?? isolatedProcessGroupAlive;
+    const signalGroup = runtime.signalProcessGroup ?? signalProcessGroup;
     const scanner = new UsageLineScanner(plan.retainUsageLine);
     // B-3ddc: the SECOND bounded lane — same scanner class, same cap, same
     // last-wins discipline — retains the last failure event line. Its truncated
@@ -1118,24 +1479,42 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     // turn_failed(<digest>). The usage lane's own flag still feeds
     // retentionTruncated with ABSOLUTE priority (F-013/F-026 unchanged).
     const failureScanner = new UsageLineScanner(plan.retainFailureLine);
+    const finalResultScanner = new FinalAssistantResultScanner(plan.host);
+    const stdoutDecoder = new StringDecoder('utf8');
     const startedAt = Date.now();
     let settled = false;
+    let closeObserved = false;
+    let closeObservedAt: string | null = null;
     let timedOut = false;
     let timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null = null;
     let terminalReason: HostRunSpawnResult['terminalReason'] = 'completed';
     let firstOutputMs: number | null = null;
     let startupTimer: NodeJS.Timeout | null = null;
     let totalTimer: NodeJS.Timeout | null = null;
+    let killTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
     let retainedStderr = '';
+    // Hash the complete provider stdout stream while retaining only bounded
+    // parser state. This keeps provenance honest after the retention ceiling
+    // without ever persisting or surfacing the raw transcript.
+    const fullStdoutHash = createHash('sha256');
     const classificationTail: Record<HostRunChunk['stream'], string> = { stdout: '', stderr: '' };
     let failureKind: HostExecutionFailureKind = 'none';
     let asyncSpawnError = false;
     let child: ReturnType<typeof spawn> | null = null;
-    let stdoutHandler: ((text: string) => void) | null = null;
+    let processIdentity: HostRunProcessIdentity | null = null;
+    let replacementSafe = true;
+    let residualProcessGroup = false;
+    let termSent = false;
+    let killSent = false;
+    const processGroupIsolated = runtime.processGroupIsolated ?? (process.platform !== 'win32' && runtime.spawnChild === undefined);
+    let stdoutHandler: ((chunk: Buffer | string) => void) | null = null;
     let stderrHandler: ((text: string) => void) | null = null;
+    let stdinErrorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
+    let descriptorErrorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
     let errorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
     let closeHandler: ((code: number | null, signal: NodeJS.Signals | null) => void) | null = null;
+    let handleStdoutText: (text: string) => void = () => {};
 
     // F-008: a throwing onChunk (e.g. EPIPE from a closed consumer pipe) must
     // never escape a 'data' listener as an uncaught EventEmitter exception —
@@ -1155,7 +1534,64 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       }
     };
 
+    /**
+     * A direct-child signal is only a safe fallback for an isolated provider
+     * group while the child still proves it is the original group leader.  A
+     * failed PGID revalidation may mean that the numeric child pid was reused;
+     * signalling it would simply move the same unsafe authority from -pgid to
+     * pid.  Preserve the residual for reconciliation instead.
+     */
+    const signalDirectChild = (signal: NodeJS.Signals): boolean => {
+      if (processIdentity?.processGroupIsolated) {
+        const leaderStillVerified = isSafeIsolatedProviderProcessGroup(processIdentity)
+          && readStartFingerprint(processIdentity.pid) === processIdentity.startFingerprint;
+        if (!leaderStillVerified) {
+          residualProcessGroup = true;
+          replacementSafe = false;
+          return false;
+        }
+      }
+      try {
+        return child?.kill(signal) === true;
+      } catch {
+        return false;
+      }
+    };
+
+    /**
+     * A provider can win the spawn-vs-`ps` race even after the bounded capture
+     * retries above. While the Node ChildProcess is still open, its PID cannot
+     * have been reused: the original child has not reached its close/reap
+     * fence. Bind the first real OS start fingerprint observed at that point,
+     * then let the normal isolated-PGID predicate revalidate it. If the probe
+     * remains unavailable, leave the placeholder untouched and stay fail-closed.
+     */
+    const bindLateStartFingerprint = (): void => {
+      if (!processIdentity?.processGroupIsolated || !child || child.exitCode !== null || child.signalCode !== null) return;
+      if (!processIdentity.startFingerprint?.startsWith('spawn-observed:')) return;
+      // Reuse the bounded spawn-race retry here as well. Under aggregate
+      // refresh load the process can remain live while one `ps` probe is
+      // transiently empty; a single late probe would leave a safe provider
+      // permanently unverified and make cleanup wait for the deadline.
+      const observed = readStartFingerprintWithRetry(processIdentity.pid);
+      if (observed) processIdentity = { ...processIdentity, startFingerprint: observed };
+    };
+
     const clearTimersAndListener = (): void => {
+      if (startupTimer) cancel(startupTimer);
+      if (totalTimer) cancel(totalTimer);
+      if (killTimer) cancel(killTimer);
+      startupTimer = null;
+      totalTimer = null;
+      killTimer = null;
+      if (abortListener && plan.signal) plan.signal.removeEventListener('abort', abortListener);
+      abortListener = null;
+    };
+    const fenceDeadlineAfterClose = (): void => {
+      // The close event is the child process's authoritative terminal boundary.
+      // Its process-group cleanup may await after this point, but an already
+      // queued deadline/abort callback must not rewrite a successful/failed
+      // child close into a contradictory timeout result during that cleanup.
       if (startupTimer) cancel(startupTimer);
       if (totalTimer) cancel(totalTimer);
       startupTimer = null;
@@ -1167,10 +1603,12 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (!child) return;
       if (stdoutHandler) child.stdout?.removeListener('data', stdoutHandler);
       if (stderrHandler) child.stderr?.removeListener('data', stderrHandler);
+      if (stdinErrorHandler) child.stdin?.removeListener?.('error', stdinErrorHandler);
       if (errorHandler) child.removeListener('error', errorHandler);
       if (closeHandler) child.removeListener('close', closeHandler);
       stdoutHandler = null;
       stderrHandler = null;
+      stdinErrorHandler = null;
       errorHandler = null;
       closeHandler = null;
     };
@@ -1178,14 +1616,25 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (settled) return;
       settled = true;
       clearTimersAndListener();
+      // stdout is consumed as raw bytes so stdoutDigest is a digest of the
+      // provider's exact stream. Flush any incomplete trailing UTF-8 sequence
+      // only into the bounded text/parser lanes; those lanes must never alter
+      // the byte provenance already recorded above.
+      const trailingStdoutText = stdoutDecoder.end();
+      if (trailingStdoutText.length > 0) handleStdoutText(trailingStdoutText);
       scanner.flush();
       failureScanner.flush();
+      finalResultScanner.flush();
       detachChildListeners();
+      const finalResult = finalResultScanner.snapshot();
       resolve({
         stdout: scanner.retainedText(),
+        stdoutDigest: fullStdoutHash.digest('hex'),
         stderr: retainedStderr,
         exitCode,
         timedOut,
+        closeObserved,
+        closeObservedAt,
         timeoutKind,
         terminalReason,
         firstOutputMs,
@@ -1195,15 +1644,29 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         failureText: failureScanner.retainedText(),
         // B-3ddc (codex round-1 F1): honor the failure lane's own truncation.
         failureRetentionTruncated: failureScanner.truncated,
+        finalAssistantResult: finalResult.result,
+        finalAssistantResultCount: finalResult.count,
+        finalAssistantResultTruncated: finalResult.truncated,
         passthroughError,
+        processIdentity,
+        replacementSafe,
+        residualProcessGroup,
+        processCleanup: processIdentity
+          ? { termSent, killSent, reaped: replacementSafe, residualProcessGroup }
+          : null,
       });
     };
 
     try {
       child = (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,
-        env: plan.env,
-        stdio: ['pipe', 'pipe', 'pipe'],
+        env: plan.reviewInvocationPayload
+          ? { ...plan.env, LATTICE_MANAGED_REVIEW_INVOCATION_FD: '3' }
+          : plan.env,
+        stdio: plan.reviewInvocationPayload
+          ? ['pipe', 'pipe', 'pipe', 'pipe']
+          : ['pipe', 'pipe', 'pipe'],
+        detached: processGroupIsolated,
       });
     } catch {
       terminalReason = 'spawn_error';
@@ -1212,8 +1675,25 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       return;
     }
 
+    if (child.pid) {
+      const spawnedAt = new Date().toISOString();
+      processIdentity = {
+        pid: child.pid,
+        pgid: processGroupIsolated ? child.pid : null,
+        spawnedAt,
+        // When ps is hidden by a brokered sandbox, retain an exact
+        // spawn-observation fingerprint bound to pid+time. It cannot authorize
+        // PGID discovery, but the worker-signed descriptor can bind this exact
+        // invocation without pretending ancestry was observable.
+        startFingerprint: processGroupIsolated
+          ? readStartFingerprint(child.pid) ?? `spawn-observed:${child.pid}:${spawnedAt}`
+          : null,
+        processGroupIsolated,
+      };
+    }
+
     const terminate = (reason: 'startup_no_output_timeout' | 'total_timeout' | 'aborted'): void => {
-      if (settled || timeoutKind !== null || terminalReason === 'aborted') return;
+      if (settled || closeObserved || timeoutKind !== null || terminalReason === 'aborted') return;
       if (reason === 'aborted') {
         terminalReason = 'aborted';
       } else {
@@ -1223,10 +1703,30 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         failureKind = preferredHostFailure(failureKind, 'timeout');
       }
       clearTimersAndListener();
-      try {
-        child?.kill('SIGKILL');
-      } catch {
-        // best-effort; settlement still waits for error/close
+      if (processIdentity?.processGroupIsolated) {
+        bindLateStartFingerprint();
+        const sentToGroup = signalIsolatedProcessGroup(processIdentity, 'SIGTERM', readStartFingerprint, signalGroup);
+        termSent = sentToGroup || termSent;
+        // An unobservable/mismatched group leader is never safe to signal by
+        // PGID *or* by its bare pid: either numeric identity can have been
+        // reused. Keep the residual replacement-unsafe rather than risking an
+        // unrelated process.
+        if (!sentToGroup) {
+          termSent = signalDirectChild('SIGTERM') || termSent;
+        }
+        killTimer = schedule(() => {
+          const killedGroup = signalIsolatedProcessGroup(processIdentity, 'SIGKILL', readStartFingerprint, signalGroup);
+          killSent = killedGroup || killSent;
+          if (!killedGroup) {
+            killSent = signalDirectChild('SIGKILL') || killSent;
+          }
+        }, HOST_RUN_PROCESS_GROUP_TERM_GRACE_MS);
+      } else {
+        try {
+          child?.kill('SIGTERM');
+        } catch {
+          // best-effort; settlement still waits for error/close
+        }
       }
     };
     const markFirstOutput = (): void => {
@@ -1244,12 +1744,68 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         failureKind = preferredHostFailure(failureKind, observed);
       }
     };
+    const failPromptDelivery = (
+      channel: 'stdin' | 'review invocation descriptor',
+      error: NodeJS.ErrnoException,
+    ): void => {
+      if (settled) return;
+      terminalReason = 'child_error';
+      failureKind = preferredHostFailure(failureKind, 'unknown');
+      const detail = error.code ?? error.message ?? 'unknown';
+      retainedStderr = `${retainedStderr}host_run ${channel} delivery failed: ${detail}`
+        .slice(-HOST_RUN_FAILURE_TEXT_CAP);
+      if (processIdentity?.processGroupIsolated) {
+        const killedGroup = signalIsolatedProcessGroup(processIdentity, 'SIGKILL', readStartFingerprint, signalGroup);
+        killSent = killedGroup || killSent;
+        if (!killedGroup) {
+          killSent = signalDirectChild('SIGKILL') || killSent;
+        }
+      } else {
+        try { child?.kill('SIGKILL'); } catch { /* settlement remains close-owned */ }
+      }
+    };
 
-    // No stdin payload — mirror the previous `input: ''`.
+    if (processIdentity && plan.onSpawn) {
+      try {
+        plan.onSpawn(processIdentity);
+      } catch (error) {
+        terminalReason = 'child_error';
+        failureKind = preferredHostFailure(failureKind, 'unknown');
+        retainedStderr = `${retainedStderr}host_run onSpawn failed: ${error instanceof Error ? error.message : String(error)}`
+          .slice(-HOST_RUN_FAILURE_TEXT_CAP);
+        if (processIdentity.processGroupIsolated) {
+          const killedGroup = signalIsolatedProcessGroup(processIdentity, 'SIGKILL', readStartFingerprint, signalGroup);
+          killSent = killedGroup || killSent;
+          if (!killedGroup) {
+            killSent = signalDirectChild('SIGKILL') || killSent;
+          }
+        }
+        else {
+          try { child?.kill('SIGKILL'); } catch { /* best-effort */ }
+        }
+      }
+    }
+
+    if (processIdentity && plan.reviewInvocationPayload && terminalReason !== 'child_error') {
+      try {
+        const descriptor = child.stdio[3];
+        if (!descriptor || !('end' in descriptor)) throw new Error('provider invocation descriptor fd 3 is unavailable');
+        descriptorErrorHandler = error => failPromptDelivery('review invocation descriptor', error);
+        descriptor.on?.('error', descriptorErrorHandler);
+        descriptor.end(plan.reviewInvocationPayload(processIdentity));
+      } catch (error) {
+        failPromptDelivery('review invocation descriptor', error as NodeJS.ErrnoException);
+      }
+    }
+
+    // Codex's canonical managed launcher consumes the prompt from stdin (`-`).
+    // Other launchers receive an empty stdin exactly as before.
+    stdinErrorHandler = error => failPromptDelivery('stdin', error);
+    child.stdin?.on?.('error', stdinErrorHandler);
     try {
-      child.stdin?.end();
-    } catch {
-      // best-effort
+      child.stdin?.end(plan.stdinText ?? '');
+    } catch (error) {
+      failPromptDelivery('stdin', error as NodeJS.ErrnoException);
     }
 
     if (plan.startupTimeoutMs && plan.startupTimeoutMs > 0) {
@@ -1262,8 +1818,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     if (plan.signal?.aborted) abortListener();
     else plan.signal?.addEventListener('abort', abortListener, { once: true });
 
-    child.stdout?.setEncoding('utf8');
-    stdoutHandler = (text: string) => {
+    handleStdoutText = (text: string): void => {
       if (text.length > 0) markFirstOutput();
       deliver({ stream: 'stdout', text });
       observeFailureText('stdout', text);
@@ -1271,6 +1826,15 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       // B-3ddc: the failure lane sees the same live text; delivery above is
       // untouched (the lane only keeps a bounded copy, never suppresses).
       failureScanner.push(text);
+      finalResultScanner.push(text);
+    };
+    // Do not call setEncoding on stdout: Node would decode and replace invalid
+    // bytes before the provenance hash sees them. StringDecoder preserves
+    // chunk boundaries for text consumers while the hash receives raw bytes.
+    stdoutHandler = (chunk: Buffer | string) => {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, 'utf8');
+      fullStdoutHash.update(bytes);
+      handleStdoutText(Buffer.isBuffer(chunk) ? stdoutDecoder.write(chunk) : chunk);
     };
     child.stdout?.on('data', stdoutHandler);
     child.stderr?.setEncoding('utf8');
@@ -1293,6 +1857,11 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     };
     child.on('error', errorHandler);
     closeHandler = (code, signal) => {
+      if (settled || closeObserved) return;
+      closeObserved = true;
+      closeObservedAt = new Date().toISOString();
+      fenceDeadlineAfterClose();
+      runtime.onChildCloseObserved?.();
       if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
         failureKind = preferredHostFailure(failureKind, classifyHostExecutionFailure({
           error: undefined,
@@ -1303,8 +1872,48 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         }));
         terminalReason = typeof code === 'number' && code === 0 ? 'completed' : 'exit_nonzero';
       }
-      const exitCode = timedOut ? 124 : terminalReason === 'aborted' ? 130 : asyncSpawnError ? 1 : typeof code === 'number' && code >= 0 ? code : 1;
-      finish(exitCode);
+      const exitCode = timedOut
+        ? 124
+        : terminalReason === 'aborted'
+          ? 130
+          : asyncSpawnError || terminalReason === 'child_error' || terminalReason === 'spawn_error'
+            ? 1
+            : typeof code === 'number' && code >= 0 ? code : 1;
+      void (async () => {
+        if (processIdentity?.processGroupIsolated && groupAlive(processIdentity.pgid)) {
+          const leaderStillVerified = isSafeIsolatedProviderProcessGroup(processIdentity)
+            && readStartFingerprint(processIdentity.pid) === processIdentity.startFingerprint;
+          if (!leaderStillVerified) {
+            // The original leader has exited or can no longer be proven to be
+            // the spawned process. Even when descendants remain in the old
+            // PGID, that is insufficient authority for a negative-PGID signal:
+            // preserve the unresolved group as replacement-unsafe instead.
+            residualProcessGroup = true;
+            replacementSafe = false;
+            // F-209 removed the former TERM/KILL waits on this path. Yield one
+            // event-loop turn so an onChildCloseObserved consumer can durably
+            // write its cancellation request before terminal settlement. The
+            // managed worker compares that request to closeObservedAt, so this
+            // is a scheduling/persistence fence only: no signal is sent and
+            // the residual group remains unsafe.
+            await new Promise<void>(resolveWait => setImmediate(resolveWait));
+          } else {
+            termSent = signalIsolatedProcessGroup(
+              processIdentity, 'SIGTERM', readStartFingerprint, signalGroup,
+            ) || termSent;
+            await new Promise(resolveWait => setTimeout(resolveWait, HOST_RUN_PROCESS_GROUP_TERM_GRACE_MS));
+            if (groupAlive(processIdentity.pgid)) {
+              killSent = signalIsolatedProcessGroup(
+                processIdentity, 'SIGKILL', readStartFingerprint, signalGroup,
+              ) || killSent;
+              await new Promise(resolveWait => setTimeout(resolveWait, HOST_RUN_PROCESS_GROUP_KILL_GRACE_MS));
+            }
+            residualProcessGroup = groupAlive(processIdentity.pgid);
+            replacementSafe = !residualProcessGroup;
+          }
+        }
+        finish(exitCode);
+      })();
     };
     child.on('close', closeHandler);
   });
@@ -1317,26 +1926,112 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
 interface MaterializedLaunch {
   command: string;
   argv: string[];
+  stdinText?: string;
   promptFile?: string;
   cleanup: () => void;
 }
 
+function assertManagedPromptRunId(runId: string | undefined): asserts runId is string {
+  if (!runId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(runId) || runId.includes('..')) {
+    throw new Error('host_run: managed Claude prompt custody requires a safe durable managedRunId');
+  }
+}
+
+/**
+ * The managed worker is the sole caller for this deterministic leaf.  Unlike
+ * mkdtemp's opaque name, the sealed run id lets ManagedHostRun reconciliation
+ * remove exactly the crashed worker's prompt without scanning or deleting a
+ * sibling reviewer prompt.
+ */
+export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): string {
+  assertManagedPromptRunId(runId);
+  if (!cwd) throw new Error('host_run: managed Claude prompt custody requires the exact provider cwd');
+  // B-137a main-merge fix: this resolver is the authoritative custody path and
+  // must agree with the `mkdirSync` parent in materializeLaunch, which derives
+  // the CANONICAL state dir. While this literal still said `.lattice`, the
+  // parent directory and the per-run leaf disagreed, so the managed Claude
+  // prompt never materialized (the e2e crash probe timed out waiting for it).
+  return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
+}
+
 function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
+  if (args.launchProfile === 'cross_host_review_codex'
+    || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')) {
+    if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
+    return {
+      command: 'codex',
+      // Formal managed review consumes Codex's observable JSON event stream:
+      // final proposal and usage/progress parsing require the terminal event,
+      // not ordinary rendered final prose.
+      argv: ['exec', '--json', '-s', 'read-only', '-C', args.cwd, '-'],
+      stdinText: args.promptText,
+      cleanup: () => {},
+    };
+  }
   const spec = canonicalReviewHostLauncherSpec(args.host);
   if (args.host === 'claude') {
-    const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-host-run-'));
+    // Claude Code's tool sandbox permits file reads only beneath its working
+    // directory. Formal managed reviewers therefore receive the authoritative
+    // one-shot prompt from the ignored runtime tree inside that exact cwd;
+    // ordinary host_run keeps its legacy OS-temp transport. The leaf created by
+    // mkdtemp is private and the prompt itself remains mode 0600.
+    const promptParent = args.launchProfile === 'managed_reviewer'
+      ? join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')
+      : tmpdir();
+    if (args.launchProfile === 'managed_reviewer') {
+      mkdirSync(promptParent, { recursive: true, mode: 0o700 });
+    }
+    const dir = args.launchProfile === 'managed_reviewer'
+      ? managedClaudePromptDirectoryForRun(args.cwd, args.managedRunId ?? '')
+      : mkdtempSync(join(promptParent, 'proof-or-stop-host-run-'));
+    if (args.launchProfile === 'managed_reviewer') {
+      try {
+        // A durable run is single-launch. Reusing a prompt leaf would turn a
+        // stale artifact into ambient prompt authority, so fail before spawn.
+        mkdirSync(dir, { mode: 0o700 });
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code === 'EEXIST') {
+          throw new Error(`host_run: managed Claude prompt custody leaf already exists for ${args.managedRunId}`);
+        }
+        throw error;
+      }
+    }
     const promptFile = join(dir, 'prompt.txt');
     writeFileSync(promptFile, args.promptText, { encoding: 'utf8', mode: 0o600 });
     const full = materializeLauncherArgv(spec, { promptFile });
+    const argv = full.slice(1);
+    if (args.launchProfile === 'managed_reviewer') {
+      // A detached managed reviewer has no human terminal on which Claude can
+      // approve its required inspection/Lattice commands. Scope this mode to
+      // the signed managed-review profile; ordinary Claude runs retain policy.
+      argv.splice(
+        Math.max(0, argv.length - 1),
+        0,
+        '--permission-mode', 'bypassPermissions',
+        '--json-schema', managedReviewClaudeJsonSchema(args),
+      );
+    }
     return {
       command: full[0],
-      argv: full.slice(1),
+      argv,
       promptFile,
       cleanup: () => rmSync(dir, { recursive: true, force: true }),
     };
   }
-  const full = materializeLauncherArgv(spec, { prompt: args.promptText, agyPrintTimeout: args.agyPrintTimeout });
-  return { command: full[0], argv: full.slice(1), cleanup: () => {} };
+  if (args.host === 'agy') {
+    throw new Error(
+      'host_run: agy is unavailable for managed execution because its current print launcher accepts the prompt only in argv; '
+      + 'refusing pre-spawn until the provider exposes a stdin or protected prompt-file transport',
+    );
+  }
+  const full = materializeLauncherArgv(spec, {});
+  return {
+    command: full[0],
+    argv: full.slice(1),
+    ...(args.host === 'codex' ? { stdinText: args.promptText } : {}),
+    cleanup: () => {},
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -1375,6 +2070,12 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  * blocked row is written) with a nonzero exit and NO spawn.
  */
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
+  // B-137a:F-110 — `agy` is accepted as a RECOGNISED host id here but is refused
+  // before spawn in materializeLaunch (its print launcher takes the prompt only
+  // in argv). Two layers on purpose: an unknown host is a caller error ("expected
+  // codex | claude | agy"), whereas agy is a known host with an unmet transport
+  // precondition, which deserves the specific refusal message rather than being
+  // misreported as an unsupported host.
   if (args.host !== 'codex' && args.host !== 'claude' && args.host !== 'agy') {
     throw new Error(`host_run: unsupported host "${String(args.host)}" (expected codex | claude | agy)`);
   }
@@ -1390,9 +2091,25 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   }
 
   const runner = deps.runner ?? defaultHostRunRunner;
+  const usageEnv = args.usageEnv ?? args.env;
   const passthrough = deps.passthrough ?? (() => {});
   const phase = resolvePhase(args.storyId, args.phase, deps.resolveStory);
   assertReviewRunIdBinding(args.storyId, args.reviewRunId);
+  let providerSpawnObserved = false;
+  const releaseAdmissionAfterResult = (
+    admission: ProviderProcessAdmission,
+    spawn: HostRunSpawnResult,
+  ): void => {
+    const cleanup = spawn.processCleanup;
+    const replacementSafe = spawn.replacementSafe !== false
+      && spawn.residualProcessGroup !== true
+      && (cleanup === undefined || cleanup === null
+        || (cleanup.reaped && !cleanup.residualProcessGroup));
+    if (replacementSafe) releaseProviderProcessAdmission(admission);
+    // An unsafe result intentionally leaves the token-owned slot in place.
+    // The canonical registry reclaims it only after the transferred provider
+    // identity is mechanically dead, preventing residual-group oversubscription.
+  };
 
   /**
    * Invoke the runner with the live passthrough wired in. The streaming default
@@ -1415,7 +2132,10 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       passthroughFailure = err instanceof Error ? err.message : String(err);
     }
   };
-  const invokeRunner = async (launch: MaterializedLaunch): Promise<HostRunSpawnResult> => {
+  const invokeRunner = async (
+    launch: MaterializedLaunch,
+    admission: ProviderProcessAdmission,
+  ): Promise<HostRunSpawnResult> => {
     let streamed = false;
     const onChunk = (chunk: HostRunChunk): void => {
       streamed = true;
@@ -1437,6 +2157,22 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         retainUsageLine: usageLineRetainerFor(args.host),
         // B-3ddc: the second bounded failure lane (codex-only retainer).
         retainFailureLine: failureLineRetainerFor(args.host),
+        stdinText: launch.stdinText,
+        onSpawn: identity => {
+          // Transfer the slot to the verified isolated provider group before
+          // publishing any managed snapshot. If the worker dies in the
+          // publication hand-off, the registry already retains capacity while
+          // the provider PGID is live; a contender can never reclaim the slot
+          // merely because the supervisor PID disappeared.
+          if (!transferProviderProcessAdmissionToProvider(admission, identity)) {
+            throw new Error('provider process admission transfer failed; refusing untracked provider execution');
+          }
+          // The durable snapshot is still published immediately afterwards,
+          // preserving the exact identity for reconciliation and cleanup.
+          deps.onProcessSpawn?.(identity);
+          providerSpawnObserved = true;
+        },
+        reviewInvocationPayload: deps.reviewInvocationPayload,
         onChunk,
       });
     } finally {
@@ -1466,15 +2202,61 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     projectRootHash: args.projectRootHash,
     command: `host_run:${args.host}`,
     host: { kind: ledgerHostKind(args.host) },
-    env: args.env,
+    env: usageEnv,
   };
 
-  const ledgerOn = isUsageLedgerEnabled(args.env);
+  const ledgerOn = isUsageLedgerEnabled(usageEnv);
 
-  // OFF path: byte-identical to a raw launch — no preflight, no caps (no dirs), no
-  // final. Just materialize argv + spawn + return.
+  // Ledger OFF disables usage accounting and budget enforcement only. Provider
+  // process admission remains mandatory: turning off a diagnostic ledger must
+  // never turn off the cross-provider concurrency/supervision boundary.
   if (!ledgerOn) {
-    const spawn = await invokeRunner(materializeLaunch(args));
+    const admission = acquireProviderProcessAdmission({
+      root: args.root,
+      env: usageEnv,
+      host: args.host,
+      storyId: args.storyId,
+      agentType: args.agentType,
+      startedAt: args.recordedAt,
+    });
+    if (!admission.admitted) {
+      return {
+        host: args.host,
+        storyId: args.storyId,
+        phase,
+        agentType: args.agentType,
+        spawned: false,
+        blocked: true,
+        refusalReason: 'concurrency_cap_exceeded',
+        liveRuns: admission.liveRuns,
+        exitCode: HOST_RUN_REFUSAL_EXIT_CODE,
+        timedOut: false,
+        timeoutKind: null,
+        terminalReason: null,
+        firstOutputMs: null,
+        durationMs: null,
+        failureKind: null,
+        stdout: '',
+        stderr: '',
+        usageSummary: { ...disabledSummary(), reason: `concurrency_cap_exceeded (cap ${admission.cap}; usage ledger disabled)` },
+        passthroughError: null,
+        processIdentity: null,
+        replacementSafe: true,
+        residualProcessGroup: false,
+        processCleanup: null,
+        finalAssistantResult: null,
+        finalAssistantResultCount: 0,
+        finalAssistantResultTruncated: false,
+      };
+    }
+    let spawn: HostRunSpawnResult;
+    try {
+      spawn = await invokeRunner(materializeLaunch(args), admission);
+    } catch (error) {
+      if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
+      throw error;
+    }
+    releaseAdmissionAfterResult(admission, spawn);
     return {
       host: args.host,
       storyId: args.storyId,
@@ -1486,15 +2268,25 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       liveRuns: null,
       exitCode: spawn.exitCode,
       timedOut: spawn.timedOut,
+      closeObserved: spawn.closeObserved === true,
+      closeObservedAt: spawn.closeObservedAt ?? null,
       timeoutKind: spawn.timeoutKind ?? null,
       terminalReason: spawn.terminalReason ?? null,
       firstOutputMs: spawn.firstOutputMs ?? null,
       durationMs: spawn.durationMs ?? null,
       failureKind: spawn.failureKind ?? null,
       stdout: spawn.stdout,
+      stdoutDigest: spawn.stdoutDigest ?? createHash('sha256').update(spawn.stdout, 'utf8').digest('hex'),
       stderr: spawn.stderr,
       usageSummary: disabledSummary(),
       passthroughError: passthroughFailure,
+      processIdentity: spawn.processIdentity ?? null,
+      replacementSafe: spawn.replacementSafe !== false,
+      residualProcessGroup: spawn.residualProcessGroup === true,
+      processCleanup: spawn.processCleanup ?? null,
+      finalAssistantResult: spawn.finalAssistantResult ?? null,
+      finalAssistantResultCount: spawn.finalAssistantResultCount ?? 0,
+      finalAssistantResultTruncated: spawn.finalAssistantResultTruncated === true,
     };
   }
 
@@ -1551,30 +2343,33 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
           : `${refusalDetail}; ${budget.appendFailureReason ?? 'ledger_append_failed(unknown)'}`,
       },
       passthroughError: null,
+      processIdentity: null,
+      replacementSafe: true,
+      residualProcessGroup: false,
+      processCleanup: null,
+      finalAssistantResult: null,
+      finalAssistantResultCount: 0,
+      finalAssistantResultTruncated: false,
     };
   }
 
-  // CHK-007b: concurrency cap (fail-closed BEFORE spawn). Slot registry is only
-  // touched when the ledger is ON (keeps the OFF path dir-free).
-  //
-  // F-003: admission is ATOMIC — acquireHostRunSlot's per-index exclusive create
-  // IS the cap decision (no scan-then-acquire TOCTOU). scanLiveSlots below runs
-  // ONLY on the refusal path, purely to report the live-run list.
-  const dir = hostRunSlotsDir(args.root);
-  const cap = resolveMaxConcurrent(args.env);
-  const staleMs = resolveSlotStaleMs(args.env);
-  const slotMeta: SlotMeta = {
-    pid: process.pid,
-    startedAt: args.recordedAt,
+  // Shared provider admission remains independent from usage accounting. The
+  // budget guard above still runs first when accounting is enabled.
+  const admission = acquireProviderProcessAdmission({
+    root: args.root,
+    env: usageEnv,
     host: args.host,
     storyId: args.storyId,
     agentType: args.agentType,
-  };
-  const slot = acquireHostRunSlot(dir, cap, staleMs, Date.now(), slotMeta);
-  if (slot === null) {
-    const live = scanLiveSlots(dir, Date.now(), staleMs);
-    const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, cap, opts, blockedProvider);
-    const refusalDetail = `concurrency_cap_exceeded (${live.length} live host runs, cap ${cap})`;
+    startedAt: args.recordedAt,
+  });
+  if (!admission.admitted) {
+    const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, admission.cap, opts, blockedProvider);
+    // B-137a:F-126 — the count is an approximate post-refusal snapshot taken
+    // after the admission lock was released, so it can read lower than the cap
+    // even though the refusal was correct when decided. Say "observed" rather
+    // than implying an exact figure that races the decision.
+    const refusalDetail = `concurrency_cap_exceeded (${admission.liveRuns.length} live host runs observed, cap ${admission.cap})`;
     // F-027: `recorded: 'blocked'` + the recordId are claimed ONLY when the
     // blocked row actually appended (blockRow.recorded keys on the real
     // appendUsageRecord outcome). On a swallowed write the summary reports the
@@ -1588,7 +2383,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       spawned: false,
       blocked: true,
       refusalReason: 'concurrency_cap_exceeded',
-      liveRuns: live,
+      liveRuns: admission.liveRuns,
       exitCode: HOST_RUN_REFUSAL_EXIT_CODE,
       timedOut: false,
       timeoutKind: null,
@@ -1610,16 +2405,25 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
           : `${refusalDetail}; ${blockRow.reason ?? 'ledger_append_failed(unknown)'}`,
       },
       passthroughError: null,
+      processIdentity: null,
+      replacementSafe: true,
+      residualProcessGroup: false,
+      processCleanup: null,
+      finalAssistantResult: null,
+      finalAssistantResultCount: 0,
+      finalAssistantResultTruncated: false,
     };
   }
 
   let spawn: HostRunSpawnResult;
   try {
-    spawn = await invokeRunner(materializeLaunch(args));
-  } finally {
-    // F-025: token-verified release — never deletes a reclaimed+reacquired slot.
-    releaseSlot(slot.file, slot.token);
+    spawn = await invokeRunner(materializeLaunch(args), admission);
+  } catch (error) {
+    if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
+    throw error;
   }
+  // F-025: token-verified release — never deletes a reclaimed+reacquired slot.
+  releaseAdmissionAfterResult(admission, spawn);
 
   const summary = recordFinalForHost(
     args,
@@ -1645,15 +2449,25 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     liveRuns: null,
     exitCode: spawn.exitCode,
     timedOut: spawn.timedOut,
+    closeObserved: spawn.closeObserved === true,
+    closeObservedAt: spawn.closeObservedAt ?? null,
     timeoutKind: spawn.timeoutKind ?? null,
     terminalReason: spawn.terminalReason ?? null,
     firstOutputMs: spawn.firstOutputMs ?? null,
     durationMs: spawn.durationMs ?? null,
     failureKind: spawn.failureKind ?? null,
     stdout: spawn.stdout,
+    stdoutDigest: spawn.stdoutDigest ?? createHash('sha256').update(spawn.stdout, 'utf8').digest('hex'),
     stderr: spawn.stderr,
     usageSummary: summary,
     passthroughError: passthroughFailure,
+    processIdentity: spawn.processIdentity ?? null,
+    replacementSafe: spawn.replacementSafe !== false,
+    residualProcessGroup: spawn.residualProcessGroup === true,
+    processCleanup: spawn.processCleanup ?? null,
+    finalAssistantResult: spawn.finalAssistantResult ?? null,
+    finalAssistantResultCount: spawn.finalAssistantResultCount ?? 0,
+    finalAssistantResultTruncated: spawn.finalAssistantResultTruncated === true,
   };
 }
 
@@ -1837,5 +2651,5 @@ function numOrNull(value: unknown): number | null {
 
 /** Whether the slot registry dir currently exists (test/diagnostic helper). */
 export function hostRunSlotsDirExists(root: string): boolean {
-  return existsSync(hostRunSlotsDir(root));
+  return existsSync(providerProcessSlotsDir(root));
 }

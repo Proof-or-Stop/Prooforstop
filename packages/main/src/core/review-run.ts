@@ -10,6 +10,13 @@ import {
   currentStoryFilesHash,
 } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import {
+  classifyReviewerExecutionAuthority,
+  managedReviewerPromptDigest,
+  verifyManagedReviewEvidence,
+  verifyManagedReviewLiveBinding,
+} from './managed-review-evidence.js';
+import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
 import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
 import { canonicalJson } from './digest.js';
@@ -118,7 +125,9 @@ export type ReviewRunIssueCode =
   | 'scope_binding_tampered'
   | 'missing_prompt_envelope'
   | 'prompt_envelope_tampered'
-  | 'prompt_envelope_mismatch';
+  | 'prompt_envelope_mismatch'
+  | 'review_execution_authority_missing'
+  | 'managed_receipt_invalid';
 
 export interface ReviewRunIssue {
   code: ReviewRunIssueCode;
@@ -909,8 +918,12 @@ export function verifyReviewRunPromptEnvelope(
           // Recompute the baseline as-of this signed run. Later metadata-only
           // reviewer passes must not rewrite the priorPassRef of an older run;
           // doing so made every valid pass stale at DONE after review_pass_set
-          // appended its own metadata commit.
+          // appended its own metadata commit. Pin git probes to run.headHash so
+          // a later metadata-only import commit cannot rewrite eligibilityDigest
+          // / reviewBasisDigest either; related material drift remains visible
+          // to a current-HEAD probe.
           passesCutoffAt: run.startedAt,
+          asOfRef: run.headHash,
           findingProjection: envelope.findingProjection,
           promptEnvelopes: envelopes,
         },
@@ -1627,6 +1640,8 @@ function validateEvidenceRunBinding(
     };
   }
   const signedProjectRoot = workspaceValidation.projectRoot;
+  const managedBinding = evidence.pass?.managedEvidenceBinding ?? evidence.finding?.managedEvidenceBinding;
+  const nativeBinding = evidence.pass?.nativeEvidenceBinding ?? evidence.finding?.nativeEvidenceBinding;
   // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
   // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
   // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
@@ -1634,32 +1649,55 @@ function validateEvidenceRunBinding(
   // material/story hashes → false-stale. Legacy runs without workspaceBinding
   // fall back to projectRoot (unchanged behavior). gitCwd (arg1) stays
   // signedProjectRoot.
-  const freshness = checkEvidenceFreshnessForGit(
-    signedProjectRoot,
-    run.headHash,
-    run.materialHash,
-    run.workspaceBinding?.metadataRoot ?? projectRoot,
-    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
-  );
-  if (!freshness.fresh) {
-    return {
-      code: 'stale_run_hash',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
-    };
-  }
-  if (freshness.warnings?.length) {
-    advisories?.push({
-      code: 'stale_run_hash',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has whole-tree materialHash drift but matching storyFilesHash: ${freshness.warnings.join('; ')}`,
+  if (managedBinding) {
+    const live = verifyManagedReviewLiveBinding({
+      gitCwd: signedProjectRoot,
+      metadataRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+      storyId: story.storyId,
+      expected: {
+        headHash: run.headHash,
+        materialHash: run.materialHash,
+        storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
+      },
     });
+    if (!live.valid) {
+      return {
+        code: 'managed_receipt_invalid',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}`,
+      };
+    }
+  } else {
+    const freshness = checkEvidenceFreshnessForGit(
+      signedProjectRoot,
+      run.headHash,
+      run.materialHash,
+      run.workspaceBinding?.metadataRoot ?? projectRoot,
+      run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+    );
+    if (!freshness.fresh) {
+      return {
+        code: 'stale_run_hash',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
+      };
+    }
+    if (freshness.warnings?.length) {
+      advisories?.push({
+        code: 'stale_run_hash',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has whole-tree materialHash drift but matching storyFilesHash: ${freshness.warnings.join('; ')}`,
+      });
+    }
   }
   // B-6bfd CHK-005: scope-protected stories require the run's scope binding to
   // match the live scope contract + diff. Checked last so it only applies to the
@@ -1696,6 +1734,101 @@ function validateEvidenceRunBinding(
       reviewRunId: evidence.reviewRunId,
       message: `${evidence.kind} ${evidence.id} failed closeout metadata retention: ${retention.reasons.join('; ')}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
     };
+  }
+  if (!managedBinding && !nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has neither a managed receipt nor a registered-broker native invocation attestation`,
+    };
+  }
+  if (managedBinding && nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has conflicting managed and native execution authority bindings`,
+    };
+  }
+  const authority = classifyReviewerExecutionAuthority({
+    executionMode: managedBinding ? 'cross-provider-cli' : 'native-host',
+    assuranceLevel: 'ordinary-review',
+    hasManagedEvidenceBinding: managedBinding !== undefined,
+  });
+  if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
+    const managed = verifyManagedReviewEvidence({
+      root: projectRoot,
+      storyId: story.storyId,
+      agent: evidence.agent,
+      lane: run.lane,
+      reviewRunId: run.reviewRunId,
+      binding: managedBinding,
+      expected: {
+        providerHost: managedBinding.providerHost,
+        headHash: run.headHash,
+        materialHash: run.materialHash,
+        storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
+        promptHash: run.promptHash,
+        envelopeId: run.envelopeId ?? null,
+        managedPromptDigest: managedReviewerPromptDigest(run.workspaceBinding?.metadataRoot ?? projectRoot, run),
+      },
+      ...(evidence.kind === 'pass' && evidence.pass
+        ? { evidence: { kind: 'pass' as const, pass: evidence.pass } }
+        : evidence.kind === 'finding' && evidence.finding
+          ? { evidence: { kind: 'finding' as const, finding: evidence.finding } }
+          : {}),
+    });
+    if (!managed.valid) {
+      return {
+        code: 'managed_receipt_invalid',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review Proof Admissibility: ${managed.reason}`,
+      };
+    }
+  }
+  if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding) {
+    const dispatch = verifyCurrentReviewerDispatchBinding({
+      store,
+      storyId: story.storyId,
+      lane: run.lane,
+      reviewRound: run.reviewRound,
+      projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+    });
+    const writerSessionId = evidence.pass?.writerSessionId ?? nativeBinding.writerSessionId;
+    const sessionSource = evidence.pass?.sessionSource ?? nativeBinding.sessionSource;
+    if (!dispatch.ok || !verifyNativeReviewEvidenceBinding({
+      binding: nativeBinding,
+      projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+      storyId: story.storyId,
+      agent: run.agent,
+      lane: run.lane,
+      reviewRunId: run.reviewRunId,
+      dispatch: dispatch.ok ? dispatch.binding : {
+        hostRenderHost: nativeBinding.host,
+        dispatchPromptDigest: '',
+        hostRenderIdentityDigest: '',
+        dispatchBindingDigest: '',
+      },
+      writerSessionId,
+      sessionSource,
+    })) {
+      return {
+        code: 'review_execution_authority_missing',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} native invocation attestation is missing, stale, replayed, or does not match its signed dispatch`,
+      };
+    }
   }
   return null;
 }
@@ -1759,19 +1892,47 @@ export function collectReviewerEvidenceState(
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
   const advisories: ReviewRunIssue[] = [];
+  const nativeInvocationNonceCounts = new Map<string, number>();
+  for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
+    const binding = evidence.kind === 'pass'
+      ? evidence.pass.nativeEvidenceBinding
+      : evidence.finding.nativeEvidenceBinding;
+    if (!binding) continue;
+    nativeInvocationNonceCounts.set(
+      binding.invocationNonce,
+      (nativeInvocationNonceCounts.get(binding.invocationNonce) ?? 0) + 1,
+    );
+  }
 
   for (const evidence of reviewerEvidence) {
-    const issue = validateEvidenceRunBinding(
-      store,
-      story,
-      projectRoot,
-      runs,
-      evidence,
-      scopeContext,
-      promptEnvelopes,
-      advisories,
-      verifyPromptEnvelope,
-    );
+    // B-137a: broker attestations are one-shot. A reused invocation nonce is a
+    // replay, so refuse it BEFORE the ordinary run-binding validation (which
+    // would otherwise accept the duplicate as a well-formed binding).
+    const nativeBinding = evidence.kind === 'pass'
+      ? evidence.pass.nativeEvidenceBinding
+      : evidence.finding.nativeEvidenceBinding;
+    const duplicateNativeInvocation = nativeBinding
+      && (nativeInvocationNonceCounts.get(nativeBinding.invocationNonce) ?? 0) > 1;
+    const issue = duplicateNativeInvocation
+      ? {
+        code: 'review_execution_authority_missing' as const,
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} reuses native invocation nonce ${nativeBinding.invocationNonce}; broker attestations are one-shot`,
+      }
+      : validateEvidenceRunBinding(
+        store,
+        story,
+        projectRoot,
+        runs,
+        evidence,
+        scopeContext,
+        promptEnvelopes,
+        advisories,
+        verifyPromptEnvelope,
+      );
     if (issue) {
       rawInvalid.push(issue);
     } else {

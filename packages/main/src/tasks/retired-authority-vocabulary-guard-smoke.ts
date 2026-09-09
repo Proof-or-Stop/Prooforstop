@@ -397,7 +397,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776'],
+  // B-137a main-merge repin. AUDITED BEFORE repinning: `git diff main` on this
+  // file is ONE line -- createDeliveryCheckHandlers now receives the
+  // `{ authorizeNativeInvocation }` seam this story added. Grepping that diff for
+  // every dynamic-execution construct this guard tracks reports no match, so the
+  // executable dynamic-code structure is unchanged and only the whole-file
+  // structural fingerprint moves.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '3684055561321fa5e4498a6a6d63f3dc42920da009586cb78dcd794b0827ffb0'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -472,7 +478,15 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271'],
+  //
+  // B-137a main-merge repin (same audit, re-run after the merge). Checked BEFORE
+  // repinning: `git diff main -- packages/main/src/cli-engine.ts` grepped for
+  // import(/require(/initPath reports NO matching +/- line, so the approved
+  // non-literal loader call site, its argument, and the initPath producer are all
+  // byte-identical to main. The only change is the structured watchdog command
+  // list plus the evidence-writer abort/deadline injection, so this whole-file
+  // structural fingerprint simply moves with that edit.
+  ['packages/main/src/cli-engine.ts', '22c8878385de3f11fa6a64657a700c1a46b7c6cfe2c73cce17437b8fb7ed08cf'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],

@@ -26,6 +26,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -33,9 +34,11 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -363,8 +366,12 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
 }
 
 function setupTimeoutFixture(): { root: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-heartbeat-timeout-'));
   write(root, '.gitignore', '.proof-or-stop/locks/\n');
+  // B-137a main-merge fix: this fixture wrote the DEPRECATED config filename, so
+  // loadConfig never picked up its validate.commands and the run completed
+  // instantly instead of executing the hanging command the timeout assertion
+  // needs. Its sibling fixture already used the canonical name.
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
@@ -1166,12 +1173,591 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
   }
 }
 
+type RefreshFixture = {
+  root: string;
+  storyId: string;
+  checklistPath: string;
+  executionLog: string;
+  parentPidFile: string;
+  descendantPidFile: string;
+  parentIdentityFile: string;
+  descendantIdentityFile: string;
+  batchEvidences: Array<Record<string, unknown>>;
+};
+
+type RefreshFixtureProcessIdentity = {
+  pid: number;
+  startFingerprint: string;
+};
+
+function pinnedNodeCommand(script: string): string {
+  const encoded = Buffer.from(script, 'utf8').toString('base64');
+  return `node -e "eval(Buffer.from('${encoded}','base64').toString('utf8'))"`;
+}
+
+function setupRefreshFixture(mode: 'heartbeat' | 'batch-heartbeat' | 'hang' | 'selector-fail', suffix: string): RefreshFixture {
+  const root = mkdtempSync(join(tmpdir(), `lattice-refresh-watchdog-${suffix}-`));
+  const storyId = `B-refresh-${suffix}`;
+  const executionLog = join(root, 'refresh-executions.jsonl');
+  const parentPidFile = join(root, 'refresh-parent.pid');
+  const descendantPidFile = join(root, 'refresh-descendant.pid');
+  const parentIdentityFile = join(root, 'refresh-parent.identity.json');
+  const descendantIdentityFile = join(root, 'refresh-descendant.identity.json');
+  write(root, '.gitignore', [
+    'refresh-executions.jsonl',
+    'refresh-parent.pid',
+    'refresh-descendant.pid',
+    'refresh-parent.identity.json',
+    'refresh-descendant.identity.json',
+    '.lattice/activity.jsonl',
+    '.lattice/locks/',
+    '${PROOF_OR_STOP_DIR}/runtime/',
+    '',
+  ].join('\n'));
+  write(root, 'lattice.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    workflow: { profile: 'light' },
+  }, null, 2) + '\n');
+  write(root, 'packages/main/src/base.ts', 'export const refreshWatchdogFixture = true;\n');
+  git(root, ['init', '-b', 'work']);
+  commitAll(root, 'seed refresh watchdog fixture');
+
+  const sharedCommand = pinnedNodeCommand([
+    "const fs=require('fs');",
+    `fs.appendFileSync(${JSON.stringify(executionLog)},JSON.stringify({kind:'shared',cwd:process.cwd()})+'\\n');`,
+    "setTimeout(()=>console.log('SHARED_ALPHA\\nSHARED_BETA'),260);",
+  ].join(''));
+  const uniqueCommand = pinnedNodeCommand([
+    "const fs=require('fs');",
+    `fs.appendFileSync(${JSON.stringify(executionLog)},JSON.stringify({kind:'unique',cwd:process.cwd()})+'\\n');`,
+    "setTimeout(()=>console.log('UNIQUE_GAMMA'),260);",
+  ].join(''));
+  const nearMissCommand = pinnedNodeCommand([
+    "const fs=require('fs');",
+    `fs.appendFileSync(${JSON.stringify(executionLog)},JSON.stringify({kind:'near',cwd:process.cwd()})+'\\n');`,
+    "setTimeout(()=>console.log('SHARED_NEAR'),260);",
+  ].join(''));
+  const hangCommand = pinnedNodeCommand([
+    "const fs=require('fs');const {spawn,execFileSync}=require('child_process');",
+    "const identity=(pid)=>{try{const startFingerprint=execFileSync('ps',['-o','lstart=','-p',String(pid)],{encoding:'utf8',timeout:1000,stdio:['ignore','pipe','ignore']}).trim();return Number.isSafeInteger(pid)&&pid>1&&startFingerprint?{pid,startFingerprint}:null;}catch{return null;}};",
+    `fs.writeFileSync(${JSON.stringify(parentPidFile)},String(process.pid));`,
+    `fs.writeFileSync(${JSON.stringify(parentIdentityFile)},JSON.stringify(identity(process.pid)));`,
+    "const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});",
+    `fs.writeFileSync(${JSON.stringify(descendantPidFile)},String(child.pid));`,
+    `fs.writeFileSync(${JSON.stringify(descendantIdentityFile)},JSON.stringify(identity(child.pid)));`,
+    "setInterval(()=>{},1000);",
+  ].join(''));
+
+  const now = '2026-08-14T00:00:00.000Z';
+  const oldReceipt = {
+    exitCode: 0,
+    outputDigest: '0'.repeat(64),
+    outputTail: 'old output',
+    selectorMatched: true,
+    executedAt: now,
+  };
+  const intents = mode === 'heartbeat'
+    ? [
+        { id: 'INT-SHARED-A', desc: 'shared selector A', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_ALPHA' } },
+        { id: 'INT-SHARED-B', desc: 'shared selector B', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_BETA' } },
+        { id: 'INT-UNIQUE', desc: 'unique selector', type: 'cli' as const, priority: 'must' as const, verification: { command: uniqueCommand, selector: 'UNIQUE_GAMMA' } },
+      ]
+    : mode === 'batch-heartbeat'
+    ? [
+        { id: 'INT-SHARED-A', desc: 'shared selector A', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_ALPHA' } },
+        { id: 'INT-SHARED-B', desc: 'shared selector B', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_BETA' } },
+        { id: 'INT-SHARED-NEAR', desc: 'near-miss command identity', type: 'cli' as const, priority: 'must' as const, verification: { command: nearMissCommand, selector: 'SHARED_NEAR' } },
+        { id: 'INT-UNIQUE', desc: 'unique selector', type: 'cli' as const, priority: 'must' as const, verification: { command: uniqueCommand, selector: 'UNIQUE_GAMMA' } },
+      ]
+    : mode === 'selector-fail'
+      ? [
+          { id: 'INT-SHARED-A', desc: 'shared selector A', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_ALPHA' } },
+          { id: 'INT-SHARED-MISSING', desc: 'shared selector missing', type: 'cli' as const, priority: 'must' as const, verification: { command: sharedCommand, selector: 'SHARED_MISSING' } },
+        ]
+      : [
+        { id: 'INT-HANG', desc: 'hanging process tree', type: 'cli' as const, priority: 'must' as const, verification: { command: hangCommand, selector: 'NEVER_PRINTED' } },
+      ];
+  const evidence = intents.map((entry) => ({
+    intentRef: entry.id,
+    kind: 'integration_test' as const,
+    command: entry.verification.command,
+    result: 'pass' as const,
+    note: 'stale mechanical receipt for refresh watchdog smoke',
+    headHash: '0'.repeat(40),
+    materialHash: '0'.repeat(64),
+    mechanical: true,
+    receipt: { ...oldReceipt },
+  }));
+  const store = new StoryStore(root);
+  store.writeStory(storyId, {
+    storyId,
+    name: `refresh-watchdog-${suffix}`,
+    title: 'Refresh watchdog smoke',
+    description: 'Hermetic stale verifier refresh exercising progress and structured abort.',
+    type: 'chore',
+    phase: 'DEV',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+  } as StoryInfo);
+  store.writeChecklist(storyId, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Refresh stale pinned commands',
+      context: 'Watchdog fixture',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+      verificationIntent: { happy: intents, edge: [], adversarial: [] },
+      verificationEvidence: evidence,
+    }],
+  } as ChecklistData);
+  commitAll(root, 'seed stale refresh evidence');
+  return {
+    root,
+    storyId,
+    checklistPath: join(root, PROOF_OR_STOP_STORY_DIR, storyId, 'checklist.json'),
+    executionLog,
+    parentPidFile,
+    descendantPidFile,
+    parentIdentityFile,
+    descendantIdentityFile,
+    batchEvidences: intents.map(entry => ({
+      itemId: 'CHK-001',
+      intentRef: entry.id,
+      kind: 'integration_test',
+      command: entry.verification.command,
+      selector: entry.verification.selector,
+      result: 'pass',
+      note: `batch watchdog evidence for ${entry.id}`,
+    })),
+  };
+}
+
+function pidIsAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== 'ESRCH';
+  }
+}
+
+function refreshProcessStartFingerprint(pid: number): string | null {
+  if (!Number.isSafeInteger(pid) || pid <= 1) return null;
+  try {
+    const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
+      encoding: 'utf8', timeout: 1_000, stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return value.length > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function readRefreshFixtureIdentity(path: string): RefreshFixtureProcessIdentity | null {
+  if (!existsSync(path)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8')) as Partial<RefreshFixtureProcessIdentity>;
+    const pid = parsed.pid;
+    const startFingerprint = parsed.startFingerprint;
+    return typeof pid === 'number' && Number.isSafeInteger(pid) && pid > 1
+      && typeof startFingerprint === 'string' && startFingerprint.length > 0
+      ? { pid, startFingerprint }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function killRefreshFixtureTree(fixture: RefreshFixture): void {
+  // This is only a last-resort fixture cleanup. The abort assertions above
+  // require both processes to be reaped already. If a test fails mid-flight,
+  // target only an identity-revalidated direct child: a PID alone must never
+  // authorize a process-group signal (in particular never PGID -1).
+  for (const path of [fixture.descendantIdentityFile, fixture.parentIdentityFile]) {
+    const identity = readRefreshFixtureIdentity(path);
+    if (!identity || refreshProcessStartFingerprint(identity.pid) !== identity.startFingerprint) continue;
+    try { process.kill(identity.pid, 'SIGKILL'); } catch { /* already reaped */ }
+  }
+}
+
+async function assertRefreshHeartbeatAndDedupe(): Promise<void> {
+  const fixture = setupRefreshFixture('heartbeat', 'heartbeat');
+  try {
+    const result = await runCli(
+      fixture.root,
+      ['verification_evidence_refresh_stale', JSON.stringify({ storyId: fixture.storyId })],
+      NON_MAX_HARNESS_CEILING_MS,
+      {
+        PROOF_OR_STOP_SESSION_ID: 'refresh-heartbeat-smoke',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      },
+    );
+    assert.equal(result.status, 0, `refresh must outlive the idle window via command heartbeats:\n${result.stderr}\n${result.stdout}`);
+    assert.ok(result.elapsedMs > 360, 'two sequential unique commands must make aggregate runtime exceed the idle window');
+    assert.doesNotMatch(result.stderr, /without output/);
+    assert.match(result.stderr, /validate heartbeat: command 1\/2 verification-evidence-command elapsedMs=/);
+    assert.match(result.stderr, /validate heartbeat: command 2\/2 verification-evidence-command elapsedMs=/);
+    const executions = readFileSync(fixture.executionLog, 'utf8').trim().split('\n').map(line => JSON.parse(line) as { kind: string; cwd: string });
+    assert.deepEqual(executions.map(entry => entry.kind), ['shared', 'unique'], 'each exact cwd+command executes once despite two shared intents');
+    const expectedCwd = realpathSync(fixture.root);
+    assert.deepEqual(executions.map(entry => entry.cwd), [expectedCwd, expectedCwd], 'both unique pins execute in the exact refresh cwd');
+    const checklist = JSON.parse(readFileSync(fixture.checklistPath, 'utf8')) as ChecklistData;
+    const rows = checklist.items[0].verificationEvidence ?? [];
+    for (const intentRef of ['INT-SHARED-A', 'INT-SHARED-B', 'INT-UNIQUE']) {
+      const row = rows.find(entry => entry.intentRef === intentRef);
+      assert.equal(row?.mechanical, true, `${intentRef} keeps an independent mechanical stamp`);
+      assert.equal(row?.receipt?.selectorMatched, true, `${intentRef} independently evaluates its immutable selector`);
+      assert.notEqual(row?.receipt?.executedAt, '2026-08-14T00:00:00.000Z', `${intentRef} receives a fresh receipt`);
+    }
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+async function assertRefreshWatchdogReapsWithoutPartialWrites(): Promise<void> {
+  const cases = [
+    { name: 'idle', idleMs: '140', maxMs: '5000', heartbeatMs: '2000', transcript: /stuck: 0\.14 seconds without output/ },
+    { name: 'max', idleMs: '2000', maxMs: '220', heartbeatMs: '40', transcript: /(?:exceeded max timeout 220ms|CLI max timeout exceeded 220ms)/ },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = setupRefreshFixture('hang', testCase.name);
+    const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
+    try {
+      const result = await runCli(
+        fixture.root,
+        ['verification_evidence_refresh_stale', JSON.stringify({ storyId: fixture.storyId })],
+        NON_MAX_HARNESS_CEILING_MS,
+        {
+          PROOF_OR_STOP_SESSION_ID: `refresh-${testCase.name}-smoke`,
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
+        },
+      );
+      assert.equal(result.status, 1, `${testCase.name} watchdog must surface a structured handler failure, not process.exit(2):\n${result.stderr}`);
+      assert.match(result.stderr, testCase.transcript);
+      assert.doesNotMatch(result.stdout, /Refreshed /, `${testCase.name} abort cannot claim a refresh result`);
+      await waitForFile(fixture.parentPidFile);
+      await waitForFile(fixture.descendantPidFile);
+      await new Promise(resolve => setTimeout(resolve, 120));
+      const parentPid = Number(readFileSync(fixture.parentPidFile, 'utf8'));
+      const descendantPid = Number(readFileSync(fixture.descendantPidFile, 'utf8'));
+      assert.equal(pidIsAlive(parentPid), false, `${testCase.name} abort must reap the pinned-command group leader`);
+      assert.equal(pidIsAlive(descendantPid), false, `${testCase.name} abort must reap its provider-like descendant`);
+      assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
+        `${testCase.name} abort must write neither a partial receipt nor a demotion`);
+    } finally {
+      killRefreshFixtureTree(fixture);
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  }
+}
+
+async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
+  const heartbeatFixture = setupRefreshFixture('heartbeat', 'single-evidence-heartbeat');
+  try {
+    const first = heartbeatFixture.batchEvidences[0];
+    const addResult = await runCli(
+      heartbeatFixture.root,
+      ['verification_evidence_add', JSON.stringify({ storyId: heartbeatFixture.storyId, ...first })],
+      NON_MAX_HARNESS_CEILING_MS,
+      {
+        PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      },
+    );
+    assert.equal(addResult.status, 0,
+      `single evidence add must outlive the idle window via command heartbeats:\n${addResult.stderr}\n${addResult.stdout}`);
+    assert.doesNotMatch(addResult.stderr, /without output/);
+    assert.match(addResult.stderr, /validate heartbeat: command 1\/1 verification-evidence-command elapsedMs=/);
+
+    const runResult = await runCli(
+      heartbeatFixture.root,
+      ['verification_run', JSON.stringify({
+        storyId: heartbeatFixture.storyId,
+        intentRef: 'INT-SHARED-B',
+        note: 'single verification run heartbeat smoke',
+      })],
+      NON_MAX_HARNESS_CEILING_MS,
+      {
+        PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      },
+    );
+    assert.equal(runResult.status, 0,
+      `verification_run must outlive the idle window via command heartbeats:\n${runResult.stderr}\n${runResult.stdout}`);
+    assert.doesNotMatch(runResult.stderr, /without output/);
+    assert.match(runResult.stderr, /validate heartbeat: command 1\/1 verification-evidence-command elapsedMs=/);
+
+    const checklist = JSON.parse(readFileSync(heartbeatFixture.checklistPath, 'utf8')) as ChecklistData;
+    for (const intentRef of ['INT-SHARED-A', 'INT-SHARED-B']) {
+      const row = checklist.items[0].verificationEvidence?.find(entry => entry.intentRef === intentRef);
+      assert.equal(row?.mechanical, true, `${intentRef} receives a mechanical receipt after its heartbeat-protected command`);
+      assert.equal(row?.receipt?.selectorMatched, true, `${intentRef} receipt confirms its exact selector`);
+    }
+  } finally {
+    rmSync(heartbeatFixture.root, { recursive: true, force: true });
+  }
+
+  const abortCases = [
+    { name: 'idle', idleMs: '140', maxMs: '5000', heartbeatMs: '2000', transcript: /stuck: 0\.14 seconds without output/ },
+    { name: 'max', idleMs: '2000', maxMs: '220', heartbeatMs: '40', transcript: /(?:exceeded max timeout 220ms|CLI max timeout exceeded 220ms)/ },
+  ] as const;
+  for (const commandKind of ['verification_evidence_add', 'verification_run'] as const) {
+    for (const testCase of abortCases) {
+      const fixture = setupRefreshFixture('hang', `single-${commandKind}-${testCase.name}-abort`);
+      const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
+      try {
+        const evidence = fixture.batchEvidences[0];
+        const args = commandKind === 'verification_evidence_add'
+          ? { storyId: fixture.storyId, ...evidence }
+          : {
+              storyId: fixture.storyId,
+              intentRef: 'INT-HANG',
+              note: 'single verification run abort smoke',
+            };
+        const result = await runCli(
+          fixture.root,
+          [commandKind, JSON.stringify(args)],
+          NON_MAX_HARNESS_CEILING_MS,
+          {
+            PROOF_OR_STOP_SESSION_ID: `single-${commandKind}-${testCase.name}-abort-smoke`,
+            PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
+            PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
+            PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
+          },
+        );
+        assert.equal(result.status, 1,
+          `${commandKind} ${testCase.name} watchdog must return a structured handler failure, not process.exit(2):\n${result.stderr}`);
+        assert.match(result.stderr, testCase.transcript);
+        await waitForFile(fixture.parentPidFile);
+        await waitForFile(fixture.descendantPidFile);
+        await new Promise(resolve => setTimeout(resolve, 120));
+        const parentPid = Number(readFileSync(fixture.parentPidFile, 'utf8'));
+        const descendantPid = Number(readFileSync(fixture.descendantPidFile, 'utf8'));
+        assert.equal(pidIsAlive(parentPid), false, `${commandKind} ${testCase.name} abort must reap the pinned-command group leader`);
+        assert.equal(pidIsAlive(descendantPid), false, `${commandKind} ${testCase.name} abort must reap its provider-like descendant`);
+        assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
+          `${commandKind} ${testCase.name} abort must not write a partial receipt or mutation`);
+      } finally {
+        killRefreshFixtureTree(fixture);
+        rmSync(fixture.root, { recursive: true, force: true });
+      }
+    }
+  }
+}
+
+/**
+ * A watchdog can become aborted after the command returns but while the
+ * synchronous receipt transaction is acquiring/reading its checklist lock.
+ * The write-side recheck must fail closed before the in-memory mutation reaches
+ * store.writeChecklist.
+ */
+async function assertSingleEvidenceWriteGuardRefusesLateAbort(): Promise<void> {
+  const originalCwd = process.cwd();
+  try {
+    for (const commandKind of ['verification_evidence_add', 'verification_run'] as const) {
+      const fixture = setupRefreshFixture('heartbeat', `single-${commandKind}-write-guard`);
+      const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
+      try {
+        process.chdir(fixture.root);
+        const store = new StoryStore(fixture.root);
+        const handlers = createChecklistHandlers({
+          store,
+          root: fixture.root,
+          scanRoot: join(fixture.root, 'packages/main'),
+        });
+        const abort = new AbortController();
+        const lateAbort = new Error(`${commandKind} single write guard synthetic abort`);
+        const readChecklist = store.readChecklist.bind(store);
+        let checklistReads = 0;
+        store.readChecklist = ((storyId: string) => {
+          const checklist = readChecklist(storyId);
+          checklistReads += 1;
+          // The first read resolves the intent before execution. The second is
+          // inside the receipt lock; trigger the abort there to prove the
+          // write-side guard prevents a late persistence race.
+          if (checklistReads === 2) abort.abort(lateAbort);
+          return checklist;
+        }) as typeof store.readChecklist;
+        const evidence = fixture.batchEvidences[0];
+        const invocation = commandKind === 'verification_evidence_add'
+          ? handlers.verification_evidence_add({
+              storyId: fixture.storyId,
+              itemId: 'CHK-001',
+              intentRef: 'INT-SHARED-A',
+              kind: 'integration_test',
+              command: String(evidence.command),
+              selector: String(evidence.selector),
+              result: 'pass',
+              note: 'single verification write guard smoke',
+              abortSignal: abort.signal,
+              deadlineAt: Date.now() + 5_000,
+              deadlineError: () => lateAbort,
+            })
+          : handlers.verification_run({
+              storyId: fixture.storyId,
+              intentRef: 'INT-SHARED-A',
+              note: 'single verification write guard smoke',
+              abortSignal: abort.signal,
+              deadlineAt: Date.now() + 5_000,
+              deadlineError: () => lateAbort,
+            });
+        await assert.rejects(
+          invocation,
+          /single write guard synthetic abort/,
+          `${commandKind} refuses a watchdog abort raised from its receipt write lock`,
+        );
+        assert.equal(checklistReads, 2, `${commandKind} reaches the locked checklist read before the synthetic abort`);
+        assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
+          `${commandKind} late watchdog abort writes no receipt or checklist mutation`);
+      } finally {
+        rmSync(fixture.root, { recursive: true, force: true });
+      }
+    }
+  } finally {
+    process.chdir(originalCwd);
+  }
+}
+
+async function assertBatchHeartbeatAndExactCommandDedupe(): Promise<void> {
+  const fixture = setupRefreshFixture('batch-heartbeat', 'batch-heartbeat');
+  try {
+    const result = await runCli(
+      fixture.root,
+      ['verification_evidence_batch_add', JSON.stringify({
+        storyId: fixture.storyId,
+        evidences: fixture.batchEvidences,
+      })],
+      NON_MAX_HARNESS_CEILING_MS,
+      {
+        PROOF_OR_STOP_SESSION_ID: 'batch-heartbeat-smoke',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      },
+    );
+    assert.equal(result.status, 0, `batch must outlive the idle window via per-entry command heartbeats:\n${result.stderr}\n${result.stdout}`);
+    assert.doesNotMatch(result.stderr, /without output/);
+    assert.match(result.stderr, /validate heartbeat: command 1\/3 verification-evidence-command elapsedMs=/);
+    assert.match(result.stderr, /validate heartbeat: command 2\/3 verification-evidence-command elapsedMs=/);
+    assert.match(result.stderr, /validate heartbeat: command 3\/3 verification-evidence-command elapsedMs=/);
+    assert.doesNotMatch(result.stderr, /command 4\/4/, 'progress reports real unique executions, not the four intent consumers');
+    const executions = readFileSync(fixture.executionLog, 'utf8').trim().split('\n').map(line => JSON.parse(line) as { kind: string; cwd: string });
+    assert.deepEqual(executions.map(entry => entry.kind), ['shared', 'near', 'unique'],
+      'batch executes one exact shared command once while a near-miss command remains independent');
+    const checklist = JSON.parse(readFileSync(fixture.checklistPath, 'utf8')) as ChecklistData;
+    for (const intentRef of ['INT-SHARED-A', 'INT-SHARED-B', 'INT-SHARED-NEAR', 'INT-UNIQUE']) {
+      const row = checklist.items[0].verificationEvidence?.find(entry => entry.intentRef === intentRef);
+      assert.equal(row?.mechanical, true, `${intentRef} receives its own mechanical batch stamp`);
+      assert.equal(row?.receipt?.selectorMatched, true, `${intentRef} independently evaluates its selector`);
+    }
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+async function assertBatchSharedExecutionStillFailsAtomicOnSelector(): Promise<void> {
+  const fixture = setupRefreshFixture('selector-fail', 'batch-selector-fail');
+  const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
+  try {
+    const result = await runCli(
+      fixture.root,
+      ['verification_evidence_batch_add', JSON.stringify({
+        storyId: fixture.storyId,
+        evidences: fixture.batchEvidences,
+      })],
+      NON_MAX_HARNESS_CEILING_MS,
+      {
+        PROOF_OR_STOP_SESSION_ID: 'batch-selector-fail-smoke',
+        PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      },
+    );
+    assert.equal(result.status, 1, 'a missing selector on one consumer fails the whole batch');
+    assert.match(result.stderr, /pinned selector "SHARED_MISSING" not found/);
+    const executions = readFileSync(fixture.executionLog, 'utf8').trim().split('\n').map(line => JSON.parse(line) as { kind: string });
+    assert.deepEqual(executions.map(entry => entry.kind), ['shared'],
+      'two selector consumers reuse one exact command execution even when the second selector fails');
+    assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
+      'one selector failure preserves all-or-nothing checklist bytes');
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+async function assertBatchWatchdogReapsWithoutPartialWrites(): Promise<void> {
+  const cases = [
+    { name: 'batch-idle', idleMs: '140', maxMs: '5000', heartbeatMs: '2000', transcript: /stuck: 0\.14 seconds without output/ },
+    { name: 'batch-max', idleMs: '2000', maxMs: '220', heartbeatMs: '40', transcript: /(?:exceeded max timeout 220ms|CLI max timeout exceeded 220ms)/ },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = setupRefreshFixture('hang', testCase.name);
+    const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
+    try {
+      const result = await runCli(
+        fixture.root,
+        ['verification_evidence_batch_add', JSON.stringify({
+          storyId: fixture.storyId,
+          evidences: fixture.batchEvidences,
+        })],
+        NON_MAX_HARNESS_CEILING_MS,
+        {
+          PROOF_OR_STOP_SESSION_ID: `${testCase.name}-smoke`,
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
+        },
+      );
+      assert.equal(result.status, 1, `${testCase.name} must surface a structured handler failure, not process.exit(2):\n${result.stderr}`);
+      assert.match(result.stderr, testCase.transcript);
+      assert.doesNotMatch(result.stdout, /Verification evidence batch recorded/, `${testCase.name} cannot claim a batch write`);
+      await waitForFile(fixture.parentPidFile);
+      await waitForFile(fixture.descendantPidFile);
+      await new Promise(resolve => setTimeout(resolve, 120));
+      const parentPid = Number(readFileSync(fixture.parentPidFile, 'utf8'));
+      const descendantPid = Number(readFileSync(fixture.descendantPidFile, 'utf8'));
+      assert.equal(pidIsAlive(parentPid), false, `${testCase.name} abort must reap the command group leader`);
+      assert.equal(pidIsAlive(descendantPid), false, `${testCase.name} abort must reap its provider-like descendant`);
+      assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
+        `${testCase.name} abort must preserve all-or-nothing checklist bytes`);
+    } finally {
+      killRefreshFixtureTree(fixture);
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  }
+}
+
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
     if (process.argv.includes('--readiness-only')) {
       await assertDelayedFixtureReadiness();
       await assertReadinessFailureControls();
+      return;
+    }
+    if (process.env.REFRESH_STALE_WATCHDOG_ONLY === '1') {
+      await assertRefreshHeartbeatAndDedupe();
+      await assertRefreshWatchdogReapsWithoutPartialWrites();
+      await assertSingleEvidenceCommandsHeartbeatAndReap();
+      await assertSingleEvidenceWriteGuardRefusesLateAbort();
+      await assertBatchHeartbeatAndExactCommandDedupe();
+      await assertBatchSharedExecutionStillFailsAtomicOnSelector();
+      await assertBatchWatchdogReapsWithoutPartialWrites();
+      console.log('validate-progress-heartbeat single/refresh/batch structured watchdog PASS');
       return;
     }
     if (process.env.VALIDATE_HEARTBEAT_F011_ONLY === '1') {

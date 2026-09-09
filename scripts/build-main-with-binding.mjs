@@ -93,6 +93,11 @@ await withBuildLock(projectRoot, async () => {
   // cross-platform-risky (Windows junction rename semantics) and is tracked as a
   // follow-up (C2b), NOT implemented here.
   promoteDist(dist, staging, trash);
+  // B-137a: npm's global `bin` link points straight at this JavaScript file, and
+  // TypeScript emits it non-executable. Restore the executable contract after
+  // every promotion rather than leaving a global `proof-or-stop` symlink to fail
+  // with EACCES.
+  if (process.platform !== 'win32') chmodSync(join(dist, 'cli.js'), 0o755);
   // Manifest lands AFTER the code is fully in place. Readers import code, not the
   // manifest, so this ordering never exposes MODULE_NOT_FOUND; a concurrent fast-
   // path verify that briefly sees no manifest simply fails closed to a lock wait.

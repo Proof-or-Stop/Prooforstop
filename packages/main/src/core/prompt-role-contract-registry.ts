@@ -23,7 +23,7 @@ import {
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
@@ -170,7 +170,15 @@ export function reviewerHostRenderIdentity(
   const registry = readPromptRegistry();
   const entry = registry.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
-  if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)) {
+  // B-137a: the delivery reviewer is not a REVIEW-evidence lane, but it does
+  // render a host identity for its TEST-phase dispatch binding, which
+  // delivery_check_set consumes. Resolving this conflict to main's version
+  // dropped that exemption, so every delivery-review dispatch failed to build an
+  // authorityBinding -- silently, because the caller swallows the throw -- and
+  // the TEST->DONE delivery gate then reported a missing host render identity.
+  // Compared canonically so both the retired and current spellings are exempt.
+  if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)
+    && !agentRoleIdsEqual(canonicalRoleId, 'proof-or-stop-review-delivery')) {
     throw new PromptRoleContractRegistryError(`role "${canonicalRoleId}" is not eligible for reviewer host rendering`);
   }
   const packageTemplate = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, rolloutMode));
@@ -284,7 +292,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review user-visible behavior and edge conditions.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-channel': {
@@ -301,7 +309,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review concept deletion and residual references.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-delivery': {
@@ -318,7 +326,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review documentation and code consistency.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-quality': {
@@ -327,7 +335,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review implementation quality, safety, and maintainability.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-scope-plan': {
@@ -360,7 +368,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review verification intent and evidence coverage.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-product-reviewer': {

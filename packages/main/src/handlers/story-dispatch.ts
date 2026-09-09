@@ -61,6 +61,10 @@ import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import type { ReviewInventoryPurposeBinding } from '../core/types.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { requireInventoryCriticSubjectLocked } from './review-inventory.js';
+import {
+  DELIVERY_REVIEW_LANE,
+  deliveryReviewDispatchBindingDigest,
+} from '../core/delivery-review-authority.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -173,6 +177,19 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (scopePlan) lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
   }
 
+  function appendReviewerExecutionModes(lines: string[], storyId: string, lane: string): void {
+    lines.push('Execution boundary (choose exactly one):');
+    lines.push('- Native host subagent with a registered host-adapter broker: the reviewer itself starts review_run_start and writes finding_add/review_pass_set as described below; the broker must descriptor-inject the exact signed invocation attestation. Native lifecycle remains owned by the host.');
+    lines.push('- Native host without that broker integration is advisory-only and cannot write formal finding/pass evidence; use the managed reviewer path below instead.');
+    lines.push('- Cross-provider CLI reviewer: do not launch raw `bash + codex/claude/agy`. The controller first starts review_run_start, then submits the exact run through ManagedHostRun:');
+    lines.push(`  proof-or-stop host_run '{"host":"codex","storyId":"${storyId}","agentType":"${lane}","reviewRunId":"<reviewRunId>","lane":"${lane}","managedReview":true,"detach":true,"json":true}'`);
+    lines.push('  Poll the returned runId with `proof-or-stop host_run_status \'{"runId":"<runId>","afterGeneration":<generation>,"waitMs":30000,"json":true}\'`. A 30-second return or provider silence is not failure and never authorizes a replacement.');
+    lines.push('  The provider final assistant result must be exactly one bounded `lattice.managed_review_final_proposal.v1` JSON envelope. The managed adapter seals the strictly validated verdict; the controller cannot supply or override it.');
+    lines.push('  Only after state=completed and an exact receiptId exists, call `proof-or-stop managed_review_evidence_import \'{"runId":"<runId>","receiptId":"<receiptId>"}\'`.');
+    lines.push('- A raw provider CLI result is manual/advisory output only; it cannot satisfy the managed reviewer evidence path.');
+    lines.push('');
+  }
+
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
@@ -194,6 +211,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     assembledPromptDigest?: string;
     promptEnvelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope'];
     headHash?: string;
+    materialHash?: string;
     storyFilesHash?: string;
     businessCommit?: string;
     businessCommitAuthor?: string;
@@ -216,6 +234,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         sessionId: getSessionIdentity().sessionId,
         ...(args.reviewPurpose ? { reviewPurpose: args.reviewPurpose, inventoryBinding: args.inventoryBinding } : {}),
         ...(args.headHash ? { headHash: args.headHash } : {}),
+        ...(args.materialHash ? { materialHash: args.materialHash } : {}),
         ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
         ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
         ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
@@ -569,8 +588,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     }
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
+    appendReviewerExecutionModes(lines, args.storyId, lane);
     lines.push('Conclusion record (must choose one):');
-    lines.push(`- Start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${lane}"}' and copy the returned reviewRunId.`);
+    lines.push(`- Native path: start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${lane}"}' and copy the returned reviewRunId. In the managed cross-provider path the controller already performed this step.`);
     lines.push(`- Has issues: proof-or-stop finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${lane}"}'`);
     lines.push('- No blocker: call review_pass_set with the returned reviewRunId and a truthful readManifest covering the story-level review.');
     return { prompt: lines.join('\n') };
@@ -590,6 +610,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/story`);
     lines.push('Role boundary: review only; do not change code, tests, checklist status, or commits.');
     lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`);
+    lines.push('Formal native delivery evidence requires the registered host adapter to descriptor-inject the exact one-shot broker attestation for this dispatch. Without that broker integration, this review is advisory and delivery_check_set fails closed.');
     lines.push('Finish by calling delivery_check_set with the complete promise and evidence mapping; dispatch output alone is not delivery evidence.');
     return { prompt: lines.join('\n') };
   }
@@ -808,8 +829,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
         }
         lines.push('');
+        appendReviewerExecutionModes(lines, args.storyId, displayAgent);
         lines.push('Conclusion record (must choose one of two):');
-        lines.push(`- First start this round's reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output`);
+        lines.push(`- Native path: first start this round's reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output. In the managed cross-provider path the controller already performed this step.`);
         lines.push(`- Has issues: proof-or-stop finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
         lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest; include it on no-blocker review_pass_set. Non-decision entries remain signed manifest evidence; mechanical decisions-doc read mismatch fails closed.');
         lines.push(`- No blocker: proof-or-stop review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"}}'`);
@@ -1103,10 +1125,53 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        let authorityBinding: {
+          dispatchPrompt: string;
+          dispatchPromptDigest: string;
+          hostRenderHost: PromptHost;
+          hostRenderIdentityDigest: string;
+          dispatchBindingDigest: string;
+          headHash: string;
+          materialHash: string;
+          storyFilesHash?: string;
+        } | undefined;
+        try {
+          const hostRenderHost = currentReviewerPromptHost();
+          const hostRenderIdentityDigest = reviewerHostRenderIdentity(
+            root,
+            DELIVERY_REVIEW_LANE,
+            hostRenderHost,
+            resolvePromptEnvelopeRolloutMode(DELIVERY_REVIEW_LANE, loadConfig(root).promptEnvelope),
+          ).identityDigest;
+          const snapshot = captureReviewRunSnapshot(root, { storyId: args.storyId, storyPhase: story.phase }, root);
+          const dispatchPromptDigest = reviewerDispatchPromptDigest(wrapped.prompt);
+          authorityBinding = {
+            dispatchPrompt: wrapped.prompt,
+            dispatchPromptDigest,
+            hostRenderHost,
+            hostRenderIdentityDigest,
+            dispatchBindingDigest: deliveryReviewDispatchBindingDigest({
+              storyId: args.storyId,
+              lane: DELIVERY_REVIEW_LANE,
+              dispatchPromptDigest,
+              hostRenderIdentityDigest,
+              headHash: snapshot.headHash,
+              materialHash: snapshot.materialHash,
+              storyFilesHash: snapshot.storyFilesHash ?? null,
+            }),
+            headHash: snapshot.headHash,
+            materialHash: snapshot.materialHash,
+            ...(snapshot.storyFilesHash ? { storyFilesHash: snapshot.storyFilesHash } : {}),
+          };
+        } catch {
+          // Dispatch remains usable as advisory context without a supported host
+          // adapter. delivery_check_set itself fails closed without this binding.
+        }
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'delivery-review',
+          ...(authorityBinding ?? {}),
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });

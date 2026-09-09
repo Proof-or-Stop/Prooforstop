@@ -21,7 +21,7 @@ try {
   const record = records.findLast(record => record.tool === 'validate');
   assert.ok(record, 'actual validate must record its activity');
   assert.deepEqual(record.timeoutBudget, {
-    effectiveMs: 1_800_000, derivedMs: 900_000, source: 'explicit-max-env',
+    effectiveMs: 1_800_000, derivedMs: 300_000, source: 'explicit-max-env',
   }, 'U16: CLI activity must preserve the explicit watchdog override');
   console.log('PASS U16 watchdog-activity');
 } finally { rmSync(root, { recursive: true, force: true }); }

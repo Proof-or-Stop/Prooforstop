@@ -23,6 +23,7 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { renderPromptForHost } from '../core/prompt-registry.js';
 import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
@@ -44,6 +45,14 @@ import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { STATE_DIR_NAMES } from '../core/brand-paths.js';
+import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+import {
+  nativeReviewFixtureAmbientHost,
+  nativeReviewFixtureBrokers,
+  nativeReviewFixtureHostEnvironment,
+  resolveNativeReviewFixtureAmbientHost,
+  runBrokeredNativeReviewCli,
+} from './native-review-fixture.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
@@ -259,17 +268,31 @@ const rolloutPromptNames = [
   'proof-or-stop-review-docs',
   'proof-or-stop-review-delivery',
 ];
+const rolloutFullBodyMirrorNames = new Set([
+  'lattice-implementer',
+  'test-case-reviewer',
+  'lattice-review-topology-critic',
+  'lattice-review-delivery',
+]);
 const rolloutPromptTokens = [
   'acceptance_topology_check',
   'pre_review_check_read',
   'acceptance_rollout_report_read',
   'acceptance_rollout_check',
-  'full 3 rounds',
+  'blocking=true',
+  'project mode is `enforce`',
+  'explicit promotion claim',
+  '`observe` or `warn`',
+  '`legacy_missing` or `partial` is advisory only',
+  'never fabricate a topology',
+  'never upgrade it to a formal pass',
+  'current signed receipt and exact full 3 rounds × 2 hosts',
   'codex-cli',
   'claude-cli',
   '3x1',
   'rollback',
 ];
+const wave4ModeAwareGuidance = 'Always read the canonical reports `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`, and report their status honestly. Missing or non-PASS signed per-Story evidence is a blocker only when a canonical report says `blocking=true`, the project mode is `enforce`, or the work makes an explicit promotion claim. In `observe` or `warn`, `legacy_missing` or `partial` is advisory only: never fabricate a topology and never upgrade it to a formal pass. A report that claims PASS or promotion still requires a current signed receipt and exact full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`); reject degraded 3x1. Prompt prose is never gate evidence. Rollback may only change the configured mode and must preserve every report, receipt, diagnostic, and prior evidence.';
 
 // B-4043 F-014: the role guidance is sourced from the canonical package
 // templates (the REAL delivery path — review_run_start / agent_prompt resolve
@@ -287,8 +310,45 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
     const claudePath = `.claude/agents/${name}.md`;
     const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
-    return tokensPresent && lastParagraph(codex) === lastParagraph(claude);
+    const selectedClaude = renderPromptForHost(template, 'claude');
+    const selectedCodex = renderPromptForHost(template, 'codex');
+    const fullBodyMirrorsCurrent = !rolloutFullBodyMirrorNames.has(name)
+      || (lastParagraph(codex) === wave4ModeAwareGuidance && lastParagraph(claude) === wave4ModeAwareGuidance);
+    return tokensPresent
+      && lastParagraph(template) === wave4ModeAwareGuidance
+      && lastParagraph(selectedClaude) === wave4ModeAwareGuidance
+      && lastParagraph(selectedCodex) === wave4ModeAwareGuidance
+      && lastParagraph(codex) === lastParagraph(claude)
+      && fullBodyMirrorsCurrent;
   });
+}
+
+if (process.argv.includes('--prompt-guidance-only')) {
+  assert.equal(rolloutPromptGuidancePass(), true, 'canonical Wave 4 guidance is mode-aware across every active role and host mirror');
+  const templatePath = 'packages/main/templates/agents/lattice-review-concept.md';
+  const control = readFileSync(join(repositoryRoot, templatePath), 'utf8');
+  for (const [label, from, to] of [
+    ['blocking report', '`blocking=true`', '`blocking=false`'],
+    ['observe advisory', '`legacy_missing` or `partial` is advisory only', '`legacy_missing` or `partial` is blocking'],
+    ['topology forgery', 'never fabricate a topology', 'fabricate a topology'],
+    ['formal pass', 'never upgrade it to a formal pass', 'upgrade it to a formal pass'],
+    ['full 3x2', 'exact full 3 rounds × 2 hosts', 'degraded 3x1'],
+  ] as const) {
+    assert.equal(
+      rolloutPromptGuidancePass(new Map([[templatePath, control.replace(from, to)]])),
+      false,
+      `${label} mutation must violate the executable Wave 4 prompt contract`,
+    );
+  }
+  const mirrorPath = '.claude/agents/lattice-review-concept.md';
+  const mirror = readFileSync(join(repositoryRoot, mirrorPath), 'utf8');
+  assert.equal(
+    rolloutPromptGuidancePass(new Map([[mirrorPath, `${mirror}\nmirror drift\n`]])),
+    false,
+    'generated host mirror drift must violate the executable Wave 4 prompt contract',
+  );
+  console.log('ProofStory Wave 4 mode-aware prompt guidance: PASS (6 mutations)');
+  process.exit(0);
 }
 
 function selectActiveScenarioRecords(
@@ -596,19 +656,30 @@ function git(root: string, args: string[]): string {
  * keeps the fixture independent of the caller's environment: it otherwise passes from an
  * interactive shell that already exports one and fails under `proof-or-stop validate`, whose child
  * environment has none, with 'unsupported session host provider "absent"'.
+ *
+ * B-137a: `host` selects which brokered native-review host identity the nested CLI runs as.
  */
-function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'proof-or-stop-implementer', sessionTask = 'sess-pre-review-smoke'): string {
+function cli(
+  root: string,
+  command: string,
+  args: Record<string, unknown>,
+  allowFail = false,
+  agent = 'proof-or-stop-implementer',
+  sessionTask = 'sess-pre-review-smoke',
+  host: 'codex' | 'claude' = nativeReviewFixtureAmbientHost(),
+): string {
   try {
     return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
-        ...process.env,
+        ...sanitizedFixtureChildEnvironment(process.env),
         // The registered rollout producer marks its outer process as the
         // verifier. Nested fixture CLI calls must resolve their own adapter
         // actor from the explicit session envelope instead of inheriting that
         // non-dispatch actor marker.
         PROOF_OR_STOP_AGENT: agent,
         ...adapterSessionEnv(sessionTask, agent),
+        ...nativeReviewFixtureHostEnvironment(agent, host, sessionTask),
       },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -979,7 +1050,17 @@ try {
     `${dir}/activity.jsonl`,
     `${dir}/locks/`,
   ]).join('\n') + '\n');
-  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.proof-or-stop/story/actives',
+    requirementsDir: 'docs/requirements',
+    proofStory: { acceptanceTopologyGateMode: 'observe' },
+    // B-137a: brokered native-review evidence needs registered brokers.
+    nativeReviewInvocation: {
+      brokers: nativeReviewFixtureBrokers(),
+    },
+  }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
@@ -1179,22 +1260,64 @@ try {
       'proof-or-stop-review-test-coverage',
       'proof-or-stop-review-docs',
     ];
+    const ambientReviewHost = resolveNativeReviewFixtureAmbientHost();
+    if (ambientReviewHost.observed) {
+      const vetoLane = reviewLanes[0];
+      const vetoHost = ambientReviewHost.host === 'codex' ? 'claude' : 'codex';
+      const vetoSessionId = `sess-${storyId}-${vetoLane}-cross-provider-veto`;
+      cli(root, 'dispatch', { storyId, agentType: vetoLane }, false, vetoLane, vetoSessionId, vetoHost);
+      const vetoRun = cli(root, 'review_run_start', { storyId, agent: vetoLane }, false, vetoLane, vetoSessionId, vetoHost);
+      const vetoReviewRunId = vetoRun.match(/Review run (\S+) started/)?.[1];
+      assert.ok(vetoReviewRunId, `cross-provider veto review run missing for ${vetoLane}: ${vetoRun}`);
+      await assert.rejects(
+        runBrokeredNativeReviewCli({
+          root,
+          store,
+          storyId,
+          agent: vetoLane,
+          reviewRunId: vetoReviewRunId,
+          command: 'review_pass_set',
+          payload: {
+            storyId,
+            agent: vetoLane,
+            reviewRunId: vetoReviewRunId,
+            note: 'Cross-provider fixture control must be vetoed before it can persist a review pass.',
+            readManifest: {
+              filesReadFully: ['packages/main/src/producer.ts'],
+              filesTriagedByName: [],
+              scanEscalationReason: null,
+            },
+          },
+        }),
+        /cross-provider direct reviewer evidence is advisory-only/,
+        `non-ambient host=${vetoHost} must be vetoed under observed host=${ambientReviewHost.host}`,
+      );
+    }
     for (const lane of reviewLanes) {
       cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
-      const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, `sess-${storyId}-${lane}-review`);
+      const reviewSessionId = `sess-${storyId}-${lane}-review`;
+      const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, reviewSessionId);
       const reviewRunId = run.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId, `cohort review run missing for ${lane}: ${run}`);
-      cli(root, 'review_pass_set', {
+      await runBrokeredNativeReviewCli({
+        root,
+        store,
         storyId,
         agent: lane,
         reviewRunId,
-        note: `Registered rollout cohort ${cohortArm}/${cohortScenario} found no unrelated review issue.`,
-        readManifest: {
-          filesReadFully: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'],
-          filesTriagedByName: [],
-          scanEscalationReason: null,
+        command: 'review_pass_set',
+        payload: {
+          storyId,
+          agent: lane,
+          reviewRunId,
+          note: `Registered rollout cohort ${cohortArm}/${cohortScenario} found no unrelated review issue.`,
+          readManifest: {
+            filesReadFully: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'],
+            filesTriagedByName: [],
+            scanEscalationReason: null,
+          },
         },
-      }, false, lane, `sess-${storyId}-${lane}-review`);
+      });
     }
     const quorumResult = JSON.parse(cli(root, 'quorum_submit', {
       storyId,

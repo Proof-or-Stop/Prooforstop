@@ -22,6 +22,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
 import {
+  acquireProviderProcessAdmission,
+  releaseProviderProcessAdmission,
+} from '../core/provider-process-admission.js';
+import {
   claudeNoninteractiveAuthAvailable,
   claudeProviderAvailable,
   runBoundedClaudeProvider,
@@ -202,6 +206,52 @@ try {
   assert.equal(authBlock.receiptVerified, false);
   assert(authBlock.nextActions.some((a: string) => a.includes('ANTHROPIC_API_KEY')),
     'a blocked auth gate points the operator at a recognized noninteractive auth credential');
+
+  const admissionEnv = {
+    ANTHROPIC_API_KEY: 'sk-secret',
+    PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1',
+  };
+  const admissionHolder = acquireProviderProcessAdmission({
+    root,
+    env: admissionEnv,
+    host: 'codex',
+    storyId: 'B-syn',
+    agentType: 'planned-step-admission-holder',
+  });
+  assert.equal(admissionHolder.admitted, true, 'planned-step admission fixture must hold the sole provider slot');
+  try {
+    let providerExecutorCalls = 0;
+    const admissionBlocked = exec(
+      plan(claudeStep(['-p', 'implement']), {
+        allowedProviders: ['claude'],
+        credentialsEnvAllowlist: ['ANTHROPIC_API_KEY'],
+      }),
+      admissionEnv,
+      {
+        available: () => true,
+        run: (request): ProviderExecResult => {
+          providerExecutorCalls += 1;
+          return {
+            provider: request.provider,
+            argvDigest: 'not-reached',
+            exitCode: 0,
+            stdoutDigest: 'not-reached',
+            stderrDigest: 'not-reached',
+            stdoutBytes: 0,
+            stderrBytes: 0,
+            durationMs: 0,
+            attempts: 1,
+            timedOut: false,
+            spawnError: false,
+          };
+        },
+      },
+    );
+    assert.equal(admissionBlocked.steps[0].reason, 'concurrency_cap_exceeded');
+    assert.equal(providerExecutorCalls, 0, 'planned-steps admission must run before the injected provider executor');
+  } finally {
+    releaseProviderProcessAdmission(admissionHolder);
+  }
 
   // success: recognized auth var + available → passes; evidence is redacted + never DONE
   let capReq: JsonObject | null = null;

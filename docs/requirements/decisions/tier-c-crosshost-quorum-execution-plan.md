@@ -14,7 +14,10 @@ verifies them offline). Verified against the current CLI:
 - **Built and working:** local Ed25519 signing + offline verify (`receipt-bundle.ts`
   `buildReceiptBundle` / `verifyReceiptBundleOffline`; `authority-signing.ts` sign/verify canonical);
   a pure quorum evaluator (`decision-doc-quorum.ts` 3-round × 2-host, strict `materialDigest`;
-  `verdicts.ts` `summarizeVerdicts` union-find, fail-closed; `quorum-submit.ts` handler).
+  `verdicts.ts` `summarizeVerdicts` union-find, fail-closed; `quorum-submit.ts` handler);
+  host-B collection via `cross_host_review`, which submits/resumes a ManagedHostRun and records
+  host-B `managedRunId`/`managedReceiptId` (`registry.ts` `createCrossHostReviewHandlers`;
+  `handlers/cross-host-review.ts`).
 - **The three gaps (why Tier-C is not closed):**
   1. **Provenance:** the `HostVerdict` record has NO required signature (`verdicts.ts`; a carried
      `receiptId` is explicitly "not a verified signature"). A verdict proves tree integrity
@@ -22,8 +25,12 @@ verifies them offline). Verified against the current CLI:
   2. **Independence is a label, not crypto:** `quorum-submit.ts` derives host/session/key from
      string templates and only rejects string collisions. Two "independent" hosts in one store is a
      naming convention, not two signed attestations.
-  3. **No cross-host collection:** `dispatch_auto` picks ONE host; non-Claude hosts (Codex) are
-     supervised-only/scaffolded — Proof-or-Stop does not auto-drive host B or collect its signed verdict.
+  3. **Same-operator / crypto-deferred boundary:** collection is implemented, but it does not
+     earn cryptographic independence. `cross_host_review` auto-drives host B (Codex) on the same
+     operator machine and records `managedRunId`/`managedReceiptId`; the collected host-B verdict
+     still has no required `HostVerdict` signature (gap 1) and host identity remains a naming
+     convention (gap 2). `dispatch_auto` still picks ONE host and is not the collection path.
+     Signed-verdict pinning stays deferred (M-crypto / M2).
 - **Not covered by pre-reg:** the locked `lattice-experiment-protocol.md` has H1/H2/H3 only; a
   cross-host quorum-formation hypothesis (H4) must be added by amendment.
 - **Autopilot:** checkpoint/resume + 429/network health-aware pause/resume are production;
@@ -63,6 +70,13 @@ setup, tamper-proofing (signed verdicts / pinned keys) defends against a non-exi
 the value we can earn today is the **adversarial joint decision**, not a signature. So M1 builds the
 collection+decision mechanism now and defers the provenance crypto to M-crypto (below,
 external-skeptic-only).
+
+**Current-state supersession:** the bullets below preserve M1's historical
+direct-capture design. Production `cross_host_review` now launches/resumes one
+ManagedHostRun, and host-B provenance is the sealed terminal `receiptId` plus
+exact `managedRunId`; the old stdoutDigest-only direct capture is retired.
+Interrupt/TERM/KILL/reap ownership belongs to that ManagedHostRun supervisor,
+not to the cross-host controller or caller.
 Objective: turn the manual 2-host quorum into an **automatic** cross-host adversarial review that
 records a materialHash-bound host-B verdict through the existing capture path and surfaces where
 host A (Claude) and host B (Codex) disagree.
@@ -107,6 +121,9 @@ Repro-first RED: two label-distinct verdicts signed by the SAME key (or unsigned
 quorum. SPIKE: signature verification distinguishes them; byte-identical evaluator output otherwise.
 
 ### M2 — Collection: cross-host dispatch-verify verb + handshake  [build · medium]
+Current-state note: unsigned host-B collection via `cross_host_review` + ManagedHostRun is
+already implemented (section 0). M2 is the remaining signed `dispatch_verify` handshake, not a
+claim that host B cannot be auto-driven.
 Objective: actually collect host B's signed verdict, no server.
 - A `dispatch_verify`-style path: send the same materialHash-bound change to host B (Codex CLI),
   capture its signed verdict from the dispatch result, merge into the quorum store.

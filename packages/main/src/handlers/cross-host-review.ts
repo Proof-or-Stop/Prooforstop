@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
@@ -8,6 +8,7 @@ import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { FormatArgs } from './verdict.js';
 import { canonicalDigest } from '../core/authority-signing.js';
+import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   currentGitHead,
@@ -23,8 +24,21 @@ import {
   runCodexReviewLeaf,
   type CodexReviewLeafResult,
   type CodexReviewRunner,
+  type CodexReviewRunnerResult,
   type CodexReviewVerdict,
 } from '../core/codex-review-leaf.js';
+import {
+  getManagedHostRunStatus,
+  cleanupManagedCrossHostReviewWorktree,
+  managedHostRunReceipt,
+  readManagedHostRunBinding,
+  readManagedHostRunOutput,
+  readManagedHostRunResult,
+  runManagedHostRunWorker,
+  submitManagedHostRun,
+  type ManagedHostRunWorkerLauncher,
+} from '../core/managed-host-run.js';
+import type { HostRunRunner } from '../core/host-run.js';
 import {
   diffFindings,
   jointDecision,
@@ -37,8 +51,22 @@ import {
 } from '../core/dispatch-policy.js';
 import type { HostVerdict, VerdictDecision } from '../core/verdicts.js';
 import { appendRawProcessEventBytes } from '../core/process-events.js';
+import { reportHealthIssue } from '../core/health.js';
 
-const DEFAULT_TIMEOUT_MINUTES = 12;
+export const CROSS_HOST_REVIEW_DEFAULT_TIMEOUT_MINUTES = 12;
+
+export function boundedCrossHostReviewTimeoutMinutes(
+  requestedMinutes: number | undefined,
+  policyMaxMinutes: number,
+): number {
+  if (typeof policyMaxMinutes !== 'number' || !Number.isFinite(policyMaxMinutes) || policyMaxMinutes <= 0) {
+    throw new Error('cross_host_review: refusing to spawn without a valid maxRuntimeMinutes ceiling');
+  }
+  const requested = typeof requestedMinutes === 'number' && requestedMinutes > 0
+    ? requestedMinutes
+    : CROSS_HOST_REVIEW_DEFAULT_TIMEOUT_MINUTES;
+  return Math.min(requested, policyMaxMinutes);
+}
 
 /** Fail-closed reason: the worktree carries uncommitted MATERIAL (source) state, so the HEAD materialHash cannot honestly bind a review result. */
 export const CROSS_HOST_REVIEW_DIRTY_WORKTREE = 'cross_host_review_dirty_worktree' as const;
@@ -109,6 +137,13 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
       // Drop the story's own ProofOrStop metadata dir — Codex reviews source, not
       // story bookkeeping, and `.proof-or-stop/` churns constantly during a story.
       if (normalized === PROOF_OR_STOP_DIR || normalized.startsWith(proofOrStopPrefix)) continue;
+      // B-137a main-merge fix: runtime artifacts (managed host-run claim/events/
+      // result files) live under the state dir and are written BY this very
+      // command, so a hand-rolled `.proof-or-stop/` prefix check misclassified
+      // them as uncommitted SOURCE and fail-closed on the runtime's own output.
+      // Defer to the canonical material policy -- the same one materialHash uses,
+      // so "dirty MATERIAL" here means exactly what the recorded verdict binds to.
+      if (isMaterialExcludedPath(normalized)) continue;
       material.push(normalized);
     }
   }
@@ -249,6 +284,10 @@ export type CrossHostReviewArgs = {
   hostB?: string;
   runId?: string;
   timeoutMinutes?: number;
+  /** Resume/consume an already submitted cross-host ManagedHostRun; never spawns a replacement. */
+  managedRunId?: string;
+  /** Submit the managed Codex leaf and return its runId without consuming a verdict. */
+  detach?: boolean;
 } & FormatArgs;
 
 interface CrossHostIdentity {
@@ -292,6 +331,37 @@ export interface CrossHostReviewResult {
   stdoutDigest: string;
   codexExitCode: number | null;
   codexTimedOut: boolean;
+  managedRunId: string;
+  managedReceiptId: string;
+}
+
+export interface CrossHostReviewManagedSubmission {
+  schemaVersion: 'lattice.cross_host_review_managed_submission.v1';
+  storyId: string;
+  managedRunId: string;
+  state: string;
+  deadlineAt: string;
+  /** Controller-local process-event write failed after the durable run submission. Resume this exact run; do not spawn another. */
+  bookkeepingError?: string;
+}
+
+class CrossHostReviewDetached extends Error {
+  constructor(readonly submission: CrossHostReviewManagedSubmission) {
+    super('cross_host_review managed leaf detached');
+  }
+}
+
+/**
+ * A durable provider submission must be returned to the operator even when
+ * controller-local observability persistence fails.  This is intentionally a
+ * typed internal signal rather than a string property on Error: the outer
+ * handler returns the structured submission in both text and JSON modes.
+ */
+class CrossHostReviewSubmissionBookkeepingFailure extends Error {
+  constructor(readonly submission: CrossHostReviewManagedSubmission, cause: unknown) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    super(`cross_host_review: managed run submitted but submission bookkeeping failed: ${message}`);
+  }
 }
 
 function wantsJson(args: FormatArgs | undefined): boolean {
@@ -355,6 +425,26 @@ function assertReviewHeadStillCurrent(gitCwd: string, expectedHeadHash: string):
   }
 }
 
+function cleanupHeadReviewWorktree(gitCwd: string, worktree: string): void {
+  cleanupManagedCrossHostReviewWorktree(gitCwd, worktree);
+}
+
+async function resumedManagedRunAllowsSnapshotCleanup(root: string, runId: string): Promise<boolean> {
+  try {
+    const { run } = await getManagedHostRunStatus({ root, runId });
+    const terminal = run.terminal;
+    return terminal !== null
+      && terminal.replacementSafe
+      && terminal.processCleanup !== null
+      && terminal.processCleanup.reaped
+      && !terminal.processCleanup.residualProcessGroup;
+  } catch {
+    // A resume refusal must never turn missing/corrupt runtime facts into
+    // authority to remove a cwd which may still be owned by the provider.
+    return false;
+  }
+}
+
 function createCleanHeadReviewWorktree(gitCwd: string, headHash: string): { worktree: string; cleanup: () => void } {
   const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-review-'));
   const worktree = join(parent, 'worktree');
@@ -373,19 +463,7 @@ function createCleanHeadReviewWorktree(gitCwd: string, headHash: string): { work
     );
   }
 
-  const cleanup = (): void => {
-    try {
-      execFileSync('git', ['worktree', 'remove', '--force', worktree], {
-        cwd: gitCwd,
-        encoding: 'utf-8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-        maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
-      });
-    } catch {
-      // Fall back to filesystem cleanup; git worktree prune can clean any leftover metadata.
-    }
-    rmSync(parent, { recursive: true, force: true });
-  };
+  const cleanup = (): void => cleanupHeadReviewWorktree(gitCwd, worktree);
   return { worktree, cleanup };
 }
 
@@ -490,6 +568,8 @@ function formatResult(result: CrossHostReviewResult): string {
     `stdoutDigest: ${result.stdoutDigest}`,
     `codexExitCode: ${result.codexExitCode}`,
     `codexTimedOut: ${result.codexTimedOut}`,
+    `managedRunId: ${result.managedRunId}`,
+    `managedReceiptId: ${result.managedReceiptId}`,
     'admissibilityStatus: local-cross-host-review-recorded',
     'evidenceScope: local-cross-host-review',
   ].join('\n');
@@ -538,12 +618,6 @@ function authorizeReviewPolicy(root: string, policy: string | DispatchPolicy | u
   // trusting the type: a non-number ceiling would otherwise be silently discarded by
   // the timeout computation and codex would run with the caller timeout instead of
   // the intended bound. Fail closed rather than spawn without an enforced ceiling.
-  // Bug10 (defense-in-depth): the runtime ceiling MUST be a real, finite, positive
-  // number. checkDispatchPolicy now refuses a malformed record upstream (so a string
-  // maxRuntimeMinutes never reaches here), but we re-assert it directly rather than
-  // trusting the type: a non-number ceiling would otherwise be silently discarded by
-  // the timeout computation and codex would run with the caller timeout instead of
-  // the intended bound. Fail closed rather than spawn without an enforced ceiling.
   if (typeof authorized.maxRuntimeMinutes !== 'number'
     || !Number.isFinite(authorized.maxRuntimeMinutes)
     || authorized.maxRuntimeMinutes <= 0) {
@@ -559,6 +633,8 @@ function authorizeReviewPolicy(root: string, policy: string | DispatchPolicy | u
 export interface CreateCrossHostReviewHandlersOptions {
   /** Injectable Codex process seam so the smoke can pass a fake (no real CLI). */
   codexRunner?: CodexReviewRunner;
+  managedRunner?: HostRunRunner;
+  launchWorker?: ManagedHostRunWorkerLauncher;
   /** Internal smoke seam for adversarial git-race coverage; never exposed through the CLI. */
   afterHeadCaptured?: () => void | Promise<void>;
   /** Internal smoke seam for final write-window race coverage; never exposed through the CLI. */
@@ -652,6 +728,195 @@ export interface CrossHostVerdictRecord extends HostVerdict {
   findingCount: number;
 }
 
+async function runManagedCodexReview(
+  ctx: HandlerContext,
+  opts: {
+    storyId: string;
+    phase: string;
+    storyWorktree: string;
+    prompt: string;
+    timeoutMs: number;
+    environment: NodeJS.ProcessEnv;
+    managedRunId?: string;
+    detach?: boolean;
+    /** Called synchronously once a fresh managed run has been durably submitted. */
+    onManagedRunSubmitted?: (managedRunId: string) => void;
+  },
+  options: CreateCrossHostReviewHandlersOptions,
+): Promise<CodexReviewRunnerResult & { managedRunId: string; managedReceiptId: string }> {
+  const injectedOutcome: { value: CodexReviewRunnerResult | null } = { value: null };
+  const managedRunner: HostRunRunner | undefined = options.managedRunner ?? (options.codexRunner
+    ? async plan => {
+      const outcome = await options.codexRunner!({
+        prompt: plan.stdinText ?? '',
+        storyWorktree: opts.storyWorktree,
+        timeoutMs: opts.timeoutMs,
+        env: opts.environment,
+      });
+      injectedOutcome.value = outcome;
+      if (outcome.stdout) plan.onChunk?.({ stream: 'stdout', text: outcome.stdout });
+      return {
+        stdout: outcome.stdout,
+        stderr: '',
+        exitCode: outcome.exitCode ?? 1,
+        timedOut: outcome.timedOut,
+        timeoutKind: outcome.timedOut ? 'total_timeout' : null,
+        terminalReason: outcome.timedOut ? 'total_timeout' : outcome.exitCode === 0 ? 'completed' : 'exit_nonzero',
+      };
+    }
+    : undefined);
+  const injectedLauncher: ManagedHostRunWorkerLauncher | undefined = managedRunner
+    ? async request => {
+      void runManagedHostRunWorker(request, { runner: managedRunner, env: process.env });
+      return { pid: process.pid };
+    }
+    : undefined;
+  let submitted;
+  if (opts.managedRunId) {
+    const binding = readManagedHostRunBinding(ctx.root, opts.managedRunId);
+    const expectedPromptDigest = `sha256:${createHash('sha256').update(opts.prompt, 'utf8').digest('hex')}`;
+    if (
+      binding.host !== 'codex'
+      || binding.storyId !== opts.storyId
+      || binding.phase !== opts.phase
+      || binding.agentType !== 'cross-host-review:codex'
+      || binding.profile !== 'cross_host_review_codex'
+      || binding.cwd !== opts.storyWorktree
+      || binding.projectRootHash !== projectRootHashFor(ctx.root)
+      || binding.promptDigest !== expectedPromptDigest
+      || binding.timeoutMs > opts.timeoutMs
+    ) {
+      throw new Error('cross_host_review: managedRunId binding does not match the current story/policy/snapshot/prompt; refusing to resume or spawn a replacement');
+    }
+    submitted = (await getManagedHostRunStatus({ root: ctx.root, runId: opts.managedRunId })).run;
+  } else {
+    submitted = await submitManagedHostRun({
+      root: ctx.root,
+      cwd: opts.storyWorktree,
+      host: 'codex',
+      storyId: opts.storyId,
+      phase: opts.phase,
+      agentType: 'cross-host-review:codex',
+      promptText: opts.prompt,
+      timeoutMs: opts.timeoutMs,
+      deadlineMs: opts.timeoutMs,
+      projectRootHash: projectRootHashFor(ctx.root),
+      profile: 'cross_host_review_codex',
+      environment: opts.environment,
+    }, { launchWorker: options.launchWorker ?? injectedLauncher });
+    // Submission durable-writes the run binding before any controller-local
+    // bookkeeping. Capture its identity before appendProcessEvent (or any later
+    // setup) can throw so the caller's finally block never treats this provider
+    // owned snapshot as cleanup-safe by default.
+    opts.onManagedRunSubmitted?.(submitted.runId);
+    try {
+      ctx.store.appendProcessEvent(opts.storyId, {
+        type: 'cross_host_review_managed_submitted',
+        storyId: opts.storyId,
+        managedRunId: submitted.runId,
+        deadlineAt: submitted.deadlineAt,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      // A durable submission is still resumable when controller-local audit
+      // bookkeeping fails. Record the persistence defect to the health channel
+      // and return the exact run identity through the structured outer path so
+      // an operator can resume it without manufacturing a duplicate provider.
+      const cause = error instanceof Error ? error : new Error(String(error));
+      reportHealthIssue('persist:crossHostReviewManagedSubmissionEvent', cause, {
+        storyId: opts.storyId,
+        managedRunId: submitted.runId,
+        deadlineAt: submitted.deadlineAt,
+      });
+      throw new CrossHostReviewSubmissionBookkeepingFailure({
+        schemaVersion: 'lattice.cross_host_review_managed_submission.v1',
+        storyId: opts.storyId,
+        managedRunId: submitted.runId,
+        state: submitted.state,
+        deadlineAt: submitted.deadlineAt,
+        bookkeepingError: cause.message,
+      }, cause);
+    }
+    if (opts.detach) {
+      throw new CrossHostReviewDetached({
+        schemaVersion: 'lattice.cross_host_review_managed_submission.v1',
+        storyId: opts.storyId,
+        managedRunId: submitted.runId,
+        state: submitted.state,
+        deadlineAt: submitted.deadlineAt,
+      });
+    }
+  }
+  let run = submitted;
+  while (!run.terminal) {
+    const status = await getManagedHostRunStatus({
+      root: ctx.root,
+      runId: run.runId,
+      afterGeneration: run.generation,
+      waitMs: 30_000,
+    });
+    run = status.run;
+  }
+  const stdoutChunks: string[] = [];
+  let afterSequence = 0;
+  let outputTruncated = false;
+  let hasMore = true;
+  while (hasMore) {
+    const output = readManagedHostRunOutput({ root: ctx.root, runId: run.runId, afterSequence });
+    afterSequence = output.nextSequence;
+    hasMore = output.hasMore;
+    outputTruncated ||= output.truncated;
+    for (const frame of output.frames) {
+      if (frame.stream === 'stdout') stdoutChunks.push(frame.text);
+    }
+  }
+  const rawStdout = stdoutChunks.join('');
+  const maxBytes = 8 * 1024 * 1024;
+  const stdout = rawStdout.slice(0, maxBytes);
+  const result = readManagedHostRunResult(ctx.root, run.runId);
+  // Prefer the managed runner's digest of the complete stdout stream. The
+  // retained journal is intentionally capped, so hashing `rawStdout` here
+  // would collapse distinct streams that share the retained prefix.
+  const stdoutDigest = injectedOutcome.value?.stdoutDigest
+    ?? result?.stdoutDigest
+    ?? createHash('sha256').update(rawStdout, 'utf8').digest('hex');
+  const receipt = managedHostRunReceipt(ctx.root, run.runId);
+  if (!run.terminal?.replacementSafe
+    || run.terminal.processCleanup?.reaped !== true
+    || run.terminal.processCleanup.residualProcessGroup) {
+    // B-137a:F-114 — carry the runId on the error. This throw happens BEFORE the
+    // `return { ... managedRunId }` below, so on a FRESH run (no --managedRunId) the
+    // caller's `managedRunId` would still be '' when its finally block computes
+    // `cleanupRunId = requestedManagedRunId || managedRunId`. That falsy value took
+    // the ternary's else-branch, set resumeCleanupSafe = true, and force-removed the
+    // snapshot worktree while this very terminal says the provider process group may
+    // still be live — defeating resumedManagedRunAllowsSnapshotCleanup, which exists
+    // precisely to prevent that. Tagging the error lets the caller resolve the real
+    // runId and re-consult that guard instead of assuming cleanup is safe.
+    const unsafeTerminalError = new Error('cross_host_review: managed provider terminal is not replacement-safe/reaped or retains a residual process group; refusing verdict consumption');
+    (unsafeTerminalError as Error & { managedRunId?: string }).managedRunId = run.runId;
+    throw unsafeTerminalError;
+  }
+  const terminalExitCode = run.state === 'completed'
+    ? result?.exitCode ?? 0
+    : result?.exitCode && result.exitCode !== 0
+      ? result.exitCode
+      : run.state === 'timed_out'
+        ? 124
+        : 1;
+  return {
+    stdout,
+    stdoutDigest,
+    exitCode: terminalExitCode,
+    timedOut: run.state === 'timed_out' || result?.timedOut === true,
+    truncated: injectedOutcome.value?.truncated === true || outputTruncated || rawStdout.length > maxBytes,
+    managedRunId: run.runId,
+    managedReceiptId: receipt.receiptId,
+    blocked: result?.blocked === true,
+    refusalReason: result?.refusalReason ?? null,
+  };
+}
+
 interface CrossHostVerdictDraft {
   storyId: string;
   runId: string;
@@ -664,6 +929,7 @@ interface CrossHostVerdictDraft {
   storyFilesHash: string;
   validationDigest: string;
   promptDigest: string;
+  receiptId?: string;
   note: string;
   /** Parsed findings (host B: leaf verdict; host A: caller-authored file); bounded on persist. */
   findings: readonly Finding[];
@@ -684,6 +950,7 @@ function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): 
     storyFilesHash: draft.storyFilesHash,
     validationDigest: draft.validationDigest,
     promptDigest: draft.promptDigest,
+    ...(draft.receiptId ? { receiptId: draft.receiptId } : {}),
     issuedAt,
     note: draft.note,
     // B-dc2e CHK-004: the bounded findings + true count are part of the digested
@@ -740,6 +1007,7 @@ function hostVerdictProcessEvent(verdict: HostVerdict): Record<string, unknown> 
     ...(verdict.storyFilesHash ? { storyFilesHash: verdict.storyFilesHash } : {}),
     validationDigest: verdict.validationDigest,
     promptDigest: verdict.promptDigest,
+    ...(verdict.receiptId ? { receiptId: verdict.receiptId } : {}),
     timestamp: new Date().toISOString(),
   };
 }
@@ -764,7 +1032,7 @@ export function createCrossHostReviewHandlers(
   options: CreateCrossHostReviewHandlersOptions = {},
 ) {
   return {
-    async cross_host_review(args: CrossHostReviewArgs): Promise<CrossHostReviewResult | string> {
+    async cross_host_review(args: CrossHostReviewArgs): Promise<CrossHostReviewResult | CrossHostReviewManagedSubmission | string> {
       const storyId = normalizeString(args.storyId);
       if (!storyId) throw new Error('cross_host_review: storyId is required');
       if (!isCanonicalStoryId(storyId)) {
@@ -812,13 +1080,7 @@ export function createCrossHostReviewHandlers(
       // TIGHTEN, never widen, the bound.
       const requestedMinutes = typeof args.timeoutMinutes === 'number' && args.timeoutMinutes > 0
         ? args.timeoutMinutes
-        : DEFAULT_TIMEOUT_MINUTES;
-      // Bug10: the ceiling is trusted to be a real positive number here ONLY because
-      // authorizeReviewPolicy already fail-closed-verified it (and checkDispatchPolicy
-      // refused a malformed record upstream). We therefore use it DIRECTLY — no silent
-      // `? ceiling : requestedMinutes` fallback that would let a non-number widen the
-      // bound to the caller timeout. Re-assert as a final invariant to fail closed
-      // rather than spawn without an enforced ceiling.
+        : CROSS_HOST_REVIEW_DEFAULT_TIMEOUT_MINUTES;
       // Bug10: the ceiling is trusted to be a real positive number here ONLY because
       // authorizeReviewPolicy already fail-closed-verified it (and checkDispatchPolicy
       // refused a malformed record upstream). We therefore use it DIRECTLY — no silent
@@ -832,7 +1094,7 @@ export function createCrossHostReviewHandlers(
           + `(${JSON.stringify(policyMaxMinutes)}); refusing to spawn the codex review subprocess without a valid runtime bound (fail-closed).`,
         );
       }
-      const timeoutMinutes = Math.min(requestedMinutes, policyMaxMinutes);
+      const timeoutMinutes = boundedCrossHostReviewTimeoutMinutes(requestedMinutes, policyMaxMinutes);
 
       // F-004: the codex subprocess only sees a redacted env honoring the policy's
       // allowlist/denylist (and never operator secrets).
@@ -875,34 +1137,80 @@ export function createCrossHostReviewHandlers(
       // re-check the original worktree before recording. A concurrent source edit
       // or clean HEAD move after the snapshot cannot influence what Codex reviewed,
       // and we refuse to bind/record the verdict if either drift is still present.
-      const snapshot = createCleanHeadReviewWorktree(gitCwd, headHash);
-      let leaf: CodexReviewLeafResult;
-      try {
-        leaf = await runCodexReviewLeaf(
-          {
-            storyId,
-            storyWorktree: snapshot.worktree,
-            materialHash: materialDigest,
-            hostAFindings,
-            timeoutMs: timeoutMinutes * 60 * 1000,
-            env: redactedEnv,
-            // B-70e9 CHK-003: make the codex review spawn visible in the usage ledger.
-            // NOTE: `env` here is the UNREDACTED process env for LEDGER GATING — it is
-            // deliberately NOT the redacted subprocess env above (which drops
-            // PROOF_OR_STOP_USAGE_LEDGER), so a ledger enabled in the parent is honored.
-            usageLedger: {
-              root: ctx.root,
-              recordedAt: new Date().toISOString(),
-              projectRootHash: projectRootHashFor(ctx.root),
-              env: process.env,
-              phase: resolveStoryPhaseForUsage(ctx, storyId),
-            },
-          },
-          options.codexRunner,
-        );
-      } finally {
-        snapshot.cleanup();
+      const requestedManagedRunId = normalizeString(args.managedRunId);
+      const resumedBinding = requestedManagedRunId
+        ? readManagedHostRunBinding(ctx.root, requestedManagedRunId)
+        : null;
+      if (resumedBinding && (!existsSync(resumedBinding.cwd) || resumedBinding.storyId !== storyId || resumedBinding.profile !== 'cross_host_review_codex')) {
+        throw new Error('cross_host_review: managedRunId does not identify a resumable snapshot for this story');
       }
+      const snapshot = resumedBinding
+        ? { worktree: resumedBinding.cwd, cleanup: () => cleanupHeadReviewWorktree(gitCwd, resumedBinding.cwd) }
+        : createCleanHeadReviewWorktree(gitCwd, headHash);
+      let leaf: CodexReviewLeafResult;
+      let managedRunId = '';
+      let managedReceiptId = '';
+      let preserveSnapshot = false;
+      let verdictDurable = false;
+      // B-137a:F-114 — an unsafe-terminal throw happens before managedRunId is
+      // assigned, so capture the runId the error carries and feed it to the
+      // cleanup-safety guard below instead of defaulting to "safe".
+      let thrownManagedRunId = '';
+      try {
+        try {
+          leaf = await runCodexReviewLeaf(
+            {
+              storyId,
+              storyWorktree: snapshot.worktree,
+              materialHash: materialDigest,
+              hostAFindings,
+              timeoutMs: timeoutMinutes * 60 * 1000,
+              env: redactedEnv,
+              managedExecution: true,
+              // B-137a F-043: the managed worker owns the ONLY provider execution
+              // here, and therefore the only usage-ledger lifecycle. Passing a
+              // usageLedger binding to the wrapper leaf as well made it record a
+              // SECOND estimate/final pair for that same provider execution
+              // (measured: 4 rows
+              // where the contract is 2). main's B-70e9 ledger binding belongs on
+              // the unmanaged leaf path, not on this managed one.
+            },
+            async runnerOptions => {
+              const outcome = await runManagedCodexReview(ctx, {
+                storyId,
+                phase: resolveStoryPhaseForUsage(ctx, storyId),
+                storyWorktree: runnerOptions.storyWorktree,
+                prompt: runnerOptions.prompt,
+                timeoutMs: runnerOptions.timeoutMs,
+                environment: runnerOptions.env ?? redactedEnv,
+                ...(requestedManagedRunId ? { managedRunId: requestedManagedRunId } : {}),
+                ...(args.detach === true ? { detach: true } : {}),
+                onManagedRunSubmitted: submittedRunId => { managedRunId = submittedRunId; },
+              }, options);
+              managedRunId = outcome.managedRunId;
+              managedReceiptId = outcome.managedReceiptId;
+              return outcome;
+            },
+          );
+        } catch (error) {
+          if (error instanceof CrossHostReviewSubmissionBookkeepingFailure) {
+            preserveSnapshot = true;
+            return wantsJson(args)
+              ? error.submission
+              : `${error.submission.managedRunId} state=${error.submission.state} deadlineAt=${error.submission.deadlineAt} bookkeeping=failed`;
+          }
+          if (!(error instanceof CrossHostReviewDetached)) {
+            // B-137a:F-114 — recover the runId the unsafe-terminal throw carries so the
+            // finally block's cleanup-safety guard gets a real runId instead of ''.
+            const tagged = (error as Error & { managedRunId?: string } | null)?.managedRunId;
+            if (typeof tagged === 'string' && tagged.length > 0) thrownManagedRunId = tagged;
+            throw error;
+          }
+          preserveSnapshot = true;
+          return wantsJson(args)
+            ? error.submission
+            : `${error.submission.managedRunId} state=${error.submission.state} deadlineAt=${error.submission.deadlineAt}`;
+        }
       assertReviewHeadStillCurrent(gitCwd, headHash);
       assertMaterialCleanForReview(gitCwd);
       const hostBVerdict: CodexReviewVerdict = leaf.hostBVerdict;
@@ -944,7 +1252,8 @@ export function createCrossHostReviewHandlers(
         storyFilesHash,
         validationDigest,
         promptDigest: derivePromptDigest(storyId, hostBIdentity, materialDigest, storyFilesHash),
-        note: `cross_host_review host B (Codex) verdict, stdoutDigest=${leaf.stdoutDigest}`,
+        receiptId: managedReceiptId,
+        note: `cross_host_review host B (Codex) verdict, managedRunId=${managedRunId}, stdoutDigest=${leaf.stdoutDigest}`,
         findings: hostBVerdict.findings,
       };
 
@@ -965,6 +1274,7 @@ export function createCrossHostReviewHandlers(
         throw err;
       }
       appendHostVerdictEvents(ctx, storyId, hostAVerdictRecord, hostBVerdictRecord);
+      verdictDurable = true;
 
       const disagreement = diffFindings(hostAFindings, hostBVerdict.findings);
       // F-005: bind the joint decision to both hosts' material state so the
@@ -1006,8 +1316,25 @@ export function createCrossHostReviewHandlers(
         stdoutDigest: leaf.stdoutDigest,
         codexExitCode: leaf.exitCode,
         codexTimedOut: leaf.timedOut,
+        managedRunId,
+        managedReceiptId,
       };
       return wantsJson(args) ? result : formatResult(result);
+      } finally {
+        if (!preserveSnapshot) {
+          const cleanupRunId = requestedManagedRunId || managedRunId || thrownManagedRunId;
+          if (cleanupRunId) {
+            // A provider-owned snapshot must survive until local verdict/event
+            // durability so a replacement can replay the completed managed run.
+            if (verdictDurable) {
+              const resumeCleanupSafe = await resumedManagedRunAllowsSnapshotCleanup(ctx.root, cleanupRunId);
+              if (resumeCleanupSafe) snapshot.cleanup();
+            }
+          } else {
+            snapshot.cleanup();
+          }
+        }
+      }
     },
   };
 }

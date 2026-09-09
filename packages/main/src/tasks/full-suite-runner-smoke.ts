@@ -415,7 +415,20 @@ async function main(): Promise<void> {
   assert(killFailureObserved, 'non-ESRCH process tree termination failure is surfaced');
   const killCalls: number[] = [];
   const alreadyGone = (() => { try { killProcessTree(123, (pid) => { killCalls.push(pid); const error = new Error('gone') as NodeJS.ErrnoException; error.code = 'ESRCH'; throw error; }); return true; } catch { return false; } })();
-  assert(alreadyGone && killCalls.join(',') === '-123,123', 'POSIX group ESRCH falls back to the live direct child before treating the tree as gone');
+  assert(alreadyGone && killCalls.join(',') === '123', 'a bare PID uses only the narrower direct-child cleanup path');
+  const isolatedIdentity = {
+    pid: 123,
+    pgid: 123,
+    spawnedAt: '2026-08-24T00:00:00.000Z',
+    startFingerprint: 'Mon Aug 24 00:00:00 2026',
+    processGroupIsolated: true,
+  };
+  const verifiedGroupCalls: number[] = [];
+  killProcessTree(123, (pid) => { verifiedGroupCalls.push(pid); }, 'darwin', undefined, isolatedIdentity, () => isolatedIdentity.startFingerprint);
+  assert(verifiedGroupCalls.join(',') === '-123', 'a matching isolated leader and start fingerprint authorize only its own PGID');
+  const mismatchedIdentityCalls: number[] = [];
+  killProcessTree(123, (pid) => { mismatchedIdentityCalls.push(pid); }, 'darwin', undefined, isolatedIdentity, () => 'reused-pid');
+  assert(mismatchedIdentityCalls.length === 0, 'a changed start fingerprint refuses every PID and PGID signal');
   let windowsPid = 0;
   killProcessTree(456, process.kill, 'win32', (pid) => { windowsPid = pid; });
   assert(windowsPid === 456, 'Windows cleanup uses supported taskkill tree strategy');
@@ -510,7 +523,7 @@ async function main(): Promise<void> {
       catch (error) { diagnostic = (error as Error).message; }
       assert(diagnostic.startsWith(`${tempOwnershipLabel}:`) && diagnostic.includes(`vs ${expected}`), 'invalid temp ownership roots fail with dynamic diagnostic detail');
     }
-    const completionHeartbeat = join(root, 'completion-heartbeat');
+  const completionHeartbeat = join(root, 'completion-heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');fs.writeFileSync(${JSON.stringify(completionHeartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(completionHeartbeat)},'x'),20)`) }],{stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(completionHeartbeat)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(completionHeartbeat)}))process.exit(2);\n`);
     const completedWithGrandchild = await runEntry(entry('test:normal-completion-grandchild'), root, process.execPath);
     assertWithDetail(completedWithGrandchild.status === 'PASS', 'normal parent completion remains PASS after descendant cleanup', `${completedWithGrandchild.status}: ${completedWithGrandchild.reason ?? 'no reason'}`);

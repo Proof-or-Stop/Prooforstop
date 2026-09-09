@@ -16,14 +16,21 @@ import type {
   ReviewerReadLogEvent,
   ReviewerReadLogEvidence,
   ReviewerReadManifest,
+  ReviewRun,
 } from '../core/types.js';
 import { isFindingEvidenceState, FINDING_EVIDENCE_STATES } from '../core/advisory.js';
 import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, resolveReviewRunLane } from '../core/review-run.js';
+import {
+  assertCurrentReviewRunForEvidence,
+  captureReviewRunSnapshot,
+  resolveReviewRunLane,
+  verifyCurrentReviewerDispatchBinding,
+} from '../core/review-run.js';
 import { getSessionIdentity } from '../core/owner-session.js';
+import { issueNativeReviewEvidenceBinding } from '../core/native-review-evidence.js';
 import { readOwnerLease } from '../core/story-owner-lease.js';
 import { evaluateReviewPassProvenance, resolveReviewPassProvenanceMode } from '../core/review-pass-provenance.js';
 import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
@@ -510,6 +517,28 @@ function formatReadDiagnostics(diagnostics: readonly ReviewerReadDiagnostic[]): 
   ).join('; ');
 }
 
+function issueDirectReviewAuthority(ctx: HandlerContext, run: ReviewRun) {
+  const dispatch = verifyCurrentReviewerDispatchBinding({
+    store: ctx.store,
+    storyId: run.storyId,
+    lane: run.lane,
+    reviewRound: run.reviewRound,
+    projectRoot: run.workspaceBinding?.metadataRoot ?? ctx.root,
+  });
+  if (!dispatch.ok) {
+    throw new Error(`direct reviewer evidence has no trusted native-host dispatch provenance: ${dispatch.reason}`);
+  }
+  return issueNativeReviewEvidenceBinding({
+    projectRoot: run.workspaceBinding?.metadataRoot ?? ctx.root,
+    storyId: run.storyId,
+    agent: run.agent,
+    lane: run.lane,
+    reviewRunId: run.reviewRunId,
+    identity: getSessionIdentity(),
+    dispatch: dispatch.binding,
+  });
+}
+
 /**
  * Validate an optional enum-valued audit field.
  *
@@ -632,6 +661,7 @@ function recordReviewPass(
     if (provenance.warning) {
       process.stderr.write(`⚠ ${provenance.warning}\n`);
     }
+    const nativeEvidenceBinding = issueDirectReviewAuthority(ctx, reviewRun);
     const pass = {
       id,
       agent,
@@ -646,6 +676,7 @@ function recordReviewPass(
       readManifest: readEvidence.readManifest,
       ...(readEvidence.readLog ? { readLog: readEvidence.readLog } : {}),
       ...(readEvidence.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
+      nativeEvidenceBinding,
       _hash: signReviewPass(
         storyId,
         id,
@@ -665,6 +696,8 @@ function recordReviewPass(
           provenanceFlag: provenance.provenanceFlag,
         },
         reviewRun.envelopeId,
+        undefined,
+        nativeEvidenceBinding,
       ),
     };
     data.passes.push(pass);
@@ -680,6 +713,7 @@ function recordReviewPass(
       || persistedPass.writerSessionId !== provenance.writerSessionId
       || persistedPass.sessionSource !== provenance.sessionSource
       || persistedPass.provenanceFlag !== provenance.provenanceFlag
+      || persistedPass.nativeEvidenceBinding?.dispatchBindingDigest !== nativeEvidenceBinding.dispatchBindingDigest
       || !persistedPass.readManifest
       || (readEvidence.readLog && persistedPass.readLog?.digest !== readEvidence.readLog.digest)
     ) {
@@ -714,6 +748,15 @@ function recordReviewPass(
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
+  const assertNotManagedProviderDirectEvidence = (command: 'finding_add' | 'review_pass_set'): void => {
+    if (process.env.LATTICE_MANAGED_HOST_RUN_ID?.trim()) {
+      throw new Error(
+        `${command}: direct final reviewer evidence is forbidden inside a ManagedHostRun; ` +
+        'return exactly one provider-authored lattice.managed_review_final_proposal.v1 envelope as the final assistant result; ' +
+        'the managed adapter seals it and the controller imports it only after a successful terminal receipt',
+      );
+    }
+  };
   return {
     finding_add(args: {
       storyId: string;
@@ -732,6 +775,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readLog?: unknown;
       idempotencyKey?: string;
     }): string {
+      assertNotManagedProviderDirectEvidence('finding_add');
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var PROOF_OR_STOP_AGENT, or the deprecated
@@ -761,6 +805,12 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
       const story = store.readStory(args.storyId);
+      // B-137a: the native review-authority binding below needs the signed current
+      // ReviewRun for this lane. Main's finding_add does not bind native authority,
+      // so this declaration comes with that feature.
+      const reviewRun = reviewerLane
+        ? assertCurrentReviewRunForEvidence(store, story, ctx.root, reviewerLane, args.reviewRunId)
+        : undefined;
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
         return recordReviewPass(
@@ -830,6 +880,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const readManifest = readEvidence?.readManifest;
         const readLog = readEvidence?.readLog;
         const readDiagnostics = readEvidence?.readDiagnostics;
+        const nativeEvidenceBinding = reviewRun ? issueDirectReviewAuthority(ctx, reviewRun) : undefined;
         const finding: Finding = {
           id: fid,
           desc: args.desc,
@@ -846,6 +897,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           ...(readManifest ? { readManifest } : {}),
           ...(readLog ? { readLog } : {}),
           ...(readDiagnostics ? { readDiagnostics } : {}),
+          ...(nativeEvidenceBinding ? { nativeEvidenceBinding } : {}),
           _hash: signFinding(
             args.storyId,
             fid,
@@ -857,6 +909,16 @@ export function createFindingHandlers(ctx: HandlerContext) {
             readManifest,
             readLog,
             readDiagnostics,
+            undefined,
+            undefined,
+            nativeEvidenceBinding,
+            nativeEvidenceBinding ? {
+              category,
+              evidenceState: evidence.evidenceState,
+              uncertaintyReason: evidence.uncertaintyReason ?? null,
+              files: args.files ?? [],
+              ...(evidence.disprovenEvidence ? { disprovenEvidence: evidence.disprovenEvidence } : {}),
+            } : undefined,
           ),
           ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
           // B-4f46 CHK-002 / B-5d48 CHK-002: audit-only signatureTag + provenance — persisted
@@ -987,6 +1049,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readEvents?: unknown;
       readLog?: unknown;
     }): string {
+      assertNotManagedProviderDirectEvidence('review_pass_set');
       const authority = resolveAgentMutationAuthority({ command: 'review_pass_set', payloadActors: [args.agent] });
       const actor = authority.actor || 'main';
       if (!args.note || args.note.trim().length < 10) {

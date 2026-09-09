@@ -112,7 +112,7 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
   return {
     host,
     command: 'codex',
-    launcher: 'codex exec --json',
+    launcher: 'codex exec --json -',
       launcherArgv: [
         'codex',
         'exec',
@@ -120,7 +120,7 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
         '--skip-git-repo-check',
         '--ephemeral',
         '--ignore-rules',
-        '<prompt>',
+        '-',
       ],
     progressMode: 'jsonl',
     observable: true,
@@ -212,11 +212,9 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
 
 /**
  * B-70e9: materialize a canonical launcher argv for a REAL run (not the bounded
- * readiness probe). Substitutes the `<prompt>` slot (codex, agy: inline prompt
- * text) and the `<prompt-file>` slot (claude: an absolute prompt-file path the
- * caller wrote) 1:1, and — for the agy `--print-timeout` duration slot — replaces
- * the canonical `30s` value with `agyPrintTimeout` when it is a valid `\d+[smh]`
- * duration (otherwise the canonical value is kept). The returned argv INCLUDES the
+ * readiness probe). Substitutes the `<prompt>` slot (agy: inline prompt text)
+ * and the `<prompt-file>` slot (claude: an absolute prompt-file path the
+ * caller wrote) 1:1. The returned argv INCLUDES the
  * leading command token (argv[0]); callers spawn `argv[0]` with `argv.slice(1)`.
  *
  * PURE: builds no temp file and touches no fs. The claude prompt file is the
@@ -225,13 +223,9 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
  */
 export function materializeLauncherArgv(
   spec: HostExecutionLauncherSpec,
-  opts: { prompt?: string; promptFile?: string; agyPrintTimeout?: string },
+  opts: { prompt?: string; promptFile?: string },
 ): string[] {
   const source = spec.launcherArgv;
-  // The duration-slot index is read from the ORIGINAL spec argv so a prompt token
-  // that happens to equal '--print-timeout' can never shift the replacement target
-  // (placeholder substitution is strictly 1:1, so indices are stable).
-  const durationFlagIndex = source.indexOf('--print-timeout');
   const out = source.map(arg => {
     if (arg === '<prompt>') {
       if (typeof opts.prompt !== 'string') {
@@ -247,14 +241,6 @@ export function materializeLauncherArgv(
     }
     return arg;
   });
-  if (
-    durationFlagIndex >= 0 &&
-    durationFlagIndex + 1 < out.length &&
-    typeof opts.agyPrintTimeout === 'string' &&
-    CANONICAL_DURATION_VALUE.test(opts.agyPrintTimeout)
-  ) {
-    out[durationFlagIndex + 1] = opts.agyPrintTimeout;
-  }
   return out;
 }
 
@@ -493,7 +479,7 @@ export function probeHostExecutionReadiness(args: {
       encoding: 'utf8',
       timeout: args.timeoutMs,
       maxBuffer: 256 * 1024,
-      input: '',
+      input: args.host === 'codex' ? boundedReadinessPrompt() : '',
     });
     const durationMs = Math.max(0, Date.now() - started);
     const failureKind = classifyHostExecutionFailure(result);

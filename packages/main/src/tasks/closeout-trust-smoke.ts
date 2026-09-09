@@ -534,7 +534,7 @@ try {
   });
   assertWriterReceipt('summary.json', 'summary_set');
   console.log('PASS canonical summary lineage recorded');
-  const deliveryHandlers = createDeliveryCheckHandlers(handlerCtx);
+  const deliveryHandlers = createDeliveryCheckHandlers(handlerCtx, { authorizeNativeInvocation: () => {} });
   deliveryHandlers.delivery_check_set({
     storyId: runtimeStoryId,
     docsPromises: [{ docPath: 'README.md', promise: 'document behavior', status: 'unverified' }],

@@ -46,11 +46,13 @@ export interface ClaudeCliProviderOptions {
   tmpDir?: string;
 }
 
+export const CLAUDE_CLI_DEFAULT_TIMEOUT_MS = 600_000;
+
 const DEFAULTS: Required<ClaudeCliProviderOptions> = {
   model: 'claude-sonnet-4-20250514',
   debug: false,
   retries: 5,
-  timeout: 600_000,
+  timeout: CLAUDE_CLI_DEFAULT_TIMEOUT_MS,
   heartbeatInterval: 30_000,
   tools: false,
   allowedTools: [],

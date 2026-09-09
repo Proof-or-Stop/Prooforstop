@@ -156,18 +156,7 @@ const GIT_EXEC_OPTS = {
  * undefined — passing the resolved gitCwd is what makes the probe return a
  * defined hash.
  */
-export function currentGitHead(gitCwd: string): string | undefined {
-  try {
-    return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    }).trim();
-  } catch {
-    return undefined;
-  }
-}
-
-function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
+export function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
   try {
     return execFileSync('git', ['rev-parse', ref], {
       cwd: gitCwd,
@@ -176,6 +165,10 @@ function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+export function currentGitHead(gitCwd: string): string | undefined {
+  return gitCommitAtRef(gitCwd, 'HEAD');
 }
 
 function normalizeSnapshotRoot(path: string): string {
@@ -588,6 +581,7 @@ export function checkEvidenceFreshnessForGit(
   evidenceMaterialHash?: string,
   metadataRoot: string = gitCwd,
   evidenceStoryFilesHash?: string,
+  asOfRef: string = 'HEAD',
 ): EvidenceFreshness {
   if (!evidenceHash) {
     return {
@@ -598,7 +592,8 @@ export function checkEvidenceFreshnessForGit(
     };
   }
 
-  const currentHead = currentGitHead(gitCwd);
+  const asOf = asOfRef.trim() || 'HEAD';
+  const currentHead = asOf === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOf);
   if (!currentHead) {
     return {
       fresh: true,
@@ -609,7 +604,7 @@ export function checkEvidenceFreshnessForGit(
   }
 
   if (evidenceMaterialHash) {
-    const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+    const materialHash = currentMaterialHash(gitCwd, asOf, metadataRoot);
     if (materialHash) {
       if (materialHash === evidenceMaterialHash) {
         return {
@@ -629,7 +624,7 @@ export function checkEvidenceFreshnessForGit(
       // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
       // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
       if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
-        const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+        const storyFilesHash = currentStoryFilesHash(gitCwd, asOf, metadataRoot);
         if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
           return {
             fresh: true,
@@ -676,7 +671,7 @@ export function checkEvidenceFreshnessForGit(
   }
 
   try {
-    const changedFiles = changedFilesBetween(gitCwd, evidenceHash, 'HEAD');
+    const changedFiles = changedFilesBetween(gitCwd, evidenceHash, asOf);
     const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f, metadataRoot));
     if (materialFiles.length === 0) {
       return {

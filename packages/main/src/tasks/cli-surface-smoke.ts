@@ -2,12 +2,12 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
-import { MAIN_TOOLS, parseFlags as parseFlagsFromEngine } from '../cli-engine.js';
+import { MAIN_TOOLS, PUBLIC_MAIN_TOOLS, parseFlags as parseFlagsFromEngine } from '../cli-engine.js';
 import { normalizeNestedSpaceAlias } from '../cli/alias-normalizer.js';
 import { ownerLeaseHelpBlock } from '../cli/ownership-gate.js';
 import { parseFlags, parseFlagsTest } from '../cli/flag-parser.js';
@@ -173,6 +173,14 @@ assert.match(hostInstallHelp, /Dry-run: always-on\./, 'always-on dry-run class r
 const globalHelp = runCli(['help']);
 assert.match(globalHelp, /Proof-or-Stop/, 'brief global help keeps Proof-or-Stop branding');
 assert.match(globalHelp, /host_runtime_list/, 'brief global help keeps every command name');
+assert.doesNotMatch(globalHelp, /\bhost_run_worker\b/, 'brief ordinary discovery hides the internal managed worker');
+const localBinHelp = execFileSync(process.execPath, [cliFallback, 'help'], {
+  cwd: repoRoot,
+  env: { ...process.env, LATTICE_NO_HOOKS: '1' },
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+assert.doesNotMatch(localBinHelp, /\bhost_run_worker\b/, 'node bin/lattice.js help hides the internal worker through the project-local entrypoint');
 assert.match(globalHelp, /help --full/, 'brief global help points at the full catalog');
 const briefHelpBytes = Buffer.byteLength(globalHelp, 'utf8');
 assert.ok(briefHelpBytes < 16000, `brief help must stay under the 16000-byte budget, got ${briefHelpBytes}`);
@@ -180,10 +188,29 @@ assert.ok(briefHelpBytes < 16000, `brief help must stay under the 16000-byte bud
 const globalHelpFull = runCli(['help', '--full']);
 assert.match(globalHelpFull, /Proof-or-Stop/, 'full global help keeps Proof-or-Stop branding');
 assert.match(globalHelpFull, /host_runtime_list/, 'full global help keeps host runtime section entries');
+assert.doesNotMatch(globalHelpFull, /\bhost_run_worker\b/, 'full ordinary discovery hides the internal managed worker');
 assert.match(globalHelpFull.toLowerCase(), /antigravity/, 'full help keeps current host wording');
 assert.match(globalHelpFull.toLowerCase(), /\bagy\b/, 'full help keeps antigravity alias wording');
 assert.doesNotMatch(globalHelpFull.toLowerCase(), /current[^\n.]*gemini|gemini[^\n.]*current/, 'Gemini is not described as current');
 assert.ok(globalHelpFull.length > globalHelp.length, 'full help is larger than the brief catalog');
+assert.equal(MAIN_TOOLS.some(tool => tool.name === 'host_run_worker'), true, 'dispatch registry retains the internal continuation');
+assert.equal(PUBLIC_MAIN_TOOLS.some(tool => tool.name === 'host_run_worker'), false, 'public tool catalog excludes the internal continuation');
+const internalWorkerRoot = mkdtempSync(join(tmpdir(), 'cli-internal-worker-'));
+writeFileSync(join(internalWorkerRoot, 'lattice.config.json'), JSON.stringify({
+  scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+}));
+const internalWorkerDispatch = spawnSync(process.execPath, [
+  cliBin(), '--root', internalWorkerRoot, 'host_run_worker', JSON.stringify({ runId: '00000000-0000-4000-8000-000000000000' }),
+], {
+  cwd: internalWorkerRoot,
+  env: { ...process.env, LATTICE_NO_HOOKS: '1' },
+  encoding: 'utf8',
+});
+rmSync(internalWorkerRoot, { recursive: true, force: true });
+const internalWorkerFailure = `${internalWorkerDispatch.stdout ?? ''}\n${internalWorkerDispatch.stderr ?? ''}`;
+assert.notEqual(internalWorkerDispatch.status, 0, 'missing internal run fails instead of fabricating a continuation');
+assert.doesNotMatch(internalWorkerFailure, /unknown command/i, 'internal continuation remains dispatchable outside public discovery');
+assert.match(internalWorkerFailure, /host-runs|spec\.json|ENOENT/, 'direct internal dispatch reaches the managed worker handler');
 
 const versionThroughProofOrStopNamespace = runCli(['proof-or-stop', 'version']);
 assert.match(versionThroughProofOrStopNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');

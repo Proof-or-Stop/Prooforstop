@@ -57,6 +57,10 @@ import {
   buildWorktreeStopSummary,
   WORKTREE_STOP_REASONS,
 } from './worktree-policy.js';
+import {
+  acquireProviderProcessAdmission,
+  releaseProviderProcessAdmission,
+} from './provider-process-admission.js';
 
 export type PlannedStepExecutionStatus = 'passed' | 'failed' | 'blocked' | 'skipped';
 export type PlannedStepsExecutionStatus = 'done' | 'blocked' | 'failed';
@@ -317,6 +321,7 @@ const defaultBoundedProviderExecutor: BoundedProviderExecutor = {
 
 interface ProviderExecContext {
   root: string;
+  storyId: string;
   policy: ProviderPolicy;
   env: NodeJS.ProcessEnv;
   executor: BoundedProviderExecutor;
@@ -423,15 +428,47 @@ function executeRealProviderStep(
     });
   }
 
-  // Bounded execution with explicit cwd, timeout, and attempt cap; capture digests only.
-  const result: ProviderExecResult = ctx.executor.run({
-    provider,
-    argv,
-    cwd: ctx.root,
-    timeoutMs: step.timeoutMs,
-    maxAttempts: step.maxAttempts,
-    env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
-  });
+  // Shared provider admission is independent of usage accounting and applies to
+  // every real bounded provider surface, including planner repair attempts.
+  let admission;
+  try {
+    admission = acquireProviderProcessAdmission({
+      root: ctx.root,
+      env: ctx.env,
+      host: provider,
+      storyId: ctx.storyId,
+      agentType: `planned-step:${step.type}`,
+      startedAt,
+    });
+  } catch (error) {
+    return block('provider_admission_error', {
+      provider,
+      note: `shared provider-process registry failed closed: ${error instanceof Error ? error.message : String(error)}`,
+      validationSatisfied: false,
+    });
+  }
+  if (!admission.admitted) {
+    return block('concurrency_cap_exceeded', {
+      provider,
+      cap: admission.cap,
+      liveRuns: admission.liveRuns,
+      note: 'shared provider-process cap is saturated; provider was not spawned',
+      validationSatisfied: false,
+    });
+  }
+  let result: ProviderExecResult;
+  try {
+    result = ctx.executor.run({
+      provider,
+      argv,
+      cwd: ctx.root,
+      timeoutMs: step.timeoutMs,
+      maxAttempts: step.maxAttempts,
+      env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
+    });
+  } finally {
+    releaseProviderProcessAdmission(admission);
+  }
 
   const evidence: Record<string, unknown> = {
     provider,
@@ -902,6 +939,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     // Only the provider exec reads providerCtx.root, so this never shifts read-only /
     // redevelopment proofOrStop.command steps (they use options.root directly).
     root: worktreeEnforced ? worktreeResolution.authoritativeCwd : options.root,
+    storyId: options.jobPlan.storyId,
     policy: providerPolicy,
     env: options.env ?? process.env,
     executor: options.providerExecutor ?? defaultBoundedProviderExecutor,
@@ -1394,6 +1432,7 @@ export function executeProviderBackedRepairRetry(options: ProviderRepairRetryOpt
   const now = options.now ?? (() => new Date());
   const providerCtx: ProviderExecContext = {
     root: options.root,
+    storyId: options.jobPlan.storyId,
     policy: resolveProviderPolicy(options.jobPlan),
     env: options.env ?? process.env,
     executor: options.providerExecutor ?? defaultBoundedProviderExecutor,

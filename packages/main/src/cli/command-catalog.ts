@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { ToolDef } from './main-tools.js';
+import { publicToolCatalog, type ToolDef } from './main-tools.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
 import {
   ContextPackDependencyEdgeContractSchema,
@@ -3268,7 +3268,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
+  { name: 'cross_host_review', description: 'Submit or resume a durable managed Codex run as an independent read-only reviewer over the current materialHash-bound change, then record a structured host-B verdict alongside the caller-authored host-A findings and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
     storyId: z.string().describe('Canonical Story id'),
     policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),
     hostAFindingsFile: z.string().optional().describe('Path to a JSON array of host-A (Claude) Finding objects to diff against host B'),
@@ -3276,11 +3276,13 @@ Behavior:
     hostB: z.string().optional().describe('Host-B id; default codex-host-b'),
     runId: z.string().optional().describe('Local run id; default <storyId>-xhr-r1'),
     timeoutMinutes: z.number().int().positive().optional().describe('Bounded timeout for the Codex review subprocess; default 12'),
+    detach: z.boolean().optional().describe('Submit the durable managed Codex leaf and return its managedRunId after worker claim without consuming a verdict'),
+    managedRunId: z.string().optional().describe('Resume and consume this exact already-submitted managed Codex run; never spawns a replacement'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'host_run', description: 'Launch a canonical reviewer/quorum host (codex/claude/agy) through the B-70e9 usage choke point: builds the B-d8ef canonical launcher argv, streams host stdout, and writes preflight+final LLM usage-ledger rows bound to storyId/agentType/phase/provider (plus reviewRunId->threadId, lane->subagentId). Enforces the per-dispatch hard-budget cap and the host-run concurrency cap before spawn. Usage rows are gateEvidence=false diagnostics. Alias: proof-or-stop host run', schema: {
-    host: z.string().describe('Canonical host: codex, claude, or agy (aliases: claude-code->claude, antigravity->agy)'),
+  { name: 'host_run', description: 'Submit a durable managed Codex or Claude CLI run. Foreground mode attaches to the same durable run; --detach returns after the worker claim. Silence never implies failure. Alias: proof-or-stop host run', schema: {
+    host: z.string().describe('Canonical managed host: codex or claude (alias: claude-code->claude)'),
     agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),
@@ -3289,14 +3291,56 @@ Behavior:
     reviewRunId: z.string().optional().describe('Review run id (e.g. B-70e9:RR-001) recorded as threadId; must start with "<storyId>:" when storyId is given'),
     lane: z.string().optional().describe('Reviewer lane (e.g. proof-or-stop-review-quality) recorded as subagentId'),
     timeoutMs: z.number().int().positive().optional().describe('Host subprocess timeout in milliseconds'),
-    agyPrintTimeout: z.string().optional().describe('agy --print-timeout override (e.g. 30m); must match \\d+[smh]'),
+    deadlineMs: z.number().int().positive().optional().describe('Finite absolute managed-run deadline in milliseconds; defaults to timeoutMs or 30 minutes'),
+    detach: z.boolean().optional().describe('Return after durable worker claim instead of attaching until terminal'),
+    managedReview: z.boolean().optional().describe('Formal cross-provider reviewer mode: derive the exact prompt from reviewRunId/lane, require agentType=lane, and accept only a provider-authored proposal plus successful terminal receipt. Do not pass prompt/promptFile.'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex/Claude/agy semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
+  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run. waitMs is capped at 30000 and silence does not change state. Alias: proof-or-stop host run status', schema: {
+    runId: z.string().describe('Managed host run id'),
+    afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
+    afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
+    waitMs: z.number().int().nonnegative().max(30000).optional().describe('Bounded long-poll wait, maximum 30000ms'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'host_run_cancel', description: 'Idempotently request cancellation of one durable managed host run. Alias: proof-or-stop host run cancel', schema: {
+    runId: z.string().describe('Managed host run id'),
+    reason: z.string().optional().describe('Operator cancellation reason'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'host_run_worker', visibility: 'internal', description: 'Internal detached worker for a previously submitted managed host run', schema: {
+    runId: z.string().describe('Managed host run id'),
+  }},
+  { name: 'managed_review_proposal_set', description: 'Compatibility-only provider callback for older adapters. It requires paired readManifest/readLog evidence; formal managed reviewers seal the bounded final assistant result instead.', schema: {
+    runId: z.string().optional().describe('Managed run id; normally inherited through LATTICE_MANAGED_HOST_RUN_ID'),
+    storyId: z.string().describe('Story bound by the managed run'),
+    providerAgent: z.string().describe('Provider reviewer identity bound by the managed run'),
+    lane: z.string().describe('Reviewer lane bound by the managed run'),
+    reviewRunId: z.string().describe('Signed review run bound by the managed run'),
+    conclusion: z.enum(['pass', 'findings']).describe('Exactly one pass or findings conclusion'),
+    note: z.string().optional().describe('Pass note; required only for pass'),
+    findings: z.array(z.object({
+      desc: z.string(),
+      severity: z.enum(['critical', 'high', 'medium', 'low']),
+      category: z.enum(['happy', 'edge', 'adversarial', 'missing']),
+      files: z.array(z.string()).optional(),
+      evidenceState: z.enum(['suspected', 'verified']).optional(),
+      uncertaintyReason: z.string().optional(),
+    }).strict()).optional().describe('Findings; required only for findings conclusion'),
+    readManifest: z.unknown().describe('Truthful reviewer read manifest'),
+    readLog: z.unknown().describe('Required mechanical reviewer read-log evidence. Runtime validates its canonical shape and coherence with readManifest.'),
+    readDiagnostics: z.unknown().optional().describe('Mechanical read-manifest diagnostics'),
+  }},
+  { name: 'managed_review_evidence_import', description: 'Import provider-authored evidence only from an exact successful managed terminal receipt. Verdict/note/finding overrides are intentionally unsupported.', schema: {
+    runId: z.string().describe('Managed run id'),
+    receiptId: z.string().describe('Exact receipt id returned by host_run_status after terminal'),
+  }},
+  { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex and Claude semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
     storyId: z.string().describe('Canonical Story id'),
     hosts: z.boolean().optional().describe('Launch semantic proposal hosts; default true. Set false for deterministic local-only routing.'),
-    requestAgy: z.boolean().optional().describe('Request the conditional agy supplemental proposer even when primary hosts agree.'),
     persist: z.boolean().optional().describe('Persist candidate-spec-set.json; default true.'),
     fullScanReason: z.string().optional().describe('Structured reason for a tool-driven broad scan; never serializes corpus bodies.'),
     json: z.boolean().optional().describe('Output the versioned candidate artifact as JSON.'),
@@ -3508,3 +3552,6 @@ Behavior:
   }},
 
 ];
+
+/** Ordinary discovery/catalog consumers use this view; MAIN_TOOLS is the dispatch registry. */
+export const PUBLIC_MAIN_TOOLS: ToolDef[] = publicToolCatalog(MAIN_TOOLS);

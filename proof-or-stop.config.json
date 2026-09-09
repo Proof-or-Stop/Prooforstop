@@ -2405,6 +2405,85 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/cross-host-review-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/host-run-usage-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-host-run-command-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-host-run-e2e-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-host-run-process-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-review-evidence-smoke.js"
+        ],
+        "timeoutMs": 900000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proof-admissibility-registry-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/provider-process-registry-smoke.js"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/semantic-scope-guard-smoke.js"
+        ],
+        "timeoutMs": 600000
+      }
+    ],
+    "evidenceCommandTimeoutOverrides": [
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-cross-provider-suite-smoke.js"
+        ],
+        "timeoutMs": 900000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/managed-host-run-smoke.js"
+        ],
+        "timeoutMs": 600000
       }
     ]
   },

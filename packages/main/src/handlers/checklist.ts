@@ -962,6 +962,42 @@ function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: Verifi
  */
 type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) => Promise<SingleCommandExecutionResult>;
 
+interface VerificationEvidenceWatchdogControls {
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
+}
+
+/**
+ * B-137a: a single tool-executed receipt must not be persisted after its
+ * structured CLI watchdog has fired. `cli-engine.ts` injects abortSignal /
+ * deadlineAt / deadlineError into exactly the four evidence-writer commands
+ * (they are deliberately absent from the public schemas), so without this
+ * recheck an aborted run could still mint a late `mechanical: true` receipt.
+ * Callers recheck immediately before executing and again inside the
+ * synchronous checklist write.
+ */
+function assertVerificationEvidenceWriteActive(
+  command: 'verification_evidence_add' | 'verification_evidence_batch_add'
+    | 'verification_evidence_refresh_stale' | 'verification_run',
+  controls: VerificationEvidenceWatchdogControls,
+): void {
+  if (controls.abortSignal?.aborted) {
+    throw controls.abortSignal.reason instanceof Error
+      ? controls.abortSignal.reason
+      : new Error(`${command} aborted`);
+  }
+  if (
+    typeof controls.deadlineAt === 'number'
+    && Number.isFinite(controls.deadlineAt)
+    && Date.now() >= controls.deadlineAt
+  ) {
+    throw controls.deadlineError?.()
+      ?? new Error(`${command} deadline exceeded at ${controls.deadlineAt}`);
+  }
+}
+
+
 /**
  * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
  * by both single and batch handlers. Behavior:
@@ -2672,6 +2708,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
       // Local-only evidence write: record scoped Proof-or-Stop evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
@@ -2690,6 +2730,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // (the Zod constraints are only the first line of defense). enforceAndStampEvidence
       // re-checks the same pair at the enforcement boundary.
       resolveEvidenceCommandTimeout('verification_evidence_add', args);
+      assertVerificationEvidenceWriteActive('verification_evidence_add', args);
 
       // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
       // lock (execution is async; withChecklistLock releases synchronously). The
@@ -2757,6 +2798,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         else existing.push(evidence);
         item.verificationEvidence = existing;
 
+        assertVerificationEvidenceWriteActive('verification_evidence_add', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -2794,10 +2836,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
       }>;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
         throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
+      assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args);
 
       // Local preflight for all entries; any failure throws before the local
       // all-or-nothing batch write.
@@ -2901,6 +2948,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           item.verificationEvidence = existing;
           written++;
         });
+        assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -2943,7 +2991,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       itemId?: string;
       note?: string;
       cwd?: string;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
+      assertVerificationEvidenceWriteActive('verification_run', args);
       // Resolve the owning item + its pinned verifier OUTSIDE the checklist lock
       // (execution is async; the lock body is synchronous). The receipt write then
       // happens atomically inside the lock, mirroring verification_evidence_add.
@@ -3040,6 +3093,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (idx >= 0) existing[idx] = evidence;
         else existing.push(evidence);
         item.verificationEvidence = existing;
+        assertVerificationEvidenceWriteActive('verification_run', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -3094,7 +3148,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     async verification_evidence_refresh_stale(args: {
       storyId: string;
       dryRun?: boolean;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
+      assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
       const computed = collectStaleRefreshContext(ctx, args.storyId);
       if (computed.stale.length === 0) {
         return `No stale verification evidence for ${args.storyId}`;
@@ -3208,6 +3267,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
       }
 
+      assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
       return writeStaleRefresh(ctx, args.storyId, computed, {
         dryRun: args.dryRun,
         reexecByKey,

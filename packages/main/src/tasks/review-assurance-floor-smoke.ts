@@ -1152,7 +1152,7 @@ try {
         store,
         root: wrapper.metadataRoot,
         scanRoot: wrapper.gitRoot,
-      } as HandlerContext);
+      } as HandlerContext, { authorizeNativeInvocation: () => {} });
       mkdirSync(dirname(transcriptPath), { recursive: true });
       writeFileSync(transcriptPath, JSON.stringify({
         storyId: STORY_ID,

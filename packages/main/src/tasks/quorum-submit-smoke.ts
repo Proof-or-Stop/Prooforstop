@@ -8,6 +8,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { DEFAULT_PHASE_TOOLS, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import {
@@ -44,6 +45,13 @@ import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
 import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
+import {
+  issueBrokeredNativeReviewBinding,
+  nativeReviewFixtureAmbientHost,
+  nativeReviewFixtureBrokers,
+  resolveNativeReviewFixtureAmbientHost,
+  withBrokeredNativeReviewInvocation,
+} from './native-review-fixture.js';
 import { STATE_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-quorum-smoke';
@@ -120,6 +128,7 @@ function writeConfig(root: string): void {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: Object.fromEntries(REVIEW_LANES.map(lane => [lane, 'full-envelope'])),
     },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2) + '\n');
   resetConfigCache();
 }
@@ -196,6 +205,8 @@ function makeFixture(
       `${dir}/autopilot-verdicts/`,
       `${dir}/activity.jsonl`,
       `${dir}/locks/`,
+      // B-137a: brokered native-review invocations are runtime state too.
+      `${dir}/runtime/native-review-invocations/`,
     ]),
     ...MIRRORED_REPO_IGNORE_PATTERNS,
     '',
@@ -278,7 +289,7 @@ function withFreshFixture(
   const previous = process.cwd();
   try {
     process.chdir(fixture.root);
-    withSessionProvider('codex', () => fn(fixture));
+    withSessionProvider(ambientSessionProvider(), () => fn(fixture));
   } finally {
     process.chdir(previous);
     rmSync(fixture.root, { recursive: true, force: true });
@@ -373,12 +384,20 @@ function startRunAndPass(
       : /BEGIN EXACT SELECTED LEGACY ROLE BODY/,
     `review_run_start delivers the selected ${mode} prompt bytes`,
   );
-  pass({
+  const root = process.cwd();
+  withBrokeredNativeReviewInvocation({
+    root,
+    store: new StoryStore(root),
     storyId: STORY_ID,
     agent: lane,
     reviewRunId: match[1],
-    note: `No blocking issue found by ${lane} for quorum_submit smoke.`,
-    readManifest: reviewerReadManifest(lane),
+    invoke: () => pass({
+      storyId: STORY_ID,
+      agent: lane,
+      reviewRunId: match[1],
+      note: `No blocking issue found by ${lane} for quorum_submit smoke.`,
+      readManifest: reviewerReadManifest(lane),
+    }),
   });
 }
 
@@ -436,9 +455,27 @@ function withSessionProvider<T>(
   });
 }
 
+/**
+ * The session provider matching this process's real Codex/Claude ancestry.
+ * `review_pass_set` vetoes a native binding whose declared host disagrees with
+ * the observed ancestry, so any fixture that merely needs *a* valid host must
+ * use this rather than pinning one provider (which would pass only under that
+ * host).
+ */
+function ambientSessionProvider(): 'codex' | 'claude-code' {
+  return nativeReviewFixtureAmbientHost() === 'claude' ? 'claude-code' : 'codex';
+}
+
+/**
+ * Default to the provider this process actually runs under: `review_pass_set`
+ * vetoes a native binding whose declared host disagrees with the observed
+ * Codex/Claude ancestry, so pinning one provider here would make the smoke pass
+ * only under that host. Callers that are specifically exercising a provider
+ * still pass one explicitly.
+ */
 function recordReviewerPasses(
   registry: ReturnType<typeof createMainRegistry>,
-  provider: 'codex' | 'claude-code' | 'codex-cli' | 'claude-cli' = 'codex',
+  provider: 'codex' | 'claude-code' | 'codex-cli' | 'claude-cli' = ambientSessionProvider(),
 ): void {
   withSessionProvider(provider, () => {
     for (const lane of REVIEW_LANES) startRunAndPass(registry, lane);
@@ -1034,17 +1071,55 @@ try {
     }
   });
 
+  // The ambient provider is the only alias whose reviewer passes can reach the
+  // REVIEW gate: `issueNativeReviewEvidenceBinding` vetoes a native binding
+  // whose declared host disagrees with the observed process ancestry, so the
+  // non-ambient alias cannot legitimately complete the chain on this machine.
+  // Both aliases still assert the host-independent half (dispatch host mapping
+  // and zero host assets); only the gate half is asserted for the ambient one,
+  // and the non-ambient one asserts the cross-provider veto instead. That keeps
+  // the check meaningful under Codex AND Claude without weakening the veto.
+  //
+  // KNOWN LIMIT (B-137a:F-099): when no provider ancestry is observable at all,
+  // `ancestryObserved` is false, no veto can fire for EITHER alias, and the
+  // closing `assert.equal(vetoCovered, ancestryObserved)` degrades to a trivial
+  // false === false self-comparison — the negative control is skipped, not
+  // proven. That is correct (asserting a veto that cannot fire would be a false
+  // assertion) but it is NOT a guarantee. It does not arise in this project's
+  // real usage: smokes and `lattice validate` are invoked from inside an agent
+  // host session by design, and this repo runs no bare CI, so ancestry is
+  // observed in practice. A future bare-CI runner WOULD silently lose this one
+  // negative control; the veto's own coverage there must come from
+  // managed-review-evidence-smoke.js (CHK-007:adversarial:1), whose forged /
+  // stale / cross-story receipt matrix does not depend on ambient ancestry.
   check('Codex and Claude CLI provider aliases complete the thin zero-asset review chain', () => {
     const primaryCwd = process.cwd();
+    const { host: ambientHost, observed: ancestryObserved } = resolveNativeReviewFixtureAmbientHost();
+    let ambientCovered = false;
+    let vetoCovered = false;
     for (const selected of [
       { provider: 'codex-cli', host: 'codex' },
       { provider: 'claude-cli', host: 'claude' },
     ] as const) {
       const thin = makeFixture('global-thin');
+      const isAmbient = selected.host === ambientHost;
       try {
         process.chdir(thin.root);
         assert.equal(existsSync(join(thin.root, `${PROOF_OR_STOP_ADAPTER_DIR}/agents`)), false);
         assert.equal(existsSync(join(thin.root, '.claude/agents')), false);
+        if (!isAmbient) {
+          // The ancestry veto can only fire when a single provider ancestry was
+          // actually observed. With no observable ancestry the declared host is
+          // accepted, so there is no veto to assert and nothing to prove here.
+          if (!ancestryObserved) continue;
+          assert.throws(
+            () => recordReviewerPasses(thin.registry, selected.provider),
+            /cross-provider direct reviewer evidence is advisory-only/,
+            `${selected.provider} must be vetoed as cross-provider under observed ancestry host=${ambientHost}`,
+          );
+          vetoCovered = true;
+          continue;
+        }
         recordReviewerPasses(thin.registry, selected.provider);
         const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
         const qualityDispatch = [...thin.store.readProcessEvents(STORY_ID)].reverse().find(
@@ -1061,12 +1136,21 @@ try {
           true,
           `${selected.provider} completes dispatch, review_run_start and REVIEW gate without host assets; invalid=${JSON.stringify(thinEvidence.invalid)}`,
         );
+        ambientCovered = true;
       } finally {
         process.chdir(primaryCwd);
         rmSync(thin.root, { recursive: true, force: true });
         resetConfigCache();
       }
     }
+    // Neither branch may silently vanish: exactly one alias is ambient and the
+    // other must have been observed being vetoed.
+    assert.ok(ambientCovered, `ambient alias for host=${ambientHost} completed the thin review chain`);
+    assert.equal(
+      vetoCovered,
+      ancestryObserved,
+      'the non-ambient alias must fail closed exactly when a provider ancestry was observed',
+    );
   });
 
   check('shared binding derivation is byte-identical to the former quorum envelopes', () => {
@@ -1202,7 +1286,7 @@ try {
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'select mixed reviewer rollout']);
       resetConfigCache();
 
-      withSessionProvider('codex', () => {
+      withSessionProvider(ambientSessionProvider(), () => {
         for (const lane of REVIEW_LANES) startRunAndPass(fixture.registry, lane, modes[lane]);
       });
       const evidence = collectReviewerEvidenceState(fixture.store, STORY_ID, fixture.root);
@@ -1455,8 +1539,15 @@ try {
     assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact envelope bytes restores REVIEW evidence');
   });
 
+  // Same KNOWN LIMIT as the thin check above (B-137a:F-099): with no observable
+  // provider ancestry the non-ambient veto assertion is skipped rather than
+  // proven, and the closing equality degrades to false === false.
   check('explicit full-asset mode binds Claude and Codex independently and rejects selected-host drift', () => {
     const primaryCwd = process.cwd();
+    const { host: fullAssetAmbientHost, observed: fullAssetAncestryObserved }
+      = resolveNativeReviewFixtureAmbientHost();
+    let fullAssetAmbientCovered = false;
+    let fullAssetVetoCovered = false;
     for (const selected of [
       {
         host: 'codex',
@@ -1472,9 +1563,24 @@ try {
       },
     ] as const) {
       const full = makeFixture('full', selected.host);
+      const isAmbient = selected.host === fullAssetAmbientHost;
       try {
         process.chdir(full.root);
         assert.equal(existsSync(join(full.root, selected.otherAssetDir)), false, `${selected.host} fixture has no other-host assets`);
+        if (!isAmbient) {
+          // The drift assertions below all require recorded reviewer passes, and
+          // the cross-provider veto forbids recording them for a non-ambient
+          // host WHEN an ancestry was observed. With no observable ancestry no
+          // veto fires, so there is nothing to assert for this host.
+          if (!fullAssetAncestryObserved) continue;
+          assert.throws(
+            () => recordReviewerPasses(full.registry, selected.provider),
+            /cross-provider direct reviewer evidence is advisory-only/,
+            `${selected.host} full-asset passes must be vetoed under observed ancestry host=${fullAssetAmbientHost}`,
+          );
+          fullAssetVetoCovered = true;
+          continue;
+        }
         recordReviewerPasses(full.registry, selected.provider);
         const machineContext: StoryMachineContext = {
           storyId: STORY_ID,
@@ -1507,12 +1613,22 @@ try {
         assert.equal(canPassReviewGuard(machineContext), false, `machine REVIEW rejects selected ${selected.host} asset drift`);
         write(full.root, selected.assetPath, originalQualityAsset);
         assert.equal(canPassReviewGuard(machineContext), true, `restoring exact ${selected.host} bytes restores REVIEW evidence`);
+        fullAssetAmbientCovered = true;
       } finally {
         process.chdir(primaryCwd);
         rmSync(full.root, { recursive: true, force: true });
         resetConfigCache();
       }
     }
+    assert.ok(
+      fullAssetAmbientCovered,
+      `ambient host=${fullAssetAmbientHost} exercised the full-asset bind/drift/restore cycle`,
+    );
+    assert.equal(
+      fullAssetVetoCovered,
+      fullAssetAncestryObserved,
+      'the non-ambient full-asset host must fail closed exactly when a provider ancestry was observed',
+    );
   });
 
   let result: any;
@@ -1548,6 +1664,13 @@ try {
       reviewRound: qualityRun.reviewRound,
       reviewRunId: qualityRun.reviewRunId,
     };
+    postRunFinding.nativeEvidenceBinding = issueBrokeredNativeReviewBinding({
+      root,
+      store,
+      storyId: STORY_ID,
+      agent: 'lattice-review-quality',
+      reviewRunId: qualityRun.reviewRunId,
+    });
     postRunFinding._hash = signFinding(
       STORY_ID,
       postRunFinding.id,
@@ -1556,6 +1679,18 @@ try {
       postRunFinding.createdAt!,
       postRunFinding.reviewRound!,
       postRunFinding.reviewRunId!,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      postRunFinding.nativeEvidenceBinding,
+      {
+        category: postRunFinding.category,
+        evidenceState: postRunFinding.evidenceState ?? null,
+        uncertaintyReason: postRunFinding.uncertaintyReason ?? null,
+        files: postRunFinding.files ?? [],
+      },
     );
     const originalFindings = store.readFindings(STORY_ID);
     store.writeFindings(STORY_ID, { findings: [...originalFindings.findings, postRunFinding] });
@@ -2288,7 +2423,7 @@ try {
       assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'large immutable metadata tree is installed atomically');
       const committedHead = git(fixture.root, ['rev-parse', 'HEAD']);
       const beforeRetryEvents = hostVerdictEventCount(fixture.store);
-      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      rmSync(join(fixture.root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
       assert.throws(
         () => fixture.registry.get('quorum_submit')!(quorumArgs()),
         /quorum_submit refuses: verdicts already exist for runId/,

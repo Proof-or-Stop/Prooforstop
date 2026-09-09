@@ -1,21 +1,28 @@
-# Host-run usage capture (`host_run`) and the read-only usage sweep (`usage_sweep`)
+# Durable managed host runs, reviewer receipts, and usage diagnostics
 
-Proof-or-Stop launches host CLIs (Codex, Claude, Antigravity/agy) for reviewer and
-quorum work. `proof-or-stop host_run` is the single launcher **choke point** that runs
-those hosts and writes LLM usage-ledger rows for every run, so host-side spend is
-attributed instead of invisible. `proof-or-stop usage_sweep` is a strictly read-only
-companion that retro-attributes host transcript stores for runs that never went
-through the choke point.
+Proof-or-Stop launches Codex and Claude as managed cross-provider CLI processes.
+`proof-or-stop host_run` submits those processes to a durable
+`ManagedHostRun`: the detached worker, not the caller shell, owns the provider
+until a terminal record exists. A caller may attach, time out, disconnect, or
+return after 30 seconds without cancelling or replacing the provider run.
+
+The same launch path records optional LLM usage diagnostics. Usage rows are not
+the execution owner and disabling them does not disable shared provider-process
+admission. `proof-or-stop usage_sweep` remains the read-only companion for sessions
+that never used the managed boundary.
 
 ## Why this exists
 
 A 2026-07-10 token-burn audit found the usage ledger only ever saw a handful of
 probe rows: host-side reviewer launches, quorum cross-host reviews, and long
 desktop sessions all burned real tokens that the ledger never recorded. Every
-Proof-or-Stop-initiated host run now flows through `host_run`, which records a
-preflight estimate row and a provider-reported final row per run. Runs that
-Proof-or-Stop cannot route through the choke point (interactive desktop sessions)
-are covered after the fact by the read-only `usage_sweep`.
+`host_run` receives a durable `runId`, an absolute deadline and an exclusive
+terminal receipt. The runtime persists under the primary worktree at
+`.proof-or-stop/runtime/host-runs/<runId>/`, so Story worktree cleanup cannot erase an
+active run or its receipt; secrets and prompt bytes are 0600
+one-shot inputs removed when the worker claims them. Interactive desktop and
+native-subagent lifecycles remain outside this boundary and are covered only by
+their host or by read-only retrospective diagnostics.
 
 Usage rows are diagnostics only (`gateEvidence=false`). They never gate the
 workflow, never satisfy REVIEW/TEST/DONE/Authority evidence, and never advance a
@@ -24,22 +31,56 @@ phase.
 ## `host_run`
 
 ```
-proof-or-stop host_run --host <codex|claude|agy> --agentType <type> \
+proof-or-stop host_run --host <codex|claude> --agentType <type> \
   [--storyId B-xxxx] [--phase DEV] \
   ( --prompt "<text>" | --promptFile <path> ) \
   [--reviewRunId B-xxxx:RR-001] [--lane <reviewer-lane>] \
-  [--timeoutMs <ms>] [--agyPrintTimeout 30m] [--json]
+  [--timeoutMs <ms>] [--deadlineMs <ms>] [--detach] \
+  [--json]
 ```
 
-The host subprocess executes in the **resolved project root** (the `--root`
+`--detach` returns after a bounded worker-claim handshake with
+`runId/state/generation/deadlineAt`. Foreground mode submits the same durable
+run and attaches to it; it does not own the provider child. Operators use:
+
+```bash
+proof-or-stop host_run_status '{"runId":"<runId>","afterGeneration":4,"afterSequence":12,"waitMs":30000,"json":true}'
+proof-or-stop host_run_cancel '{"runId":"<runId>","reason":"operator cancelled"}'
+```
+
+`waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
+inspect the current snapshot”, not “the provider failed”. Completion is known
+only from `state=completed|failed|cancelled|timed_out` plus the terminal
+receipt. Provider-output silence and a stale output timestamp are diagnostics,
+never terminal predicates and never automatic-restart authorization. The
+absolute deadline prevents permanent waiting; the next status/cancel/attach
+touch reconciles an overdue run to terminal truth and records whether process
+cleanup made replacement safe.
+
+An ordinary host run executes in the **resolved project root** (the `--root`
 target — the same root the usage-ledger rows are attributed to), independent of
 the caller's current working directory, so where the host actually runs can
-never diverge from where the ledger says it ran.
+never diverge from where the ledger says it ran. A formal `--managedReview` is
+different: the runtime-artifact registry resolves the canonical **primary
+worktree** as the durable runtime/audit root for the sealed run, output journal,
+terminal receipt, receipt archive, and imported evidence. A linked Story
+worktree may submit the run, but is not the durable runtime location and can be
+removed at DONE. The provider executes only in a fresh detached scratch
+worktree at the submitted HEAD. The scratch is read-only for Codex and is
+retained until terminal cleanup is proven replacement-safe; it is never a
+substitute for the audit root.
 
-The host stdout streams through **live**: the default production runner is an
-async `child_process.spawn`, and host output passes through to the parent as it
-arrives (no buffering-until-exit, no `maxBuffer` truncation). A one-line usage
-summary is written to stderr, for example:
+Provider output is durably journaled and projected to an attached foreground
+caller as it arrives, up to the per-run 8 MiB retention ceiling. The foreground
+projection is explicitly bounded: once the ceiling is reached, `--json` reports
+`truncated=true` on the `lattice.host_run.v1` result and text mode writes
+`truncated=true` to stderr; neither promises the omitted tail.
+`host_run_status --json` exposes the same flag as `output.truncated`. Worker
+heartbeat and `lastProviderProgressAt` are separate:
+the former proves only that the supervisor can update state; the latter moves
+only when observable provider bytes arrive. `providerProgressMode=unobservable`
+is reported honestly when progress cannot be observed. A one-line usage summary
+is written to stderr, for example:
 
 ```
 usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId llmuse_...)
@@ -66,9 +107,12 @@ perfectly good final usage event).
 | text (default) | streamed live to **process.stdout** | streamed live to **process.stderr** | the live host stdout (the handler does not re-print it — no double-print) |
 | `--json` | streamed live to **process.stderr** | streamed live to **process.stderr** | ONLY the single JSON result line (kept clean) |
 
-In `--json` mode the full host transcript is delivered live on **stderr** so that
-**stdout stays clean** for the one JSON result; the JSON `stdout` field therefore
-carries only the bounded usage-parse tail, not the full transcript.
+In `--json` mode the bounded host transcript (at most 8 MiB per managed run) is
+delivered live on **stderr** so that **stdout stays clean** for the one JSON
+result. If the transcript exceeds that ceiling, the JSON result reports
+`truncated=true` and does not promise the omitted tail; the JSON `stdout` field
+carries only the bounded usage-parse tail, not an unbounded or complete
+transcript.
 
 If the live passthrough sink fails mid-run, delivery stops at the first failure
 but the run, usage recording, and slot release still complete: text mode prints a
@@ -88,18 +132,71 @@ serialized) that the `finally` **drains before removing the listeners** — boun
 by a defensive ~2s cap so a pathologically wedged stream can never hang the
 command — so a late EPIPE from the FINAL live stdout chunk of a text-mode run, or
 from the FIRST stderr write of a quiet run (which never tripped the skip), still
-fires while a listener is attached.
+fires while a listener is attached. If the drain cap wins, one shared guard stays
+per physical stream until each pending write settles; its release is deferred
+through the next event-loop turn because Node `Writable` can invoke the write
+callback before emitting the same failed write's `EPIPE` event. This contains the real
+callback-then-error ordering without retaining one listener per foreground run.
 
-Exactly one of `--prompt` / `--promptFile` is required. A host non-zero exit (or
-a cap refusal) propagates as a non-zero process exit; in `--json` mode the
-command never throws and `exitCode` is a field.
+Exactly one of `--prompt` / `--promptFile` is required for ordinary managed
+runs. Formal cross-provider reviewer mode is the exception: `--managedReview`
+forbids both and derives the exact prompt from the signed ReviewRun. A host
+non-zero exit (or a cap refusal) propagates as a non-zero process exit; in
+`--json` mode `exitCode` is a field.
 
 ### Reviewer launch
 
+Native direct `review_pass_set` / reviewer `finding_add` is formal evidence only
+when the exact tool invocation carries a short-lived Ed25519 attestation from a
+registered host-adapter broker. The signed claims bind the Story, agent and
+lane, ReviewRun, writer session, signed dispatch prompt/binding, adapter and host
+identity, and an invocation nonce. Proof-or-Stop stores only the broker public-key
+registration; it has no issuer command and does not keep the broker private key
+in the repository or `.proof-or-stop` runtime state. The adapter injects the signed
+attestation over a dedicated inherited descriptor for that exact proof-or-stop
+CLI process. Inline environment tokens are not accepted.
+
+An adapter integration must therefore do both parts: register its public key in
+`nativeReviewInvocation.brokers`, then sign and descriptor-inject each exact
+review closeout invocation from its authenticated host tool-execution seam. If
+the current Codex/Claude host does not provide that broker integration, native
+direct evidence fails closed and is advisory-only; use the managed reviewer flow
+below for formal evidence. `dispatch` and `review_run_start` do not issue this
+capability, and a raw provider CLI cannot promote a self-generated key into the
+registered broker set.
+
+`nativeReviewInvocation` is the containing object, and `nativeReviewInvocation.brokers`
+is the array of broker registrations. Each registration has all four required fields:
+`brokerId` (the unique trusted broker name), `adapterId` (the adapter identity the
+attestation claims), `host` (exactly `"codex"` or `"claude"`), and `publicKey`
+(the broker's Ed25519 public key).
+For example:
+
+```json
+{
+  "nativeReviewInvocation": {
+    "brokers": [{
+      "brokerId": "desktop-codex-review-broker",
+      "adapterId": "desktop-codex-adapter-v1",
+      "host": "codex",
+      "publicKey": "<Ed25519 public key>"
+    }]
+  }
+}
+```
+
+The attestation nonce is atomically consumed once to prevent replay. That local
+ledger is replay protection, not a same-UID security boundary. Likewise process
+ancestry is corroboration rather than required authority: an unavailable `ps`
+view does not reject a valid broker attestation, but any observable mixed
+Codex/Claude ancestry rejects direct evidence even when the nearest provider
+matches. A same-UID/root attacker that can replace trusted configuration or
+instrument the broker is outside this local assurance boundary.
+
 Reviewer Prompt 不应由调用方手工拼接或假定某个 rollout mode。先由
 `review_run_start` 按当前 Story、lane 和 `promptEnvelope.roles` 的逐角色 flag
-选择可信正文与 full/incremental context，再将它返回的 dispatch Prompt 交给
-`host_run`。当前可独立启用 `proof-or-stop-review-concept`、
+选择可信正文与 full/incremental context，再让 `host_run --managedReview`
+按 `reviewRunId` 重新取得并校验这份内容。当前可独立启用 `proof-or-stop-review-concept`、
 `proof-or-stop-review-quality`、`proof-or-stop-review-test-coverage`、
 `proof-or-stop-review-behavior`、`proof-or-stop-review-docs`；未启用角色保持
 `legacy-full-context`，retired channel 不可进入该 rollout。
@@ -110,30 +207,121 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 也不会改变 pass/finding 的签名与 freshness 门禁。在途 legacy pass 仍只按其
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
-```
-proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-001 --lane proof-or-stop-review-quality \
-  --promptFile reviewer-prompt.txt
+For a formal managed review, the provider must remain in its host-configured
+detached scratch worktree. It must never `cd` to, execute commands in, or write
+to the canonical Story worktree named by the signed ReviewRun. The controller
+evaluates the canonical read-only acceptance topology, pre-review, rollout
+report, and rollout-policy projections before launch, then places only a
+bounded path-free status snapshot in the provider-visible derived prompt. A
+provider consumes that snapshot rather than invoking those Story CLI readers
+from scratch; an `unavailable` entry is an honest limitation, not permission to
+bypass the normal worktree cwd gate. This snapshot is provider context only: it
+does not replace the signed report artifacts, their lifecycle gates, or their
+canonical consumers. The original signed ReviewRun prompt stays unchanged as
+audit context, and the exact derived provider-prompt digest is sealed in the
+managed run before receipt import.
+
+```bash
+# 1. Controller creates the signed ReviewRun.
+proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-review-quality"}'
+
+# 2. Submit the exact provider reviewer; raw `bash + codex exec` is unmanaged.
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-quality","reviewRunId":"B-xxxx:RR-001","lane":"proof-or-stop-review-quality","managedReview":true,"detach":true,"json":true}'
+
+# 3. Repeat this bounded status call. Silence does not cause replacement.
+proof-or-stop host_run_status '{"runId":"<runId>","afterGeneration":<generation>,"waitMs":30000,"json":true}'
+
+# 4. Import only after completed + replacementSafe=true + reaped=true + residualProcessGroup=false.
+proof-or-stop managed_review_evidence_import '{"runId":"<runId>","receiptId":"<receiptId>"}'
 ```
 
-### Quorum host review (one call per host)
+Inside the provider process, the managed prompt forbids `review_run_start`,
+`review_pass_set` and `finding_add`. Its final assistant result must be exactly
+one bounded `lattice.managed_review_final_proposal.v1` JSON envelope containing
+pass-or-findings plus truthful read evidence. This protocol overrides the generic
+reviewer role template's normal `review_pass_set` / `finding_add` closing rules.
+The protected managed Codex launcher uses `codex exec --json -s read-only -C
+<scratch> -`, so after a successful provider exit its formal path accepts
+exactly one schema-valid terminal `item.completed` `agent_message` envelope.
+The exact standalone raw stdout envelope remains a bounded compatibility path
+for a non-JSON Codex transport; Claude accepts only its terminal `result` lane.
+Tool
+logs, ordinary/raw mixed stdout, arbitrary streamed output, and controller
+fields are ignored. The worker validates the sealed story/provider/lane/ReviewRun
+tuple and atomically writes the immutable proposal. Missing, malformed,
+multiple, or oversized envelopes fail the run closed. The
+`pass` form requires a trimmed note of at least 10 characters and no findings
+(an empty findings array is equivalent to absence). The `findings` form
+requires at least one fully valid finding and may carry a trimmed explanatory
+note of at least 10 characters. Claude's provider-facing JSON schema keeps this
+field type-only because that transport rejects `minLength`; the local sealed
+envelope parser enforces the same trimmed minimum before persistence. Both the canonical final
+envelope and the older compatibility proposal ingress accept that diagnostic
+note, then discard it before the immutable evidence proposal is written, so it
+can never become a formal finding or evidence field. Whitespace-only notes,
+missing findings, malformed envelopes, and oversized provider final results
+fail closed. The older
+descriptor-authorized `managed_review_proposal_set` command remains a
+compatibility path, not the formal happy path; its private signing key is never
+placed in the prompt, argv, provider environment, or durable run artifact.
+Raw same-UID CLI calls, copied environment variables, stale PGIDs,
+terminal/reaped runs, and ambiguous/multiple run candidates fail closed.
+Successful terminal creation seals the proposal and journal. That state alone
+is not importable: the receipt must also prove `replacementSafe=true`,
+`processCleanup.reaped=true`, and
+`processCleanup.residualProcessGroup=false`. The importer accepts only
+`runId + receiptId`, exposes no verdict override, and preserves the provider
+lane/ReviewRun/provenance. Both import time and the REVIEW gate revalidate the
+same shared Proof Admissibility contract. Raw CLI stdout,
+usage rows and time-window correlations cannot satisfy this evidence class.
+
+For a managed Claude reviewer, the worker materializes the authoritative prompt
+as a mode-`0600` one-shot file below the provider's exact working directory at
+`.proof-or-stop/runtime/host-run-prompts/`; Claude's workspace sandbox can therefore
+read it without exposing prompt text in argv. Because a detached reviewer has no
+interactive terminal on which to approve required inspection and proof-or-stop CLI
+commands, only the signed `managed_reviewer` launch profile adds Claude's
+`--permission-mode bypassPermissions`. That same profile supplies a bounded,
+non-secret `--json-schema` which fixes the exact story/provider/lane/ReviewRun
+tuple and proposal vocabulary. The schema is an unavoidable CLI argument, but
+contains neither prompt/capability bytes nor a controller-authored conclusion.
+The adapter consumes only a `type=result` event with `subtype=success` and a
+present provider-validated `structured_output`. Every other Claude result
+event is ignored, including error/non-success envelopes and success events
+without `structured_output`. Ordinary prose, Markdown-fenced JSON, and
+`event.result` are never proposal inputs. Ordinary Claude `host_run` keeps its
+configured permission policy and has no JSON schema, while Codex keeps stdin
+transport. The private leaf is named by the sealed managed `runId`; the normal
+worker cleanup removes it when the provider settles, and terminal
+reconciliation/expiry repair repeats that exact run-bound removal after an
+abnormal worker exit. It never scans or removes sibling reviewer prompt leaves.
+Missing,
+prose-only, malformed, multiple, or oversized proposal envelopes still fail
+closed.
+
+`host_run_worker` is an internal continuation command. It remains dispatchable
+by the detached launcher but is omitted from ordinary help/catalog discovery;
+operators use `host_run`, `host_run_status`, and `host_run_cancel`.
+
+### Ordinary/quorum managed runs
 
 ```
 # Codex host
-proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host codex --storyId B-xxxx --agentType quorum-reviewer \
   --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 
 # Claude host
-proof-or-stop host_run --host claude --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
-  --promptFile quorum-prompt.txt
-
-# Antigravity / agy host
-proof-or-stop host_run --host agy --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host claude --storyId B-xxxx --agentType quorum-reviewer \
   --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 ```
+
+The current agy print CLI accepts prompt bytes only as a plaintext argv value.
+It is therefore not a managed `host_run` host and is absent from that command's
+public schema. Antigravity/agy remains available only on diagnostic host-runtime
+surfaces; a future managed adapter would require stdin or protected prompt-file
+transport before it could be added as a new execution capability.
 
 ## Binding conventions
 
@@ -171,9 +359,6 @@ Provider truth is preferred over estimates; an absence is recorded as an explici
   digested raw.
 - **claude** — parses the stream-json `result` envelope usage via
   `parseClaudeCliOutput` (the four-field Anthropic usage plus the served model).
-- **agy** — recorded as `source=unavailable` with provider `antigravity` and an
-  explicit `unavailableReason`. agy print mode exposes no usage surface
-  (verified 2026-07-10), so no counts can be reported.
 
 A parse miss (no `turn.completed` event, no `result` usage) records an
 `unavailable` final with a reason rather than inventing counts.
@@ -188,7 +373,7 @@ that the provider envelope parsed. When the ledger append itself fails (a corrup
 ledger, or a lock-wait timeout that skips the write), the summary reports a
 skipped state (`recorded: none`, reason `ledger_append_failed(...)`) and the
 stderr line reads `usage: ledger_append_failed(...)` — it never claims
-`usage recorded` for a row that never landed. This applies to all three hosts;
+`usage recorded` for a row that never landed. This applies to both managed hosts;
 the provider is still surfaced for attribution, but token counts stay null. A
 provider record that BUILT fine but whose append failed is reported as an
 append failure keyed on the parsed usage — it is **never degraded to
@@ -205,60 +390,95 @@ and a composed reason that keeps the refusal visible, e.g.
 `concurrency_cap_exceeded (...); ledger_append_failed(...)`. A recordId is never
 minted for a blocked row that never persisted.
 
+## Provider execution surfaces
+
+Every production provider spawn site carries a `ProviderExecutionSurfaceStatus`
+and is enumerated by `provider-execution-inventory-contract`, which fails if a
+new spawn path appears unclassified:
+
+- `managed` — runs through ManagedHostRun (durable run identity, supervised
+  process group, absolute deadline, one terminal receipt).
+- `admission_only` — not managed-executed, but still routed through the shared
+  admission boundary, so the concurrency cap below applies.
+- `adapter_only` — a low-level adapter whose caller owns admission.
+- `readiness_probe` — a non-provider-workload inspection or verification
+  subprocess (including readiness/version, Git/process, provenance, evidence,
+  or lint checks); it never becomes review evidence.
+- `legacy_unmanaged` — neither managed nor admission-routed. Reserved and
+  **currently empty by contract**: the inventory test asserts no surface uses
+  it, so introducing one is a deliberate, reviewable act.
+
+There is no `admission_managed` status — admission and managed execution are
+independent properties, spelled `admission_only` and `managed`.
+
+See `docs/requirements/decisions/managed-cross-provider-cli-execution.md` for
+the decision record.
+
 ## Caps (fail-closed, before spawn)
 
-Both caps run at the choke point BEFORE a host is spawned, and every refusal is
-recorded as a `decision.kind=blocked` ledger row (diagnostics-honest).
+With the usage ledger enabled, both caps run at the choke point BEFORE a host
+is spawned, and each refusal attempts to record a
+`decision.kind=blocked` ledger row (diagnostics-honest; an append failure is
+reported as `recorded: none`). With `PROOF_OR_STOP_USAGE_LEDGER=0`, budget enforcement
+and every ledger row are disabled; the provider-process capacity admission
+still runs before every spawn and refuses fail-closed without claiming a
+blocked row was persisted.
 
 - **Per-dispatch hard budget** — reuses the existing `PROOF_OR_STOP_HARD_BUDGET_TOKENS`
   preflight guard per call. An over-budget preflight estimate refuses with
   `reasonCode hard_budget_exceeded` before spawning.
-- **Host-run concurrency** — a slot registry under `.proof-or-stop/usage/host-run-slots/`
+- **Provider-process concurrency** — a shared slot registry under
+  `.proof-or-stop/runtime/provider-process-slots/`
   holds **fixed numbered slots** `slot-0.json` .. `slot-(cap-1).json`, one per
   live run (pid + `startedAt` + an acquire-minted **ownership token**).
-  Admission is **atomic**: each index is tried in order with an exclusive
-  (`wx`) create, and winning an index *is* the admission — only `cap`
-  contenders can ever hold the `cap` fixed names, so simultaneous starts
-  cannot all slip past the cap (no check-then-acquire race). When every index
+  Admission and reclaim are serialized by the ownership-checked provider
+  registry lock, then the selected fixed slot is created with exclusive `wx`.
+  The lock makes the live-count check, stale reclaim, cap-lowering check and
+  create one cross-process transaction, so simultaneous starts and corrupt-slot
+  replacement cannot slip past the cap. When every index
   under `PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT` (default **4**; unset / invalid /
   `<=0` falls back to the default; an explicit larger value is honored) is
   held, the run refuses fail-closed with a non-zero exit, prints the live-run
-  list, and writes a blocked row with `reasonCode concurrency_cap_exceeded`.
+  list, and, when the ledger is enabled, writes a blocked row with `reasonCode
+  concurrency_cap_exceeded`.
   Slot reclaim is **ownership-aware** (mirroring the ledger-lock doctrine
-  below): a slot with a recorded **dead pid** is reclaimed at any age; a slot
-  whose metadata is **missing/corrupt** (the holder crashed between creating
-  the file and its metadata landing) is reclaimed once its mtime exceeds the
-  `PROOF_OR_STOP_HOST_RUN_SLOT_STALE_MS` orphan backstop (default **6h**); a slot
-  with a **live** recorded pid is **never reclaimed by age** — a long host run
-  keeps its admission and waiters refuse at cap. Reclaim re-verifies the
-  occupant immediately before the unlink and then re-creates exclusively (a
-  lost reclaim race just moves to the next index), so a crashed run never
-  wedges the cap and a racing reclaimer can never delete a slot a new holder
-  just re-acquired. Slot release on exit is best-effort and **token-guarded**:
+  below): a slot with a recorded **dead pid** is reclaimable at any age only
+  after its isolated provider PGID is also confirmed absent; a dead supervisor
+  whose provider group remains live still consumes capacity and is retained.
+  A slot whose metadata is **missing/corrupt** (the holder crashed between
+  creating the file and its metadata landing) is reclaimed once its mtime
+  exceeds the `PROOF_OR_STOP_HOST_RUN_SLOT_STALE_MS` orphan backstop (default
+  **6h**); a fresh non-reclaimable corrupt slot also consumes capacity (even at
+  a high index after a cap is lowered), although it has no safe descriptor to
+  render in the live-run list; a slot with a **live** recorded pid is **never
+  reclaimed by age** — a long host run keeps its admission and waiters refuse
+  at cap. Reclaim re-verifies the
+  occupant immediately before the unlink under the same registry lock and then
+  re-creates exclusively, so a crashed run never wedges the cap and a racing
+  reclaimer cannot delete a slot a new holder just re-acquired. Slot release on
+  exit is best-effort, registry-serialized and **token-guarded**:
   the file is unlinked only while it still carries the releasing run's own
   token, so a reclaimed-and-re-acquired slot survives the original holder's
-  late release (the accepted residual is the same pid-reuse class documented
-  for the ledger lock). Raising the cap mid-flight exposes more indexes;
-  lowering it lets high-index live runs drain (they still count in the
-  reported live list) while new admissions only try the lowered range.
+  late release. Raising the cap mid-flight exposes more indexes; lowering it
+  counts every non-reclaimable high-index slot and refuses new starts until the
+  total occupied count drops below the new cap.
 
-Blocked rows are provider-honest: a refusal records the provider of the host
-that was asked to run (`openai` for codex, `anthropic` for claude,
-`antigravity` for agy), never a hard-coded default.
+Blocked rows are provider-honest: a refusal records the provider of the managed
+host that was asked to run (`openai` for codex or `anthropic` for claude), never
+a hard-coded default.
 
-The autopilot claude repair launch (`proof-or-stop autopilot execute
---allowClaudeRepair`) passes the **same pre-spawn admission**: with the ledger
-ON, an over-budget or over-cap repair is refused before the claude runner is
-invoked (recording the same blocked row, provider `anthropic`) and holds a
-concurrency slot for the duration of the run; with the ledger OFF the repair
-stays byte-identical (no admission, no slots, no rows).
+The autopilot Claude repair launch (`proof-or-stop autopilot execute
+--allowClaudeRepair`) passes the **same pre-spawn admission** in both ledger
+modes. With the ledger ON, budget and capacity refusals can also write the
+diagnostic blocked row. With the ledger OFF there are no usage rows or budget
+guard, but capacity admission remains mandatory and the slot is still released
+after the run.
 
-The `cross_host_review` codex review leaf passes the **same pre-spawn
-admission** (provider `openai`): with the ledger ON, an over-budget or over-cap
-review is refused before the codex runner is invoked (recording the same
-blocked row) and instead surfaces a synthesized `blocked` host-B verdict, so the
-joint decision is `blocked` rather than a fabricated pass/fail; with the ledger
-OFF the leaf stays byte-identical.
+The `cross_host_review` Codex leaf runs through ManagedHostRun and the same
+provider admission (provider `openai`). It supports detach/resume by exact
+`managedRunId`, never spawns a replacement on resume, and binds the terminal
+`receiptId` into host-B verdict provenance. Budget/cap/provider failures still
+produce an honest blocked/error decision; raw stdout is never gate evidence.
 
 Concurrent runs' ledger appends are serialized by a cross-process lock at the
 writer choke point (an atomic `llm-usage.jsonl.lock/` directory with a bounded
@@ -276,8 +496,54 @@ carries the releaser's own token.
 
 There is **no queuing** in this story: over the cap means refuse, not wait.
 
-Set `PROOF_OR_STOP_USAGE_LEDGER=0` to disable ledger writes entirely; the host run is
-then byte-identical to a raw launch (no preflight, no final, no slot files).
+Set `PROOF_OR_STOP_USAGE_LEDGER=0` to disable usage preflight/budget/final rows. It
+does **not** disable ManagedHostRun ownership or provider-process admission.
+
+## Diagnostics, cleanup, and trust boundary
+
+Negative-PGID TERM/KILL is authorized only while the original isolated leader's
+PID, PGID/session shape, and start fingerprint remain continuously verified.
+Surviving descendants after that leader exits do not authorize a blind group
+signal: cleanup records the residual group with `replacementSafe=false`, and
+the receipt remains non-importable.
+
+`proof-or-stop doctor --full` lists every managed run with state, worker liveness,
+worker heartbeat, provider progress mode/time, deadline, cancellation,
+residual-process status, `replacementSafe`, and retention state. `proof-or-stop
+doctor --repair` removes heavy terminal run directories only after the 90-day
+retention window and first revalidates sealed spec, result, event-journal,
+proposal and evidence-binding digests, then archives the sealed receipt,
+evidence-binding digest, binding projection, provider-authored proposal body,
+and import-seal pair under `.proof-or-stop/runtime/host-run-receipts/`. On recover,
+the proposal body is re-digested against the sealed receipt's
+evidenceProposalDigest, the binding body is re-digested against the archive's
+evidenceBindingDigest, and the archived seal's schemaVersion, runId, and
+bindingDigest are checked the same way as the live path. A pre-existing
+receipt archive is kept only when that complete capture is valid. An
+incomplete crash leftover or pre-F-127 archive whose receiptId matches is
+atomically replaced from still-valid live artifacts; if neither side can
+form a complete archive, GC reports corrupt and retains the live runtime
+instead of deleting it. Heavy live-output
+and result provider text are not retained. Active or
+corrupt runs and any directory still carrying one-shot inputs are retained
+fail-closed for inspection; failed launch, claim, and pre-provider startup
+(including scratch validation) paths erase prompt, capability, and one-shot
+environment immediately. A terminal managed Claude run also
+reclaims only its sealed `host-run-prompts/<runId>/` leaf, including from the
+next status/cancel reconciliation after a worker crash. The imported binding carries a separate
+immutable digest seal, so a shape-preserving binding rewrite is corrupt before
+doctor/GC can delete it. Expired cross-host runs also remove only their canonical
+`proof-or-stop-xhr-review-*/worktree` snapshot (the retired
+`lattice-xhr-review-*/worktree` prefix remains cleanable for leftovers from an
+older build); paths outside that tmp boundary fail closed. Per-run live output is capped at 8 MiB;
+status readers page bounded frames and surface truncation rather than loading an
+unbounded transcript.
+
+The runtime directory is local and mode 0700; sensitive one-shot files are 0600.
+This protects against other users under ordinary filesystem permissions, not a
+same-UID/root attacker. Operators must treat retained live output as locally
+sensitive. Native Codex/Claude subagent APIs are deliberately out of scope:
+ManagedHostRun owns only cross-provider CLI processes launched by Proof-or-Stop.
 
 ## `usage_sweep` (read-only retro-attribution)
 

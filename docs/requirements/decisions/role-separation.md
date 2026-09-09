@@ -1018,7 +1018,7 @@ Every wave has a mandatory gate story and a rollback playbook. The gate's data d
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
 **not** a normal Proof-or-Stop gate reviewer. These advisory reviewers should not be able to call
 mutating Proof-or-Stop commands — they are expected to return structured text or JSON findings to the
-owner session, which then records evidence through the normal gate.
+owner session. That output remains non-authoritative and is not REVIEW gate evidence.
 
 ### Dispatch rule for owner agents
 
@@ -1056,46 +1056,67 @@ When set on a spawned reviewer process:
   `session_brief`, `story_get`, `checklist_get`, `finding_list`).
 - All `reviewerWrite`, `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
   unclassified commands are rejected before preCommand hooks and before the owner-lease gate.
-  The error names the env var, the blocked command, its effective class, and the correct
-  recovery path: return findings as text to the owner, who records them as evidence.
+  The error names the env var, the blocked command, its effective class, and tells the
+  advisory reviewer to return structured findings to the story owner. That text remains
+  non-authoritative; owner-session `finding_add` / `review_pass_set` of advisory output
+  creates inadmissible evidence.
 - `--takeover` / `--forceTakeover` cannot be used to bypass the restriction.
 
 ### Advisory reviewer output is not gate evidence
 
-A read-only reviewer cannot produce a Proof-or-Stop `review_pass_set` record, a signed `finding_add`
-entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
-must explicitly call the relevant Proof-or-Stop commands themselves to materialize evidence.
+Advisory reviewer output remains non-authoritative. A read-only reviewer cannot produce a
+Proof-or-Stop `review_pass_set` record, a signed `finding_add` entry, or any other lifecycle
+artifact. REVIEW evidence is rejected unless it carries either an exact managed receipt
+binding or a registered-broker native invocation attestation. Native direct
+`finding_add` / `review_pass_set` without that broker attestation is advisory-only.
+Following the old recovery path — an owner session calling `finding_add` or
+`review_pass_set` to "materialize" advisory reviewer output — creates inadmissible evidence.
 
 ### If PROOF_OR_STOP_REVIEWER_READONLY was omitted
 
 If an owner session launched an advisory reviewer **without** setting `PROOF_OR_STOP_REVIEWER_READONLY=1`,
 the owner must treat the reviewer's output as **non-sandboxed advisory text** and apply extra
-scrutiny before recording any evidence:
+scrutiny. That text remains non-authoritative:
 
 1. **Do not assume the reviewer only read.** The reviewer may have called mutating commands.
    Check `proof-or-stop finding_list`, `proof-or-stop story_get`, and relevant artifact files (e.g.
    `review-passes.json`, `init-check.json`) to see if the reviewer wrote anything unexpected.
-2. **Verify each claim independently** using `proof-or-stop` commands or direct file inspection before
-   calling `finding_add`, `review_pass_set`, or `verification_evidence_add`.
+2. **Verify each claim independently** using `proof-or-stop` commands or direct file inspection.
+   Do not call `finding_add` or `review_pass_set` to materialize advisory text; that path
+   is inadmissible.
 3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
-   been written by the advisory reviewer directly — re-run or re-record them through the owner.
+   been written by the advisory reviewer directly. Native direct evidence without a
+   registered-broker invocation attestation is advisory-only; formal REVIEW evidence must
+   use one of the two authority paths below, not owner-session replay of advisory text.
 
 ### Normal Proof-or-Stop gate reviewers must NOT set this mode
 
-Standard reviewers (`proof-or-stop-review-*` subagents in REVIEW phase) need to call `review_run_start`,
-`finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
-`delivery_check_set`. Setting `PROOF_OR_STOP_REVIEWER_READONLY=1` on a normal gate reviewer will block
-all of those calls and break the review lifecycle.
+Standard reviewers (`proof-or-stop-review-*` subagents in REVIEW phase) still need write access
+for commands such as `review_run_start`, `init_check_set`, `scope_check_save`, and
+`delivery_check_set` where those commands apply. Formal `finding_add` / `review_pass_set`
+evidence uses one of two authority paths:
+
+- Broker-attested native reviewers use the direct `finding_add` / `review_pass_set` path.
+  The exact tool invocation must carry a registered-broker native invocation attestation;
+  without it, native direct evidence is advisory-only.
+- Cross-provider reviewers use the sealed ManagedHostRun proposal +
+  `managed_review_evidence_import` path. Direct final `finding_add` / `review_pass_set`
+  inside a ManagedHostRun is forbidden; the provider returns a
+  `lattice.managed_review_final_proposal.v1` envelope, the managed adapter seals it, and
+  the controller imports it only after a successful terminal receipt.
+
+Setting `PROOF_OR_STOP_REVIEWER_READONLY=1` on a normal gate reviewer will block those write
+paths and break the review lifecycle.
 
 ### When to use
 
 | Situation | Use PROOF_OR_STOP_REVIEWER_READONLY=1? |
 |---|---|
 | External Claude/Codex/Gemini asked to inspect code and return text/JSON findings | **Yes** — owner must set it on the spawned process |
-| Normal `proof-or-stop-review-concept` / `proof-or-stop-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
+| Normal `proof-or-stop-review-concept` / `proof-or-stop-review-quality` in REVIEW phase | **No** — broker-attested native reviewers write `finding_add`/`review_pass_set`; cross-provider reviewers use ManagedHostRun + `managed_review_evidence_import` |
 | `proof-or-stop-evaluator` or `proof-or-stop-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
 | CI runner doing a read-only docs audit before reporting to owner | **Yes** |
-| Advisory reviewer launched without PROOF_OR_STOP_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
+| Advisory reviewer launched without PROOF_OR_STOP_REVIEWER_READONLY set | N/A — treat output as non-authoritative; do not materialize it via owner-session `finding_add`/`review_pass_set` |
 
 ---
 

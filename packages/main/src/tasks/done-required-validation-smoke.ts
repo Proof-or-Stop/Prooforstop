@@ -18,13 +18,13 @@ import {
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { CliWatchdogTimeoutError, commandCliMaxBudget, doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, commandCliMaxBudget, doneRequiredDerivedBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import {
   MAX_NODE_TIMER_DELAY_MS,
   runValidationCommand,
 } from '../core/validation-executor.js';
-import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
+import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData, VerificationEvidence } from '../core/types.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createDoneRequiredValidationHandlers as unownedcreateDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
@@ -636,7 +636,7 @@ function assertDoneRequiredBlocked(
 
 // Timeout arithmetic covers the legal sequential command budget once and saturates safely.
 {
-  const { root } = fixture([{ label: 'slow legal suite', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 1_200_000 }]);
+  const { root, store } = fixture([{ label: 'slow legal suite', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 1_200_000 }]);
   try {
     const budget = doneRequiredDerivedBudget(root);
     assert.equal(budget.timeoutMs, 1_230_000);
@@ -651,6 +651,102 @@ function assertDoneRequiredBlocked(
       { label: 'negative fallback', command: 'node', args: [], timeoutMs: -1 },
       { label: 'non-finite fallback', command: 'node', args: [], timeoutMs: Number.POSITIVE_INFINITY },
     ]), 840_000, 'invalid/non-positive timeout inputs use the bounded command default');
+    const configPath = join(root, 'lattice.config.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+    config.validate = {
+      commands: [
+        { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 600_000, focus: ['fast'] },
+        { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 650_000 },
+        { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700_000, focus: ['slow'] },
+      ],
+      evidenceCommandTimeoutOverrides: [
+        { command: 'node', args: ['-e', "process.stdout.write('BATCH_A')"], timeoutMs: 600_000 },
+        { command: 'node', args: ['-e', "process.stdout.write('BATCH_B')"], timeoutMs: 600_000 },
+      ],
+    };
+    writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+    resetConfigCache();
+    const fullValidateBudget = commandCliMaxBudget(root, 'validate', {});
+    assert.equal(fullValidateBudget.timeoutMs, 1_980_000,
+      'full configured validate outer budget is every serial command plus 30s grace, not the legacy 900000ms default');
+    assert.equal(fullValidateBudget.commandBudgetMs, 1_950_000);
+    assert.equal(fullValidateBudget.graceMs, 30_000);
+    assert.ok(fullValidateBudget.timeoutMs > 900_000,
+      'long configured serial validate suite cannot be cut off by the legacy 15 minute watchdog');
+    assert.equal(commandCliMaxBudget(root, 'validate', { focus: 'fast' }).timeoutMs, 630_000,
+      'focused validate budget covers only commands selected by that focus');
+    assert.equal(effectiveCommandCliMaxBudget(root, 'validate', {}, { PROOF_OR_STOP_MAX_TIMEOUT_MS: '2700000' }).timeoutMs, 2_700_000,
+      'explicit PROOF_OR_STOP_MAX_TIMEOUT_MS continues to override the derived validate budget');
+    const batchCommandA = `node -e "process.stdout.write('BATCH_A')"`;
+    const batchCommandB = `node -e "process.stdout.write('BATCH_B')"`;
+    const batchEvidence = (command: string, selector: string) => ({ command, selector, kind: 'logic_test' });
+    const batchBudget = commandCliMaxBudget(root, 'verification_evidence_batch_add', {
+      evidences: [batchEvidence(batchCommandA, 'BATCH_A'), batchEvidence(batchCommandB, 'BATCH_B')],
+    });
+    assert.equal(batchBudget.timeoutMs, 1_230_000,
+      'two exact allowlisted pinned batch verifiers receive their combined configured child budgets plus grace');
+    assert.equal(batchBudget.commandBudgetMs, 1_200_000);
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_batch_add', {
+      evidences: [batchEvidence(batchCommandA, 'BATCH_A')],
+    }).timeoutMs, 630_000, 'one pinned batch verifier receives only its configured child timeout plus grace');
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_batch_add', {
+      evidences: [batchEvidence(batchCommandA, 'BATCH_A'), batchEvidence(batchCommandA, 'BATCH_A')],
+    }).timeoutMs, 630_000, 'duplicate batch pins share one executable+argv timeout budget');
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_batch_add', {
+      evidences: [batchEvidence('sh -c "sleep 1"', 'ignored')],
+    }).timeoutMs, 900_000, 'raw non-allowlisted batch commands cannot widen the CLI watchdog budget');
+    assert.equal(effectiveCommandCliMaxBudget(root, 'verification_evidence_batch_add', {
+      evidences: [batchEvidence(batchCommandA, 'BATCH_A'), batchEvidence(batchCommandB, 'BATCH_B')],
+    }, { PROOF_OR_STOP_MAX_TIMEOUT_MS: '2700000' }).timeoutMs, 2_700_000,
+      'explicit max continues to override a derived batch evidence budget');
+
+    const checklist = store.readChecklist(STORY_ID);
+    const item = checklist.items[0]!;
+    item.verificationIntent = {
+      happy: [
+        { id: 'REFRESH-A', desc: 'first stale executable pin', type: 'logic', priority: 'must', verification: { command: batchCommandA, selector: 'BATCH_A' } },
+        { id: 'REFRESH-B', desc: 'second stale executable pin', type: 'logic', priority: 'must', verification: { command: batchCommandB, selector: 'BATCH_B' } },
+      ],
+      edge: [],
+      adversarial: [],
+    };
+    const staleReceipt = {
+      exitCode: 0,
+      outputDigest: '0'.repeat(64),
+      outputTail: 'stale fixture',
+      selectorMatched: true,
+      executedAt: '2026-01-01T00:00:00.000Z',
+    };
+    const staleEvidence = (intentRef: string): VerificationEvidence => ({
+      intentRef,
+      kind: 'logic_test',
+      result: 'pass',
+      note: 'stale executed evidence fixture',
+      headHash: '0'.repeat(40),
+      materialHash: '0'.repeat(64),
+      mechanical: true,
+      receipt: staleReceipt,
+    });
+    item.verificationEvidence = [staleEvidence('REFRESH-A'), staleEvidence('REFRESH-B')];
+    store.writeChecklist(STORY_ID, checklist);
+    const refreshBudget = commandCliMaxBudget(root, 'verification_evidence_refresh_stale', { storyId: STORY_ID });
+    assert.equal(refreshBudget.timeoutMs, 1_230_000,
+      'two current stale executable pins receive the exact combined configured re-execution budget plus grace');
+    assert.equal(refreshBudget.commandBudgetMs, 1_200_000);
+    assert.equal(refreshBudget.graceMs, 30_000);
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_refresh_stale', { storyId: STORY_ID, dryRun: true }).timeoutMs, 900_000,
+      'refresh dry-run executes no pinned child commands and keeps the ordinary CLI watchdog budget');
+
+    item.verificationIntent.happy[1]!.verification = { command: 'sh -c "sleep 1"', selector: 'ignored' };
+    item.verificationIntent.happy[0]!.verification = { command: 'sh -c "sleep 1"', selector: 'ignored' };
+    store.writeChecklist(STORY_ID, checklist);
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_refresh_stale', { storyId: STORY_ID }).timeoutMs, 900_000,
+      'stale pins outside the execution allowlist cannot widen the refresh watchdog');
+
+    item.verificationEvidence = [];
+    store.writeChecklist(STORY_ID, checklist);
+    assert.equal(commandCliMaxBudget(root, 'verification_evidence_refresh_stale', { storyId: STORY_ID }).timeoutMs, 900_000,
+      'refresh with no stale executable evidence keeps the ordinary CLI watchdog budget');
     assert.equal(commandCliMaxBudget(root, 'story_get', {}).timeoutMs, 900_000, 'unrelated CLI defaults remain unchanged');
   } finally {
     rmSync(root, { recursive: true, force: true });

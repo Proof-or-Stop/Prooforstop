@@ -48,6 +48,7 @@ import type {
 import { signScopeCheck } from '../handlers/scope-check.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 const storyId = 'B-basis-smoke';
 const now = '2026-07-22T00:00:00.000Z';
@@ -96,6 +97,34 @@ function redigestSnapshotSeal(seal: AcceptanceBasisArtifactV1['basis']['snapshot
   seal.sealDigest = `sha256:${digestCanonicalJson(unsigned)}`;
 }
 
+const realRepositoryDiscovery = runAcceptanceDiscoveryAdapters({
+  supported: detectAcceptanceDiscoverySupport(projectRoot),
+  workspaceRoot: projectRoot,
+  storyId: 'B-real-repository-discovery',
+  plannedPathRecords: [],
+  scopeRefs: [
+    'scope:file:packages/main/src/cli/command-catalog.ts',
+    'scope:file:packages/main/src/handlers/proofstory.ts',
+    'scope:file:packages/main/src/registry.ts',
+  ],
+  topologyPathRefs: [
+    'process-fact:acceptance_basis',
+    'process-fact:acceptance_basis_generate',
+    'process-fact:acceptance_topology_check',
+  ],
+});
+const realRepositoryDispatch = realRepositoryDiscovery.find(result => result.method === 'handler_dispatch_inventory')!;
+for (const command of ['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check']) {
+  assert.ok(
+    realRepositoryDispatch.pathRefs.some(path => path.startsWith(`path:process-fact:${command}->`)),
+    `real command catalog and createProofStoryHandlers registration discover ${command}: ${JSON.stringify(realRepositoryDispatch.blindSpots)}`,
+  );
+}
+assert.ok(
+  !reconcileAcceptanceDiscoveryResults(realRepositoryDiscovery).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'),
+  'real process-fact and handler/catalog discovery inventories agree',
+);
+
 const declaration = {
   schemaVersion: 'proofstory.verification_planned_path_declaration.v1' as const,
   id: 'VPP-BASIS',
@@ -131,11 +160,13 @@ const topology: AcceptanceVerificationTopologyV1 = {
 function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
+    "  { name: 'branch_status', description: 'infer from the story/* branch' },",
     "  { name: 'acceptance_basis' },",
     "  { name: 'acceptance_basis_generate' },",
     "  { name: 'acceptance_topology_check' },",
     "  { name: 'pre_review_check' },",
     "  { name: 'pre_review_check_read' },",
+    "  { name: 'baseline_status', description: 'NL-*/RED baseline' },",
     '];',
     '',
   ].join('\n'));
@@ -164,6 +195,8 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
@@ -1633,7 +1666,6 @@ try {
   rmSync(freshnessRoot, { recursive: true, force: true });
 }
 
-const projectRoot = resolve(packageRoot, '../../..');
 for (const mutation of [
   'drop-acceptance-basis-prompt',
   'drop-acceptance-basis-handler',

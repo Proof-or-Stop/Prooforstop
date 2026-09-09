@@ -83,7 +83,7 @@ export function isValidationTransportEnvKey(
 /**
  * Host-launcher session identity that is NOT in the frozen list above.
  *
- * These are the same class of value as `LATTICE_SESSION_ID` -- per-process
+ * These are the same class of value as `PROOF_OR_STOP_SESSION_ID` -- per-process
  * identity injected by the coding-agent host or the terminal multiplexer it runs
  * under, carrying no validation-command
  * semantics -- but they are spelled by the host, not by Proof-or-Stop, so

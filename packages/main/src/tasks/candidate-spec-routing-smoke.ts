@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,15 +24,23 @@ import {
   candidateHostFailureReason,
   currentReviewerFullyReadPaths,
   currentStoryRoutingInput,
+  CandidateProposalOutputCollector,
+  createCandidateSpecRoutingHandlers,
   renderCandidateSpecRouteText,
   withUnattendedReadiness,
 } from '../handlers/candidate-spec-routing.js';
+
+const CANDIDATE_PROPOSAL_LIMIT_BYTES = 64 * 1024;
 import { resetConfigCache } from '../core/config.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { buildReviewRunWorkspaceBinding, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
 import { normalizeReviewerReadLog } from '../core/reviewer-read-evidence.js';
-import { resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody, reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
+import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
+import { generateEd25519KeyPair } from '../core/authority-signing.js';
+import { signNativeReviewInvocationAttestation } from '../core/native-review-attestation.js';
+import { issueNativeReviewEvidenceBinding } from '../core/native-review-evidence.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -145,6 +154,21 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
     assert.match(reviewPrompt, /review_run_start/);
     assert.match(reviewPrompt, /candidateSpecSetDigest/);
+    assert.match(
+      reviewPrompt,
+      /final assistant result.*lattice\.managed_review_final_proposal\.v1.*managed adapter seals/is,
+      'active reviewer dispatch must direct managed providers to the terminal final-result envelope protocol',
+    );
+    assert.doesNotMatch(
+      reviewPrompt,
+      /provider writes managed_review_proposal_set/,
+      'active reviewer dispatch must not retain the compatibility-only tool-shell proposal instruction',
+    );
+    assert.match(
+      reviewPrompt,
+      /registered host-adapter broker[\s\S]*without.*broker.*advisory-only[\s\S]*managed reviewer/is,
+      'native reviewer guidance must state the mechanical broker prerequisite and managed fallback',
+    );
     assert.deepEqual(currentReviewerFullyReadPaths({
       valid: [{
         id: 'RP-valid', kind: 'pass', agent: 'proof-or-stop-review-quality',
@@ -168,8 +192,19 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const collectorRoot = join(tmpdir(), `candidate-routing-collector-${process.pid}-${Date.now()}`);
     mkdirSync(join(collectorRoot, 'packages/main/src'), { recursive: true });
     mkdirSync(join(collectorRoot, 'docs/requirements/decisions'), { recursive: true });
+    const collectorBrokerKeys = generateEd25519KeyPair();
     writeFileSync(join(collectorRoot, '.gitignore'), '.proof-or-stop/\n');
-    writeFileSync(join(collectorRoot, 'proof-or-stop.config.json'), JSON.stringify({ requirementsDir: 'docs/requirements' }));
+    writeFileSync(join(collectorRoot, 'proof-or-stop.config.json'), JSON.stringify({
+      requirementsDir: 'docs/requirements',
+      nativeReviewInvocation: {
+        brokers: [{
+          brokerId: 'candidate-routing-broker',
+          adapterId: 'codex-desktop',
+          host: 'codex',
+          publicKey: collectorBrokerKeys.publicKey,
+        }],
+      },
+    }));
     writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = true;\n');
     writeFileSync(join(collectorRoot, 'docs/requirements/decisions/noise.md'), '# Noise\n');
     const git = (args: string[]): string => execFileSync('git', args, { cwd: collectorRoot, encoding: 'utf8' }).trim();
@@ -185,13 +220,38 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       currentReviewRound: collectorRound, events: [],
     });
     collectorStore.writeChecklist(story.storyId, { items: [] });
+    const readinessLaunches: string[] = [];
+    const readinessRoute = createCandidateSpecRoutingHandlers(
+      { store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') },
+      {
+        resolveReadiness: () => [
+          { host: 'codex', launcherSupport: 'supported', launcherOk: true, executionReady: true, reviewReady: true, failureKind: 'none', progressMode: 'jsonl', diagnostic: 'codex ready', remediation: 'none' },
+          { host: 'claude', launcherSupport: 'supported', launcherOk: true, executionReady: true, reviewReady: true, failureKind: 'none', progressMode: 'stream-json', diagnostic: 'claude ready', remediation: 'none' },
+          { host: 'agy', launcherSupport: 'unsupported', launcherOk: false, executionReady: false, reviewReady: false, failureKind: 'unsupported', progressMode: 'none', diagnostic: 'agy remains diagnostics-only until protected prompt transport exists', remediation: 'do not launch agy from candidate routing' },
+        ],
+        executeHost: async ({ host, storyId, seedDigest, promptDigest }) => {
+          readinessLaunches.push(host);
+          return { ...proposal(storyId, seedDigest), host, promptDigest, proposalId: `readiness-${host}` };
+        },
+      },
+    );
+    const readinessArtifact = await readinessRoute.candidate_spec_route({ storyId: story.storyId, persist: false, json: true }) as Awaited<ReturnType<typeof routeCandidateSpecs>>;
+    assert.deepEqual(readinessLaunches.sort(), ['claude-cli', 'codex-cli'], 'agy readiness must never produce a candidate host launch');
+    assert.equal(readinessArtifact.agyReadinessDiagnostic?.failureKind, 'unsupported');
+    assert.match(readinessArtifact.agyReadinessDiagnostic?.diagnostic ?? '', /diagnostics-only/);
+    assert.equal(verifyCandidateSpecSet(readinessArtifact), true, 'the signed candidate artifact persists the agy readiness diagnostic');
+    assert.match(
+      renderCandidateSpecRouteText(readinessArtifact, 1, [{ host: 'codex-cli', status: 'accepted' }]),
+      /agyReadiness=unsupported:agy remains diagnostics-only/,
+      'text rendering exposes persisted agy readiness without treating it as a launcher',
+    );
     const collectorSnapshot = captureReviewRunSnapshot(collectorRoot);
     const reviewRunId = `${story.storyId}:RR-001`;
     const reviewAgent = 'proof-or-stop-review-quality';
     const reviewStartedAt = '2026-07-12T00:03:00.000Z';
     const reviewPromptHash = hashReviewPrompt(resolvePromptRoleBody(reviewAgent, {
-      version: 'proofbound.prompt-envelope-rollout.v1',
-      roles: { 'lattice-review-quality': 'legacy-full-context' },
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: { [reviewAgent]: 'legacy-full-context' },
     }).body);
     const workspaceBinding = buildReviewRunWorkspaceBinding({
       metadataRoot: collectorRoot,
@@ -209,6 +269,67 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       ...reviewRun,
       _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, reviewPromptHash, undefined, workspaceBinding.bindingHash, collectorSnapshot.storyFilesHash),
     }] });
+    const collectorDispatchPrompt = 'Review the candidate routing source under the registered native host adapter.';
+    const collectorDispatchPromptDigest = reviewerDispatchPromptDigest(collectorDispatchPrompt);
+    const collectorHostIdentity = reviewerHostRenderIdentity(collectorRoot, reviewAgent, 'codex', 'legacy-full-context');
+    const collectorDispatchBindingDigest = reviewerDispatchBindingDigest({
+      storyId: story.storyId,
+      lane: reviewAgent,
+      reviewRound: collectorRound,
+      dispatchPromptDigest: collectorDispatchPromptDigest,
+      hostRenderIdentityDigest: collectorHostIdentity.identityDigest,
+    });
+    collectorStore.appendProcessEvent(story.storyId, {
+      type: 'dispatch',
+      storyId: story.storyId,
+      agentType: reviewAgent,
+      targetKind: 'story-review',
+      reviewRound: collectorRound,
+      dispatchPrompt: collectorDispatchPrompt,
+      dispatchPromptDigest: collectorDispatchPromptDigest,
+      hostRenderHost: 'codex',
+      hostRenderIdentityDigest: collectorHostIdentity.identityDigest,
+      dispatchBindingDigest: collectorDispatchBindingDigest,
+    });
+    const collectorWriterSessionId = 'candidate-routing-native-session';
+    const collectorAttestation = signNativeReviewInvocationAttestation({
+      schemaVersion: 'lattice.native_review_invocation_attestation.v1',
+      brokerId: 'candidate-routing-broker',
+      adapterId: 'codex-desktop',
+      host: 'codex',
+      storyId: story.storyId,
+      agent: reviewAgent,
+      lane: reviewAgent,
+      reviewRunId,
+      writerSessionId: collectorWriterSessionId,
+      dispatchPromptDigest: collectorDispatchPromptDigest,
+      dispatchBindingDigest: collectorDispatchBindingDigest,
+      hostRenderIdentityDigest: collectorHostIdentity.identityDigest,
+      invocationNonce: randomUUID(),
+      issuedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    }, collectorBrokerKeys.privateKey);
+    const collectorNativeBinding = issueNativeReviewEvidenceBinding({
+      projectRoot: collectorRoot,
+      storyId: story.storyId,
+      agent: reviewAgent,
+      lane: reviewAgent,
+      reviewRunId,
+      identity: {
+        sessionId: collectorWriterSessionId,
+        sessionSource: 'host-adapter',
+        hostProvider: 'codex',
+        nativeSessionRef: 'codex:candidate-routing-smoke',
+      },
+      dispatch: {
+        hostRenderHost: 'codex',
+        dispatchPromptDigest: collectorDispatchPromptDigest,
+        hostRenderIdentityDigest: collectorHostIdentity.identityDigest,
+        dispatchBindingDigest: collectorDispatchBindingDigest,
+      },
+      attestation: collectorAttestation,
+      observeProcess: () => null,
+    });
     const reviewPass = {
       id: `${story.storyId}:RP-001`,
       agent: reviewAgent,
@@ -216,6 +337,9 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       createdAt: '2026-07-12T00:04:00.000Z',
       reviewRound: collectorRound,
       reviewRunId,
+      writerSessionId: collectorWriterSessionId,
+      sessionSource: 'host-adapter' as const,
+      nativeEvidenceBinding: collectorNativeBinding,
       readManifest: {
         filesReadFully: ['packages/main/src/reviewer-full.ts'],
         filesTriagedByName: ['docs/requirements/decisions/noise.md'],
@@ -228,13 +352,31 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     };
     collectorStore.writeReviewPasses(story.storyId, { passes: [{
       ...reviewPass,
-      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest, reviewPass.readLog),
+      _hash: signReviewPass(
+        story.storyId,
+        reviewPass.id,
+        reviewPass.agent,
+        reviewPass.note,
+        reviewPass.createdAt,
+        collectorRound,
+        reviewRunId,
+        reviewPass.readManifest,
+        reviewPass.readLog,
+        undefined,
+        { writerSessionId: collectorWriterSessionId, sessionSource: 'host-adapter' },
+        undefined,
+        undefined,
+        collectorNativeBinding,
+      ),
     }] });
     resetConfigCache();
     const collectorEvidence = collectReviewerEvidenceState(collectorStore, story.storyId, collectorRoot);
     assert.equal(collectorEvidence.invalid.length, 0, JSON.stringify(collectorEvidence.invalid, null, 2));
     const collectorBoundInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
-    assert.ok(collectorBoundInput.protectedSources?.some(source => source.kind === 'reviewer-evidence' && source.path === 'packages/main/src/reviewer-full.ts'), 'handler consumes current collector-valid filesReadFully');
+    assert.ok(
+      collectorBoundInput.protectedSources?.some(source => source.kind === 'reviewer-evidence' && source.path === 'packages/main/src/reviewer-full.ts'),
+      `handler consumes current collector-valid filesReadFully (invalid=${JSON.stringify(collectorEvidence.invalid)})`,
+    );
     assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
     writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = false;\n');
     git(['add', '.']);
@@ -326,7 +468,14 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
       artifact: null,
       mode: 'enforce',
-    }).join(' '), /required in enforce/);
+    }).join(' '), /required for formal managed review evidence/);
+    assert.match(candidateReadBindingErrors({
+      manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+      artifact: null,
+      mode: 'shadow',
+      strict: true,
+    }).join(' '), /required for formal managed review evidence/,
+    'formal managed evidence requires a candidate binding even while routing itself remains shadow');
 
     const zero = routeCandidateSpecs({
       projectRoot: root,
@@ -728,6 +877,42 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       seedDigest: seedsA.seedDigest,
     }), /budget exceeded/);
 
+    const successfulCandidateResult = {
+      blocked: false,
+      refusalReason: null,
+      timedOut: false,
+      timeoutKind: null,
+      firstOutputMs: 1,
+      durationMs: 2,
+      exitCode: 0,
+      terminalReason: 'completed' as const,
+      failureKind: null,
+    };
+    const candidateJson = JSON.stringify(rawProposal);
+    const exactCap = new CandidateProposalOutputCollector();
+    exactCap.push(candidateJson);
+    exactCap.push(' '.repeat(CANDIDATE_PROPOSAL_LIMIT_BYTES - Buffer.byteLength(candidateJson)));
+    assert.deepEqual(exactCap.finish(successfulCandidateResult), rawProposal,
+      'the production collector accepts an exact 64 KiB proposal lane');
+    const singleChunkOverflow = new CandidateProposalOutputCollector();
+    singleChunkOverflow.push('x'.repeat(CANDIDATE_PROPOSAL_LIMIT_BYTES + 1));
+    assert.throws(() => singleChunkOverflow.finish(successfulCandidateResult), /output budget exceeded/,
+      'one oversized provider chunk discards the entire proposal lane');
+    const postCandidateOverflow = new CandidateProposalOutputCollector();
+    postCandidateOverflow.push(candidateJson);
+    postCandidateOverflow.push('x'.repeat(CANDIDATE_PROPOSAL_LIMIT_BYTES));
+    assert.throws(() => postCandidateOverflow.finish(successfulCandidateResult), /output budget exceeded/,
+      'a valid candidate prefix cannot survive later output overflow');
+    const perChunkOverflow = new CandidateProposalOutputCollector();
+    perChunkOverflow.push('x'.repeat(CANDIDATE_PROPOSAL_LIMIT_BYTES - 1));
+    perChunkOverflow.push('yz');
+    assert.throws(() => perChunkOverflow.finish(successfulCandidateResult), /output budget exceeded/,
+      'the cap is enforced cumulatively across provider chunks');
+    const missingFirstOutput = new CandidateProposalOutputCollector();
+    missingFirstOutput.push(candidateJson);
+    assert.throws(() => missingFirstOutput.finish({ ...successfulCandidateResult, firstOutputMs: null }), /post_readiness_no_output/,
+      'a null first-output fact rejects even parseable buffered bytes');
+
     const calls: string[] = [];
     const collected = await collectHostKeywordProposals({
       storyId: story.storyId,
@@ -739,8 +924,9 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
         return { ...proposal(story.storyId, seedDigest), host, promptDigest, proposalId: `proposal-${host}` };
       },
     });
-    assert.deepEqual(calls.sort(), ['agy-cli', 'claude-cli', 'codex-cli']);
-    assert.equal(collected.accepted.length, 2);
+    assert.deepEqual(calls.sort(), ['claude-cli', 'codex-cli'],
+      'candidate routing must not invoke the retired agy proposer after a primary failure');
+    assert.equal(collected.accepted.length, 1);
     assert.equal(collected.attempts.find(attempt => attempt.host === 'claude-cli')?.status, 'quota-limited');
 
     const collectWithDelays = async (delays: Record<string, number>) => collectHostKeywordProposals({

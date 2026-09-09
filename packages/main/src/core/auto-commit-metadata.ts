@@ -512,7 +512,15 @@ export function autoCommitStoryMetadata(
   projectRoot: string,
   storyId: string,
   reason: string,
-  options: { closeoutArtifactPaths?: readonly string[] } = {},
+  options: {
+    closeoutArtifactPaths?: readonly string[];
+    /**
+     * A receipt importer may commit only the exact artifacts it just wrote.
+     * Names are relative to this story directory; the narrow mode also rejects
+     * pre-staged unrelated paths so `git commit` cannot sweep them in.
+     */
+    exactStoryArtifactNames?: readonly string[];
+  } = {},
 ): string {
   // 1. storyId runtime gate (anti-broadening defense — preMortem #1 anchor)
   assertStoryIdShape(storyId);
@@ -561,6 +569,14 @@ export function autoCommitStoryMetadata(
         + 'Refusing to git-add because the path scope cannot be contained.',
       );
     }
+    const exactStoryArtifactPaths = options.exactStoryArtifactNames?.map(name => {
+      if (typeof name !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) {
+        throw new Error(`autoCommitStoryMetadata: exact story artifact name is malformed (${JSON.stringify(name)})`);
+      }
+      return `${storyRel}/${name}`;
+    }) ?? null;
+    const commitPaths = exactStoryArtifactPaths ?? [storyRel];
+    const exactPathSet = exactStoryArtifactPaths ? new Set(exactStoryArtifactPaths) : null;
 
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
     //    tail-note describes coexisting non-metadata dirt as it stood at decision
@@ -568,7 +584,7 @@ export function autoCommitStoryMetadata(
     const dirtySnapshot = snapshotDirtyClassification(projectRoot, gitCwd);
 
     // 5. fast-path: is anything under the story dir dirty?
-    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
+    const before = execFileSync('git', ['status', '--porcelain', '--', ...commitPaths], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -598,20 +614,36 @@ export function autoCommitStoryMetadata(
       receiptFailureNote = `\n⚠ local causal closeout receipt was not issued: ${message}`;
     }
 
-    // 6. stage only paths inside the story dir (path-scoped — never `.` / `-A`)
-    execFileSync('git', ['add', '--', storyRel], {
+    if (exactPathSet) {
+      const preStaged = execFileSync('git', ['diff', '--cached', '--name-only'], {
+        cwd: gitCwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim().split('\n').filter(Boolean);
+      if (preStaged.some(path => !exactPathSet.has(path))) {
+        throw new Error('autoCommitStoryMetadata: refusing exact-artifact commit with unrelated staged paths');
+      }
+    }
+
+    // 6. stage only paths inside the story dir (or an importer-provided exact
+    // artifact allowlist; never `.` / `-A`).
+    execFileSync('git', ['add', '--', ...commitPaths], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     // 7. double-check what got staged — defends against `.gitignore` quirks.
-    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
+    const staged = execFileSync('git', ['diff', '--cached', '--name-only'], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
-    if (!staged) return '';
+    const stagedPaths = staged.split('\n').filter(Boolean);
+    if (stagedPaths.length === 0) return '';
+    if (exactPathSet && stagedPaths.some(path => !exactPathSet.has(path))) {
+      throw new Error('autoCommitStoryMetadata: refusing exact-artifact commit with an adjacent staged path');
+    }
 
     // 8. commit
     const subject = `${COMMIT_SUBJECT_PREFIX} record ${storyId} ${reason} metadata`;

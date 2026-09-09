@@ -273,6 +273,7 @@ const requiredRuntimeFactSemantics = {
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
+  'runtime:review_execution_authority_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'reviewer-lane', 'execution-evidence', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
@@ -306,8 +307,8 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
-  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; direct native records seal a registered-broker Ed25519 invocation attestation bound to exact story\/lane\/ReviewRun\/writer\/dispatch\/adapter\/host\/nonce.*envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
+  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; direct native records bind category\/evidenceState\/uncertaintyReason\/files\/disprovenEvidence in the signed domain, and reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -465,6 +466,15 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/evidence-freshness',
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
+  },
+  {
+    // B-137a: absence of a managed receipt is not proof of native execution.
+    // Direct evidence needs a registered broker invocation attestation; the
+    // path revalidates the exact provider proposal through intake/replay/gate.
+    name: 'runtime:review_execution_authority_gate',
+    level: 'L4',
+    owner: 'core/native-review-attestation + core/native-review-evidence + core/managed-review-evidence + core/review-run',
+    line: '- runtime:review_execution_authority_gate [L4] owner=core/native-review-attestation + core/native-review-evidence + core/managed-review-evidence + core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate through collectReviewerEvidenceState shared revalidation',
   },
   {
     // B-5a15: causal execution admission is producer-bound signed preflight,
@@ -1855,6 +1865,8 @@ function assertProofStoryProgressiveBoundary() {
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("mode: 'shadow' | 'warn' | 'enforce'"), 'candidate routing: rollout mode must be signed into the candidate artifact');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("filter(diagnostic => diagnostic.blocking)"), 'candidate routing: every mode must diagnose disagreement while shadow/warn never return blocking errors');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('withUnattendedReadiness'), 'candidate routing: automatic proposal execution must consume positive unattended readiness before spawn');
+  assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('CandidateProposalOutputCollector'), 'candidate routing: production proposal execution must use the cumulative bounded collector');
+  assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024'), 'candidate routing: provider proposal stdout cap must remain exactly 64 KiB');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('!isStoryMetadataPath(path, ctx.root)'), 'candidate routing: its own story metadata writes must not stale storyInputDigest');
   assert(read('packages/main/src/handlers/story-dispatch.ts').includes('STOP — candidate routing escalation is unresolved'), 'candidate routing: PLAN/REVIEW dispatch must render unresolved escalation and resolution action');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('BLOCKED_PENDING_ESCALATION'), 'candidate routing: CLI text must prominently render pending escalation');
@@ -2096,21 +2108,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776',
-    // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
-    // after the user-facing bin rename changed cli-engine.ts hint/error strings.
-    //
-    // B-cdf6:F-057 follow-on: this is the SECOND copy of that fingerprint. When the
-    // guard's own allowlist was repinned I updated only that file, and this verifier —
-    // which cross-checks that the guard pins the expected value — kept the old hash and
-    // failed closed. The two are coupled by design (the comment above already said so),
-    // so they must always move together. Same re-approval basis as the guard: the
-    // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
-    // path producers, and the approved loader call site is byte-identical to main.
-    // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
-    // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
-    // both copies were updated in the same commit, as the note above requires.
-    '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271',
+    '22c8878385de3f11fa6a64657a700c1a46b7c6cfe2c73cce17437b8fb7ed08cf',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -4776,10 +4774,10 @@ function assertReviewInventoryRemediationContract() {
     `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
   );
 
-  const projectConfig = read('lattice.config.json');
+  const projectConfig = read('proof-or-stop.config.json');
   assert(
     /"acceptanceRolloutGateMode"\s*:\s*"enforce"/.test(projectConfig),
-    'lattice.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
+    'proof-or-stop.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
   );
 }
 
@@ -5941,6 +5939,121 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', "process.exitCode = structuredDoneFailure ? 1 : 0"]) {
     assert(cliEngineText.includes(token), `DONE-required structured CLI watchdog contract missing ${token}`);
   }
+  const refreshHandlerWatchdogText = read('packages/main/src/handlers/checklist.ts');
+  for (const token of [
+    'abortSignal?: AbortSignal',
+    "assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args)",
+    'return writeStaleRefresh',
+  ]) {
+    assert(refreshHandlerWatchdogText.includes(token), `stale refresh progress/abort-atomic contract missing ${token}`);
+  }
+  for (const token of [
+    "|| cmd === 'verification_evidence_add'",
+    "|| cmd === 'verification_evidence_refresh_stale'",
+    "|| cmd === 'verification_evidence_batch_add'",
+    "|| cmd === 'verification_run'",
+    "(cmd === 'verification_evidence_add'",
+    'Object.assign(v.data as Record<string, unknown>, watchdogControl)',
+  ]) {
+    assert(cliEngineText.includes(token), `evidence writer structured CLI watchdog contract missing ${token}`);
+  }
+  for (const token of [
+    'async verification_evidence_add(args:',
+    'async verification_run(args:',
+    'abortSignal?: AbortSignal',
+    'deadlineAt?: number',
+    'assertVerificationEvidenceWriteActive',
+    "assertVerificationEvidenceWriteActive('verification_evidence_add', args)",
+    "assertVerificationEvidenceWriteActive('verification_run', args)",
+  ]) {
+    assert(refreshHandlerWatchdogText.includes(token), `single verification evidence progress/abort contract missing ${token}`);
+  }
+  for (const token of [
+    'async verification_evidence_batch_add(args:',
+    "assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args)",
+    'abortSignal?: AbortSignal',
+    'deadlineAt?: number',
+  ]) {
+    assert(refreshHandlerWatchdogText.includes(token), `verification evidence batch progress/abort-atomic contract missing ${token}`);
+  }
+  const refreshValidationExecutorText = read('packages/main/src/core/validation-executor.ts');
+  for (const token of [
+    'SingleCommandExecutionOptions extends RunValidationCommandOptions',
+    'options.abortSignal?.aborted',
+    'options.deadlineAt',
+    'resolveEvidenceCommandTimeoutMs',
+    'loadConfig(projectRoot).validate?.evidenceCommandTimeoutOverrides',
+    'Number.isSafeInteger(row.timeoutMs)',
+    'identities.has(key)',
+    'row.args.every((arg, index) => arg === identity.args[index])',
+  ]) {
+    assert(refreshValidationExecutorText.includes(token), `single pinned verifier abort/progress contract missing ${token}`);
+  }
+  const configTypeText = read('packages/main/src/core/config.ts');
+  assert(configTypeText.includes('evidenceCommandTimeoutOverrides?: EvidenceCommandTimeoutOverrideConfig[]'),
+    'config contract must expose the evidence-only exact-command timeout override surface');
+  const repoLatticeConfig = JSON.parse(read('proof-or-stop.config.json'));
+  const aggregateIdentity = ['packages/main/dist/tasks/managed-cross-provider-suite-smoke.js'];
+  const routineAggregate = (repoLatticeConfig.validate?.commands ?? []).some((entry) => (
+    typeof entry === 'object'
+    && entry !== null
+    && entry.command === 'node'
+    && JSON.stringify(entry.args ?? []) === JSON.stringify(aggregateIdentity)
+  ));
+  assert(!routineAggregate, 'managed cross-provider aggregate must not be added to routine validate.commands');
+  const evidenceAggregateOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => (
+    entry?.command === 'node'
+    && JSON.stringify(entry.args ?? []) === JSON.stringify(aggregateIdentity)
+    && entry.timeoutMs === 900_000
+  ));
+  assert(evidenceAggregateOverrides.length === 1,
+    'managed cross-provider aggregate must have one exact evidence-only 900000ms timeout override');
+  const reviewPassDiscardIdentity = ['packages/main/dist/tasks/review-pass-discard-smoke.js'];
+  const routineReviewPassDiscard = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => (
+    typeof entry === 'object'
+    && entry !== null
+    && entry.command === 'node'
+    && JSON.stringify(entry.args ?? []) === JSON.stringify(reviewPassDiscardIdentity)
+    && entry.timeoutMs === 1_200_000
+  ));
+  assert(routineReviewPassDiscard.length === 1,
+    'review-pass-discard nested cross-host aggregate must retain one exact routine 1200000ms timeout');
+  const proofAdmissibilityIdentity = ['packages/main/dist/tasks/proof-admissibility-registry-smoke.js'];
+  const routineProofAdmissibility = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => (
+    typeof entry === 'object'
+    && entry !== null
+    && entry.command === 'node'
+    && JSON.stringify(entry.args ?? []) === JSON.stringify(proofAdmissibilityIdentity)
+    && entry.timeoutMs === 600_000
+  ));
+  assert(routineProofAdmissibility.length === 1,
+    'proof-admissibility registry smoke must retain one exact routine 600000ms timeout');
+  const evidenceProofAdmissibilityOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => (
+    entry?.command === 'node'
+    && JSON.stringify(entry.args ?? []) === JSON.stringify(proofAdmissibilityIdentity)
+  ));
+  assert(evidenceProofAdmissibilityOverrides.length === 0,
+    'proof-admissibility registry smoke remains a routine validate command, not an evidence-only timeout override');
+  const commandPolicyText = read('packages/main/src/core/command-policy.ts');
+  assert(
+    !/verification_evidence_refresh_stale:\s*\{[^}]*runtimeContinuation\s*:\s*true/s.test(commandPolicyText),
+    'verification_evidence_refresh_stale must use cooperative progress/abort and must never become runtimeContinuation',
+  );
+  assert(
+    !/verification_evidence_batch_add:\s*\{[^}]*runtimeContinuation\s*:\s*true/s.test(commandPolicyText),
+    'verification_evidence_batch_add must use cooperative progress/abort and must never become runtimeContinuation',
+  );
+  const refreshWatchdogSmokeText = read('packages/main/src/tasks/validate-progress-heartbeat-smoke.ts');
+  for (const token of [
+    'REFRESH_STALE_WATCHDOG_ONLY',
+    'assertRefreshHeartbeatAndDedupe',
+    'assertRefreshWatchdogReapsWithoutPartialWrites',
+    'assertBatchHeartbeatAndExactCommandDedupe',
+    'assertBatchSharedExecutionStillFailsAtomicOnSelector',
+    'assertBatchWatchdogReapsWithoutPartialWrites',
+  ]) {
+    assert(refreshWatchdogSmokeText.includes(token), `evidence writer watchdog/orphan smoke contract missing ${token}`);
+  }
   const donePrepareText = read('packages/main/src/handlers/done-prepare.ts');
   for (const token of ['cliWatchdogTimeoutBlock', 'throwIfParentTimedOut', 'deadlineAt', 'Await the cooperative task after aborting it']) {
     assert(donePrepareText.includes(token), `done_prepare cooperative watchdog/cleanup contract missing ${token}`);
@@ -6607,6 +6720,92 @@ function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
   }
 }
 
+function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
+  const runtimeName = 'runtime:review_execution_authority_gate';
+  const levelEntry = levelRegistry.get(runtimeName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required review execution authority runtime fact missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(levelEntry.gateConsumer === 'storyMachine.canPassReview REVIEW to TEST gate through collectReviewerEvidenceState shared revalidation', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
+    for (const token of ['one-shot Ed25519 invocation attestation', 'externally registered host-adapter broker', 'exposes no issuer CLI', 'mixed Codex/Claude ancestry', 'native direct evidence is advisory-only', 'schema-valid bounded Codex agent_message', 'exact standalone Codex raw stdout envelope', 'ordinary Codex progress agent messages are excluded', 'Claude result final-result lane', 'idempotent replay', 'missing, malformed, multiple, oversized', 'compatibility-only']) {
+      assert(levelEntry.rationale.includes(token), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
+    }
+  }
+
+  const registryEntry = registry.get(runtimeName);
+  assert(registryEntry, `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${runtimeName}`);
+  if (registryEntry) {
+    for (const semantic of ['runtime-behavior', 'signed-artifact', 'schema-contract', 'reviewer-lane', 'execution-evidence', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${runtimeName} missing ${semantic} semantic`);
+    }
+  }
+
+  const nativeText = read('packages/main/src/core/native-review-evidence.ts');
+  for (const token of ['issueNativeReviewEvidenceBinding', 'verifyNativeReviewEvidenceBinding', 'observeNativeHostProcess', 'mixedProviderFamilies', 'requires a registered host-adapter invocation attestation', 'cross-provider direct reviewer evidence is advisory-only']) {
+    assert(nativeText.includes(token), `packages/main/src/core/native-review-evidence.ts: required authority token missing: ${token}`);
+  }
+  const attestationText = read('packages/main/src/core/native-review-attestation.ts');
+  for (const token of ['signNativeReviewInvocationAttestation', 'verifyNativeReviewInvocationAttestation', 'consumeNativeReviewInvocationAttestation', "flag: 'wx'", 'LATTICE_NATIVE_REVIEW_ATTESTATION_FD', 'stores no broker']) {
+    assert(attestationText.includes(token), `packages/main/src/core/native-review-attestation.ts: required broker-attestation token missing: ${token}`);
+  }
+  const reviewGateText = read('packages/main/src/core/review-run.ts');
+  for (const token of ['review_execution_authority_missing', 'verifyNativeReviewEvidenceBinding', 'verifyManagedReviewEvidence', 'evidence: { kind:']) {
+    assert(reviewGateText.includes(token), `packages/main/src/core/review-run.ts: required authority consumer token missing: ${token}`);
+  }
+  const importerText = read('packages/main/src/handlers/managed-review-evidence.ts');
+  for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding']) {
+    assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
+  }
+  const managedText = read('packages/main/src/core/managed-review-evidence.ts');
+  for (const token of ['proposalArtifacts.length === 1', 'exactEvidenceMatches', 'processCleanup?.reaped === true']) {
+    assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
+  }
+  const managedHostRunText = read('packages/main/src/core/managed-host-run.ts');
+  for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', "mismatches.push('live-output')", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', "launchProfile: 'managed_reviewer'", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', "descriptor.once('finish'", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', "reason === 'absolute_deadline_exceeded'", "state: 'timed_out'"]) {
+    assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required final-result/seal authority token missing: ${token}`);
+  }
+  const ownershipGateText = read('packages/main/src/cli/ownership-gate.ts');
+  assert(ownershipGateText.includes('managedHostRunStoryIdForOwnership'), 'host_run status/cancel/import ownership must resolve immutable spec.storyId from runId');
+  const hostRunText = read('packages/main/src/core/host-run.ts');
+  for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
+    assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required Codex proposal candidate classifier token missing: ${token}`);
+  }
+  const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
+  for (const token of ['absence of a managed binding is not proof', 'isolated broker-signature fixture succeeds without consulting ambient provider ancestry', 'withoutManagedAmbientAuthority', "'--brokered-native-binding-fixture'", 'raw provider cannot self-mint authority', 'mixed tree is rejected', 'real raw cross-provider CLI review_pass_set must fail', 'real raw cross-provider CLI finding_add must fail', 'idempotent importer replay revalidates the exact persisted provider finding', 'multiple proposal artifacts also fail the persisted REVIEW gate', 'DISPATCH_START reviewer accepted the managed assignment', 'Reviewed the first evidence group; continuing with adversarial paths.', 'the exact provider final-result proposal is importable without a provider tool-shell callback', 'public managed Claude prompt is inside the exact provider cwd', 'public managed Claude launch cannot block on interactive tool approval', 'public managed Claude launch supplies its bounded structured-output schema', 'worker descriptor capability metadata is not inherited as ordinary provider authority', 'public managed Claude final proposal is exactly importable', "name: 'missing'", "name: 'malformed'", "name: 'multiple'", "name: 'oversize'", 'final result fails closed', 'controller must not be able to add or override proposal verdict fields', 'injected crash before story evidence persistence']) {
+    assert(smokeText.includes(token), `packages/main/src/tasks/managed-review-evidence-smoke.ts: required executable boundary assertion missing: ${token}`);
+  }
+  const catalogText = read('packages/main/src/cli/command-catalog.ts');
+  const helpText = read('packages/main/src/cli/help-renderer.ts');
+  const mainToolsText = read('packages/main/src/cli/main-tools.ts');
+  const cliSurfaceSmokeText = read('packages/main/src/tasks/cli-surface-smoke.ts');
+  assert(catalogText.includes("name: 'host_run_worker', visibility: 'internal'"), 'host_run_worker must remain internal in the command catalog');
+  assert(mainToolsText.includes('publicToolCatalog') && mainToolsText.includes("tool.visibility !== 'internal'"), 'public tool catalog must filter internal runtime-continuation commands');
+  assert(catalogText.includes('PUBLIC_MAIN_TOOLS') && catalogText.includes('publicToolCatalog(MAIN_TOOLS)'), 'command catalog must expose a public discovery view distinct from the dispatch registry');
+  assert(helpText.includes('publicToolCatalog(options.tools)'), 'ordinary help must consume the public tool catalog filter');
+  for (const token of ['brief ordinary discovery hides the internal managed worker', 'node bin/lattice.js help hides the internal worker', 'full ordinary discovery hides the internal managed worker', 'internal continuation remains dispatchable outside public discovery']) {
+    assert(cliSurfaceSmokeText.includes(token), `packages/main/src/tasks/cli-surface-smoke.ts: missing internal visibility assertion: ${token}`);
+  }
+
+  const hostRunHandlerText = read('packages/main/src/handlers/host-run.ts');
+  for (const token of ['optionalPositiveInteger', 'optionalNonnegativeInteger', '[host_run] submitted runId=', 'waitMs, 30_000']) {
+    assert(hostRunHandlerText.includes(token), `packages/main/src/handlers/host-run.ts: required managed observability/schema token missing: ${token}`);
+  }
+  const providerRegistryText = read('packages/main/src/core/provider-process-registry.ts');
+  assert(providerRegistryText.includes('mutationOps.unlink(file)'), 'provider slot release must surface the exact unlink mutation failure');
+  assert(!providerRegistryText.includes('Best effort: a later acquire reclaims this slot'), 'provider slot release must not suppress registry-lock failure');
+
+  const deliveryAuthorityText = read('packages/main/src/core/delivery-review-authority.ts');
+  for (const token of ['deliveryReviewDispatchBindingDigest', 'authorizeNativeDeliveryReview', 'issueNativeReviewEvidenceBinding']) {
+    assert(deliveryAuthorityText.includes(token), `packages/main/src/core/delivery-review-authority.ts: required delivery broker token missing: ${token}`);
+  }
+  const deliveryHandlerText = read('packages/main/src/handlers/delivery-check.ts');
+  assert(deliveryHandlerText.includes('authorizeNativeInvocation'), 'delivery_check_set must authorize the native broker invocation before persistence');
+  const deliveryBrokerSmokeText = read('packages/main/src/tasks/delivery-check-native-attestation-smoke.ts');
+  for (const token of ['a raw delivery-reviewer identity without broker provenance must fail closed', 'Brokered delivery reviewer authors exact formal evidence.']) {
+    assert(deliveryBrokerSmokeText.includes(token), `delivery-check-native-attestation-smoke.ts: required executable broker assertion missing: ${token}`);
+  }
+}
+
 function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   const runtimeName = 'runtime:review_run_story_files_hash_gate';
   const levelEntry = levelRegistry.get(runtimeName);
@@ -7128,6 +7327,42 @@ function assertCommandPolicyPhaseAlignment(policyEntries, configText) {
       commandAllowedByDefaultConfig('decision_get', 'REVIEW', configText),
     'packages/main/src/core/config.ts: REVIEW must allow understanding_get and decision_get for reviewer access to planning artifacts',
   );
+}
+
+function assertCrossHostReviewManagedDelegationContract(levelRegistry, policyByName) {
+  const commandName = 'cross_host_review';
+  const levelEntry = levelRegistry.get(commandName);
+  const policy = policyByName.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: ${commandName} managed-delegation fact missing`);
+  assert(policy, `${commandPolicyPath}: ${commandName} managed-delegation policy missing`);
+  if (!levelEntry || !policy) return;
+
+  const descriptions = [
+    { label: `${processFactLevelRegistryPath}: ${commandName} rationale`, text: levelEntry.rationale },
+    { label: `${commandPolicyPath}: ${commandName} reason`, text: policy.reason },
+  ];
+  for (const description of descriptions) {
+    for (const token of ['ManagedHostRun', 'terminal receipt', 'supervision/reaping']) {
+      assert(description.text.includes(token), `${description.label} must describe ManagedHostRun terminal-receipt ownership: missing ${token}`);
+    }
+    assert(
+      /fail-closed before ManagedHostRun submission/i.test(description.text),
+      `${description.label} must preserve the fail-closed review-policy admission before ManagedHostRun submission`,
+    );
+    assert(
+      !/\bspawns?\s+(?:a\s+)?bounded\s+read-only\s+codex\s+review\s+(?:leaf|subprocess)\b/i.test(description.text),
+      `${description.label} must not regress to the retired controller-direct Codex spawn description`,
+    );
+  }
+  assert(
+    policy.reason.includes('allowReviewOnlyRealHostSubprocess for a codex host'),
+    `${commandPolicyPath}: ${commandName} must retain the real Codex review-only dispatch-policy grant`,
+  );
+
+  const handlerText = read('packages/main/src/handlers/cross-host-review.ts');
+  for (const token of ['authorizeReviewPolicy', 'allowReviewOnlyRealHostSubprocess === true', "includes('codex')", 'submitManagedHostRun({', 'managedHostRunReceipt(']) {
+    assert(handlerText.includes(token), `packages/main/src/handlers/cross-host-review.ts: ${commandName} managed delegation contract missing ${token}`);
+  }
 }
 
 function assertL4ProducerOrReplacement(registryEntries, policyByName, configText) {
@@ -7910,8 +8145,11 @@ function assertParentRoadmapTotalityRuntime() {
   assert(registryFactText.includes("'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence']"), 'process-fact-registry: typed dispatch authority must remain a gate-consumed reviewer-lane schema contract');
   assert(levelText.includes('runtime:incremental_review_eligibility_gate'), 'process-fact-levels: incremental review eligibility fact missing');
   assert(read('packages/main/src/core/review-run.ts').includes('passesCutoffAt: run.startedAt'), 'review-run verifier must bind prior-pass eligibility to signed run.startedAt');
+  assert(read('packages/main/src/core/review-run.ts').includes('asOfRef: run.headHash'), 'review-run verifier must recompute incremental eligibility as-of signed run.headHash');
+  assert(read('packages/main/src/core/review-incremental-context.ts').includes('asOfRef'), 'incremental context must accept an as-of git ref so receipt-bound eligibility can pin to ReviewRun.headHash');
   assert(read('packages/main/src/handlers/review-run.ts').includes('passesCutoffAt: startedAt'), 'review_run_start assembly must use the same prior-pass cutoff as verification');
   assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('passesCutoffAt'), 'incremental review smoke must exercise the prior-pass cutoff contract');
+  assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('asOfRef'), 'incremental review smoke must exercise as-of-run eligibility recomputation');
   const taskContextSource = read('packages/main/src/core/prompt-envelope.ts');
   assert(
     taskContextSource.includes('phase: _phase')
@@ -7920,7 +8158,7 @@ function assertParentRoadmapTotalityRuntime() {
     'model-relevant TaskContext digest must equate only TEST with REVIEW while preserving every other actual phase',
   );
   const incrementalLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:incremental_review_eligibility_gate');
-  for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations']) {
+  for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations', 'signed ReviewRun.headHash', 'eligibilityDigest or reviewBasisDigest']) {
     assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
   }
   for (const token of ['reviewer explicitly requests full context', 'discarded incremental candidate', 'later reviewer metadata does not become a dynamic gate fact', 'Material freshness', 'model-relevant TaskContext remain authoritatively recomputed']) {
@@ -7928,7 +8166,7 @@ function assertParentRoadmapTotalityRuntime() {
   }
   assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
   const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
-  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees', 'later different-lane reviewer metadata must not invalidate requested-full quality B', 'shared quorum/current-pass reader accepts quality B', 'requested-full eligibility fields remain immutable envelope-integrity facts']) {
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees', 'later different-lane reviewer metadata must not invalidate requested-full quality B', 'shared quorum/current-pass reader accepts quality B', 'requested-full eligibility fields remain immutable envelope-integrity facts', 'AS-OF-RUN ELIGIBILITY']) {
     assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
   }
   assert(
@@ -8096,6 +8334,7 @@ function assertProcessFactCommandInventory() {
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
   assertCertificationWindowCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertCrossHostReviewManagedDelegationContract(levelRegistry, policyByName);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
@@ -8226,6 +8465,7 @@ function assertProcessFactCommandInventory() {
       );
     }
   }
+  assertReviewExecutionAuthorityContract(registry, levelRegistry);
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
   assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);

@@ -24,7 +24,7 @@ import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isRuntimeActivityRoot } from './core/config.js';
-import { formatCommandLifecycleHint, isMemoryRetrievalCommand } from './core/command-policy.js';
+import { formatCommandLifecycleHint, getCommandPolicy, isMemoryRetrievalCommand } from './core/command-policy.js';
 import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
@@ -38,7 +38,7 @@ import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/m
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
-import { MAIN_TOOLS } from './cli/command-catalog.js';
+import { MAIN_TOOLS, PUBLIC_MAIN_TOOLS } from './cli/command-catalog.js';
 import type { ToolDef } from './cli/main-tools.js';
 import {
   inferCodexEntrypoint,
@@ -130,7 +130,7 @@ export {
 import { BRAND_ENV_PREFIX, readBrandEnv } from './core/brand-env.js';
 export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
-export { MAIN_TOOLS };
+export { MAIN_TOOLS, PUBLIC_MAIN_TOOLS };
 export type { ToolDef };
 
 /**
@@ -1094,19 +1094,45 @@ export async function runCli(opts?: {
   // hard-exiting with process.exit(2). Keep DONE result classification separate:
   // validate already has its own canonical PASS/FAIL exit contract below.
   const structuredDoneResult = cmd === 'done_prepare' || cmd === 'done_required_validate';
-  const structuredWatchdog = structuredDoneResult || cmd === 'validate';
+  // B-137a: evidence writers execute pinned provider commands whose wall-clock
+  // budget can legitimately exceed the default watchdog, so they need the same
+  // structured abort channel rather than a hard process.exit(2).
+  const structuredWatchdog = structuredDoneResult
+    || cmd === 'validate'
+    || cmd === 'verification_evidence_add'
+    || cmd === 'verification_evidence_refresh_stale'
+    || cmd === 'verification_evidence_batch_add'
+    || cmd === 'verification_run';
+  const runtimeContinuation = getCommandPolicy(cmd)?.runtimeContinuation === true;
   const watchdogAbort = new AbortController();
   if (structuredWatchdog) {
-    Object.assign(parsed, {
+    const watchdogControl = {
       abortSignal: watchdogAbort.signal,
       deadlineAt: startTime + MAX_TIMEOUT,
       deadlineError: () => watchdogAbort.signal.reason instanceof Error
         ? watchdogAbort.signal.reason
         : new CliWatchdogTimeoutError('max', MAX_TIMEOUT),
-    });
+    };
+    Object.assign(parsed, watchdogControl);
+    // The generic dispatcher normally passes schema-filtered `v.data`, while
+    // Evidence writers' abort/deadline controls are deliberately internal and
+    // absent from their public schemas. Inject them only for these exact
+    // commands; arbitrary commands neither receive this capability nor become
+    // runtimeContinuation.
+    if (
+      (cmd === 'verification_evidence_add'
+        || cmd === 'verification_evidence_refresh_stale'
+        || cmd === 'verification_evidence_batch_add'
+        || cmd === 'verification_run')
+      && v.data
+      && typeof v.data === 'object'
+    ) {
+      Object.assign(v.data as Record<string, unknown>, watchdogControl);
+    }
   }
 
   const watchdog = setInterval(() => {
+    if (runtimeContinuation) return;
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
       const error = new CliWatchdogTimeoutError('max', MAX_TIMEOUT);

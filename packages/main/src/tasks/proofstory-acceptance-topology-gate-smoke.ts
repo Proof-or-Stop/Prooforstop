@@ -177,6 +177,13 @@ function writeDiscoveryRegistration(root: string): void {
     'export const preReviewLiveProofRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts',
     'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
+  // These production acceptance owners are part of the process-fact closure.
+  // Keep the hermetic source snapshot mechanically complete so the clean
+  // control is not accidentally AT_COVERAGE_BASIS_PARTIAL before mutations.
+  write(root, 'packages/main/src/core/acceptance-rollout.ts',
+    'export const acceptanceRollout = "acceptance_basis acceptance_topology_check";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts',
+    'export const preReviewLiveProof = "acceptance_basis acceptance_topology_check";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts',
     'export const evaluateAcceptanceTopologyForContext = () => "acceptance_topology_check";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs',
@@ -191,6 +198,8 @@ function writeDiscoveryRegistration(root: string): void {
     'export const reviewInventory = "acceptance basis review inventory handler";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
     'export const acceptanceRolloutCohortRunner = true;\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs',
+    'export const preReviewLiveProof = "acceptance_basis acceptance_topology_check";\n');
 }
 
 function parseJsonOutput(output: string): any {

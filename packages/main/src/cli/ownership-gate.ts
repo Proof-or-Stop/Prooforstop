@@ -12,6 +12,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
+import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 
@@ -47,6 +48,13 @@ export function ownerLeaseHelpBlock(cmd: string): string | null {
 const AUTOPILOT_RUN_OWNER_GATED_COMMANDS = new Set([
   'autopilot_cancel',
   'autopilot_resume',
+]);
+
+const MANAGED_RUN_OWNER_GATED_COMMANDS = new Set([
+  'host_run_status',
+  'host_run_cancel',
+  'host_run_worker',
+  'managed_review_evidence_import',
 ]);
 
 function safeAutopilotRunId(value: unknown): string | null {
@@ -86,6 +94,11 @@ export function storyIdFromArgs(
   ) {
     const runStoryId = storyIdFromAutopilotRunId(context.projectRoot, args);
     if (runStoryId) return runStoryId;
+  }
+  if (context?.command && context.projectRoot && MANAGED_RUN_OWNER_GATED_COMMANDS.has(context.command)) {
+    const runId = safeAutopilotRunId(args.runId);
+    if (!runId) return null;
+    return managedHostRunStoryIdForOwnership(context.projectRoot, runId);
   }
   return activeStory?.storyId || null;
 }

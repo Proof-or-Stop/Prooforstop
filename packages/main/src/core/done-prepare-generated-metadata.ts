@@ -367,6 +367,22 @@ function classifyEntry(args: {
   };
 }
 
+/**
+ * B-137a: every git read in this module can exceed Node's 1 MB execFileSync
+ * default -- blob contents scale with the story's own event log, and path
+ * listings scale with the repo. Once a story's process-events.jsonl grew past
+ * 1 MB, `git show` died with ENOBUFS; the blob-hash helpers swallowed that and
+ * returned null, and null never equals a verified hash -- so the atomic
+ * closeout rejected its OWN transaction ("verified metadata changed after
+ * manifest verification" / "isolated tree does not exactly match the verified
+ * metadata manifest") while the worktree comparison passed, pointing the
+ * diagnostic away from the real cause. That made quorum_submit, canonical
+ * validation persistence and recover_evidence all fail once the log crossed
+ * ~1 MB. Every helper below therefore reads with an explicit large buffer;
+ * silence here degrades into a false integrity failure, so none may rely on
+ * the default.
+ * The ceiling itself is METADATA_BLOB_READ_MAX_BUFFER_BYTES (declared above).
+ */
 function git(gitCwd: string, args: string[]): string {
   return childProcess.execFileSync('git', args, {
     cwd: gitCwd,

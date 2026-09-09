@@ -131,7 +131,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
+    templateHash: '611ceb11232ebf8cb6dfc22b7669524d44b50c2729891a3681055d64936b17d5',
   },
   {
     role: 'proof-or-stop-review-behavior',
@@ -145,19 +145,19 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '642296478639ba90557b65df65782f4a81f6c3bea6219b9c1d7289dd6d62d5a1',
+    templateHash: '2d604a1f82169895940e4329cac3562be0e349a5107f4c988ec10db4e2e9a4e0',
   },
   {
     role: 'proof-or-stop-review-delivery',
-    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
+    templateHash: '5e514fcd169cfd6e935ac0837ffa3caa57760af7def44b3f137896c1bbf799b8',
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: '86c4c91c613a89da9a46b751d0fe3911500a81746527d9384ed95fcbb56fd7cf',
+    templateHash: 'a0aa78c4959c3d6dc3e3433b729c165f5b778eead596010e803a3ad4fc1f6008',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'e2cafec3242837c489faf74b808ea0474f082dd93f4ae8b01d20f225c3d4751f',
+    templateHash: 'a4fd9fd8b2f20c63159b9134780e710383f88d729373652f10f1d9fc49c23912',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -180,11 +180,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '35f9ae8dc5c1182b79630d4b1391b28c4a8617bf6339daeaab08a272876749f9',
+    templateHash: 'e393d606e38e55de6d451898da45767fb1b3eae469e00aa1728519f4c36f177d',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: 'c9aff511b9b67d6640860adc87363c08bc2f418ccdf3d5d0e269134919a5fabb',
+    templateHash: '8f3b75c63ed3d7df6360775d535898e628fbb41c7592d15f2ba8f4356b966063',
   },
   {
     role: 'proof-or-stop-product-reviewer',

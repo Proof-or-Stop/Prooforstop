@@ -31,6 +31,7 @@ import {
   checkEvidenceFreshnessForGit,
   classifyEvidenceFreshness,
   currentGitHead,
+  gitCommitAtRef,
   currentMaterialHash,
   currentStoryFilesHash,
   isMaterialExcludedPath,
@@ -689,9 +690,16 @@ export function fixtureCaseClosure(
   storyId: string,
   path: string,
   currentStoryIntentRefs: ReadonlySet<string>,
+  /**
+   * B-137a: ref treated as "current". Defaults to HEAD so read-only callers are
+   * byte-identical; the REVIEW-evidence verifier passes the signed
+   * ReviewRun.headHash so a later metadata-only commit cannot rewrite a
+   * receipt-bound envelope's eligibility digest.
+   */
+  asOfRef: string = 'HEAD',
 ): boolean {
   const before = fixtureCases(gitFileAt(gitCwd, baseRef, path));
-  const after = fixtureCases(gitFileAt(gitCwd, 'HEAD', path));
+  const after = fixtureCases(gitFileAt(gitCwd, asOfRef, path));
   if (!before || !after) return false;
   // Reject duplicate/ambiguous identities in both snapshots before any Map or
   // digest comparison. This makes overwrite order irrelevant and prevents an
@@ -742,9 +750,18 @@ export function reviewIncrementalContext(
     promptEnvelopes?: readonly PromptEnvelope[];
     /** Signed run-start projection; prevents later finding disposition rewrites. */
     findingProjection?: PromptFindingProjection[];
+    /**
+     * B-137a: git ref treated as "current" for eligibility, freshness and diffs.
+     * Defaults to HEAD so the read-only `review_incremental_context` command stays
+     * byte-identical. The REVIEW-evidence verifier passes the signed
+     * ReviewRun.headHash so later metadata-only commits cannot rewrite a
+     * receipt-bound envelope's eligibilityDigest / reviewBasisDigest.
+     */
+    asOfRef?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const asOfRef = options.asOfRef?.trim() || 'HEAD';
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -758,9 +775,9 @@ export function reviewIncrementalContext(
     options.passesCutoffAt,
     options.promptEnvelopes,
   );
-  const currentHead = currentGitHead(gitCwd) ?? null;
-  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
-  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? null;
+  const currentHead = (asOfRef === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOfRef)) ?? null;
+  const currentMaterial = currentMaterialHash(gitCwd, asOfRef, projectRoot) ?? null;
+  const currentStoryFiles = currentStoryFilesHash(gitCwd, asOfRef, projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
@@ -973,7 +990,7 @@ export function reviewIncrementalContext(
     reasonCodes: string[],
     resolvedPriorForAudit: TrustedPriorPass | null = null,
   ): ReviewIncrementalContext => {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', asOfRef), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -981,9 +998,9 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs),
+          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs, asOfRef),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', asOfRef),
     });
     return finalize({
       prior: resolvedPriorForAudit,
@@ -1004,13 +1021,13 @@ export function reviewIncrementalContext(
   }
 
   const changedFiles = materialOnly(
-    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
+    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, asOfRef),
     projectRoot,
   );
   if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
     return fullStoryDiffContext([FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS], prior);
   }
-  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, asOfRef);
   const freshness = checkEvidenceFreshnessForGit(
     gitCwd,
     prior.run.headHash,
@@ -1050,7 +1067,7 @@ export function reviewIncrementalContext(
     fixtureCaseClosureByFile: Object.fromEntries(changedFiles.map(path => [
       path,
       declaredTestFiles.includes(path)
-        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs),
+        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs, asOfRef),
     ])),
     changedFileStatus: statuses,
   });

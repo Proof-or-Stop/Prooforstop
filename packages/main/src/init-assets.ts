@@ -284,7 +284,7 @@ fallback 说明：
 旧安装只读兼容 fallback（仅当环境只认识旧变量名时使用；新配置不要复制）：
 
 \`\`\`bash
-LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
+PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
 \`\`\`
 
 该 fallback 只用于读取当前状态和记录只读 heartbeat，不作为 gate 证据；Proof-or-Stop 会优先读取同名的 \`PROOF_OR_STOP_*\` 变量。

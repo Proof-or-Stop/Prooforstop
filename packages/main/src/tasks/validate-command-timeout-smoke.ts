@@ -54,14 +54,16 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  resolveEvidenceCommandTimeoutMs,
   MAX_NODE_TIMER_DELAY_MS,
   resolveCommandTimeoutMs,
+  runSingleAllowlistedCommand,
   runValidationCommand,
   executeValidationPlan,
-  runSingleAllowlistedCommand,
   parseAllowlistedCommand,
   VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST,
 } from '../core/validation-executor.js';
+import { resetConfigCache } from '../core/config.js';
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
 /**
@@ -116,6 +118,86 @@ void (async () => {
     check('injected default used when timeoutMs unset', resolveCommandTimeoutMs(base({}), 999) === 999);
     check('explicit timeoutMs still wins over injected default', resolveCommandTimeoutMs(base({ timeoutMs: 5_000 }), 999) === 5_000);
     check('injected default used when timeoutMs is zero', resolveCommandTimeoutMs(base({ timeoutMs: 0 }), 999) === 999);
+
+    // Evidence-only timeout overrides bind to the parsed executable plus the
+    // complete ordered argv vector. They do not register another routine
+    // validate command and cannot be selected by prefix/near matching.
+    const aggregateIdentity = {
+      executable: 'node',
+      args: ['packages/main/dist/tasks/managed-cross-provider-suite-smoke.js'],
+    };
+    const aggregateOverride = [{
+      command: 'node',
+      args: ['packages/main/dist/tasks/managed-cross-provider-suite-smoke.js'],
+      timeoutMs: 360_000,
+    }];
+    check('evidence exact executable+argv identity selects bounded override',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, aggregateOverride) === 360_000);
+    check('evidence argv near miss stays on the 270s default',
+      resolveEvidenceCommandTimeoutMs({ ...aggregateIdentity, args: [...aggregateIdentity.args, '--near'] }, aggregateOverride)
+        === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    check('evidence executable near miss stays on the 270s default',
+      resolveEvidenceCommandTimeoutMs({ ...aggregateIdentity, executable: 'npx' }, aggregateOverride)
+        === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    for (const invalidTimeoutMs of [0, -1, Number.POSITIVE_INFINITY, 1.5]) {
+      check(`malformed evidence timeout ${String(invalidTimeoutMs)} fails closed to default`,
+        resolveEvidenceCommandTimeoutMs(aggregateIdentity, [{ ...aggregateOverride[0], timeoutMs: invalidTimeoutMs }])
+          === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    }
+    check('conflicting duplicate evidence identities fail closed to default',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, [
+        aggregateOverride[0],
+        { ...aggregateOverride[0], timeoutMs: 300_000 },
+      ]) === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    check('malformed evidence override collection fails closed to default',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, { command: 'node' }) === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+
+    // The production evidence runner consumes the same exact-identity config,
+    // while its outer structured deadline remains the tighter authority.
+    const evidenceRoot = mkdtempSync(join(tmpdir(), 'lattice-evidence-timeout-'));
+    const fastScript = "process.stdout.write('EVIDENCE_OVERRIDE_OK')";
+    const hangScript = 'setInterval(() => {}, 1000)';
+    writeFileSync(join(evidenceRoot, 'lattice.config.json'), JSON.stringify({
+      validate: {
+        evidenceCommandTimeoutOverrides: [
+          { command: 'node', args: ['-e', fastScript], timeoutMs: 1_200 },
+          { command: 'node', args: ['-e', hangScript], timeoutMs: 5_000 },
+        ],
+      },
+    }), 'utf8');
+    try {
+      const fastProgress: number[] = [];
+      const fastEvidence = await runSingleAllowlistedCommand(
+        `node -e ${JSON.stringify(fastScript)}`,
+        evidenceRoot,
+        { progress: event => { if (event.type === 'command_start') fastProgress.push(event.timeoutMs); } },
+      );
+      check('production evidence runner consumes exact configured timeout',
+        fastEvidence.code === 0 && fastProgress[0] === 1_200);
+
+      const deadlineProgress: number[] = [];
+      let outerDeadlineWon = false;
+      const deadlineAt = Date.now() + 300;
+      try {
+        await runSingleAllowlistedCommand(
+          `node -e ${JSON.stringify(hangScript)}`,
+          evidenceRoot,
+          {
+            deadlineAt,
+            deadlineError: () => new Error('OUTER_DEADLINE_WON'),
+            progress: event => { if (event.type === 'command_start') deadlineProgress.push(event.timeoutMs); },
+          },
+        );
+      } catch (error) {
+        outerDeadlineWon = error instanceof Error && error.message === 'OUTER_DEADLINE_WON';
+      }
+      check('outer structured deadline remains tighter than evidence override', outerDeadlineWon);
+      check('spawned evidence command receives remaining outer deadline, not 5s override',
+        deadlineProgress.length === 1 && deadlineProgress[0] > 0 && deadlineProgress[0] <= 300);
+    } finally {
+      resetConfigCache();
+      rmSync(evidenceRoot, { recursive: true, force: true });
+    }
 
     // 3. Integration: a hung command is killed by the per-command timer (exit 124,
     //    timedOut) while a fast command in the same plan completes normally.

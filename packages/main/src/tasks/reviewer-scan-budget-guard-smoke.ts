@@ -38,6 +38,12 @@ import {
   verifyScopeCheckSignature,
 } from '../handlers/scope-check.js';
 import { createFindingHandlers } from '../handlers/finding.js';
+import { createMainRegistry } from '../registry.js';
+import {
+  nativeReviewFixtureBrokers,
+  withBrokeredNativeReviewInvocation,
+  withNativeReviewFixtureHostIdentity,
+} from './native-review-fixture.js';
 import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 
@@ -233,6 +239,7 @@ function initReviewEvidenceStore() {
     rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'review-read-evidence-smoke', private: true }, null, 2));
   writeFileSync(join(root, 'docs/requirements/decisions/a.md'), '# Decision A\n');
@@ -292,6 +299,12 @@ function initReviewEvidenceStore() {
       promptHash,
       _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, promptHash),
     }],
+  });
+  const dispatch = createMainRegistry({ root, store, scanRoot: join(root, 'packages/main') }).get('dispatch');
+  assert.ok(dispatch, 'native review fixture dispatch handler is registered');
+  withNativeReviewFixtureHostIdentity({
+    agent,
+    invoke: () => dispatch({ storyId, agentType: agent }),
   });
   return { root, store, storyId, agent, reviewRunId };
 }
@@ -511,13 +524,20 @@ function assertRealHandlerReadLogEvidencePath(): void {
     { path: 'packages/main/src/core/types.ts', action: 'Read', tokenCount: 99 },
   ];
 
-  handlers.review_pass_set({
+  withBrokeredNativeReviewInvocation({
+    root,
+    store,
     storyId,
     agent,
     reviewRunId,
-    note: 'checked behavior evidence and found no blocker',
-    readManifest: manifest,
-    readEvents,
+    invoke: () => handlers.review_pass_set({
+      storyId,
+      agent,
+      reviewRunId,
+      note: 'checked behavior evidence and found no blocker',
+      readManifest: manifest,
+      readEvents,
+    }),
   });
   const pass = store.readReviewPasses(storyId).passes[0];
   assert.ok(pass.readLog?.digest, 'real review_pass_set persists mechanical readLog digest');
@@ -560,15 +580,24 @@ function assertRealHandlerReadLogEvidencePath(): void {
   };
   store.writeReviewRuns(storyId, { runs: [firstRun, conversionRun] });
 
-  handlers.finding_add({
+  // B-137a: finding_add binds native review authority, so the conversion write
+  // must run inside a brokered invocation just like the first terminal.
+  withBrokeredNativeReviewInvocation({
+    root,
+    store,
     storyId,
     agent,
     reviewRunId: conversionReviewRunId,
-    desc: 'no blockers after checking behavior path',
-    severity: 'low',
-    category: 'happy',
-    readManifest: manifest,
-    readLog: { events: [{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 8 }, { path: 'docs/requirements/decisions/b.md', mode: 'triage' }] },
+    invoke: () => handlers.finding_add({
+      storyId,
+      agent,
+      reviewRunId: conversionReviewRunId,
+      desc: 'no blockers after checking behavior path',
+      severity: 'low',
+      category: 'happy',
+      readManifest: manifest,
+      readLog: { events: [{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 8 }, { path: 'docs/requirements/decisions/b.md', mode: 'triage' }] },
+    }),
   });
   const convertedPass = store.readReviewPasses(storyId).passes[1];
   assert.equal(convertedPass.agent, agent, 'pass-only finding_add converts into reviewer pass evidence');
@@ -599,22 +628,29 @@ function assertRealHandlerReadLogEvidencePath(): void {
   );
   assert.equal(store.readReviewPasses(storyId).passes.length, 2, 'mismatched review_pass_set does not create a pass');
 
-  handlers.finding_add({
+  withBrokeredNativeReviewInvocation({
+    root,
+    store,
     storyId,
     agent,
     reviewRunId: conversionReviewRunId,
-    desc: 'implementation misses the documented read evidence persistence path',
-    severity: 'high',
-    category: 'missing',
-    readManifest: {
-      filesReadFully: ['docs/requirements/decisions/a.md'],
-      filesTriagedByName: [],
-      scanEscalationReason: null,
-    },
-    readEvents: [
-      { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 5 },
-      { path: 'docs/requirements/decisions/b.md', action: 'Read', tokenCount: 7 },
-    ],
+    invoke: () => handlers.finding_add({
+      storyId,
+      agent,
+      reviewRunId: conversionReviewRunId,
+      desc: 'implementation misses the documented read evidence persistence path',
+      severity: 'high',
+      category: 'missing',
+      readManifest: {
+        filesReadFully: ['docs/requirements/decisions/a.md'],
+        filesTriagedByName: [],
+        scanEscalationReason: null,
+      },
+      readEvents: [
+        { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 5 },
+        { path: 'docs/requirements/decisions/b.md', action: 'Read', tokenCount: 7 },
+      ],
+    }),
   });
   const finding = store.readFindings(storyId).findings[0];
   assert.ok(finding.readLog?.digest, 'reviewer finding_add persists readLog digest');

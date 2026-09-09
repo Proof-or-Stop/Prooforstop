@@ -39,15 +39,20 @@ import {
 // (no cycle): host-run.ts imports only host-execution-readiness.js and
 // usage-ledger/dispatch-usage.js — neither reaches back into this module (the
 // codex review leaf is never imported by host-run, verified).
+// B-137a: import the EXTRACTED provider-process registry directly rather than
+// the deprecated host-run.ts compat aliases (same values, different edge).
+// provider-process-registry-smoke asserts this exact import, because routing
+// through host-run.ts silently reverts this story's extraction while still
+// compiling.
 import {
-  acquireHostRunSlot,
-  hostRunSlotsDir,
-  releaseSlot,
-  resolveMaxConcurrent,
-  resolveSlotStaleMs,
-  HOST_RUN_REFUSAL_EXIT_CODE,
-  type AcquiredHostRunSlot,
-} from './host-run.js';
+  acquireProviderProcessSlot,
+  providerProcessSlotsDir,
+  releaseProviderProcessSlotBestEffort,
+  resolveProviderProcessMaxConcurrent,
+  resolveProviderProcessSlotStaleMs,
+  type AcquiredProviderProcessSlot,
+} from './provider-process-registry.js';
+import { HOST_RUN_REFUSAL_EXIT_CODE } from './host-run.js';
 
 // ── Verdict schema `lattice.codex_review_verdict.v1` ──────────────────────────
 
@@ -210,6 +215,10 @@ export interface CodexReviewRunnerResult {
    * omit it fall back to hashing the provided `stdout`.
    */
   stdoutDigest?: string;
+  /** True when the runner refused before spawning a provider process. */
+  blocked?: boolean;
+  /** Canonical HostRun refusal classification, when blocked. */
+  refusalReason?: string | null;
 }
 
 /**
@@ -450,8 +459,12 @@ function scanBalancedObjects(text: string): BalancedObject[] {
  * `env` here is the UNREDACTED ledger-gating env (the caller's process env), which is
  * DISTINCT from RunCodexReviewLeafOptions.env — that latter env is the redacted,
  * closed-allowlist environment the codex subprocess sees and MUST NOT be used for
- * ledger gating (it deliberately drops PROOF_OR_STOP_USAGE_LEDGER). Absent => no rows
- * (byte-identical to callers that do not opt in).
+ * ledger gating (it deliberately drops PROOF_OR_STOP_USAGE_LEDGER). Absent => no usage
+ * rows; canonical provider-process admission and registry I/O remain mandatory.
+ *
+ * B-137a: do NOT restate this as "byte-identical when the ledger is off". Usage
+ * accounting is a diagnostic; the cross-provider concurrency/supervision boundary
+ * is not. Turning off the ledger must never turn off admission.
  */
 export interface CodexReviewLeafUsageLedger {
   root: string;
@@ -475,6 +488,12 @@ export interface RunCodexReviewLeafOptions {
   env?: NodeJS.ProcessEnv;
   /** B-70e9 CHK-003: optional usage-ledger binding (see CodexReviewLeafUsageLedger). */
   usageLedger?: CodexReviewLeafUsageLedger;
+  /**
+   * B-137a: admission + provider process ownership are supplied by the durable
+   * ManagedHostRun worker. The leaf must NOT acquire a second slot for the same
+   * spawn, or the managed run deadlocks against its own concurrency cap.
+   */
+  managedExecution?: boolean;
 }
 
 export interface CodexReviewLeafResult {
@@ -548,11 +567,12 @@ export async function runCodexReviewLeaf(
   let ledgerCtx: DispatchUsageContext | null = null;
   let ledgerOpts: DispatchUsageOptions | null = null;
   let ledgerHandle: DispatchPreflightHandle | null = null;
-  // F-017: the pre-spawn admission slot (host_run's atomic fixed-slot registry).
-  // Acquired below in the ledger-ON path and released in the finally around the
-  // runner. null (ledger OFF / no binding) means no admission ran — a strict
-  // no-op, so an OFF/no-binding review stays byte-identical.
-  let admissionSlot: AcquiredHostRunSlot | null = null;
+  // F-017: the pre-spawn admission slot (the canonical provider-process registry).
+  // Acquired below OUTSIDE the ledger gate and released in the finally around the
+  // runner. It is null only when the managed worker already owns admission for
+  // this exact spawn (opts.managedExecution); disabling usage accounting never
+  // disables admission.
+  let admissionSlot: AcquiredProviderProcessSlot | null = null;
   if (ledgerOn && ledger) {
     ledgerCtx = {
       storyId: opts.storyId,
@@ -578,9 +598,9 @@ export async function runCodexReviewLeaf(
     // spawn). A refusal records the appropriate blocked ledger row and returns a
     // SYNTHESIZED fail-closed 'blocked' verdict WITHOUT invoking the runner, so
     // cross_host_review yields hostB decision 'blocked' (never a fabricated
-    // 'pass'/'fail') and a jointDecision 'blocked'. Admission lives ONLY in the
-    // ledger-ON path; OFF/no-binding stays byte-identical (no admission, no slot
-    // dirs, no rows).
+    // 'pass'/'fail') and a jointDecision 'blocked'. Provider-process admission is
+    // mandatory and lives outside the ledger gate; only usage-ledger bookkeeping
+    // stays conditional on ledger ON.
     //
     // (1) Hard-budget admission (fail-closed; the blocked row is written inside
     // recordBudgetBlock, which never throws). A codex review leaf is a codex
@@ -596,41 +616,59 @@ export async function runCodexReviewLeaf(
       );
     }
 
-    // (2) Concurrency admission via the SAME atomic fixed-slot registry as
-    // host_run: acquire before the spawn, release in the finally below. On a cap
-    // refusal, record the concurrency blocked row and return WITHOUT spawning. A
-    // slot-registry error also refuses fail-closed (an admission error must never
-    // grant an unguarded spawn) but does NOT fabricate a concurrency_cap_exceeded
-    // row for a refusal that was not a cap decision — same doctrine as F-016.
-    const cap = resolveMaxConcurrent(ledger.env);
-    let registryError: string | null = null;
-    try {
-      admissionSlot = acquireHostRunSlot(hostRunSlotsDir(ledger.root), cap, resolveSlotStaleMs(ledger.env), Date.now(), {
-        pid: process.pid,
-        startedAt: ledger.recordedAt,
-        host: 'codex',
-        storyId: opts.storyId,
-        agentType: CROSS_HOST_REVIEW_CODEX_AGENT_TYPE,
-      });
-    } catch (err) {
-      registryError = err instanceof Error ? err.message : String(err);
-      admissionSlot = null;
-    }
-    if (admissionSlot === null) {
-      if (registryError !== null) {
-        return blockedLeafResult(
-          opts.materialHash,
-          CODEX_REVIEW_SLOT_REGISTRY_ERROR,
-          `Codex review leaf refused pre-spawn: host-run slot registry error (${registryError}); refusing fail-closed, the codex runner was never invoked.`,
-        );
-      }
-      recordConcurrencyBlock(ledger.root, ledgerCtx, ledgerHandle, prompt, cap, ledgerOpts, { name: 'openai', model: null });
+  }
+
+
+  // B-137a: provider-process admission is MANDATORY and therefore lives OUTSIDE
+  // the ledger gate. Usage accounting is a diagnostic; the cross-provider
+  // concurrency/supervision boundary is not, so disabling the ledger must never
+  // disable admission. When there is no ledger binding, fall back to the story
+  // worktree + the caller env for the registry location and cap resolution.
+  const admissionRoot = ledger?.root ?? opts.storyWorktree;
+  const admissionEnv = ledger?.env ?? opts.env ?? process.env;
+  // (2) Concurrency admission via the SAME atomic fixed-slot registry as
+  // host_run: acquire before the spawn, release in the finally below. On a cap
+  // refusal, record the concurrency blocked row and return WITHOUT spawning. A
+  // slot-registry error also refuses fail-closed (an admission error must never
+  // grant an unguarded spawn) but does NOT fabricate a concurrency_cap_exceeded
+  // row for a refusal that was not a cap decision — same doctrine as F-016.
+  const cap = resolveProviderProcessMaxConcurrent(admissionEnv);
+  let registryError: string | null = null;
+  // B-137a: under managed execution the ManagedHostRun worker already holds the
+  // admission slot for this exact spawn. Acquiring a second one would count the
+  // same provider process twice against the cap and deadlock the managed run,
+  // so skip acquisition AND its refusal branch entirely (the worker, not the
+  // leaf, is the admission authority here).
+  if (!opts.managedExecution) {
+  try {
+    admissionSlot = acquireProviderProcessSlot(providerProcessSlotsDir(admissionRoot), cap, resolveProviderProcessSlotStaleMs(admissionEnv), Date.now(), {
+      pid: process.pid,
+      startedAt: ledger?.recordedAt ?? new Date().toISOString(),
+      host: 'codex',
+      storyId: opts.storyId,
+      agentType: CROSS_HOST_REVIEW_CODEX_AGENT_TYPE,
+    });
+  } catch (err) {
+    registryError = err instanceof Error ? err.message : String(err);
+    admissionSlot = null;
+  }
+  if (admissionSlot === null) {
+    if (registryError !== null) {
       return blockedLeafResult(
         opts.materialHash,
-        CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED,
-        `Codex review leaf refused pre-spawn: concurrency_cap_exceeded (cap ${cap}, every host-run slot held by a live run); the codex runner was never invoked.`,
+        CODEX_REVIEW_SLOT_REGISTRY_ERROR,
+        `Codex review leaf refused pre-spawn: provider-process slot registry error (${registryError}); refusing fail-closed, the codex runner was never invoked.`,
       );
     }
+    if (ledgerOn && ledger && ledgerCtx && ledgerOpts) {
+      recordConcurrencyBlock(ledger.root, ledgerCtx, ledgerHandle, prompt, cap, ledgerOpts, { name: 'openai', model: null });
+    }
+    return blockedLeafResult(
+      opts.materialHash,
+      CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED,
+      `Codex review leaf refused pre-spawn: concurrency_cap_exceeded (cap ${cap}, every provider-process slot held by a live run); the codex runner was never invoked.`,
+    );
+  }
   }
 
   let outcome: CodexReviewRunnerResult;
@@ -645,8 +683,8 @@ export async function runCodexReviewLeaf(
     // F-017: release the admission slot exactly like host_run / the autopilot
     // repair — token-verified (F-025; a reclaimed+reacquired slot is never
     // deleted), best-effort (pid-death / the orphan backstop reclaims a leak).
-    // null (ledger OFF / no binding) is a no-op.
-    releaseSlot(admissionSlot ? admissionSlot.file : null, admissionSlot ? admissionSlot.token : null);
+    // null (no slot acquired, including managedExecution) is a no-op.
+    releaseProviderProcessSlotBestEffort(admissionSlot ? admissionSlot.file : null, admissionSlot ? admissionSlot.token : null);
   }
 
   // B-70e9 CHK-003: unavailable final superseding the preflight estimate — the codex
@@ -677,6 +715,24 @@ export async function runCodexReviewLeaf(
   // non-zero / null (spawn-failure) exit means the review did not finish; even if a
   // schema-valid verdict happens to sit in the partial stdout, fail closed — a killed
   // process's "pass" is not a real reviewer verdict. (Caught by the Codex host-B lane.)
+  if (outcome.blocked === true) {
+    const refusal = outcome.refusalReason ?? 'blocked';
+    const reasonCode = refusal === 'concurrency_cap_exceeded'
+      ? CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED
+      : refusal === 'hard_budget_exceeded'
+        ? CODEX_REVIEW_BUDGET_BLOCKED
+        : CODEX_REVIEW_SLOT_REGISTRY_ERROR;
+    return {
+      hostBVerdict: synthesizedBlocked(
+        opts.materialHash,
+        reasonCode,
+        `Codex review leaf refused before spawn (${refusal}); failing closed without treating admission as a provider exit.`,
+      ),
+      stdoutDigest,
+      exitCode: outcome.exitCode,
+      timedOut: outcome.timedOut,
+    };
+  }
   if (outcome.timedOut || outcome.exitCode !== 0) {
     return {
       hostBVerdict: synthesizedBlocked(

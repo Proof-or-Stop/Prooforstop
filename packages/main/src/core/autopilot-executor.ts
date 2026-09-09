@@ -22,18 +22,21 @@ import {
   type DispatchUsageContext,
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
-// F-016: lateral core->core import of the host-run admission primitives. Safe
-// (no cycle): host-run.ts imports only host-execution-readiness.js and
-// usage-ledger/dispatch-usage.js — neither reaches back into this module.
+// B-137a: import the EXTRACTED provider-process registry directly, not the
+// deprecated host-run.ts compat aliases. This story's whole point is that
+// provider-process admission lives in its own module; provider-process-registry
+// -smoke asserts this exact import edge, and routing through host-run.ts's
+// aliases silently reverts the extraction (the values are identical, so it
+// still compiles and passes typecheck).
 import {
-  acquireHostRunSlot,
-  hostRunSlotsDir,
-  releaseSlot,
-  resolveMaxConcurrent,
-  resolveSlotStaleMs,
-  HOST_RUN_REFUSAL_EXIT_CODE,
-  type AcquiredHostRunSlot,
-} from './host-run.js';
+  acquireProviderProcessSlot,
+  providerProcessSlotsDir,
+  releaseProviderProcessSlotBestEffort,
+  resolveProviderProcessMaxConcurrent,
+  resolveProviderProcessSlotStaleMs,
+  type AcquiredProviderProcessSlot,
+} from './provider-process-registry.js';
+import { HOST_RUN_REFUSAL_EXIT_CODE } from './host-run.js';
 
 export type AutopilotExecuteStepStatus = 'passed' | 'failed' | 'skipped';
 
@@ -266,17 +269,18 @@ function projectRootHashFor(root: string): string {
  *
  * F-016: the repair also passes the SAME pre-spawn admission as runHostRun —
  * hard-budget guard (recordBudgetBlock) then atomic concurrency-slot admission
- * (acquireHostRunSlot; released in a finally) — so PROOF_OR_STOP_HARD_BUDGET_TOKENS
+ * (acquireProviderProcessSlot; released in a finally) — so PROOF_OR_STOP_HARD_BUDGET_TOKENS
  * and PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT stop an autopilot repair exactly like any
  * other proof-or-stop-initiated host run. A refusal records the same blocked ledger
  * row (provider anthropic — a repair is always a claude launch) and returns a
- * 'failed' attempt WITHOUT invoking the runner. Admission only exists in the
- * ledger-ON path; OFF stays byte-identical (no admission, no slot dirs, no rows).
+ * 'failed' attempt WITHOUT invoking the runner. Provider-process admission is
+ * mandatory and lives outside the ledger gate; only usage-ledger bookkeeping
+ * stays conditional on ledger ON.
  *
  * Ledger-ON vs OFF contract (load-bearing invariant):
- *   - OFF (PROOF_OR_STOP_USAGE_LEDGER=0): argv and behavior are BYTE-IDENTICAL to before
- *     this change — no `--output-format json`, no rows, no dirs. The existing
- *     autopilot smokes rely on this.
+ *   - OFF (PROOF_OR_STOP_USAGE_LEDGER=0): spawn argv stays BYTE-IDENTICAL to before
+ *     this change — no `--output-format json`, no usage rows. Shared provider-process
+ *     admission still runs. The existing autopilot smokes rely on the argv identity.
  *   - ON: the repair launcher adds `--output-format json` so Claude emits a parseable
  *     usage envelope; the final row binds the served model, and the recorded stdout
  *     EXCERPT comes from the parsed envelope `.result` text (so the human-facing
@@ -344,9 +348,9 @@ export function runClaudeRepair(
   }
 
   // F-016: pre-spawn admission — the SAME gates, in the SAME order, as
-  // runHostRun (preflight -> budget -> concurrency -> spawn). ON-path only, so
-  // the ledger-OFF repair stays byte-identical (no admission, no slot dirs).
-  let slot: AcquiredHostRunSlot | null = null;
+  // runHostRun (preflight -> budget -> concurrency -> spawn). Budget bookkeeping
+  // stays ledger-ON; the concurrency slot is acquired unconditionally below.
+  let slot: AcquiredProviderProcessSlot | null = null;
   if (ledgerOn) {
     // (1) Hard-budget admission (fail-closed; the blocked row is written inside
     // recordBudgetBlock, which never throws). A repair is always a claude
@@ -362,43 +366,51 @@ export function runClaudeRepair(
       );
     }
 
-    // (2) Concurrency admission via the SAME atomic fixed-slot registry as
-    // host_run: acquire before the spawn, release in the finally below. On a
-    // cap refusal, record the concurrency blocked row and return WITHOUT
-    // spawning. A slot-registry error also refuses fail-closed (an admission
-    // error must never grant an unguarded spawn) but never throws out of the
-    // repair — unlike runHostRun, whose caller owns that failure directly.
-    const cap = resolveMaxConcurrent(env);
-    let registryError: string | null = null;
-    try {
-      slot = acquireHostRunSlot(hostRunSlotsDir(root), cap, resolveSlotStaleMs(env), Date.now(), {
-        pid: process.pid,
-        startedAt: opts.recordedAt,
-        host: 'claude',
-        storyId: ctx.storyId,
-        agentType: ctx.agentType,
-      });
-    } catch (err) {
-      registryError = err instanceof Error ? err.message : String(err);
-      slot = null;
-    }
-    if (slot === null) {
-      if (registryError !== null) {
-        // An honest registry-failure refusal: no concurrency_cap_exceeded row is
-        // fabricated for a refusal that was not a cap decision.
-        return blockedRepairAttempt(
-          step,
-          commandLabel,
-          `autopilot repair refused pre-spawn: host-run slot registry error (${registryError}); refusing fail-closed, the claude runner was never invoked`,
-        );
-      }
-      recordConcurrencyBlock(root, ctx, handle, prompt, cap, opts, { name: 'anthropic', model: null });
+  }
+
+
+  // B-137a: provider-process admission is MANDATORY and lives OUTSIDE the ledger
+  // gate. Usage accounting is a diagnostic; the shared cross-provider capacity
+  // boundary is not, so PROOF_OR_STOP_USAGE_LEDGER=0 must not grant an
+  // unadmitted spawn. Only the ledger BOOKKEEPING below stays conditional.
+  // (2) Concurrency admission via the SAME atomic fixed-slot registry as
+  // host_run: acquire before the spawn, release in the finally below. On a
+  // cap refusal, record the concurrency blocked row and return WITHOUT
+  // spawning. A slot-registry error also refuses fail-closed (an admission
+  // error must never grant an unguarded spawn) but never throws out of the
+  // repair — unlike runHostRun, whose caller owns that failure directly.
+  const cap = resolveProviderProcessMaxConcurrent(env);
+  let registryError: string | null = null;
+  try {
+    slot = acquireProviderProcessSlot(providerProcessSlotsDir(root), cap, resolveProviderProcessSlotStaleMs(env), Date.now(), {
+      pid: process.pid,
+      startedAt: opts.recordedAt,
+      host: 'claude',
+      storyId: ctx.storyId,
+      agentType: ctx.agentType,
+    });
+  } catch (err) {
+    registryError = err instanceof Error ? err.message : String(err);
+    slot = null;
+  }
+  if (slot === null) {
+    if (registryError !== null) {
+      // An honest registry-failure refusal: no concurrency_cap_exceeded row is
+      // fabricated for a refusal that was not a cap decision.
       return blockedRepairAttempt(
         step,
         commandLabel,
-        `autopilot repair refused pre-spawn: concurrency_cap_exceeded (cap ${cap}, every host-run slot held by a live run); the claude runner was never invoked`,
+        `autopilot repair refused pre-spawn: provider-process slot registry error (${registryError}); refusing fail-closed, the claude runner was never invoked`,
       );
     }
+    if (ledgerOn && ctx && opts) {
+      recordConcurrencyBlock(root, ctx, handle, prompt, cap, opts, { name: 'anthropic', model: null });
+    }
+    return blockedRepairAttempt(
+      step,
+      commandLabel,
+      `autopilot repair refused pre-spawn: concurrency_cap_exceeded (cap ${cap}, every provider-process slot held by a live run); the claude runner was never invoked`,
+    );
   }
 
   let repairResult: AutopilotCommandResult;
@@ -412,8 +424,8 @@ export function runClaudeRepair(
   } finally {
     // F-016: release the admission slot exactly like host_run — token-verified
     // (F-025; a reclaimed+reacquired slot is never deleted), best-effort (pid-
-    // death / the orphan backstop reclaims a leak). null (ledger OFF) is a no-op.
-    releaseSlot(slot ? slot.file : null, slot ? slot.token : null);
+    // death / the orphan backstop reclaims a leak). null (no slot acquired) is a no-op.
+    releaseProviderProcessSlotBestEffort(slot ? slot.file : null, slot ? slot.token : null);
   }
 
   // Final row + excerpt. When the ledger is ON, parse the JSON envelope so (a) the

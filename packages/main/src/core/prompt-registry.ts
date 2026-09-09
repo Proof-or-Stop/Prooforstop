@@ -147,16 +147,29 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
  */
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
-  'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
-  'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
-  'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
-  'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
+  'lattice-review-concept': '936fb53639ab969e1bdb7f8d8b2ff1843ceff9400a647ab7198dee2941f2ff02',
+  'lattice-review-docs': '47b2169692529436e7c023ff1558c550b2c938318d43788eb26ce038bae5472d',
+  'lattice-review-quality': 'c73491b51129016d0e1f5f9710c5b7bab7e414449f41aaf085519a1ed148de71',
+  'lattice-review-test-coverage': 'bf1daac587812e71a795d533620fc1b0c9ab30918d04c0aa9173be5f6cf00e0c',
   // Post-merge of B-cdf6 rebranded slice into this branch's modular critic template.
-  'lattice-review-topology-critic': 'ef5a28b1b3496c1e1133f165afb5cc87262775f2de1df5bf58ab3d4a4ff88e96',
+  // Independently audited merged inventory-purpose and mode-aware rollout body.
+  'lattice-review-topology-critic': '44622ddceec96c6cb66986610ab7a79b7bc9a4dcdcfb9348e12c4fd0e5191dc4',
 
 });
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
+/*
+ * B-137a main-merge repin (7 of 11 pins moved; 4 verified unchanged).
+ * AUDITED CAUSE, not a relaxation: the merge combined main's brand rename
+ * (lattice-* -> proof-or-stop-* names/commands inside the template bodies) with
+ * this branch's clarified "Acceptance rollout boundary" paragraph, which states
+ * the blocking=true / enforce / promotion-claim distinction main's older wording
+ * lacked. Both are real body changes, so the legacy reconstruction digest moves.
+ * Each value below was MEASURED by driving resolvePromptRoleBody(role,
+ * legacy-full-context) through the product's own reconstruction path and reading
+ * the reported actual digest -- never hand-computed. Roles whose bodies did not
+ * change (story-init, scope-plan, evaluator, review-behavior) keep their pins.
+ */
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   // origin/main merge: repinned in ONE pass together with the templateHash in
   // scripts/verify-proof-or-stop-prompt-baseline.mjs, since both pins address the same
@@ -173,8 +186,8 @@ const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.
   // side keeps two deliberate deltas from it -- our managed-marker spelling (other pins
   // depend on it) and our clearer 'the relevant reviewer lane' wording where origin says
   // 'proof-or-stop-reviewer'. Same 150 lines, no other difference.
-  'lattice-implementer': '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
-  'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
+  'lattice-implementer': '611ceb11232ebf8cb6dfc22b7669524d44b50c2729891a3681055d64936b17d5',
+  'lattice-review-delivery': '5e514fcd169cfd6e935ac0837ffa3caa57760af7def44b3f137896c1bbf799b8',
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });
 

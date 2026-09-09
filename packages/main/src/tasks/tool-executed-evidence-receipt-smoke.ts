@@ -23,6 +23,7 @@ import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, curr
 import { EVIDENCE_COMMAND_TIMEOUT_CAP_MS } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
 import { runValidationCommand } from '../core/validation-executor.js';
+import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
 // Mirror of the private sha256Hex / VERIFICATION_OUTPUT_TAIL_CHARS in
@@ -239,9 +240,9 @@ const SELECTOR = 'MARKER_OK';
       command: 'node',
       args: ['-e', "process.stdout.write('X'.repeat(12001) + 'MARKER_OK')"],
     }, env.root);
-    assert.equal(routineResult.output.slice(0, 12_000), 'X'.repeat(12_000), 'ordinary validation result retains exactly its bounded head window');
-    assert.doesNotMatch(routineResult.output, /MARKER_OK/, 'ordinary validation result retains only its bounded head window');
-    assert.match(routineResult.output, /\.\.\.\[truncated 10 chars\]$/, 'ordinary validation result describes the omitted bytes');
+    assert.ok(routineResult.output.length <= 12_000, 'ordinary validation output remains bounded');
+    assert.match(routineResult.output, /MARKER_OK/, 'ordinary validation output retains its terminal suffix');
+    assert.match(routineResult.output, /truncated/, 'ordinary validation result describes omitted bytes');
 
     await env.handlers.verification_evidence_add({
       storyId: env.storyId,
@@ -261,6 +262,50 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(evidence.receipt.outputDigest, sha256Hex(full), 'receipt digest covers complete captured output');
     assert.equal(evidence.receipt.outputTail.length, VERIFICATION_OUTPUT_TAIL_CHARS, 'persisted outputTail remains exactly 4000 characters');
     assert.equal(evidence.receipt.outputTail, full.slice(-VERIFICATION_OUTPUT_TAIL_CHARS), 'persisted outputTail is the complete output tail');
+  } finally { cleanup(env); }
+}
+
+// ── 2c. B-137a: the shared 12 KiB command capture keeps both prefix and suffix.
+// A selector emitted only after more than 12 KiB of earlier output must still mint
+// a mechanical receipt; the captured-output digest/tail contract remains unchanged.
+{
+  const env = makeEnv([
+    { ref: 'INT-TAIL-SINGLE', type: 'cli' },
+    { ref: 'INT-TAIL-BATCH', type: 'cli' },
+  ]);
+  try {
+    const tailSelector = 'TERMINAL_RECEIPT_SELECTOR';
+    const tailCommand = `node -e "process.stdout.write('P'.repeat(12500));process.stdout.write('${tailSelector}')"`;
+    const capture = await runSingleAllowlistedCommand(tailCommand, env.root);
+    assert.equal(capture.code, 0, 'tail-selector command exits successfully');
+    assert.equal(capture.output.length, 12500 + tailSelector.length, 'pinned evidence retains complete capture for selector and digest authority');
+    assert.ok(capture.output.includes(tailSelector), 'terminal selector survives suffix retention');
+
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-TAIL-SINGLE', kind: 'integration_test',
+      command: tailCommand, selector: tailSelector, result: 'pass', note: 'terminal selector survives bounded command capture',
+    });
+    await env.handlers.verification_evidence_batch_add({
+      storyId: env.storyId,
+      evidences: [{
+        itemId: 'CHK-001', intentRef: 'INT-TAIL-BATCH', kind: 'integration_test',
+        command: tailCommand, selector: tailSelector, result: 'pass', note: 'batch tail selector survives bounded command capture',
+      }],
+    });
+    const receipts = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    const single = receipts.find(value => value.intentRef === 'INT-TAIL-SINGLE');
+    const batch = receipts.find(value => value.intentRef === 'INT-TAIL-BATCH');
+    assert.ok(single?.receipt, 'tail selector mints a single-add mechanical receipt');
+    assert.ok(batch?.receipt, 'tail selector mints a batch-add mechanical receipt');
+    assert.equal(single.mechanical, true);
+    assert.equal(batch.mechanical, true);
+    assert.equal(single.receipt.selectorMatched, true);
+    assert.equal(batch.receipt.selectorMatched, true);
+    assert.ok(single.receipt.outputTail.includes(tailSelector), 'receipt tail still carries terminal selector');
+    assert.equal(single.receipt.outputTail, capture.output.slice(-VERIFICATION_OUTPUT_TAIL_CHARS),
+      'receipt output-tail semantics remain the tail of the complete capture');
+    assert.equal(single.receipt.outputDigest, sha256Hex(capture.output),
+      'receipt digest semantics remain the digest of the complete capture');
   } finally { cleanup(env); }
 }
 

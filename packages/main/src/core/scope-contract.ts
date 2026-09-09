@@ -114,6 +114,21 @@ export function validateFileRules(rules: unknown): FileRule[] {
     if (rule.protectedAnchors !== undefined) {
       item.protectedAnchors = validateAnchors(rule.protectedAnchors, `fileRules[${i}].protectedAnchors`);
     }
+    if (rule.protectedExceptAnchors !== undefined) {
+      // B-137a: validated with the same ANCHOR_RE as every other anchor list --
+      // the exception allowlist must not become a back door for path-shaped or
+      // free-form values. An EMPTY list is rejected because it would silently
+      // mean "protected with no exception", which protectedFiles already
+      // expresses; an accidental empty array must not read as a narrow waiver.
+      const validated = validateAnchors(rule.protectedExceptAnchors, `fileRules[${i}].protectedExceptAnchors`);
+      if (validated.length === 0) {
+        throw new Error(
+          `fileRules[${i}].protectedExceptAnchors must list at least one permitted anchor; `
+          + 'use protectedFiles for absolute protection with no exception',
+        );
+      }
+      item.protectedExceptAnchors = validated;
+    }
     if (rule.allowedChangeKinds !== undefined) {
       if (!Array.isArray(rule.allowedChangeKinds)) {
         throw new Error(`fileRules[${i}].allowedChangeKinds must be an array`);
@@ -174,7 +189,15 @@ export function buildScopeContract(
   };
   // v2 fields: only set when provided or already present
   const fileRules = args.fileRules ?? existing?.fileRules;
-  if (fileRules !== undefined) contract.fileRules = fileRules;
+  // B-137a: re-validate here, not only in the handler's validateFileRules().
+  // Per CLAUDE.md "Handler 编码约定" a constrained field must be re-checked at
+  // EVERY consumption point: buildScopeContract previously assigned fileRules
+  // straight through, so any caller reaching it without going through the
+  // handler (internal fn call, an older persisted contract) could install a rule
+  // whose constraints were never enforced -- including an empty
+  // protectedExceptAnchors, which would read as a narrow waiver while actually
+  // meaning "no exception at all".
+  if (fileRules !== undefined) contract.fileRules = validateFileRules(fileRules);
   const protectedAnchors = args.protectedAnchors ?? existing?.protectedAnchors;
   if (protectedAnchors !== undefined) contract.protectedAnchors = protectedAnchors;
   return contract;

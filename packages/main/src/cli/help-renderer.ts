@@ -18,7 +18,7 @@ import {
   formatProofOrStopProductLine,
 } from '../core/proof-or-stop-brand.js';
 import { sessionBriefFooter } from '../cli-prompts.js';
-import type { ToolDef } from './main-tools.js';
+import { publicToolCatalog, type ToolDef } from './main-tools.js';
 
 export interface ActiveStoryForHelp {
   storyId: string;
@@ -233,7 +233,10 @@ export function printValidationFailure(tool: ToolDef, issues: ZodIssue[], ownerL
 }
 
 export function printHelp(options: GlobalHelpOptions) {
-  const { tools, activeStory, phaseTools } = options;
+  const { activeStory, phaseTools } = options;
+  // B-137a: internal continuations (host_run_worker) stay dispatchable but must not
+  // appear in ordinary help/discovery output.
+  const tools = publicToolCatalog(options.tools);
   const brand = detectProofOrStopBrand();
   console.log(`\n  ${formatProofOrStopProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
   console.log(`  Entrypoint: ${brand.usageBin}\n`);
