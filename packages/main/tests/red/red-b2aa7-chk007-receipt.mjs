@@ -140,6 +140,8 @@ if (BASELINE_COMMIT === null) {
   if (baselinePin === null) fail('happy', `no pinned digest found in the harness at ${BASELINE_COMMIT}`);
 }
 
+const flipHex = (hex) => (hex[0] === '0' ? '1' : '0') + hex.slice(1);
+
 if (canonicalCore) {
   const currentPin = PIN_RE.exec(readFileSync(HARNESS_ABS, 'utf8'))?.[1] ?? null;
   if (baselinePin === null || currentPin === null || currentPin !== baselinePin) {
@@ -157,7 +159,6 @@ const harnessOk = invariance.status === 0 && /red-w2c-v1-verdict-invariance: OK/
 
 /** THE COMPARATOR (re-used on a mutated input below so it cannot pass vacuously). */
 const digestMoved = (pinned, seen) => pinned === null || seen === null || pinned !== seen;
-const flipHex = (hex) => (hex[0] === '0' ? '1' : '0') + hex.slice(1);
 
 const comparatorDiscriminates =
   baselinePin !== null && observedDigest !== null
