@@ -111,7 +111,6 @@ const SELF_DIST = 'tasks/validation-protocol-smoke.js';
 
 /** Files with no inventory reference and no source-path reference, kept on purpose. Stale entries fail the sweep. */
 const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {
-  'validation-child-environment.d': 'compile-time declaration-only companion for validation-child-environment.mjs, introduced with the modular quorum worker. Its export declare signatures emit no JavaScript or test body; the actual environment implementation is imported by the coordinator and worker modules, so this type declaration is intentionally not an executable inventory member',
   'cli-executor': 'legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story',
   'drift-check': 'legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story',
   'test-runner': 'legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story',
