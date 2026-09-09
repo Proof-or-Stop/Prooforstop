@@ -1,6 +1,6 @@
 import { executionImplementationIdentity } from '../core/execution-implementation.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
-import { readIntentCheckpoint } from '../core/verification-intent-checkpoint.js';
+import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 
@@ -3271,9 +3271,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if(['DONE','DISCARDED'].includes(story.phase))throw new Error('AMENDMENT_RECOVERY_ACTIVE_STORY_REQUIRED');
         const gitCwd=resolveStoryGitCwd(args.storyId);
         if(!probeWriterLease(store.storyDirPath(args.storyId),gitCwd).valid || resolveAgentMutationAuthority({command:'checklist_update'}).entry)throw new Error('AMENDMENT_OWNER_REQUIRED');
-        const checkpoint=readIntentCheckpoint(args.storyId,gitCwd);
+        const recovery=inspectIntentCheckpointRecovery(args.storyId,gitCwd);
+        const checkpoint=recovery?.checkpoint;
         if(!checkpoint)throw new Error('AMENDMENT_CHECKPOINT_MISSING');
-        if(!args.apply)return JSON.stringify({storyId:args.storyId,generation:checkpoint.generation,expectedCheckpointDigest:checkpoint.dataDigest,action:'restore-exact-signed-checklist',writes:0});
+        if(!args.apply)return JSON.stringify({storyId:args.storyId,generation:checkpoint.generation,expectedCheckpointDigest:checkpoint.dataDigest,action:'restore-exact-signed-checklist',storageRepair:recovery!.storageRepair,writes:0});
         if(!args.reason || args.reason.trim().length<30)throw new Error('AMENDMENT_RECOVERY_REASON_REQUIRED');
         store.restoreIntentCheckpoint(args.storyId,args.expectedCheckpointDigest??'');
         return `Signed acceptance checkpoint restored for ${args.storyId}; digest=${checkpoint.dataDigest}; no command executed and no evidence re-attested.`;

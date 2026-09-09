@@ -1,5 +1,5 @@
 import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
-import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint } from './verification-intent-checkpoint.js';
+import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
 import { digestCanonicalJson } from './digest.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
@@ -789,8 +789,7 @@ export class StoryStore {
   }
 
   restoreIntentCheckpoint(storyId: string, expectedDigest: string): void {
-    const checkpoint=readIntentCheckpoint(storyId,this.storyDirPath(storyId));
-    if(!checkpoint || checkpoint.dataDigest!==expectedDigest)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_STALE_OR_MISSING');
+    const checkpoint=repairIntentCheckpointStorage(storyId,this.storyDirPath(storyId),expectedDigest);
     // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
     this.writeJson(storyId,'checklist.json',checkpoint.data);
   }

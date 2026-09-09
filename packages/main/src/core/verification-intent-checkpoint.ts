@@ -1,5 +1,5 @@
 import {execFileSync} from 'node:child_process';
-import {existsSync,mkdirSync,readFileSync,readdirSync,linkSync,writeFileSync,unlinkSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,readdirSync,linkSync,writeFileSync,unlinkSync,renameSync} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import type {ChecklistData} from './types.js';
@@ -39,7 +39,7 @@ function validateCheckpoint(record:IntentCheckpoint,storyId:string,gitCwd:string
   for(const item of record.data.items)assertIntentAmendments(item,storyId,gitCwd);
   return record;
 }
-interface CheckpointAnchor {commit:string;records:IntentCheckpoint[]}
+interface CheckpointAnchor {commit:string;records:IntentCheckpoint[];legacyTruncated?:boolean}
 function assertCheckpointChain(records:IntentCheckpoint[]):void {
   for(let index=0;index<records.length;index++){
     const record=records[index];
@@ -49,7 +49,7 @@ function assertCheckpointChain(records:IntentCheckpoint[]):void {
 }
 /** Resolve refs through Git's backend-neutral API. No loose/packed-file shortcut:
  * the same authority must survive reftable creation and in-place ref migration. */
-function readAnchor(storyId:string,gitCwd:string):CheckpointAnchor|null {
+function readAnchor(storyId:string,gitCwd:string,inspectLegacyRoot=false):CheckpointAnchor|null {
   if(!commonDirectory(gitCwd))return null;
   try {
     const ref=anchorRef(storyId);
@@ -72,7 +72,12 @@ function readAnchor(storyId:string,gitCwd:string):CheckpointAnchor|null {
       records.push(validateCheckpoint(JSON.parse(output.subarray(offset,offset+size).toString('utf8')),storyId,gitCwd));offset+=size+1;
     }
     if(offset!==output.length)throw new Error('unexpected checkpoint object output');
-    records.reverse();assertCheckpointChain(records);return {commit,records};
+    records.reverse();
+    // Recovery may inspect precisely the old parentless-tip format. Normal reads
+    // still require the complete chain; no other malformed history is admitted.
+    const legacyTruncated=inspectLegacyRoot&&records.length===1&&records[0].generation>1;
+    if(!legacyTruncated)assertCheckpointChain(records);
+    return {commit,records,legacyTruncated};
   }catch(error){if(error instanceof IntentAmendmentIntegrityError)throw error;throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_ANCHOR_INVALID',String(error));}
 }
 function mirrorRecords(storyId:string,gitCwd:string,anchored?:IntentCheckpoint[]):IntentCheckpoint[] {
@@ -101,7 +106,7 @@ function checkpointState(storyId:string,gitCwd:string):{anchor:CheckpointAnchor|
 }
 /** Build a complete chain and publish it with one CAS. Migration never exposes a
  * truncated generation>1 root, and a losing writer cannot replace newer truth. */
-function writeAnchor(storyId:string,records:IntentCheckpoint[],gitCwd:string,previousCommit?:string):void {
+function writeAnchor(storyId:string,records:IntentCheckpoint[],gitCwd:string,previousCommit?:string,expectedOldCommit=previousCommit):void {
   try {
     let commit=previousCommit;
     for(const record of records){
@@ -111,7 +116,7 @@ function writeAnchor(storyId:string,records:IntentCheckpoint[],gitCwd:string,pre
         'Preserve signed acceptance checkpoint generation '+record.generation+'\n');
     }
     if(!commit)throw new Error('empty checkpoint anchor publication');
-    checkpointGit(gitCwd,['update-ref',anchorRef(storyId),commit,previousCommit??'0'.repeat(commit.length)]);
+    checkpointGit(gitCwd,['update-ref',anchorRef(storyId),commit,expectedOldCommit??'0'.repeat(commit.length)]);
   }catch(error){throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_ANCHOR_WRITE_FAILED',String(error));}
 }
 function reconcileMirror(directory:string,records:IntentCheckpoint[]):void {
@@ -132,6 +137,61 @@ function reconcileMirror(directory:string,records:IntentCheckpoint[]):void {
       }finally{if(existsSync(temp))unlinkSync(temp);}
     }
   }catch(error){if(error instanceof IntentAmendmentIntegrityError)throw error;throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_MIRROR_WRITE_FAILED',String(error));}
+}
+interface CheckpointRecoveryPlan {
+  checkpoint:IntentCheckpoint; anchor:CheckpointAnchor|null; records:IntentCheckpoint[];
+  repair:'none'|'rebuild-legacy-anchor'|'quarantine-mirror';
+}
+/** Inspection is read-only and independent of an unreadable canonical projection.
+ * A valid conflicting signed mirror is evidence, never disposable corruption. */
+function checkpointRecoveryPlan(storyId:string,gitCwd:string):CheckpointRecoveryPlan|null {
+  const anchor=readAnchor(storyId,gitCwd,true);
+  if(anchor?.legacyTruncated){
+    const records=mirrorRecords(storyId,gitCwd);const checkpoint=records.at(-1);
+    if(!checkpoint||digestCanonicalJson(checkpoint)!==digestCanonicalJson(anchor.records[0]))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_LEGACY_TIP_MISMATCH');
+    return {checkpoint,anchor,records,repair:'rebuild-legacy-anchor'};
+  }
+  if(!anchor){const records=mirrorRecords(storyId,gitCwd);const checkpoint=records.at(-1);return checkpoint?{checkpoint,anchor,records,repair:'none'}:null;}
+  const directory=checkpointPath(storyId,gitCwd)!;
+  let corrupt=false;
+  if(existsSync(directory))for(const name of readdirSync(directory).filter(name=>/^\d{12}\.json$/.test(name))){
+    // Read failures are operational failures, not permission to replace storage.
+    const bytes=readFileSync(join(directory,name),'utf8');let record:IntentCheckpoint;
+    try{record=JSON.parse(bytes);}catch(error){if(!(error instanceof SyntaxError))throw error;corrupt=true;continue;}
+    const authoritative=anchor.records[Number(name.slice(0,12))-1];
+    if(authoritative&&digestCanonicalJson(record)===digestCanonicalJson(authoritative))continue;
+    try{validateCheckpoint(record,storyId,gitCwd);}catch(error){
+      if(!(error instanceof IntentAmendmentIntegrityError)&&!(error instanceof TypeError))throw error;
+      corrupt=true;continue;
+    }
+    // Inspect every file, even after corruption, so an older damaged mirror
+    // cannot conceal a valid newer generation or a contradictory signed branch.
+    throw new IntentAmendmentIntegrityError(record.generation>anchor.records.length?'AMENDMENT_CHECKPOINT_ROLLBACK':'AMENDMENT_CHECKPOINT_SIGNED_MIRROR_CONFLICT');
+  }
+  return {checkpoint:anchor.records.at(-1)!,anchor,records:anchor.records,repair:corrupt?'quarantine-mirror':'none'};
+}
+export function inspectIntentCheckpointRecovery(storyId:string,gitCwd:string):{checkpoint:IntentCheckpoint;storageRepair:string}|null {
+  const plan=checkpointRecoveryPlan(storyId,gitCwd);return plan?{checkpoint:plan.checkpoint,storageRepair:plan.repair}:null;
+}
+/** Called under the owner handler's existing checklist lock after phase/role,
+ * explicit-apply and reason checks. Expected digest is checked before any write. */
+export function repairIntentCheckpointStorage(storyId:string,gitCwd:string,expectedDigest:string):IntentCheckpoint {
+  const plan=checkpointRecoveryPlan(storyId,gitCwd);
+  if(!plan||plan.checkpoint.dataDigest!==expectedDigest)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_STALE_OR_MISSING');
+  const directory=checkpointPath(storyId,gitCwd)!;
+  if(plan.repair==='rebuild-legacy-anchor')writeAnchor(storyId,plan.records,gitCwd,undefined,plan.anchor!.commit);
+  else if(!plan.anchor)writeAnchor(storyId,plan.records,gitCwd);
+  if(plan.repair==='quarantine-mirror'){
+    const replacement=directory+'.replacement-'+randomUUID();
+    reconcileMirror(replacement,plan.records);
+    // Preserve every original byte. If replacement publication is interrupted,
+    // the retained Git anchor still supports a subsequent owner recovery.
+    renameSync(directory,directory+'.quarantine-'+randomUUID());
+    renameSync(replacement,directory);
+  }else reconcileMirror(directory,plan.records);
+  const result=readIntentCheckpoint(storyId,gitCwd);
+  if(!result||result.dataDigest!==expectedDigest)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_STALE_OR_MISSING');
+  return result;
 }
 export function readIntentCheckpoint(storyId:string,gitCwd:string):IntentCheckpoint|null {
   return checkpointState(storyId,gitCwd).records.at(-1)??null;

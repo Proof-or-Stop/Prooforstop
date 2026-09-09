@@ -57,7 +57,7 @@ run('missing signed generation cannot be invented for old truncated anchor',f=>{
 });
 run('foreign session and terminal owner remain refused',f=>{
  writeFileSync(join(f.mirror,'000000000001.json'),'{broken');const session=process.env.PROOF_OR_STOP_SESSION_ID;
- try{process.env.PROOF_OR_STOP_SESSION_ID='foreign-owner';assert.throws(()=>inspect(f),/AMENDMENT_OWNER_REQUIRED/);}finally{process.env.PROOF_OR_STOP_SESSION_ID=session;}
+ const child=spawnSync(process.execPath,['--input-type=module','-e',`import {StoryStore} from ${JSON.stringify(runtime+'/packages/main/dist/core/store.js')};import {createChecklistHandlers} from ${JSON.stringify(runtime+'/packages/main/dist/handlers/checklist.js')};const root=${JSON.stringify(f.root)};try{createChecklistHandlers({store:new StoryStore(root),root,scanRoot:root}).verification_intent_recover({storyId:${JSON.stringify(storyId)}});process.exitCode=2;}catch(e){console.log(String(e));process.exitCode=String(e).includes('AMENDMENT_OWNER_REQUIRED')?0:3;}`],{cwd:f.root,encoding:'utf8',env:{...process.env,PROOF_OR_STOP_SESSION_ID:'foreign-owner'}});assert.equal(child.status,0,child.stdout+child.stderr);
  const story=f.store.readStory(storyId);f.store.writeStory(storyId,{...story,phase:'DONE'});assert.throws(()=>inspect(f),/AMENDMENT_RECOVERY_ACTIVE_STORY_REQUIRED/);
 });
 const output=process.env.FIVE_ITEM_PROOF_OUTPUT;if(output){mkdirSync(output,{recursive:true});writeFileSync(join(output,'checkpoint-owner-recovery.json'),JSON.stringify(results,null,2)+'\n');}assert.ok(results.every(r=>r.passed),'CHECKPOINT_GOVERNED_RECOVERY_GAPS: available signed history must have an owner repair path');console.log('CHECKPOINT_OWNER_RECOVERY_GREEN',results.length);
