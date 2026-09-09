@@ -12,7 +12,7 @@
         "docs/lab-maintenance.md",
         "AGENTS.md#two-layer-process-fact-contract"
       ],
-      "userSees": "The plan opens with a status header stating that it supersedes v7, that 0.3.294 does not yet enforce the target policy, and which prerequisite workstream must be implemented next.",
+      "userSees": "The plan opens with a status header stating that it supersedes v7, that 0.3.294 does not yet enforce the target policy, and which prerequisite workstream comes next; it then provides a definitions table and ordered workstream sections covering classification, trusted RED, same-target GREEN, migration, gate wiring, concurrency, rollout, and acceptance.",
       "excludes": [
         "Changing runtime code or configuration",
         "Enabling reproFirstPreflight enforce mode",
@@ -101,7 +101,7 @@
     {
       "id": "CHK-002",
       "title": "Freeze and independently audit the candidate plan with Claude CLI",
-      "context": "Freeze candidate plan bytes and run Claude CLI in read-only mode. Record tool version, timestamp, plan SHA-256, exact invocation rubric, raw response SHA-256, findings, truth-source adjudication, accepted changes, rejected suggestions, and final verdict in the audit Markdown file. Claude may not edit the repository. CHK-002 owns any audit-driven plan revision. Run at most three frozen-candidate rounds. APPROVE permits lifecycle review and no plan bytes may change afterward; any later revision voids the digest and blocks acceptance. A third non-APPROVE records the blocker, leaves this Story incomplete, and tells the user that a follow-up design revision is required.",
+      "context": "After CHK-001 and CHK-003 agree on the stable named section, freeze candidate plan bytes and launch a fresh read-only Claude CLI session that receives only those bytes and the audit rubric, with no authoring conversation and no repository edit permission. Record tool version, timestamp, plan SHA-256, exact rubric, raw response SHA-256, findings, truth-source adjudication, accepted changes, rejected suggestions, and final verdict in the audit Markdown file. CHK-002 owns any audit-driven plan revision; a section-name change reopens CHK-003 before the next freeze. Run at most three frozen-candidate rounds. APPROVE permits lifecycle review and no plan bytes may change afterward; any later revision voids the digest and blocks acceptance unless a remaining round audits it. A third non-APPROVE records the blocker, leaves this Story incomplete, and names a follow-up design revision.",
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
         "docs/requirements/decisions/red-evidence-subsystem-spec.md",
@@ -162,7 +162,7 @@
     {
       "id": "CHK-003",
       "title": "Replace the trusted RED-evidence specification's fragile plan line reference",
-      "context": "The trusted RED-evidence subsystem specification currently cites Workstream 2 by mutable line numbers. Replace that backlink with the stable named section in the revised execution plan without changing the subsystem's normative semantics.",
+      "context": "After CHK-001 establishes the stable Workstream 2 section name and before CHK-002 freezes a candidate, replace the trusted RED-evidence subsystem specification's mutable line-number citation with that named section. If an audit-driven revision changes the section name, reopen this item and repair the backlink before freezing the next candidate. Do not change the subsystem's normative semantics.",
       "relatedDocs": [
         "docs/requirements/decisions/red-evidence-subsystem-spec.md",
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
