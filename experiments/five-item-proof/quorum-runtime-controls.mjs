@@ -15,6 +15,17 @@ try{
  for(const row of seen)log('owned process reaped '+row.event,()=>assert.equal(alive(row.pid),false,'owned pid '+row.pid+' survived parent failure'));
  // Clean only positively identified private fixture processes after failed RED.
  for(const row of seen)if(alive(row.pid))try{process.kill(row.pid,'SIGKILL');}catch{}
- const report={fixture:'process protocol only; genuine full73 runs have separate evidence',elapsedMs:elapsed,pids:seen,failures};const out=process.env.FIVE_ITEM_PROOF_OUTPUT;if(out){const {mkdirSync}=await import('node:fs');mkdirSync(out,{recursive:true});writeFileSync(join(out,'quorum-runtime-controls.json'),JSON.stringify(report,null,2)+'\n');}
+
+ const signalResults=[];
+ for(const signal of ['SIGINT','SIGTERM']){
+  writeFileSync(events,'');let output='';const proc=spawn(process.execPath,[driver],{cwd:root,env:{...process.env,FIXTURE_CANCEL_MODE:'signal'},stdio:['ignore','pipe','pipe']});proc.stdout.on('data',b=>output+=b);proc.stderr.on('data',b=>output+=b);
+  let closed=false;const completion=new Promise(resolve=>proc.once('close',(code,sig)=>{closed=true;resolve({code,signal:sig});}));
+  const startedAt=performance.now();let owned=[];
+  while(performance.now()-startedAt<5000){owned=readFileSync(events,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);if(owned.length>=8||closed)break;await new Promise(r=>setTimeout(r,25));}
+  const sent=performance.now();proc.kill(signal);const done=await Promise.race([completion,new Promise(r=>setTimeout(()=>r(null),3000))]);
+  log(signal+' cancels and reaps all descendants',()=>{assert.equal(owned.length,8,'All four workers and descendants must start before signal');assert.ok(done,'Signal cancellation did not finish within3s');assert.match(output,new RegExp('QUORUM_INTERRUPTED '+signal));assert.notEqual(done.code,0);for(const row of owned)assert.equal(alive(row.pid),false,'owned pid survives signal '+row.pid);});
+  signalResults.push({signal,elapsedMs:performance.now()-sent,owned,done,output});if(!closed)proc.kill('SIGKILL');for(const row of owned)if(alive(row.pid))try{process.kill(row.pid,'SIGKILL');}catch{}
+ }
+ const report={fixture:'process protocol only; genuine full73 runs have separate evidence',elapsedMs:elapsed,pids:seen,signalResults,failures};const out=process.env.FIVE_ITEM_PROOF_OUTPUT;if(out){const {mkdirSync}=await import('node:fs');mkdirSync(out,{recursive:true});writeFileSync(join(out,'quorum-runtime-controls.json'),JSON.stringify(report,null,2)+'\n');}
  assert.equal(failures.length,0,'QUORUM_SUPERVISION_GAPS: cancellation and diagnostic execution contract');console.log('QUORUM_RUNTIME_CONTROLS_GREEN');
 }finally{rmSync(root,{recursive:true,force:true});}

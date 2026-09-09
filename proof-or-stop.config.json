@@ -911,7 +911,8 @@
         "label": "quorum-submit-smoke",
         "command": "node",
         "args": [
-          "packages/main/dist/tasks/quorum-submit-smoke.js"
+          "packages/main/dist/tasks/quorum-submit-smoke.js",
+          "--jobs=4"
         ],
         "timeoutMs": 1200000,
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
@@ -2281,7 +2282,8 @@
       {
         "command": "node",
         "args": [
-          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "--probe-jobs=4"
         ],
         "timeoutMs": 180000,
         "resources": [
