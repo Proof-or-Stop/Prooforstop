@@ -9429,3 +9429,6 @@ assert(/prior\.run\.storyFilesHash,\s*asOfRef,/.test(read('packages/main/src/cor
 assert(read('packages/main/src/core/review-run.ts').includes('!liveFreshness.fresh || !liveFreshness.currentHead'), 'requested-full verifier must retain explicit live freshness');
 
 assert(read('packages/main/src/core/review-run.ts').includes('!liveFreshness.currentMaterialHash'), 'requested-full current material must be measurable, not merely a readable HEAD');
+
+assert(read('packages/main/src/core/process-fact-registry.ts').includes("name: 'managed-terminal-supervision'"), 'autonomous terminal supervision must remain a registered execution fact');
+assert(read('scripts/verify-managed-autonomous-supervisor.mjs').includes('orphaned worker must converge without status polling'), 'autonomous orphan recovery requires a no-status-polling witness');

@@ -281,3 +281,10 @@ These executions are paired property controls, not independent repeated baseline
 suite obligations. The runtime nesting witness covers the eleven changed
 canonical parents; the static inventory review covers all 146 entries. Neither
 is a claim that the entire production workload has been benchmarked.
+
+Managed execution now starts an independent detached recovery supervisor and
+waits for its readiness before launching the provider worker. It observes worker
+death without status calls, uses the existing process-identity cleanup/fencing
+path, and records a failed `worker_orphaned` terminal after cleanup. It also
+reconciles the sealed absolute deadline independently of the owner model. This
+bounded repair does not yet make every legacy status reader side-effect free.

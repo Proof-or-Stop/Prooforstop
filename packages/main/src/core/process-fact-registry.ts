@@ -1584,6 +1584,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_pass_set,
     rationale: 'No-blocker review pass signatures are accepted only with exactly one registered-broker invocation attestation bound to the exact story, lane, ReviewRun, writer session, signed dispatch, adapter, host, and one-shot nonce, or one managed provider receipt/proposal binding. Observable mixed-provider ancestry is an additional veto; unavailable ancestry does not invalidate a trusted broker attestation. Missing, conflicting, replayed, stale, or rewritten provenance fails the REVIEW consumer.',
   },
+
   {
     name: 'artifact:managed-review-evidence-proposal',
     kind: 'artifact',
@@ -1902,7 +1903,20 @@ export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
   rationale: 'Store objects/sha256, refs/by-id and ledger/observed.jsonl are process outputs excluded from material inputs, not disposable runtime artifacts. Unknown evidence paths and policy remain material. Output digest and subject bindings require independent consumer verification; hash stability grants no artifact acceptance. NUL-delimited Git paths retain literal names and target blobs; missing objects fail closed. Existing evidence is never rewritten or automatically re-attested after this correction.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
+export const PROCESS_FACT_MANAGED_SUPERVISION = [
+  {
+    name: 'managed-terminal-supervision',
+    kind: 'execution-status',
+    semantics: ['execution-evidence', 'atomic-persistence', 'schema-contract'],
+    level: 'L3',
+    producer: 'core/managed-host-run + cli/managed-host-run-supervisor',
+    consumerGate: 'managed_review_evidence_import successful-terminal intake only',
+    rationale: 'An independent detached supervisor is ready before provider-worker launch. Worker death triggers fingerprint-bound provider cleanup and one failed terminal without status polling. Existing launch fencing and exclusive terminal digests remain authoritative; an orphan failure cannot grant review PASS or replacement safety without proven reap.',
+  },
+] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  ...PROCESS_FACT_MANAGED_SUPERVISION,
   {
     name: 'runtime:review_convergence_blocker_progress', kind: 'runtime-behavior',
     semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'], level: 'L4',

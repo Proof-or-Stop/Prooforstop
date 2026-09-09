@@ -1,5 +1,5 @@
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
-import { MANAGED_BURN_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
@@ -10,7 +10,7 @@ import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_R
  * terminal record is written. Callers may attach, poll, disappear, or return;
  * none of those events owns provider liveness. In particular, output silence
  * is not a terminal signal. Every run instead has a finite absolute deadline
- * and is reconciled on the next status/cancel/attach touch.
+ * and has an independent detached recovery owner before provider launch.
  */
 
 import { execFileSync, spawn } from 'node:child_process';
@@ -37,6 +37,7 @@ import {
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { hostname, tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import {
   generateEd25519KeyPair,
   signCanonical,
@@ -153,11 +154,12 @@ export type ManagedHostRunTerminalState = Extract<
 >;
 
 interface ManagedHostRunCancellationTerminal {
-  state: Extract<ManagedHostRunTerminalState, 'cancelled' | 'timed_out'>;
+  state: Extract<ManagedHostRunTerminalState, 'cancelled' | 'timed_out' | 'failed'>;
   reason: string;
 }
 
 function classifyManagedHostRunCancellation(reason: string): ManagedHostRunCancellationTerminal {
+  if (reason === MANAGED_SUPERVISOR_RUNTIME_POLICY.orphanReason) return { state: 'failed', reason };
   return reason === 'absolute_deadline_exceeded'
     ? { state: 'timed_out', reason: 'absolute_deadline_exceeded' }
     : { state: 'cancelled', reason };
@@ -2017,6 +2019,33 @@ export function projectManagedHostRunTerminalResult(
  * prompt text, or a durable plaintext artifact. stdout/stderr are append-only
  * worker diagnostics, not the provider live-output protocol.
  */
+async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, logFd: number): Promise<void> {
+  const entry = fileURLToPath(new URL('../cli/managed-host-run-supervisor.js', import.meta.url));
+  const supervisor = spawn(process.execPath, [entry, request.root, request.runId], {
+    cwd: request.root, detached: true, stdio: ['ignore', logFd, logFd, 'ipc'],
+  });
+  try {
+    await new Promise<void>((resolveReady, rejectReady) => {
+      const timer = setTimeout(() => rejectReady(new Error('managed supervisor readiness timeout')),
+        MANAGED_SUPERVISOR_RUNTIME_POLICY.readyTimeoutMs);
+      supervisor.once('error', error => { clearTimeout(timer); rejectReady(error); });
+      supervisor.once('exit', () => { clearTimeout(timer); rejectReady(new Error('managed supervisor exited before readiness')); });
+      supervisor.once('message', message => {
+        clearTimeout(timer);
+        const ready = message as { type?: string; runId?: string };
+        if (ready?.type !== 'managed-supervisor-ready' || ready.runId !== request.runId) {
+          rejectReady(new Error('managed supervisor readiness binding mismatch'));
+        } else resolveReady();
+      });
+    });
+    supervisor.disconnect();
+    supervisor.unref();
+  } catch (error) {
+    await reapUnidentifiedManagedHostRunWorker(supervisor);
+    throw error;
+  }
+}
+
 export const defaultManagedHostRunWorkerLauncher: ManagedHostRunWorkerLauncher = async request => {
   assertManagedHostRunPlatformSupported(process.platform);
   const paths = pathsFor(request.root, request.runId);
@@ -2024,6 +2053,8 @@ export const defaultManagedHostRunWorkerLauncher: ManagedHostRunWorkerLauncher =
   if (!entrypoint) throw new Error('managed host run: cannot resolve the current lattice CLI entrypoint');
   const logFd = openSync(paths.workerLog, 'a', 0o600);
   try {
+    // No provider worker is launched until its independent recovery owner is ready.
+    await launchManagedSupervisor(request, logFd);
     const hasInvocationKey = typeof request.proposalInvocationPrivateKey === 'string';
     const submitterSession = getSessionIdentity();
     // A detached CLI worker has a different PPID. Carry only the already
@@ -3268,6 +3299,32 @@ async function reconcileManagedHostRun(
   await withManagedReconcileLock(paths, async () => {
     await reconcileManagedHostRunUnlocked(paths, now, processGroupOps);
   });
+}
+
+/** Independent of the submitting model and provider worker process. */
+export async function runManagedHostRunSupervisor(
+  request: ManagedHostRunWorkerRequest,
+  onReady: () => void = () => {},
+): Promise<void> {
+  const paths = pathsFor(request.root, request.runId);
+  // Validate the immutable spec/owner binding before reporting launch readiness.
+  projectionFor(paths);
+  onReady();
+  while (existsSync(paths.spec)) {
+    const terminal = await withManagedReconcileLock(paths, async () => {
+      const run = projectionFor(paths);
+      if (run.terminal) return true;
+      if (run.workerPid !== null && !pidAlive(run.workerPid)) {
+        ensureCancelRequest(paths, request.runId, MANAGED_SUPERVISOR_RUNTIME_POLICY.orphanReason, Date.now());
+      }
+      // Reuse the existing launch fence, fingerprint-bound TERM/KILL/reap and
+      // exclusive terminal writer. Never signal a bare worker PID.
+      await reconcileManagedHostRunUnlocked(paths, Date.now());
+      return readTerminal(paths) !== null;
+    });
+    if (terminal) return;
+    await sleep(MANAGED_SUPERVISOR_RUNTIME_POLICY.pollIntervalMs);
+  }
 }
 
 export async function getManagedHostRunStatus(args: {

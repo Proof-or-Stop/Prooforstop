@@ -44,9 +44,9 @@ setInterval(() => {}, 1000);
   assert.ok(existsSync(join(directory, 'terminal.json')),
     'U02: orphaned worker must converge without status polling');
   const receipt = managedHostRunReceipt(root, runId);
-  assert.equal(receipt.terminal.state, 'failed');
-  assert.match(receipt.terminal.reason, /worker_orphaned/);
-  assert.equal(receipt.terminal.replacementSafe, true, 'TERM-resistant provider must be killed and reaped');
+  assert.equal(receipt.state, 'failed');
+  assert.match(JSON.parse(readFileSync(join(directory, 'terminal.json'), 'utf8')).reason, /worker_orphaned/);
+  assert.equal(receipt.replacementSafe, true, 'TERM-resistant provider must be killed and reaped');
   assert.throws(() => process.kill(provider.pid, 0), /ESRCH/, 'provider must no longer exist');
   console.log('PASS U02 autonomous worker-orphan terminal and provider cleanup without status polling');
 } finally {

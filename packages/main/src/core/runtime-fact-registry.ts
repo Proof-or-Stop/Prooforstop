@@ -182,3 +182,12 @@ export const MANAGED_BURN_RUNTIME_POLICY = {
   usageAuthority: 'bounded-provider-stdout-event',
   closeAuthority: 'provider-child-close-before-cleanup',
 } as const;
+
+/** Independent recovery must survive both the submitting CLI and its worker. */
+export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
+  readyTimeoutMs: 5_000,
+  pollIntervalMs: 1_000,
+  orphanReason: 'worker_orphaned',
+  launchOrder: 'supervisor-ready-before-worker',
+  cleanupAuthority: 'recorded-provider-process-identity',
+} as const;
