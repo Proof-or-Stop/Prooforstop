@@ -14,7 +14,7 @@
  *   trailing current round and assess the COMPLETED rounds only.
  *
  * Cases:
- *   (a) STALLED: entered REVIEW 4 times, 3 completed rounds [2,2,1] (current 4th
+ *   (a) STALLED: entered REVIEW 4 times, 3 completed rounds [2,2,2] (current 4th
  *       empty) -> assessReviewConvergenceAtEntry returns stalled=true WITH the
  *       advisory message. THE KEY TEST that catches the no-op bug.
  *   (b) CONVERGING: completed rounds strictly decreasing [2,1,0] -> stalled=false.
@@ -134,24 +134,24 @@ function appendAdvisory(store: StoryStore, storyId: string, base: string): {
 }
 
 function run(): void {
-  // ---- (a) STALLED: 4 rounds, completed [2,2,1], current round empty. ----
+  // ---- (a) STALLED: 4 rounds, completed [2,2,2], current round empty. ----
   {
-    const store = buildStore(4, [2, 2, 1]);
+    const store = buildStore(4, [2, 2, 2]);
     // Confirm the dense, round-aligned inputs are what we expect: the current
     // (4th) round is structurally empty at render time.
     const inputs = collectReviewConvergenceInputs(store, 'B-cfdd');
     assert.equal(inputs.roundCount, 4, '(a) roundCount must include the current round');
     assert.deepEqual(
       inputs.perRoundBlockingCounts,
-      [2, 2, 1, 0],
-      '(a) dense per-round counts: completed [2,2,1] + empty current round 0',
+      [2, 2, 2, 0],
+      '(a) dense per-round counts: completed [2,2,2] + empty current round 0',
     );
 
     const assessment = assessReviewConvergenceAtEntry(store, 'B-cfdd');
-    // THE KEY ASSERTION: if windowing fed the raw [2,2,1,0] (trailing 0) to the
+    // THE KEY ASSERTION: if windowing fed the raw [2,2,2,0] (trailing 0) to the
     // pure assessor, recentRoundClean would short-circuit to stalled=false and
     // the advisory would silently never fire. Assessing over completed rounds
-    // [2,2,1] (last=1, not strictly decreasing) yields stalled=true.
+    // [2,2,2] (last=2, no blocker reduction) yields stalled=true.
     assert.equal(assessment.stalled, true, '(a) FAIL — advisory did not fire (the no-op bug: current empty round leaked into the window)');
     assert.ok(assessment.message, '(a) stalled assessment must carry an advisory message');
     assert.match(
@@ -206,7 +206,7 @@ function run(): void {
     // Stalled story: the advisory IS appended, but the base (what the transition
     // uses) is preserved verbatim as a prefix — appending cannot alter the
     // transition outcome.
-    const stalledStore = buildStore(4, [2, 2, 1]);
+    const stalledStore = buildStore(4, [2, 2, 2]);
     const stalled = appendAdvisory(stalledStore, 'B-cfdd', base);
     assert.equal(stalled.errored, false, '(e) stalled append must not error');
     assert.equal(stalled.appended, true, '(e) stalled story should append the advisory');
@@ -239,15 +239,15 @@ function run(): void {
     assert.equal(flatShort.stalled, false, '(f) short flat window [2,2] must NOT stall (insufficient completed-round history)');
 
     // Full-window classifications must remain IDENTICAL (production path unchanged):
-    //   [2,2,1] -> last=1, not strictly decreasing -> stalled=true
+    //   [2,2,2] -> last=2, no blocker reduction -> stalled=true
     //   [2,1,0] -> last=0 (clean tail) / strictly decreasing -> stalled=false
-    const fullStall = assessReviewConvergence(4, [2, 2, 1]);
-    assert.equal(fullStall.stalled, true, '(f) full window [2,2,1] must still stall (unchanged)');
+    const fullStall = assessReviewConvergence(4, [2, 2, 2]);
+    assert.equal(fullStall.stalled, true, '(f) full window [2,2,2] must still stall (unchanged)');
     assert.ok(fullStall.message, '(f) full-window stall still carries an advisory message');
     const fullConverge = assessReviewConvergence(4, [2, 1, 0]);
     assert.equal(fullConverge.stalled, false, '(f) full window [2,1,0] must still converge (unchanged)');
 
-    console.log(`${MARKER} (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,1]->true, [2,1,0]->false)`);
+    console.log(`${MARKER} (f) SHORT-WINDOW PRECONDITION: [2,1]->false, [2,2]->false; full windows unchanged ([2,2,2]->true, [2,1,0]->false)`);
   }
 
   console.log(`\n${MARKER} PASS — convergence-stall advisory fires on stalled stories (case a), stays silent on healthy/below-threshold/single-clean stories, treats short trailing windows as not-stalled (case f), and only appends text (never blocks a transition).`);

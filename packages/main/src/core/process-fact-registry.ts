@@ -1859,6 +1859,14 @@ export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  {
+    name: 'runtime:review_convergence_blocker_progress', kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'], level: 'L4',
+    producer: 'core/review-convergence',
+    producerSourceRefs: ['packages/main/src/core/review-convergence.ts'],
+    consumerGate: 'machine canMintReviewRoundGuard through evaluateReviewMintStallAdjudication',
+    rationale: 'A verified blocker reduction in the trailing comparison window prevents the legacy round stall diagnostic from freezing improving work. A plateau before a decrease does not erase progress. This diagnostic does not itself establish signed completed-epoch progress or replace independent acceptance gates.',
+  },
   ...PROCESS_FACT_EVIDENCE_HASH_INPUTS,
   ...PROCESS_FACT_VALIDATION_EXECUTION,
   ...PROCESS_FACT_LAB_MAINTENANCE,

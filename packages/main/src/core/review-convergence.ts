@@ -1,14 +1,14 @@
 /**
- * B-cfdd: Soft REVIEW convergence-stall advisory (Option C).
+ * REVIEW convergence-stall diagnostic shared by advisory and mint-gate consumers.
  *
  * Background: every finding-fix commit changes the source tree and stales that
  * round's review-run bindings (content-aware materialHash in
  * core/evidence-freshness.ts), forcing a fresh REVIEW round. Structurally this
  * cannot deadlock, but an operator who keeps fixing minor findings instead of
  * dismissing them can LIVELOCK with no mechanical signal. This module derives a
- * SOFT, advisory-only stall signal from already-observable state (REVIEW round
- * count from story events + per-round blocking-finding counts) and NEVER blocks
- * a transition. Thresholds are module constants — no CLI, no config.
+ * legacy round-based stall signal from already-observable state (REVIEW round
+ * count from story events + per-round blocking-finding counts). The mint gate
+ * below consumes this diagnostic; signed epoch progress remains a separate fact.
  *
  * Reuse discipline: round counting comes from resolveReviewRoundCount
  * (advisory.ts) and the per-round blocking decision reuses isFindingBlocking
@@ -229,27 +229,11 @@ export interface ReviewConvergenceAssessment {
  * so this guard is a no-op on the production path and never changes a full-window
  * classification. It only removes a short-window false positive for direct callers.
  *
- * Convergence rule (precise & deterministic). Take the last STALL_WINDOW values
- * of perRoundBlockingCounts (the `window`). The story is CONVERGING (not stalled)
- * if EITHER:
- *   (a) the most recent round has zero blocking findings (window[last] === 0):
- *       a clean current round means blockers have been driven to zero — the
- *       healthiest state, never a stall (covers tails like [...,0] and [...,0,0]);
- *   OR
- *   (b) the window is STRICTLY DECREASING (each value strictly less than the
- *       previous): a sustained downward trend toward zero.
- * A stall is reported only when NEITHER holds — i.e. the most recent round still
- * has blockers AND the recent window is not strictly decreasing (flat / rising /
- * non-monotonic), meaning rounds keep cycling while still surfacing blockers.
- *   - [2,1,0]  -> last is 0          -> converged -> stalled=false (healthy)
- *   - [3,2,0]  -> last is 0          -> converged -> stalled=false (clean tail)
- *   - [1,0,0]  -> last is 0          -> converged -> stalled=false (already clean)
- *   - [2,1]+   -> strictly decreasing-> converging -> stalled=false
- *   - [2,2,1]  -> last 1, not strict -> no trend  -> stalled=true
- *   - [1,2,2]  -> last 2, rising     -> no trend  -> stalled=true
- *   - [3,3,3]  -> last 3, flat       -> no trend  -> stalled=true
- * We deliberately require STRICT decrease (not merely non-increasing) for (b),
- * so [2,2,1] (the 2==2 step) is a stall, while [2,1,0] is healthy.
+ * A clean latest round or any measured blocker reduction in the trailing
+ * window is progress. Requiring every adjacent round to decrease falsely
+ * freezes [2,2,1]. A flat or rising window still reports a stall; two adjacent
+ * comparisons must lack improvement before this legacy round diagnostic fires.
+ * Signed completed-epoch accounting is a separate authority boundary.
  */
 export function assessReviewConvergence(
   roundCount: number,
@@ -274,14 +258,10 @@ export function assessReviewConvergence(
   // (a) Most recent round clean => blockers driven to zero => converged.
   const recentRoundClean = window[window.length - 1] === 0;
 
-  // (b) Strictly decreasing window => sustained downward trend => converging.
-  // window.length === STALL_WINDOW is guaranteed by the short-window guard above;
-  // kept explicit so the branch documents its full-window precondition at the
-  // point of use.
-  const strictlyDecreasing = window.length === STALL_WINDOW
-    && window.every((value, i) => i === 0 || value < window[i - 1]);
+  // A plateau must not erase the verified reduction immediately after it.
+  const hasBlockerReduction = window.some((value, i) => i > 0 && value < window[i - 1]);
 
-  if (recentRoundClean || strictlyDecreasing) {
+  if (recentRoundClean || hasBlockerReduction) {
     return { stalled: false };
   }
 
