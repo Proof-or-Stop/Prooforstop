@@ -55,7 +55,7 @@ try {
   write(lab, 'bug.txt', 'fixed');
   cmd(repo, ['sync', 'one'], 1, /Uncommitted/);
   // A runtime change exercises the real shared version helper and both build stages.
-  write(lab, 'packages/main/src/fix.ts', 'export const repaired = true;\n');
+  write(lab, 'packages/main/src/修复.ts', 'export const repaired = true;\n');
   commit(lab, 'fix: target regression');
   cmd(repo, ['green', 'one']);
   write(repo, 'unrelated.txt', 'pending');
