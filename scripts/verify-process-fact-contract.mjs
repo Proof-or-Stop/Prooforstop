@@ -9408,3 +9408,5 @@ assert(read('packages/main/src/core/machine.ts').includes('return convergencePro
 assert(read('packages/main/src/handlers/story.ts').includes('acknowledgeConvergenceProgress'), 'human resume must reset signed epoch authority');
 assert(read('packages/main/src/core/convergence-progress-journal.ts').includes('humanDecisions: [...'), 'human decisions must append signed history');
 assert(read('packages/main/src/handlers/stall-adjudication.ts').includes('does not clear the completed-epoch convergence gate'), 'compatibility decisions must not claim new gate authority');
+assert(read('packages/main/src/core/managed-burn-guard.ts').includes("progress.code === 'effective_progress_stalled'"), 'burn stop requires the exact verified progress verdict, never generic integrity failure');
+assert(read('packages/main/src/core/managed-host-run.ts').includes('onProviderUsage: usage =>'), 'managed burn must use canonical provider usage observations');

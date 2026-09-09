@@ -67,6 +67,11 @@ async function main() {
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
+  check(registrySource.includes('MANAGED_BURN_RUNTIME_POLICY'), 'managed burn limits and unknown-progress policy must be registered');
+  for (const file of ['packages/main/src/core/managed-burn-guard.ts', 'packages/main/src/core/managed-host-run.ts']) {
+    check(read(root, file).includes('MANAGED_BURN_RUNTIME_POLICY'), `${file} must consume registered managed burn policy`);
+  }
+  check(read(root, 'packages/main/src/core/managed-burn-guard.ts').includes('assessConvergenceProgressGate'), 'burn stop must consume shared verified progress authority');
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
   const doctorSource = read(root, 'packages/main/src/handlers/doctor.ts');

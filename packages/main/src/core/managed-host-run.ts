@@ -1,3 +1,6 @@
+import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
+import { MANAGED_BURN_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
  * Durable, host-independent ownership boundary for cross-provider CLI runs.
@@ -487,6 +490,8 @@ export interface ManagedReviewScratchCleanupDiagnostic {
 }
 
 interface ManagedHostRunSpec {
+  /** Immutable supervisor cost limit; absent only for older managed specs. */
+  burnTokenLimit?: number;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
   submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
@@ -2137,6 +2142,7 @@ export async function submitManagedHostRun(
   }
 
   const now = deps.now ?? Date.now;
+  const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
   const deadlineMs = boundedPositiveMs(args.deadlineMs, MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS, MANAGED_HOST_RUN_MAX_DEADLINE_MS);
@@ -2152,7 +2158,7 @@ export async function submitManagedHostRun(
       ? ['request', args.idempotencyKey]
       : null;
   const submissionDigest = logicalIdentity ? sha256(canonicalJson({
-    ...args, root: realpathSync(args.root), cwd: realpathSync(args.cwd),
+    ...args, burnTokenLimit, root: realpathSync(args.root), cwd: realpathSync(args.cwd),
     deadlineMs, timeoutMs,
   })) : undefined;
   const runId = logicalIdentity
@@ -2206,6 +2212,7 @@ export async function submitManagedHostRun(
   const proposalInvocationKeys = isIsolatedReviewerProfile(args.profile) ? generateEd25519KeyPair() : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
+    burnTokenLimit,
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
@@ -2480,6 +2487,32 @@ export async function runManagedHostRunWorker(
     }
     if (!abort.signal.aborted) abort.abort(supervisorFailure);
   };
+  // Maximum per-event lower bound avoids double counting repeated/cumulative usage
+  // events. This is deliberately not a sum of transcript or provider session history.
+  let liveUsage: LiveProviderUsage | null = null;
+  let nextBurnCheckAt = 0;
+  let lastBurnDecision: string | null = null;
+  const checkBurn = (): void => {
+    if (abort.signal.aborted || !liveUsage || now() < nextBurnCheckAt) return;
+    const limit = spec.burnTokenLimit ?? MANAGED_BURN_RUNTIME_POLICY.defaultTokenLimit;
+    if (liveUsage.tokens <= limit) return;
+    nextBurnCheckAt = now() + MANAGED_BURN_RUNTIME_POLICY.progressCheckIntervalMs;
+    const decision = assessManagedBurn(spec.root, spec.storyId, liveUsage.tokens, limit);
+    const key = `${decision.action}:${decision.reason}`;
+    if (key !== lastBurnDecision) {
+      updateSnapshotAndAppendEvent(paths, current => ({ ...current, generation: current.generation + 1 }), {
+        schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+        type: 'burn_guard', detail: { ...decision, observedTokensLowerBound: liveUsage.tokens, tokenLimit: limit,
+          provider: liveUsage.provider, usagePayloadDigest: liveUsage.payloadDigest },
+      });
+      lastBurnDecision = key;
+    }
+    if (decision.action === 'stop') {
+      ensureCancelRequest(paths, spec.runId, decision.reason, now());
+      cancelTriggered = true;
+      abort.abort(new Error(decision.reason));
+    }
+  };
   let outputSequence = readManagedHostRunSnapshot(paths).outputSequence;
   let outputRetainedBytes = readManagedHostRunSnapshot(paths).outputRetainedBytes ?? 0;
   let outputTruncated = readManagedHostRunSnapshot(paths).outputTruncated ?? false;
@@ -2498,6 +2531,7 @@ export async function runManagedHostRunWorker(
         outputRetainedBytes,
         outputTruncated,
       }));
+      checkBurn();
     } catch (error) {
       // Runtime retention/test cleanup may remove the authoritative snapshot while
       // the unref'ed heartbeat is between its terminal check and locked RMW.  A
@@ -2601,6 +2635,9 @@ export async function runManagedHostRunWorker(
       },
       {
         runner: deps.runner,
+        onProviderUsage: usage => {
+          if (!liveUsage || usage.tokens > liveUsage.tokens) liveUsage = usage;
+        },
         onProcessSpawn: identity => {
           const published = updateSnapshotAndAppendEvent(
             paths,

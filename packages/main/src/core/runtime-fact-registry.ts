@@ -171,3 +171,13 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
 } as const;
+
+/** Sealed at managed submit; provider text cannot change these supervisor limits. */
+export const MANAGED_BURN_RUNTIME_POLICY = {
+  tokenLimitEnvironment: 'PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT',
+  defaultTokenLimit: 100_000_000,
+  progressCheckIntervalMs: 5_000,
+  terminalReason: 'burn_without_effective_progress',
+  unknownProgress: 'advisory',
+  usageAuthority: 'bounded-provider-stdout-event',
+} as const;

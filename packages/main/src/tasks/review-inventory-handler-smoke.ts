@@ -410,7 +410,11 @@ async function inventoryPurposeRecovery(): Promise<void> {
         assert.equal(progress.state.stagnantEpochIds.length, iteration + 1, 'only separately completed stagnant epochs accumulate');
         assert.equal(assessConvergenceProgressGate(fixture.store, storyId).blocked, iteration === 1);
       }
-      if (process.argv.includes('--burn-fixture')) await runManagedBurnFixture(fixture.root, storyId, true);
+      if (process.argv.includes('--burn-fixture')) {
+        await runManagedBurnFixture(fixture.root, storyId, true);
+        await runManagedBurnFixture(fixture.root, storyId, true, 'sealed-limit');
+        if (process.argv.includes('--burn-close-fixture')) await runManagedBurnFixture(fixture.root, storyId, true, 'closed');
+      }
       const gate = { command: 'story_advance', storyId, store: fixture.store, env: {}, isTakeoverCommand: false };
       assert.throws(() => enforceConvergenceBreakerGate(gate), /FROZEN/);
       assert.equal(evaluateReviewMintStallAdjudication(fixture.store, storyId).blocked, true);

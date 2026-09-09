@@ -168,3 +168,20 @@ command and selector pin, output digest and source identities. Missing receipt
 objects and dirty material produce unavailable observations, never a claimed
 coverage gain. Remediation uses the same execution-authority verifier. Legacy
 compatibility coverage remains governed by the existing coverage policy.
+
+### Managed burn and verified progress
+
+Managed workers observe only complete bounded canonical provider stdout usage events.
+Their token lower bound is the largest validated event, including reported cache
+input once; replayed events are not summed. Transcript size, tool text, heartbeat,
+and estimated token counts never authorize a cost stop. The submitter seals
+`PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT` (positive integer; default 100000000) in the
+managed spec. Changing the worker or provider environment cannot change that limit.
+
+When this limit is exceeded, the supervisor checks the same signed completed-epoch
+progress authority used by convergence gates. Only two verified complete stagnant
+epochs authorize `cancelled / burn_without_effective_progress`. Current net progress,
+missing history, projectless execution, or unavailable progress yields an advisory;
+no independent review requirement is waived. Normal TERM/KILL/reap and replacement
+safety still apply. Explicit startup/total/absolute deadlines remain finite and
+retain their distinct terminal reasons. A burn stop never redispatches a replacement.
