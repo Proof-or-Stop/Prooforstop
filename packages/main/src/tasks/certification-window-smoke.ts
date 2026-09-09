@@ -1613,6 +1613,9 @@ assert.equal(firstRoutineEvidence?.result, 'PASS', 'the one admitted bare routin
 
 await runValidateGate(atMostOnceCtx, atMostOnceStoryId, { stop: () => {} });
 assert.equal(markerPathRunCount(atMostOnceMarker), beforeBareRoutine + 1, 'REVIEW-to-TEST reuses the fresh stored PASS without another child');
+assert.match(atMostOnceWindowHandlers.certification_window_status({ storyId: atMostOnceStoryId }),
+  new RegExp(`Next: proof-or-stop story_advance --storyId=${atMostOnceStoryId} --phase=TEST`),
+  'current signed routine PASS must end the certification status loop');
 const currentRoutineEvidence = atMostOnceStore.readTestEvidence(atMostOnceStoryId)!;
 atMostOnceStore.writeTestEvidence(atMostOnceStoryId, { ...currentRoutineEvidence, result: 'FAIL' });
 const failedPassTransition = await caught(() => runValidateGate(atMostOnceCtx, atMostOnceStoryId, { stop: () => {} }));
@@ -1621,6 +1624,8 @@ assert.equal(markerPathRunCount(atMostOnceMarker), beforeBareRoutine + 1, 'a fai
 atMostOnceStore.writeTestEvidence(atMostOnceStoryId, { ...currentRoutineEvidence, headHash: '0'.repeat(40) });
 const stalePassTransition = await caught(() => runValidateGate(atMostOnceCtx, atMostOnceStoryId, { stop: () => {} }));
 assert.match(stalePassTransition, new RegExp(`\\[${PRE_CERT_ROUTINE_PASS_REQUIRED}\\]`));
+assert.doesNotMatch(atMostOnceWindowHandlers.certification_window_status({ storyId: atMostOnceStoryId }),
+  /Next: .*--phase=TEST/, 'stale routine PASS cannot recommend TEST');
 assert.equal(markerPathRunCount(atMostOnceMarker), beforeBareRoutine + 1, 'stale stored routine evidence must refuse TEST without launching a replacement child');
 atMostOnceStore.writeTestEvidence(atMostOnceStoryId, currentRoutineEvidence);
 const secondBareRoutine = JSON.parse(await atMostOnceValidate.validate({ storyId: atMostOnceStoryId, json: true }));
