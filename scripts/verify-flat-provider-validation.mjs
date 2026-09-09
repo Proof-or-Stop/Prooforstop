@@ -9,7 +9,7 @@ const scratch = mkdtempSync(join(tmpdir(), 'flat-provider-validation-'));
 try {
   const commands = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'))).validate.commands;
   const registered = commands.flatMap(command => command.args.filter(arg => /\.(?:mjs|js)$/.test(arg)).map(arg => resolve(root, arg)));
-  const roots = ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
+  const roots = process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
     'red-w2b-wiring-contract.mjs'];
   const trace = join(scratch, 'trace.mjs');
@@ -81,7 +81,8 @@ syncBuiltinESMExports();
   for (const filename of ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
     'host-run-usage-smoke.js', 'dispatch-run-smoke.js', 'provider-claude-smoke.js',
     'managed-host-run-e2e-smoke.js', 'managed-host-run-process-smoke.js',
-    'lifecycle-registry-contract.js', 'command-ownership-contract.js']) {
+    'lifecycle-registry-contract.js', 'command-ownership-contract.js',
+    'managed-host-run-command-smoke.js']) {
     assert.ok(registered.includes(resolve(root, 'packages/main/dist/tasks', filename)),
       `canonical coverage union must retain ${filename}`);
   }
