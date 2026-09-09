@@ -6,8 +6,9 @@ The original Lab and its evidence remain preserved. This is local maintenance,
 not a formal Story DONE or authorization for remote publication.
 
 The pinned command is `node experiments/five-item-integration/verify.mjs`.
-Its first assertion reproduces the executed bootstrap helper identity omission
-on the baseline, with prepared independent dependencies and dist. The remaining
+Its first assertion reproduces acceptance of an explicitly required invalid
+implementation pin by the real baseline CLI, with prepared independent dependencies
+and dist. After pin enforcement exists, it also checks imported helper tampering. The remaining
 checks protect hashing, recovery, signed intent history, shared execution,
 resource safety, the latest main quorum coordinator, and process/runtime facts.
 They deliberately require the candidate controls to be present before GREEN.

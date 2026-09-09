@@ -23,6 +23,11 @@ try{
  const git=args=>execFileSync('git',args,{cwd:copy,stdio:'pipe'});
  git(['init','-q','-b','main']);git(['config','user.email','audit@example.test']);git(['config','user.name','Isolated audit fixture']);
  git(['add','package.json','.gitignore','bin','scripts','packages/main/package.json','packages/main/templates','packages/utils/package.json','packages/lab/package.json']);git(['commit','-qm','bootstrap audit fixture']);
+ const ordinary=run(['--version']);assert.equal(ordinary.status,0,ordinary.stdout+ordinary.stderr);
+ const rejected=run(['--version'],{PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN:'1',PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST:'0'.repeat(64)});
+ writeFileSync(join(output,'baseline-pin-enforcement.json'),JSON.stringify({ordinaryExit:ordinary.status,ordinaryOutput:ordinary.stdout,wrongPinExit:rejected.status,wrongPinStdout:rejected.stdout,wrongPinStderr:rejected.stderr},null,2)+'\n');
+ assert.notEqual(rejected.status,0,'IMPLEMENTATION_PIN_NOT_ENFORCED: real CLI accepted an explicitly required invalid implementation pin');
+ assert.match(rejected.stderr,/IMPLEMENTATION_PIN_MISMATCH/);
  const first=run(['--implementation-identity']);assert.equal(first.status,0,first.stdout+first.stderr);const before=JSON.parse(first.stdout);
  const pin={PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN:'1',PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST:before.digest};
  const valid=run(['--version'],pin);assert.equal(valid.status,0,valid.stdout+valid.stderr);
