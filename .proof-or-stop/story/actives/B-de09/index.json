@@ -4,7 +4,7 @@
   "title": "Reconcile the trusted RED-to-GREEN enforcement program and audit it with Claude CLI",
   "description": "Revise the existing repro-first enforcement execution plan into a current, implementation-sequenced design and acceptance truth source, then preserve an independent Claude CLI audit without changing runtime behavior.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "repro-first",
@@ -26,6 +26,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-7a7bdf26a84911a33c17c2ea73e653b6",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-09T22:59:59.493Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7a7bdf26a84911a33c17c2ea73e653b6",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-de09",
+    "branch": "story/B-de09",
+    "createdAt": "2026-09-09T22:59:50.324Z"
+  }
 }
