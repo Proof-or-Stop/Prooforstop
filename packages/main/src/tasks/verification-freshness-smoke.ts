@@ -17,6 +17,7 @@ import {
 } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { createChecklistHandlers, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
@@ -829,6 +830,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       };
       store.writeStory(storyId, story);
       store.writeChecklist(storyId, checklist);
+      acquireOwnerLease(store.storyDirPath(storyId), { command: 'recover-evidence-smoke', cwd: root });
       return { root, storyId, store, cleanup: () => rmSync(root, { recursive: true, force: true }) };
     } catch (e) {
       rmSync(root, { recursive: true, force: true });
@@ -869,6 +871,17 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     } finally {
       fx.cleanup();
     }
+  }
+
+  // Ownership is a prerequisite, not a reason to silently skip validation.
+  {
+    const fx = makeFixture();
+    try {
+      releaseOwnerLease(fx.store.storyDirPath(fx.storyId));
+      const result = await runHandler(fx.root, fx.storyId, fx.store);
+      assert.equal(result.status, 'fail', 'recovery without ownership cannot claim success');
+      assert.match(result.validateTranscript ?? '', /owner lease lost, expired, or transferred/);
+    } finally { fx.cleanup(); }
   }
 
   // (3) Refuse — material_source_changes blocks recover.
