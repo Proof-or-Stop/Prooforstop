@@ -1,5 +1,0 @@
-BINDING_SET_CORRUPTION_IS_ACTIONABLE (red_evidence_binding_set on a rejected envelope now carries the corruption marker, the NOT-ABSENCE sentence and the repair command — every actionable part the reference consumer red_evidence_get emits — plus "Nothing written"; control: an ABSENT artifact carries none of it and produces different output)
-MEMBERSHIP_GATE_DOES_NOT_READ_RED_EVIDENCE (on a CORRUPT artifact an out-of-set target is refused by the §3.3 MEMBERSHIP rule, not by an artifact abort — reachable only if the gate completed without reading red-evidence; the refusal is byte-identical to the absent-artifact run, carries no corruption marker, and case-sensitivity is unchanged)
-EXPECTED_RED_TARGETS_SET_UNCHANGED (the narrow ExpectedRedTargetsInput and the full proofStoryDiagnosticInput resolve to the same Set on both fixtures: populated=["CHK-001:happy:0","M1"] (size 2, non-vacuous) and bare-story=<empty>; no membership verdict moved)
-
-red-b2aa7-f005-receipt: OK (the §3.3 membership gate is decoupled from red-evidence; the binding path fails as actionably as every other CHK-006 consumer; the computed target set is unchanged)

@@ -35,3 +35,16 @@ Native Lab RED/GREEN records remain HMAC-bound local maintenance provenance in t
 Git common directory after finish. They are not formal Story REVIEW/TEST/DONE.
 The native finish command alone performs release preparation, fresh checks,
 fast-forward local integration, and verified cleanup. Remote push is not authorized.
+
+## Initial integration validation and independent audit
+
+`initial-integration-evidence.tar.gz` preserves all 215 original current-evidence
+files byte-for-byte, with its own SHA256SUMS. This includes 22/22 focused checks
+and the complete first 135-command run: 129 passed, six failed, 774.955 seconds.
+It is retained as a failed first integration trial, never relabeled final GREEN.
+The original expanded files were compressed solely for reviewability and storage;
+the external raw evidence and original local commit remain available.
+
+`claude-initial-audit.md` and `.json` are the unmodified independent Claude CLI
+review of source 3b55ae70. Its F-1/F-2/F-3 require explicit disposition in the final
+integration report. Later fixes and rechecks do not alter that original verdict.

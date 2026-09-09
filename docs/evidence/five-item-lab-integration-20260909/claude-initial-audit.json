@@ -1,0 +1,452 @@
+{
+  "auditor": "Claude CLI independent integration auditor (claude-opus-5[1m])",
+  "date": "2026-09-09",
+  "candidateSha": "3b55ae70ddda3f6085ec0b0473847da2cacfef9c",
+  "currentMainSha": "04e66fdbaeaeeb540a80c9f8e16085a5ee468f5a",
+  "historicalCandidateSha": "50ca0454dc8d6e2f44aa34918493da7415ee2c78",
+  "baseSha": "cf21df09c273074d7aa3227a5f436c6f5badf47a",
+  "runtime": {
+    "path": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-integration-audit-lm4icvth/repo",
+    "node": "v26.8.1",
+    "typescript": "5.9.3",
+    "platform": "darwin 25.6.0",
+    "worktreeCleanAtEnd": true,
+    "headUnchanged": true
+  },
+  "verdict": "PASS_WITH_FINDINGS",
+  "verdictSummary": "All 22 checks.json entries pass individually. Retained main quorum contracts, 135-row command-identity migration, effective-barrier conflict and the 20/14/5/1 resource audit are correct and independently reproduced. Three findings remain: F-1 (candidate-authored historical 134-command pin), F-2 (unwired graph control), F-3 (inherited main guard failure).",
+  "integrationContract": {
+    "checksTotal": 22,
+    "checksPassedIndividually": 22,
+    "note": "full135 / npm test deliberately not run per instruction; FIVE_ITEM_INTEGRATION_GREEN does not imply full validation is green"
+  },
+  "verifiedClaims": {
+    "quorumRowMatchesMainByteForByte": true,
+    "quorumJobs": "--jobs=2",
+    "quorumResources": [
+      {
+        "class": "git-common-dir",
+        "key": ".",
+        "access": "shared"
+      }
+    ],
+    "historicalPrototypeDeclarationImported": false,
+    "redBE40fLabConvergenceUnchangedFromMain": true,
+    "quorumSourceFilesUnchangedFromMain": true,
+    "commandsBefore": 135,
+    "commandsAfter": 135,
+    "commandsAddedOrRemoved": 0,
+    "identityKeysUnique": true,
+    "mainDeclarationsPreservedByteIdentical": 110,
+    "declarationsNewlyAdded": 25,
+    "argvDifferencesVsMain": [
+      "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js gains --probe-jobs=4 (same identity under declared identityKey)"
+    ],
+    "routineCommandsNotConflictingWithLocalBuild": 0,
+    "doneCommandsNotConflictingWithLocalBuild": 0,
+    "rawGitOnlyClaimStillConflictsWithBuild": true,
+    "resourceAudit": {
+      "entries": 27,
+      "safeToDeclareShared": 20,
+      "leaveUndeclared": 7,
+      "supersededQuorumReviews": 1,
+      "effectiveReaders": 14,
+      "exclusiveBarrierHolders": 6,
+      "localWriters": 5,
+      "buildOrderPrecheck": 1,
+      "totalRoutineExclusiveBarriers": 11,
+      "allSourcePathsExist": true,
+      "exactArgvBindings": "26 of 27; npm test is a doneRequiredCommands entry"
+    },
+    "protectedMetadataUnchanged": {
+      "package.json": "0.3.285",
+      "packages/main": "0.3.285",
+      "packages/utils": "0.3.268",
+      "packages/graph": "0.1.0",
+      "packages/lab": "0.3.65"
+    },
+    "deadOldPrototypeDependencies": 0,
+    "checksJsonPathsExist": "22 of 22",
+    "historicalArchive": {
+      "sha256": "8221371def0e3bd30cea8d0da0328ffba4a3fab3f223b023c3439ee2264ce307",
+      "sha256Matches": true,
+      "tarEntries": 2128,
+      "directories": 158,
+      "regularFiles": 1970,
+      "sha256sumsListed": 1969,
+      "sha256sumsVerifiedOk": 1969,
+      "sha256sumsFailed": 0,
+      "reconciliation": "1970th regular file is SHA256SUMS itself"
+    }
+  },
+  "testsWeakenedAssessment": {
+    "conclusion": "no test weakened to mask an incompatibility",
+    "validate-resource-claims.test.mjs": "migrated and net stronger; new per-writer negative-control loop at lines 343-347; barriers/overlappable split correctly generalized so the overlap assertion stays non-vacuous",
+    "proofstory-acceptance-basis-smoke.ts": "parallelized and stronger; 58-probe coverage pin, per-probe git HEAD immutability check, exactly-once completion set, concurrency non-vacuity assertion",
+    "verify-missing-assets-fail.mjs": "recovery assertions tightened (served bytes must equal recovered bytes; served repo identity checked; two passes; exact original restored); removed refusal branch tracked as F-2",
+    "vacuityNote": "with byDefault now empty, two fail-closed-default assertions are vacuous against the real config; still exercised by synthetic probes at lines 111-116"
+  },
+  "fiveItemClaimScope": {
+    "identityHash": {
+      "verdict": "supported",
+      "scope": "opt-in host transport pin over loaded core, bootstrap, workspace extensions, dependency closure and Node; does not establish that other running owner/reviewer sessions are pinned; not a hostile-host sandbox"
+    },
+    "boundedRepairAuthority": {
+      "verdict": "supported",
+      "scope": "append-only signed acceptance repair confined to DEV; attributable provenance, not formal PASS evidence, not scope expansion"
+    },
+    "exactSharedReceipts": {
+      "verdict": "supported",
+      "scope": "one opted-in heavy command; forbidden/never-reuse/build-proof exclusions retained; 0 of 2 DONE eligible; no Story-wide speedup claimed or verified"
+    },
+    "recoveryHistory": {
+      "verdict": "supported",
+      "scope": "local file loss and interrupted publication; Git ref/object store/signing key remain the local trust root and their destruction is outside the boundary; no cross-clone trust transfer"
+    },
+    "resourceCapacityBuildOrder": {
+      "verdict": "supported",
+      "scope": "declaration completeness and conflict correctness only; not proof of command success or lower elapsed time"
+    }
+  },
+  "explicitlyNotClaimed": [
+    "universal 48% speedup",
+    "identical reviewer recall",
+    "all foreign owner sessions pinned",
+    "any performance measurement (recorded times are wall-clock check cost in a loaded runtime, not benchmarks)"
+  ],
+  "commandLog": [
+    {
+      "id": "t1-B-e40f-lab-convergence",
+      "exitCode": 0,
+      "seconds": 2.38,
+      "log": "evidence/t1-B-e40f-lab-convergence.log",
+      "command": "node packages/main/tests/red/red-B-e40f-lab-convergence.mjs"
+    },
+    {
+      "id": "t2-resource-audit-contract",
+      "exitCode": 0,
+      "seconds": 0.24,
+      "log": "evidence/t2-resource-audit-contract.log",
+      "command": "node experiments/five-item-proof/resource-audit-contract.mjs"
+    },
+    {
+      "id": "t3-capacity-config",
+      "exitCode": 0,
+      "seconds": 2.31,
+      "log": "evidence/t3-capacity-config.log",
+      "command": "node experiments/five-item-proof/capacity-config.mjs"
+    },
+    {
+      "id": "t4-process-fact-contract",
+      "exitCode": 0,
+      "seconds": 8.42,
+      "log": "evidence/t4-process-fact-contract.log",
+      "command": "node scripts/verify-process-fact-contract.mjs"
+    },
+    {
+      "id": "t5-runtime-fact-contract",
+      "exitCode": 0,
+      "seconds": 3.85,
+      "log": "evidence/t5-runtime-fact-contract.log",
+      "command": "node scripts/verify-runtime-fact-contract.mjs"
+    },
+    {
+      "id": "t6-validate-resource-claims",
+      "exitCode": 0,
+      "seconds": 2.55,
+      "log": "evidence/t6-validate-resource-claims.log",
+      "command": "node packages/main/tests/validate-resource-claims.test.mjs"
+    },
+    {
+      "id": "t7-build-order",
+      "exitCode": 0,
+      "seconds": 4.72,
+      "log": "evidence/t7-build-order.log",
+      "command": "node experiments/five-item-proof/build-order.mjs"
+    },
+    {
+      "id": "t8-shared-config",
+      "exitCode": 0,
+      "seconds": 0.36,
+      "log": "evidence/t8-shared-config.log",
+      "command": "node experiments/five-item-proof/shared-config.mjs"
+    },
+    {
+      "id": "p3-graph-missing-control",
+      "exitCode": 1,
+      "seconds": 0.97,
+      "log": "evidence/p3-graph-missing-control.log",
+      "command": "node experiments/five-item-proof/graph-missing-control.mjs"
+    },
+    {
+      "id": "p4-graph-build",
+      "exitCode": 0,
+      "seconds": 1.12,
+      "log": "evidence/p4-graph-build.log",
+      "command": "npm --prefix packages/graph run build"
+    },
+    {
+      "id": "p5-graph-missing-control-after-build",
+      "exitCode": 0,
+      "seconds": 2.05,
+      "log": "evidence/p5-graph-missing-control-after-build.log",
+      "command": "node experiments/five-item-proof/graph-missing-control.mjs"
+    },
+    {
+      "id": "p6-verify-missing-assets-fail",
+      "exitCode": 0,
+      "seconds": 6.61,
+      "log": "evidence/p6-verify-missing-assets-fail.log",
+      "command": "node packages/graph/scripts/verify-missing-assets-fail.mjs"
+    },
+    {
+      "id": "p7-verify-json-no-listener",
+      "exitCode": 0,
+      "seconds": 0.87,
+      "log": "evidence/p7-verify-json-no-listener.log",
+      "command": "node packages/graph/scripts/verify-json-no-listener.mjs"
+    },
+    {
+      "id": "p8-verify-serves",
+      "exitCode": 0,
+      "seconds": 1.02,
+      "log": "evidence/p8-verify-serves.log",
+      "command": "node packages/graph/scripts/verify-serves.mjs"
+    },
+    {
+      "id": "c01-bootstrap-identity",
+      "exitCode": 0,
+      "seconds": 8.66,
+      "log": "evidence/c01-bootstrap-identity.log",
+      "command": "node experiments/five-item-integration/bootstrap-identity.mjs"
+    },
+    {
+      "id": "c02-verify-hash-accuracy",
+      "exitCode": 0,
+      "seconds": 7.85,
+      "log": "evidence/c02-verify-hash-accuracy.log",
+      "command": "node scripts/verify-hash-accuracy.mjs"
+    },
+    {
+      "id": "c03-last-closure",
+      "exitCode": 0,
+      "seconds": 1.11,
+      "log": "evidence/c03-last-closure.log",
+      "command": "node experiments/five-item-proof/last-closure.mjs"
+    },
+    {
+      "id": "c04-acceptance-revision",
+      "exitCode": 0,
+      "seconds": 5.07,
+      "log": "evidence/c04-acceptance-revision.log",
+      "command": "node experiments/five-item-proof/acceptance-revision.mjs"
+    },
+    {
+      "id": "c05-acceptance-checkpoint",
+      "exitCode": 0,
+      "seconds": 12.36,
+      "log": "evidence/c05-acceptance-checkpoint.log",
+      "command": "node experiments/five-item-proof/acceptance-checkpoint.mjs"
+    },
+    {
+      "id": "c06-checkpoint-audit-controls",
+      "exitCode": 0,
+      "seconds": 13.07,
+      "log": "evidence/c06-checkpoint-audit-controls.log",
+      "command": "node experiments/five-item-proof/checkpoint-audit-controls.mjs"
+    },
+    {
+      "id": "c07-checkpoint-owner-recovery",
+      "exitCode": 0,
+      "seconds": 20.58,
+      "log": "evidence/c07-checkpoint-owner-recovery.log",
+      "command": "node experiments/five-item-proof/checkpoint-owner-recovery.mjs"
+    },
+    {
+      "id": "c08-signature-key-controls",
+      "exitCode": 0,
+      "seconds": 0.37,
+      "log": "evidence/c08-signature-key-controls.log",
+      "command": "node experiments/five-item-proof/signature-key-controls.mjs"
+    },
+    {
+      "id": "c09-signature-batch-controls",
+      "exitCode": 0,
+      "seconds": 3.34,
+      "log": "evidence/c09-signature-batch-controls.log",
+      "command": "node experiments/five-item-proof/signature-batch-controls.mjs"
+    },
+    {
+      "id": "c10-publication-restart",
+      "exitCode": 0,
+      "seconds": 5.0,
+      "log": "evidence/c10-publication-restart.log",
+      "command": "node experiments/five-item-proof/publication-restart.mjs"
+    },
+    {
+      "id": "c11-evidence-implementation",
+      "exitCode": 0,
+      "seconds": 9.58,
+      "log": "evidence/c11-evidence-implementation.log",
+      "command": "node experiments/five-item-proof/evidence-implementation.mjs"
+    },
+    {
+      "id": "c12-complete-output-adversarial",
+      "exitCode": 0,
+      "seconds": 6.02,
+      "log": "evidence/c12-complete-output-adversarial.log",
+      "command": "node experiments/five-item-proof/complete-output-adversarial.mjs"
+    },
+    {
+      "id": "c13-output-retention-contract",
+      "exitCode": 0,
+      "seconds": 0.41,
+      "log": "evidence/c13-output-retention-contract.log",
+      "command": "node experiments/five-item-proof/output-retention-contract.mjs"
+    },
+    {
+      "id": "c14-exit-legacy-output",
+      "exitCode": 0,
+      "seconds": 0.4,
+      "log": "evidence/c14-exit-legacy-output.log",
+      "command": "node experiments/five-item-proof/exit-legacy-output.mjs"
+    },
+    {
+      "id": "p14-retired-authority-guard",
+      "exitCode": 1,
+      "seconds": 54.57,
+      "log": "evidence/p14-retired-authority-guard.log",
+      "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+    },
+    {
+      "id": "p16-lab-graph-loader-proof",
+      "exitCode": 0,
+      "seconds": 5.21,
+      "log": "evidence/p16-lab-graph-loader-proof.log",
+      "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js --lab-graph-loader-proof"
+    },
+    {
+      "id": "p17-validation-tier-planner",
+      "exitCode": 1,
+      "seconds": 6.34,
+      "log": "evidence/p17-validation-tier-planner.log",
+      "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1-effective-barrier-probe",
+      "script": "evidence/probes/p1-effective-barrier-probe.mjs",
+      "log": "evidence/p1-effective-barrier-probe.log",
+      "result": "0 of 135 routine and 0 of 2 DONE commands fail to conflict with the local build; quorum raw Git-only claim conflicts with build via injected shared plan barrier vs declared exclusive barrier"
+    },
+    {
+      "id": "p2-audit-20-14-5-1",
+      "script": "evidence/probes/p2-audit-20-14-5-1.mjs",
+      "log": "evidence/p2-audit-20-14-5-1.log",
+      "result": "20 safe-to-declare-shared reviews resolve to 14 effective readers + 6 exclusive-barrier holders (5 writers + 1 build-order precheck); 11 total exclusive barrier holders = 10 pinned writers + precheck"
+    },
+    {
+      "id": "p12-crossparent-mutation-probe",
+      "script": "evidence/probes/p12-crossparent-mutation-probe.mjs",
+      "log": "evidence/p12-crossparent-mutation-probe.log",
+      "result": "verifyResourceAudit fires on writer-barrier downgrade and audited-command removal; quorum-row mutations correctly out of its scope (see p13)"
+    },
+    {
+      "id": "p13-quorum-exact-guard-probe",
+      "script": "evidence/probes/p13-quorum-exact-guard-probe.mjs",
+      "log": "evidence/p13-quorum-exact-guard-probe.log",
+      "result": "control passes; all four cross-parent mutations (historical 5-claim import, --jobs=4 revert, exclusive upgrade, extra claim) REJECTED by the exact declaration guard"
+    },
+    {
+      "id": "p18-commandset-digest-origin",
+      "script": "evidence/probes/p18-commandset-digest-origin.mjs",
+      "log": "evidence/p18-commandset-digest-origin.log",
+      "result": "pinned b29365c6 == historical 50ca0454 config digest (134 cmds); candidate actual digest 63f92341 (135 cmds); main pin 6f6a4fa0 != main digest fdcf2fa5 so F-023 already red on main"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "medium",
+      "title": "commandSetDigest re-pinned to the historical 134-command value",
+      "sourceRefs": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts:503-504"
+      ],
+      "classification": "inherited-red assertion; the stale cross-parent pin value and its comment are candidate-introduced",
+      "classificationProof": {
+        "alreadyRedOnMain": "main pin 6f6a4fa01f9ae975a04c754c17d1ca31df1066ba6c4967b4ed2f35f7a5452e24 != main config digest fdcf2fa5950066f1bf88385f21016d65427cc48bd3323e50add1488ed381aac8",
+        "candidateIntroduced": "candidate pin b29365c6a2ba5e50d50e05fd12654e505922413117531f37ce76e7716d859653 is byte-identical to the historical 50ca0454 134-command config digest",
+        "confoundExcluded": "packages/main/src/core/validation-command-identity.ts unchanged between main and candidate; handlers/verifier.ts diff does not touch configuredValidationCommands"
+      },
+      "reproduction": "node packages/main/dist/tasks/validation-tier-planner-smoke.js -> exit 1, FAIL F-023",
+      "evidence": [
+        "evidence/p17-validation-tier-planner.log",
+        "evidence/p18-commandset-digest-origin.log"
+      ],
+      "applicability": "configured validation command; NOT in checks.json, so the integration contract reports GREEN while this is red",
+      "violates": "experiments/five-item-integration/README.md:19 - do not represent historical 134-command results as current 135-command results",
+      "correctValue": "63f9234131b7473f03917a37de401db5dcfbab11a38e4b53a2d7c9fa961565d4"
+    },
+    {
+      "id": "F-2",
+      "severity": "medium",
+      "title": "isolated graph missing-output control is sound but referenced by nothing",
+      "sourceRefs": [
+        "experiments/five-item-proof/graph-missing-control.mjs",
+        "packages/graph/scripts/verify-missing-assets-fail.mjs",
+        "docs/validation-performance.md (Lab graph validation process ownership)"
+      ],
+      "classification": "candidate-introduced wiring/documentation gap; not an actual coverage regression versus main",
+      "detail": "zero references repository-wide (not in checks.json, five-item-proof/verify.mjs, any package.json script, or the README). The rewritten verify-missing-assets-fail.mjs dropped its inline scenario-2 refusal branch; on main that branch was dead whenever recovery succeeded, which is the normal case.",
+      "controlIsCorrect": true,
+      "reproduction": "node experiments/five-item-proof/graph-missing-control.mjs -> exit 0, GRAPH_MISSING_ASSETS_REFUSED_BEFORE_LISTEN (after graph build)",
+      "environmentalSubFailure": {
+        "observed": "first run exit 1, ENOENT packages/graph/assets/app.html at graph-missing-control.mjs:16",
+        "provenEnvironmental": "packages/graph/assets/ and dist/ absent in frozen runtime; assets/ gitignored via packages/graph/.gitignore:11; after npm --prefix packages/graph run build (exit 0) the identical command passes",
+        "evidence": [
+          "evidence/p3-graph-missing-control.log",
+          "evidence/p4-graph-build.log",
+          "evidence/p5-graph-missing-control-after-build.log"
+        ]
+      },
+      "secondaryLow": "no precondition guard unlike verify-missing-assets-fail.mjs:11; crashes with raw ENOENT, conflicting with experiments/five-item-integration/README.md:15"
+    },
+    {
+      "id": "F-3",
+      "severity": "low",
+      "title": "retired-authority vocabulary guard red (17 violations)",
+      "classification": "inherited from main; NOT candidate-introduced",
+      "sourceRefs": [
+        "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:1847-1849,1916,1925-1934,2078-2080"
+      ],
+      "classificationProof": {
+        "notAtBase": "file absent at base cf21df09",
+        "introducedBy": "e96b6284bd perf: converge quorum smoke execution in Lab (main ancestor)",
+        "identicalBlob": "30833cc49ee88adb16a3f8233f2132dd167f1d65 on both main and candidate",
+        "scannerUntouched": "candidate diff to retired-authority-vocabulary-guard-smoke.ts touches the vocabulary scanner 0 times",
+        "noExemption": "neither version exempts the file",
+        "authorsAware": "retired-authority-vocabulary-guard-smoke.ts:5914-5916 documents 'unrelated baseline failures'"
+      },
+      "reproduction": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js -> exit 1, 17 violations",
+      "focusedPathGreen": "--lab-graph-loader-proof -> exit 0, LAB_GRAPH_LOADER_PROOF_GREEN {\"filesChecked\":1,\"mutantsChecked\":14}",
+      "evidence": [
+        "evidence/p14-retired-authority-guard.log",
+        "evidence/p15-inherited-guard-proof.log",
+        "evidence/p16-lab-graph-loader-proof.log"
+      ]
+    }
+  ],
+  "auditorActions": {
+    "sourceEdited": false,
+    "filesRemoved": false,
+    "committed": false,
+    "storyLifecycleInvoked": false,
+    "mainModified": false,
+    "agentsSpawned": false,
+    "approvalsGiven": false,
+    "buildsPerformedInPrivateRuntime": [
+      "npm --prefix packages/graph run build (gitignored assets/ and dist/ only, to classify F-2)"
+    ]
+  }
+}

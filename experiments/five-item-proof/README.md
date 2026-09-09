@@ -45,6 +45,8 @@ node experiments/five-item-proof/build-order.mjs
 node experiments/five-item-proof/resource-audit-contract.mjs
 node experiments/five-item-proof/capacity-config.mjs
 node experiments/five-item-proof/shared-config.mjs
+# The graph check builds its client, tests recovery, and runs the no-listener refusal control.
+npm --prefix packages/graph run check
 node packages/main/tests/red/red-B-e40f-lab-convergence.mjs
 node scripts/verify-process-fact-contract.mjs
 node scripts/verify-runtime-fact-contract.mjs

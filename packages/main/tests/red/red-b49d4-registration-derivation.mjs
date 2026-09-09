@@ -181,7 +181,7 @@
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
  */
 import {
-  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync,
+  copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, readdirSync, realpathSync, rmSync, statSync,
   symlinkSync, writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -306,15 +306,17 @@ const sweepLegacyProbeDebris = () => {
  * moment can therefore strand nothing except a directory under `os.tmpdir()`,
  * which is outside every guarded population and cannot make any guard fail.
  */
-function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [] } = {}) {
+function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [], copyTracked = false, copyTrees = [] } = {}) {
   const root = mkdtempSync(join(tmpdir(), prefix));
   const mustBeReal = new Set();
   const copied = new Set(copyDirs);
+  const tracked = new Set(copyTracked ? gitRead(repoRoot,['ls-files','-z']).toString('utf8').split('\0').filter(Boolean) : []);
+  const wholeTrees = new Set(copyTrees);
   const addAncestors = (rel) => {
     const parts = rel.split('/');
     for (let i = 1; i < parts.length; i += 1) mustBeReal.add(parts.slice(0, i).join('/'));
   };
-  for (const rel of writableFiles) addAncestors(rel);
+  for (const rel of [...writableFiles,...tracked,...copyTrees]) addAncestors(rel);
   for (const rel of [...materializeDirs, ...copyDirs]) {
     addAncestors(rel);
     mustBeReal.add(rel);
@@ -327,6 +329,12 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
       if (childRel === '.git' || skip.has(childRel)) continue;
       const src = join(repoRoot, childRel);
       const dest = join(root, childRel);
+      if (wholeTrees.has(childRel)) { cpSync(src,dest,{recursive:true,dereference:true}); continue; }
+      if (tracked.has(childRel)) {
+        if (lstatSync(src).isSymbolicLink()) symlinkSync(readlinkSync(src),dest);
+        else copyFileSync(src,dest);
+        continue;
+      }
       if (mustBeReal.has(childRel)) {
         mkdirSync(dest);
         walk(childRel);
@@ -1111,6 +1119,11 @@ try {
   let byteMismatches = [];
   try {
     newcomerMirror = makeMirror('red-b49d4-newcomer-', {
+      // New selector-driven harnesses inspect the whole Git tree. Real tracked
+      // copies preserve modes and bound git-status output; private dist copies
+      // prevent any nested fixture from writing through a runtime symlink.
+      copyTracked: true,
+      copyTrees: ['packages/main/dist','packages/utils/dist','packages/lab/dist'],
       writableFiles: [NEWCOMER_REL],
       copyDirs: [RED_DIR_REL],
       materializeDirs: [DIST_TASKS_REL],

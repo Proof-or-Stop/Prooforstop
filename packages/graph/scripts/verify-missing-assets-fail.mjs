@@ -34,3 +34,6 @@ try {
 }
 assert.deepEqual(fs.readFileSync(asset),original,'Restore the exact original asset');
 console.log('MISSING_ASSETS_HANDLED_OK');
+
+// The refusal branch must run even after normal on-demand recovery succeeds.
+await import('./verify-missing-client-no-listener.mjs');

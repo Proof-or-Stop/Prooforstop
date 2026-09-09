@@ -1,7 +1,0 @@
-{
-  "ordinaryExit": 0,
-  "ordinaryOutput": "Proof-or-Stop 0.3.285\n",
-  "wrongPinExit": 1,
-  "wrongPinStdout": "",
-  "wrongPinStderr": "proof-or-stop local bootstrap is not ready.\n\nRecovery:\n  1. npm --prefix packages/main run build\n  2. npm --prefix packages/utils run build\n  3. Retry the same command\n\nFallbacks:\n  - Core-only local CLI: node packages/main/dist/cli.js <command>\n    Use this for current-worktree gate/status/validate checks while developing ProofOrStop.\n  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):\n    PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief\n    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.\n\nOriginal error: IMPLEMENTATION_PIN_MISMATCH: expected=0000000000000000000000000000000000000000000000000000000000000000 actual=80fc2039babb7c911ecdf1c6eaeaabcdefe6833815fe4c36ce3583e672951172 entrypoint=/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-bootstrap-identity-audit-On9nSd/bin/proof-or-stop.js\n"
-}

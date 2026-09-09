@@ -1,7 +1,0 @@
-VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed
-VI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length
-VI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run
-VI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass
-VI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or PROOF_OR_STOP_VALIDATE_JOBS, defaults to 4, and refuses an unusable value
-VI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count
-validate-plan-scheduling: PASS (43 assertions)

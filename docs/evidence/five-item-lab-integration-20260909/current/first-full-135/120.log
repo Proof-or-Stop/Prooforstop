@@ -1,5 +1,0 @@
-red-w2d-assertion-digest-scope: PASS
-  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027
-  positive: CANON(assertion minus assertionDigest) === stored
-  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored
-  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable

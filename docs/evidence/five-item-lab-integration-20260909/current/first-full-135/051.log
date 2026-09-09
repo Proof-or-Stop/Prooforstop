@@ -1,9 +1,0 @@
-✓ HAPPY: playbook_promotion_status pendingLearning surfaces the capability candidate WITH its lineage
-✓ HAPPY: candidate-exposure trial (playbook_trial_run --apply) writes an observable exposure record
-✓ HAPPY: re-running the trial is idempotent (no duplicate exposure record)
-✓ EDGE: the capability candidate is EXCLUDED from active runtime surfacing (matchRuntimePlaybooks)
-✓ EDGE: the capability candidate is absent from MemoryFreshnessPack.results.playbookIds
-✓ EDGE: flipping the SAME capability playbook to active proves status===active is the surfacing gate
-✓ ADVERSARIAL: writing an exposure record does NOT change the candidate status
-✓ ADVERSARIAL: the exposure record is NOT a helped outcome (verdict unknown; 0 helped / 0 decisive)
-capability-candidate-exposure smoke passed: 8 checks

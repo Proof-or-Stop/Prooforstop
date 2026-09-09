@@ -1,1 +1,0 @@
-red-w2c-gate-guard: OK (live enforce gate does not throw on a v2 record ordered BEFORE any satisfying v1 record, nor on one placed MID-ARRAY behind a non-satisfying v1 record; the v1 verdict is byte-identical in both placements; a v2 record with a complete valid v1 field set still does not satisfy the v1 predicate; v2-only store reports missing not crash)

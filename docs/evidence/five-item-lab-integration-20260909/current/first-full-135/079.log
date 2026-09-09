@@ -1,3 +1,0 @@
-
-red-b49d4-harness-registration: 1 check(s) failed
-  - registration: these packages/main/tests/red members are NEITHER registered in proof-or-stop.config.json validate.commands NOR listed in REGISTRATION_EXCLUSIONS with a reason, so `proof-or-stop validate` never runs them and nobody decided that it should not: packages/main/tests/red/red-B-e40f-lab-convergence.mjs. Register the harness, or exclude it here and say why.

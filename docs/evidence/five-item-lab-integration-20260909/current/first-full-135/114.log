@@ -1,9 +1,0 @@
-validate-parallel-equivalence: serial=4.75s parallel=2.65s speedup=1.79x (6 commands, jobs 1 vs 4, 700ms per probe)
-  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1
-  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1
-VI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed
-VI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes
-VI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently
-VI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did
-VI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap
-validate-parallel-equivalence: PASS (18 assertions)

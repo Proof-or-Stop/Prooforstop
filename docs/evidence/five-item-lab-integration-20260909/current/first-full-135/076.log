@@ -1,7 +1,0 @@
-GREEN control: real DONE rejects the missing finish decision
-GREEN parity: done_prepare oracle rejects the missing finish decision with the same code
-GREEN control: real DONE rejects the stale lane diffPackHash
-GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review
-GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged
-
-GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes

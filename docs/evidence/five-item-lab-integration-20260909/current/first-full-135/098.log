@@ -1,1 +1,0 @@
-red-w2c-head-consistency: OK (a well-formed head accepts the fresh recover; a head whose stored recordDigest or operationKey does not recompute raises a store-corruption CONFLICT on a FRESH non-replay append, with nothing written — the resolved head is re-verified BEFORE it becomes the prior link)
