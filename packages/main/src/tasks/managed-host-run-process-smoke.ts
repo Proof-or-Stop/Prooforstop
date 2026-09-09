@@ -167,7 +167,7 @@ async function main(): Promise<void> {
     "const fs=require('node:fs')",
     "process.on('SIGTERM',()=>{})",
     "process.stdout.write('ready')",
-    `const timer=setInterval(()=>{if(fs.existsSync(${JSON.stringify(treeRelease)})){clearInterval(timer);process.exit(0)}},10)`,
+    `const timer=setInterval(()=>{if(!fs.existsSync(${JSON.stringify(root)})||fs.existsSync(${JSON.stringify(treeRelease)})){clearInterval(timer);process.exit(0)}},10)`,
   ].join(';');
   const leaderScript = [
     "const {spawn}=require('node:child_process')",
@@ -206,16 +206,20 @@ async function main(): Promise<void> {
 
   const liveTreeRoot = join(root, 'live-tree');
   const liveTreeReady = join(root, 'live-tree.ready');
+  // Failure cleanup removes this fixture root. Each TERM-resistant process
+  // independently observes that release, including descendants whose identity
+  // cannot safely be established by the production process-group reaper.
+  const fixtureKeepAliveScript = `setInterval(()=>{if(!require('node:fs').existsSync(${JSON.stringify(root)}))process.exit(0)},25)`;
   const liveChildScript = [
     "process.on('SIGTERM',()=>{})",
-    'setInterval(()=>{},1000)',
+    fixtureKeepAliveScript,
   ].join(';');
   const liveLeaderScript = [
     "const {spawn}=require('node:child_process')",
     `const child=spawn(process.execPath,['-e',${JSON.stringify(liveChildScript)}],{stdio:'ignore'})`,
     `require('node:fs').writeFileSync(${JSON.stringify(liveTreeReady)},'ready')`,
     "process.on('SIGTERM',()=>{})",
-    'setInterval(()=>{},1000)',
+    fixtureKeepAliveScript,
   ].join(';');
   const liveTreeRunner: HostRunRunner = plan => defaultHostRunRunner({
     ...plan,
@@ -292,7 +296,7 @@ async function main(): Promise<void> {
     command: process.execPath,
     argv: [
       '-e',
-      `require('node:fs').writeFileSync(${JSON.stringify(deadlineProviderReady)},'ready');process.on('SIGTERM',()=>{});setInterval(()=>{},1000)`,
+      `require('node:fs').writeFileSync(${JSON.stringify(deadlineProviderReady)},'ready');process.on('SIGTERM',()=>{});${fixtureKeepAliveScript}`,
     ],
     stdinText: '',
   });
@@ -424,7 +428,7 @@ async function main(): Promise<void> {
     "const fs=require('node:fs')",
     `fs.writeFileSync(${JSON.stringify(silentSpawn)},String(process.pid),{flag:'wx'})`,
     `fs.writeFileSync(${JSON.stringify(silentReady)},'ready')`,
-    `const timer=setInterval(()=>{if(fs.existsSync(${JSON.stringify(silentRelease)})){clearInterval(timer);process.exit(0)}},10)`,
+    `const timer=setInterval(()=>{if(!fs.existsSync(${JSON.stringify(root)})||fs.existsSync(${JSON.stringify(silentRelease)})){clearInterval(timer);process.exit(0)}},10)`,
   ].join(';');
   const silentRunner: HostRunRunner = plan => defaultHostRunRunner({
     ...plan,
