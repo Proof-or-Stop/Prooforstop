@@ -8416,6 +8416,14 @@ function assertParentRoadmapTotalityRuntime() {
 // weakening its registry semantics cannot make dynamic validation appear
 // authoritative while the production registry silently loses its evidence.
 function assertStoryAwareDynamicValidationRuntime() {
+  const routineReuseSource = read('packages/main/src/handlers/verifier.ts');
+  for (const token of ['tryReuseRoutinePass', 'reuseFreshRoutinePass', 'readRoutineReuseRevocationBasis', 'preparationHead', 'reusedFromIdentityDigest', "oracleStatus: 'not-run'", "authority: 'observe-only'", 'observe-opt-in']) {
+    assert(routineReuseSource.includes(token), `observe whole-PASS reuse must retain ${token}`);
+  }
+  assert(read('packages/main/src/cli/command-catalog.ts').includes('reuseFreshRoutinePass: z.boolean().optional()'), 'validate must expose the independent whole-PASS reuse option');
+  assert(read('packages/main/src/core/types.ts').includes('dynamicRevocationLedgerDigest?: string'), 'canonical evidence must bind the signed revocation state');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes("'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence'"), 'routine reuse must retain execution evidence semantics');
+
   const levelText = read('packages/main/src/core/process-fact-levels.ts');
   const registryText = read('packages/main/src/core/process-fact-registry.ts');
   const facts = [

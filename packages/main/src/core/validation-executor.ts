@@ -275,7 +275,11 @@ function commandCwd(projectRoot: string, cwd?: string): string {
 function trimOutput(output: string): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   const omitted = output.length - MAX_OUTPUT_CHARS;
-  return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
+  const headLength = Math.ceil(MAX_OUTPUT_CHARS / 2);
+  // Keep the initial command context and the terminal assertion/timeout cause.
+  // Complete output still supplies execution receipts; this is only presentation.
+  return output.slice(0, headLength) + `\n...[truncated ${omitted} chars]...\n`
+    + output.slice(-(MAX_OUTPUT_CHARS - headLength));
 }
 
 /**

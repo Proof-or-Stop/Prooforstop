@@ -328,3 +328,43 @@ barrier because its protected-root observer must not see another command's trace
 writes. Resource coverage is 141/141 routine and 2/2 DONE at main 0.3.292. These
 coordination repairs are correctness evidence, not a fresh full-workload speedup
 measurement. The earlier successful 134-command A/B remains separately scoped.
+
+
+## Complete PASS reuse while observing dynamic selection
+
+`validate.reuseFreshRoutinePass: true` enables strict whole-routine PASS reuse
+in `observe` mode. The project configuration opts in; other projects default to
+false. `validate --reuseFreshRoutinePass=false` forces a new observe execution.
+The CLI option overrides the configuration. A matching complete PASS still
+requires exact execution identity, all required intent coverage, clean material
+and Story inputs, trusted metadata lineage and stable HEAD. The signed dynamic
+revocation digest must match the one recorded with that PASS. Missing, corrupt,
+changed or newly revoked evidence causes execution.
+
+The zero-command path persists the current advisory selection and then checks
+identity, coverage, HEAD and revocation state again. Its result explicitly records
+`authority: observe-only`, `oracleStatus: not-run`, and
+`reusedFromIdentityDigest`. It does not report a new full-plan oracle, runtime
+trace or verdict-equivalence proof. Canonical evidence records the resolved mode
+and `reuseAdmission: observe-opt-in`, retaining the original command execution
+summary. Shadow/enforcement modes and focused validation keep their execution
+semantics. Use this option for repeated complete demands on unchanged inputs;
+changed commands, sources or policies require new execution.
+
+This option is separate from per-command CAS sharing. Build/full-suite exclusions
+and command/input declarations are unchanged. Direct `done_required_validate`
+continues to execute; `done_prepare` retains its existing independent fresh
+DONE-required PASS reuse. A nested npm suite is not interchangeable with an
+argv-similar leaf invocation unless their complete execution identities match.
+
+
+The two identity modules involved in the new schema repair also bind their
+reviewed complete executable syntax (TypeScript printer, comments removed,
+SHA-256). This covers live producers, comparisons, aliases and computed writes,
+including neighbouring identity sites in those modules. Merely keeping a
+canonical declaration or a dead comparison is insufficient. Comments/formatting
+alone do not revoke this syntax binding. Intentional executable changes require
+reviewed pin updates; there is no automatic refresh or hostile-host guarantee.
+Validation diagnostics preserve both the command-output prefix and terminal
+failure context within the existing character budget; execution receipts continue
+to consume the complete captured output.

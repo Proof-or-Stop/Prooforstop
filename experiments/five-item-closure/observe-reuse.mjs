@@ -2,7 +2,7 @@
 // Actual handlers, separate processes, tool-owned PASS; private fixture state only.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, rmSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,7 @@ const { resetConfigCache } = await import('../../packages/main/dist/core/config.
 const output = process.env.LAB_OBSERVE_OUTPUT || mkdtempSync(join(tmpdir(), 'observe-reuse-results-'));
 mkdirSync(output, { recursive: true });
 const trials = [], failures = [];
+const heavy = process.env.LAB_OBSERVE_HEAVY === '1';
 const cases = [
   { name: 'explicit-observe-opt-in', options: { reuseFreshRoutinePass: true }, reused: true },
   { name: 'config-observe-opt-in', configOptIn: true, reused: true },
@@ -28,8 +29,14 @@ const cases = [
   { name: 'shadow-remains-executed', configOptIn: true, mode: 'shadow', reused: false },
   { name: 'focused-remains-executed', configOptIn: true, options: { focus: 'fast' }, reused: false },
   { name: 'validate-file-observe-opt-in', configOptIn: true, validateFile: true, reused: true },
+  { name: 'new-revocation-refused', configOptIn: true, labMutation: 'revoke', reused: false },
+  { name: 'corrupt-revocation-refused', configOptIn: true, labMutation: 'corrupt-ledger', reused: false },
+  { name: 'head-change-during-selection-refused', configOptIn: true, labMutation: 'head-during-selection', reused: false },
+  { name: 'evidence-loss-during-selection-refused', configOptIn: true, labMutation: 'evidence-during-selection', reused: false },
 ];
-for (const test of cases) {
+const selectedCases = process.env.LAB_OBSERVE_CASES?.split(',');
+assert.ok(!selectedCases || (new Set(selectedCases).size === selectedCases.length && selectedCases.every(name => cases.some(row => row.name === name))), 'unknown or duplicate selected case');
+for (const test of selectedCases ? selectedCases.map(name => cases.find(row => row.name === name)) : cases) {
   const fixture = mkdtempSync(join(tmpdir(), 'proof-or-stop-observe-fixture-'));
   const dir = join(output, test.name); mkdirSync(dir, { recursive: true });
   const counter = join(dir, 'children.jsonl'), storyId = 'B-labreuse';
@@ -37,14 +44,15 @@ for (const test of cases) {
   const write = (p, body) => { mkdirSync(dirname(join(fixture, p)), { recursive: true }); writeFileSync(join(fixture, p), body); };
   const count = () => existsSync(counter) ? readFileSync(counter, 'utf8').trim().split('\n').filter(Boolean).length : 0;
   const options = test.options || {};
-  const command = { label: 'real assertion fixture', command: process.execPath, args: ['assertion.mjs'], focus: ['fast'], timeoutMs: 30000 };
+  const command = { label: 'real assertion fixture', command: process.execPath, args: ['assertion.mjs'], focus: ['fast'], timeoutMs: heavy ? 240000 : 30000 };
   const config = { scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', validate: { dynamic: { mode: test.mode || 'observe' }, sharedExecution: false, ...(test.configOptIn !== undefined ? { reuseFreshRoutinePass: test.configOptIn } : {}), commands: [command] } };
   try {
     write('proof-or-stop.config.json', JSON.stringify(config));
     write('src/add.mjs', 'export const add=(a,b)=>a+b;\n');
-    write('assertion.mjs', `import assert from 'node:assert/strict'; import {appendFileSync} from 'node:fs'; import {add} from './src/add.mjs'; assert.equal(add(2,3),5); appendFileSync(${JSON.stringify(counter)},JSON.stringify({pid:process.pid,pass:true})+'\\n'); console.log('OBSERVE_ASSERTION_PASS');\n`);
-    if (test.validateFile) write('validate.mjs', "import './assertion.mjs';\n");
-    write('.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+    write('assertion.mjs', `${heavy ? `import {spawnSync} from 'node:child_process'; const suiteResult=spawnSync(process.execPath,[${JSON.stringify(join(root,'packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js'))}],{encoding:'utf8',timeout:210000}); process.stdout.write(suiteResult.stdout??'');process.stderr.write(suiteResult.stderr??'');if(suiteResult.status!==0)process.exit(suiteResult.status??1);\n` : ''}import assert from 'node:assert/strict'; import {appendFileSync} from 'node:fs'; import {add} from './src/add.mjs'; assert.equal(add(2,3),5); appendFileSync(${JSON.stringify(counter)},JSON.stringify({pid:process.pid,pass:true})+'\\n'); console.log('OBSERVE_ASSERTION_PASS');\n`);
+    if (test.validateFile) write('validate.js', "import './assertion.mjs';\n");
+    write('.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\nnode_modules/\n');
+    if (test.validateFile) symlinkSync(join(root, 'node_modules'), join(fixture, 'node_modules'), 'dir');
     git(['init', '-q', '-b', 'story/' + storyId]); git(['config', 'user.email', 'lab@example.test']); git(['config', 'user.name', 'Lab fixture']); git(['add', '.']); git(['commit', '-qm', 'code']); git(['branch', 'main']); resetConfigCache();
     const store = new StoryStore(fixture);
     store.writeStory(storyId, { storyId, name: 'observe-reuse-fixture', title: 'Observe full PASS reuse', description: 'Private integration fixture', type: 'chore', phase: 'TEST', priority: 'medium', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null });
@@ -53,20 +61,21 @@ for (const test of cases) {
     git(['add', '.']); git(['commit', '-qm', 'private fixture state']);
     const run = n => {
       const target = join(dir, n + '.json'), start = performance.now();
-      const child = spawnSync(process.execPath, [join(here, 'observe-reuse-worker.mjs'), fixture, target, JSON.stringify(options)], { cwd: fixture, encoding: 'utf8', timeout: 120000, env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'observe-reuse-fixture' } });
+      const child = spawnSync(process.execPath, [join(here, 'observe-reuse-worker.mjs'), fixture, target, JSON.stringify({ ...options, ...(n === 'second' ? { labMutation: test.labMutation } : {}) })], { cwd: fixture, encoding: 'utf8', timeout: heavy ? 360000 : 120000, env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'observe-reuse-fixture' } });
       writeFileSync(join(dir, n + '.log'), child.stdout + child.stderr);
       assert.equal(child.status, 0, child.stdout + child.stderr);
       return { result: JSON.parse(readFileSync(target, 'utf8')), elapsedMs: performance.now() - start, children: count() };
     };
     const first = run('first');
     assert.equal(first.result.allPass, true, JSON.stringify(first.result));
-    assert.equal(first.children, 1, 'first demand executes its actual assertion');
+    assert.ok(first.children >= 1, 'first demand executes its actual assertion');
+    if (test.mode !== 'shadow') assert.equal(first.children, 1);
     if (test.mutation === 'dirty' || test.mutation === 'commit') appendFileSync(join(fixture, 'src/add.mjs'), '// new material input\n');
     if (test.mutation === 'command') { config.validate.commands.push({ ...command, label: 'additional assertion', args: ['assertion.mjs', 'additional'] }); write('proof-or-stop.config.json', JSON.stringify(config)); }
     if (test.mutation === 'count') { const e = store.readTestEvidence(storyId); e.commandExecution.commandCount = 0; store.writeTestEvidence(storyId, e); }
     if (['commit', 'command', 'count'].includes(test.mutation)) { git(['add', '.']); git(['commit', '-qm', 'negative input change']); }
     const second = run('second');
-    const entry = { name: test.name, first, second, expectedReuse: test.reused, fixtureAdmission: 'synthetic; no real Story authority' };
+    const entry = { name: test.name, first, second, expectedReuse: test.reused, heavySuite: heavy ? 'tool-executed-evidence-receipt-smoke' : null, fixtureAdmission: 'synthetic; no real Story authority' };
     trials.push(entry);
     assert.equal(second.result.disposition === 'reused', test.reused, 'OBSERVE_FRESH_PASS_REUSE_MISSING: ' + test.name + ' ' + JSON.stringify(second.result.reuse));
     if (test.reused) {
@@ -86,7 +95,9 @@ for (const test of cases) {
       assert.equal(evidence.reuseAdmission, 'observe-opt-in');
       assert.equal(evidence.commandExecution.commandCount, 1);
     } else {
-      assert.ok(second.children > 1, 'refused reuse must launch actual assertion commands');
+      assert.ok(second.children > first.children, 'refused reuse must launch actual assertion commands');
+      const report = join(fixture, '.proof-or-stop/runtime/dynamic-validation', storyId, 'report.txt');
+      if (existsSync(report)) assert.doesNotMatch(readFileSync(report, 'utf8'), /Complete PASS reused/, 'refusal must not leave a premature reuse claim');
     }
     console.log('PASS ' + test.name);
   } catch (error) { failures.push({ name: test.name, error: String(error.stack) }); console.error('FAIL ' + test.name + ': ' + error.message); }
@@ -95,4 +106,7 @@ for (const test of cases) {
 writeFileSync(join(output, 'results.json'), JSON.stringify({ trials, failures }, null, 2));
 console.log('Evidence: ' + output);
 assert.equal(failures.length, 0, 'OBSERVE_FRESH_PASS_REUSE_MISSING: actual-handler acceptance and negative controls must all pass');
+await import('./schema-value-controls.mjs');
+await import('./schema-wiring-controls.mjs');
+await import('./failure-output-controls.mjs');
 console.log('OBSERVE_FULL_PASS_REUSE_GREEN');

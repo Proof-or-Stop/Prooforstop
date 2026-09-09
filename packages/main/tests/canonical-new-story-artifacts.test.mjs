@@ -1018,14 +1018,15 @@ function snapshotPublicOperationState(root, storyIds = []) {
 
 const INERT_PUBLIC_FIXTURE_LOG_SUBTREE = '.remember/logs/autonomous/';
 
-function createPublicOperationClone(prefix, copyFindingTrust = true) {
+function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot = repoRoot) {
   const root = mkdtempSync(join(tmpdir(), prefix));
   fixtureRoots.push(root);
   assert.ok(root !== repoRoot && root !== mainRoot && fixtureRoots.includes(root), 'sparse setup is restricted to a new disposable clone');
-  const cloned = spawnSync('git', ['clone', '--shared', '--quiet', '--no-checkout', repoRoot, root], { encoding: 'utf8' });
+  assert.ok(sourceRoot === repoRoot || fixtureRoots.includes(sourceRoot), 'clone source must be the repository or a registered private producer');
+  const cloned = spawnSync('git', ['clone', '--shared', '--quiet', '--no-checkout', sourceRoot, root], { encoding: 'utf8' });
   assert.equal(cloned.status, 0, `${cloned.stdout}${cloned.stderr}`);
   if (spawnSync('git', ['show-ref', '--verify', '--quiet', 'refs/heads/main'], { cwd: root }).status !== 0) {
-    git(root, ['branch', 'main', git(repoRoot, ['rev-parse', 'refs/heads/main'])]);
+    git(root, ['branch', 'main', git(sourceRoot, ['rev-parse', 'refs/heads/main'])]);
   }
   const head = git(root, ['rev-parse', 'HEAD']);
   const refs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
@@ -4698,14 +4699,27 @@ function cleanupFixtureFindingKeys() {
   fixtureFindingKeyTargets.clear();
 }
 
-await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts require the actual fixture trust and reject missing or different keys', () => {
-  const sourceKey = join(commonGitDir, 'proof-or-stop-finding-ledger-v1.key');
+await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts require the private producer trust and reject missing or different keys', async () => {
+  // The test owns its producer, signed ledger and Git commit. An unrelated
+  // active Story need not have a committed ledger in main or a Lab checkout.
+  const producerRoot = createPublicOperationClone('proof-or-stop-finding-producer-', false);
+  const sourceStore = new StoryStore(producerRoot);
+  const { createAuthoritativeFindingMutation } = await import(join(distRoot, 'handlers/finding-ledger.js'));
+  createAuthoritativeFindingMutation({root: producerRoot, scanRoot: producerRoot, store: sourceStore})(
+    'B-49df', 'isolated-finding-trust-fixture', data => {
+      data.findings.push({id:'B-49df:F-lab-trust',desc:'Private fixture receipt authentication',status:'open',severity:'low',category:'missing'});
+      return {result: undefined};
+    });
+  const sourceKey = fixtureFindingKeyPath(producerRoot);
+  fixtureFindingKeyTargets.set(producerRoot, sourceKey);
   const sourceKeyBytes = readFileSync(sourceKey);
-  const sourceStore = new StoryStore(repoRoot);
   const sourceLedger = sourceStore.findingLedgerPath('B-49df');
   const sourceLedgerBytes = readFileSync(sourceLedger);
-  const sourceHead = git(repoRoot, ['rev-parse', 'HEAD']);
-  const root = createPublicOperationClone('proof-or-stop-finding-trust-', false);
+  git(producerRoot, ['add', '.proof-or-stop/story/actives/B-49df']);
+  git(producerRoot, ['-c','user.name=Lab fixture','-c','user.email=lab@example.test','commit','-qm','Record private signed Finding fixture']);
+  const sourceHead = git(producerRoot, ['rev-parse', 'HEAD']);
+  const realHead = git(repoRoot, ['rev-parse', 'HEAD']);
+  const root = createPublicOperationClone('proof-or-stop-finding-trust-', false, producerRoot);
   const fixtureRefs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
   const assertFixtureRefsUnchanged = () => assert.equal(
     git(root, ['for-each-ref', '--format=%(refname) %(objectname)']), fixtureRefs,
@@ -4724,23 +4738,25 @@ await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts r
     process.stdout.write(`PASS Finding fixture trust rejection: ${label}\n`);
   };
   assertRefused('missing key before repair');
-  const target = installFixtureFindingLedgerPrivateKey(root);
-  assert.throws(() => installFixtureFindingLedgerPrivateKey(root), { code: 'EEXIST' }, 'Never overwrite an existing fixture key');
-  assert.ok(store.readFindings('B-49df').findings.length > 0, 'Real authenticated Finding projection must be nonempty');
+  const target = writeFixtureFindingPrivateKey(root, sourceKeyBytes);
+  assert.throws(() => writeFixtureFindingPrivateKey(root, sourceKeyBytes), { code: 'EEXIST' }, 'Never overwrite an existing fixture key');
+  assert.ok(store.readFindings('B-49df').findings.length > 0, 'Production-authenticated private Finding projection must be nonempty');
   const admitted = readContext();
   assert.equal(admitted.status, 0, `${admitted.stdout}${admitted.stderr}`);
   assertCanonicalOperationResponse('review_incremental_context', payload, root, admitted.stdout);
-  process.stdout.write('PASS Finding fixture trust: original receipts authenticate with the real repository key\n');
+  process.stdout.write('PASS Finding fixture trust: original committed receipts authenticate with the private producer key\n');
   rmSync(target);
   assertRefused('removed copied key');
   writeFixtureFindingPrivateKey(root, `${randomBytes(32).toString('base64')}\n`);
   assertRefused('different fixture key');
+  assert.ok(ledgerBytes.equals(sourceLedgerBytes), 'Clone must preserve the original committed signed ledger bytes');
   assert.ok(readFileSync(ledger).equals(ledgerBytes), 'Fixture original receipt bytes must remain untouched');
   assert.ok(readFileSync(sourceLedger).equals(sourceLedgerBytes), 'Source Finding ledger bytes must remain untouched');
   assert.ok(readFileSync(sourceKey).equals(sourceKeyBytes), 'Source private-key bytes must remain untouched');
   // Other active worktrees and the host may change unrelated shared refs. The
   // helper only reads the source key; only the disposable clone receives writes.
-  assert.equal(git(repoRoot, ['rev-parse', 'HEAD']), sourceHead, 'Fixture trust must not alter the current Story HEAD');
+  assert.equal(git(producerRoot, ['rev-parse', 'HEAD']), sourceHead, 'Fixture trust must not alter the signed producer commit');
+  assert.equal(git(repoRoot, ['rev-parse', 'HEAD']), realHead, 'Fixture trust must not alter the repository HEAD');
   assertFixtureRefsUnchanged();
   fixtureFindingKeyPath(root); // Revalidate the private repository before its controlled ref mutation.
   const mutationRef = 'refs/proof-or-stop-fixture/finding-trust-negative';

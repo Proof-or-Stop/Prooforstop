@@ -218,6 +218,8 @@ export interface ProofOrStopConfig {
   validate?: {
     /** Exact-input result sharing is independent of dynamic test selection. */
     sharedExecution?: boolean;
+    /** Opt in to strict whole-PASS reuse while retaining observe-only selection diagnostics. */
+    reuseFreshRoutinePass?: boolean;
     command?: string;
     dynamic?: {
       mode?: DynamicValidationModeConfig;

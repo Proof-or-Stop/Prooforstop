@@ -83,6 +83,7 @@ async function main() {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
+  check(checksSource.includes('ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS') && checksSource.includes('assertIdentityExecutableSource'), 'identity decoys must not replace reviewed producer/consumer executable bindings');
   const configSource = read(root, 'packages/main/src/core/config.ts');
   const promptPolicySource = read(root, 'packages/main/src/core/prompt-role-contract-registry.ts');
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
@@ -316,6 +317,7 @@ async function main() {
     const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.identitySites.some(site => site.canonical === canonical));
     const site = boundary?.identitySites.find(row => row.canonical === canonical);
     check(Boolean(site && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `current schema lacks coupled runtime identity control: ${canonical}`);
+    check(Boolean(site.valueBinding), `current schema must bind its actual declaration/producer/comparison value: ${canonical}`);
   }
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');

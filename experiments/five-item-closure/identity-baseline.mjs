@@ -25,7 +25,7 @@ for(const row of reviewed.witnesses){
 console.log(JSON.stringify({rows:reviewed.rows.length,witnesses:reviewed.witnesses.length,issues}));
 assert.deepEqual(issues,[],'CURRENT_IDENTITY_CONTEXT_INVALID: current exact denial witnesses reject the unchanged configured workload');
 console.log('CURRENT_IDENTITY_CONTEXT_GREEN');
-for(const file of ['current-schema-controls.mjs','child-environment-controls.mjs','maintenance-boundaries.mjs','historical-fixture-controls.mjs'])
+for(const file of ['current-schema-controls.mjs','schema-value-controls.mjs','child-environment-controls.mjs','maintenance-boundaries.mjs','historical-fixture-controls.mjs'])
   await import(new URL(file,import.meta.url));
 for(const args of [['scripts/verify-proof-or-stop-identity-cutover.mjs','--self-test'],['experiments/five-item-integration/verify.mjs']]){
   const result=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',timeout:600000,maxBuffer:16*1024*1024});

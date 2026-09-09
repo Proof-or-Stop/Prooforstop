@@ -18,6 +18,7 @@ import {
 import { readBrandEnv } from './brand-env.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import { findBrandExport } from './version-bump.js';
+import ts from 'typescript';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -258,6 +259,10 @@ export interface ActiveIdentityOperationIdentitySite {
   };
   sourceOccurrences?: { canonical: number; retired: number };
   identityOrigin?: { sourcePath: string; exportName: string };
+  valueBinding?:
+    | { kind: 'export-const'; name: string }
+    | { kind: 'property'; name: string; functionName: string }
+    | { kind: 'comparison'; expression: string; functionName: string };
 }
 
 export interface ActiveIdentityOperationIdentityCase extends ActiveIdentityOperationIdentitySite {
@@ -445,8 +450,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
-      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
-      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION' } },
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
       identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identitySite(
@@ -484,8 +489,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
-      identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
-      identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'comparison', expression: 'evidence.receipt.schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
       identitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1", "proofbound.review-inventory-critic-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1", "proofbound.review-inventory-epoch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
@@ -1101,6 +1106,64 @@ export function assertCanonicalActiveIdentityRuntime(input: {
  * CLI preflight, so a retired mutation can only be rejected here or by the
  * consumer's own parser/verifier.
  */
+// These reviewed executable modules own the declarations AND their producers/
+// consumers. A local syntactic decoy cannot authorize a different live dataflow.
+// Intentional implementation changes require explicit review and re-pinning;
+// the runtime never computes a new expected digest from the candidate itself.
+const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/evidence-freshness.ts': '2d02cb9a87a9059ad126c3715935a67d73b62d43102e7287b929211a64b5bdf6',
+  'packages/main/src/core/review-inventory-epoch.ts': 'b3aad15f12f3058cbb5118a92a02da599ea0d80092006165d32edae22cde8635',
+});
+
+function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
+  const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
+  if (!expected) return;
+  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
+  const actual = createHash('sha256').update(canonical).digest('hex');
+  if (actual !== expected) throw new Error(`${label}/${sourcePath} consumer rejected active identity bytes; executable declaration/producer/consumer binding changed`);
+}
+
+function assertIdentitySiteValueBinding(site: ActiveIdentityOperationIdentitySite, text: string, label: string): void {
+  const binding = site.valueBinding;
+  if (!binding) return;
+  const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const values: Array<ts.Expression | undefined> = [];
+  if (binding.kind === 'export-const') {
+    for (const statement of source.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== binding.name) continue;
+        const isExportedConst = Boolean(statement.declarationList.flags & ts.NodeFlags.Const)
+          && statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+        values.push(isExportedConst ? declaration.initializer : undefined);
+      }
+    }
+  } else {
+    const functions = source.statements.filter((node): node is ts.FunctionDeclaration =>
+      ts.isFunctionDeclaration(node) && node.name?.text === binding.functionName);
+    if (functions.length === 1 && functions[0].body) {
+      const visit = (node: ts.Node): void => {
+        if (binding.kind === 'property' && ts.isPropertyAssignment(node)
+          && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && node.name.text === binding.name) {
+          values.push(node.initializer);
+        }
+        if (binding.kind === 'comparison' && ts.isBinaryExpression(node)
+          && node.left.getText(source).replace(/\s/g, '') === binding.expression) {
+          values.push(node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken ? node.right : undefined);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(functions[0].body);
+    }
+  }
+  // Comments, unrelated literals, computed expressions and duplicate selectors
+  // cannot satisfy the live declaration/producer/comparison contract.
+  if (values.length !== 1 || !values[0] || !ts.isStringLiteral(values[0]) || values[0].text !== site.canonical) {
+    throw new Error(`${label}/${site.siteId} consumer rejected active identity value; expected exact ${site.canonical}`);
+  }
+}
+
 export function assertCanonicalActiveIdentityBoundary(input: {
   boundaryId: string;
   projectRoot?: string;
@@ -1113,6 +1176,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   if (!boundary) throw new Error(`unregistered active identity operation boundary: ${input.boundaryId}`);
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
+  const sourceSnapshots = new Map<string, string>();
   for (const site of boundary.identitySites) {
     const registeredPath = boundary.paths.find((candidate) => candidate.sourcePath === site.sourcePath);
     if (!registeredPath) throw new Error(`${boundary.id}/${site.siteId}: identity-site owner is not registered`);
@@ -1122,7 +1186,14 @@ export function assertCanonicalActiveIdentityBoundary(input: {
       if (registeredPath.scope === 'project') continue;
       throw new Error(`${boundary.id}/${site.siteId}: registered runtime identity-site bytes are missing`);
     }
-    const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, readFileSync(absolute, 'utf8'));
+    let sourceBytes = sourceSnapshots.get(absolute);
+    if (sourceBytes === undefined) {
+      sourceBytes = readFileSync(absolute, 'utf8');
+      assertIdentityExecutableSource(registeredPath.sourcePath, sourceBytes, boundary.id);
+      sourceSnapshots.set(absolute, sourceBytes);
+    }
+    const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, sourceBytes);
+    assertIdentitySiteValueBinding(site, sourceBytes, boundary.id);
     if (site.identityOrigin) {
       // Only the five explicitly bound imported authorities are inspected; this
       // is not recursive dependency discovery or generic legacy admission.
