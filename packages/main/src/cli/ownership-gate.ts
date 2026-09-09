@@ -96,6 +96,18 @@ export function storyIdFromArgs(
     if (runStoryId) return runStoryId;
   }
   if (context?.command && context.projectRoot && MANAGED_RUN_OWNER_GATED_COMMANDS.has(context.command)) {
+    if (context.command === 'host_run_status' && args.targets !== undefined) {
+      if (!Array.isArray(args.targets) || args.targets.length < 1 || args.targets.length > 32) {
+        throw new Error('host_run_status: targets must contain 1 to 32 runs');
+      }
+      const subjects = new Set(args.targets.map(target => {
+        const runId = safeAutopilotRunId(target?.runId);
+        if (!runId) throw new Error('host_run_status: invalid target runId');
+        return managedHostRunStoryIdForOwnership(context.projectRoot!, runId);
+      }));
+      if (subjects.size !== 1) throw new Error('host_run_status: aggregate targets must share one immutable Story ownership subject');
+      return [...subjects][0];
+    }
     const runId = safeAutopilotRunId(args.runId);
     if (!runId) return null;
     return managedHostRunStoryIdForOwnership(context.projectRoot, runId);

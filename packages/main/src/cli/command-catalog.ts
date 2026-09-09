@@ -3298,8 +3298,12 @@ Behavior:
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run. waitMs is capped at 30000 and silence does not change state. Alias: proof-or-stop host run status', schema: {
-    runId: z.string().describe('Managed host run id'),
+  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. waitMs is capped at 30000 and silence does not change state. Alias: proof-or-stop host run status', schema: {
+    runId: z.string().optional().describe('Managed host run id; exclusive with targets'),
+    targets: z.array(z.object({
+      runId: z.string(),
+      afterGeneration: z.number().int().nonnegative().optional(),
+    })).min(1).max(32).optional().describe('Wait for any changed run; each cursor acknowledges previously delivered terminal state'),
     afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
     afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
     waitMs: z.number().int().nonnegative().max(30000).optional().describe('Bounded long-poll wait, maximum 30000ms'),

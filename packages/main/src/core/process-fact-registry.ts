@@ -206,7 +206,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
   host_run: ['execution-evidence', 'schema-contract'],
-  host_run_status: ['execution-evidence', 'schema-contract'],
+  // Aggregate cursors affect observation only; terminal signatures and the
+  // immutable Story ownership subject retain their existing consumer rules.
+  host_run_status: ['execution-evidence', 'schema-contract', 'freshness-policy'],
   host_run_cancel: ['execution-evidence', 'schema-contract'],
   host_run_worker: ['execution-evidence', 'atomic-persistence', 'schema-contract'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],

@@ -47,6 +47,8 @@ import {
 import {
   cancelManagedHostRun,
   getManagedHostRunStatus,
+  waitManagedHostRuns,
+  type ManagedHostRunWaitTarget,
   projectManagedHostRunTerminalResult,
   readManagedHostRunOutput,
   readManagedHostRunResult,
@@ -87,6 +89,7 @@ export interface HostRunCommandArgs extends FormatArgs {
 
 export interface HostRunStatusCommandArgs extends FormatArgs {
   runId?: string;
+  targets?: ManagedHostRunWaitTarget[];
   afterGeneration?: number;
   afterSequence?: number;
   waitMs?: number;
@@ -822,6 +825,17 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
     },
 
     async host_run_status(args: HostRunStatusCommandArgs) {
+      if (args.targets !== undefined) {
+        if (args.runId !== undefined || args.afterGeneration !== undefined || args.afterSequence !== undefined) {
+          throw new Error('host_run_status: targets cannot be combined with single-run arguments');
+        }
+        const result = await waitManagedHostRuns({ root: ctx.root, targets: args.targets,
+          waitMs: optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs, 30_000),
+          maxWaitMs: options.statusWaitCapMs });
+        if (wantsJson(args)) return result;
+        return result.runs.map(({ run, changed }) =>
+          `${run.runId} state=${run.state} generation=${run.generation} changed=${changed}`).join('\n');
+      }
       const runId = normalizeString(args.runId);
       if (!runId) throw new Error('host_run_status: --runId is required');
       const afterGeneration = optionalNonnegativeInteger(

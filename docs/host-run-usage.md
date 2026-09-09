@@ -48,6 +48,21 @@ proof-or-stop host_run_status '{"runId":"<runId>","afterGeneration":4,"afterSequ
 proof-or-stop host_run_cancel '{"runId":"<runId>","reason":"operator cancelled"}'
 ```
 
+To observe several runs in one call, supply `targets` instead of `runId`:
+
+```bash
+proof-or-stop host_run_status '{"targets":[{"runId":"<run-a>","afterGeneration":4},{"runId":"<run-b>","afterGeneration":2}],"waitMs":30000,"json":true}'
+```
+
+The result contains `changed` and ordered `runs`, including terminal receipts.
+Pass each returned generation on the next call to acknowledge that snapshot,
+including terminal delivery. Heartbeats and acknowledged terminals do not wake
+the aggregate wait; actual generation changes do. An unchanged timeout is an
+observation result. Up to 32 distinct runs with the same immutable Story subject
+(or all without a Story) can be observed together. The ordinary ownership gate
+still applies because status may reconcile a deadline or cancellation. Aggregate
+arguments cannot be combined with single-run cursors or output-frame selection.
+
 `waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
 inspect the current snapshot”, not “the provider failed”. Completion is known
 only from `state=completed|failed|cancelled|timed_out` plus the terminal

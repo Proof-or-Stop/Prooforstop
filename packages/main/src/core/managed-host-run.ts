@@ -3228,6 +3228,61 @@ export function boundedManagedHostRunStatusWaitMs(waitMs: number | undefined): n
   return boundedPositiveMs(waitMs, 0, MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS);
 }
 
+export interface ManagedHostRunWaitTarget {
+  runId: string;
+  afterGeneration?: number;
+}
+
+/** One bounded observation loop, with no abandoned per-run long polls. */
+export async function waitManagedHostRuns(args: {
+  root: string;
+  targets: ManagedHostRunWaitTarget[];
+  waitMs?: number;
+  maxWaitMs?: number;
+}): Promise<{ schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION; changed: boolean; runs: ManagedHostRunStatusResult[] }> {
+  if (!Array.isArray(args.targets) || args.targets.length < 1 || args.targets.length > 32) {
+    throw new Error('host_run_status: targets must contain 1 to 32 runs');
+  }
+  const seen = new Set<string>();
+  const targets = args.targets.map(target => {
+    if (!target || typeof target.runId !== 'string' || !target.runId.trim()) {
+      throw new Error('host_run_status: each target requires runId');
+    }
+    const runId = target.runId.trim();
+    if (seen.has(runId)) throw new Error(`host_run_status: duplicate target ${runId}`);
+    seen.add(runId);
+    if (target.afterGeneration !== undefined
+      && (!Number.isSafeInteger(target.afterGeneration) || target.afterGeneration < 0)) {
+      throw new Error('host_run_status: afterGeneration must be a nonnegative safe integer');
+    }
+    const paths = pathsFor(args.root, runId);
+    if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${runId}`);
+    return { runId, afterGeneration: target.afterGeneration };
+  });
+  const waitMs = Math.min(boundedManagedHostRunStatusWaitMs(args.waitMs),
+    boundedManagedHostRunStatusWaitMs(args.maxWaitMs ?? MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS));
+  const deadline = Date.now() + waitMs;
+  const baselines = new Map<string, number>();
+  while (true) {
+    const runs = await Promise.all(targets.map(async target => {
+      const status = await getManagedHostRunStatus({ root: args.root, runId: target.runId });
+      if (!baselines.has(target.runId)) {
+        baselines.set(target.runId, target.afterGeneration ?? status.run.generation);
+      }
+      // An explicit cursor acknowledges terminal delivery as well as progress.
+      // With no cursor, an already terminal run is immediately actionable.
+      const changed = status.run.generation !== baselines.get(target.runId)
+        || (target.afterGeneration === undefined && status.run.terminal !== null);
+      return { ...status, changed };
+    }));
+    const changed = runs.some(run => run.changed);
+    if (changed || Date.now() >= deadline) {
+      return { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, changed, runs };
+    }
+    await sleep(Math.min(50, Math.max(1, deadline - Date.now())));
+  }
+}
+
 export async function cancelManagedHostRun(args: {
   root: string;
   runId: string;

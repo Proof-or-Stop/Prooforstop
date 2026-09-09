@@ -6780,6 +6780,14 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   const ownershipGateText = read('packages/main/src/cli/ownership-gate.ts');
   assert(ownershipGateText.includes('managedHostRunStoryIdForOwnership'), 'host_run status/cancel/import ownership must resolve immutable spec.storyId from runId');
+  assert(ownershipGateText.includes('aggregate targets must share one immutable Story ownership subject'),
+    'aggregate observation must retain one mechanically admitted immutable owner subject');
+  const aggregateWitness = read('scripts/verify-managed-aggregate-wait.mjs');
+  for (const obligation of ['heartbeats across all runs do not wake the owner',
+    'an acknowledged terminal does not repeatedly wake a resumed owner',
+    'actual CLI schema accepts aggregate targets', 'aggregate retains immutable owner admission']) {
+    assert(aggregateWitness.includes(obligation), `aggregate observation requires executable boundary coverage: ${obligation}`);
+  }
   const hostRunText = read('packages/main/src/core/host-run.ts');
   for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required Codex proposal candidate classifier token missing: ${token}`);
