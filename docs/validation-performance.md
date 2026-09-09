@@ -277,5 +277,14 @@ receipt, preserving its timestamp/hash and one command execution; permanent
 storage failure still refuses. Superseded resource declarations must preserve
 every original audited claim even if both config and supersession metadata are
 edited together. Capacity aggregation removes only exact duplicate normalized
-claims (195 records become17 for the current routine configuration); access,
+claims (195 records become 17 for the current routine configuration); access,
 ownership and resolved working directory remain part of the distinct claim.
+
+The repository CLI-surface suite also needs the local `packages/lab` extension.
+In a fresh Lab checkout, `scripts/ensure-dist.mjs` prepares main and utils only;
+run `npm --prefix packages/lab run build` before CLI-surface verification. A
+missing extension intentionally leaves the standalone core without Lab commands
+and must be classified as missing preparation, not as a passing full CLI profile.
+Build before starting readers, then derive the implementation pin from the final
+prepared runtime. The frozen pre-preparation measurements remain separately bound
+to their original runtime; do not relabel their implementation identity.

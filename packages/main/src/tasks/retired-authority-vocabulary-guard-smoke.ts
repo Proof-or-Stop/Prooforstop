@@ -534,7 +534,12 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -1755,7 +1760,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
