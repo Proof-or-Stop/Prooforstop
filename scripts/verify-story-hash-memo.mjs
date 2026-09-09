@@ -15,4 +15,8 @@ try{
  active=true;const values=Array.from({length:3},()=>currentStoryFilesHash(root));active=false;
  assert.equal(typeof values[0],'string');assert.ok(values.every(v=>v===values[0]));const counts=Object.fromEntries(['ls-tree','diff','merge-base'].map(k=>[k,calls.filter(a=>a[0]===k).length]));console.log(JSON.stringify({values,counts,calls}));
  assert.ok(counts['ls-tree']<=1,'same immutable target tree should be read at most once');assert.ok(counts.diff<=1,'same immutable base/head diff should be read at most once');
-}finally{rmSync(root,{recursive:true,force:true})}
+}finally{rmSync(root,{recursive:true,force:true});cp.execFileSync=original;syncBuiltinESMExports();}
+for (const script of ['verify-story-hash-memo-boundaries.mjs', 'verify-material-tree-memo.mjs', 'verify-git-root-probe-memo.mjs']) {
+  original(process.execPath, [join(repo, 'scripts', script)], { cwd: repo, stdio: 'inherit', timeout: 120_000 });
+}
+console.log('PASS U17 immutable story hash reads and invalidation boundaries');

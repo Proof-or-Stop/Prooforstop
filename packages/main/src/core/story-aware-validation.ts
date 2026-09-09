@@ -8,6 +8,7 @@
  * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
+import { readStoryGitBytes } from './story-git-bytes.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
@@ -134,10 +135,10 @@ function git(args: string[], cwd: string): string {
     stdio: ['pipe', 'pipe', 'pipe'],
   }).toString();
 }
-function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
+function objectIdsFromTree(raw: string, ref: string): Map<string, string> {
   const result = new Map<string, string>();
   try {
-    for (const row of git(['ls-tree', '-r', '-z', ref], gitCwd).split('\0')) {
+    for (const row of raw.split('\0')) {
       if (!row) continue;
       const tab = row.indexOf('\t');
       if (tab < 0) continue;
@@ -171,11 +172,12 @@ export function resolveStoryChangedFiles(
   if (!base) {
     throw new Error(`story change manifest could not resolve a merge base for ${ref}`);
   }
-  const ids = objectIdsAtRef(gitCwd, ref);
+  const raw = readStoryGitBytes(gitCwd, base, ref);
+  const ids = objectIdsFromTree(raw.tree, ref);
   const out: StoryChangedFile[] = [];
   try {
     // NUL framing preserves Git path names, including Unicode, tabs and newlines.
-    const fields = git(['diff', '--name-status', '-z', '-M', base + '..' + ref], gitCwd).split('\0');
+    const fields = raw.diff.split('\0');
     if (fields.at(-1) === '') fields.pop();
     let cursor = 0;
     const nextPath = (): string => {

@@ -531,8 +531,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    if (!resolveStoryMergeBase(gitCwd, ref)) return undefined;
-    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+    const base = resolveStoryMergeBase(gitCwd, ref);
+    if (!base) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot, base)
       .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
       .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
