@@ -539,7 +539,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // The change reads address() on the same returned GraphServer and closes that
   // server if its reported port is invalid; it adds no loader or caller-chosen
   // module path. Keep the exact-source, drift and producer-provenance controls.
-  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
+  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -1765,7 +1765,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // The change reads address() on the same returned GraphServer and closes that
   // server if its reported port is invalid; it adds no loader or caller-chosen
   // module path. Keep the exact-source, drift and producer-provenance controls.
-  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
+  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -5364,8 +5364,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
  * refreshed the digest to make the guard green. That is the whole point: if these controls
  * relied on fingerprint drift they would prove nothing about the provenance check.
  */
-function assertLoaderArgumentProvenance(): void {
+function assertLoaderArgumentProvenance(onlyFile?: string): { filesChecked: number; mutantsChecked: number } {
+  if (onlyFile !== undefined) assert.ok(APPROVED_LOADER_ARGUMENT_PROVENANCE.has(onlyFile), 'selected loader proof must exist');
+  let filesChecked = 0;
+  let mutantsChecked = 0;
   for (const [file, pin] of APPROVED_LOADER_ARGUMENT_PROVENANCE) {
+    if (onlyFile !== undefined && file !== onlyFile) continue;
+    filesChecked += 1;
     const original = readRel(file);
     assert.ok(original.includes(pin.argument), `provenance pin argument must exist verbatim in ${file}`);
     assert.deepEqual(
@@ -5535,6 +5540,7 @@ function assertLoaderArgumentProvenance(): void {
     ];
 
     for (const [label, mutated] of mutants) {
+      mutantsChecked += 1;
       assert.notEqual(mutated, original, `${label} control must actually mutate ${file}`);
       assert.ok(mutated.includes(pin.argument), `${label} control must keep the pinned argument text byte-identical`);
       const mutantFingerprint = canonicalAstFingerprint(file, mutated);
@@ -5546,6 +5552,7 @@ function assertLoaderArgumentProvenance(): void {
       );
     }
   }
+  return { filesChecked, mutantsChecked };
 }
 
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
@@ -5898,6 +5905,18 @@ function assertGeneratedHelp(): Violation[] {
     ['story_export', '--help'],
   ];
   return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
+}
+
+// Explicit Lab proof scope. The configured no-argument entry below still runs
+// every original guard, including unrelated baseline failures. Its PASS marker
+// is never emitted by this focused maintenance proof.
+if (process.argv.includes('--lab-graph-loader-proof')) {
+  assert.deepEqual(process.argv.slice(2), ['--lab-graph-loader-proof'], 'Lab proof does not accept combined or ambiguous selection');
+  assertDynamicCodeGenerationPositiveControls();
+  const coverage = assertLoaderArgumentProvenance('packages/main/src/handlers/graph.ts');
+  assert.deepEqual(coverage, { filesChecked: 1, mutantsChecked: 14 }, 'Graph proof retains every current provenance mutant');
+  process.stdout.write(`LAB_GRAPH_LOADER_PROOF_GREEN ${JSON.stringify(coverage)}\n`);
+  process.exit(0);
 }
 
 const violations: Violation[] = [];
