@@ -52,4 +52,22 @@ to those members and does not hold their ports while waiting. A conflicting
 ancestor-owned ticket is refused instead of allowing a parent/child wait cycle.
 The SIGINT runner fixture preserves the complete canonical inventory and starts
 a port-free synthetic hanger first; cancellation prevents pending members from launching. This layer coordinates fixed ports for the same OS user;
-machine CPU/process capacity and undeclared cross-repository resources are separate.
+Undeclared cross-repository resources remain a separate gap; declared heavy admission is described below.
+
+Heavy full-suite members additionally declare `machine-cpu:heavy` and
+`machine-process:fanout`. Both are exclusive, fixed policy identities shared by
+all repositories for the same OS user. Different keys or shared access are refused
+before a child starts. The existing repository-local heavy exclusion is retained.
+Actual validation commands can declare the same claims; both execution paths use
+one machine queue with the fixed-port claims, avoiding separate acquisition order.
+
+This is conservative admission of one declared heavy member at a time, not an OS
+CPU quota or descendant process-count limit. It does not classify undeclared tasks
+or coordinate other OS users. Waiting consumes the caller's deadline; cancellation
+releases its ticket, and a conflicting ancestor is refused before child launch.
+
+`node scripts/verify-machine-heavy-coordination.mjs` executes the actual heavy
+member policy across two repositories and then runs independent CPU/process
+boundary cases: mixed executors, queued cancellation/deadlines, ancestor conflict,
+invalid claims and successful reacquisition. It does not substitute socket tests
+for CPU/process admission evidence.

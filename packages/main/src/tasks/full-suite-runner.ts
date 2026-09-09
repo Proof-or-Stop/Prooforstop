@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { withMachineFixedPorts } from '../core/validation-execution-lock.js';
+import { MACHINE_HEAVY_RESOURCE_POLICY } from '../core/runtime-fact-registry.js';
+import { withMachineValidationResources } from '../core/validation-execution-lock.js';
 
 import { spawn, execFileSync } from 'node:child_process';
 import { availableParallelism, tmpdir } from 'node:os';
@@ -121,7 +122,9 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
   ({ name, resources: [{ class: 'git-common-dir', key: '.', access: 'shared' }, ...extra], tempOwnership: 'runner-owned-unique', ...options });
 const heavySmokeClaim = (): ResourceClaim => ({ class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-heavy'), access: 'exclusive' });
 const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
-  ({ ...isolated(name, options), resources: [heavySmokeClaim()] });
+  ({ ...isolated(name, options), resources: [heavySmokeClaim(),
+    { class: 'machine-cpu', key: MACHINE_HEAVY_RESOURCE_POLICY.cpuKey, access: MACHINE_HEAVY_RESOURCE_POLICY.access },
+    { class: 'machine-process', key: MACHINE_HEAVY_RESOURCE_POLICY.processKey, access: MACHINE_HEAVY_RESOURCE_POLICY.access }] });
 
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
@@ -596,10 +599,10 @@ export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { int
 export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
-  if (!entry.resources.some(claim => claim.class === 'fixed-port')) return executeFullSuiteEntry(entry, cwd, npmCommand, onSpawn, state);
+  if (!entry.resources.some(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process')) return executeFullSuiteEntry(entry, cwd, npmCommand, onSpawn, state);
   const deadlineAt = Date.now() + (entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   try {
-    return await withMachineFixedPorts({ root: cwd, workspaceRoot: cwd, command: entry.name, resources: entry.resources, deadlineAt,
+    return await withMachineValidationResources({ root: cwd, workspaceRoot: cwd, command: entry.name, resources: entry.resources, deadlineAt,
       externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
       () => executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state));
   } catch (error) {

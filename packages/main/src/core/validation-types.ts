@@ -54,7 +54,8 @@ export interface ValidationCommand {
   /**
    * What this command touches, in the SAME vocabulary the full test suite
    * declares (core/keyed-scheduler.ts): git-common-dir / fixed-path /
-   * fixed-port / runtime-lock / main-write-lock, shared or exclusive. Keys are
+   * fixed-port / runtime-lock / main-write-lock, shared or exclusive;
+   * machine-cpu / machine-process use the fixed exclusive heavy/fanout policy. Keys are
    * resolved relative to the PROJECT ROOT, not to `cwd`.
    *
    * Absent (or empty) means UNDECLARED, which is not the same as "touches

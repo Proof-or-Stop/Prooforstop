@@ -23,6 +23,7 @@ try{
  const results=await Promise.all([a.done,b.done]);assert.ok(results.every(r=>r.code===0),JSON.stringify(results));
  assert.equal(overlapped,false,'U08 heavy CPU and process fanout must coordinate across repositories');
  assert.ok(markers.every(existsSync),'both heavy tasks eventually execute');
+ execFileSync(process.execPath,[resolve('scripts/verify-machine-heavy-boundaries.mjs')],{stdio:'inherit',timeout:60000});
  console.log('PASS U08 actual heavy members coordinate across repositories');
 }finally{
  writeFileSync(release,'release');
