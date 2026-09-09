@@ -220,7 +220,7 @@ function assertReleaseProviderProcessSlotIsBestEffort(): void {
     }
   }, 'a failed admission release must not replace provider success');
   assert.equal(providerSucceeded, true);
-  assert.equal(admissionReleaseReports.length, 1,
+  assert.equal(admissionReleaseReports.length, 2,
     'the admission adapter reports a failed release instead of throwing from finally');
 
   let admissionSurfaced: Error | null = null;
@@ -240,8 +240,9 @@ function assertReleaseProviderProcessSlotIsBestEffort(): void {
     'a failed admission release must not replace the in-flight provider exception');
 
   // 6. Best-effort must not degrade into a no-op: a healthy release still frees.
-  releaseProviderProcessSlotBestEffort(slot.file, slot.token);
+  releaseProviderProcessAdmission(admission);
   assert.equal(existsSync(slot.file), false, 'a successful best-effort release removes the slot file');
+  assert.equal(existsSync(admission.machineSlot!.file), false, 'a successful admission release removes the machine sidecar too');
 }
 
 async function main(): Promise<void> {

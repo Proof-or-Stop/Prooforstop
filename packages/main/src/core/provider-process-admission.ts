@@ -6,8 +6,10 @@
  * adapter used by all Lattice-owned provider launch sites.
  */
 
+import { MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import {
   acquireProviderProcessSlot,
+  machineProviderProcessSlotsDir,
   providerProcessSlotsDir,
   releaseProviderProcessSlotBestEffort,
   resolveProviderProcessMaxConcurrent,
@@ -33,6 +35,8 @@ export interface ProviderProcessAdmissionRequest {
 export interface ProviderProcessAdmission {
   admitted: boolean;
   slot: AcquiredProviderProcessSlot | null;
+  machineSlot?: AcquiredProviderProcessSlot | null;
+  capacityScope?: 'project' | 'machine';
   cap: number;
   liveRuns: ProviderProcessLiveDescriptor[];
 }
@@ -57,39 +61,38 @@ export function acquireProviderProcessAdmission(
     storyId: request.storyId,
     agentType: request.agentType,
   });
-  return {
-    admitted: slot !== null,
-    slot,
-    cap,
-    // B-137a:F-126 — DIAGNOSTIC-ONLY, and deliberately a post-refusal snapshot.
-    //
-    // The admission DECISION is already made above, atomically under the
-    // registry lock. This scan runs after that lock is released, with a fresh
-    // Date.now(), so it can legitimately disagree with the decision: a slot
-    // freed in between makes the list shorter than `cap` even though the
-    // refusal was correct at decision time. That is why it never feeds a gate.
-    //
-    // Holding the lock across the scan would make the two agree but would
-    // serialize every refusal behind a directory walk, adding contention to the
-    // exact path that is already saturated. The snapshot is described as
-    // approximate at its user-facing consumer (host-run.ts refusalDetail)
-    // instead of being presented as an authoritative count.
-    liveRuns: slot ? [] : scanLiveProviderProcessSlots(dir, Date.now(), staleMs),
-  };
+  if (!slot) return { admitted: false, slot: null, cap, capacityScope: 'project',
+    liveRuns: scanLiveProviderProcessSlots(dir, Date.now(), staleMs) };
+  // Local first, machine second. A machine refusal never retains a local slot.
+  // Each registry's decision is atomic; diagnostic scans remain post-refusal.
+  let machineSlot: AcquiredProviderProcessSlot | null = null;
+  try {
+    const machineDir = machineProviderProcessSlotsDir();
+    const machineCap = MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY.maxConcurrent;
+    machineSlot = acquireProviderProcessSlot(machineDir, machineCap, staleMs, Date.now(), {
+      pid: request.pid ?? process.pid, startedAt: request.startedAt ?? new Date().toISOString(),
+      host: request.host, storyId: request.storyId, agentType: request.agentType,
+    });
+    if (!machineSlot) return { admitted: false, slot: null, machineSlot: null, cap: machineCap, capacityScope: 'machine',
+      liveRuns: scanLiveProviderProcessSlots(machineDir, Date.now(), staleMs) };
+    return { admitted: true, slot, machineSlot, cap: Math.min(cap, machineCap), liveRuns: [] };
+  } finally {
+    if (!machineSlot) releaseProviderProcessSlotBestEffort(slot.file, slot.token);
+  }
 }
 
 export function releaseProviderProcessAdmission(
   admission: ProviderProcessAdmission | null,
   options: ProviderProcessAdmissionReleaseOptions = {},
 ): void {
-  if (!admission?.slot) return;
-  releaseProviderProcessSlotBestEffort(
-    admission.slot.file,
-    admission.slot.token,
-    options.onFailure,
-    options.lockTiming,
-    options.mutationOps,
-  );
+  if (!admission) return;
+  try {
+    if (admission.slot) releaseProviderProcessSlotBestEffort(admission.slot.file, admission.slot.token,
+      options.onFailure, options.lockTiming, options.mutationOps);
+  } finally {
+    if (admission.machineSlot) releaseProviderProcessSlotBestEffort(admission.machineSlot.file, admission.machineSlot.token,
+      options.onFailure, options.lockTiming, options.mutationOps);
+  }
 }
 
 export function transferProviderProcessAdmissionToProvider(
@@ -103,5 +106,6 @@ export function transferProviderProcessAdmissionToProvider(
   },
 ): boolean {
   if (!admission?.slot) return false;
-  return transferProviderProcessSlotToProvider(admission.slot.file, admission.slot.token, identity);
+  if (!transferProviderProcessSlotToProvider(admission.slot.file, admission.slot.token, identity)) return false;
+  return !admission.machineSlot || transferProviderProcessSlotToProvider(admission.machineSlot.file, admission.machineSlot.token, identity);
 }

@@ -101,3 +101,22 @@ Use `npm run lab:worktree -- status NAME` to inspect progress. Direct edits to
 records are rejected. Manual/legacy worktrees (including the original Lab-story
 bootstrap workspace) are not silently adopted. Install/merge this mechanism first;
 subsequent Labs created by the command get the complete managed cycle.
+
+### Machine provider admission
+
+Provider launches acquire both their project slot and a same-OS-user machine
+slot. The machine pool lives under the OS account home runtime locks directory,
+uses a private directory, and has an independent capacity of four. Raising a
+project concurrency environment setting cannot raise that machine capacity.
+Machine refusal releases the tentative project slot before returning.
+
+Identity-aware launchers transfer both slots to the actual provider process
+identity. A worker exit alone does not free capacity while that provider group
+is alive. `node scripts/verify-machine-provider-admission.mjs` verifies admission,
+zero launch on refusal, rollback, and a real detached provider surviving its
+worker and then exiting naturally. Tests isolate the OS-home lookup in their own
+processes; production has no alternate-pool environment switch.
+
+This admission contract does not establish descendant supervision for legacy
+synchronous provider launchers. Their lifecycle integration remains a separate
+requirement; neither this test nor a Lab GREEN is full U-08 product acceptance.

@@ -11,6 +11,7 @@ import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import {
   mkdirSync,
+  lstatSync,
   readdirSync,
   readFileSync,
   statSync,
@@ -18,14 +19,15 @@ import {
   renameSync,
   writeFileSync,
 } from 'node:fs';
-import { hostname } from 'node:os';
+import { hostname, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   acquireMkdirLock,
   type ExistingMkdirLockSnapshot,
   type ExistingMkdirLockState,
 } from './mkdir-lock.js';
-import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
+import { MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MACHINE_PROVIDER_ADMISSION_ARTIFACT, resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
@@ -35,7 +37,7 @@ import { readBrandEnv } from './brand-env.js';
 // written there were therefore neither materialHash-excluded nor gitignored and
 // showed up as uncommitted SOURCE. Derive the canonical state dir.
 const PROVIDER_PROCESS_SLOTS_RELATIVE = join(PROOF_OR_STOP_DIR, 'runtime', 'provider-process-slots');
-export const PROVIDER_PROCESS_MAX_CONCURRENT_DEFAULT = 4;
+export const PROVIDER_PROCESS_MAX_CONCURRENT_DEFAULT = MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY.maxConcurrent;
 export const PROVIDER_PROCESS_SLOT_STALE_MS_DEFAULT = 6 * 60 * 60 * 1000;
 
 export interface ProviderProcessLiveDescriptor {
@@ -203,6 +205,18 @@ function slotReclaimable(occupant: SlotOccupant, file: string, now: number, stal
 
 export function providerProcessSlotsDir(root: string): string {
   return join(resolveCanonicalRuntimeProjectRoot(root), PROVIDER_PROCESS_SLOTS_RELATIVE);
+}
+
+/** Canonical OS-user pool; project environment cannot redirect or resize it. */
+export function machineProviderProcessSlotsDir(): string {
+  const user = userInfo();
+  const dir = join(user.homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_PROVIDER_ADMISSION_ARTIFACT.directoryName);
+  mkdirSync(dir, { recursive: true, mode: MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY.directoryMode });
+  const stat = lstatSync(dir);
+  if (!stat.isDirectory() || stat.isSymbolicLink() || (process.platform !== 'win32' && (stat.uid !== user.uid || (stat.mode & 0o077) !== 0))) {
+    throw new Error('machine provider registry must be a private OS-user-owned directory');
+  }
+  return dir;
 }
 
 export function resolveProviderProcessMaxConcurrent(env: NodeJS.ProcessEnv): number {
