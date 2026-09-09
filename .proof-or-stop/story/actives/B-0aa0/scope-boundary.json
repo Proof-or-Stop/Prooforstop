@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "proof-or-stop.scope_boundary.v1.1",
+  "storyId": "B-0aa0",
+  "mode": "maintenance",
+  "allowed": [
+    "Add its navigation entry to docs/requirements/NAV.md",
+    "Create docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+    "Run read-only Claude CLI and Agy CLI audits and incorporate accepted findings into the new document"
+  ],
+  "excluded": [
+    "Change existing Story or fixture state outside this Story",
+    "Enable enforce-low-risk",
+    "Modify runtime implementation or validation configuration"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "The user requested a Markdown execution plan followed by Claude CLI and Agy CLI audits.",
+  "createdAt": "2026-09-09T22:13:58.986Z",
+  "updatedAt": "2026-09-09T22:13:58.986Z",
+  "_hash": "09cf02b1efc12fbe5c56bee08244ff56cef36cbe094b4d1d6447692aa15a2b15"
+}

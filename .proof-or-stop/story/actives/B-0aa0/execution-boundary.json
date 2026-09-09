@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-0aa0",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "Agy CLI",
+    "apply_patch",
+    "Claude CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives",
+    "packages/main/src",
+    "proof-or-stop.config.json"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execution is limited to documentation authoring, lifecycle CLI operations, and read-only cross-CLI audits.",
+  "createdAt": "2026-09-09T22:13:58.986Z",
+  "updatedAt": "2026-09-09T22:13:58.986Z",
+  "_hash": "71ce013524f462978aec53c1ad128f41fd224461d47c54d0f69f2e543d225ee9"
+}

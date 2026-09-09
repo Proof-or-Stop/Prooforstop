@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the focused three-tier dynamic-validation RED/GREEN execution plan",
+      "context": "Define one canonical selector shared by validation_plan and validate; specify tier membership, impact index, stable identities, exclusion/receipt proof, fail-closed widening, rollout, acceptance evidence, and non-hard-coded inventory accounting.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "A concise Markdown execution plan that states exactly how fast, intermediate, and full become distinct, executable, and auditable.",
+      "excludes": [
+        "Implementing runtime selector changes",
+        "Changing validate.dynamic.mode",
+        "Running the full validation inventory"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Obtain and resolve independent Claude CLI and Agy CLI audits",
+      "context": "Give both CLIs the same frozen document and audit rubric; record actionable findings, reconcile conflicts against repository truth sources, revise the plan, and preserve a bounded audit record without claiming the CLIs grant lifecycle authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "userSees": "The final plan includes a transparent two-CLI audit disposition showing what changed and what remained unresolved.",
+      "excludes": [
+        "Treating reviewer prose as signed gate evidence",
+        "Allowing either CLI to modify the repository directly"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
