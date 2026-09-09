@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
+import { acquireMkdirLock } from '../packages/main/dist/core/mkdir-lock.js';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cancelManagedHostRun, getManagedHostRunStatus, managedHostRunDirectory, managedHostRunReceipt } from '../packages/main/dist/core/managed-host-run.js';
@@ -11,6 +12,7 @@ const root = mkdtempSync(join(tmpdir(), 'managed-autonomous-supervisor-'));
 const bin = join(root, 'bin');
 const marker = join(root, 'provider.json');
 let runId;
+let ownedProvider;
 try {
   mkdirSync(bin);
   writeFileSync(join(bin, 'codex'), `#!${process.execPath}
@@ -33,8 +35,15 @@ setInterval(() => {}, 1000);
   assert.ok(existsSync(marker), 'real provider must start before the worker crash');
   const provider = JSON.parse(readFileSync(marker, 'utf8'));
   const snapshot = JSON.parse(readFileSync(join(directory, 'snapshot.json'), 'utf8'));
+  ownedProvider = snapshot.providerIdentity;
   assert.equal(provider.workerPid, snapshot.workerPid, 'only the worker launched for this fixture may be killed');
   assert.equal(provider.pid, snapshot.providerIdentity.pid, 'provider identity must be durably published');
+  const held = acquireMkdirLock(join(directory, 'reconcile.lock'), {
+    label: 'autonomous witness legitimate contention', deadlineMs:5000,
+    holderInfo:{pid:process.pid,hostname:hostname(),command:'autonomous witness',
+      acquiredAt:new Date().toISOString(),processStartTimeMs:Date.now()-process.uptime()*1000},
+  });
+  try { await new Promise(resolve => setTimeout(resolve, 7000)); } finally { held.release(); }
   process.kill(provider.workerPid, 'SIGKILL');
   // Observe files only. Calling status/cancel here would hide touch-driven recovery.
   const started = Date.now();
@@ -48,12 +57,24 @@ setInterval(() => {}, 1000);
   assert.match(JSON.parse(readFileSync(join(directory, 'terminal.json'), 'utf8')).reason, /worker_orphaned/);
   assert.equal(receipt.replacementSafe, true, 'TERM-resistant provider must be killed and reaped');
   assert.throws(() => process.kill(provider.pid, 0), /ESRCH/, 'provider must no longer exist');
-  console.log('PASS U02 autonomous worker-orphan terminal and provider cleanup without status polling');
+  console.log('PASS U02 autonomous worker-orphan terminal and provider cleanup without status polling after lock contention');
 } finally {
   if (runId) {
     await cancelManagedHostRun({root, runId, reason:'autonomous-supervisor-witness cleanup'});
     await new Promise(resolve => setTimeout(resolve, 300));
     await getManagedHostRunStatus({root, runId});
+  }
+  if (ownedProvider) {
+    try {
+      const start = execFileSync('ps', ['-o', 'lstart=', '-p', String(ownedProvider.pid)], {encoding:'utf8'}).trim();
+      const command = execFileSync('ps', ['-o', 'command=', '-p', String(ownedProvider.pid)], {encoding:'utf8'});
+      if (start === ownedProvider.startFingerprint && command.includes(join(bin, 'codex'))) {
+        process.kill(ownedProvider.pid, 'SIGKILL');
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    } catch (error) {
+      if (error.code !== 'ESRCH' && error.status !== 1) throw error;
+    }
   }
   rmSync(root, {recursive:true, force:true});
 }

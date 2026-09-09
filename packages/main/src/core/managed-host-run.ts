@@ -1048,6 +1048,8 @@ function pathsFor(root: string, runId: string): ManagedHostRunPaths {
   };
 }
 
+class ManagedReconcileBusyError extends Error {}
+
 const managedReconcileQueues = new Map<string, Promise<void>>();
 
 async function withManagedReconcileLock<T>(
@@ -1079,6 +1081,12 @@ async function withManagedReconcileLock<T>(
       },
     });
     return await fn();
+  } catch (error) {
+    if (lock === null && error instanceof Error
+      && error.message.startsWith(`managed reconcile ${paths.dir} lock timeout after`)) {
+      throw new ManagedReconcileBusyError(error.message, { cause: error });
+    }
+    throw error;
   } finally {
     lock?.release();
     releaseTurn();
@@ -2950,7 +2958,9 @@ function ensureCancelRequest(
 export interface ManagedHostRunProcessGroupRow {
   pid: number;
   pgid: number;
-  sessionId: number;
+  sessionId: number | null;
+  /** Darwin ps exposes an opaque session pointer, not a POSIX SID. */
+  sessionIdSource?: 'darwin-session-unavailable';
   start: string;
 }
 
@@ -2972,7 +2982,10 @@ function processGroupRows(pgid: number): ManagedHostRunProcessGroupRow[] | null 
       .split('\n')
       .map(line => /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.+?)\s*$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
-      .map(match => ({ pid: Number(match[1]), pgid: Number(match[2]), sessionId: Number(match[3]), start: match[4]! }))
+      .map(match => ({ pid: Number(match[1]), pgid: Number(match[2]),
+        sessionId: process.platform === 'darwin' ? null : Number(match[3]),
+        ...(process.platform === 'darwin' ? { sessionIdSource: 'darwin-session-unavailable' as const } : {}),
+        start: match[4]! }))
       .filter(row => row.pgid === pgid);
   } catch {
     return null;
@@ -3157,7 +3170,9 @@ function hasContinuouslyVerifiedManagedProviderLeader(
   const leader = rows.find(row => row.pid === identity.pid);
   return leader !== undefined
     && leader.pgid === identity.pgid
-    && leader.sessionId === identity.pgid
+    && (leader.sessionId === identity.pgid
+      || (process.platform === 'darwin' && leader.sessionId === null
+        && leader.sessionIdSource === 'darwin-session-unavailable'))
     && leader.start === identity.startFingerprint;
 }
 
@@ -3311,9 +3326,14 @@ export async function runManagedHostRunSupervisor(
   projectionFor(paths);
   onReady();
   while (existsSync(paths.spec)) {
-    const terminal = await withManagedReconcileLock(paths, async () => {
+    let terminal = false;
+    try {
+      terminal = await withManagedReconcileLock(paths, async () => {
       const run = projectionFor(paths);
-      if (run.terminal) return true;
+      if (run.terminal) {
+        await reconcileManagedHostRunUnlocked(paths, Date.now());
+        return true;
+      }
       if (run.workerPid !== null && !pidAlive(run.workerPid)) {
         ensureCancelRequest(paths, request.runId, MANAGED_SUPERVISOR_RUNTIME_POLICY.orphanReason, Date.now());
       }
@@ -3321,7 +3341,12 @@ export async function runManagedHostRunSupervisor(
       // exclusive terminal writer. Never signal a bare worker PID.
       await reconcileManagedHostRunUnlocked(paths, Date.now());
       return readTerminal(paths) !== null;
-    });
+      });
+    } catch (error) {
+      // Contention is temporary, not a reason to abandon this run's owner.
+      // Integrity and IO failures still surface instead of becoming silent retries.
+      if (!(error instanceof ManagedReconcileBusyError)) throw error;
+    }
     if (terminal) return;
     await sleep(MANAGED_SUPERVISOR_RUNTIME_POLICY.pollIntervalMs);
   }

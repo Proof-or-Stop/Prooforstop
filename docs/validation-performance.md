@@ -288,3 +288,12 @@ death without status calls, uses the existing process-identity cleanup/fencing
 path, and records a failed `worker_orphaned` terminal after cleanup. It also
 reconciles the sealed absolute deadline independently of the owner model. This
 bounded repair does not yet make every legacy status reader side-effect free.
+
+On Darwin, `ps sess` is not a usable POSIX session ID. Cleanup records that
+observation as unavailable rather than interpreting zero as a mismatching SID.
+It still requires the recorded isolated spawn, PID equal to PGID, a present
+original leader and its exact current start fingerprint before each group
+signal. Other platforms retain the observed SID check; failed process queries,
+missing leaders and identity drift remain no-signal outcomes. Supervisor lock
+contention retries, and an already written terminal still triggers the existing
+post-terminal prompt/scratch cleanup recovery before the supervisor exits.

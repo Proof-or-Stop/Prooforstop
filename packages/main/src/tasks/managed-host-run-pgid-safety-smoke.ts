@@ -52,6 +52,25 @@ async function main(): Promise<void> {
     assert.deepEqual(cleanup, { termSent: false, killSent: false, reaped: false, residualProcessGroup: true });
   }
 
+  // SID unavailable is not a wildcard: absent query data, wrong session,
+  // reused leader, changed group and absent leader all remain no-signal cases.
+  for (const row of [
+    null,
+    { pid: 62001, pgid: 62001, sessionId: 999, start: 'original-start' },
+    { pid: 62001, pgid: 62001, sessionId: 62001, start: 'reused-start' },
+    { pid: 62001, pgid: 62002, sessionId: 62001, start: 'original-start' },
+    { pid: 62002, pgid: 62001, sessionId: 62001, start: 'original-start' },
+    { pid: 62001, pgid: 62001, sessionId: null, start: 'original-start' },
+  ]) {
+    const signals: string[] = [];
+    const cleanup = await reapManagedHostRunProviderProcess({
+      pid: 62001, pgid: 62001, spawnedAt: new Date().toISOString(),
+      startFingerprint: 'original-start', processGroupIsolated: true,
+    }, { rows: () => row ? [row] : null, signal: (_pgid, signal) => { signals.push(signal); }, wait: async () => {} });
+    assert.deepEqual(signals, [], 'unproven or mismatched process identity must not authorize signals');
+    assert.equal(cleanup.reaped, false);
+  }
+
   const leaderlessSignals: Array<'SIGTERM' | 'SIGKILL'> = [];
   const leaderlessCleanup = await reapManagedHostRunProviderProcess({
     pid: 62001,
