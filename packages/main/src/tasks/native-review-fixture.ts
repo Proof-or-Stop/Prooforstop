@@ -181,13 +181,15 @@ export async function runBrokeredNativeReviewCli(args: {
   reviewRunId: string;
   command: 'review_pass_set' | 'finding_add';
   payload: Record<string, unknown>;
+  /** Test-only process controls; broker identity and descriptor remain authoritative. */
+  env?: NodeJS.ProcessEnv;
 }): Promise<string> {
   const invocation = fixtureInvocation(args);
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {
       cwd: args.root,
       env: {
-        ...sanitizedFixtureChildEnvironment(process.env),
+        ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),
         ...invocation.env,
         LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',
       },

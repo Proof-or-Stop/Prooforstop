@@ -66,6 +66,16 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
   }).trim();
 }
 
+function fixtureReviewCli(
+  fixture: { root: string; store: StoryStore },
+  command: 'review_pass_set' | 'finding_add',
+  payload: { storyId: string; agent: string; reviewRunId: string; [key: string]: unknown },
+  env?: NodeJS.ProcessEnv,
+): Promise<string> {
+  return runBrokeredNativeReviewCli({ ...fixture, command, payload,
+    storyId: payload.storyId, agent: payload.agent, reviewRunId: payload.reviewRunId, env });
+}
+
 function cliAsync(root: string, command: string, payload: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): Promise<{ ok: boolean; output: string }> {
   return new Promise(resolve => execFile(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
     cwd: root,
@@ -668,7 +678,7 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
   assert.ok(reviewRunId, `real review_run_start must return a signed run for ${lane}: ${started}`);
   firstWaveRuns.set(lane, { reviewRunId, sessionId });
   if (index === 0) {
-    const finding = cli(first.root, 'finding_add', {
+    const finding = await fixtureReviewCli(first, 'finding_add', {
       storyId,
       agent: lane,
       reviewRunId,
@@ -679,28 +689,28 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
       files: ['packages/main/src/subject.ts'],
       readManifest,
       readEvents,
-    }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+    });
     realFindingId = finding.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
     assert.ok(realFindingId, `real finding_add must persist an ID: ${finding}`);
   } else {
-    cli(first.root, 'review_pass_set', {
+    await fixtureReviewCli(first, 'review_pass_set', {
       storyId,
       agent: lane,
       reviewRunId,
       note: `Real handler smoke found no blocker for ${lane}.`,
       readManifest,
       readEvents,
-    }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+    });
   }
 }
 const retryLane = epoch.requiredLanes[1];
 const retryRun = firstWaveRuns.get(retryLane)!;
 const passCountBeforeRetry = reloaded.readReviewPasses(storyId).passes.length;
 const passEventsBeforeRetry = reloaded.readProcessEvents(storyId).filter(row => row.type === 'review_pass').length;
-const ambiguousRetry = cli(first.root, 'review_pass_set', {
+const ambiguousRetry = await fixtureReviewCli(first, 'review_pass_set', {
   storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
   note: `Real handler smoke found no blocker for ${retryLane}.`, readManifest, readEvents,
-}, { PROOF_OR_STOP_AGENT: retryLane, PROOF_OR_STOP_SESSION_ID: retryRun.sessionId });
+});
 const retryPassId = reloaded.readReviewPasses(storyId).passes.find(row => row.reviewRunId === retryRun.reviewRunId)!.id;
 assert.match(ambiguousRetry, new RegExp(`Review pass ${retryPassId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} already recorded`));
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, passCountBeforeRetry, 'F046: an ambiguous exact retry preserves one RP');
@@ -720,10 +730,10 @@ const newerSameLaneStarted = cli(first.root, 'review_run_start', { storyId, agen
 });
 const newerSameLaneRunId = newerSameLaneStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(newerSameLaneRunId);
-cli(first.root, 'review_pass_set', {
+await fixtureReviewCli(first, 'review_pass_set', {
   storyId, agent: multiRunLane, reviewRunId: newerSameLaneRunId,
   note: 'Newer same-lane pass must not hide the older run verified finding.', readManifest, readEvents,
-}, { PROOF_OR_STOP_AGENT: multiRunLane, PROOF_OR_STOP_SESSION_ID: multiRunSession });
+});
 const beforeCriticAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -739,23 +749,23 @@ const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'pro
 });
 const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(criticReviewRunId, `real critic review_run_start must return a signed run: ${criticStarted}`);
-cli(first.root, 'review_pass_set', {
+await fixtureReviewCli(first, 'review_pass_set', {
   storyId,
   agent: 'proof-or-stop-review-topology-critic',
   reviewRunId: criticReviewRunId,
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal' });
+});
 const criticPassCount = reloaded.readReviewPasses(storyId).passes.length;
-const criticPassRetry = cli(first.root, 'review_pass_set', {
+const criticPassRetry = await fixtureReviewCli(first, 'review_pass_set', {
   storyId,
   agent: 'proof-or-stop-review-topology-critic',
   reviewRunId: criticReviewRunId,
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal' });
+});
 assert.match(criticPassRetry, /already recorded/, 'F046: critic pass uses the same idempotent terminal writer');
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, criticPassCount);
 const critic = cli(first.root, 'review_inventory_critic_set', {
@@ -835,11 +845,11 @@ for (const lane of epoch.requiredLanes) {
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `second-wave review_run_start must return a signed run for ${lane}: ${started}`);
   secondWaveRuns.set(lane, { reviewRunId, sessionId });
-  cli(first.root, 'review_pass_set', {
+  await fixtureReviewCli(first, 'review_pass_set', {
     storyId, agent: lane, reviewRunId,
     note: `Second complete unchanged-material wave found no new family for ${lane}.`,
     readManifest, readEvents,
-  }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+  });
 }
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
@@ -865,10 +875,10 @@ assert.ok(topologyEligibility.eligibilityReasonCodes.includes('FULL_ROLE_CONTRAC
 assert.throws(() => reviewIncrementalContext(reloaded, first.root, storyId, criticArgs.agentType, {
   roleSemanticDigest: promptRoleContract('proof-or-stop-review-quality').semanticDigest,
 }), /unregistered/, 'cross-role semantic selection is refused');
-cli(first.root, 'review_pass_set', {
+await fixtureReviewCli(first, 'review_pass_set', {
   storyId, agent: 'proof-or-stop-review-topology-critic', reviewRunId: secondCriticReviewRunId,
   note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,
-}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic' });
+});
 cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
   agent: 'proof-or-stop-review-topology-critic', findingDispositions: [],
@@ -1199,12 +1209,12 @@ cli(carryForward.root, 'dispatch', { storyId, agentType: carryLane }, { PROOF_OR
 const carryStarted = cli(carryForward.root, 'review_run_start', { storyId, agent: carryLane }, { PROOF_OR_STOP_AGENT: carryLane, PROOF_OR_STOP_SESSION_ID: carrySession });
 const carryRunId = carryStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(carryRunId);
-const carryFindingOutput = cli(carryForward.root, 'finding_add', {
+const carryFindingOutput = await fixtureReviewCli(carryForward, 'finding_add', {
   storyId, agent: carryLane, reviewRunId: carryRunId,
   desc: 'Pre-epoch verified finding must survive cancel and begin recovery.',
   severity: 'high', category: 'adversarial', evidenceState: 'verified',
   files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-}, { PROOF_OR_STOP_AGENT: carryLane, PROOF_OR_STOP_SESSION_ID: carrySession });
+});
 const carryFindingId = carryFindingOutput.match(/(B-inventory-handler:F-\d+)/)?.[1];
 assert.ok(carryFindingId);
 cli(carryForward.root, 'review_inventory_begin', { storyId });
@@ -1532,22 +1542,22 @@ const readyFile = join(longHolder.root, 'long-review-pass.ready');
 const firstLong = longRuns.get(longLanes[0])!;
 const secondLong = longRuns.get(longLanes[1])!;
 const longHolderStartedAt = Date.now();
-const firstLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
+const firstLongPromise = fixtureReviewCli(longHolder, 'review_pass_set', {
   storyId, agent: longLanes[0], reviewRunId: firstLong.reviewRunId,
   note: 'Long live-holder pass remains authoritative beyond ten seconds.', readManifest, readEvents,
 }, {
-  PROOF_OR_STOP_AGENT: longLanes[0], PROOF_OR_STOP_SESSION_ID: firstLong.sessionId, NODE_ENV: 'test',
+  NODE_ENV: 'test',
   LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS: '11000',
   LATTICE_INTERNAL_REVIEW_PASS_READY_FILE: readyFile,
 });
 waitForFile(readyFile);
-const secondLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
+const secondLongPromise = fixtureReviewCli(longHolder, 'review_pass_set', {
   storyId, agent: longLanes[1], reviewRunId: secondLong.reviewRunId,
   note: 'Concurrent waiter must not reclaim a live review-pass lock.', readManifest, readEvents,
-}, { PROOF_OR_STOP_AGENT: longLanes[1], PROOF_OR_STOP_SESSION_ID: secondLong.sessionId, NODE_ENV: 'test' });
+}, { NODE_ENV: 'test' });
 const [firstLongResult, secondLongResult] = await Promise.all([firstLongPromise, secondLongPromise]);
-assert.equal(firstLongResult.ok, true, firstLongResult.output);
-assert.equal(secondLongResult.ok, true, secondLongResult.output);
+assert.match(firstLongResult, /Review pass .* recorded/);
+assert.match(secondLongResult, /Review pass .* recorded/);
 assert.ok(Date.now() - longHolderStartedAt >= 10_500, 'F036 stress must actually cross the historical 10s stale threshold');
 const durableLongPasses = longHolder.store.readReviewPasses(storyId).passes
   .filter(row => longLanes.includes(row.agent));
