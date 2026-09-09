@@ -170,12 +170,17 @@ the item to pending. This grants no exemption from PLAN review, scope checks,
 fresh coverage or final review. DEV cannot use this route to rewrite acceptance.
 Dispatched verification-intent writers retain their existing PLAN-only field scope.
 
-Every canonical write for an amended checklist first saves the exact signed
-checklist snapshot in an append-only checkpoint sequence under the repository's
-shared Git metadata (`proof-or-stop-intent-checkpoints`). Canonical reads reject
-a missing or different projection, including deletion of the entire history field.
-The latest checkpoint is selected from the contiguous immutable sequence; ordinary
-callers cannot supply a replacement signature or silently truncate old history.
+Every canonical write for an amended checklist first anchors the exact signed
+snapshot in a single-parent Git commit chain beneath
+`refs/proof-or-stop/intent-checkpoints/<story-digest>`. The reference update uses
+compare-and-swap and does not move any branch, including main. A retained ref
+keeps its history reachable through normal packing and garbage collection.
+The `proof-or-stop-intent-checkpoints` directory is a local file mirror; removing
+that mirror and the projection history together cannot erase the anchored
+obligation. Canonical reads use the verified anchor and reject a different
+projection. Old unanchored records retain the contiguous-file verification path
+and acquire an anchor on their next changed canonical write. No caller can
+supply a replacement signature or silently truncate old history.
 Typed integrity errors propagate through gate/roster/query fallbacks. A reordered
 JSON object is equivalent under canonical comparison.
 
@@ -185,9 +190,12 @@ An interrupted projection is recovered by the current owner with
 `expectedCheckpointDigest`, and a substantive reason. Recovery restores exactly
 the signed snapshot; stale digests, foreign owners and terminal Stories are
 refused. It neither reruns commands nor re-attests evidence. The existing CLI
-command audit records the recovery invocation. The checkpoint and signing key
-are trusted local Git metadata: this is protection against mutable Story-file
-corruption and interrupted publication, not a hostile Git-administrator sandbox.
+command audit records the recovery invocation. The retained Git ref, object store
+and signing key are the local trust root. Deleting that trust root too cannot be
+recovered from the remaining erased files. A fresh clone does not automatically
+carry private signing keys or these custom refs; no cross-clone trust transfer is
+claimed. This protects local file loss and interrupted publication, not a hostile
+Git-administrator sandbox.
 
 ### Complete verification output
 

@@ -14,7 +14,7 @@ export interface IntentCheckpoint {
   previousDigest:string|null; data:ChecklistData; dataDigest:string; signature:string;
 }
 const commonDirs=new Map<string,string>();
-function checkpointPath(storyId:string,gitCwd:string):string|undefined {
+function commonDirectory(gitCwd:string):string|undefined {
   const cwd=resolve(gitCwd);
   let common=commonDirs.get(cwd);
   if (!common) {
@@ -22,9 +22,51 @@ function checkpointPath(storyId:string,gitCwd:string):string|undefined {
     catch {return undefined;} // Legacy non-Git projects cannot create signed amendments.
     commonDirs.set(cwd,common);
   }
-  return join(common,INTENT_CHECKPOINT_DIRECTORY,digestCanonicalJson(storyId));
+  return common;
+}
+function checkpointPath(storyId:string,gitCwd:string):string|undefined {
+  const common=commonDirectory(gitCwd);
+  return common?join(common,INTENT_CHECKPOINT_DIRECTORY,digestCanonicalJson(storyId)):undefined;
+}
+const anchorRef=(storyId:string)=>'refs/proof-or-stop/intent-checkpoints/'+digestCanonicalJson(storyId);
+function checkpointGit(gitCwd:string,args:string[],input?:string):string {
+  return execFileSync('git',args,{cwd:gitCwd,input,encoding:'utf8',maxBuffer:64*1024*1024,stdio:['pipe','pipe','pipe']}).trim();
+}
+function validateCheckpoint(record:IntentCheckpoint,storyId:string,gitCwd:string):IntentCheckpoint {
+  const {signature,...payload}=record;
+  if(record.schema!=='proof-or-stop.intent-checkpoint.v1'||record.storyId!==storyId||!Number.isSafeInteger(record.generation)||record.generation<1
+    ||record.dataDigest!==digestCanonicalJson(record.data)||!verifyValidationArtifact(payload,signature,gitCwd))throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_INVALID');
+  for(const item of record.data.items)assertIntentAmendments(item,storyId,gitCwd);
+  return record;
+}
+/** A retained Git ref, independent of the projection and checkpoint-file mirror.
+ * Only the local Git trust root is authoritative; no branch is moved. */
+function readAnchor(storyId:string,gitCwd:string):{commit:string;record:IntentCheckpoint}|null {
+  const common=commonDirectory(gitCwd);if(!common)return null;
+  const ref=anchorRef(storyId),packed=join(common,'packed-refs');
+  if(!existsSync(join(common,ref))&&(!existsSync(packed)||!readFileSync(packed,'utf8').split('\n').some(line=>line.endsWith(' '+ref))))return null;
+  try {
+    const commit=checkpointGit(gitCwd,['rev-parse','--verify',ref]);
+    const record=validateCheckpoint(JSON.parse(checkpointGit(gitCwd,['show',commit+':checkpoint.json'])),storyId,gitCwd);
+    const parents=checkpointGit(gitCwd,['show','-s','--format=%P',commit]).split(' ').filter(Boolean);
+    if(parents.length>1)throw new Error('checkpoint anchors must form a single-parent chain');
+    if(parents.length){
+      const previous=validateCheckpoint(JSON.parse(checkpointGit(gitCwd,['show',parents[0]+':checkpoint.json'])),storyId,gitCwd);
+      if(record.generation!==previous.generation+1||record.previousDigest!==previous.dataDigest)throw new Error('checkpoint anchor predecessor mismatch');
+    }
+    return {commit,record};
+  }catch(error){if(error instanceof IntentAmendmentIntegrityError)throw error;throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_ANCHOR_INVALID',String(error));}
+}
+function writeAnchor(storyId:string,record:IntentCheckpoint,gitCwd:string,previousCommit:string|undefined):void {
+  const blob=checkpointGit(gitCwd,['hash-object','-w','--stdin'],JSON.stringify(record)+'\n');
+  const tree=checkpointGit(gitCwd,['mktree'],'100644 blob '+blob+'\tcheckpoint.json\n');
+  const commit=checkpointGit(gitCwd,['-c','user.name=Proof-or-Stop checkpoint','-c','user.email=checkpoint@proof-or-stop.local','commit-tree',tree,...(previousCommit?['-p',previousCommit]:[])],
+    'Preserve signed acceptance checkpoint generation '+record.generation+'\n');
+  // CAS prevents a concurrent or retried writer from overwriting newer history.
+  checkpointGit(gitCwd,['update-ref',anchorRef(storyId),commit,previousCommit??'0'.repeat(commit.length)]);
 }
 export function readIntentCheckpoint(storyId:string,gitCwd:string):IntentCheckpoint|null {
+  const anchored=readAnchor(storyId,gitCwd);if(anchored)return anchored.record;
   const directory=checkpointPath(storyId,gitCwd);if(!directory || !existsSync(directory))return null;
   const files=readdirSync(directory).filter(name=>/^\d{12}\.json$/.test(name)).sort();
   if(!files.length)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKPOINT_HISTORY_MISSING');
@@ -48,6 +90,7 @@ export function assertIntentCheckpointProjection(data:ChecklistData,checkpoint:I
 }
 /** Write-ahead checkpoint: interrupted projection is recoverable from one signed snapshot. */
 export function writeIntentCheckpoint(storyId:string,data:ChecklistData,gitCwd:string):void {
+  const previousAnchor=readAnchor(storyId,gitCwd);
   const previous=readIntentCheckpoint(storyId,gitCwd);
   if(!previous && !data.items.some(item=>item.verificationIntentAmendments?.length))return;
   const dataDigest=digestCanonicalJson(data);if(previous?.dataDigest===dataDigest)return;
@@ -55,6 +98,9 @@ export function writeIntentCheckpoint(storyId:string,data:ChecklistData,gitCwd:s
   const payload={schema:'proof-or-stop.intent-checkpoint.v1' as const,storyId,generation:(previous?.generation??0)+1,
     previousDigest:previous?.dataDigest??null,data:structuredClone(data),dataDigest};
   const record={...payload,signature:signValidationArtifact(payload,gitCwd)};
+  // Publish the recoverable signed snapshot before its disposable file mirror
+  // and canonical projection. An interrupted later write cannot erase it.
+  writeAnchor(storyId,record,gitCwd,previousAnchor?.commit);
   mkdirSync(directory,{recursive:true});const path=join(directory,String(record.generation).padStart(12,'0')+'.json');const temp=path+'.'+randomUUID()+'.tmp';
   try {writeFileSync(temp,JSON.stringify(record,null,2)+'\n',{encoding:'utf8',flag:'wx',mode:0o600});linkSync(temp,path);}
   finally {if(existsSync(temp))unlinkSync(temp);}
