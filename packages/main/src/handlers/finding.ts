@@ -2,6 +2,8 @@
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
+import { createReviewRemediationHandlers } from './review-remediation.js';
+import type { FindingLedgerWriteStore } from './finding-ledger.js';
 import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { randomUUID } from 'node:crypto';
 import { join } from 'path';
@@ -170,19 +172,20 @@ function appendFindingLifecycleTransition(
   finding: Finding,
   fence: MkdirLockFence,
   input: FindingLifecycleInput,
+  ledgerStore: FindingLedgerWriteStore = ctx.store,
 ): FindingLifecycleTransition {
   const identity = getSessionIdentity();
   const signer = findingLedgerSignerFromWorkspace(ctx.root);
   bindLegacyFindingLedgerReceipts({
     storyId,
-    store: ctx.store,
+    store: ledgerStore,
     writerSessionId: identity.sessionId,
     writerLeaseId: readOwnerLease(ctx.store.storyDirPath(storyId))?.sessionId ?? identity.sessionId,
     writerFenceToken: fence.writerFenceToken,
     fence,
     signer,
   });
-  let ledger = ctx.store.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
+  let ledger = ledgerStore.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
   let source = ledger.records.find((record) => (
     record.recordType === 'finding'
     && record.payload && typeof record.payload === 'object'
@@ -193,7 +196,7 @@ function appendFindingLifecycleTransition(
     const legacyHash = canonicalHash(finding);
     appendFindingLedger({
       storyId,
-      store: ctx.store,
+      store: ledgerStore,
       operation: 'append_legacy_identity_binding',
       idempotencyKey: `legacy-finding-binding:${finding.id}:${legacyHash}`,
       records: [{
@@ -212,7 +215,7 @@ function appendFindingLifecycleTransition(
       fence,
       signer,
     });
-    ledger = ctx.store.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
+    ledger = ledgerStore.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
     source = ledger.records.find((record) => (
       record.recordType === 'legacy_identity_binding'
       && record.payload && typeof record.payload === 'object'
@@ -285,7 +288,7 @@ function appendFindingLifecycleTransition(
   }];
   appendFindingLedger({
     storyId,
-    store: ctx.store,
+    store: ledgerStore,
     operation: 'append_finding_lifecycle_transition',
     idempotencyKey: `finding-lifecycle:${source.recordId}:${input.toStatus}`,
     records: [{
@@ -758,6 +761,11 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }
   };
   return {
+    ...createReviewRemediationHandlers(ctx, {
+      withLock: (storyId, action) => withMetaFindingLock(ctx, storyId, action),
+      resolve: (storyId, finding, fence, resolution, ledgerStore) => appendFindingLifecycleTransition(
+        ctx, storyId, finding, fence, { toStatus: 'resolved', reason: resolution, resolutionType: 'fixed', resolveEvidenceStrength: 'strong' }, ledgerStore),
+    }),
     finding_add(args: {
       storyId: string;
       desc: string;

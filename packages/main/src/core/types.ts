@@ -106,6 +106,7 @@ export type AgentDispatchMutationCommand =
   | 'review_inventory_critic_set'
   | 'managed_review_proposal_set'
   | 'delivery_check_set'
+  | 'review_remediation_close'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
   // implementer registers the per-story target binding before a RED run.
@@ -1715,6 +1716,7 @@ export interface FindingLedgerCommitRef {
 export type FindingLedgerOperation =
   | 'append_finding'
   | 'append_finding_projection'
+  | 'append_review_remediation'
   | 'append_finding_lifecycle_transition'
   | 'append_legacy_identity_binding'
   | 'append_detector_signal'

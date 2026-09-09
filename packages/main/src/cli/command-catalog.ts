@@ -2257,6 +2257,12 @@ Behavior:
     keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
+  { name: 'review_remediation_close', description: 'Atomically close an inventory-bound repair set using current executed verification evidence; repeat the exact request to recover or replay.', schema: {
+    storyId: z.string().min(1), repairSetId: z.string().min(1), epochId: z.string().min(1), repairCommit: z.string().regex(/^[a-f0-9]{40,64}$/),
+    findings: z.array(z.object({ findingId: z.string().min(1), resolution: z.string().min(1),
+      verification: z.array(z.object({ itemId: z.string().min(1), intentRef: z.string().min(1), evidenceDigest: z.string().min(1) })).min(1),
+    })).min(1),
+  }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),

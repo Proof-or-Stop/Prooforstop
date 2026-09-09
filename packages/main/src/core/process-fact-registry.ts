@@ -131,7 +131,7 @@ export const PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY = {
   allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
   gateEvidence: true,
   lifecycleAuthority: 'terminal-finding-state',
-  rationale: 'A current exact-signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. A pre-upgrade current-key transition missing only the nested exact digest remains fail-closed unless a separate current exact-signed legacy_lifecycle_receipt_binding re-attests its immutable carrier, record, source identity, and chain. Original Finding rows and historical transition bytes remain immutable.',
+  rationale: 'ReviewRemediation validates the complete inventory-bound repair set and actual signed execution receipts, then stages individual current exact-CAS transitions in one fenced ledger publication; exact replay authenticates the batch marker and recovers projections and one metadata commit. A current exact-signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. A pre-upgrade current-key transition missing only the nested exact digest remains fail-closed unless a separate current exact-signed legacy_lifecycle_receipt_binding re-attests its immutable carrier, record, source identity, and chain. Original Finding rows and historical transition bytes remain immutable.',
 } as const;
 
 export const PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY = {

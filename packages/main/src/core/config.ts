@@ -533,6 +533,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'review_remediation_close', // Complete inventory-bound repair sets with one atomic ledger publication.
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',

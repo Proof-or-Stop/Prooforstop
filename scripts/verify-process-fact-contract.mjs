@@ -8641,6 +8641,12 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
   'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
   const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  const remediationSource = read('packages/main/src/handlers/review-remediation.ts');
+  for (const invariant of ['withAtomicFindingLedgerWrites', 'verifyReviewInventoryEpoch', 'verifyReviewInventoryReceipt',
+    'verifyCausalEvidenceReceipt', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {
+    assert(remediationSource.includes(invariant), `ReviewRemediation must preserve ${invariant}`);
+  }
+  assert(/review_remediation_close:[^\n]+ownershipClass: 'storyScopedMutating'[^\n]+allowedPhases: \['DEV'\]/.test(read('packages/main/src/core/command-policy.ts')), 'ReviewRemediation must remain owner-gated DEV repair');
   const atomicLedgerWitness = read('scripts/verify-atomic-finding-ledger.mjs');
   for (const invariant of ['a later refusal must publish none of the batch', 'the whole batch has one durable publication',
     'canonical reader trusts every individual signed carrier', 'exact batch replay is byte-identical']) {

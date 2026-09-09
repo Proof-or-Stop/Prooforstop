@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -60,7 +60,7 @@ try {
   const repairCommit = git('rev-parse', 'HEAD');
   const ctx = { root, scanRoot: root, store, log() {} };
   await createChecklistHandlers(ctx).verification_evidence_add({ storyId, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0',
-    kind: 'integration_test', command: `${process.execPath} verify.cjs`, selector: 'positive and zero repaired',
+    kind: 'integration_test', command: `node verify.cjs`, selector: 'positive and zero repaired',
     note: 'Executed the real repaired function for both positive and zero inputs and asserted exact sums.' });
   const evidence = store.readChecklist(storyId).items[0].verificationEvidence[0];
   assert.equal(evidence.mechanical, true);
@@ -69,10 +69,50 @@ try {
     findings: findings.map(({ id }) => ({ findingId: id, resolution: 'Addition restored and checked with real positive and zero inputs.', verification: [proof] })) };
   const handlers = createFindingHandlers(ctx);
   const beforeBytes = readFileSync(store.findingLedgerPath(storyId));
-  const beforeHead = git('rev-parse', 'HEAD');
+  let beforeHead = git('rev-parse', 'HEAD');
   assert.throws(() => handlers.review_remediation_close({ ...request, findings: [request.findings[0], { ...request.findings[1], verification: [] }] }), /verification|evidence/i);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'missing proof on one finding leaves whole ledger unchanged');
   assert.equal(git('rev-parse', 'HEAD'), beforeHead, 'invalid repairSet creates no metadata commit');
+  writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a-b;\n');
+  assert.throws(() => handlers.review_remediation_close(request), /dirty material/);
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'uncommitted regression publishes no resolution');
+  writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
+  const causalPath = store.causalEvidenceReceiptPath(storyId, evidence.receipt.causalReceiptHash);
+  const causalBytes = readFileSync(causalPath);
+  rmSync(causalPath);
+  assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'missing real execution receipt publishes no resolution');
+  writeFileSync(causalPath, causalBytes);
+  const originalReadInventory = store.readReviewInventoryEpochs.bind(store);
+  store.readReviewInventoryEpochs = sid => { const value = originalReadInventory(sid); value.epochs[0]._hash = 'invalid'; return value; };
+  assert.throws(() => handlers.review_remediation_close(request), /inventory epoch/);
+  store.readReviewInventoryEpochs = originalReadInventory;
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'invalid inventory signature publishes no resolution');
+  const originalTransaction = store.transactFindingLedger.bind(store);
+  store.transactFindingLedger = (sid, fence, prepare, options = {}) => originalTransaction(sid, fence, prepare, {
+    ...options, beforeRename: (...argv) => {
+      writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a-b;\n');
+      git('add', 'sum.cjs'); git('commit', '-qm', 'concurrent committed regression');
+      options.beforeRename?.(...argv);
+    },
+  });
+  assert.throws(() => handlers.review_remediation_close(request), /inputs changed before publication/);
+  store.transactFindingLedger = originalTransaction;
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'concurrently committed regression publishes no terminal facts');
+  writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
+  git('add', 'sum.cjs'); git('commit', '-qm', 'restore tested repair');
+  beforeHead = git('rev-parse', 'HEAD');
+  const originalMetricsWrite = store.writeProcessMetrics.bind(store);
+  store.writeProcessMetrics = () => { throw new Error('injected metrics write failure'); };
+  assert.throws(() => handlers.review_remediation_close(request), /injected metrics write failure/);
+  assert.ok(store.readFindings(storyId).findings.every(f => f.status === 'resolved'), 'atomic terminal facts survive a projection failure');
+  assert.equal(git('rev-parse', 'HEAD'), beforeHead, 'projection failure creates no premature commit');
+  store.writeProcessMetrics = originalMetricsWrite;
+  const rejectHook = join(root, '.git/hooks/pre-commit');
+  writeFileSync(rejectHook, '#!/bin/sh\nexit 1\n'); chmodSync(rejectHook, 0o755);
+  assert.throws(() => handlers.review_remediation_close(request), /metadata commit is pending/);
+  assert.equal(git('rev-parse', 'HEAD'), beforeHead, 'commit refusal is not reported as success');
+  rmSync(rejectHook);
   const result = handlers.review_remediation_close(request);
   assert.equal(result.openCount, 0, 'reported open count comes from canonical post-transaction reader');
   assert.ok(store.readFindings(storyId).findings.every(f => f.status === 'resolved'));
@@ -83,5 +123,23 @@ try {
   assert.equal(git('rev-parse', 'HEAD'), afterHead, 'repairSet replay creates no second metadata commit');
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), afterBytes);
   assert.throws(() => handlers.review_remediation_close({ ...request, findings: [{ ...request.findings[0], resolution: 'Changed repair claim' }, request.findings[1]] }), /IDEMPOTENCY_CONFLICT/);
+  const storedLedger = JSON.parse(readFileSync(store.findingLedgerPath(storyId), 'utf8'));
+  const markerCarrier = storedLedger.receipts.find(r => r.operation === 'append_review_remediation');
+  assert.ok(markerCarrier?.findingLedgerReceipt);
+  markerCarrier.findingLedgerReceipt.signature = 'invalid';
+  writeFileSync(store.findingLedgerPath(storyId), JSON.stringify(storedLedger));
+  assert.throws(() => handlers.review_remediation_close(request), /IDEMPOTENCY_CONFLICT|signature|authority/i);
+  writeFileSync(store.findingLedgerPath(storyId), afterBytes);
+  const metricsPath = store.storyFilePath(storyId, 'process-metrics.json');
+  rmSync(metricsPath);
+  git('add', '--', metricsPath); git('commit', '-qm', 'simulate independently committed missing projection');
+  writeFileSync(rejectHook, '#!/bin/sh\nexit 1\n'); chmodSync(rejectHook, 0o755);
+  assert.throws(() => handlers.review_remediation_close(request), /metadata commit is pending/, 'committed ledger does not hide a failed recovery commit');
+  rmSync(rejectHook);
+  assert.equal(handlers.review_remediation_close(request).replayed, true);
+  assert.ok(store.readProcessMetrics(storyId), 'committed ledger alone does not bypass missing metrics recovery');
+  const recoveredHead = git('rev-parse', 'HEAD');
+  assert.equal(handlers.review_remediation_close(request).replayed, true);
+  assert.equal(git('rev-parse', 'HEAD'), recoveredHead, 'recovered projection has stable replay');
   console.log('PASS U04 complete atomic repairSet closeout');
 } finally { process.chdir(previousCwd); rmSync(root, { recursive: true, force: true }); }
