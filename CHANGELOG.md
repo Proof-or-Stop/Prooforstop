@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab b49df-main-topology-green-20260909 - v0.3.288 - 2026-09-09
+
+The B-49df canonical-identity regression test derived the main repository root by
+walking up a fixed number of directories. That worked inside a nested Lab
+worktree but failed after the candidate was integrated into the main checkout.
+
+The test now resolves Git's absolute common directory and derives the canonical
+main checkout from it. The focused source invariant changed from RED to GREEN,
+and the complete canonical-identity test passes from the Lab topology. This is a
+test-fixture portability repair only; it does not change product behavior or
+historical Story data.
+
+Maintenance provenance: codex/lab-b49df-main-topology-green-20260909, repair e3f56d74f3b9b3ba9447700383c0e5644c98dbfc.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"scripts/lab-worktree.mjs\",\"utf8\");if(s.includes(\"...(s.bump ? versions.VERSION_SYNC_PATHS : [])\")){console.error(\"dynamic version files are not staged\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b49df-canonical-identity-20260909 - v0.3.287 - 2026-09-09
 
 # Canonical active Proof-or-Stop identity
