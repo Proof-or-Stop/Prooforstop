@@ -253,12 +253,17 @@ async function observeOverlap(plan, jobs) {
   const barriers = canonical.filter((entry) => entry.resources.some(claim => isBarrier(claim, 'exclusive')));
   ok('no configured command may overlap an undeclared one',
     barriers.every((barrier) => canonical.every((other) => other.name === barrier.name || claimsConflict(barrier, other))));
-  ok('the declared configured commands are mutually compatible',
-    overlappable.every((entry, i) => overlappable.slice(i + 1).every((other) => !claimsConflict(entry, other))));
+  const takesAdmission = entry => entry.resources.some(claim => claim.class === 'runtime-lock'
+    && claim.key === 'proof-or-stop-real-root-admission' && claim.access === 'exclusive');
+  ok('the configured plan retains at least two admission readers and independent readers',
+    overlappable.filter(takesAdmission).length >= 2 && overlappable.filter(entry => !takesAdmission(entry)).length >= 2);
+  ok('declared readers serialize exactly the audited admission pairs and otherwise remain compatible',
+    overlappable.every((entry, i) => overlappable.slice(i + 1).every((other) =>
+      claimsConflict(entry, other) === (takesAdmission(entry) && takesAdmission(other)))));
   console.log(`VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
 }
 
-// ── 7. B-e40f: quorum smoke has one exact shared-read declaration ───────────
+// ── 7. Quorum keeps internal workers parallel and isolates outer writes ─────
 {
   const configured = configuredValidationCommands(repoRoot);
   const quorumRows = configured.filter((entry) => entry.command === 'node'
@@ -266,26 +271,33 @@ async function observeOverlap(plan, jobs) {
     && entry.args.includes('packages/main/dist/tasks/quorum-submit-smoke.js'));
   ok('the configured plan contains exactly one quorum-submit smoke row', quorumRows.length === 1);
   const quorum = quorumRows[0];
+  const outerBarrier = { class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' };
   const exactDeclaration = (entry) => entry.command === 'node'
     && JSON.stringify(entry.args) === JSON.stringify([
       'packages/main/dist/tasks/quorum-submit-smoke.js',
       '--jobs=2',
     ])
-    && JSON.stringify(entry.resources) === JSON.stringify([REPO_READ]);
-  ok('quorum smoke selects jobs=2 and declares only the raw shared git-common-dir claim',
+    && JSON.stringify(entry.resources) === JSON.stringify([REPO_READ, outerBarrier]);
+  ok('quorum smoke selects jobs=2 with shared Git plus its exact protected-root barrier',
     exactDeclaration(quorum));
   const [resolved] = resolveValidationPlanEntries({ provider: 'b-e40f-quorum', commands: [quorum] });
-  ok('the quorum claim resolves as non-barrier shared access',
+  ok('quorum retains its explicit outer barrier and shared Git access',
     resolved.exclusiveByDefault === false
-      && resolved.resources.length === 2
+      && resolved.resources.length === 3
       && isBarrier(resolved.resources[0], 'shared')
       && resolved.resources[1].class === REPO_READ.class
       && resolved.resources[1].key === REPO_READ.key
-      && resolved.resources[1].access === REPO_READ.access);
-  ok('a wrong or extra quorum claim is rejected by the exact declaration guard',
-    !exactDeclaration({ ...quorum, resources: [{ ...REPO_READ, access: 'exclusive' }] })
+      && resolved.resources[1].access === REPO_READ.access
+      && isBarrier(resolved.resources[2], 'exclusive'));
+  const allEntries = canonicalizeEntries(resolveValidationPlanEntries({ provider: 'quorum-root-isolation', commands: configured }), repoRoot);
+  const quorumEntry = allEntries.find(entry => entry.name === resolved.name);
+  ok('quorum protected-root observation excludes every other local validation writer', quorumEntry
+    && allEntries.every(other => other.name === quorumEntry.name || claimsConflict(quorumEntry, other)));
+  ok('a wrong, missing or extra quorum claim is rejected by the exact declaration guard',
+    !exactDeclaration({ ...quorum, resources: [REPO_READ] })
+      && !exactDeclaration({ ...quorum, resources: [{ ...REPO_READ, access: 'exclusive' }, outerBarrier] })
       && !exactDeclaration({ ...quorum, resources: [REPO_READ, { class: 'fixed-path', key: 'extra', access: 'exclusive' }] }));
-  console.log('VI-OK B-E40F-CHK005-QUORUM-EXACT-SHARED-CLAIM quorum smoke has one jobs=2 row and one raw shared repository-read claim');
+  console.log('VI-OK B-E40F-CHK005-QUORUM-EXACT-SHARED-CLAIM quorum smoke keeps internal jobs=2, shared Git and an exact outer protected-root barrier');
 }
 
 // ── 8. Audited local writers retain an effective exclusive barrier ──────
