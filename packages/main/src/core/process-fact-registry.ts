@@ -1848,4 +1848,3 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {
   return PROCESS_FACT_REGISTRY_BY_NAME[name]?.semantics.includes(semantic) ?? false;
 }
-

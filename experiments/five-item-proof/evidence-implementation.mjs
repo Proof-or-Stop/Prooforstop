@@ -17,7 +17,7 @@ const request={storyId,evidences:[{itemId:'CHK-001',intentRef:{first:'I-1',same:
 if(process.argv[2]==='--worker'){
  const [fixture,mode]=process.argv.slice(3),store=new StoryStore(fixture);
  const handlers=createChecklistHandlers({store,root:fixture,scanRoot:join(fixture,'packages/main')});
- 
+
  try{console.log(await handlers.verification_evidence_batch_add(request));}
  catch(error){console.error(String(error.stack));process.exitCode=70;}
 }else{
