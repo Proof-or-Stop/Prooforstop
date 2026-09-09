@@ -830,6 +830,7 @@ const absentApiHandlers = createCertificationWindowHandlers({
   root,
   scanRoot: join(root, 'packages', 'main'),
 });
+makeStore(root, 'B-cw23');
 const absentApiOutput = beginCaught(absentApiHandlers, 'B-cw23');
 assertStatusSurface(absentApiOutput, 'BLOCKED');
 assert.match(absentApiOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
@@ -856,6 +857,7 @@ const noInventoryHandlers = createCertificationWindowHandlers({
   root,
   scanRoot: join(root, 'packages', 'main'),
 });
+makeStore(root, 'B-cw11');
 const noInventoryOutput = beginCaught(noInventoryHandlers, 'B-cw11');
 assertStatusSurface(noInventoryOutput, 'BLOCKED');
 assert.match(noInventoryOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
