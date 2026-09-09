@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { runManagedBurnFixture } from './managed-burn-fixture.js';
 import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
 import { enforceConvergenceBreakerGate } from '../core/convergence-breaker.js';
 import { evaluateReviewMintStallAdjudication } from '../core/review-convergence.js';
@@ -381,6 +382,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
     }
 
     if (process.argv.includes('--effective-progress-fixture')) {
+      if (process.argv.includes('--burn-fixture')) await runManagedBurnFixture(fixture.root, storyId, false);
       for (let iteration = 0; iteration < 2; iteration++) {
         const completed = finalizedUnconsumedReviewInventory(fixture.store, storyId)!;
         consumeReviewInventoryReceipt(fixture.store, storyId, reviewRound, completed.receipt.cutoff);
@@ -408,6 +410,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
         assert.equal(progress.state.stagnantEpochIds.length, iteration + 1, 'only separately completed stagnant epochs accumulate');
         assert.equal(assessConvergenceProgressGate(fixture.store, storyId).blocked, iteration === 1);
       }
+      if (process.argv.includes('--burn-fixture')) await runManagedBurnFixture(fixture.root, storyId, true);
       const gate = { command: 'story_advance', storyId, store: fixture.store, env: {}, isTakeoverCommand: false };
       assert.throws(() => enforceConvergenceBreakerGate(gate), /FROZEN/);
       assert.equal(evaluateReviewMintStallAdjudication(fixture.store, storyId).blocked, true);
