@@ -11,4 +11,10 @@ const {verifyResourceAudit}=await import(root+'/experiments/five-item-proof/reso
 const summary=verifyResourceAudit(config,audit);assert.equal(summary.auditedReaders,21);assert.equal(summary.effectivelySharedReaders,15);assert.equal(summary.supersededReaders,6);
 const extra=structuredClone(config);extra.validate.commands[117].resources.push({class:'fixed-path',key:'.proof-or-stop/runtime/validate-plan-barrier',access:'exclusive'});assert.throws(()=>verifyResourceAudit(extra,audit),/RESOURCE_AUDIT_DRIFT/,'Unapproved reader serialization must fail the real shared audit guard');
 const weakened=structuredClone(config);weakened.validate.commands[3].resources=weakened.validate.commands[3].resources.filter(r=>r.key!=='.proof-or-stop/runtime/validate-plan-barrier');assert.throws(()=>verifyResourceAudit(weakened,audit),/RESOURCE_AUDIT_DRIFT/,'Removing a retained writer barrier must also fail');
+const coordinatedConfig=structuredClone(config),coordinatedAudit=structuredClone(audit);
+const removed=coordinatedAudit.entries.find(e=>e.commandIndex===3).suggestedResources[0];
+const keep=r=>JSON.stringify(r)!==JSON.stringify(removed);
+coordinatedConfig.validate.commands[3].resources=coordinatedConfig.validate.commands[3].resources.filter(keep);
+coordinatedAudit.entries.find(e=>e.commandIndex===3).supersededBy.effectiveResources=coordinatedAudit.entries.find(e=>e.commandIndex===3).supersededBy.effectiveResources.filter(keep);
+assert.throws(()=>verifyResourceAudit(coordinatedConfig,coordinatedAudit),/RESOURCE_AUDIT_WITHDRAWN_CLAIM/,'Supersession must preserve every audited original claim');
 console.log('RESOURCE_AUDIT_SUPERSESSION_AND_MUTATION_GUARDS_GREEN');

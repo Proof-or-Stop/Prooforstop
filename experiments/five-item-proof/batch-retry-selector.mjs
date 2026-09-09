@@ -38,6 +38,14 @@ try {
   await assert.rejects(()=>executeCausalEvidence({identity,preflight,revalidateBeforeRun:()=>true,receiptStore:broken,selector:'OK',run:async()=>{permanentCalls++;return {code:0,output:'OK'+'x'.repeat(20000)};}}),/PERMANENT_OUTPUT_WRITE_FAILURE/);
   assert.equal(permanentCalls,1);assert.equal(permanentWrites,2);
  });
+ await check('completed receipt publication retries without another child',async()=>{
+  let calls=0,writes=0;const backing=memory(),store={readCausalEvidenceReceipt:backing.readCausalEvidenceReceipt,writeCausalEvidenceReceipt:(story,receipt)=>{writes++;if(writes===1)throw new Error('TRANSIENT_RECEIPT_WRITE_FAILURE');backing.writeCausalEvidenceReceipt(story,receipt);}};
+  const result=await executeCausalEvidence({identity,preflight,revalidateBeforeRun:()=>true,receiptStore:store,selector:'OK',run:async()=>{calls++;return {code:0,output:'OK'};}});
+  assert.equal(result.verdict.result,'pass');assert.equal(calls,1);assert.equal(writes,2);assert.equal(store.readCausalEvidenceReceipt(identity.storyId,result.key.key).receiptHash,result.receipt.receiptHash);
+  let permanentCalls=0,permanentWrites=0;const broken={...memory(),writeCausalEvidenceReceipt:()=>{permanentWrites++;throw new Error('PERMANENT_RECEIPT_WRITE_FAILURE');}};
+  await assert.rejects(()=>executeCausalEvidence({identity,preflight,revalidateBeforeRun:()=>true,receiptStore:broken,selector:'OK',run:async()=>{permanentCalls++;return {code:0,output:'OK'};}}),/PERMANENT_RECEIPT_WRITE_FAILURE/);
+  assert.equal(permanentCalls,1);assert.equal(permanentWrites,2);
+ });
  assert.deepEqual(failures,[],'BATCH_RETRY_SELECTOR_CONTRACT');console.log('BATCH_RETRY_SELECTOR_GREEN');
 
 } finally {rmSync(root,{recursive:true,force:true});}
