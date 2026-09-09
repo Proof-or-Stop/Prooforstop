@@ -312,6 +312,11 @@ async function main() {
 
   const registryModule = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
+  for (const canonical of ['proof-or-stop.verifier-dependency-manifest.v1', 'proof-or-stop.verifier-dependency-manifest-binding.v1', 'proof-or-stop.inventory-verification-observation.v1', 'proof-or-stop.verification-receipt-bundle.v5']) {
+    const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.identitySites.some(site => site.canonical === canonical));
+    const site = boundary?.identitySites.find(row => row.canonical === canonical);
+    check(Boolean(site && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `current schema lacks coupled runtime identity control: ${canonical}`);
+  }
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
   const configModule = await importDist(root, 'packages/main/dist/core/config.js');

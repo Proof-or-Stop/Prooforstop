@@ -1321,7 +1321,6 @@ function createWorkerEnvironment(
     NODE_OPTIONS: inheritedNodeOptions,
     PROOF_OR_STOP_RUNTIME_TRACE_FILE: process.env.PROOF_OR_STOP_RUNTIME_TRACE_FILE,
     PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER: process.env.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER,
-    LATTICE_VALIDATION_SHARD_ADAPTER: process.env.LATTICE_VALIDATION_SHARD_ADAPTER,
     CI: process.env.CI,
     ...workerEnv,
     HOME: home,

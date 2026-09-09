@@ -15,6 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { identityCutoverReviewedContexts } from '../../../scripts/verify-proof-or-stop-identity-cutover.mjs';
 import ts from 'typescript';
+import { assertHistoricalImplementationSource } from '../dist/tasks/historical-implementation-fixture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
@@ -22,7 +23,7 @@ const repoRoot = resolve(packageRoot, '..', '..');
 const commonGitDir = resolve(repoRoot, execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' }).trim());
 const mainRoot = dirname(commonGitDir);
 const distRoot = join(packageRoot, 'dist');
-const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
+const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'reviewer-read', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
 const groupArgs = process.argv.slice(2);
 if (groupArgs.length > 1 || (groupArgs[0] && !groupArgs[0].startsWith('--group='))) {
   throw new Error(`usage: ${process.argv[1]} [--group=${GROUPS.join('|')}]`);
@@ -137,12 +138,10 @@ function initRepo(root, selfProject = false) {
 
 function retainHistoricalImplementationPrerequisite(root) {
   assert.ok(fixtureRoots.includes(root), 'historical prerequisite may only be imported into a generated test repository');
-  const historical = 'b1a0bee88c2a57e33d3835600db53bb9297f04c1';
-  git(repoRoot, ['merge-base', '--is-ancestor', historical, 'HEAD']);
-  assert.equal(git(repoRoot, ['show', '-s', '--format=%an <%ae>', historical]), 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>');
+  const historical = assertHistoricalImplementationSource(repoRoot);
   if (spawnSync('git', ['merge-base', '--is-ancestor', historical, 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0) return;
   git(root, ['fetch', '--no-tags', '--depth=1', repoRoot, historical]);
-  // Preserve a real, reachable object unchanged. The new merge and all fixture
+  // Preserve the exact archived object unchanged; it need not be main ancestry. The fixture
   // commits keep the real configured author; no synthetic role-author commit.
   git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historical, '-m', 'retain unchanged historical implementation prerequisite']);
 }
@@ -1368,21 +1367,37 @@ await check(['runtime'], 'F-016 active-worktree reviewer role-only agent_prompt 
   assert.equal(git(repoRoot, ['status', '--porcelain=v1', '--untracked-files=all']), statusBefore);
 });
 
-await check(['runtime'], 'F-018 active-worktree reviewer read paths remain available', () => {
-  for (const [command, payload] of [
-    ['finding_list', { storyId: 'B-49df' }],
-    ['certification_window_status', { storyId: 'B-49df' }],
-  ]) {
-    const result = runCli(
-      repoRoot,
-      command,
-      payload,
-      { PROOF_OR_STOP_REVIEWER_READONLY: '1', PROOF_OR_STOP_AGENT: 'proof-or-stop-review-quality' },
-      { cwd: repoRoot },
-    );
+await check(['runtime', 'reviewer-read'], 'F-018 active-worktree reviewer read paths remain available', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-read-worktree-'));
+  fixtureRoots.push(root);
+  initRepo(root, false);
+  const storyId = 'B-f018', worktree = join(root, 'worktree');
+  const store = new StoryStore(root);
+  store.writeStory(storyId, {
+    storyId, name: 'reviewer-read-fixture', title: 'Reviewer reads remain available',
+    description: 'Private active-worktree read boundary fixture.', type: 'chore',
+    phase: 'DEV', priority: 'medium', createdAt: NOW, startedAt: NOW, endedAt: null,
+    worktree: { path: worktree, branch: `story/${storyId}`, createdAt: NOW },
+  });
+  store.writeChecklist(storyId, { items: [] });
+  git(root, ['add', '-f', '.proof-or-stop']);
+  git(root, ['commit', '-m', 'seed private reviewer read fixture']);
+  git(root, ['worktree', 'add', '-b', `story/${storyId}`, worktree]);
+  const before = snapshotGitMaterial(worktree);
+  for (const command of ['finding_list', 'certification_window_status']) {
+    const env = { PROOF_OR_STOP_REVIEWER_READONLY: '1', PROOF_OR_STOP_AGENT: 'proof-or-stop-review-quality' };
+    const result = runCli(worktree, command, { storyId }, env, { cwd: worktree });
     assert.equal(result.status, 0, `${command}: ${result.stdout}${result.stderr}`);
     assert.doesNotMatch(`${result.stdout}${result.stderr}`, /not allowed in read-only reviewer mode/i, command);
+    const misplaced = runCli(root, command, { storyId }, env, { cwd: root });
+    if (command === 'finding_list') {
+      assert.notEqual(misplaced.status, 0, `${command}: foreign cwd must still refuse`);
+      assert.match(`${misplaced.stdout}${misplaced.stderr}`, /must execute.*inside the worktree/i);
+    } else {
+      assert.equal(misplaced.status, 0, 'read-only certification diagnostics remain available from the repository root');
+    }
   }
+  assert.deepEqual(snapshotGitMaterial(worktree), before, 'reviewer reads must preserve material bytes');
 });
 
 await check(['inventory'], 'F-018 standard guidance assigns dispatch persistence to the Story owner', () => {
@@ -1714,7 +1729,7 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
   assert.equal(verifierLines.length, 116, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '119a5c354afebc7ea70d208a5c41df138217a6ac82ef54b2699c7a1b40d790de', 'retired protocol identity verifier data context drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '3682dd57ad8b01787bcf8af06734b10ce37935c6b7cd093dc8d0cf8b46181a77', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -2411,6 +2426,7 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
 // Exact non-protocol classifications are obligations, never file exemptions.
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
+  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "a2e7b336fef8f59efd6d2b1955685b2b440059b7d74a08f291b4ad36aebed5f2", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
   {
     sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     canonical: 'proof-or-stop-finish-decision-boundary-',
@@ -2515,6 +2531,10 @@ const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
 // Each observed use is bound as well as its value: an existing role/path value
 // cannot silently authorize a new schema producer or a moved acceptance branch.
 const OWNED_IDENTITY_SITE_CONTEXTS = [
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",2,"594d7d8d86c1ee7608582e7da9cdaebb3a74646fccdff5abcb919f8ee763883b"],
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest.v1",3,"423fc8479e6108678ade451817d7b1d72fe6365fbfe9ade221c8978f6a72965d"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.inventory-verification-observation.v1",1,"22fe5b4a457d314f5fd429adbcb557fef1905cbf99649f531c3bed5d5321152b"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.verification-receipt-bundle.v5",1,"51aa57007901d8f5efb5f5afa2ae61410409a92432c562c6229916dc3c2aa72a"],
   ['packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1', 1, '5cd694d61af425589349b4cdcf96b38c2f9c975fb5208d5a9e40cf00c3ff523a'],
   ["docs/requirements/baselines/role-prompt-measurement-baseline.json","proof-or-stop-evaluator",1,"3ae040c8146a54c17e0d8374e9a03657bc5423ae0ab0cdc58c62785b623f93cc"],
   ["docs/requirements/baselines/role-prompt-measurement-baseline.json","proof-or-stop-evaluator-cli",1,"ef41eb8e08326223b08cfaf3106c314378a1ae95355134fae0ac849378eb8a41"],
@@ -2722,7 +2742,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",6,"f9a7abc6d2baef060529545da7cb3feca915d3dd979f8c7e0de567fd59f0d35b"],
+  ["proof-or-stop.config.json","proof-or-stop.config.json",12,"0d70f2d94210d2f879af7d3594f7bb9049796a98283af29dec47bd6c4738c04e"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2830,8 +2850,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/evidence-freshness.ts",
-    "occurrences": 41,
-    "contextSha256": "7aa3be99e6234277016fb035bc3c4c3af24436edc69e2c5cb69f72248994db7a"
+    "occurrences": 144,
+    "contextSha256": "04e24fb31a52eab5950edeb871d4b356cd579028bc8466c92fb60c2a90bd303f"
   },
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
@@ -2930,8 +2950,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/review-inventory-epoch.ts",
-    "occurrences": 43,
-    "contextSha256": "8d071f150b17fe33ac7d257a60cc6688d5823b23c1d6edf9ddc26780db97a624"
+    "occurrences": 56,
+    "contextSha256": "8eb9f73605d06fd23d4f24aaa3d45d2bc7d663fa3d5c30204a7768e326468610"
   },
   {
     "sourcePath": "packages/main/src/core/review-run.ts",
@@ -2970,8 +2990,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/handlers/review-run.ts",
-    "occurrences": 185,
-    "contextSha256": "9b19c3ef707d8d9632c728237ebf10e69f99f0d675e83dcdf57be6047ad4463d"
+    "occurrences": 191,
+    "contextSha256": "8e87a07e632b094c6cc1b46b6ffe4a3e638584f1ec1fc409d1c5adc523e543bc"
   },
   {
     "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
@@ -2990,8 +3010,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 408,
-    "contextSha256": "8222b748248262e67f91c2344ba79d292998d6f8c84f54f4c4d49c5ab104aea9"
+    "occurrences": 434,
+    "contextSha256": "da1b1d6f45675f6ab6e773ab5b466f05773a4a1a43a595c9fbbc01271db1bf23"
   }
 ];
 

@@ -154,7 +154,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // alongside their receipt, but must never be offered as disposable runtime data.
     id: 'causal-complete-selector-output',
     description: 'Signed-receipt-bound complete selector output objects.',
-    matchers: [{kind:'regexp',value:rx(String.raw`(?:^|/)(?:\.lattice|\.proof-or-stop)/story/actives/[^/]+/causal-evidence/outputs(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence/outputs(?:/|$)`)}],
+    matchers: [{kind:'regexp',value:rx(String.raw`(?:^|/)\.proof-or-stop/story/actives/[^/]+/causal-evidence/outputs(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence/outputs(?:/|$)`)}],
     ignorePatterns: [], materialHash: 'exclude', volatile: false, repairableTrackedArtifact: false,
   },
   {

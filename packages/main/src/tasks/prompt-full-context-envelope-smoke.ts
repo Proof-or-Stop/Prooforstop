@@ -855,7 +855,7 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
   const recoveryCommon = {
     ...common, roleContract: promptRoleContract(roleId), lane: roleId,
     eligibilityDigest: '1'.repeat(64), freshnessClassification: 'CURRENT_MATERIAL' as const,
-    impactPolicyVersion: 'proofbound.impact-classification.v1',
+    impactPolicyVersion: 'proof-or-stop.impact-classification.v1',
     changedFilesDigest: '3'.repeat(64), impactedFilesDigest: '4'.repeat(64),
     rolePrompt: resolvePromptRoleBody(roleId, {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [roleId]: 'full-envelope' },
@@ -2556,7 +2556,7 @@ try {
 
 // Exercise production dispatch and run persistence, not merely envelope construction.
 // All synthetic Story writes below stay in this uniquely created disposable repository.
-const recoveryRoot = mkdtempSync(join(tmpdir(), 'proofbound-reference-recovery-'));
+const recoveryRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-reference-recovery-'));
 const recoveryPreviousCwd = process.cwd();
 const recoveryPreviousAgent = process.env.PROOF_OR_STOP_AGENT;
 const recoveryHostEnvironment = {
