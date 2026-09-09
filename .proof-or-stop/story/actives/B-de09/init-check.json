@@ -1,0 +1,63 @@
+{
+  "storyId": "B-de09",
+  "checkedAt": "2026-09-09T22:59:19.316Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs calls the spec pointer \"the stale backlink\", but verification shows it currently resolves correctly: docs/requirements/decisions/red-evidence-subsystem-spec.md:13 cites \"(Workstream 2, lines 22-23)\" and the plan's \"## Workstream 2\" heading is line 22 with its Scope paragraph on line 23 (32-line file). The actual defect is mutability/fragility (as CHK-003's title and BACKLINK-HAPPY correctly state); it becomes stale only after CHK-001 rewrites the plan. Reword the background so a standalone reader is not told a currently-correct citation is already broken."
+    },
+    {
+      "severity": "low",
+      "desc": "background.md defines independent audit as \"a fresh, read-only Claude CLI session\" receiving only frozen bytes and rubric, but never states that this independence is context-level only: the CHK-001 plan is authored inside Claude Code, so the same model family may both author and audit. A newly-onboarded reader will read \"independent\" as vendor/model independence. State explicitly that independence means no shared conversation, no edit permission, and no carried authoring context, not a different model."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-002 requires recording the \"raw response SHA-256\" but does not require preserving the raw Claude CLI response bytes anywhere, so that digest cannot be recomputed or checked by any third party, while the Story description promises to \"preserve an independent Claude CLI audit\". Either require the verbatim response (or a stored transcript path) alongside its digest, or drop the digest claim to avoid an unverifiable evidence field."
+    },
+    {
+      "severity": "low",
+      "desc": "background.md never mentions that the target plan is decomposed into numbered Workstreams, nor that Workstream 2 is the trusted RED-evidence subsystem, yet CHK-003 context turns entirely on \"the stable Workstream 2 section name\" and CHK-002 reopens CHK-003 on a section-name change. Verified: the plan contains \"## Workstream 0/1/2/3\" headings at lines 10/19/22/25. Carry the workstream decomposition and the Workstream 2 identity into the background so the checklist reads standalone."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "proof-or-stop-product-reviewer",
+      "checkedAt": "2026-09-09T22:58:02.960Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Product-recognition gap on the primary artifact: CHK-001 userSees requires the revised plan header to state supersedes-v7, that 0.3.294 does not enforce, and the next prerequisite workstream, but nothing requires the plan to carry its audit status or link to docs/audits/repro-first-gate-enforce-plan-claude-audit.md. v7 today self-describes its lineage (\"decomposition after 4 audit rounds\" plus an \"Audit trail:\" line). In the explicitly contemplated blocked branch (third non-APPROVE, Story incomplete), a later reader opening the plan sees bytes that supersede v7 with no way to tell they were never approved, and no path from the plan to the verdict. Require the header to append this round's audit outcome (APPROVE / blocked + round count) and cite the audit record."
+        },
+        {
+          "severity": "low",
+          "desc": "The revised plan is defined as superseding v7, but no checklist item makes the fate of the four prior audit rounds's dispositions user-visible. red-evidence-subsystem-spec.md still relies on \"standing deviations, auditor-ACCEPTED in round 3\"; a reader of the superseding plan cannot tell whether those dispositions were carried forward, revisited, or dropped. A one-line carry-forward statement in CHK-001's userSees would let the user recognize the revision as complete rather than as an unexplained restart."
+        }
+      ]
+    },
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-09T22:59:19.316Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs calls the spec pointer \"the stale backlink\", but verification shows it currently resolves correctly: docs/requirements/decisions/red-evidence-subsystem-spec.md:13 cites \"(Workstream 2, lines 22-23)\" and the plan's \"## Workstream 2\" heading is line 22 with its Scope paragraph on line 23 (32-line file). The actual defect is mutability/fragility (as CHK-003's title and BACKLINK-HAPPY correctly state); it becomes stale only after CHK-001 rewrites the plan. Reword the background so a standalone reader is not told a currently-correct citation is already broken."
+        },
+        {
+          "severity": "low",
+          "desc": "background.md defines independent audit as \"a fresh, read-only Claude CLI session\" receiving only frozen bytes and rubric, but never states that this independence is context-level only: the CHK-001 plan is authored inside Claude Code, so the same model family may both author and audit. A newly-onboarded reader will read \"independent\" as vendor/model independence. State explicitly that independence means no shared conversation, no edit permission, and no carried authoring context, not a different model."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 requires recording the \"raw response SHA-256\" but does not require preserving the raw Claude CLI response bytes anywhere, so that digest cannot be recomputed or checked by any third party, while the Story description promises to \"preserve an independent Claude CLI audit\". Either require the verbatim response (or a stored transcript path) alongside its digest, or drop the digest claim to avoid an unverifiable evidence field."
+        },
+        {
+          "severity": "low",
+          "desc": "background.md never mentions that the target plan is decomposed into numbered Workstreams, nor that Workstream 2 is the trusted RED-evidence subsystem, yet CHK-003 context turns entirely on \"the stable Workstream 2 section name\" and CHK-002 reopens CHK-003 on a section-name change. Verified: the plan contains \"## Workstream 0/1/2/3\" headings at lines 10/19/22/25. Carry the workstream decomposition and the Workstream 2 identity into the background so the checklist reads standalone."
+        }
+      ]
+    }
+  ],
+  "_hash": "0049bf8abb1f1127568814131d07ea916ec34cecb3f096e88808fcb005cb96da"
+}

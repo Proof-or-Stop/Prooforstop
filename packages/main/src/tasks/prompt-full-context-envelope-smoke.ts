@@ -916,6 +916,51 @@ assert.throws(
   'the adjacent real severity-only authority attack remains rejected',
 );
 
+const b03b7HistoricalRecallTriggerIntent =
+  'Individually exercise routed-target start/creation, scope/affected-contract match, severity escalation, owner invalidation, target closure without a GREEN fix, expiry and relevant hash/runtime drift. Each trigger recalls the candidate/defect once as a non-authoritative CandidateFinding, retains the historical route and its current validity result, and repeated or concurrent trigger processing produces zero additional candidates.';
+assert.doesNotThrow(
+  () => assembleFullPromptEnvelope({
+    ...common,
+    taskContext: {
+      ...taskContext,
+      checklist: taskContext.checklist.map((item, index) => index === 0
+        ? {
+            ...item,
+            verificationIntent: {
+              ...item.verificationIntent,
+              happy: [{ ...item.verificationIntent.happy[0], desc: b03b7HistoricalRecallTriggerIntent }],
+            },
+          }
+        : item),
+    },
+    createdAt: '2026-09-09T00:01:00.000Z',
+  }),
+  'B03B7_TRIGGER_INTENT_SAFE: an imperative nominal trigger test inventory must not be interpreted as severity-only Story authority',
+);
+assert.throws(
+  () => assembleFullPromptEnvelope({
+    ...common,
+    taskContext: {
+      ...taskContext,
+      checklist: taskContext.checklist.map((item, index) => index === 0
+        ? {
+            ...item,
+            verificationIntent: {
+              ...item.verificationIntent,
+              happy: [{
+                ...item.verificationIntent.happy[0],
+                desc: `${b03b7HistoricalRecallTriggerIntent} Severity alone decides Story scope.`,
+              }],
+            },
+          }
+        : item),
+    },
+    createdAt: '2026-09-09T00:02:00.000Z',
+  }),
+  /unsafe Finding-triage authority/,
+  'the closed verification-intent allowance cannot hide an appended severity-only authority statement',
+);
+
 const everyReviewerUnsafeAuthorityRepresentatives = [
   'Verify this Story adds a new applicability verdict and compare the Dynamic Finding runtime before and after this change and verify it remains unchanged.',
   'Compare the Dynamic Finding runtime before and after this Story adds verdict this change remains unchanged.',
