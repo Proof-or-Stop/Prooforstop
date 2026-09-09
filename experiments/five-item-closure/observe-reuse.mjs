@@ -37,6 +37,8 @@ const cases = [
 const selectedCases = process.env.LAB_OBSERVE_CASES?.split(',');
 assert.ok(!selectedCases || (new Set(selectedCases).size === selectedCases.length && selectedCases.every(name => cases.some(row => row.name === name))), 'unknown or duplicate selected case');
 for (const test of selectedCases ? selectedCases.map(name => cases.find(row => row.name === name)) : cases) {
+  const scenarioStart = performance.now();
+  let timingEntry;
   const fixture = mkdtempSync(join(tmpdir(), 'proof-or-stop-observe-fixture-'));
   const dir = join(output, test.name); mkdirSync(dir, { recursive: true });
   const counter = join(dir, 'children.jsonl'), storyId = 'B-labreuse';
@@ -66,6 +68,7 @@ for (const test of selectedCases ? selectedCases.map(name => cases.find(row => r
       assert.equal(child.status, 0, child.stdout + child.stderr);
       return { result: JSON.parse(readFileSync(target, 'utf8')), elapsedMs: performance.now() - start, children: count() };
     };
+    const setupMs = performance.now() - scenarioStart;
     const first = run('first');
     assert.equal(first.result.allPass, true, JSON.stringify(first.result));
     assert.ok(first.children >= 1, 'first demand executes its actual assertion');
@@ -76,6 +79,8 @@ for (const test of selectedCases ? selectedCases.map(name => cases.find(row => r
     if (['commit', 'command', 'count'].includes(test.mutation)) { git(['add', '.']); git(['commit', '-qm', 'negative input change']); }
     const second = run('second');
     const entry = { name: test.name, first, second, expectedReuse: test.reused, heavySuite: heavy ? 'tool-executed-evidence-receipt-smoke' : null, fixtureAdmission: 'synthetic; no real Story authority' };
+    timingEntry = entry;
+    entry.setupMs = setupMs;
     trials.push(entry);
     assert.equal(second.result.disposition === 'reused', test.reused, 'OBSERVE_FRESH_PASS_REUSE_MISSING: ' + test.name + ' ' + JSON.stringify(second.result.reuse));
     if (test.reused) {
@@ -101,7 +106,13 @@ for (const test of selectedCases ? selectedCases.map(name => cases.find(row => r
     }
     console.log('PASS ' + test.name);
   } catch (error) { failures.push({ name: test.name, error: String(error.stack) }); console.error('FAIL ' + test.name + ': ' + error.message); }
-  finally { rmSync(fixture, { recursive: true, force: true }); resetConfigCache(); }
+  finally {
+    rmSync(fixture, { recursive: true, force: true }); resetConfigCache();
+    if (timingEntry) {
+      timingEntry.totalScenarioMs = performance.now() - scenarioStart;
+      timingEntry.postcheckCleanupMs = timingEntry.totalScenarioMs - timingEntry.setupMs - timingEntry.first.elapsedMs - timingEntry.second.elapsedMs;
+    }
+  }
 }
 writeFileSync(join(output, 'results.json'), JSON.stringify({ trials, failures }, null, 2));
 console.log('Evidence: ' + output);

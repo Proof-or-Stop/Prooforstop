@@ -3199,7 +3199,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "ea4364c68ee378e1a6e9143ad8cefa35dac9ae28ab141864f1ad38f6df0c90f2"
+    "sha256": "a692bdfe7ab205acad0bc14a58d30b7c74cd5248ee1e139d6dea8f29cbbca8dc"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
