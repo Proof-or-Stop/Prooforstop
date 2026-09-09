@@ -9441,3 +9441,5 @@ for (const file of ['packages/main/src/handlers/agent-prompt.ts', 'packages/main
   assert(!source.includes('purposeSelectedCriticBody') && !source.includes('resolvePromptTemplateBody'), `${file} must consume prompt projection rather than reconstructing selected role bodies`);
 }
 assert(read('packages/main/src/core/prompt-registry.ts').includes('export function projectPromptAsset('), 'host assets and reviewer contract bodies share one projection boundary');
+const {scanPromptProjectionConsumers} = await import('./prompt-projection-contract.mjs');
+assert(scanPromptProjectionConsumers('packages/main/src').length === 0, 'all production prompt consumers must satisfy the projection contract');

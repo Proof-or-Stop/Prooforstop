@@ -29,3 +29,16 @@ newly generated assets. Historical reconstruction retains its immutable runtime
 digest guard and rejects mutated semantic bytes. Current complete reviewer bodies
 use the existing independent whole-body approval pins; retired prefix-only test
 pins are not a separate authority to rewrite those approved bodies.
+
+Global shims and the independent DEV acceptance reviewer use the same typed
+projection entry point. Global installation deliberately gives every modular
+reviewer a runtime-selection bootstrap; installed project assets retain their
+existing active-rollout rule. The DEV reviewer keeps its own schema, execution
+profile and signature boundary. Host syntax transforms trusted instructions
+before exact acceptance JSON is appended, so task data is never rewritten.
+
+The AST contract scans all production TypeScript consumers, including aliases
+and namespace calls. It preserves the named rollout-admission and task-context
+safety policies, which classify roles for authorization rather than rendering.
+Mutation controls introduce direct, aliased, namespace and roster-based copies
+and require their rejection.
