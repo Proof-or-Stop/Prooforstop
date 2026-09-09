@@ -4717,8 +4717,11 @@ function assertReviewInventoryRemediationContract() {
     'cross-identity refusal leaves prior receipts and pins unchanged', 'fan-out retains source signed execution time, never publication time',
     'new ordinary executions borrowed an older same-key CAS observation', 'B-aa5f CHK008 causal-import-integration PASS',
     'causal ledger counts every independently evaluated intent, including shared-execution followers',
-    'bounded causal diagnostic honestly misses a middle-of-large-output selector',
-    'only authenticated complete-output V5 assertion controls selector admission']) {
+    'bounded diagnostic probe still omits the middle-of-large-output selector',
+    'causal replay binds durable complete selector output',
+    'complete-output replay does not launch another execution',
+    'authenticated complete causal output finds the middle-of-large-output selector',
+    'authenticated complete-output V5 assertion agrees with causal replay']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(
