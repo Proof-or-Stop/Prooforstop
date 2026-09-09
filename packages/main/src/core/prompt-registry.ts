@@ -150,7 +150,8 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object
   'lattice-review-concept': '936fb53639ab969e1bdb7f8d8b2ff1843ceff9400a647ab7198dee2941f2ff02',
   'lattice-review-docs': '47b2169692529436e7c023ff1558c550b2c938318d43788eb26ce038bae5472d',
   'lattice-review-quality': 'c73491b51129016d0e1f5f9710c5b7bab7e414449f41aaf085519a1ed148de71',
-  'lattice-review-test-coverage': 'bf1daac587812e71a795d533620fc1b0c9ab30918d04c0aa9173be5f6cf00e0c',
+  // Independently audited restored threshold, membership, freshness and rollback coverage obligations.
+  'lattice-review-test-coverage': '105484a73ea239246f5c2769895158e4fb79dc3ca343ca66baf0a7be6236fc82',
   // Post-merge of B-cdf6 rebranded slice into this branch's modular critic template.
   // Independently audited merged inventory-purpose and mode-aware rollout body.
   'lattice-review-topology-critic': '44622ddceec96c6cb66986610ab7a79b7bc9a4dcdcfb9348e12c4fd0e5191dc4',
