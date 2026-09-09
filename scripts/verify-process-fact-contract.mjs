@@ -8410,6 +8410,11 @@ function assertFilePatterns(entryName, relPath, patterns) {
 }
 
 const inventory = [
+  {name:'Complete selector output remains receipt-bound',files:[
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['readCausalSelectorOutput','selectorOutput','causal_selector_output_invalid','redactCausalOutput']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readCausalSelectorOutput','writeCausalSelectorOutput','CAUSAL_OUTPUT_DIRECTORY']},
+    {relPath:'docs/validation-performance.md',patterns:['complete redacted output','12,000','missing or changed']},
+  ]},
   {name:'DONE admission metadata preserves clean reusable input',files:[
     {relPath:'packages/main/src/handlers/done-required-validation.ts',patterns:['captureLifecycleMetadataTransaction','readLifecycleMetadataOutputHashes','commitLifecycleMetadataTransaction',"kind: 'certification-running'",'realpathSync(gitCwd)']},
     {relPath:'packages/main/src/core/auto-commit-metadata.ts',patterns:["'certification-running'","['certification-window.json']"]},

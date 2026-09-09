@@ -1815,6 +1815,8 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
+  name:'runtime:causal_complete_selector_output',kind:'runtime-behavior',semantics:['runtime-behavior','signed-artifact','gate-evidence','verification-policy'],level:'L4',producer:'core/causal-evidence',producerSourceRefs:['packages/main/src/core/causal-evidence.ts','packages/main/src/core/store.ts','packages/main/src/handlers/checklist.ts'],consumerGate:'Fresh and reused verification execution selector verdicts',rationale:'Complete redacted output is content-addressed and bound by the signed receipt, separately from bounded display probes. Independent processes verify its digest and length before selecting; missing or changed bytes refuse without rerunning or rewriting evidence. Legacy bounded receipts retain their original authority. Raw secret environment values are excluded from persisted selector bytes.',
+}, {
   name: 'runtime:evidence_hash_input_boundary', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   level: 'L4', producer: 'core/material-path-policy and core/story-aware-validation',

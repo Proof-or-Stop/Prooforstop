@@ -188,3 +188,14 @@ refused. It neither reruns commands nor re-attests evidence. The existing CLI
 command audit records the recovery invocation. The checkpoint and signing key
 are trusted local Git metadata: this is protection against mutable Story-file
 corruption and interrupted publication, not a hostile Git-administrator sandbox.
+
+### Complete verification output
+
+Verification commands whose output exceeds the 12,000-character display probe now
+retain complete redacted output under the Story causal-evidence/outputs directory.
+The signed receipt binds its digest and length. Each intent still checks its own
+pinned selector; a middle-of-output marker is no longer lost to display truncation.
+Independent processes can reuse the original successful execution. Output that is
+missing or changed is refused, with no automatic rerun or replacement evidence.
+The output object is process evidence, not a disposable runtime cache. Legacy
+receipts are not silently upgraded, and this repair grants no Story-wide speedup.

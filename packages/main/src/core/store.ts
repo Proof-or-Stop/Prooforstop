@@ -69,6 +69,7 @@ import {
 } from './finding-ledger.js';
 import {
   CAUSAL_RECEIPT_DIRECTORY,
+  CAUSAL_OUTPUT_DIRECTORY,
   CAUSAL_RECEIPT_INDEX_FILE,
   causalDigest,
   computeCausalReceiptHash,
@@ -867,6 +868,29 @@ export class StoryStore {
     const [receipt] = matches;
     this.writeCausalEvidenceReceipt(storyId, receipt);
     return receipt;
+  }
+
+  readCausalSelectorOutput(storyId: string, digest: string): string {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    try {
+      const data = JSON.parse(readFileSync(this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`), 'utf8'));
+      if (typeof data.output !== 'string') throw new Error('Invalid output type');
+      return data.output;
+    } catch {
+      throw new Error('Complete selector output is missing or unreadable [causal_selector_output_invalid]');
+    }
+  }
+
+  writeCausalSelectorOutput(storyId: string, digest: string, output: string): void {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    const outputPath = this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`);
+    // The execution-key lock serializes producers; equal content addresses can
+    // also be produced by different keys, where identical bytes are harmless.
+    if (existsSync(outputPath)) {
+      if (this.readCausalSelectorOutput(storyId, digest) !== output) throw new Error('Output address collision [causal_selector_output_invalid]');
+      return;
+    }
+    this.writeJsonFile(outputPath, { output });
   }
 
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
