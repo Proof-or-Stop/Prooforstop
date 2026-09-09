@@ -217,3 +217,14 @@ unbounded Story file. Exit-only checks never read selector objects. Matching use
 NUL boundaries for redactions and rejects NUL-bearing selectors; display placeholders
 cannot become proof of text the command never printed. Redaction itself is preserved
 behavior, not an additional performance gain claimed by this repair.
+
+## Lab graph validation process ownership
+
+The graph CLI accepts port 0 and reports the actual port assigned by the OS. Graph
+verifiers use that address, confirm the served repository identity, and terminate
+only process groups they created. Client recovery is checked over HTTP as soon as
+the server is ready; a fixed 60-second foreground timeout is no longer a success
+condition. The original client bytes are restored after both recovery probes.
+JSON mode is observed for zero Node listener calls, including inherited children.
+The isolated missing-output control also requires refusal before any listener.
+These checks do not authorize shared access while a verifier rebuilds local assets.

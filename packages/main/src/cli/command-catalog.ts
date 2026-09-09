@@ -2148,7 +2148,7 @@ a browsable graph plus full-text search and per-story detail.
 
 Options:
   --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).
-  --port=<n>     HTTP port (default: 8731).
+  --port=<n>     HTTP port (default: 8731; 0 lets the OS choose a free port).
   --no-open      Do not launch a browser.
   --json         Print status as JSON and exit without serving.
   --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead
@@ -2169,7 +2169,7 @@ Behavior:
     foreground until interrupted.`,
     schema: {
     root: z.string().optional().describe('Repository to read (default: nearest Proof-or-Stop root from cwd).'),
-    port: z.number().optional().describe('HTTP port (default: 8731).'),
+    port: z.number().optional().describe('HTTP port (default: 8731; 0 lets the OS choose a free port).'),
     // Default true, applied in the handler (`args.open !== false`), NOT via
     // `.default(true)`: the help renderer detects optionality with
     // `instanceof ZodOptional`, and a ZodDefault wrapper would render this flag
