@@ -24,7 +24,7 @@ export async function load(url,context,next) {
   const mutated=spawnSync(process.execPath,['--import',register,helper],{encoding:'utf8',timeout:30000});
   assert.equal(mutated.error,undefined,'negative control must complete, not time out');
   assert.notEqual(mutated.status,0,'U07 parent must reject a provider exit 8 even when worker errors become terminal records');
-  assert.match(mutated.stderr,/parent requires the actual provider exit 7/);
+  assert.match(mutated.stderr,/the real failed child was reaped before terminal sealing/,'the existing replacement-safety guard must reject the transformed worker error');
   assert.doesNotMatch(mutated.stdout,/^PASS U02 terminal-publication crash recovered;/m);
   console.log('PASS U07 parent observes real exit 7 and rejects a transformed worker failure');
 } finally {rmSync(root,{recursive:true,force:true});}
