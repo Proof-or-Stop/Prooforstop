@@ -1631,7 +1631,7 @@ test('B-5a15 F-314: production domain inputs invalidate only the declared transi
   }
 });
 
-test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', () => {
+test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', async () => {
   const repositoryRoot = mkdtempSync(join(tmpdir(), 'causal-certification-handler-'));
   const storyId = 'B-5a15-certification-handler';
   const git = (args) => execFileSync('git', args, { cwd: repositoryRoot, stdio: 'ignore' });
@@ -1642,6 +1642,7 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
+      validate: { commands: [{ label: 'fast', command: process.execPath, args: ['--version'], timeoutMs: 15000, focus: ['fast'] }] },
     }) + '\n');
     mkdirSync(join(repositoryRoot, 'packages', 'main', 'tests'), { recursive: true });
     writeFileSync(join(repositoryRoot, 'README.md'), 'certification handler regression\n');
@@ -1674,6 +1675,12 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
     });
     store.writeChecklist(storyId, { items: [] });
 
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: repositoryRoot });
+    const fastResult = JSON.parse(await createVerifierHandlers({ store, root: repositoryRoot,
+      scanRoot: join(repositoryRoot, 'packages/main') }).validate({ story: storyId, focus: 'fast', json: true }));
+    assert.equal(fastResult.status, 'pass', 'actual fast validation must precede admission');
+    assert.ok(fastResult.precertCheapCheckReceipt, 'canonical fast command must issue the admission receipt');
+    const headHash = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
     const materialHash = currentMaterialHash(repositoryRoot, 'HEAD', repositoryRoot);
     const storyFilesHash = currentStoryFilesHash(repositoryRoot, 'HEAD', repositoryRoot);
     assert.ok(materialHash && storyFilesHash);
@@ -1684,18 +1691,33 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
           storyId,
           reviewRound: 'handler-round',
           state: 'FINALIZED',
-          cutoff: { materialHash, storyFilesHash },
+          receiptId: 'B-5a15:INV-handler',
+          requiredLanes: ['test-reviewer'],
+          waves: [{ lanes: [{ lane: 'test-reviewer', terminal: 'pass', evidenceIds: ['test-pass'], coverageDigest: 'coverage' }],
+            newVerifiedFindingCount: 0, criticDigest: 'critic', saturated: true }],
+          cutoff: { headHash, materialHash, storyFilesHash },
         },
         receipt: {
           receiptId: 'B-5a15:INV-handler',
           storyId,
           reviewRound: 'handler-round',
+          epochId: 'B-5a15:RI-handler',
+          requiredLanes: ['test-reviewer'], waveCount: 1,
+          saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
+          scopeDigest: 'scope', findingSetDigest: 'findings', coverageDigest: 'coverage',
           authority: 'inventory-completeness-only',
           authorizesTest: false,
-          cutoff: { materialHash, storyFilesHash },
+          cutoff: { headHash, materialHash, storyFilesHash },
         },
       }),
-      consumeReviewInventoryCompletenessReceipt: () => 'B-5a15:INV-handler',
+      // Inventory is the declared fixture seam; the fast command and window
+      // signatures are real, but this is not signed-inventory integration proof.
+      verifyReviewInventoryEpoch: () => true,
+      verifyReviewInventoryReceipt: () => true,
+      isInventoryCompletenessOnlyReceipt: () => false,
+      consumeReviewInventoryCompletenessReceipt: (_store, _story, _round, _cutoff, recheck) => {
+        recheck?.(); return 'B-5a15:INV-handler';
+      },
     });
     const handlers = createCertificationWindowHandlers({
       store,
