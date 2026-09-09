@@ -65,6 +65,8 @@ async function main() {
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
+  check(managedHost.includes("if (!readManagedReviewScratchCleanupDiagnostic(paths)) throw new Error"),
+    'cleanup diagnostic idempotency must not swallow non-file persistence failures');
   check(registrySource.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY')
     && managedHost.includes('...managedReviewTemporaryEnvironment(spec)')
     && managedHost.includes('MANAGED_REVIEW_TEMP_ARTIFACT.directoryName')

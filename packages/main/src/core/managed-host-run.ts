@@ -1515,9 +1515,12 @@ function recordManagedReviewScratchCleanupFailure(
     error: boundedCleanupDiagnosticError(error),
   };
   try {
-    // writeExclusive returns false on EEXIST: the first sealed diagnostic is
-    // the documented success-on-retry steady state, not a persistence failure.
-    if (!writeExclusive(paths.scratchCleanupDiagnostic, diagnostic)) return;
+    // Only a readable, identity-valid prior diagnostic is an idempotent retry.
+    // EEXIST can also mean a directory or malformed file prevented persistence.
+    if (!writeExclusive(paths.scratchCleanupDiagnostic, diagnostic)) {
+      if (!readManagedReviewScratchCleanupDiagnostic(paths)) throw new Error('Existing scratch cleanup diagnostic path is not a valid diagnostic');
+      return;
+    }
   } catch (persistenceError) {
     // The terminal outcome stays authoritative even if the filesystem cannot
     // preserve an auxiliary cleanup marker. Never let observability writes

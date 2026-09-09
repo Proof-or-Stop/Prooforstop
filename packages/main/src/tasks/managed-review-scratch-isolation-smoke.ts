@@ -58,7 +58,7 @@ function safeFailureResult() {
   };
 }
 
-function successfulPassResult() {
+function successfulPassResult(reviewRunId: string) {
   return {
     stdout: '',
     stderr: '',
@@ -73,7 +73,7 @@ function successfulPassResult() {
       storyId: 'B-scratch',
       providerAgent: 'lattice-review-quality',
       lane: 'lattice-review-quality',
-      reviewRunId: 'B-scratch:run',
+      reviewRunId,
       conclusion: 'pass',
       note: 'The injected detached review completed without a scratch mutation.',
       readManifest: {
@@ -124,7 +124,7 @@ async function submitIsolatedManagedReview(args: {
     storyId: 'B-scratch',
     phase: 'REVIEW',
     agentType: 'lattice-review-quality',
-    reviewRunId: 'B-scratch:run',
+    reviewRunId: `B-scratch:${args.runId}`,
     lane: 'lattice-review-quality',
     promptText: 'injected managed-review scratch isolation probe',
     deadlineMs: 5_000,
@@ -134,7 +134,6 @@ async function submitIsolatedManagedReview(args: {
     isolateManagedReview: true,
     environment: args.environment,
   }, {
-    randomId: () => args.runId,
     claimTimeoutMs: 1_000,
     claimPollMs: 5,
     managedReviewScratchParentFactory: args.parentFactory,
@@ -171,9 +170,9 @@ async function main(): Promise<void> {
       runId: 'managed-review-scratch-completed',
       runner: () => safeFailureResult(),
     });
-    const binding = readManagedHostRunBinding(root, 'managed-review-scratch-completed');
+    const binding = readManagedHostRunBinding(root, completed.terminal.runId);
     const persistedSpec = JSON.parse(readFileSync(
-      join(managedHostRunDirectory(root, 'managed-review-scratch-completed'), 'spec.json'),
+      join(managedHostRunDirectory(root, completed.terminal.runId), 'spec.json'),
       'utf8',
     )) as { root: string; cwd: string; managedReviewScratch?: { headHash?: string; cwd?: string } };
 
@@ -218,7 +217,7 @@ async function main(): Promise<void> {
       'a missing/replaced scratch fails before provider spawn rather than resuming in another cwd');
     assert.equal(substituted.plan, null, 'invalid scratch never reaches the provider runner');
     for (const oneShotName of ['input.cap', 'input.prompt', 'input.env.json']) {
-      assert.equal(existsSync(join(managedHostRunDirectory(root, 'managed-review-scratch-substituted'), oneShotName)), false,
+      assert.equal(existsSync(join(managedHostRunDirectory(root, substituted.terminal.runId), oneShotName)), false,
         `pre-intake scratch rejection erases ${oneShotName} before terminal retention`);
     }
     assert.equal(readFileSync(join(root, 'primary-sentinel.txt'), 'utf8'), 'primary worktree must remain intact\n',
@@ -247,11 +246,11 @@ async function main(): Promise<void> {
       headHash,
       materialHash,
       runId: 'managed-review-scratch-clean-receipt',
-      runner: () => successfulPassResult(),
+      runner: () => successfulPassResult('B-scratch:managed-review-scratch-clean-receipt'),
     });
     assert.equal(cleanReceipt.terminal.state, 'completed',
       'an unchanged detached scratch still seals a valid managed-review terminal');
-    assert.equal(existsSync(join(managedHostRunDirectory(root, 'managed-review-scratch-clean-receipt'), 'evidence-proposal.json')), true,
+    assert.equal(existsSync(join(managedHostRunDirectory(root, cleanReceipt.terminal.runId), 'evidence-proposal.json')), true,
       'the valid unchanged provider proposal remains available for managed-review evidence import');
 
     const mutatedReceipt = await submitIsolatedManagedReview({
@@ -261,14 +260,14 @@ async function main(): Promise<void> {
       runId: 'managed-review-scratch-mutated-receipt',
       runner: spawnPlan => {
         writeFileSync(join(spawnPlan.cwd, 'primary-sentinel.txt'), 'provider changed detached review material\n');
-        return successfulPassResult();
+        return successfulPassResult('B-scratch:managed-review-scratch-mutated-receipt');
       },
     });
     assert.equal(mutatedReceipt.terminal.state, 'failed',
       'a provider mutation after launch cannot seal a completed managed-review receipt');
     assert.match(mutatedReceipt.terminal.reason, /^managed_review_scratch_integrity_invalid:/,
       'the terminal explicitly records the post-exit scratch-integrity rejection');
-    assert.equal(existsSync(join(managedHostRunDirectory(root, 'managed-review-scratch-mutated-receipt'), 'evidence-proposal.json')), false,
+    assert.equal(existsSync(join(managedHostRunDirectory(root, mutatedReceipt.terminal.runId), 'evidence-proposal.json')), false,
       'a mutated scratch cannot write a pass/finding proposal for later import');
     assert.equal(readFileSync(join(root, 'primary-sentinel.txt'), 'utf8'), 'primary worktree must remain intact\n',
       'post-exit integrity rejection leaves the canonical primary worktree untouched');
@@ -291,14 +290,14 @@ async function main(): Promise<void> {
     assert.equal(terminalCleanupFailure.terminal.state, 'failed');
     const terminalCleanupStatus = await getManagedHostRunStatus({
       root,
-      runId: 'managed-review-scratch-terminal-cleanup-diagnostic',
+      runId: terminalCleanupFailure.terminal.runId,
       waitMs: 0,
     });
     assert.equal(terminalCleanupStatus.run.managedReviewScratchCleanupDiagnostic?.stage, 'terminal',
       'post-terminal scratch cleanup failures remain visible from run status');
     assert.match(terminalCleanupStatus.run.managedReviewScratchCleanupDiagnostic?.error ?? '', /registration marker is absent/);
     assert.equal(
-      scanManagedHostRunRuntime(root).runs.find(run => run.runId === 'managed-review-scratch-terminal-cleanup-diagnostic')
+      scanManagedHostRunRuntime(root).runs.find(run => run.runId === terminalCleanupFailure.terminal.runId)
         ?.managedReviewScratchCleanupDiagnostic?.stage,
       'terminal',
       'runtime health scan exposes the retained terminal cleanup failure',
@@ -322,14 +321,14 @@ async function main(): Promise<void> {
         parentFactory: () => healthFailureParent,
         runner: spawnPlan => {
           unlinkSync(join(dirname(spawnPlan.cwd), 'managed-review-scratch.json'));
-          mkdirSync(join(managedHostRunDirectory(root, 'managed-review-scratch-health-diagnostic-failure'), 'managed-review-scratch-cleanup-diagnostic.json'));
+          mkdirSync(join(managedHostRunDirectory(root, spawnPlan.env.LATTICE_MANAGED_HOST_RUN_ID!), 'managed-review-scratch-cleanup-diagnostic.json'));
           return safeFailureResult();
         },
       });
       assert.equal(healthFailure.terminal.state, 'failed');
       const healthRows = readFileSync(healthPath, 'utf8').trim().split('\n').map(line => JSON.parse(line) as { category?: string; context?: { runId?: string; stage?: string } });
       assert.ok(healthRows.some(row => row.category === 'persist:managedReviewScratchCleanupDiagnostic'
-        && row.context?.runId === 'managed-review-scratch-health-diagnostic-failure'
+        && row.context?.runId === healthFailure.terminal.runId
         && row.context?.stage === 'terminal'),
       'a scratch cleanup diagnostic persistence failure is surfaced through the doctor health channel');
     } finally {
@@ -348,7 +347,7 @@ async function main(): Promise<void> {
       storyId: 'B-scratch',
       phase: 'REVIEW',
       agentType: 'lattice-review-quality',
-      reviewRunId: 'B-scratch:run',
+      reviewRunId: 'B-scratch:managed-review-scratch-input-cleanup-diagnostic',
       lane: 'lattice-review-quality',
       promptText: 'injected managed-review scratch input failure probe',
       deadlineMs: 5_000,
@@ -357,7 +356,6 @@ async function main(): Promise<void> {
       reviewBinding: reviewBinding(headHash, materialHash),
       isolateManagedReview: true,
     }, {
-      randomId: () => 'managed-review-scratch-input-cleanup-diagnostic',
       managedReviewScratchParentFactory: () => inputFailureParent,
       beforeOneShotInputWrite: ({ runId }) => {
         unlinkSync(join(inputFailureParent, 'managed-review-scratch.json'));
@@ -372,7 +370,7 @@ async function main(): Promise<void> {
     assert.equal(inputFailure.state, 'failed', 'input-write failure records a durable failed run');
     const inputFailureStatus = await getManagedHostRunStatus({
       root,
-      runId: 'managed-review-scratch-input-cleanup-diagnostic',
+      runId: inputFailure.runId,
       waitMs: 0,
     });
     assert.equal(inputFailureStatus.run.managedReviewScratchCleanupDiagnostic?.stage, 'submit_input_setup',
@@ -380,7 +378,7 @@ async function main(): Promise<void> {
     assert.match(inputFailureStatus.run.terminal?.reason ?? '', /^submit_input_write_failed:/);
     assert.equal(inputFailureStatus.run.terminal?.replacementSafe, true,
       'a pre-launch one-shot input failure is replacement-safe because no worker can exist');
-    const inputFailureDir = managedHostRunDirectory(root, 'managed-review-scratch-input-cleanup-diagnostic');
+    const inputFailureDir = managedHostRunDirectory(root, inputFailure.runId);
     for (const oneShotInput of ['input.cap', 'input.prompt', 'input.env.json']) {
       assert.equal(existsSync(join(inputFailureDir, oneShotInput)), false,
         `pre-launch failure erases one-shot ${oneShotInput} while retaining the cleanup diagnostic`);
