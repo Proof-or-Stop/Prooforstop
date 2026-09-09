@@ -720,6 +720,12 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/core/process-fact-registry.ts', "export const facts=['acceptance_basis','acceptance_basis_generate','pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatch=true;\n');
+  write(root, 'packages/main/src/core/evidence-freshness.ts', 'export const evidenceFreshness=true;\n');
+  write(root, 'packages/main/src/core/material-path-policy.ts', 'export const materialPathPolicy=true;\n');
+  write(root, 'packages/main/src/core/shared-validation-execution.ts', 'export const sharedValidationExecution=true;\n');
+  write(root, 'packages/main/src/core/story-aware-validation.ts', 'export const storyAwareValidation=true;\n');
+  write(root, 'packages/main/src/core/story-owner-lease.ts', 'export const storyOwnerLease=true;\n');
+  write(root, 'packages/main/src/core/validation-execution-lock.ts', 'export const validationExecutionLock=true;\n');
   // The production process-fact closure now reaches the signed REVIEW
   // inventory through transition-orchestrator.  Keep the cohort repository a
   // faithful, sealed source graph: omitting these registered closure files
