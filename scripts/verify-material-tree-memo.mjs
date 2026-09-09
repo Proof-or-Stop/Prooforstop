@@ -32,6 +32,19 @@ try {
   git('commit', '--allow-empty', '-m', 'new HEAD with identical tree');
   assert.notEqual(currentMaterialHash(root), before);
   assert.equal(trees, 3, 'U17: a new HEAD must refresh the process memo');
+  const originalHead = git('rev-parse', 'HEAD').toString().trim();
+  const originalHash = currentMaterialHash(root);
+  writeFileSync(join(root, 'source.txt'), 'replacement');
+  git('add', '.'); git('commit', '-m', 'replacement tree');
+  const replacementHead = git('rev-parse', 'HEAD').toString().trim();
+  const replacementHash = currentMaterialHash(root);
+  assert.equal(currentMaterialHash(root, originalHead), originalHash);
+  git('replace', originalHead, replacementHead);
+  assert.equal(currentMaterialHash(root, originalHead), replacementHash,
+    'U17: replacement refs must invalidate cached committed trees');
+  git('replace', '-d', originalHead);
+  assert.equal(currentMaterialHash(root, originalHead), originalHash,
+    'deleting a replacement must restore the original tree');
   assert.equal(currentMaterialHash(root, 'missing'), undefined);
   console.log('PASS U17 material-tree-memo');
 } finally {
