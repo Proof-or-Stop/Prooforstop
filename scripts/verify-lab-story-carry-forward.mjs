@@ -88,11 +88,13 @@ try {
 
   invoke(repo, ['create', 'carry']);
   const lab = join(repo, '.worktrees/Lab-carry');
+  invoke(repo, ['red', 'carry', '--expect', 'TARGET_STORY_CHANGE_MISSING', '--', process.execPath, 'target.cjs']);
   invoke(repo, ['carry', 'carry', '--story', 'B-test', '--source', story], 1, /--confirm/);
   invoke(repo, ['carry', 'carry', '--story', 'B-test', '--source', story, '--confirm'], 0, /Story evidence captured and patch applied/);
   assert.equal(readFileSync(join(lab, 'feature.txt'), 'utf8'), 'new\n');
-  assert.equal(git(lab, 'status', '--short'), 'M  feature.txt');
-  assert.equal(git(lab, 'status', '--short').includes('.proof-or-stop/story'), false);
+  const carriedStatus = git(lab, 'status', '--short').split('\n').filter(line => line !== '?? AGENTS.override.md');
+  assert.deepEqual(carriedStatus, ['M  feature.txt']);
+  assert.equal(carriedStatus.some(line => line.includes('.proof-or-stop/story')), false);
   commit(lab, 'fix: carry verified Story patch');
   assert.match(execFileSync(process.execPath, ['target.cjs'], { cwd: lab, encoding: 'utf8' }), /TARGET PASS/);
   const state = JSON.parse(invoke(repo, ['status', 'carry']));

@@ -1789,7 +1789,7 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
   level: 'L4',
   producer: 'scripts/lab-worktree.mjs',
   consumerGate: 'Lab finish only; never Story REVIEW/TEST/DONE',
-  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
+  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The optional one-Story carry-forward rule accepts only a clean registered REVIEW/TEST worktree with every checklist item done, no open Finding, complete mechanical intent coverage on one storyFilesHash, a fully executed validation result, and at most five failed commands whose exact executable and argv still fail with the same exit code on current main. It stores source/evidence/material/Story-files/patch hashes plus both failure-output digests and imports no .proof-or-stop Story state. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_VALIDATION_EXECUTION = [{
