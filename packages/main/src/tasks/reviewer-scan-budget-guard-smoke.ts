@@ -665,6 +665,10 @@ function assertPositiveControls(): void {
   );
 }
 
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-reviewer-scan-budget';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+
 function main(): void {
   assertPositiveControls();
   assertReadManifestNormalizationAndDigest();

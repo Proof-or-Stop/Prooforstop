@@ -134,6 +134,11 @@
             "class": "fixed-path",
             "key": "scripts",
             "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -672,6 +677,11 @@
             "class": "fixed-path",
             "key": "bin",
             "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -1068,6 +1078,11 @@
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
           }
         ],
         "timeoutMs": 1200000,
@@ -2070,6 +2085,11 @@
             "class": "fixed-path",
             "key": "scripts",
             "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -2109,6 +2129,11 @@
             "class": "fixed-path",
             "key": "scripts",
             "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -2147,6 +2172,11 @@
           {
             "class": "fixed-path",
             "key": "scripts",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
             "access": "exclusive"
           }
         ]
@@ -2985,6 +3015,11 @@
             "class": "fixed-path",
             "key": "bin",
             "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -3014,6 +3049,11 @@
           {
             "class": "fixed-path",
             "key": "packages/graph",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
             "access": "exclusive"
           }
         ]
@@ -3078,6 +3118,11 @@
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },

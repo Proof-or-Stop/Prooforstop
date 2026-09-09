@@ -35,6 +35,10 @@ const [
   load('handlers/finding.js'),
 ]);
 
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-done-parity';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+
 const STORY_ID = 'B-done-parity-red';
 const NOW = '2026-09-04T12:00:00.000Z';
 let failures = 0;
