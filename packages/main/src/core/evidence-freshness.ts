@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { resolve as resolvePath } from 'path';
+import { realpathSync } from 'node:fs';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import {
@@ -480,13 +481,34 @@ export function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHea
   return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
+// Cache only immutable Git bytes. Material policy and Story scope are evaluated
+// on every read, so edits to configuration cannot make a cached hash false-fresh.
+const treeMemo = new Map<string, { sha: string; raw: string; bytes: number }>();
+let treeMemoBytes = 0;
+function readCommittedTree(gitCwd: string, ref: string): string {
+  const cwd = realpathSync(gitCwd);
+  const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{tree}`], {
+    cwd, ...GIT_EXEC_OPTS,
+  }).trim();
+  const previous = treeMemo.get(cwd);
+  if (previous?.sha === sha) return previous.raw;
+  const raw = execFileSync('git', ['ls-tree', '-r', '-z', sha], { cwd, ...GIT_EXEC_OPTS });
+  if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
+  const bytes = Buffer.byteLength(raw);
+  while (treeMemo.size && treeMemoBytes + bytes > 64 * 1024 * 1024) {
+    const oldest = treeMemo.keys().next().value!;
+    treeMemoBytes -= treeMemo.get(oldest)!.bytes;
+    treeMemo.delete(oldest);
+  }
+  treeMemo.set(cwd, { sha, raw, bytes });
+  treeMemoBytes += bytes;
+  return raw;
+}
+
 function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
   const out = new Map<string, string>();
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
+    const raw = readCommittedTree(gitCwd, ref);
     for (const entry of raw.split('\0')) {
       if (!entry) continue;
       const tab = entry.indexOf('\t');
@@ -529,10 +551,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 // byte-identical.
 export function currentMaterialHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
+    const raw = readCommittedTree(gitCwd, ref);
     const entries = raw.split('\0').filter(Boolean);
     const materialEntries: string[] = [];
     for (const entry of entries) {
