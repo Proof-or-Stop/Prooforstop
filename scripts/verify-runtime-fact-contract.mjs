@@ -323,6 +323,10 @@ async function main() {
     ['review-incremental-context', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'],
     ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
     ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-execution-receipt.v3'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop-verification-receipt-signer-v1.key'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-execution-receipt.v3'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop-review-story-init'],
   ]) {
     const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === boundaryId);
     const site = boundary?.identitySites.find(row => row.sourcePath === sourcePath && row.canonical === canonical);

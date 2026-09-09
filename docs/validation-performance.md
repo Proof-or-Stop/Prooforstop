@@ -332,6 +332,17 @@ measurement. The earlier successful 134-command A/B remains separately scoped.
 
 ## Complete PASS reuse while observing dynamic selection
 
+The Lab's identity regression keeps an independent required-source inventory as
+well as the runtime operation registry. A shared verification producer has two
+reviewed operation owners with disjoint named identity sites. Every schema,
+reviewer role and signer-key filename in the newly included producer/consumer
+modules remains registered and receives its own unsupported-family mutation;
+none is reclassified away to satisfy the test. Exact occurrence/import contexts
+and the existing complete executable-module fingerprints remain required.
+`experiments/five-item-closure/complete-closure-entry.mjs` runs the fast inventory
+and site-completeness checks before the handler regressions. The complete public
+operation and zero-mutation campaign remains in the unchanged full test group.
+
 `validate.reuseFreshRoutinePass: true` enables strict whole-routine PASS reuse
 in `observe` mode. The project configuration opts in; other projects default to
 false. `validate --reuseFreshRoutinePass=false` forces a new observe execution.

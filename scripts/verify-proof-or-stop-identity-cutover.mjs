@@ -3152,7 +3152,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"b7ea8ddecb6ae44059356e87ab7fe9cd3ec31bbfa08e8d0974e261d856d812dc"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"9514d9a2772b2409df8235effde05de3063945d6a50f11ce6fc5e503cca5831e"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "23db6d5e896552fae206dc318a930a295262d6a7b4bd4fe409b2ea300dc60187"
@@ -3199,7 +3199,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "a692bdfe7ab205acad0bc14a58d30b7c74cd5248ee1e139d6dea8f29cbbca8dc"
+    "sha256": "e07835a2c776cebbacb921637d490f71e3323f3f1ced2edb7c5628f42c3da3be"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
@@ -3231,7 +3231,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "b3fe944c087befc572dab80f24a91c4f34035baa841359c2888cab09e59cbf46"
+    "sha256": "0b1d9842c164ecfa6e350aac7a5367118f8bbd612c49580e76099538815e701b"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3295,7 +3295,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "fe48a88ac59da7faeff71ef2f7952d6116e3e90418194e4f30e687d83e03cee3"
+    "sha256": "db345d23bd5d5f885c82520844369292b5125c34edcb220cc36fa6191fd57a7a"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3616,7 +3616,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"83f4250e9cf0ff0cd77a04e5e105df03117fa1ee9c5b6c12a409f04a6f4eed0a"],
-  [4,"b3fe944c087befc572dab80f24a91c4f34035baa841359c2888cab09e59cbf46"],
+  [4,"0b1d9842c164ecfa6e350aac7a5367118f8bbd612c49580e76099538815e701b"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3652,7 +3652,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"b7ea8ddecb6ae44059356e87ab7fe9cd3ec31bbfa08e8d0974e261d856d812dc"],
+  [52,"9514d9a2772b2409df8235effde05de3063945d6a50f11ce6fc5e503cca5831e"],
   [55,"6247df3d01e06afbc65f88a0a045506420d093170269e8143d31bfd0fdc99353"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],

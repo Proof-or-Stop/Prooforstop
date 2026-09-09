@@ -1463,8 +1463,10 @@ const IDENTITY_CUTOVER_REQUIRED_PATHS = Object.freeze([
   'packages/main/src/core/review-inventory-epoch.ts',
   'packages/main/src/core/review-run.ts',
   'packages/main/src/core/source-lineage-audit.ts',
+  'packages/main/src/core/verification-execution-evidence.ts',
   'packages/main/src/handlers/agent-prompt.ts',
   'packages/main/src/handlers/candidate-spec-routing.ts',
+  'packages/main/src/handlers/checklist.ts',
   'packages/main/src/handlers/done-effects.ts',
   'packages/main/src/handlers/playbook-runtime-memory.ts',
   'packages/main/src/handlers/playbook.ts',
@@ -2533,6 +2535,30 @@ const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
 // Each observed use is bound as well as its value: an existing role/path value
 // cannot silently authorize a new schema producer or a moved acceptance branch.
 const OWNED_IDENTITY_SITE_CONTEXTS = [
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",2,"b2272c84d648eadbca1dfa2c1d2629361ac2e5ca967740a7b76223ccb30d4047"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v1",3,"4c05dc6a06dda209a6b3c012a5695335f6fec81c6d728d482457206fe7d0267f"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v2",3,"7a26aa6c00db0c5ac11494b858642fa2015f4aab088ee4331a6c6494624eb1b8"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-identity.v1",2,"7ea346cece80347dedf317a977b42205c3c6dd96fafe7168cbb5c4c560a92b9d"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-key.v1",2,"899e8342d5ed31bb56ec93189f25410125c7863b9fdc16da5aa50aa944fc7076"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-lock.v1",2,"82693e17f4e5bf028726abb6d044ecc2c831474a728b698927fbe5f59518e47e"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-receipt.v2",2,"32871cbf8170d65116a38bdbfea7f7a5a4565de03654bd86c017b97231603e52"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-receipt.v3",6,"f997451030218b33fb575301382da97e9b9dadeda39b258f95bd6cb8d82a5dbc"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-ticket.v1",5,"c3398d425712a4a815118c367820018c48c8676d1198eda57b9ec2ee0c9c7fb7"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-output.v1",3,"17bc9c63c4bd06609b4470471ad0fba671befc9e4609c42a1367b17fd1829bf1"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-publication-binding.v1",4,"70bb9b1a24d4881689f1c1b2a3a26806b73d29434d66f1aefe70c3f799e2e6d0"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle-binding.v1",3,"57f8f93b0e30f6f104aa6dfcc6aa27e2af020c684d793a27558d7c9ac6645e27"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v2",3,"d8be8a1cf699ef5e0abca828258a8b033e547a6cbd1b5c05841ea108a6d98e3a"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v3",4,"1d1f0f652b610bf61289c8a9cf4a10357822f71c997b618ad02e0b122dbda2ec"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v4",6,"b76f8c79fa2371090e44678cfdf5eff00f3890a93b8e4522a51757217628a7f2"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v5",9,"023d286de9552a42c4d3e71167481a9dfda47033892eb0ea74402e97f546da53"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record-authenticity.v1",3,"dd54d6ddceebf4f0266af639ba1b5c2d5e72785331b6cf70ca81929c3a952a4c"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record.v1",2,"467bd70741396cce3c7ff4133b8503c1ea1728fad55372540a5126e95046efa8"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-reuse-receipt.v1",2,"49cb86dacf51a745bcb97d13e2f1af5f67ed5387959d86063ab1590fbf9f6484"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",1,"6cdbe616948e4595c15ece6c9a50cb22bd41e5c6c186ed82c421e020c2d70849"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-product-reviewer",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-review-story-init",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-execution-receipt.v3",4,"90bcf066b48695e791b83bc4ecd7f810814367e614337f98be5421f819a40cdb"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-receipt-bundle.v5",8,"383c91ad3d84d8fcf33cb22dddf299c839556694309da73c5875ffa08a1456df"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",2,"594d7d8d86c1ee7608582e7da9cdaebb3a74646fccdff5abcb919f8ee763883b"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest.v1",3,"423fc8479e6108678ade451817d7b1d72fe6365fbfe9ade221c8978f6a72965d"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.inventory-verification-observation.v1",1,"22fe5b4a457d314f5fd429adbcb557fef1905cbf99649f531c3bed5d5321152b"],
@@ -2966,6 +2992,11 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "contextSha256": "ee2d591e1f0fad9b2de7d1cde798eb873dd6e1fc743e6190109d8b6255debade"
   },
   {
+    "sourcePath": "packages/main/src/core/verification-execution-evidence.ts",
+    "occurrences": 281,
+    "contextSha256": "3b3d7d7febdc6d4b49d1e38eb7cbc5b74b442bc6c2fb1dad1db632d80739662e"
+  },
+  {
     "sourcePath": "packages/main/src/handlers/agent-prompt.ts",
     "occurrences": 114,
     "contextSha256": "14192ecc1400d34d2270633da2d887036b956df85fccf9046bac95a011e08ee7"
@@ -2974,6 +3005,11 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts",
     "occurrences": 88,
     "contextSha256": "6b97ed40a3168a4dbdcc1ff9ea84cc841d0c94cd6a34df55bab300a0f1940cf6"
+  },
+  {
+    "sourcePath": "packages/main/src/handlers/checklist.ts",
+    "occurrences": 775,
+    "contextSha256": "9c3d39556e11621ec95f771bd034e37d058b97fc6ce924e61a935681911dd393"
   },
   {
     "sourcePath": "packages/main/src/handlers/done-effects.ts",
