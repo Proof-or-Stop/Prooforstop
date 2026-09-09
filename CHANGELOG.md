@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab b-e40f-convergence-20260909 - v0.3.285 - 2026-09-09
+
+# B-e40f quorum smoke convergence
+
+The quorum-submit smoke suite previously used substring selection that could succeed after executing zero cases, kept no mechanically complete inventory of its 73 callbacks, mixed pure and integration work in one monolith, rebuilt compatible Git fixtures, and remained an undeclared validation barrier without bounded shard concurrency.
+
+This Lab integrates the bounded non-Story implementation from B-e40f. It adds exact fail-closed case selection, a 73-case executable-to-manifest bijection, four validated partitions with real sentinels, immutable fixture-template cloning with isolation and cleanup, and a bounded coordinator selected by the validation configuration with a shared Git read claim.
+
+The pinned Lab command changed from the target-specific RED `B_E40F_LAB_RED_SAFE_PARALLEL_CONVERGENCE_MISSING` to `B_E40F_LAB_GREEN cases=73 selector=fail-closed partitions=4 fixture=isolated-reuse jobs=2 gain=50.0% residue=0`. The measured gain is a controlled same-process coordinator comparison over the same six deterministic delayed callbacks; it demonstrates bounded scheduling overlap, not a claim that the complete 73-case suite is 50 percent faster. Additional checks passed: the persistent 73/73 inventory mutation contract, 38 resource-claim assertions, a real exact `qsm-002` CLI case with zero residue, and fail-closed rejection of unknown `qsm-999`.
+
+An unrelated evidence-watchdog process-tree repair that had accumulated on the Story branch was intentionally excluded from this Lab to preserve the requested scope.
+
+Maintenance provenance: codex/lab-b-e40f-convergence-20260909, repair e96b6284bd5172851e218063e2e7c067268209e6.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-B-e40f-lab-convergence.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab hash-accuracy-production - v0.3.284 - 2026-09-08
 
 Correct shared evidence hash inputs and literal Git path handling. Evidence-store objects/sha256, refs/by-id and ledger/observed.jsonl are excluded as process outputs rather than disposable runtime artifacts; unknown evidence paths and policy remain material. Story diffs use NUL framing and literal target blob lookup, preserving Unicode and control characters, with missing target objects failing closed. Existing evidence is neither rewritten nor automatically re-attested.
