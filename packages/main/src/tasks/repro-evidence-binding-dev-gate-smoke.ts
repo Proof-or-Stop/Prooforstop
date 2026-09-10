@@ -447,6 +447,40 @@ await check('story_create direct lifecycle phase rejects repro-first bypass befo
   });
 });
 
+await check('story_create cannot directly persist post-INIT lifecycle phases without a repro-first bypass', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    for (const phase of blockedPhases) {
+      let observedError: unknown;
+      try {
+        handlers.story_create({
+          name: `direct-${phase.toLowerCase()}-lifecycle-bypass`,
+          title: `Direct ${phase} lifecycle bypass`,
+          description: 'Exercise direct phase creation without a repro-first bypass reason.',
+          type: 'chore',
+          phase,
+          priority: 'medium',
+          background: validBackground,
+          checklist: [{
+            title: 'Record a non-code lifecycle item',
+            context: 'No material files are declared so this assertion isolates the lifecycle creation gate.',
+          }],
+        });
+      } catch (error) {
+        observedError = error;
+      }
+      if (!observedError) {
+        throw new Error(
+          `[story_create_direct_lifecycle_phase_forbidden] story_create persisted ${phase} without traversing the lifecycle`,
+        );
+      }
+      assert.match(String(observedError), /story_create_direct_lifecycle_phase_forbidden/);
+    }
+    assert.deepEqual(store.listStoryIds(), [], 'blocked direct lifecycle phases must not persist story metadata');
+  }, 'warn');
+});
+
 await check('story_create enforce blocks code-verifiable material-code bug classifier without binding before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
