@@ -29,7 +29,7 @@ import { resetSessionIdForTest, getSessionIdentity } from '../core/owner-session
 import { createFindingRouteHandlers, proposalAuthorityDigest, proposalScopeDigest, proposalFindingHash, targetRouteSnapshot, sourceRouteRecord } from '../handlers/finding-route.js';
 import { exactLedgerRecordHash, signAssessmentProposal, verifyAssessmentProposal, appendAssessmentProposal, appendFindingLedger } from '../handlers/finding-ledger.js';
 import { captureMkdirLockFence, withMkdirLock } from '../core/mkdir-lock.js';
-import { validateCanonicalDefect, assertCauseEvidence } from '../core/finding-identity.js';
+import { validateCanonicalDefect, assertCauseEvidence, buildConfirmedCanonicalDefect } from '../core/finding-identity.js';
 import { validateRouteReceipt, assertReceiptCurrent, type RouteReceipt, type RouteSource } from '../core/finding-route.js';
 import { validateBaselineSet, validateBaseline, validateProgress, assertProgressTransition, semanticProjection, PROGRESS_KINDS, type BaselineSet, type ProgressBaseline, type ProgressBinding } from '../core/finding-progress.js';
 import type { CanonicalDefect, IdentitySemanticEnvelope } from '../core/finding-identity-types.js';
@@ -148,21 +148,39 @@ try {
       assert.equal(route.rows.length, 1); assert.equal(route.rows[0].envelope.payload.gateEvidence, false);
       invoke(from, sourceSession, 'finding_add', { storyId: sourceId, desc: 'Independent durable source observation from linked worktree: observedDefect returns two, not the required three.', severity: 'high', category: 'edge', files: ['source.mjs'], evidenceState: 'verified', idempotencyKey: 'linked-finding' });
       const sourceStore = new StoryStore(from);
-      const ledgerPath = sourceStore.storyFilePath(sourceId, 'finding-ledger.json');
-      const ledgerBeforeContributorProbe = readFileSync(ledgerPath, 'utf8');
+      const sourceFinding = sourceStore.readFindings(sourceId).findings.at(-1)!;
+      const sourceFindingRecord = sourceStore.readFindingLedger<JsonValue>(sourceId).records.find(row => row.recordId === sourceFinding.recordId)!;
+      const sourceFindingRef = { storyId: sourceId, findingId: sourceFinding.id, recordId: sourceFindingRecord.recordId,
+        recordHash: exactLedgerRecordHash(sourceFindingRecord) };
       const sourceSigner = findingLedgerSignerFromWorkspace(from);
+      const producedAt = new Date().toISOString();
+      const foreignCanonical = buildConfirmedCanonicalDefect({ storyId: sourceId, idempotencyKey: 'foreign-active-canonical-probe',
+        title: 'Foreign active canonical defect', triggerCondition: 'observedDefect() returns two', reproduction: 'Observed 2 while the fixture contract requires 3',
+        rootCauseState: 'unknown', identityEvidenceRefs: [sha('foreign-active-canonical-evidence')], evidenceAnchors: [{ path: 'source.mjs', contentDigest: sha(source), line: 1, symbol: 'observedDefect' }],
+        affectedSymbols: ['observedDefect'], affectedContracts: ['return-three'], memberFindingRefs: [sourceFindingRef], canonicalFindingRef: sourceFindingRef,
+        reviewRunId: `${sourceId}:RR-FOREIGN-ACTIVE` }, { canonicalDefectId: 'CD-FOREIGN-ACTIVE', confirmedBy: 'proof-or-stop-review-concept', confirmedAt: producedAt,
+        sourceLineageKeys: [sha('foreign-active-source-lineage')] });
+      const foreignEnvelope = signIdentityEnvelope({ kind: 'canonical_defect', storyId: sourceId,
+        requestDigest: sha('foreign-active-canonical-request'), producedAt, payload: foreignCanonical }, sourceSigner, validateCanonicalDefect);
       const sourceLock = sourceStore.runtimeLockDirPath(sourceId, 'finding', 'findings');
       withMkdirLock(sourceLock, () => {
         const fence = captureMkdirLockFence(sourceLock);
         appendFindingLedger({ storyId: sourceId, store: sourceStore, operation: 'append_canonical_defect', idempotencyKey: 'foreign-active-canonical-probe',
-          records: [{ recordType: 'canonical_defect', payload: { fixture: 'foreign-active-canonical-probe' } }],
+          records: [{ recordType: 'canonical_defect', payload: foreignEnvelope as unknown as JsonValue }],
           writerSessionId: sourceSession, writerLeaseId: sourceSession, writerFenceToken: fence.writerFenceToken, fence, signer: sourceSigner });
       }, { requireHolderToken: true });
       const targetContext = { root: to, scanRoot: to, store: new StoryStore(to) };
       const foreignContributor = identityCatalogContributor(targetContext, sourceId, ['canonical_defect']);
       assert.ok(foreignContributor, 'F028_FOREIGN_ACTIVE_CATALOG missing signed contributor that exists only in another active Story worktree');
       assert.equal(realpathSync(foreignContributor.root), realpathSync(from), 'F028_FOREIGN_ACTIVE_CATALOG resolved the wrong signed Story workspace');
-      writeFileSync(ledgerPath, ledgerBeforeContributorProbe);
+      const activeHistory = invoke(to, targetSession, 'finding_history_query', { storyId: targetId, sourceStoryIds: [sourceId] });
+      assert.ok(activeHistory.rows.some((row: { canonicalIds?: string[] }) => row.canonicalIds?.includes(foreignCanonical.canonicalDefectId)));
+      const activeScorecard = invoke(to, targetSession, 'finding_identity_scorecard', { storyId: targetId, sourceStoryIds: [sourceId] });
+      assert.ok(activeScorecard.rows.some((row: { kind: string; envelope: { payload?: { canonicalDefectId?: string } } }) =>
+        row.kind === 'canonical_defect' && row.envelope.payload?.canonicalDefectId === foreignCanonical.canonicalDefectId));
+      assert.equal(activeScorecard.inputDigest,
+        invoke(to, targetSession, 'finding_identity_scorecard', { storyId: targetId, sourceStoryIds: [sourceId] }).inputDigest);
+      console.log('PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS signed canonical row, history projection, scorecard row and stable catalog input digest');
       const before = sourceStore.readFindingLedger(sourceId);
       const key = join(main, '.git', 'proof-or-stop-finding-ledger-v1.key'); const keyBytes = readFileSync(key);
       // Fixture-only terminal transition and real Git merge/removal. This proves
@@ -172,7 +190,8 @@ try {
       gitAt(main, 'merge', '--no-edit', `story/${sourceId}`); gitAt(main, 'worktree', 'remove', '--force', from);
       assert.equal(existsSync(from), false); assert.deepEqual(mainStore.readFindingLedger(sourceId), before);
       const history = invoke(to, targetSession, 'finding_history_query', { storyId: targetId, sourceStoryIds: [sourceId] });
-      assert.equal(history.complete, true); assert.equal(history.rows.length, 1); assert.ok(history.rows[0].ref.recordId); assert.equal(history.gateEvidence, false);
+      assert.equal(history.complete, true); assert.ok(history.rows.some((row: { ref?: { recordId?: string } }) => row.ref?.recordId === sourceFindingRecord.recordId));
+      assert.ok(history.rows.some((row: { canonicalIds?: string[] }) => row.canonicalIds?.includes(foreignCanonical.canonicalDefectId))); assert.equal(history.gateEvidence, false);
       const scorecard = invoke(to, targetSession, 'finding_identity_scorecard', { storyId: targetId, sourceStoryIds: [sourceId] });
       assert.equal(scorecard.complete, true); assert.ok(scorecard.rows.some((row: { kind: string }) => row.kind === 'candidate_route'));
       assert.deepEqual(readFileSync(key), keyBytes); assert.deepEqual(mainStore.readFindingLedger(sourceId), before);
