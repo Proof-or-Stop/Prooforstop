@@ -105,6 +105,7 @@ Capture records both ordinary and canonical Codex entrypoints with their own
 exact pins and requires identical implementation file inventories. Their entry
 wrapper bytes differ, so their complete entry-specific digests need not be equal.
 Capture refuses to overwrite an existing epoch. Exec validates the bound runtime,
+and refuses older single-entry manifests before launching any host;
 sets a private PATH shim for the selected absolute CLI, and carries the manifest
 and required pin through child environments. The CLI itself rejects missing,
 malformed, conflicting or mismatched manifests before dispatch. Each admitted CLI

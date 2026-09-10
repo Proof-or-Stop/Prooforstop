@@ -37,6 +37,10 @@ if(action==='capture') {
   if(rest[0]!=='--'||rest.length<2) fail('exec requires -- HOST [ARGS...]');
   const manifest=JSON.parse(readFileSync(manifestPath,'utf8'));
   if(manifest.schema!=='execution-session.v1'||manifest.entrypoint!==entry||!/^[a-f0-9]{64}$/.test(manifest.digest)) fail('invalid or foreign implementation manifest');
+  if(!Array.isArray(manifest.entrypoints) ||
+     !manifest.entrypoints.some(row=>row?.entrypoint===entry && row.digest===manifest.digest) ||
+     !manifest.entrypoints.some(row=>row?.entrypoint===codexEntry && /^[a-f0-9]{64}$/.test(row.digest)))
+    fail('session must enroll both canonical entrypoints; capture a new epoch');
   if(process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST!==undefined && process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST!==manifest.digest) fail('conflicting inherited implementation pin');
   const env={...process.env,PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifestPath,
     PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN:'1'};

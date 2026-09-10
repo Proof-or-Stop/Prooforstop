@@ -106,10 +106,10 @@ try {
     assert.equal(witness.argvDigest,createHash('sha256').update(JSON.stringify(['--version'])).digest('hex'));
     assert.equal(witness.pid,result.pid);
   });
-  await check('inherited session wrapper binds a nested owner process',()=>{
+  await check('session launcher refuses an incomplete cohort before launching a host',()=>{
     const result=spawnSync(process.execPath,[join(repo,'scripts/implementation-session.mjs'),'exec',manifest,'--','proof-or-stop','--version'],{cwd:root,env,encoding:'utf8'});
-    assert.equal(result.status,0,result.stderr);assert.match(result.stderr,/IMPLEMENTATION_SESSION_WITNESS/);
-    assert.match(result.stdout,/0\.3\./);
+    assert.notEqual(result.status,0);assert.match(result.stderr,/session must enroll both canonical entrypoints/);
+    assert.equal(result.stdout,'');
   });
   await check('direct alternative entry and conflicting pins refuse',()=>{
     const direct=spawnSync(process.execPath,[join(repo,'packages/main/dist/cli.js'),'--version'],{cwd:repo,env:{...env,PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifest},encoding:'utf8'});
@@ -123,6 +123,8 @@ try {
     const first=capture();assert.equal(first.status,0,first.stderr);
     const bytes=fs.readFileSync(path),cohort=JSON.parse(bytes);
     assert.equal(cohort.entrypoints.length,2);
+    const ordinary=spawnSync(process.execPath,[script,'exec',path,'--','proof-or-stop','--version'],{cwd:root,env,encoding:'utf8'});
+    assert.equal(ordinary.status,0,ordinary.stderr);assert.match(ordinary.stderr,/IMPLEMENTATION_SESSION_WITNESS/);
     const codex=spawnSync(process.execPath,[script,'exec',path,'--','proof-or-stop-codex','--version'],{cwd:root,env,encoding:'utf8'});
     assert.equal(codex.status,0,codex.stderr);
     const witness=JSON.parse(codex.stderr.split('\n').find(s=>s.startsWith('IMPLEMENTATION_SESSION_WITNESS ')).slice('IMPLEMENTATION_SESSION_WITNESS '.length));
