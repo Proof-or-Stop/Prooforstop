@@ -1,3 +1,4 @@
+import { managedExecutionKeyedDigest, type ManagedExecutionIdentityKey } from './managed-execution-identity-key.js';
 import { parse as parseToml } from 'smol-toml';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 /** Registered file-cache adapter. Never exports a macOS Keychain credential. */
@@ -67,6 +68,14 @@ export function captureManagedProviderState(host:string,env:NodeJS.ProcessEnv):M
   }
   const token=Object.freeze({}) as ManagedProviderStateSnapshot;
   capturedStates.set(token,{host:inputs.host,files});return token;
+}
+/** Digest-only controller access; captured credential bytes never leave this module. */
+export function fingerprintCapturedManagedProviderState(snapshot:ManagedProviderStateSnapshot,key:ManagedExecutionIdentityKey,expectedHost?:string):string {
+  const state=capturedStates.get(snapshot);
+  if(!state||expectedHost!==undefined&&state.host!==expectedHost)throw new Error('invalid or mismatched provider snapshot capability');
+  const parts:Uint8Array[]=[Buffer.from(state.host)];
+  for(const file of [...state.files].sort((a,b)=>a.name.localeCompare(b.name)))parts.push(Buffer.from(file.name),file.bytes);
+  return managedExecutionKeyedDigest(key,'managed-provider-state.v1',parts);
 }
 export function materializeManagedProviderState(cache:string,snapshot:ManagedProviderStateSnapshot):ManagedReviewProviderState {
   const captured=capturedStates.get(snapshot);

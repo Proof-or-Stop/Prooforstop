@@ -85,3 +85,13 @@ turns an interrupted controller into a blocked generation. Read-only status
 performs no writes or probes; cancellation while queued starts no probe.
 This controller is not yet a managed-launch prerequisite: the complete roster,
 execution-input producer and managed consumer wiring remain separate work.
+
+The execution-input helper uses an opaque controller HMAC key to bind captured
+file credentials, full effective environment, resolved native executable bytes
+and permissions, physical paths, launcher/profile and probe runtime identity.
+Its public result contains only a schema and keyed digest. Read-only key lookup
+creates no files. Nonregular inputs and FIFO replacements fail without blocking;
+shebang interpreter chains are currently unsupported and refused. The helper
+does not infer equivalence between different private cache or working paths.
+Controller-directory read protection and actual managed admission consumption
+remain necessary before this can authorize shared preflight reuse.

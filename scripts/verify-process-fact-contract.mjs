@@ -8686,6 +8686,8 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/story-scope-budget.ts').includes('readScopeDecomposition(store, subject'), 'scope budget must consume live decomposition coverage');
   assert(registrySource.includes("name: 'runtime:machine_provider_admission'"), 'machine provider admission must be a registered process fact');
   assert(read('packages/main/src/core/reviewer-batch-admission.ts').includes('controller-interrupted'), 'shared admission must refuse interrupted controller recovery');
+  assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
+  assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
   assert(read('scripts/verify-u08-batch-admission.mjs').includes('U08_BATCH_CONTROLLER_CONCURRENT_PASS'), 'shared admission requires actual multi-process regression');
   assert(registrySource.includes('packages/main/src/providers/supervised-process-worker.ts'), 'synchronous provider lifecycle must be registered');
   assert(read('packages/main/src/core/host-execution-readiness.ts').includes('runSupervisedProviderProcess(args.executablePath'), 'readiness probes must share supervised provider lifetime');

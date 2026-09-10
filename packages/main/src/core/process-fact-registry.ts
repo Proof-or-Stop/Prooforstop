@@ -1957,10 +1957,10 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     name: 'runtime:reviewer_batch_admission', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'host-readiness', 'freshness-policy', 'blocker-state'],
     producer: 'core/reviewer-batch-admission',
-    producerSourceRefs: ['packages/main/src/core/reviewer-batch-admission.ts'],
+    producerSourceRefs: ['packages/main/src/core/reviewer-batch-admission.ts', 'packages/main/src/core/managed-execution-identity-key.ts', 'packages/main/src/core/managed-execution-input-identity.ts'],
     consumerSourceRefs: ['scripts/verify-u08-batch-admission.mjs'],
     consumerGate: 'Operational shared admission controller; managed launch wiring remains separate',
-    rationale: 'Trusted subject and exact roster inputs select one signed generation. Concurrent callers share one probe per host before any admitted verdict. Unchanged failures, expired readiness and interrupted controllers do not automatically reprobe. Read-only queries verify without writing, and cancelled waiters launch no probe. This controller alone is not a managed launch gate, reviewer PASS or account-health assurance.',
+    rationale: 'Trusted subject and exact roster inputs select one signed generation. Concurrent callers share one probe per host before any admitted verdict. Unchanged failures, expired readiness and interrupted controllers do not automatically reprobe. Read-only queries verify without writing, and cancelled waiters launch no probe. A separate controller-local HMAC input helper binds full effective environment, captured file credentials, physical native executable and runtime/profile identities without exporting secrets. Read-only key loading creates nothing; unsupported interpreter chains fail closed. This controller alone is not a managed launch gate, reviewer PASS or account-health assurance.',
   },
   {
     name: 'runtime:machine_provider_admission', kind: 'runtime-behavior', level: 'L4',

@@ -1,4 +1,4 @@
-export const REVIEWER_BATCH_ADMISSION_ARTIFACT = { directoryName: 'reviewer-batch-admission', location: 'canonical-project-runtime' } as const;
+export const REVIEWER_BATCH_ADMISSION_ARTIFACT = { directoryName: 'reviewer-batch-admission', identityKeyFile: 'execution-identity.key', location: 'canonical-project-runtime' } as const;
 export const MANAGED_REVIEW_LANE_ARTIFACT = { directoryName: 'readonly-lane', buildSource: 'build-source', output: 'output', sourceOutput: '.proof-or-stop/runtime/managed-review-build', temporary: 'tmp', cache: 'cache', probe: 'probe', launchers: 'launchers', binding: 'build-binding.json', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
 export const MACHINE_PROVIDER_ADMISSION_ARTIFACT = { directoryName: 'machine-provider-process-slots', location: 'os-user-home-runtime-locks' } as const;
 export const MACHINE_FIXED_PORT_ARTIFACT = { directoryName: 'machine-fixed-port-capacity', location: 'os-user-home-runtime-locks' } as const;
