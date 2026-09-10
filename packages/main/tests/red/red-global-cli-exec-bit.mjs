@@ -59,6 +59,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -90,7 +91,7 @@ const tmp = mkdtempSync(join(tmpdir(), 'red-exec-bit-'));
 try {
   writeFileSync(join(tmp, 'entry.ts'), '#!/usr/bin/env node\nexport const x = 1;\n');
   writeFileSync(join(tmp, 'tsconfig.json'), JSON.stringify({ compilerOptions: { target: 'es2022', module: 'es2022', outDir: 'out' }, files: ['entry.ts'] }));
-  const tsc = join(repoRoot, 'node_modules/typescript/bin/tsc');
+  const tsc = createRequire(join(repoRoot, 'packages/main/package.json')).resolve('typescript/bin/tsc');
   execFileSync(process.execPath, [tsc, '-p', join(tmp, 'tsconfig.json')], { cwd: tmp, stdio: ['ignore', 'pipe', 'pipe'] });
   const emitted = join(tmp, 'out/entry.js');
   assert.match(readFileSync(emitted, 'utf8'), /^#!\/usr\/bin\/env node\n/, 'tsc output must preserve the Node shebang used by npm command shims');

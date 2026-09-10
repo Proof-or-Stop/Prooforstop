@@ -5,7 +5,6 @@ import {
   prepareVerificationExecutionIdentity,
   validateVerificationReceipt,
   verificationReceiptHasCurrentReuseAuthority,
-  VERIFICATION_RECEIPT_BUNDLE_V5,
 } from './verification-execution-evidence.js';
 import {
   checkStrictVerificationEvidenceFreshnessForGit,
@@ -21,6 +20,7 @@ import {
  */
 
 import {
+  VERIFICATION_RECEIPT_BUNDLE_V5,
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
   isDoneRequiredEvidenceVersionedSchema,
 } from './artifact-schema.js';
@@ -303,6 +303,25 @@ export const PROOF_SURFACE_REGISTRY = [
     ],
     producerBoundaryNote: 'Local delivery/final report evidence can support review discussion but is not release readiness.',
     remediation: DIAGNOSTIC_REMEDIATION,
+  },
+  {
+    artifactKind: 'managed-review-evidence',
+    aliases: ['managed-host-run-receipt', 'managed-review-evidence-binding'],
+    scope: 'local-review-quorum',
+    artifactRole: 'planning-review',
+    temporalRole: 'current-state',
+    producerBoundary: 'trusted-reviewer-owned',
+    schemaVersions: ['lattice.managed_host_run_receipt.v1', 'lattice.managed_review_evidence_binding.v1'],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: true,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['REVIEW'],
+    allowedClaims: [
+      { claim: 'review-pass', consumers: ['REVIEW'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Provider-authored proposal sealed by a successful ManagedHostRun terminal and imported by exact receipt; the controller may trigger import but cannot author or override the verdict.',
+    remediation: 'Use the exact completed managed runId + receiptId and preserve reviewer/lane/reviewRun/read provenance through managed_review_evidence_import.',
   },
   {
     artifactKind: 'review-run',

@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { issueBrokeredNativeReviewBinding, nativeReviewFixtureBrokers, withBrokeredNativeReviewInvocation } from './native-review-fixture.js';
 
 
 
@@ -197,6 +199,7 @@ export function write(root: string, path: string, content: string): void {
 
 export function writeConfig(root: string): void {
   write(root, 'proof-or-stop.config.json', JSON.stringify({
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives',
@@ -275,7 +278,12 @@ export function checklist(): ChecklistData {
       endTime: null,
       relatedDocs: [],
       files: { modify: [], create: [], test: [] },
-      verificationIntent: { happy: [], edge: [], adversarial: [] },
+      // Declared fixture intent; no execution receipt or completed coverage is claimed here.
+      verificationIntent: { happy: [{
+        id: `context-${index + 1}`,
+        desc: `Context requirement ${index + 1} remains present in the full reviewer snapshot.`,
+        type: 'logic' as const, priority: 'must' as const,
+      }], edge: [], adversarial: [] },
     }))],
   };
 }
@@ -288,11 +296,13 @@ export function makeFixture(
   const root = targetRoot ?? createQuorumSmokeOwnedFixtureRoot('proof-or-stop-quorum-submit-');
   writeConfig(root);
   write(root, '.gitignore', [
+    '.native-review-fixture-*.json',
     // B-cc10: list BOTH state-dir spellings. The runtime writes under the canonical
     // dir, so a fixture ignoring only the deprecated one left '?? .proof-or-stop/'
     // untracked and failed its own clean-baseline assertion.
     ...STATE_DIR_NAMES.flatMap((dir) => [
       `${dir}/autopilot-verdicts/`,
+      `${dir}/runtime/native-review-invocations/`,
       `${dir}/activity.jsonl`,
       `${dir}/locks/`,
     ]),
@@ -483,13 +493,13 @@ export function startRunAndPass(
       : /BEGIN EXACT SELECTED LEGACY ROLE BODY/,
     `review_run_start delivers the selected ${mode} prompt bytes`,
   );
-  pass({
+  withBrokeredNativeReviewInvocation({ root: process.cwd(), store: new StoryStore(process.cwd()), storyId: STORY_ID, agent: lane, reviewRunId: match[1], invoke: () => pass({
     storyId: STORY_ID,
     agent: lane,
     reviewRunId: match[1],
     note: `No blocking issue found by ${lane} for quorum_submit smoke.`,
     readManifest: reviewerReadManifest(lane),
-  });
+  }) });
 }
 
 export const SESSION_ENV_KEYS = [
@@ -1369,6 +1379,12 @@ export const QUORUM_SMOKE_CASES = [
       });
       git(fixture.root, ['add', '.proof-or-stop/story']);
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed TEST failure baseline']);
+      // Establish the current test-only admission prerequisite before introducing
+      // the dirty baseline whose refusal this case actually verifies.
+      persistSyntheticAdmittedWindowForTest({
+        store: fixture.store, storyId: STORY_ID, projectRoot: fixture.root,
+        causalInputHashes: deriveCertificationDomainInputHashes(fixture.root, 'HEAD', fixture.root),
+      });
       for (let index = 0; index < 6; index += 1) {
         fixture.store.appendProcessEvent(STORY_ID, {
           type: 'host_verdict',
@@ -1525,7 +1541,12 @@ export const QUORUM_SMOKE_CASES = [
           endTime: null,
           relatedDocs: [],
           files: { modify: [], create: [], test: [] },
-          verificationIntent: { happy: [], edge: [], adversarial: [] },
+          // Declared fixture intent; the retained replay/drift checks exercise the envelope boundary.
+          verificationIntent: { happy: [{
+            id: `pad-context-${index + 1}`,
+            desc: `Padding requirement ${index + 1} remains in the full authoritative reviewer snapshot.`,
+            type: 'logic' as const, priority: 'must' as const,
+          }], edge: [], adversarial: [] },
         })),
       ],
     });
@@ -1694,6 +1715,13 @@ export const QUORUM_SMOKE_CASES = [
       reviewRound: qualityRun.reviewRound,
       reviewRunId: qualityRun.reviewRunId,
     };
+    postRunFinding.nativeEvidenceBinding = issueBrokeredNativeReviewBinding({
+      root,
+      store,
+      storyId: STORY_ID,
+      agent: qualityRun.lane,
+      reviewRunId: qualityRun.reviewRunId,
+    });
     postRunFinding._hash = signFinding(
       STORY_ID,
       postRunFinding.id,
@@ -1702,6 +1730,18 @@ export const QUORUM_SMOKE_CASES = [
       postRunFinding.createdAt!,
       postRunFinding.reviewRound!,
       postRunFinding.reviewRunId!,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      postRunFinding.nativeEvidenceBinding,
+      {
+        category: postRunFinding.category,
+        evidenceState: postRunFinding.evidenceState ?? null,
+        uncertaintyReason: postRunFinding.uncertaintyReason ?? null,
+        files: postRunFinding.files ?? [],
+      },
     );
     const originalFindings = store.readFindings(STORY_ID);
     store.writeFindings(STORY_ID, { findings: [...originalFindings.findings, postRunFinding] });

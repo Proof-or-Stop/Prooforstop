@@ -21,8 +21,11 @@
 
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
-import type { DocsPromise, RealMachineTest, ClosingSelfCheck } from './types.js';
+import type { DocsPromise, RealMachineTest, ClosingSelfCheck, NativeReviewEvidenceBinding } from './types.js';
 import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
+import { DELIVERY_REVIEW_LANE, deliveryReviewInvocationId } from './delivery-review-authority.js';
+import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
+import { agentRoleIdsEqual } from './agent-role-identity.js';
 
 export const DELIVERY_CHECK_SALT = 'proof-or-stop-delivery-check-integrity-v1';
 
@@ -46,6 +49,7 @@ export function signDeliveryCheck(
   reviewRound: string,
   materialHash?: string,
   storyFilesHash?: string,
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding,
 ): string {
   const payload = [
     storyId,
@@ -55,6 +59,7 @@ export function signDeliveryCheck(
     reviewRound,
     ...(materialHash ? [materialHash] : []),
     ...(storyFilesHash ? [storyFilesHash] : []),
+    ...(nativeEvidenceBinding ? [JSON.stringify(nativeEvidenceBinding)] : []),
     DELIVERY_CHECK_SALT,
   ].join(':');
   return createHash('sha256').update(payload).digest('hex');
@@ -75,6 +80,7 @@ export function recomputeDeliveryCheckHash(storyId: string, store: StoryStore): 
     data.reviewRound,
     data.materialHash,
     data.storyFilesHash,
+    data.nativeEvidenceBinding,
   );
 }
 
@@ -113,6 +119,43 @@ export type DeliveryCheckFreshnessResult =
       advisory?: undefined;
     });
 
+function hasVerifiedNativeDeliveryProvenance(
+  storyId: string,
+  store: StoryStore,
+  projectRoot: string,
+  binding: NativeReviewEvidenceBinding,
+): boolean {
+  if (binding.storyId !== storyId
+    || binding.agent !== DELIVERY_REVIEW_LANE
+    || binding.lane !== DELIVERY_REVIEW_LANE
+    || binding.reviewRunId !== deliveryReviewInvocationId(storyId, binding.dispatchBindingDigest)) return false;
+  const matchingDispatch = store.readProcessEvents(storyId).some(event =>
+    event.type === 'dispatch'
+    && event.targetKind === 'delivery-review'
+    && agentRoleIdsEqual(String(event.agentType ?? ''), DELIVERY_REVIEW_LANE)
+    && event.hostRenderHost === binding.host
+    && event.dispatchPromptDigest === binding.dispatchPromptDigest
+    && event.hostRenderIdentityDigest === binding.hostRenderIdentityDigest
+    && event.dispatchBindingDigest === binding.dispatchBindingDigest,
+  );
+  return matchingDispatch && verifyNativeReviewEvidenceBinding({
+    binding,
+    projectRoot,
+    storyId,
+    agent: DELIVERY_REVIEW_LANE,
+    lane: DELIVERY_REVIEW_LANE,
+    reviewRunId: binding.reviewRunId,
+    dispatch: {
+      hostRenderHost: binding.host,
+      dispatchPromptDigest: binding.dispatchPromptDigest,
+      hostRenderIdentityDigest: binding.hostRenderIdentityDigest,
+      dispatchBindingDigest: binding.dispatchBindingDigest,
+    },
+    writerSessionId: binding.writerSessionId,
+    sessionSource: binding.sessionSource,
+  });
+}
+
 export function evaluateDeliveryCheckFreshness(
   storyId: string,
   store: StoryStore,
@@ -136,6 +179,27 @@ export function evaluateDeliveryCheckFreshness(
       ok: false,
       code: 'delivery_check_tampered',
       reason: 'delivery-check.json _hash mismatch',
+      deliveryCheck,
+      expectedHash,
+    };
+  }
+
+  // New delivery checks carry the one-shot native broker evidence that
+  // authorized their write. Verify it again at the DONE/read boundary: the
+  // artifact hash proves it was not altered, while the registered broker
+  // signature proves the persisted provenance was actually issued. Legacy
+  // artifacts without this optional field remain readable but never gain this
+  // stronger provenance claim.
+  if (deliveryCheck.nativeEvidenceBinding && !hasVerifiedNativeDeliveryProvenance(
+    storyId,
+    store,
+    metadataRoot,
+    deliveryCheck.nativeEvidenceBinding,
+  )) {
+    return {
+      ok: false,
+      code: 'delivery_check_tampered',
+      reason: 'delivery-check native broker provenance is missing, stale, or invalid',
       deliveryCheck,
       expectedHash,
     };

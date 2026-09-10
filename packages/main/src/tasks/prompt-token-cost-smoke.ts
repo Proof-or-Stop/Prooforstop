@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { mkdtempSync, readFileSync, statSync, rmSync } from 'node:fs';
+import { runManagedAssetCheck } from '../core/managed-assets.js';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -189,10 +190,13 @@ function assertPromptReductions(): void {
 }
 
 function assertMirrorsMatch(): void {
+  const materializedProject = mkdtempSync(join(tmpdir(), 'prompt-token-materialization-'));
+  process.once('exit', () => rmSync(materializedProject, {recursive:true,force:true}));
+  runManagedAssetCheck(materializedProject, {apply:true,profile:'all',assetMode:'full'});
   for (const file of Object.keys(baselineTemplateBytes)) {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
-    const claudeContent = readRepo(`.claude/agents/${file}`);
-    const codexContent = readRepo(`.proof-or-stop-codex/agents/${file}`);
+    const claudeContent = readFileSync(join(materializedProject, '.claude', 'agents', file), 'utf8');
+    const codexContent = readFileSync(join(materializedProject, '.proof-or-stop-codex', 'agents', file), 'utf8');
     const roleId = file.replace(/\.md$/, '');
     // B-cdf6:F-036 — this was a FOURTH hand-rolled copy of the complex-role render
     // rule, found by the concept lane after three others were consolidated. Like the

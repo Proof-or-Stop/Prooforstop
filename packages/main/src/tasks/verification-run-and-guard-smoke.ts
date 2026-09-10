@@ -49,6 +49,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createChecklistHandlers, narrowVerificationPin, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { createEvidencePinGuardHandlers } from '../handlers/evidence-pin-guard.js';
@@ -135,9 +136,6 @@ const SELECTOR = 'MARKER_OK';
 const PASS_CMD = `node -e "console.log('MARKER_OK')"`;           // always passes, ignores material
 const NONZERO_CMD = `node -e "console.log('MARKER_OK'); process.exit(3)"`; // selector present, exit != 0
 const DIFFERENT_CMD = `node -e "console.log(1)"`;               // never matches PASS_CMD (guard mismatch)
-// Reads flag.txt: passes when it holds MARKER_OK, FAILS (selector absent) when it holds BROKEN.
-const READ_FLAG_CMD = `node -e "process.stdout.write(require('fs').readFileSync('flag.txt','utf8'))"`;
-
 interface Env {
   root: string;
   store: StoryStore;
@@ -152,6 +150,8 @@ function makeEnv(
   storyId: string,
   intents: VerificationIntentItem[],
   runnerAfterExecution?: (command: string, cwd: string) => void | Promise<void>,
+  log?: (message: string) => void,
+  runnerMode: 'counted' | 'production' = 'counted',
 ): Env {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b1507-'));
   write(root, 'proof-or-stop.config.json', JSON.stringify({
@@ -188,10 +188,11 @@ function makeEnv(
   store.writeChecklist(storyId, checklist);
   const launchCounter = { count: 0 };
   const handlers = createChecklistHandlers({
+    ...(log ? { log } : {}),
     store,
     root,
     scanRoot: join(root, 'packages/main'),
-    verificationCommandRunner: async (command, cwd, timeoutMs) => {
+    ...(runnerMode === 'production' ? {} : { verificationCommandRunner: async (command: string, cwd: string, timeoutMs?: number) => {
       launchCounter.count++;
       const result = await runSingleAllowlistedCommand(command, root, {
         cwd,
@@ -199,7 +200,7 @@ function makeEnv(
       });
       await runnerAfterExecution?.(command, cwd);
       return result;
-    },
+    } }),
   });
   const guard = createEvidencePinGuardHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   return { root, store, handlers, guard, storyId, launchCounter };
@@ -426,28 +427,37 @@ async function partA2Refusal(): Promise<void> {
 //    demoted when the pin now fails; a pin-LESS row keeps demote-only behavior.
 // ════════════════════════════════════════════════════════════════════════════
 async function partB(): Promise<void> {
+  const progress: string[] = [];
   const env = makeEnv('B-refB', [
     intent('INT-REEXEC', 'cli'),  // pinned via add to PASS_CMD (always re-passes)
-    intent('INT-FAIL', 'cli'),    // pinned via add to READ_FLAG_CMD (re-fails once flag flips)
+    intent('INT-REEXEC-DUP', 'cli'), // shares one command execution with INT-REEXEC during refresh
+    intent('INT-FAIL', 'cli'),    // pinned via add to flagCountingCommand (re-fails once flag flips)
     intent('INT-PINLESS', 'cli'), // NO pin — a hand-written mechanical row (B-3b88 coexistence)
     intent('INT-DOC', 'docs'),    // docs intent with a deliberate pinned mechanical verifier
     intent('INT-MANUAL', 'manual'), // manual intent can also deliberately pin a verifier
-  ]);
+  ], undefined, message => progress.push(message), 'production');
   try {
-    // Seed a material file the READ_FLAG pin depends on, so re-execution outcome is controllable.
+    // Seed a material file the flagCountingCommand pin depends on, so re-execution outcome is controllable.
     write(env.root, 'flag.txt', 'MARKER_OK');
     git(env.root, ['add', 'flag.txt']);
     git(env.root, ['commit', '-m', 'flag=MARKER_OK']);
 
-    // Pin + record a PASSING mechanical row for INT-REEXEC (PASS_CMD always passes).
+    const refreshCountPath = join(env.root, PROOF_OR_STOP_DIR, 'runtime', 'refresh-count.log');
+    const sharedCountingCommand = `node -e "const f=require('fs');f.mkdirSync('${PROOF_OR_STOP_DIR}/runtime',{recursive:true});f.appendFileSync('${PROOF_OR_STOP_DIR}/runtime/refresh-count.log','x\\n');console.log('MARKER_OK')"`;
+    const flagCountingCommand = `node -e "const f=require('fs');f.mkdirSync('${PROOF_OR_STOP_DIR}/runtime',{recursive:true});f.appendFileSync('${PROOF_OR_STOP_DIR}/runtime/refresh-count.log','flag\\n');process.stdout.write(f.readFileSync('flag.txt','utf8'))"`;
+    // Pin + record two PASSING mechanical rows backed by the exact same command.
     await env.handlers.verification_evidence_add({
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-REEXEC', kind: 'integration_test',
-      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the always-green verifier',
+      command: sharedCountingCommand, selector: SELECTOR, result: 'pass', note: 'pin + pass the shared verifier',
     });
-    // Pin + record a PASSING mechanical row for INT-FAIL (READ_FLAG passes while flag=MARKER_OK).
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-REEXEC-DUP', kind: 'integration_test',
+      command: sharedCountingCommand, selector: SELECTOR, result: 'pass', note: 'pin + pass the shared verifier again',
+    });
+    // Pin + record a PASSING mechanical row for INT-FAIL (flagCountingCommand passes while flag=MARKER_OK).
     await env.handlers.verification_evidence_add({
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL', kind: 'integration_test',
-      command: READ_FLAG_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the flag-dependent verifier',
+      command: flagCountingCommand, selector: SELECTOR, result: 'pass', note: 'pin + pass the flag-dependent verifier',
     });
     await env.handlers.verification_evidence_add({
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOC', kind: 'docs_check',
@@ -457,6 +467,7 @@ async function partB(): Promise<void> {
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-MANUAL', kind: 'manual_transcript',
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the manual intent verifier',
     });
+    writeFileSync(refreshCountPath, '');
 
     // Hand-write a pin-LESS mechanical row bound to the CURRENT head+material. The intent
     // has NO verification pin, so refresh's re-exec loop must SKIP it → demote-only path.
@@ -506,6 +517,19 @@ async function partB(): Promise<void> {
     // Run the REAL async re-executing refresh.
     const out = await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
     assert.match(out, /Refreshed \d+\/\d+/, 'B: refresh reported a refresh count');
+    assert.equal(
+      readFileSync(refreshCountPath, 'utf8').trim().split('\n').filter(Boolean).length,
+      2,
+      'B0: two unique cwd+command pins execute exactly once while duplicate intents share one execution',
+    );
+    assert.match(progress.join('\n'), /validate progress: command 1\/3 started verification-evidence-command:/,
+      'B0: refresh exposes the first unique pinned command through the shared validation progress surface');
+    assert.match(progress.join('\n'), /validate progress: command 2\/3 started verification-evidence-command:/,
+      'B0: refresh exposes the second unique pinned command with the exact aggregate ordinal');
+    assert.match(progress.join('\n'), /validate progress: command 1\/3 ended verification-evidence-command:/);
+    assert.match(progress.join('\n'), /validate progress: command 2\/3 ended verification-evidence-command:/);
+    assert.match(progress.join('\n'), /validate progress: command 3\/3 started verification-evidence-command:/, 'Pinned docs/manual share a third raw command rather than being skipped');
+    assert.match(progress.join('\n'), /validate progress: command 3\/3 ended verification-evidence-command:/);
 
     // B1: INT-REEXEC still passes on re-run → RE-EXECUTED, stays mechanical:true, bound to
     //     the NEW materialHash (NOT demoted). Reverting refresh to DEMOTE kills this.
@@ -517,6 +541,9 @@ async function partB(): Promise<void> {
     assert.equal(reexecAfter.result, 'pass', 'B1: re-execution derived pass');
     assert.equal(reexecAfter.materialHash, material1, 'B1: the fresh receipt is bound to the CURRENT (new) materialHash');
     assert.notEqual(reexecAfter.receipt.executedAt, executedAtBefore, 'B1: executedAt changed → the command was genuinely RE-RUN (not a carried-forward stale receipt)');
+    const duplicateAfter = findEvidence(env, 'INT-REEXEC-DUP');
+    assert.equal(duplicateAfter?.mechanical, true, 'B1: a second intent sharing the execution is independently stamped mechanical:true');
+    assert.equal(duplicateAfter?.receipt?.selectorMatched, true, 'B1: the shared output independently satisfies the duplicate intent selector');
 
     // B2: INT-FAIL now fails on re-run (flag=BROKEN → selector absent) → LEFT demoted /
     //     non-mechanical, receipt stripped (no laundering back to covered). Reverting refresh

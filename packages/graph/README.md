@@ -7,7 +7,8 @@ cd /path/to/a/proof-or-stop/repo
 proof-or-stop graph
 ```
 
-Collects every story, builds a full-text index, serves the graph, opens the browser.
+Collects every story, builds a full-text index, serves the graph on the local loopback
+interface, and opens the browser.
 
 This package has no binary of its own: it is the library behind the `proof-or-stop graph`
 command, whose handler lives in `packages/main/src/handlers/graph.ts` and reaches this
@@ -188,7 +189,7 @@ recorded in `docs/requirements/decisions/graph-command-migration.md`.
 npm install
 npm run build        # tsc + assemble assets/app.html + vendor d3, mermaid, gsap,
                      #   mediabunny and gifenc into assets/
-npm run check        # build + typecheck + the verify-* guards + audit + bench
+npm run check        # one typechecked build + the verify-* guards + audit + bench
 ```
 
 Run the command itself from the repository root with `proof-or-stop graph`; this package

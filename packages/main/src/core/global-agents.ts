@@ -41,13 +41,12 @@ import { homedir as osHomedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  extractTemplateFrontmatter,
-  isModularReviewerRoleId,
-  renderReviewerRunBootstrap,
+  projectPromptAsset,
 } from './prompt-registry.js';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
 export {
   buildReviewerRunBootstrapBody,
+  buildShimBody,
+  renderAgentShim,
   extractTemplateFrontmatter,
   renderReviewerRunBootstrap,
   renderReviewerRunBootstrapForTemplate,
@@ -143,46 +142,6 @@ export function listManagedAgentBasenames(
 }
 
 /**
- * Extract the verbatim YAML frontmatter block (everything between the first two
- * `---` delimiter lines, exclusive) from a template's raw text. Returns the raw
- * frontmatter string (no surrounding delimiters, trailing newline stripped) and
- * the parsed `name` field. Throws a clear error if the template is missing
- * frontmatter or a `name:` field, because the shim cannot register a
- * `subagent_type` without them.
- *
- * The frontmatter is kept VERBATIM (including the `tools:` sandbox declaration,
- * whether inline `tools: A, B` or a multi-line YAML list) so the host's
- * mechanical role sandbox is preserved exactly.
- */
-/**
- * Build the standard imperative shim body. The body intentionally contains NO
- * role prompt content — it points the agent at the Proof-or-Stop single source of
- * truth. The role name is interpolated so the agent can copy/paste the command.
- */
-export function buildShimBody(role: string): string {
-  return [
-    'Your authoritative instructions are served by the Proof-or-Stop (single source of truth).',
-    `FIRST run: \`proof-or-stop agent_prompt --role=${role}\` and follow the returned prompt exactly.`,
-    'This file is a thin pointer and intentionally contains no role body.',
-  ].join('\n');
-}
-
-/**
- * Render the full thin-shim file content for a template: the verbatim
- * frontmatter block (delimited by `---`) followed by the standard shim body.
- * Deterministic so idempotency can be decided by byte comparison.
- */
-export function renderAgentShim(frontmatter: string, role: string): string {
-  return `---\n${frontmatter}\n---\n${buildShimBody(role)}\n`;
-}
-
-/**
- * Project-local full-asset hosts still load this small bootstrap before the
- * reviewer asks ProofOrStop for its mode-selected prompt. The bootstrap contains no
- * role instructions, so exactly one selected role body reaches the reviewer:
- * frozen legacy bytes or the assembled full/incremental envelope.
- */
-/**
  * Generate a thin shim into the global agents dir for every `*.md` template.
  *
  * For each template:
@@ -238,20 +197,12 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       const reason = err instanceof Error ? err.message : String(err);
       throw new Error(`Cannot read Proof-or-Stop agent template ${templatePath}: ${reason}.`);
     }
-    const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
-    const canonicalRole = canonicalAgentRoleId(name);
-    const canonicalFrontmatter = frontmatter.replace(
-      /^name:\s*.+$/m,
-      `name: ${canonicalRole}`,
-    );
-    // Shim filename follows the canonical role so fresh writers never create a
-    // legacy lattice-* asset, even when a caller still points at an old template
-    // directory during a compatibility read.
-    const shimFile = `${canonicalRole}.md`;
+    const projection = projectPromptAsset({kind:'global-shim',raw,file}, 'claude');
+    const canonicalRole = projection.roleId;
+    // New shim filenames follow the canonical role even for a legacy input.
+    const shimFile = `${projection.roleId}.md`;
     const shimPath = join(globalDir, shimFile);
-    const expected = isModularReviewerRoleId(canonicalRole)
-      ? renderReviewerRunBootstrap(canonicalFrontmatter, canonicalRole)
-      : renderAgentShim(canonicalFrontmatter, canonicalRole);
+    const expected = projection.materialized;
 
     // Probe lstat independently so a stale symlink / broken link is detected and
     // replaced (a broken symlink reports existsSync=false but lstat succeeds).

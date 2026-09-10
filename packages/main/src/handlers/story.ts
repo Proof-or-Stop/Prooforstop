@@ -1,3 +1,5 @@
+import { acknowledgeConvergenceProgress } from '../core/convergence-progress-journal.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 import type { HandlerContext } from './context.js';
 import { createStoryCreateHandlers } from './story-create.js';
@@ -69,7 +71,9 @@ function createStoryResumeHandlers(ctx: HandlerContext) {
 
       const storyDir = store.storyDirPath(storyId);
       const prior = readBreakerState(storyDir);
-      if (!prior || !prior.frozen) {
+      const clearedProgress = store.readConvergenceProgress(storyId)
+        ? acknowledgeConvergenceProgress(store, storyId, resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }), reason) : false;
+      if ((!prior || !prior.frozen) && !clearedProgress) {
         return `Story ${storyId} is not frozen by the convergence breaker; nothing to resume.`;
       }
 
@@ -79,11 +83,11 @@ function createStoryResumeHandlers(ctx: HandlerContext) {
       resetGateFailureCounts(storyDir);
       recordStoryResumeHumanConfirmation(store, storyId, reason);
 
-      const tripped = (prior.trippedReasons ?? []).join(', ') || '(none recorded)';
+      const tripped = (prior?.trippedReasons ?? []).join(', ') || '(none recorded)';
       return (
         `Convergence breaker CLEARED for ${storyId}. Previously tripped: ${tripped}. ` +
-        `Reason: "${reason}". A fresh one-shot auto-recovery budget is restored and the advance window is re-baselined; ` +
-        `story_advance will proceed. If it trips again, it will freeze once more and require another human ack.`
+        `Reason: "${reason}". The verified progress boundary is re-baselined and the human decision is recorded; ` +
+        `story_advance will proceed. Two further complete epochs without effective progress will request another human decision.`
       );
     },
   };

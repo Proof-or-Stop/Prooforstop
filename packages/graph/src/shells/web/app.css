@@ -2106,3 +2106,8 @@ body.dsropen .lgnd,body.dsropen #tp{visibility:hidden}
 .dsrprose{margin-top:10px;border-top:1px solid var(--edge);padding-top:8px;
   display:flex;flex-direction:column;gap:8px}
 .dsrprose .dsrorow span{color:var(--ink2);line-height:1.55}
+
+.managed-runs-panel{position:fixed;right:16px;bottom:18px;z-index:35;width:min(340px,calc(100vw - 32px));max-height:34vh;overflow:auto;padding:14px 16px;border:1px solid var(--line,#8794a5);border-radius:12px;background:var(--panel,#f7f9fc);color:var(--ink,#172235);box-shadow:0 4px 20px #0002;font:12px/1.5 system-ui}
+.managed-runs-panel h2{font-size:14px;margin:0 0 5px}.managed-runs-panel p{margin:4px 0}.managed-run-row{padding:8px 0;border-top:1px solid #8884;overflow-wrap:anywhere}.managed-run-row strong{display:block}.managed-run-notifications{position:fixed;right:16px;top:100px;z-index:100;width:min(360px,calc(100vw - 32px));font:13px/1.5 system-ui}.managed-run-toast{padding:12px;margin-bottom:8px;border-radius:10px;background:#173a60;color:#fff;box-shadow:0 4px 20px #0003;overflow-wrap:anywhere}.managed-run-toast button{float:right;margin-left:10px;color:inherit;background:transparent;border:0;cursor:pointer}
+
+.managed-run-id{font-size:11px;color:var(--ink3,#767f8d);font-family:ui-monospace,monospace}

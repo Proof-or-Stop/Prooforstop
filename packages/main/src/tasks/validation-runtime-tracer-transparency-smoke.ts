@@ -111,7 +111,7 @@ try {
     assert.equal(new Set(values).size, values.length, `${category}: duplicated trace output`);
   }
   for (const [category, expected] of [
-    ['readPaths', [firstRead, secondRead]],
+    ['readPaths', [realpathSync(firstRead), realpathSync(secondRead)]],
     ['loadedPaths', [realpathSync(firstModule), realpathSync(secondModule)]],
     ['registryKeys', [realpathSync(firstModule), realpathSync(secondModule)]],
     ['environmentKeys', ['TRACE_ORDER_FIRST', 'TRACE_ORDER_SECOND']],
@@ -134,7 +134,7 @@ process.stdout.write('validation runtime tracer promisify transparency smoke PAS
 // Keep a simple independent reference for the original observable array behavior.
 const tracerSource = readFileSync(tracerPath, 'utf8');
 const kernelStart = tracerSource.indexOf('const trace = {');
-const kernelEnd = tracerSource.indexOf('const pathArg =');
+const kernelEnd = tracerSource.indexOf('const recordFilesystemRead =');
 assert.ok(kernelStart >= 0 && kernelEnd > kernelStart, 'actual tracer membership kernel anchors drifted');
 const { add } = runInNewContext(`${tracerSource.slice(kernelStart, kernelEnd)}; ({ add });`) as {
   add: (list: string[], value: unknown) => void;

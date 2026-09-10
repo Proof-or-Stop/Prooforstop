@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { MACHINE_HEAVY_RESOURCE_POLICY } from '../core/runtime-fact-registry.js';
+import { withMachineValidationResources } from '../core/validation-execution-lock.js';
 
 import { spawn, execFileSync } from 'node:child_process';
 import { availableParallelism, tmpdir } from 'node:os';
@@ -14,6 +16,7 @@ import { currentMaterialHash } from '../core/evidence-freshness.js';
 // removed from a comparison (policy data fed to pathIsContained / target===approved),
 // which is precisely the shape the [brand-decision] gate's regex cannot see.
 import { PROOF_OR_STOP_STATE_DIR, stateDirCandidates } from '../core/brand-paths.js';
+import { isSafeIsolatedProviderProcessGroup, type HostRunProcessIdentity } from '../core/host-run.js';
 import {
   canonicalFilesystemPath, canonicalizeEntries, parsePositiveInteger, pathIsContained, runScheduled, validateResourceClaims,
   type KeyedSchedulerOptions, type ResourceClaim, type SchedulableEntry, type SchedulableResult, type ScheduledStatus,
@@ -98,11 +101,19 @@ export const OWNERSHIP_MARKER_FILENAME = 'owner';
  */
 export interface FullSuiteRunState {
   activeChildren: Set<ReturnType<typeof spawn>>;
+  /**
+   * B-137a: kernel start identity captured right after spawn, per live child.
+   * A group signal is only authorized while this still matches, so a recycled
+   * PID/PGID can never be signalled.
+   */
+  activeChildIdentities: Map<ReturnType<typeof spawn>, HostRunProcessIdentity | null>;
   interruptSignal?: NodeJS.Signals;
   interruptError?: Error;
   cancellationReason?: string;
 }
-export function createFullSuiteRunState(): FullSuiteRunState { return { activeChildren: new Set() }; }
+export function createFullSuiteRunState(): FullSuiteRunState {
+  return { activeChildren: new Set(), activeChildIdentities: new Map() };
+}
 const defaultRunState = createFullSuiteRunState();
 
 const isolated = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
@@ -111,7 +122,10 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
   ({ name, resources: [{ class: 'git-common-dir', key: '.', access: 'shared' }, ...extra], tempOwnership: 'runner-owned-unique', ...options });
 const heavySmokeClaim = (): ResourceClaim => ({ class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-heavy'), access: 'exclusive' });
 const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
-  ({ ...isolated(name, options), resources: [heavySmokeClaim()] });
+  ({ ...isolated(name, options), resources: [heavySmokeClaim(),
+    { class: 'machine-cpu', key: MACHINE_HEAVY_RESOURCE_POLICY.cpuKey, access: MACHINE_HEAVY_RESOURCE_POLICY.access },
+    { class: 'machine-process', key: MACHINE_HEAVY_RESOURCE_POLICY.processKey, access: MACHINE_HEAVY_RESOURCE_POLICY.access }] });
+
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
 // fails closed before execution.
@@ -495,39 +509,148 @@ export function writeResultArtifact(path: string, value: unknown): void {
 
 type Kill = (pid: number, signal: NodeJS.Signals) => void;
 type Taskkill = (pid: number) => void;
-export function killProcessTree(pid: number | undefined, kill: Kill = process.kill, platform = process.platform, taskkill: Taskkill = (target) => { execFileSync('taskkill', ['/PID', String(target), '/T', '/F'], { stdio: 'ignore' }); }): void {
+type ReadStartFingerprint = (pid: number) => string | null;
+
+function readFullSuiteProcessStartFingerprint(pid: number): string | null {
+  if (process.platform === 'win32' || !Number.isSafeInteger(pid) || pid <= 1) return null;
+  try {
+    const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
+      encoding: 'utf8', timeout: 1_000, stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return value.length > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function captureFullSuiteProcessIdentity(pid: number | undefined): HostRunProcessIdentity | null {
+  if (process.platform === 'win32' || !Number.isSafeInteger(pid) || !pid || pid <= 1) return null;
+  try {
+    const row = execFileSync('ps', ['-o', 'pid=,pgid=,lstart=', '-p', String(pid)], {
+      encoding: 'utf8', timeout: 1_000, stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    const match = /^(\d+)\s+(\d+)\s+(.+)$/.exec(row);
+    if (!match) return null;
+    const observedPid = Number(match[1]);
+    const pgid = Number(match[2]);
+    const startFingerprint = match[3].trim();
+    if (observedPid !== pid || !Number.isSafeInteger(pgid) || startFingerprint.length === 0) return null;
+    return {
+      pid,
+      pgid,
+      spawnedAt: new Date().toISOString(),
+      startFingerprint,
+      // `detached: true` is requested below, but record the observed shape too:
+      // a negative PGID signal is never authorized from intent alone.
+      processGroupIsolated: pgid === pid,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function killProcessTree(
+  pid: number | undefined,
+  kill: Kill = process.kill,
+  platform = process.platform,
+  taskkill: Taskkill = (target) => { execFileSync('taskkill', ['/PID', String(target), '/T', '/F'], { stdio: 'ignore' }); },
+  identity: HostRunProcessIdentity | null = null,
+  readStartFingerprint: ReadStartFingerprint = readFullSuiteProcessStartFingerprint,
+): void {
   if (!pid) return;
   if (platform === 'win32') {
     try { taskkill(pid); return; }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw new Error(`failed to terminate Windows process tree ${pid}: ${(error as Error).message}`); return; }
   }
-  try { kill(-pid, 'SIGKILL'); return; }
-  catch (groupError) {
-    try { kill(pid, 'SIGKILL'); } catch (directError) {
-      if ((directError as NodeJS.ErrnoException).code !== 'ESRCH') {
-        throw new AggregateError([groupError, directError], `failed to terminate process tree ${pid}`);
+  // An identity supplied by the launcher is authoritative for every POSIX
+  // cleanup attempt, including the direct-child fallback after a child-close
+  // race. A reused PID must therefore result in no signal at all.
+  if (identity && identity.pid !== pid) return;
+  const identityStillMatches = (): boolean => identity !== null
+    && identity.pid === pid
+    && readStartFingerprint(identity.pid) === identity.startFingerprint;
+  // A detached child authorizes a negative PGID signal only while its live
+  // kernel start identity still matches the identity captured after spawn.
+  // Surviving descendants are not authority: once their original leader is
+  // absent, a recycled PID/PGID cannot be ruled out, so cleanup fails closed.
+  if (identity?.pid === pid
+    && isSafeIsolatedProviderProcessGroup(identity)
+    && identityStillMatches()) {
+    try { kill(-identity.pgid, 'SIGKILL'); return; }
+    catch (groupError) {
+      if ((groupError as NodeJS.ErrnoException).code !== 'ESRCH') {
+        // The direct child remains the only narrower fallback after a rejected
+        // group signal. Do not surface a group-only failure if it succeeds.
+        if (!identityStillMatches()) return;
+        try { kill(pid, 'SIGKILL'); return; }
+        catch (directError) {
+          if ((directError as NodeJS.ErrnoException).code !== 'ESRCH') {
+            throw new AggregateError([groupError, directError], `failed to terminate process tree ${pid}`);
+          }
+          return;
+        }
       }
-      if ((groupError as NodeJS.ErrnoException).code === 'ESRCH') return;
     }
-    if ((groupError as NodeJS.ErrnoException).code === 'ESRCH') return;
-    throw new Error(`failed to terminate process group ${pid}: ${(groupError as Error).message}`);
   }
+  if (identity && !identityStillMatches()) return;
+  try { kill(pid, 'SIGKILL'); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ESRCH') {
+      throw new Error(`failed to terminate process tree ${pid}: ${(error as Error).message}`);
+    }
+  }
+}
+
+/**
+ * B-137a: identity-authorized child termination. A process whose birth identity
+ * could not be observed never authorizes a process-GROUP cleanup; the Node-owned
+ * live child handle is the only narrow fallback, and only before its close state
+ * has been observed. This is what keeps a recycled PID from being signalled.
+ */
+function killActiveChild(state: FullSuiteRunState, child: ReturnType<typeof spawn>): void {
+  const identity = state.activeChildIdentities.get(child) ?? null;
+  if (identity) {
+    killProcessTree(child.pid, process.kill, process.platform, undefined, identity);
+    return;
+  }
+  if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
 }
 
 function killRunStateChildren(state: FullSuiteRunState): void {
   for (const child of state.activeChildren) {
-    try { killProcessTree(child.pid); } catch (error) { state.interruptError = error as Error; }
+    try { killActiveChild(state, child); } catch (error) { state.interruptError = error as Error; }
   }
 }
 
-function requestInterrupt(signal: NodeJS.Signals, state: FullSuiteRunState): void {
+export function interruptFullSuiteRun(signal: NodeJS.Signals, state: FullSuiteRunState): void {
   state.interruptSignal = signal;
   killRunStateChildren(state);
 }
-export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal, defaultRunState); }
+export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { interruptFullSuiteRun(signal, defaultRunState); }
 export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
+  const deadlineAt = Date.now() + (entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  // Invalid ownership declarations retain the executor's rejection contract;
+  // admission failures below are represented as command results.
+  cleanupManifestForEntry(entry, cwd);
+  let enteredExecutor = false;
+  try {
+    return await withMachineValidationResources({ root: cwd, workspaceRoot: cwd, command: entry.name, resources: entry.resources, deadlineAt,
+      externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
+      () => {
+        enteredExecutor = true;
+        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state);
+      });
+  } catch (error) {
+    if (enteredExecutor) throw error;
+    const reason = state.cancellationReason ?? state.interruptSignal ?? (error instanceof Error ? error.message : String(error));
+    const status = state.cancellationReason || state.interruptSignal ? 'INTERRUPTED' : Date.now() >= deadlineAt ? 'TIMEOUT' : 'FAIL';
+    return { ...cancelledFullSuiteResult(entry, reason), status, failureOutcome: { status, reason } };
+  }
+}
+
+async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
@@ -546,13 +669,16 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
+    // B-137a: capture the child's kernel start identity BEFORE any cleanup can
+    // run, so a later group signal can be authorized against it.
+    state.activeChildIdentities.set(child, captureFullSuiteProcessIdentity(child.pid));
     onSpawn?.(); state.activeChildren.add(child);
     let output = '';
     const append = (chunk: unknown) => { output = (output + String(chunk)).slice(-MAX_OUTPUT_BYTES); };
     child.stdout?.on('data', append); child.stderr?.on('data', append);
     let settled = false;
     const done = (result: FullSuiteResult) => {
-      if (settled) return; settled = true; clearTimeout(timer); state.activeChildren.delete(child);
+      if (settled) return; settled = true; clearTimeout(timer); state.activeChildren.delete(child); state.activeChildIdentities.delete(child);
       result = {
         cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
         assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'runner-terminal',
@@ -569,14 +695,23 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     };
     const elapsed = () => performance.now() - started;
     const timer = setTimeout(() => {
-      try { killProcessTree(child.pid); done({ name: entry.name, status: 'TIMEOUT', durationMs: elapsed(), output, reason: `exceeded ${entry.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms` }); }
+      try { killActiveChild(state, child); done({ name: entry.name, status: 'TIMEOUT', durationMs: elapsed(), output, reason: `exceeded ${entry.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms` }); }
       catch (error) { done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: `timeout cleanup failed: ${(error as Error).message}` }); }
     }, entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
     child.on('exit', (code, signal) => {
       let completionCleanupError: Error | undefined;
       if (!state.interruptSignal && !state.cancellationReason) {
-        try { killProcessTree(child.pid); }
+        // B-137a: on the EXIT path the child is already gone, so its captured
+        // birth identity can no longer be revalidated and killActiveChild would
+        // decline the group signal -- leaving the orphaned descendant group
+        // alive (the grandchild keeps writing its heartbeat). Reaping that group
+        // is the entire purpose of this cleanup, and the PID-reuse hazard the
+        // identity guard exists for applies to signalling a LIVE child on the
+        // interrupt/timeout paths, not to reaping the group of a child whose
+        // exit we just observed. Signal the recorded pgid directly.
+        const identity = state.activeChildIdentities.get(child) ?? null;
+        try { killProcessTree(child.pid, process.kill, process.platform, undefined, identity, () => identity?.startFingerprint ?? null); }
         catch (error) { completionCleanupError = error as Error; }
       }
       const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
@@ -664,8 +799,8 @@ async function main(): Promise<void> {
   let processLaunchCount = 0;
   // One run state per invocation: the scheduler never reads runner globals.
   const runState = createFullSuiteRunState();
-  process.once('SIGINT', () => requestInterrupt('SIGINT', runState));
-  process.once('SIGTERM', () => requestInterrupt('SIGTERM', runState));
+  process.once('SIGINT', () => interruptFullSuiteRun('SIGINT', runState));
+  process.once('SIGTERM', () => interruptFullSuiteRun('SIGTERM', runState));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
     // Declared budgets are standalone; enforce them scaled to the concurrency this runner chose.
     const result = await runEntry(withConcurrencyHeadroom(entry, jobs), cwd, 'npm', () => { processLaunchCount++; }, runState);

@@ -1,3 +1,7 @@
+import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
+import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
+import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
+import type { ScopeBudgetDecisionJournal } from './story-scope-budget-decisions.js';
 import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
 import { digestCanonicalJson } from './digest.js';
@@ -841,9 +845,36 @@ export class StoryStore {
     return join(this.storyDir(storyId), CAUSAL_RECEIPT_DIRECTORY, `${receiptHash}.json`);
   }
 
+  causalEvidenceOutputPaths(storyId: string): string[] {
+    const directory = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
+    const outputs: string[] = [];
+    const verified = new Map<string, string>();
+    if (existsSync(directory)) for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isFile() || !/^[a-f0-9]{64}\.json$/.test(entry.name)) continue;
+      const path = join(directory, entry.name);
+      try {
+        const receipt = JSON.parse(readFileSync(path, 'utf8')) as CausalEvidenceReceipt;
+        if (receipt.storyId !== storyId || `${receipt.receiptHash}.json` !== entry.name || !verifyCausalEvidenceReceipt(receipt)) continue;
+        outputs.push(path);
+        verified.set(receipt.executionKey, receipt.receiptHash);
+      } catch { /* Invalid output remains workspace pollution, never exempt. */ }
+    }
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    if (existsSync(indexPath)) {
+      try {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        if (index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'
+          && index.receipts && typeof index.receipts === 'object' && !Array.isArray(index.receipts)
+          && Object.entries(index.receipts).every(([key, hash]) => verified.get(key) === hash)) outputs.push(indexPath);
+      } catch { /* Invalid index remains workspace pollution. */ }
+    }
+    return outputs;
+  }
+
   private recoverOrphanedCausalEvidenceReceipt(
     storyId: string,
     executionKey: string,
+    repairIndex: boolean,
   ): CausalEvidenceReceipt | null {
     const receiptsDir = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
     if (!existsSync(receiptsDir)) return null;
@@ -876,7 +907,7 @@ export class StoryStore {
     // that exact receipt and rebuild only its missing index entry before the
     // caller decides whether a command needs to run.
     const [receipt] = matches;
-    this.writeCausalEvidenceReceipt(storyId, receipt);
+    if (repairIndex) this.writeCausalEvidenceReceipt(storyId, receipt);
     return receipt;
   }
 
@@ -903,12 +934,13 @@ export class StoryStore {
     this.writeJsonFile(outputPath, { output });
   }
 
-  readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
+  /** Read-only callers may verify an orphan receipt without rebuilding its index. */
+  readCausalEvidenceReceipt(storyId: string, executionKey: string, options: { repairIndex?: boolean } = {}): CausalEvidenceReceipt | null {
     const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey, options.repairIndex !== false);
     const index = JSON.parse(readFileSync(indexPath, 'utf8')) as { receipts?: Record<string, string> };
     const receiptHash = index.receipts?.[executionKey];
-    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey, options.repairIndex !== false);
     const receiptPath = this.causalEvidenceReceiptPath(storyId, receiptHash);
     if (!existsSync(receiptPath)) throw new Error(`CausalEvidence receipt ${receiptHash} is missing [causal_receipt_missing]`);
     const receipt = JSON.parse(readFileSync(receiptPath, 'utf8')) as CausalEvidenceReceipt;
@@ -1385,6 +1417,15 @@ export class StoryStore {
     this.writeJson(storyId, 'review-passes.json', data);
   }
 
+  writeReviewPromptBody(storyId: string, body: string, digest: string): string {
+    return writePromptBody(this.storyDirPath(storyId), body, digest);
+  }
+
+  readReviewPrompt(run: ReviewRunData['runs'][number]): string | undefined {
+    return readReviewPromptBody(this.storyDirPath(run.storyId), run);
+  }
+
+  /** Slim by default: references remain references; callers hydrate only when verifying or launching. */
   readReviewRuns(storyId: string): ReviewRunData {
     try {
       return this.readJson<ReviewRunData>(storyId, 'review-runs.json');
@@ -1684,6 +1725,33 @@ export class StoryStore {
   }
 
   // ── Scope Contract (B-be27: story-scoped allowed-file contract) ──
+
+  readConvergenceProgress(storyId: string): ConvergenceProgressJournal | null {
+    try { return this.readJson<ConvergenceProgressJournal>(storyId, 'convergence-progress.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  writeConvergenceProgress(storyId: string, data: ConvergenceProgressJournal): void {
+    this.writeJson(storyId, 'convergence-progress.json', data);
+  }
+
+  readAcceptanceAmendments(storyId: string): AcceptanceAmendmentJournal | null {
+    try { return this.readJson<AcceptanceAmendmentJournal>(storyId, 'acceptance-amendments.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  readScopeBudgetDecisions(storyId: string): ScopeBudgetDecisionJournal | null {
+    try { return this.readJson<ScopeBudgetDecisionJournal>(storyId, 'scope-budget-decisions.json'); }
+    catch (error) { if (error instanceof StoryArtifactMissingError) return null; throw error; }
+  }
+
+  writeScopeBudgetDecisions(storyId: string, data: ScopeBudgetDecisionJournal): void {
+    this.writeJson(storyId, 'scope-budget-decisions.json', data);
+  }
+
+  writeAcceptanceAmendments(storyId: string, data: AcceptanceAmendmentJournal): void {
+    this.writeJson(storyId, 'acceptance-amendments.json', data);
+  }
 
   readScopeContract(storyId: string): ScopeContractData | null {
     try {

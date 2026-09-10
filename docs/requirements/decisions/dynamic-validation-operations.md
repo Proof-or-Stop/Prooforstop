@@ -102,3 +102,11 @@ it passes and all runtime closure traces are admissible. Inspect the resulting
 `.proof-or-stop/runtime/dynamic-validation/canonical-baseline.json` before
 expecting reuse. If it is missing, expired, or digest-mismatched, the gate
 selects full validation.
+
+Explicit `--full` and TEST/DONE Story validation use the complete canonical
+command plan regardless of the configured dynamic mode. Selective execution is
+limited to DEV/REVIEW iteration; cached dynamic receipts do not remove final
+canonical command obligations. Exact-input evidence reuse retains its separate
+existing authority checks.
+Focused invocations remain diagnostic subsets and do not mint complete routine
+validation evidence, including the legacy combination of `--full` with `--focus`.

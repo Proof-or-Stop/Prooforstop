@@ -402,3 +402,61 @@ export function diagnoseReviewerReadEvidence(args: {
   }
   return diagnostics;
 }
+
+/**
+ * Managed-review proposals have no trusted tool-event stream at import time.
+ * Their provider-authored manifest, log, and summary must therefore agree as a
+ * single self-consistent statement before the normal candidate/read binding can
+ * grant REVIEW evidence. Keep the ordinary reviewer diagnostic above scoped to
+ * mechanical decision reads; this stricter projection is for the managed
+ * receipt boundary only.
+ */
+export function diagnoseManagedReviewerReadEvidence(args: {
+  readManifest: ReviewerReadManifest;
+  readLog: ReviewerReadLogEvidence;
+  requirementsDir?: string;
+}): ReviewerReadDiagnostic[] {
+  const manifest = normalizeReviewerReadManifest(args.readManifest);
+  const log = normalizeReviewerReadLogEvidence(args.readLog);
+  const diagnostics = diagnoseReviewerReadEvidence({
+    readManifest: manifest,
+    readLog: log,
+    requirementsDir: args.requirementsDir,
+  });
+  // Unlike native read capture, the provider's terminal log is a compact
+  // manifest of unique paths. Compare every claimed review artifact, not only
+  // decisions docs, so a decision manifest cannot be paired with an unrelated
+  // source-file log.
+  addSetDiagnostics(
+    diagnostics,
+    log.filesReadFully,
+    manifest.filesReadFully,
+    'read_manifest_missing_full_read',
+    'read_manifest_extra_full_read',
+    'managed readLog.filesReadFully has a path missing from readManifest.filesReadFully',
+    'managed readManifest.filesReadFully has a path absent from readLog.filesReadFully',
+  );
+  addSetDiagnostics(
+    diagnostics,
+    log.filesTriagedByName,
+    manifest.filesTriagedByName,
+    'read_manifest_missing_triage',
+    'read_manifest_extra_triage',
+    'managed readLog.filesTriagedByName has a path missing from readManifest.filesTriagedByName',
+    'managed readManifest.filesTriagedByName has a path absent from readLog.filesTriagedByName',
+  );
+  if (log.summary.readCount !== log.filesReadFully.length) {
+    diagnostics.push({
+      code: 'read_manifest_extra_full_read',
+      severity: 'finding',
+      message: `managed readLog.summary.readCount (${log.summary.readCount}) must equal unique filesReadFully count (${log.filesReadFully.length})`,
+    });
+  }
+  const seen = new Set<string>();
+  return diagnostics.filter(diagnostic => {
+    const key = `${diagnostic.code}:${diagnostic.path ?? ''}:${diagnostic.message}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}

@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { StoryStore } from '../packages/main/dist/core/store.js';
+import { enforceConvergenceBreakerGate, writeBreakerState, readBreakerState } from '../packages/main/dist/core/convergence-breaker.js';
+import { reviewRoundMintStallAdjudication } from '../packages/main/dist/core/machine.js';
+import { evaluateReviewMintStallAdjudication } from '../packages/main/dist/core/review-convergence.js';
+const root = mkdtempSync(join(tmpdir(), 'progress-gates-')), priorCwd = process.cwd();
+const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' });
+try {
+  process.chdir(root); git('init', '-q', '-b', 'main'); git('config', 'user.name', 'Gate fixture'); git('config', 'user.email', 'gate@example.invalid');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives' }));
+  writeFileSync(join(root, 'subject.cjs'), 'module.exports=1;\n');
+  const store = new StoryStore(root), storyId = 'B-progress-gates';
+  const events = Array.from({ length: 15 }, (_, i) => ({ action: 'advance', phase: 'REVIEW', timestamp: new Date(Date.UTC(2026, 0, 1, 0, i)).toISOString() }));
+  store.writeStory(storyId, { storyId, name: 'progress-gates', title: 'Review history without completed epochs', phase: 'DEV', priority: 'high', createdAt: events[0].timestamp, currentReviewRound: events.at(-1).timestamp, events });
+  store.writeChecklist(storyId, { items: [] });
+  store.writeFindings(storyId, { findings: events.map((event, i) => ({ id: `F-${i}`, desc: 'Historical unresolved regression', severity: 'high', category: 'missing', status: 'open', evidenceState: 'verified', reviewRound: event.timestamp })) });
+  git('add', '.'); git('commit', '-qm', 'historical counts fixture');
+  const dir = store.storyDirPath(storyId);
+  writeBreakerState(dir, { advanceBaseline: 0, takeoverBaseline: 0, reviewRunBaseline: 0, reviewPassBaseline: 0, autoRecoveriesSpent: 1, frozen: true, trippedReasons: ['takeover 65>5'] });
+  const legacy = JSON.stringify(readBreakerState(dir));
+  const base = { command: 'story_advance', storyId, store, env: {}, isTakeoverCommand: false };
+  assert.doesNotThrow(() => enforceConvergenceBreakerGate(base), 'U11 legacy counts cannot freeze without completed epochs');
+  assert.doesNotThrow(() => enforceConvergenceBreakerGate({ ...base, command: 'story_reconcile', isTakeoverCommand: true }));
+  assert.equal(evaluateReviewMintStallAdjudication(store, storyId).blocked, false, 'review round counts are not independently completed epochs');
+  assert.equal(JSON.stringify(readBreakerState(dir)), legacy, 'migration leaves historical diagnostics intact');
+  const journalPath = store.storyFilePath(storyId, 'convergence-progress.json');
+  writeFileSync(journalPath, '{invalid');
+  assert.throws(() => enforceConvergenceBreakerGate(base), /progress.*unavailable|progress.*invalid/i, 'corrupt new authority is an integrity error, not a design conclusion');
+  assert.equal(reviewRoundMintStallAdjudication({ store, storyId, projectRoot: root }).blocked, true, 'U11 machine guard must not swallow progress integrity failures');
+  assert.equal(readFileSync(journalPath, 'utf8'), '{invalid', 'gate never repairs or re-signs caller-authored state');
+  console.log('PASS U11 both hard gates require verified completed-epoch progress');
+} finally { process.chdir(priorCwd); rmSync(root, { recursive: true, force: true }); }

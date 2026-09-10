@@ -369,11 +369,18 @@ export function evaluateRoutineValidationReuse(args: {
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
+  /** Trusted caller has authenticated the PASS and verified its current dynamic
+   * manifest, command receipts and revocation ledger. This replaces only the
+   * expected full-plan count, never execution PASS/failure/completeness checks. */
+  dynamicCoverageAdmitted?: boolean;
 }): RoutineValidationReuseEvaluation {
   if (!args.evidence) return { reusable: false, lineage: 'rejected', existingEvidenceBasis: 'missing', refusalReasons: ['evidence-missing'] };
   const reasons: string[] = [];
   const evidence = args.evidence;
-  if (!isReusableCommandPass(evidence.commandExecution, args.currentIdentity.commands.length)) reasons.push('prior-command-execution-not-pass');
+  const expectedCount = args.dynamicCoverageAdmitted === true && evidence.result === 'PASS'
+    ? evidence.commandExecution?.commandCount : args.currentIdentity.commands.length;
+  if (typeof expectedCount !== 'number' || (args.dynamicCoverageAdmitted === true && expectedCount < 1)
+    || !isReusableCommandPass(evidence.commandExecution, expectedCount)) reasons.push('prior-command-execution-not-pass');
   const priorCoverageOnlyFailure = evidence.result === 'FAIL'
     && evidence.verificationCoverage !== undefined
     && Number.isInteger(evidence.verificationCoverage.missingRequired)

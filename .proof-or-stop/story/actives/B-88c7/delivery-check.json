@@ -1,0 +1,59 @@
+{
+  "storyId": "B-88c7",
+  "checkedAt": "2026-09-08T14:18:22.173Z",
+  "headHash": "2114c973c655cd78468f0d3117b4a60577c5f7d2",
+  "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+  "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+  "reviewRound": "2026-09-08T13:08:24.022Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+      "promise": "The registered inventory-only responsibility reviews the current signed OPEN inventory and produces completeness evidence without topology implementation provenance; topology responsibility remains separate.",
+      "status": "verified",
+      "verifiedBy": "Independent committed source diff, handler assertions, and actual live CLI transcript inspection",
+      "evidence": "story-dispatch selects currentOpenReviewInventory; review-run authenticates epoch/wave/cutoff before publication; registered inventory Role Contract requires review-finding-or-pass and review-inventory-critic-receipt. Current live CLI exit 0 emits that contract. Handler smoke rejects topology proof and stale dispatch. Canonical body and both mirrors agree."
+    },
+    {
+      "docPath": ".claude/agents/proof-or-stop-review-topology-critic.md",
+      "promise": "The registered inventory-only responsibility reviews the current signed OPEN inventory and produces completeness evidence without topology implementation provenance; topology responsibility remains separate.",
+      "status": "verified",
+      "verifiedBy": "Independent committed source diff, handler assertions, and actual live CLI transcript inspection",
+      "evidence": "story-dispatch selects currentOpenReviewInventory; review-run authenticates epoch/wave/cutoff before publication; registered inventory Role Contract requires review-finding-or-pass and review-inventory-critic-receipt. Current live CLI exit 0 emits that contract. Handler smoke rejects topology proof and stale dispatch. Canonical body and both mirrors agree."
+    },
+    {
+      "docPath": ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+      "promise": "The registered inventory-only responsibility reviews the current signed OPEN inventory and produces completeness evidence without topology implementation provenance; topology responsibility remains separate.",
+      "status": "verified",
+      "verifiedBy": "Independent committed source diff, handler assertions, and actual live CLI transcript inspection",
+      "evidence": "story-dispatch selects currentOpenReviewInventory; review-run authenticates epoch/wave/cutoff before publication; registered inventory Role Contract requires review-finding-or-pass and review-inventory-critic-receipt. Current live CLI exit 0 emits that contract. Handler smoke rejects topology proof and stale dispatch. Canonical body and both mirrors agree."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+      "promise": "The registered inventory-only responsibility reviews the current signed OPEN inventory and produces completeness evidence without topology implementation provenance; topology responsibility remains separate.",
+      "status": "verified",
+      "verifiedBy": "Independent committed source diff, handler assertions, and actual live CLI transcript inspection",
+      "evidence": "story-dispatch selects currentOpenReviewInventory; review-run authenticates epoch/wave/cutoff before publication; registered inventory Role Contract requires review-finding-or-pass and review-inventory-critic-receipt. Current live CLI exit 0 emits that contract. Handler smoke rejects topology proof and stale dispatch. Canonical body and both mirrors agree."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-88c7/plan.md",
+      "promise": "Historical reviewer envelopes retain their authenticated dispatch; canonical agent templates have exact manifest certification classification.",
+      "status": "verified",
+      "verifiedBy": "Independent producer/consumer diff and concrete regression assertion inspection",
+      "evidence": "verifyHistoricalReviewerDispatchBinding selects the authenticated original binding and fails closed when reconstruction is unavailable; eligibilityRoleSemanticDigest preserves historical calculations. Handler smoke asserts A survives later B and missing/tampered A fails. certification-window-smoke asserts canonical template blob/deletion hashes and unknown neighboring paths refuse."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current captured CLI dispatch exit 0 binds material a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901 and emits the inventory-only contract. Independently inspected real handler assertions cover ordinary-author success, stale/cancelled/replaced epochs and waves, no topology authority, historical dispatch verification, and selected role eligibility. Certification tests cover exact template blobs/deletions and neighboring-path refusal. Registry fixture proves REVIEW without OPEN inventory retains topology instructions; heartbeat fixture retains descendant cleanup assertions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The bounded inventory-completeness result is delivered in source and current live CLI evidence, with explicit stale-context and historical-integrity coverage. Current rollout is PASS and current native rounds each retain two independent passing hosts. Observe-only topology and pre-review checks remain inconclusive and confer no topology, production, or authority completion; unreconstructible legacy intent references continue to fail closed."
+  },
+  "_hash": "2f57d01061055a0a34acd3d0ca69607bfca41d19b69f1260139dea81f1658511"
+}

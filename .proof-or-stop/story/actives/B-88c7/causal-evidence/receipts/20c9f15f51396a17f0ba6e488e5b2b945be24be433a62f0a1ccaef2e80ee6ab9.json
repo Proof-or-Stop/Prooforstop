@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-88c7",
+  "executionKey": "ce:v1:ced7b4990e145447e7887ffaac4c8767d0ea5f2f90e553bb309adbc7ab9b00be",
+  "identityDigest": "ced7b4990e145447e7887ffaac4c8767d0ea5f2f90e553bb309adbc7ab9b00be",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-88c7",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+    "command": {
+      "executable": "node",
+      "args": [
+        "scripts/verify-process-fact-contract.mjs",
+        "--quiet"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/.proof-or-stop/story/actives/B-88c7/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7/.proof-or-stop/story/actives/B-88c7/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:6044be55834e7688e17d58bc9a9834bd97a91b382379457c1cfdcf87baa35055",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-88c7/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "0ca9a0ab1f79342c47fb7ca75edd3fa5f7f7097a",
+          "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+          "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-88c7",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
+    "effectiveEnvironment": {
+      "ARK_API_KEY": "<redacted>:sha256:361f9421ba3263350ff8247b928856273041afa53ae5dfb5af8c02fed6fc95bf",
+      "BUN_INSTALL": "/Users/qipan/.bun",
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/163f21ef-9915-4e4c-aa1f-a5a83069585e.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":workspace",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "CONDA_DEFAULT_ENV": "base",
+      "CONDA_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/conda",
+      "CONDA_PREFIX": "/opt/homebrew/Caskroom/miniconda/base",
+      "CONDA_PROMPT_MODIFIER": "(base) ",
+      "CONDA_PYTHON_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+      "CONDA_SHLVL": "1",
+      "DISABLE_AUTOUPDATER": "1",
+      "GH_PAGER": "cat",
+      "GITHUB_NPM_TOKEN": "<redacted>:sha256:cc13bb8c75925bb5d5ef52b1dbdedb2331ef7965d95c880fd566b80f07368327",
+      "GIT_PAGER": "cat",
+      "GSETTINGS_SCHEMA_DIR": "/opt/homebrew/Caskroom/miniconda/base/share/glib-2.0/schemas",
+      "GSETTINGS_SCHEMA_DIR_CONDA_BACKUP": "",
+      "HOME": "/Users/qipan",
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LESS": "-R",
+      "LIBRARY_PATH": "/opt/homebrew/opt/gcc/lib/gcc/16:/opt/homebrew/opt/libgccjit/lib/gcc/16:/opt/homebrew/opt/gcc/lib/gcc/16",
+      "LOGNAME": "qipan",
+      "LOG_FORMAT": "json",
+      "LSCOLORS": "Gxfxcxdxbxegedabagacad",
+      "LSP_USE_PLISTS": "true",
+      "LS_COLORS": "di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43",
+      "LaunchInstanceID": "E4FEEA33-23BC-40B5-96D4-3F2B77106D77",
+      "MallocNanoZone": "0",
+      "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df",
+      "NO_COLOR": "1",
+      "NVM_CD_FLAGS": "-q",
+      "NVM_DIR": "/Users/qipan/.nvm",
+      "OSLogRateLimit": "64",
+      "PAGER": "less",
+      "PATH": "/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.local/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/usr/local/bin:/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.cargo/bin:/Users/qipan/.codex/tmp/arg0/codex-arg0x0POqM:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin",
+      "PNPM_HOME": "/Users/qipan/Library/pnpm",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "PYTHONPATH": ":/opt/homebrew/opt/glib/lib/",
+      "RCSBROOT": "/Users/qipan/bin/maxit-v11.400",
+      "RUST_LOG": "warn",
+      "SECURITYSESSIONID": "186b0",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:a321cfbc8f3c8d789d216a7852b51814a2c8455eea92fb88d1ac0344d2f556d2",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "USER": "qipan",
+      "XML_CATALOG_FILES": "file:///opt/homebrew/Caskroom/miniconda/base/etc/xml/catalog file:///etc/xml/catalog",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "application.com.openai.codex.573774599.573774605",
+      "ZSH": "/Users/qipan/.oh-my-zsh",
+      "_CE_CONDA": "",
+      "_CE_M": "",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.278",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "7c7bab73744b52c8cc679af3f2320c0820a3f9cc1ec6c9b1611568c2072fd530",
+  "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\nGREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nF027 legacy absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 current absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent projection: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent reasons: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 empty arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 populated arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation\nShared DONE predicate parity passed\nDONE/preflight predicate inventory parity passed\n\nProcess Fact Registry\n- entries: 486 (366 CLI, 55 runtime, 10 reviewer lanes, 51 artifacts)\n- levels: L0=166, L1=44, L2=71, L3=13, L4=192\n- kinds: artifact=25, command=281, execution-status=7, finding=3, flow-policy=7, gate-evidence=65, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=55, signed-artifact=26, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (56 files checked)\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+  "outputProbe": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\nGREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nF027 legacy absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 current absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent projection: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent reasons: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 empty arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 populated arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation\nShared DONE predicate parity passed\nDONE/preflight predicate inventory parity passed\n\nProcess Fact Registry\n- entries: 486 (366 CLI, 55 runtime, 10 reviewer lanes, 51 artifacts)\n- levels: L0=166, L1=44, L2=71, L3=13, L4=192\n- kinds: artifact=25, command=281, execution-status=7, finding=3, flow-policy=7, gate-evidence=65, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=55, signed-artifact=26, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (56 files checked)\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+  "outputLength": 3387,
+  "executedAt": "2026-09-08T13:01:51.514Z",
+  "durationMs": 7639,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "/daDRET6rwJPmr07IjB0lDVz/uVb8xPETFlkerHe2fWHCwaxRU3eAjpNwYkQo92RCsdj+53IglOKejzuLPHGCw==",
+  "receiptHash": "20c9f15f51396a17f0ba6e488e5b2b945be24be433a62f0a1ccaef2e80ee6ab9"
+}

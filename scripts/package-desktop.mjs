@@ -150,6 +150,9 @@ function writeAssetManifest() {
     // startup with `unknown prompt role policy "<role>"`. Templates live outside dist, so no spread above
     // ships them. Pre-existing gap, surfaced by red-1734-desktop-asset-manifest.mjs's startup witness.
     ...listFiles('packages/main/templates'),
+    // Main-package runtime imports resolve these exact package-local dependencies.
+    ...listFiles('packages/main/node_modules/smol-toml'),
+    ...listFiles('packages/main/node_modules/ws'),
     'packages/utils/package.json',
     ...listFiles('packages/utils/dist'),
     'packages/lab/package.json',

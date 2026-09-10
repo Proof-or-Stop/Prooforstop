@@ -149,7 +149,25 @@ export interface LifecycleControlConfig {
   runtimeEnforcement?: 'unavailable' | 'warn' | 'enforce';
 }
 
+export interface EvidenceCommandTimeoutOverrideConfig {
+  /** Exact allowlisted executable token (for example `node`). */
+  command: string;
+  /** Exact ordered argv vector; prefix or approximate matching is forbidden. */
+  args: string[];
+  /** Positive finite integer total wall-clock ceiling for this evidence command. */
+  timeoutMs: number;
+}
+
+export interface ManagedReviewIsolationConfig {
+  mode: 'readonly-build';
+  adapter: 'prooforstop-main-v1';
+}
+
 export interface ProofOrStopConfig {
+  /** Explicit managed-review-only readonly build adapter; absent retains legacy behavior. */
+  managedReviewIsolation?: ManagedReviewIsolationConfig;
+  /** Explicit semantic budgets and responsibility map; malformed opt-in policy fails closed. */
+  storyScopeBudget?: import('./story-scope-budget.js').StoryScopeBudgetPolicy;
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
    * commands are blocked before handler dispatch and should be rerun from
@@ -184,6 +202,15 @@ export interface ProofOrStopConfig {
       | 'proof-or-stop-evaluator',
       'full-envelope'
     >>;
+  };
+  /** Public trust registrations for external host-adapter review invocation brokers. */
+  nativeReviewInvocation?: {
+    brokers?: Array<{
+      brokerId: string;
+      adapterId: string;
+      host: 'codex' | 'claude';
+      publicKey: string;
+    }>;
   };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';
@@ -236,6 +263,11 @@ export interface ProofOrStopConfig {
       optional?: boolean;
       focus?: string[] | string;
     }>;
+    /**
+     * Evidence-writer-only per-command ceilings. These entries do not register
+     * commands in routine `lattice validate` and match exact executable+argv.
+     */
+    evidenceCommandTimeoutOverrides?: EvidenceCommandTimeoutOverrideConfig[];
   };
   /** Legacy config alias accepted by the verifier for dynamic validation. */
   validation?: ProofOrStopConfig['validate'];
@@ -336,6 +368,7 @@ export const DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS = 120_000;
 /** 默认各阶段可用命令白名单 */
 export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
+    'acceptance_amendment_show',
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
     'done_closure',  // read-only DONE closure projection; local readiness only
@@ -411,6 +444,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
     'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase
     'validation_plan', // B-a745 CHK-005: read-only Story-relevance validation planner (explain-only), any phase; executes no validation command and writes nothing
+    'scope_budget_check', // Read-only semantic scope projection, available at every phase.
     'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
     'story_draft_list',
     'story_draft_discard',
@@ -479,12 +513,14 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   INIT_CHECK: [
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
+    'scope_budget_approve',
     'verification_intent_recover',
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
+    'scope_budget_approve',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
@@ -517,6 +553,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_progress_predecessor', 'finding_history_recall',
     'finding_candidate_route',
     'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove',
+    'scope_budget_approve',
+    'acceptance_amendment_propose', 'acceptance_amendment_review', 'acceptance_amendment_approve', 'acceptance_amendment_cancel',
+    'review_remediation_close', // Complete inventory-bound repair sets with one atomic ledger publication.
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
@@ -544,7 +583,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'red_evidence_recover', // W2c (B-506e): undo a mistaken quarantine; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
     'certification_window_begin', 'certification_window_cancel',
-    'review_inventory_finalize',
+    'review_inventory_finalize', 'review_prompt_gc',
     'pre_review_check',
     'acceptance_rollout_report',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
@@ -554,6 +593,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_progress_predecessor', 'finding_history_recall',
     'finding_identity_confirm', 'finding_supersession_add', 'finding_identity_supersede', 'finding_candidate_route',
     'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove', 'finding_candidate_promote',
+    'reviewer_batch_admit', // Owner-only shared capability admission for the signed current inventory.
+    'scope_budget_approve',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
@@ -565,6 +606,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'acceptance_basis_generate',
     'review_run_start',
     'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_wave_advance', 'review_inventory_finalize', 'review_inventory_cancel',
+    'managed_review_proposal_set', 'managed_review_evidence_import',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',
@@ -575,7 +617,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_report', 'bug_update', 'bug_list',
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'certification_window_begin', 'certification_window_cancel',
-    'review_inventory_finalize',
+    'review_inventory_finalize', 'review_prompt_gc',
     'review_escalation_policy_set',
     'review_host_availability_probe',
     'story_advance',
@@ -591,6 +633,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_progress_predecessor', 'finding_history_recall',
     'finding_candidate_route',
     'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove',
+    'scope_budget_approve',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
@@ -599,7 +642,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'certification_window_begin', 'certification_window_cancel',
-    'review_inventory_finalize',
+    'review_inventory_finalize', 'review_prompt_gc',
     'review_escalation_policy_set',
     'review_host_availability_probe',
     'review_escalation_fallback_set',

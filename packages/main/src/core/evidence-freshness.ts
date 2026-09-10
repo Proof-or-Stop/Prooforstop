@@ -404,18 +404,7 @@ const GIT_EXEC_OPTS = {
  * undefined — passing the resolved gitCwd is what makes the probe return a
  * defined hash.
  */
-export function currentGitHead(gitCwd: string): string | undefined {
-  try {
-    return execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    }).trim();
-  } catch {
-    return undefined;
-  }
-}
-
-function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
+export function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
   try {
     return execFileSync('git', ['rev-parse', ref], {
       cwd: gitCwd,
@@ -424,6 +413,10 @@ function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+export function currentGitHead(gitCwd: string): string | undefined {
+  return gitCommitAtRef(gitCwd, 'HEAD');
 }
 
 function normalizeSnapshotRoot(path: string): string {
@@ -729,13 +722,46 @@ export function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHea
   return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
+// Cache only immutable Git bytes. Material policy and Story scope are evaluated
+// on every read, so edits to configuration cannot make a cached hash false-fresh.
+const treeMemo = new Map<string, { sha: string; raw: string; bytes: number }>();
+let treeMemoBytes = 0;
+function readCommittedTree(gitCwd: string, ref: string): string {
+  const cwd = realpathSync(gitCwd);
+  const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], {
+    cwd, ...GIT_EXEC_OPTS,
+  }).trim();
+  // Replacement refs can redirect commits or nested trees without changing
+  // the requested object id. Ask Git so packed refs and linked worktrees work
+  // too; conservatively bypass caching whenever the selected namespace is used.
+  const customReplacementBase = process.env.GIT_REPLACE_REF_BASE !== undefined;
+  // A custom prefix need not end in '/', unlike for-each-ref path matching.
+  const replacements = customReplacementBase || execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], {
+    cwd, ...GIT_EXEC_OPTS,
+  }).trim();
+  const previous = treeMemo.get(cwd);
+  if (replacements) {
+    if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
+    return execFileSync('git', ['ls-tree', '-r', '-z', sha], { cwd, ...GIT_EXEC_OPTS });
+  }
+  if (previous?.sha === sha) return previous.raw;
+  const raw = execFileSync('git', ['ls-tree', '-r', '-z', sha], { cwd, ...GIT_EXEC_OPTS });
+  if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
+  const bytes = Buffer.byteLength(raw);
+  while (treeMemo.size && treeMemoBytes + bytes > 64 * 1024 * 1024) {
+    const oldest = treeMemo.keys().next().value!;
+    treeMemoBytes -= treeMemo.get(oldest)!.bytes;
+    treeMemo.delete(oldest);
+  }
+  treeMemo.set(cwd, { sha, raw, bytes });
+  treeMemoBytes += bytes;
+  return raw;
+}
+
 function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
   const out = new Map<string, string>();
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
+    const raw = readCommittedTree(gitCwd, ref);
     for (const entry of raw.split('\0')) {
       if (!entry) continue;
       const tab = entry.indexOf('\t');
@@ -753,8 +779,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    if (!resolveStoryMergeBase(gitCwd, ref)) return undefined;
-    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+    const base = resolveStoryMergeBase(gitCwd, ref);
+    if (!base) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot, base)
       .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
       .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
@@ -778,10 +805,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 // byte-identical.
 export function currentMaterialHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
+    const raw = readCommittedTree(gitCwd, ref);
     const entries = raw.split('\0').filter(Boolean);
     const materialEntries: string[] = [];
     for (const entry of entries) {
@@ -818,6 +842,7 @@ export function checkEvidenceFreshnessForGit(
   evidenceMaterialHash?: string,
   metadataRoot: string = gitCwd,
   evidenceStoryFilesHash?: string,
+  asOfRef: string = 'HEAD',
 ): EvidenceFreshness {
   if (!evidenceHash) {
     return {
@@ -828,7 +853,8 @@ export function checkEvidenceFreshnessForGit(
     };
   }
 
-  const currentHead = currentGitHead(gitCwd);
+  const asOf = asOfRef.trim() || 'HEAD';
+  const currentHead = asOf === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOf);
   if (!currentHead) {
     return {
       fresh: true,
@@ -839,7 +865,7 @@ export function checkEvidenceFreshnessForGit(
   }
 
   if (evidenceMaterialHash) {
-    const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+    const materialHash = currentMaterialHash(gitCwd, asOf, metadataRoot);
     if (materialHash) {
       if (materialHash === evidenceMaterialHash) {
         return {
@@ -859,7 +885,7 @@ export function checkEvidenceFreshnessForGit(
       // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
       // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
       if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
-        const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+        const storyFilesHash = currentStoryFilesHash(gitCwd, asOf, metadataRoot);
         if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
           return {
             fresh: true,
@@ -906,7 +932,7 @@ export function checkEvidenceFreshnessForGit(
   }
 
   try {
-    const changedFiles = changedFilesBetween(gitCwd, evidenceHash, 'HEAD');
+    const changedFiles = changedFilesBetween(gitCwd, evidenceHash, asOf);
     const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f, metadataRoot));
     if (materialFiles.length === 0) {
       return {

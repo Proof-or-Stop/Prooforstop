@@ -14,7 +14,13 @@ import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
 import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
-import { adapterSessionEnv } from './adapter-session-env.js';
+import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+import {
+  nativeReviewFixtureBrokers,
+  nativeReviewFixtureHostEnvironment,
+  runBrokeredNativeReviewCli,
+} from './native-review-fixture.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -51,6 +57,7 @@ function initRepo(prefix: string): string {
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
@@ -120,6 +127,7 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
       id,
       title: `Synthetic ${id}`,
       context: 'Synthetic context',
+      ...(phase === 'DEV' ? { verificationIntent: { happy: [{ desc: 'Concurrent checklist updates preserve both independently written item statuses.', type: 'manual' as const }], edge: [], adversarial: [] } } : {}),
       status: 'pending' as const,
       startTime: null,
       endTime: null,
@@ -132,7 +140,7 @@ async function runProofOrStop(root: string, command: string, args: Record<string
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
       env: {
-        ...process.env,
+        ...sanitizedFixtureChildEnvironment(process.env),
         PROOF_OR_STOP_PROJECT_ROOT: root,
         ...adapterSessionEnv('review-pass-discard-smoke-owner', 'main'),
         ...envOverrides,
@@ -158,12 +166,18 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string): Promise<string> {
-  return extractReviewRunId(await runProofOrStop(root, 'review_run_start', { storyId, agent }));
+  // Dispatch belongs to the stable fixture owner; lane and broker identity
+  // remain explicit while subsequent owner operations retain the same lease.
+  const fixtureHost = nativeReviewFixtureHostEnvironment(
+    agent, undefined, adapterSessionId(root, 'review-pass-discard-smoke-owner', 'main'),
+  );
+  await runProofOrStop(root, 'dispatch', { storyId, agentType: agent }, fixtureHost);
+  return extractReviewRunId(await runProofOrStop(root, 'review_run_start', { storyId, agent }, fixtureHost));
 }
 
 async function runProofOrStopFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
-    const env = { ...process.env };
+    const env = sanitizedFixtureChildEnvironment(process.env);
     delete env.PROOF_OR_STOP_PROJECT_ROOT;
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd,
@@ -188,20 +202,23 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `proof-or-stop-review-${name}`);
-    // Story-review dispatch is now a signed prerequisite for review_run_start.
-    // Keep setup serial so this smoke isolates the intended concurrent write
-    // surface below (review_pass_set) from unrelated dispatch/run metadata races.
     const runIds = new Map<string, string>();
-    for (const agent of agents) {
-      await runProofOrStop(root, 'dispatch', { storyId, agentType: agent });
-      runIds.set(agent, await startReviewRun(root, storyId, agent));
-    }
-    await Promise.all(agents.map(agent => runProofOrStop(root, 'review_pass_set', {
+    // startReviewRun issues signed dispatch under the real fixture host identity.
+    for (const agent of agents) runIds.set(agent, await startReviewRun(root, storyId, agent));
+    await Promise.all(agents.map(agent => runBrokeredNativeReviewCli({
+      root,
+      store: new StoryStore(root),
       storyId,
       agent,
-      reviewRunId: runIds.get(agent),
-      note: `${agent} checked its assigned review surface and found no blocker.`,
-      readManifest: reviewerReadManifest(agent),
+      reviewRunId: runIds.get(agent)!,
+      command: 'review_pass_set',
+      payload: {
+        storyId,
+        agent,
+        reviewRunId: runIds.get(agent),
+        note: `${agent} checked its assigned review surface and found no blocker.`,
+        readManifest: reviewerReadManifest(agent),
+      },
     })));
 
     const data = new StoryStore(root).readReviewPasses(storyId);
@@ -229,6 +246,49 @@ async function assertChecklistConcurrentUpdates(): Promise<void> {
     assert.equal(statuses.get('CHK-002'), 'done', 'CHK-002 status should survive concurrent checklist_update');
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * A fixture may be launched from a provider-managed reviewer. Its nested
+ * native `review_pass_set` child must use the fixture's broker identity, and
+ * its ordinary `checklist_update` child must not retain the reviewer's actor.
+ * The old environment inheritance failed either at the managed-review guard
+ * or, after clearing that one input, at checklist mutation authorization.
+ */
+async function assertFixtureChildrenIgnoreAmbientManagedReviewerAuthority(): Promise<void> {
+  const ambientAuthority: Record<string, string> = {
+    LATTICE_MANAGED_HOST_RUN_ID: 'ambient-managed-review-run',
+    LATTICE_MANAGED_REVIEW_INVOCATION_FD: '97',
+    LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'ambient-managed-review-capability',
+    LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '98',
+    LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '99',
+    LATTICE_NATIVE_REVIEW_ATTESTATION: 'ambient-native-attestation',
+    PROOF_OR_STOP_AGENT: 'lattice-review-quality',
+    PROOF_OR_STOP_ACTIVITY_ROLE: 'lattice-review-quality',
+    LATTICE_REVIEWER_READONLY: '1',
+    PROOF_OR_STOP_SESSION_ID: 'ambient-managed-reviewer-session',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ambient-managed-reviewer-task',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'lattice-review-quality',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'lattice-review-quality',
+    LATTICE_OWNER_SESSION_ADAPTER_SESSION: 'ambient-managed-reviewer-session',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'ambient-managed-reviewer-boundary',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+    CODEX_SESSION_ID: 'ambient-codex-session',
+    CODEX_THREAD_ID: 'ambient-codex-thread',
+    CLAUDE_CODE_SESSION_ID: 'ambient-claude-session',
+  };
+  const previous = Object.fromEntries(Object.keys(ambientAuthority).map(key => [key, process.env[key]]));
+  try {
+    Object.assign(process.env, ambientAuthority);
+    await assertReviewPassConcurrentWrites();
+    await assertChecklistConcurrentUpdates();
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
   }
 }
 
@@ -907,6 +967,7 @@ if (dyn5Case) {
   else throw new Error(`unknown DYN-5 review-pass case: ${dyn5Case}`);
   console.log(`PROOF_OR_STOP_DOMAIN_CASE:${dyn5Case}`);
 } else {
+  await assertFixtureChildrenIgnoreAmbientManagedReviewerAuthority();
   await assertReviewPassConcurrentWrites();
   await assertChecklistConcurrentUpdates();
   await assertChecklistConcurrentVerificationIntentUpdates();

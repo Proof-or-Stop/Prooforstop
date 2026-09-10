@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "u06-prospective-ownership.v1",
+  "excludedUntracked": [
+    "AGENTS.override.md"
+  ],
+  "files": [
+    {
+      "path": "docs/managed-review-readonly-lanes.md",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane-build.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane-policy.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-provider-state.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-readonly.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-readonly-full-runtime.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-provider-state.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u06-policy/reproduce.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/generate.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/apply-refinements.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/verify-complete-mapping.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/apply-approved-families.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/inventory.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/functional-seed.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/refinement-rules.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/refinement-more.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/final-material-rules.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/family-allowlist-proposal.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/root-decisions.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/prospective-files.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/README.md",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-scope-budget-legacy-glob-cli.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-scope-budget-legacy-glob-boundaries.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-root-scope-budget-policy.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-crosshost-readonly-lane.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-crosshost-preflight-handler.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-liveness-validation-union.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "packages/main/src/core/validation-authority-graph.ts",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-validation-authority-graph.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u09-paired-fault/README.md",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u09-paired-fault/module-pair.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u09-paired-fault/env-pair.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u09-paired-fault/selector-pair.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u09-paired-fault/run.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-validation-static-edges.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-validation-static-edge-boundaries.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/lab/u18-static-edges/exceptions.json",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-u08-supervised-readiness.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-private-state-capture.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-admission.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-admission.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/worker.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-execution-identity-key.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-execution-input-identity.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-execution-identity.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-execution-identity-io.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-admission-read-deny.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-subject.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-subject.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/subject-fixture.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-private-provider-seed.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-launch-admission.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-admit-schema.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-producer.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/handlers/reviewer-batch-admit.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/provider-fixture.c",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-producer.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-auth-revocation.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-cli.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-launch-race.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-admitted-worker.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/worker-ready-fixture.c",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-retry.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-singleton-admission.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-managed-admission-gate.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/graph/src/core/managed-runs.ts",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "packages/graph/scripts/verify-managed-runs-browser.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "packages/main/src/core/managed-run-dashboard.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-run-dashboard.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-run-graph-terminal.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "scripts/verify-dynamic-fallback-once.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-graph-check-compilation.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "scripts/verify-graph-no-browser.mjs",
+      "domain": "command-surface"
+    },
+    {
+      "path": "scripts/verify-managed-notification-history.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "scripts/verify-material-hash-resource-plan.mjs",
+      "domain": "evidence-storage"
+    },
+    {
+      "path": "scripts/verify-graph-recovery-latency.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "scripts/verify-graph-recovery-negative-controls.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "scripts/verify-repo-root-efficiency.mjs",
+      "domain": "lifecycle-ownership"
+    },
+    {
+      "path": "scripts/verify-worktree-list-efficiency.mjs",
+      "domain": "lifecycle-ownership"
+    },
+    {
+      "path": "docs/lab-evidence/validation-worktree-list-pair.json",
+      "domain": "lifecycle-ownership"
+    },
+    {
+      "path": "scripts/verify-dynamic-test-admission.mjs",
+      "domain": "validation-certification"
+    },
+    {
+      "path": "scripts/verify-remaining-validation-repairs.mjs",
+      "domain": "validation-certification"
+    }
+  ],
+  "basis": "Root explicitly authorized prospective U08 readonly lane files and dedicated tests as provider-execution. AGENTS.override.md is local instruction material outside this policy activation. Pending tests must be explicitly added when their final paths exist."
+}

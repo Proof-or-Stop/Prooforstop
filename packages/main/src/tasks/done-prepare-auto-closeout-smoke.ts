@@ -1011,6 +1011,133 @@ function assertIsolatedIndexPathSetIsExact(): void {
   }
 }
 
+/**
+ * B-137a regression: generated-metadata closeout must survive a process-events
+ * log larger than Node's 1 MB execFileSync default buffer.
+ *
+ * Before the fix, isolatedGit / isolatedBlobHash ran execFileSync WITHOUT
+ * maxBuffer, so `git show :<path>` on an oversize blob threw ENOBUFS. The
+ * isolatedBlobHash catch swallowed that and returned null; null never equals a
+ * verified hash, so the isolated-index digest comparison reported the story's
+ * own metadata as "verified metadata changed after manifest verification" and
+ * the closeout rejected its OWN transaction -- while the worktree comparison
+ * passed, making the diagnostic point away from the real cause. Any story whose
+ * event log crossed ~1 MB could no longer persist validation evidence, submit a
+ * quorum, or recover evidence.
+ *
+ * This asserts the size threshold is gone: a >1 MB events file commits, HEAD
+ * advances, and the committed blob is byte-identical to what was verified.
+ */
+function assertOversizeProcessEventsLogCommits(): void {
+  const fixture = setupFixture();
+  const { root, storyId } = fixture;
+  try {
+    const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+
+    // The oversize bytes must be ALREADY-COMMITTED history, exactly as in the
+    // real story: the append itself stays a single trusted terminal event (the
+    // manifest requires every appended line to be one), while the blob that
+    // `git show :<path>` must read back crosses the buffer limit.
+    const priorEvents = readFileSync(join(root, processEventsPath), 'utf8');
+    const padEvent = (index: number) => `${JSON.stringify({
+      type: 'oversize_padding',
+      storyId,
+      index,
+      filler: 'x'.repeat(512),
+      timestamp: '2026-07-09T00:00:01.500Z',
+    })}\n`;
+    let padding = '';
+    let padIndex = 0;
+    while (Buffer.byteLength(priorEvents + padding, 'utf8') <= 1_100_000) {
+      padding += padEvent(padIndex);
+      padIndex += 1;
+    }
+    const committedEvents = priorEvents + padding;
+    write(root, processEventsPath, committedEvents);
+    commitAll(root, 'seed oversize process-events history');
+    assert.ok(
+      Buffer.byteLength(committedEvents, 'utf8') > 1024 * 1024,
+      'committed history must exceed the 1 MB execFileSync default buffer to exercise the regression',
+    );
+
+    const baseline = captureDonePrepareGeneratedMetadataBaseline({
+      root,
+      storyDirRel: '.lattice/story/actives',
+      storyId,
+      initialDirtyRows: [],
+    });
+    const expected: DonePrepareGeneratedProcessEventBinding = {
+      storyId,
+      attemptId: NOW,
+      reviewRound: NOW,
+      commandSetHash: 'a'.repeat(64),
+      materialHash: 'b'.repeat(64),
+      storyFilesHash: 'c'.repeat(64),
+      phase: 'TEST',
+      disposition: 'reused',
+      result: 'pass',
+      commandExecutions: 0,
+      notBefore: '2026-07-09T00:00:01.000Z',
+      notAfter: '2026-07-09T00:00:03.000Z',
+    };
+    const terminalEvent = {
+      type: 'validation_terminal',
+      storyId,
+      attemptId: NOW,
+      phase: 'TEST',
+      reviewRound: NOW,
+      commandSetHash: expected.commandSetHash,
+      disposition: 'reused',
+      commandExecutions: 0,
+      result: 'pass',
+      materialHash: expected.materialHash,
+      storyFilesHash: expected.storyFilesHash,
+      timestamp: '2026-07-09T00:00:02.000Z',
+    };
+    const content = `${baseline.initialContents[processEventsPath]}${JSON.stringify(terminalEvent)}\n`;
+    write(root, processEventsPath, content);
+
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    const result = withEnvSync(gitIdentityEnv(), () => commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+    }));
+
+    // The pre-fix failure mode: ok=false with a self-rejection reason.
+    assert.equal(
+      result.ok,
+      true,
+      `oversize process-events log must not self-reject the closeout: ${result.reason}`,
+    );
+    assert.doesNotMatch(
+      result.reason ?? '',
+      /verified metadata changed after manifest verification/,
+      'oversize blob must not be misreported as post-verification metadata drift',
+    );
+    assert.equal(git(root, ['rev-parse', 'HEAD^']), parent, 'oversize closeout retains the captured parent');
+    assert.deepEqual(
+      git(root, ['diff', '--name-only', `${parent}..HEAD`]).split('\n').filter(Boolean),
+      [processEventsPath],
+      'oversize closeout commits exactly the generated metadata path',
+    );
+    assert.equal(
+      execFileSync('git', ['show', `HEAD:${processEventsPath}`], {
+        cwd: root,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+      }),
+      content,
+      'committed oversize blob is byte-identical to the verified content',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertCommitMessageHooksAndPostCommitSemantics(): void {
   const candidate = isolatedCommitCandidate();
   const { root, storyId, baseline, expected } = candidate;
@@ -1288,6 +1415,7 @@ void (async () => {
     assertConcurrentHeadCasRefusesAndPreservesIndex();
     assertHeadRollbackSurvivesRefreshAndRestoreFailures();
     assertIsolatedIndexPathSetIsExact();
+    assertOversizeProcessEventsLogCommits();
     assertCommitMessageHooksAndPostCommitSemantics();
     assertCommitMsgRejectionIsFailClosed();
     assertSigningConfigPropagatesAndFailsClosed();

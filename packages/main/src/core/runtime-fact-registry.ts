@@ -1,3 +1,15 @@
+// DEV acceptance transport uses only proof-or-stop.acceptance_amendment_review_final.v1; old inner schemas cannot be produced or consumed. The outer worker-signed receipt remains a compatibility container, never an alias for the inner schema.
+export const REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY = { versionTimeoutMs: 10000, readinessTimeoutMs: 30000, maxRecordBytes: 4194304, ordinaryProfile: 'managed_reviewer', generatedPathPlan: { schema: 'batch-generated-paths.v1', probeCwd: 'canonical-verified-subject-workspace', providerHome: 'controller/provider-seeds/work/generation/host/provider-host', probeTemp: 'controller/provider-seeds/work/generation/host/tmp', lanePaths: 'separately-sealed-readonly-layout-no-base-env-omission' } } as const;
+export const MANAGED_PROVIDER_SEED_RUNTIME_POLICY = { maxFiles: 2, encodedFileMultiplier: 4, envelopeAllowanceBytes: 4096 } as const;
+export const MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY = { keyBytes: 32, maxExecutableBytes: 256 * 1024 * 1024, readChunkBytes: 64 * 1024 } as const;
+export const REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY = { maxWaitMs: 10000, readyTtlMs: 60000, lockStaleMs: 200, lockDeadlineMs: 500, lockPollMs: 20, waitPollMs: 25 } as const;
+export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'declared-lane-output-temp-cache-only' } as const;
+export const SUPERVISED_PROVIDER_RUNTIME_POLICY = { termGraceMs: 250, closeWaitMs: 300, parentGraceMs: 3000, maxOutputBytes: 8 * 1024 * 1024 } as const;
+export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, directoryMode: 0o700, scope: 'same-os-user-across-projects' } as const;
+export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;
+export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
+export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
+
 export const REQUIRED_RUNTIME_FACT_IDS = [
   'entrypoint-authority',
   'cli-entrypoint',
@@ -224,6 +236,100 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   ownerLeaseHeartbeatMs: 30000,
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
+} as const;
+
+/** In-process scheduler coordination does not replace machine-wide leases. */
+export const KEYED_SCHEDULER_RUNTIME_POLICY = {
+  resourceOwnership: 'shared-within-module-instance',
+  cancellationOwnership: 'per-invocation',
+  blockedCancellationPollMs: 50,
+} as const;
+
+export const SCOPE_BUDGET_DECISION_RUNTIME_POLICY = {
+  approvalLifetimeMs: 7 * 24 * 60 * 60 * 1000,
+  agentEnvironmentMarkers: ['PROOF_OR_STOP_AGENT', 'LATTICE_AGENT', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID',
+    'CLAUDE_CODE_SESSION_ID', 'CLAUDE_SESSION_ID', 'AGY_SESSION_ID', 'ANTIGRAVITY_SESSION_ID',
+    'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT', 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK'],
+  authority: 'interactive-operator-acknowledgement-not-proof-of-human-identity',
+} as const;
+
+/** Sealed at managed submit; provider text cannot change these supervisor limits. */
+export const MANAGED_BURN_RUNTIME_POLICY = {
+  tokenLimitEnvironment: 'PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT',
+  defaultTokenLimit: 100_000_000,
+  progressCheckIntervalMs: 5_000,
+  terminalReason: 'burn_without_effective_progress',
+  unknownProgress: 'advisory',
+  usageAuthority: 'bounded-provider-stdout-event',
+  closeAuthority: 'provider-child-close-before-cleanup',
+} as const;
+
+/** Single and aggregate observers share delivery acknowledgement semantics. */
+export const MANAGED_STATUS_OBSERVATION_POLICY = {
+  observation: 'read-only',
+  cursor: 'generation-acknowledges-progress-and-terminal-delivery',
+  firstTerminalObservation: 'immediately-actionable',
+  heartbeat: 'not-provider-progress',
+  implementation: 'core/managed-host-run.ts',
+} as const;
+
+/** Independent recovery must survive both the submitting CLI and its worker. */
+export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
+  readyTimeoutMs: 5_000,
+  pollIntervalMs: 1_000,
+  diagnosticGraceMs: 5_000,
+  stalledStageMs: 30_000,
+  orphanReason: 'worker_orphaned',
+  launchOrder: 'supervisor-ready-before-worker',
+  cleanupAuthority: 'recorded-provider-process-identity',
+} as const;
+
+/** Independent early diagnostics must survive unavailable runtime dependencies. */
+export const ENTRY_PREFLIGHT_RUNTIME_POLICY = {
+  entry: 'scripts/entry-preflight.mjs',
+  bootstrapDependencies: 'node-builtins-only',
+  probeTimeoutMs: 30_000,
+  unavailable: 'not-pass',
+  authority: 'diagnostic-only',
+} as const;
+
+/** Local fast diagnostics execute actual negative controls; elapsed time is not cohort evidence. */
+export const PRECERT_FAST_RUNTIME_POLICY = {
+  entry: 'scripts/run-precert-fast.mjs',
+  registry: 'scripts/precert-fast-contracts.mjs',
+  invocationBudgetMs: 180_000,
+  result: 'exit-pass-and-exact-unique-contract-marker',
+  unsupported: 'not-pass',
+  scheduling: 'serial-within-invocation',
+  processOwner: 'full-suite-runner-isolated-run-state',
+  authority: 'diagnostic-until-consumed-by-validate',
+} as const;
+
+/** Local duration estimates are optional observations, never progress or evidence. */
+export const MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY = {
+  minSamples: 5, maxSamples: 20, maxDirectoryEntries: 256,
+  maxCandidateArtifactBytes: 16 * 1024 * 1024, maxArtifactBytes: 1024 * 1024,
+  scanTargetMs: 200, maxAgeMs: 30 * 24 * 60 * 60 * 1000,
+  sampleBoundary: 'same-host-phase-agent-profile-lane-completed-replacement-safe',
+  acquisition: 'once-before-spec-sealing',
+  timeBudgetBoundary: 'between-candidates-not-hard-IO-deadline',
+  byteBudgetBoundary: 'candidate-artifact-size-not-physical-read-count',
+  statusHistoryReads: 'none',
+  authority: 'diagnostic-only',
+} as const;
+
+/** Shared contract with the CJS preloader, checked by runtime contract verification. */
+export const VALIDATION_RUNTIME_TRACE_POLICY = { schemaVersion: 'validation-runtime-trace.physical-read.v2', readIdentity: 'call-time-physical-path-observation' } as const;
+
+/** Executor-owned before/after source observations required for reusable receipts. */
+export const VALIDATION_SOURCE_PROVENANCE_SCHEMA = 'validation-source-provenance.v1' as const;
+
+/** The existing Graph status poll consumes only verified retained run projections. */
+export const MANAGED_RUN_DASHBOARD_POLICY = {
+  maxDirectoryEntries: 1000,
+  maxScanBytes: 64 * 1024 * 1024,
+  maxRuntimeArtifactBytes: 128 * 1024 * 1024,
+  authority: 'read-only-operational-projection',
 } as const;
 
 /** Optional explicit host transport pin; no package-version equality fallback. */

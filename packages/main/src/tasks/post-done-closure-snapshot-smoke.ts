@@ -17,6 +17,8 @@
  */
 
 import assert from 'node:assert/strict';
+import {nativeReviewFixtureBrokers,withNativeReviewFixtureHostIdentity,issueBrokeredNativeReviewBinding,withBrokeredNativeReviewInvocation} from './native-review-fixture.js';
+import {createMainRegistry} from '../registry.js';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -68,7 +70,8 @@ function writeConfig(root: string): void {
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
-      doneRequiredCommands: [
+      nativeReviewInvocation:{brokers:nativeReviewFixtureBrokers()},
+            doneRequiredCommands: [
         { label: 'required pass', command: process.execPath, args: ['-e', 'process.exit(0)'] },
       ],
     }, null, 2) + '\n',
@@ -87,7 +90,7 @@ async function createDoneReadyFixture(): Promise<{
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements'), { recursive: true });
   writeConfig(root);
-  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n', 'utf8');
+  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n.native-review-fixture-*.json\n', 'utf8');
   writeFileSync(join(root, 'README.md'), '# post done closure snapshot smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
@@ -170,11 +173,11 @@ async function createDoneReadyFixture(): Promise<{
   try {
     process.chdir(root);
     for (const lane of lanes) {
-      createStoryDispatchHandlers(handlerContext).dispatch({ storyId: STORY_ID, agentType: lane });
-      const runOutput = createReviewRunHandlers(handlerContext).review_run_start({ storyId: STORY_ID, agent: lane });
+      withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createStoryDispatchHandlers(handlerContext).dispatch({ storyId: STORY_ID, agentType: lane }) });
+      const runOutput = withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createReviewRunHandlers(handlerContext).review_run_start({ storyId: STORY_ID, agent: lane }) });
       const reviewRunId = runOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
       assert.ok(reviewRunId, `review_run_start should return a current signed run id: ${runOutput}`);
-      createFindingHandlers(handlerContext).review_pass_set({
+      withBrokeredNativeReviewInvocation({ root, store, storyId: STORY_ID, agent: lane, reviewRunId, invoke: () => createFindingHandlers(handlerContext).review_pass_set({
         storyId: STORY_ID,
         agent: lane,
         reviewRunId,
@@ -188,7 +191,7 @@ async function createDoneReadyFixture(): Promise<{
           { path: 'packages/main/src/index.ts', action: 'Read' },
           { path: 'README.md', mode: 'triage' },
         ],
-      });
+      }) });
     }
   } finally {
     process.chdir(priorCwd);

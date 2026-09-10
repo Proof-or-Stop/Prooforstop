@@ -1,3 +1,5 @@
+import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
+import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
 import { executionImplementationIdentity } from '../core/execution-implementation.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
@@ -22,7 +24,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationEvidenceReceipt, VerificationExecutionReceiptV3, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord, VerificationReuseReceiptV1 } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
-import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, formatValidationProgressEvent, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -308,6 +310,7 @@ export function assertChecklistAddAllowed(
   if (!args.title) throw new Error('title is required');
 
   const story = assertChecklistMutationCwd(store, args.storyId);
+  if (['DEV', 'REVIEW', 'TEST', 'DONE'].includes(story.phase)) throw new Error('New acceptance after PLAN requires acceptance_amendment_propose in DEV');
   if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
     throw new Error('checklist_add in PLAN phase must provide reason ≥ 10 characters as a replan/scope audit signal, to prevent bypassing title/context freeze');
   }
@@ -939,6 +942,8 @@ function publicationDigestsForKey(checklist: ChecklistData, plan: VerificationPr
 }
 
 interface SharedVerificationPublication {
+  /** Private same-batch plan authority; not a persisted receipt claim. */
+  policyTimeoutMs?: number;
   executionReceipt: VerificationExecutionReceiptV3;
   freshness: ReturnType<typeof captureVerificationFreshness>;
   reuseReceipt?: VerificationReuseReceiptV1;
@@ -1117,6 +1122,42 @@ function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: Verifi
  */
 type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) => Promise<SingleCommandExecutionResult>;
 
+interface VerificationEvidenceWatchdogControls {
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
+}
+
+/**
+ * B-137a: a single tool-executed receipt must not be persisted after its
+ * structured CLI watchdog has fired. `cli-engine.ts` injects abortSignal /
+ * deadlineAt / deadlineError into exactly the four evidence-writer commands
+ * (they are deliberately absent from the public schemas), so without this
+ * recheck an aborted run could still mint a late `mechanical: true` receipt.
+ * Callers recheck immediately before executing and again inside the
+ * synchronous checklist write.
+ */
+function assertVerificationEvidenceWriteActive(
+  command: 'verification_evidence_add' | 'verification_evidence_batch_add'
+    | 'verification_evidence_refresh_stale' | 'verification_run',
+  controls: VerificationEvidenceWatchdogControls,
+): void {
+  if (controls.abortSignal?.aborted) {
+    throw controls.abortSignal.reason instanceof Error
+      ? controls.abortSignal.reason
+      : new Error(`${command} aborted`);
+  }
+  if (
+    typeof controls.deadlineAt === 'number'
+    && Number.isFinite(controls.deadlineAt)
+    && Date.now() >= controls.deadlineAt
+  ) {
+    throw controls.deadlineError?.()
+      ?? new Error(`${command} deadline exceeded at ${controls.deadlineAt}`);
+  }
+}
+
+
 /**
  * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
  * by both single and batch handlers. Behavior:
@@ -1151,6 +1192,7 @@ async function enforceAndStampEvidence(
     projectRoot: string;
     storyId: string;
     sharedExecutionReceipt?: VerificationExecutionReceiptV3;
+    sharedPolicyTimeoutMs?: number;
     sharedFreshness?: ReturnType<typeof captureVerificationFreshness>;
     sharedReuseReceipt?: VerificationReuseReceiptV1;
     sharedCausalReceipt?: CausalEvidenceReceipt;
@@ -1300,11 +1342,18 @@ async function enforceAndStampEvidence(
   });
   const sharedExecution = deps.sharedExecutionReceipt;
   const sharedCausalReceipt = deps.sharedCausalReceipt;
+  const sharedIdentity = sharedExecution ? prepareVerificationExecutionIdentity({
+    command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs: sharedExecution.effectiveTimeoutMs, manifestPath,
+  }) : undefined;
   if (sharedExecution && (
     sharedExecution.command !== pinCommand
     || sharedExecution.cwd !== deps.cwd
-    || sharedExecution.effectiveTimeoutMs !== effectiveTimeoutMs
-    || sharedExecution.executionIdentityDigest !== beforeIdentity.executionIdentityDigest
+    || (sharedExecution.effectiveTimeoutMs !== effectiveTimeoutMs
+      && (deps.sharedPolicyTimeoutMs !== effectiveTimeoutMs
+        || !Number.isSafeInteger(sharedExecution.effectiveTimeoutMs)
+        || sharedExecution.effectiveTimeoutMs <= 0
+        || sharedExecution.effectiveTimeoutMs > effectiveTimeoutMs))
+    || sharedExecution.executionIdentityDigest !== sharedIdentity?.executionIdentityDigest
   )) {
     throw new Error('verification evidence refused: shared execution identity mismatch [verification_shared_execution_identity_mismatch]');
   }
@@ -1435,7 +1484,7 @@ async function enforceAndStampEvidence(
   const afterIdentity = prepareVerificationExecutionIdentity({
     command: pinCommand,
     cwd: deps.cwd,
-    effectiveTimeoutMs: run.timeoutMs,
+    effectiveTimeoutMs,
     manifestPath,
   });
   assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
@@ -1444,7 +1493,7 @@ async function enforceAndStampEvidence(
   if (!sourceExecutedAt) throw new Error('verification evidence refused: signed execution time missing [causal_execution_time_missing]');
   const executionReceipt = sharedExecution ?? createVerificationExecutionReceipt({
     projectRoot: deps.projectRoot, storyId: deps.storyId, command: pinCommand,
-    cwd: deps.cwd, run, manifestPath, preparedIdentity: afterIdentity, executedAt: sourceExecutedAt,
+    cwd: deps.cwd, run, manifestPath, executedAt: sourceExecutedAt,
   });
   const verificationReceipt = createCurrentVerificationAssertionReceipt({
     freshness: deps.sharedFreshness ?? launchFreshness,
@@ -2265,13 +2314,25 @@ export function refreshStaleEvidenceMetadataOnly(ctx: HandlerContext, storyId: s
 
 export function createChecklistHandlers(ctx: HandlerContext & { verificationCommandRunner?: SingleCommandRunner }) {
   const { store, root } = ctx;
-  const executePinnedCommand: SingleCommandRunner = ctx.verificationCommandRunner
-    ?? ((command, cwd, timeoutMs) => {
-      const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-      return runSingleAllowlistedCommand(
-        command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-      );
-    });
+  const createPinnedCommandRunner = (
+    commandName: Parameters<typeof assertVerificationEvidenceWriteActive>[0],
+    controls: VerificationEvidenceWatchdogControls,
+    position: () => { commandIndex: number; totalCommands: number } = () => ({ commandIndex: 1, totalCommands: 1 }),
+  ): SingleCommandRunner => async (command, cwd, timeoutMs) => {
+    assertVerificationEvidenceWriteActive(commandName, controls);
+    const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+    const current = position();
+    const result = ctx.verificationCommandRunner
+      ? await ctx.verificationCommandRunner(command, cwd, timeoutMs)
+      : await runSingleAllowlistedCommand(command, root, {
+          cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}),
+          commandIndex: current.commandIndex, totalCommands: current.totalCommands,
+          progress: event => ctx.log?.(formatValidationProgressEvent(event)),
+          abortSignal: controls.abortSignal, deadlineAt: controls.deadlineAt, deadlineError: controls.deadlineError,
+        });
+    assertVerificationEvidenceWriteActive(commandName, controls);
+    return result;
+  };
   // B-75f0 CHK-001: resolve the authoritative git cwd for a story-scoped command.
   // Every verification-evidence handler here has args.storyId in scope, so it can
   // route freshness git probes through the single resolveGitCwd choke-point. On a
@@ -2904,6 +2965,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         item.excludes = args.excludes;
         results.push(`excludes updated (${args.excludes.length})`);
       }
+      if (args.files !== undefined && ['DEV', 'REVIEW', 'TEST', 'DONE'].includes(store.readStory(args.storyId).phase)) {
+        for (const kind of ['modify', 'create', 'test'] as const) {
+          if ((args.files[kind] ?? []).some(path => !(item.files?.[kind] ?? []).includes(path))) throw new Error('DEV checklist file scope growth requires acceptance_amendment_propose');
+        }
+      }
       if (args.files !== undefined) {
         item.files = {
           modify: args.files.modify ?? [],
@@ -2941,6 +3007,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
+      if (args.status === 'done') {
+        const blocker = acceptanceAmendmentBlocker(store, args.storyId, resolveStoryGitCwd(args.storyId));
+        if (blocker) throw new Error(blocker);
+        if (missingAcceptance(item)) throw new Error('Cannot mark done: verification intent and evidence are both empty; propose an acceptance amendment');
+      }
       if (args.status) {
         item.status = args.status;
         if (args.status === 'in_progress' && !item.startTime) {
@@ -3113,6 +3184,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
       // Local-only evidence write: record scoped Proof-or-Stop evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
@@ -3133,6 +3208,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       // (the Zod constraints are only the first line of defense). enforceAndStampEvidence
       // re-checks the same pair at the enforcement boundary.
       resolveEvidenceCommandTimeout('verification_evidence_add', args);
+      assertVerificationEvidenceWriteActive('verification_evidence_add', args);
+      const executePinnedCommand = createPinnedCommandRunner('verification_evidence_add', args);
 
       const gitCwd = resolveStoryGitCwd(args.storyId);
       return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add', cwd: gitCwd }, async () => {
@@ -3172,6 +3249,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           storyId: args.storyId,
           ...(sharedPublication ? {
             sharedExecutionReceipt: sharedPublication.executionReceipt,
+              ...(sharedPublication.policyTimeoutMs !== undefined ? { sharedPolicyTimeoutMs: sharedPublication.policyTimeoutMs } : {}),
             ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
             sharedFreshness: sharedPublication.freshness,
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
@@ -3211,6 +3289,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         else existing.push(evidence);
         item.verificationEvidence = existing;
 
+        assertVerificationEvidenceWriteActive('verification_evidence_add', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -3253,10 +3332,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
       }>;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
         throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
+      assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args);
 
       // Local preflight for all entries; any failure throws before the local
       // all-or-nothing batch write.
@@ -3288,7 +3372,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       const gitCwd = resolveStoryGitCwd(args.storyId);
       return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add', cwd: gitCwd }, async () => {
-      const runCommand: SingleCommandRunner = executePinnedCommand;
       const evidenceInputs = args.evidences.map((entry, i): EvidenceWriteInput => ({
         storyId: args.storyId, intentRef: entry.intentRef, kind: normalizedKinds[i], file: entry.file, command: entry.command,
         selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
@@ -3300,6 +3383,14 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const item = initialCl.items.find(it => it.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         return verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
+      });
+      const commandOrdinals = new Map([...new Set(initialPlans.flatMap(plan => plan ? [plan.executionKey] : []))]
+        .map((key, index) => [key, index + 1]));
+      let executingKey: string | undefined;
+      const runCommand = createPinnedCommandRunner('verification_evidence_batch_add', args, () => {
+        const commandIndex = executingKey ? commandOrdinals.get(executingKey) : undefined;
+        if (!commandIndex) throw new Error('verification_evidence_batch_add: execution is outside the planned command set');
+        return { commandIndex, totalCommands: commandOrdinals.size };
       });
       const initialPublicationDigests = initialPlans.map(plan => plan
         ? publicationDigestsForKey(initialCl, plan)
@@ -3324,6 +3415,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 root, args.storyId, currentCl, currentPlan, initialPublicationDigests[i], hashes,
               )
             : undefined;
+          executingKey = currentPlan?.executionKey;
           const stamp = await enforceWithPublicationRecovery(item, evidenceInputs[i], {
             runCommand,
             preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
@@ -3335,6 +3427,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             storyId: args.storyId,
             ...(sharedPublication ? {
               sharedExecutionReceipt: sharedPublication.executionReceipt,
+              ...(sharedPublication.policyTimeoutMs !== undefined ? { sharedPolicyTimeoutMs: sharedPublication.policyTimeoutMs } : {}),
               ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
               sharedFreshness: sharedPublication.freshness,
               ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
@@ -3346,6 +3439,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             if (execution.schemaVersion === 'proof-or-stop.verification-execution-receipt.v3' && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5') {
               const currentReceipt = stamp.evidencePatch.receipt;
               sharedExecutions.set(currentPlan.executionKey, {
+                policyTimeoutMs: currentPlan.effectiveTimeoutMs,
                 executionReceipt: execution,
                 freshness: currentReceipt.publicationBinding.freshness,
                 ...(stamp.causalReceipt ? { causalReceipt: stamp.causalReceipt } : {}),
@@ -3399,6 +3493,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           item.verificationEvidence = existing;
           written++;
         });
+        assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -3448,7 +3543,13 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       itemId?: string;
       note?: string;
       cwd?: string;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
+      assertVerificationEvidenceWriteActive('verification_run', args);
+      const executePinnedCommand = createPinnedCommandRunner('verification_run', args);
       // Resolve the owning item + its pinned verifier OUTSIDE the checklist lock
       // (execution is async; the lock body is synchronous). The receipt write then
       // happens atomically inside the lock, mirroring verification_evidence_add.
@@ -3548,6 +3649,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           storyId: args.storyId,
           ...(sharedPublication ? {
             sharedExecutionReceipt: sharedPublication.executionReceipt,
+              ...(sharedPublication.policyTimeoutMs !== undefined ? { sharedPolicyTimeoutMs: sharedPublication.policyTimeoutMs } : {}),
             ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
             sharedFreshness: sharedPublication.freshness,
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
@@ -3580,6 +3682,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         if (idx >= 0) existing[idx] = evidence;
         else existing.push(evidence);
         item.verificationEvidence = existing;
+        assertVerificationEvidenceWriteActive('verification_run', args);
         commitCanonicalCausalEvidence(
           args.storyId,
           gitCwd,
@@ -3633,7 +3736,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     async verification_evidence_refresh_stale(args: {
       storyId: string;
       dryRun?: boolean;
+      // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }): Promise<string> {
+      assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
       const initial = collectStaleRefreshContext(ctx, args.storyId);
       if (initial.stale.length === 0) {
         return `No stale verification evidence for ${args.storyId}`;
@@ -3672,8 +3780,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const reexecByKey = new Map<string, ReexecStamp>();
         const reexecFailureByKey = new Map<string, ReexecFailure>();
         const diagnostics: string[] = [];
+        const commandOrdinals = new Map([...groups.keys()].map((key, index) => [key, index + 1]));
 
         for (const [executionKey, group] of groups) {
+          assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
+          const executePinnedCommand = createPinnedCommandRunner('verification_evidence_refresh_stale', args,
+            () => ({ commandIndex: commandOrdinals.get(executionKey)!, totalCommands: commandOrdinals.size }));
           // Identity moved before this invocation acquired its declared lock. Never
           // execute or publish under a lock for a different identity.
           if (!lockedKeys.has(executionKey)) {
@@ -3803,7 +3915,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               }
               const afterIdentity = prepareVerificationExecutionIdentity({
                 command, cwd: computed.refreshGitCwd,
-                effectiveTimeoutMs: run.timeoutMs,
+                effectiveTimeoutMs: representative.effectiveTimeoutMs,
                 manifestPath: representative.manifestPath,
               });
               assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
@@ -3813,7 +3925,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 cwd: computed.refreshGitCwd, run,
                 executedAt: causal.receipt.executedAt,
                 manifestPath: representative.manifestPath,
-                preparedIdentity: afterIdentity,
               });
             }
             let causalStampPending = causalStamp;
@@ -3847,6 +3958,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             // No result is published; every dependent row remains fail-closed.
           }
         }
+        assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
         return writeStaleRefresh(ctx, args.storyId, computed, {
           reexecByKey,
           reexecFailureByKey,

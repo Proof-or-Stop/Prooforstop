@@ -27,6 +27,10 @@ const {
   PRECERT_TEST_IDENTITY,
   PRECERT_VERIFIER_IDENTITY,
   setReviewInventoryAdmitApisForTest,
+  persistSyntheticAdmittedWindowForTest,
+  PRECERT_CHEAP_CHECK_AUTHORITY,
+  PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
+  withSignedPrecertCheapCheckReceipt,
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
 );
@@ -37,6 +41,8 @@ const {
 } = await import(
   pathToFileURL(join(distRoot, 'handlers/certification-window.js')).href,
 );
+const { buildRoutineValidationIdentity } = await import(pathToFileURL(join(distRoot, 'core/validation-evidence-reuse.js')).href);
+
 const {
   currentMaterialHash,
   currentStoryFilesHash,
@@ -1625,7 +1631,7 @@ test('B-5a15 F-314: production domain inputs invalidate only the declared transi
   }
 });
 
-test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', () => {
+test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', async () => {
   const repositoryRoot = mkdtempSync(join(tmpdir(), 'causal-certification-handler-'));
   const storyId = 'B-5a15-certification-handler';
   const git = (args) => execFileSync('git', args, { cwd: repositoryRoot, stdio: 'ignore' });
@@ -1636,6 +1642,7 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
+      validate: { commands: [{ label: 'fast', command: process.execPath, args: ['--version'], timeoutMs: 15000, focus: ['fast'] }] },
     }) + '\n');
     mkdirSync(join(repositoryRoot, 'packages', 'main', 'tests'), { recursive: true });
     writeFileSync(join(repositoryRoot, 'README.md'), 'certification handler regression\n');
@@ -1668,6 +1675,12 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
     });
     store.writeChecklist(storyId, { items: [] });
 
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: repositoryRoot });
+    const fastResult = JSON.parse(await createVerifierHandlers({ store, root: repositoryRoot,
+      scanRoot: join(repositoryRoot, 'packages/main') }).validate({ story: storyId, focus: 'fast', json: true }));
+    assert.equal(fastResult.status, 'pass', 'actual fast validation must precede admission');
+    assert.ok(fastResult.precertCheapCheckReceipt, 'canonical fast command must issue the admission receipt');
+    const headHash = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
     const materialHash = currentMaterialHash(repositoryRoot, 'HEAD', repositoryRoot);
     const storyFilesHash = currentStoryFilesHash(repositoryRoot, 'HEAD', repositoryRoot);
     assert.ok(materialHash && storyFilesHash);
@@ -1678,18 +1691,33 @@ test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift a
           storyId,
           reviewRound: 'handler-round',
           state: 'FINALIZED',
-          cutoff: { materialHash, storyFilesHash },
+          receiptId: 'B-5a15:INV-handler',
+          requiredLanes: ['test-reviewer'],
+          waves: [{ lanes: [{ lane: 'test-reviewer', terminal: 'pass', evidenceIds: ['test-pass'], coverageDigest: 'coverage' }],
+            newVerifiedFindingCount: 0, criticDigest: 'critic', saturated: true }],
+          cutoff: { headHash, materialHash, storyFilesHash },
         },
         receipt: {
           receiptId: 'B-5a15:INV-handler',
           storyId,
           reviewRound: 'handler-round',
+          epochId: 'B-5a15:RI-handler',
+          requiredLanes: ['test-reviewer'], waveCount: 1,
+          saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
+          scopeDigest: 'scope', findingSetDigest: 'findings', coverageDigest: 'coverage',
           authority: 'inventory-completeness-only',
           authorizesTest: false,
-          cutoff: { materialHash, storyFilesHash },
+          cutoff: { headHash, materialHash, storyFilesHash },
         },
       }),
-      consumeReviewInventoryCompletenessReceipt: () => 'B-5a15:INV-handler',
+      // Inventory is the declared fixture seam; the fast command and window
+      // signatures are real, but this is not signed-inventory integration proof.
+      verifyReviewInventoryEpoch: () => true,
+      verifyReviewInventoryReceipt: () => true,
+      isInventoryCompletenessOnlyReceipt: () => false,
+      consumeReviewInventoryCompletenessReceipt: (_store, _story, _round, _cutoff, recheck) => {
+        recheck?.(); return 'B-5a15:INV-handler';
+      },
     });
     const handlers = createCertificationWindowHandlers({
       store,
@@ -2414,18 +2442,36 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   // regression deleting the findings, coverage or dirty-tree checks would have stayed green.
   // Fixed by (a) a POSITIVE CONTROL proving the unmutated fixture is admitted, and (b)
   // asserting the SPECIFIC blockerCode each mutation is supposed to produce.
+  // Signed evaluator fixture: this establishes admission prerequisites; it
+  // does not claim an actual fast command was executed by this pure gate test.
+  const routineValidationIdentity = buildRoutineValidationIdentity({
+    projectRoot: repoRoot, sourceKind: 'configured',
+    sourceInputs: { fixture: 'causal-metrics-admission' },
+    commands: [{ label: 'fast', command: 'node', args: ['--version'], timeoutMs: 15000, focus: ['fast'] }],
+    focus: 'fast', profile: 'standard', verificationPolicyInputs: { fixture: 'causal-metrics-admission' },
+  });
+  const cheapCheckReceipt = withSignedPrecertCheapCheckReceipt({
+    schemaVersion: PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
+    receiptId: 'B-causal-test:CHEAP-1', storyId: 'B-causal-test',
+    authority: PRECERT_CHEAP_CHECK_AUTHORITY, result: 'PASS', routineValidationIdentity,
+    commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1,
+      status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+    headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1', createdAt: new Date().toISOString(),
+  });
   const admittableGateFacts = {
     ...metricGateFacts,
+    inventorySaturated: true,
+    cheapCheckReceipt,
     // Shape per inventoryLineageRefusal (certification-window.ts:447-468): a receipt whose
     // cutoff is on the CURRENT materialHash/storyFilesHash lineage for this story.
     inventory: {
       epoch: {
         storyId: 'B-causal-test',
-        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+        cutoff: { headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1' },
       },
       receipt: {
         storyId: 'B-causal-test',
-        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+        cutoff: { headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1' },
       },
     },
     causalDecision: undefined,
@@ -2466,61 +2512,44 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   );
 });
 
-test('F-247: verifier-owned topology and pre-review checks are executable and current', () => {
-  const topology = runProofOrStopJson('acceptance_topology_check', { storyId: 'B-5a15', json: true });
-  const topologyCodes = Array.isArray(topology.diagnostics)
-    ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
-    : [];
-  const topologyRefreshBootstrap = topology.status === 'fail'
-    && [
-      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
-      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
-    ].includes(topologyCodes.join(','));
-  assert.ok(topology.status === 'pass' || topologyRefreshBootstrap, JSON.stringify(topology));
-  if (!topologyRefreshBootstrap) {
+test('F-247: verifier-owned topology and pre-review checks are executable and current', async () => {
+  const { withCurrentAcceptanceFixture } = await import('./helpers/current-acceptance-fixture.mjs');
+  await withCurrentAcceptanceFixture(async ({ storyId, store, cli }) => {
+    const topology = JSON.parse(cli('acceptance_topology_check', { storyId, json: true }));
+    assert.equal(topology.status, 'pass');
     assert.equal(topology.readOnly, true);
     assert.equal(topology.authority, 'diagnostic_only');
     assert.equal(topology.basisStatus, 'complete');
     assert.equal(topology.structuralPass, true);
     assert.deepEqual(topology.diagnostics, []);
-  }
 
-  const preReview = runProofOrStopJson('pre_review_check_read', { storyId: 'B-5a15', json: true });
-  assert.equal(preReview.readOnly, true);
-
-  // This bounded bootstrap exists only so the official stale-evidence refresh can
-  // re-execute the pinned command while its own receipts are being re-earned. It
-  // is neither a waiver nor covered evidence; after refresh this test must return
-  // to the strict PASS branch below.
-  const bootstrapCodes = ['PR_EVIDENCE_STALE', 'PR_POSITIVE_EVIDENCE_MISSING'];
-  const actualCodes = Array.isArray(preReview.codes) ? [...preReview.codes].sort() : [];
-  const isEvidenceRefreshBootstrap =
-    preReview.status === 'fail'
-    && preReview.ok === false
-    && ((actualCodes.length === bootstrapCodes.length
-      && actualCodes.every((code, index) => code === [...bootstrapCodes].sort()[index]))
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED'
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED'
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_CUTOFF_UNBOUND,PR_EVIDENCE_STALE,PR_POSITIVE_EVIDENCE_MISSING');
-  if (!isEvidenceRefreshBootstrap) {
+    const original = store.readPreReviewCheck(storyId);
+    const preReview = JSON.parse(cli('pre_review_check_read', { storyId, json: true }));
+    assert.equal(preReview.readOnly, true);
     assert.equal(preReview.status, 'pass');
     assert.equal(preReview.ok, true);
     assert.equal(preReview.executableEvidence, 'current');
+    // This asserts the verifier's interpretation of captured fixture case records.
+    // Production mutation execution is covered by the dedicated live-proof suite.
     assert.equal(preReview.mutations, 'biting');
     assert.equal(preReview.transcript, 'related');
     assert.equal(preReview.authority, 'admissible');
     assert.deepEqual(preReview.codes, []);
-  }
-  if (!topologyRefreshBootstrap && !isEvidenceRefreshBootstrap) {
-    emitIntentMarker(
-      'CHK-004:happy:2',
-      'acceptance_topology_check reports current complete structural PASS',
-    );
-    emitIntentMarker(
-      'CHK-004:happy:3',
-      'pre_review_check_read reports current admissible executable PASS',
-    );
-  }
+    assert.deepEqual(store.readPreReviewCheck(storyId), original, 'read does not refresh evidence');
+
+    // Corrupt only isolated test data. A PASS cannot survive a changed signature.
+    const tampered = structuredClone(original);
+    tampered.signature = 'invalid-fixture-signature';
+    store.writePreReviewCheck(storyId, tampered);
+    const rejected = JSON.parse(cli('pre_review_check_read', { storyId, json: true }));
+    assert.equal(rejected.ok, false);
+    assert.ok(rejected.codes.includes('PR_ARTIFACT_TAMPERED'));
+    assert.deepEqual(store.readPreReviewCheck(storyId), tampered, 'negative read does not repair its own input');
+    store.writePreReviewCheck(storyId, original);
+    assert.equal(JSON.parse(cli('pre_review_check_read', { storyId, json: true })).ok, true);
+    emitIntentMarker('CHK-004:happy:2', 'acceptance_topology_check reports current complete structural PASS');
+    emitIntentMarker('CHK-004:happy:3', 'pre_review_check_read reports current admissible executable PASS');
+  });
 });
 
 test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the causal preflight plan', async () => {
@@ -2580,6 +2609,9 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
     git(['add', '.proof-or-stop']);
     git(['commit', '-m', 'seed validate-file story metadata']);
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'race fixture needs current certification domain identity');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
 
     const facts = {
       cli: { available: true, path: join(root, 'test-bin', 'npx') },
@@ -2615,6 +2647,8 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
     );
     assert.equal(existsSync(marker), false, 'the validate-file child is not launched after preflight drift');
     assert.ok(factCalls >= 2, 'validate-file branch performs the initial and atomic preflight probes');
+    assert.equal(store.readCertificationWindows(storyId).windows.at(-1).state, 'ADMITTED',
+      'pre-launch causal refusal must not consume the certification window');
 
     const stableHandlers = createVerifierHandlers({
       root,
@@ -2640,94 +2674,21 @@ test('B-5a15 F-250/F-252/F-256/F-260/F-262: validate-file execution uses the cau
   }
 });
 
-test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable', () => {
-  const topology = runProofOrStopJson('acceptance_topology_check', { storyId: 'B-5a15', json: true });
-  const preReview = runProofOrStopJson('pre_review_check_read', { storyId: 'B-5a15', json: true });
-  const rolloutRead = runProofOrStopJson('acceptance_rollout_report_read', { storyId: 'B-5a15', json: true });
-  const rolloutCheck = runProofOrStopJson('acceptance_rollout_check', { storyId: 'B-5a15', json: true });
-
-  const topologyCodes = Array.isArray(topology.diagnostics)
-    ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
-    : [];
-  const topologyFresh = topology.status === 'pass';
-  assert.ok(
-    topologyFresh
-    || [
-      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
-      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
-    ].includes(topologyCodes.join(',')),
-    `unexpected topology fail-closed codes: ${topologyCodes.join(',')}`,
-  );
-  if (topologyFresh) {
-    assert.equal(topology.basisStatus, 'complete');
-    assert.equal(topology.structuralPass, true);
-    assert.deepEqual(topology.diagnostics, []);
-  }
-  const preReviewFresh = preReview.status === 'pass';
-  const preReviewFailClosed = [
-    'PR_ARTIFACT_TAMPERED',
-    'PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE',
-    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED',
-    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND',
-  ].includes(preReview.codes?.join(',') ?? '')
-    || (
-      Array.isArray(preReview.codes)
-      && preReview.codes.length > 0
-      && preReview.codes.every((code) => [
-        'PR_ARTIFACT_TAMPERED',
-        'PR_COVERAGE_BASIS_CHANGED',
-        'PR_POSITIVE_EVIDENCE_MISSING',
-        'PR_EVIDENCE_STALE',
-        'PR_CUTOFF_UNBOUND',
-      ].includes(code))
-    );
-  assert.ok(preReviewFresh || preReviewFailClosed);
-  if (preReviewFresh) {
-    assert.equal(preReview.ok, true);
-    assert.equal(preReview.executableEvidence, 'current');
-    assert.equal(preReview.mutations, 'biting');
-    assert.equal(preReview.transcript, 'related');
-    assert.equal(preReview.authority, 'admissible');
-  }
-  const rolloutFresh = rolloutRead.ok === true
-    && rolloutRead.receipt === 'current'
-    && rolloutCheck.status === 'pass';
-  const rolloutStale = rolloutRead.receipt === 'stale'
-    || (Array.isArray(rolloutCheck.diagnostics) && rolloutCheck.diagnostics.includes('AR_REPORT_STALE'));
-  assert.ok(
-    rolloutFresh || rolloutStale,
-    `unexpected rollout state: read=${JSON.stringify({ ok: rolloutRead.ok, receipt: rolloutRead.receipt, quorum: rolloutRead.quorum })} check=${JSON.stringify({ status: rolloutCheck.status, diagnostics: rolloutCheck.diagnostics })}`,
-  );
-  assert.equal(rolloutRead.quorum, 'full-3x2');
-  assert.equal(rolloutCheck.mode, 'enforce');
-  if (rolloutFresh) {
-    assert.equal(rolloutCheck.blocking, false);
-    assert.deepEqual(rolloutCheck.diagnostics, []);
-  } else {
-    assert.ok((rolloutCheck.diagnostics || []).includes('AR_REPORT_STALE'));
-  }
-
-  const store = new StoryStore(repoRoot);
-  const artifact = store.readAcceptanceRolloutReport('B-5a15');
-  assert.ok(artifact, 'the current story must provide the signed rollout receipt used by this regression');
+test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifier-owned acceptance reads and rollout mutations are executable', async () => {
+  const {withCurrentRolloutFixture}=await import('./helpers/current-rollout-fixture.mjs');
+  await withCurrentRolloutFixture(async ({root,storyId,store,cohort,artifact,read,rollout})=>{
+ const {acceptanceRolloutHistoryDigest,deriveAcceptanceRolloutReport,verifyAcceptanceRolloutArtifact}=rollout;
+ const rolloutRead=read('acceptance_rollout_report_read');
+ const rolloutCheck=read('acceptance_rollout_check');
+ assert.equal(rolloutRead.ok,true);assert.equal(rolloutRead.receipt,'current');
+ assert.equal(rolloutRead.quorum,'full-3x2');assert.equal(rolloutCheck.mode,'enforce');
+ assert.equal(rolloutCheck.status,'pass');assert.equal(rolloutCheck.blocking,false);assert.deepEqual(rolloutCheck.diagnostics,[]);
   const originalHistoryDigest = acceptanceRolloutHistoryDigest(artifact);
-  const cohort = {
-    schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1',
-    generatedBy: 'runProofStoryAcceptanceRolloutCohort',
-    evaluationWindow: artifact.report.evaluationWindow,
-    eligibilityRuleVersion: artifact.report.eligibilityRuleVersion,
-    thresholdVersion: artifact.report.thresholdVersion,
-    registeredSeedIds: artifact.report.registeredSeedIds,
-    sourceRecords: artifact.report.sourceRecords,
-    sourceInventoryDigest: artifact.report.sourceInventoryDigest,
-    runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
-    runnerDigest: artifact.report.binding.runnerDigest,
-  };
   const verify = (candidate, mode = 'enforce') => verifyAcceptanceRolloutArtifact({
     artifact: candidate,
-    gitCwd: repoRoot,
-    metadataRoot: repoRoot,
-    expectedStoryId: 'B-5a15',
+    gitCwd: root,
+    metadataRoot: root,
+    expectedStoryId: storyId,
     expectedCohort: cohort,
     mode,
   });
@@ -2756,10 +2717,10 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
   degradedRecord.observationReceipt.hostVerdicts = degradedRecord.observationReceipt.hostVerdicts
     .filter(verdict => verdict.provider !== 'codex');
   const degradedReport = deriveAcceptanceRolloutReport({
-    storyId: 'B-5a15',
+    storyId: storyId,
     cohort: degradedCohort,
     binding: artifact.report.binding,
-    gitCwd: repoRoot,
+    gitCwd: root,
   });
   assert.equal(degradedReport.verdict, 'fail');
   assert.ok(degradedReport.diagnostics.includes('AR_SOURCE_EVIDENCE_INVALID'));
@@ -2778,7 +2739,9 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
   ]);
   assert.deepEqual(modeReports.map(report => report.blocking), [false, false, true]);
 
-  const after = store.readAcceptanceRolloutReport('B-5a15');
+  const after = store.readAcceptanceRolloutReport(storyId);
   assert.deepEqual(after, artifact, 'read/check and in-memory mutation probes do not rewrite rollout history');
   assert.equal(acceptanceRolloutHistoryDigest(after), originalHistoryDigest);
+ console.log('PASS F249-F264 current rollout positive and all original negative mutations');
+},{cohortPath:process.env.PROOF_OR_STOP_ROLLOUT_COHORT_INPUT_PATH});
 });

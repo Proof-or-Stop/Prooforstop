@@ -1,0 +1,85 @@
+{
+  "storyId": "B-0208",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/causal-evidence-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Latest main introduced two reproducible validation blockers that prevent B-0208 TEST completion. These task fixtures must be corrected in the same bounded branch before the requested local main merge can be verified.",
+      "timestamp": "2026-09-08T18:16:05.173Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "744081a4446ce904675845cadd49d0c02b280b30",
+      "materialHash": "87c2813e1ea537c7e93161be0239f9e85c0539ac5fc744272eb8531543d79fe6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The refreshed acceptance rollout executes this fixture from current main. It reproduces the same missing synthetic snapshot dependencies and blocks the required report, so this directly related fixture needs the same bounded correction.",
+      "timestamp": "2026-09-08T18:35:06.390Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ab3597b28a9dbf890d2f93ee4d8cfc6ff7e2cd13",
+      "materialHash": "0b279711b5971ab39b557dcbfd8240fa892e6b7306d9f1205b892e610f2ee33f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The TEST gate reproduced two current-main validation blockers: a stale allowlisted loader fingerprint and a direct-handler stale-evidence fixture that no longer reacquires its owner lease immediately before validation. Both block the requested local-main merge and are repaired only in their owning smoke fixtures.",
+      "timestamp": "2026-09-08T19:14:56.025Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "03f9eb723038c34869acab7a9bb2e4efec55f64a",
+      "materialHash": "d46fe323ca14bb54cf6710f410aa17e32b8e2427d8b985a2084b4d1243045842"
+    }
+  ],
+  "createdAt": "2026-09-08T06:14:23.324Z",
+  "updatedAt": "2026-09-08T19:14:56.025Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/causal-evidence.ts": "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/causal-evidence-smoke.ts": "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts": "packages/main/src/tasks/validation-protocol-smoke.ts"
+  }
+}

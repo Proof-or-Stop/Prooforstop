@@ -1,3 +1,6 @@
+import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
+import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
+import { storyScopeBudgetBlocker } from './story-scope-budget.js';
 import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
@@ -494,6 +497,7 @@ export function evaluateDevMemoryPreflightGate(storyId: string, store: StoryStor
 }
 
 export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
+  if (acceptanceCompletionBlocker(context.store, context.storyId, context.gitCwd ?? context.projectRoot ?? process.cwd())) return false;
   const cl = context.store.readChecklist(context.storyId);
   // B-1909 CHK-002: advance when every item is TERMINAL (done OR withdrawn); a
   // withdrawn item is recorded-undeliverable and no longer outstanding. The
@@ -519,16 +523,14 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
  * assessReviewConvergence trend detector — no raw round ceiling here). Returns
  * the adjudication; the caller refuses the mint when blocked.
  *
- * FAIL-OPEN: a guard must never throw (an exception pushes the actor into its
- * error state). Any store/config read error degrades to { blocked: false } so a
- * gate/infra error can never strand a legitimate review round. This mirrors the
- * fail-open discipline of the other DEV-door guards.
+ * A guard must not throw into the actor. Observation-integrity errors become
+ * explicit blocked results, distinct from a verified no-progress conclusion.
  */
 export function reviewRoundMintStallAdjudication(context: StoryMachineContext): StallAdjudication {
   try {
     return evaluateReviewMintStallAdjudication(context.store, context.storyId);
-  } catch {
-    return { blocked: false };
+  } catch (error) {
+    return convergenceProgressUnavailable(error);
   }
 }
 
@@ -734,6 +736,7 @@ function formatParallelDecompositionBlock(
 }
 
 export function canStartDevGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
     const config = loadConfig(context.projectRoot);
@@ -797,6 +800,7 @@ export function canReopenToInitGuard(context: StoryMachineContext): boolean {
 }
 
 export function canSkipPlanGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
   try {
     const config = loadConfig(context.projectRoot);
@@ -833,6 +837,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
  * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   let inventoryStory: StoryInfo | undefined;
   try {
     inventoryStory = context.store.readStory(context.storyId);
@@ -871,6 +876,8 @@ export interface ReviewVerdict {
 /** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
 export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdict {
   try {
+    const amendment = acceptanceCompletionBlocker(context.store, context.storyId, context.gitCwd ?? context.projectRoot ?? process.cwd());
+    if (amendment) return { ok: false, code: 'review_evidence_invalid', message: amendment };
     const loopRecords = context.store.readReviewLoopRecords(context.storyId);
     const activeLoops = listActiveLoops(loopRecords);
     if (activeLoops.length > 0) {
@@ -1022,6 +1029,8 @@ function donePredicate<T>(id: string, oracleRowId: string, value: T, failureReas
  */
 export function* evaluateDonePredicates(context: StoryMachineContext): Generator<DonePredicateResult> {
   const { storyId, store, projectRoot } = context;
+  const amendment = acceptanceCompletionBlocker(store, storyId, context.gitCwd ?? projectRoot ?? process.cwd());
+  yield donePredicate('acceptance-amendment', 'acceptance-amendment', amendment, amendment ? `[acceptance_amendment_blocked] ${amendment}` : null);
   const evidence = store.readTestEvidence(storyId);
   yield donePredicate('test-evidence', 'test-evidence', evidence,
     !evidence ? 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)'
@@ -1349,6 +1358,8 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'DEV') {
+    const budgetBlocker = storyScopeBudgetBlocker(store, projectRoot ?? process.cwd(), storyId);
+    if (budgetBlocker) return budgetBlocker;
     // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
     // B-a7c5 CHK-001: dev-memory preflight ack, checked before any door-specific
@@ -1478,6 +1489,8 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'REVIEW') {
+    const amendment = acceptanceCompletionBlocker(store, storyId, gitCwd ?? projectRoot ?? process.cwd());
+    if (amendment) return amendment;
     if (!projectRoot) {
       return 'Cannot enter REVIEW: verification_receipt_invalid: project root is required to validate executable evidence';
     }
@@ -1505,8 +1518,8 @@ export function getGuardFailureReason(
     const stall = (() => {
       try {
         return evaluateReviewMintStallAdjudication(store, storyId);
-      } catch {
-        return { blocked: false } as StallAdjudication;
+      } catch (error) {
+        return convergenceProgressUnavailable(error);
       }
     })();
     if (stall.blocked && stall.prompt) {

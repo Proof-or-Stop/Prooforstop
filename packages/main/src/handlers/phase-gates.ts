@@ -38,19 +38,10 @@ import {
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { loadConfig } from '../core/config.js';
-import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
-import {
-  classifyGitStatusRows,
-  classifierOptionsForCheck,
-  isBlockingDirty,
-  readGitStatusLines,
-} from '../core/dirty-worktree-gate.js';
-import { buildVerificationCoverage } from '../core/verification.js';
-import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import {
   buildDoneChecklist,
   renderDoneChecklist,
@@ -69,7 +60,11 @@ import {
 } from '../core/proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
-import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
+import type { ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
+import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+export { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
+import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -178,7 +173,7 @@ export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, ro
   let checklist: ChecklistData;
   try {
     checklist = store.readChecklist(storyId);
-  } catch (error) { rethrowIntentAmendmentIntegrityError(error);
+  } catch (error) {
     rethrowIntentAmendmentIntegrityError(error);
     checklist = { items: [] };
   }
@@ -351,7 +346,7 @@ function renderScopeLifecycleRows(result: ScopeCheckResult, phase: StoryPhase): 
       const assurance = v.acknowledged ? ' assurance=acknowledged-expansion' : '';
       const hint = v.acknowledged
         ? ' hint=review acknowledged expansion before accepting lifecycle progress'
-        : ' hint=remove change or record an explicit scope_contract_acknowledge in DEV/REVIEW';
+        : ' hint=remove change or use acceptance_amendment_propose in DEV for independent approval';
       return `  [${scopeRowId(v)}] status=${status} blocking=${blocking} phase=${phase} source=scope-contract path=${v.path} rule=${v.rule}${anchor}${digest}${assurance}${hint}`;
     }),
   ].join('\n');
@@ -498,7 +493,7 @@ export function runScopeTransitionGate(
     // No scope contract: distinguish new-scope stories (must have contract) from
     // legacy stories (backward-compatible, visible degradation at REVIEW only).
     let checklist: ChecklistData | null = null;
-    try { checklist = ctx.store.readChecklist(storyId); } catch (error) { rethrowIntentAmendmentIntegrityError(error); rethrowIntentAmendmentIntegrityError(error); /* missing checklist → legacy */ }
+    try { checklist = ctx.store.readChecklist(storyId); } catch (error) { rethrowIntentAmendmentIntegrityError(error); /* missing checklist → legacy */ }
     if (checklistHasFileDeclarations(checklist)) {
       // New-scope story: BLOCK — file declarations require an explicit contract.
       throw new Error(
@@ -522,14 +517,14 @@ export function runScopeTransitionGate(
     throw new Error(
       `Cannot enter ${phase}: ${result.summary}\n\n` +
       renderedWithRows +
-      `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
+      `\n\n→ 修复 out-of-scope diff，或回到 DEV 用 acceptance_amendment_propose 提交必要扩展并取得独立批准后重跑 story_advance --phase=${phase}`,
     );
   }
   // CHK-004 B-a30e: advisory warning copy — name recovery path depending on phase.
   if (result.status === 'warn') {
     const recoveryHint = (phase === 'TEST' || phase === 'DONE')
-      ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to acknowledge via scope_contract_acknowledge, or verify via delivery reviewer.`
-      : `→ Scope warnings (advisory, not blocking) — acknowledge via scope_contract_acknowledge if the expansion is intentional, then proceed.`;
+      ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to propose necessary expansion via acceptance_amendment_propose, or revert the change.`
+      : `→ Scope warnings (advisory, not blocking) — use acceptance_amendment_propose in DEV if the expansion is intentional, or revert the change.`;
     return `\n\n${renderedWithRows}\n\n${recoveryHint}`;
   }
   return `\n\n${renderedWithRows}`;
@@ -548,7 +543,7 @@ export function runScopeTransitionGate(
  */
 export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): string {
   let checklist: ChecklistData | null = null;
-  try { checklist = ctx.store.readChecklist(storyId); } catch (error) { rethrowIntentAmendmentIntegrityError(error); rethrowIntentAmendmentIntegrityError(error); return ''; }
+  try { checklist = ctx.store.readChecklist(storyId); } catch (error) { rethrowIntentAmendmentIntegrityError(error); return ''; }
   if (!checklistHasFileDeclarations(checklist)) return '';
 
   // Contract already exists — no advisory needed.
@@ -591,119 +586,6 @@ export function runLegacyReceiptTransitionGate(
   return `\n\n${rendered}`;
 }
 
-function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
-  if (!Array.isArray(coverage?.entries)) return null;
-  const rows = coverage.entries.map((entry: any) => ({
-    intentRef: String(entry?.intentRef ?? ''),
-    itemId: String(entry?.itemId ?? ''),
-    lane: String(entry?.lane ?? ''),
-    desc: String(entry?.desc ?? ''),
-    type: String(entry?.type ?? ''),
-    priority: String(entry?.priority ?? 'must'),
-    status: String(entry?.status ?? ''),
-    evidence: entry?.evidence ? {
-      kind: String(entry.evidence.kind ?? ''),
-      result: String(entry.evidence.result ?? ''),
-      command: String(entry.evidence.command ?? ''),
-      waiverType: String(entry.evidence.waiverType ?? ''),
-      verdict: String(entry.evidence.verdict ?? ''),
-    } : null,
-  }));
-  rows.sort((a: any, b: any) => a.intentRef.localeCompare(b.intentRef));
-  return JSON.stringify({
-    total: typeof coverage.total === 'number' ? coverage.total : null,
-    required: typeof coverage.required === 'number' ? coverage.required : null,
-    covered: typeof coverage.covered === 'number' ? coverage.covered : null,
-    missingRequired: typeof coverage.missingRequired === 'number' ? coverage.missingRequired : null,
-    entries: rows,
-  });
-}
-
-function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string): string {
-  const story = ctx.store.readStory(storyId);
-  const checklist = ctx.store.readChecklist(storyId);
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  const head = currentGitHead(gitCwd);
-  const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
-  const coverage = buildVerificationCoverage(
-    checklist,
-    head,
-    (headHash, evidence) => checkEvidenceFreshnessForGit(
-      gitCwd,
-      headHash,
-      evidence?.materialHash,
-      ctx.root,
-      evidence?.storyFilesHash,
-    ).fresh,
-    {
-      deferredGateEvidence: 'missing',
-      evidenceQualityProfile: policy.profile,
-      receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
-    },
-  );
-  return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
-}
-
-type ValidateEvidenceFailureKind = 'validation_failure' | 'infra_failure';
-
-function validateFailureKindFromResult(result: any): ValidateEvidenceFailureKind | undefined {
-  if (result?.allPass === true || result?.allPassed === true) return undefined;
-  if (result?.failureKind === 'infra_failure') return 'infra_failure';
-  if (result?.failureKind === 'validation_failure') return 'validation_failure';
-  const commands = Array.isArray(result?.commands) ? result.commands : [];
-  if (commands.some((cmd: any) => cmd?.failureKind === 'infra_failure' || cmd?.timedOut === true)) {
-    return 'infra_failure';
-  }
-  return 'validation_failure';
-}
-
-function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
-  const status = readGitStatusLines(gitCwd);
-  if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
-  const config = loadConfig(ctx.root);
-  const classification = classifyGitStatusRows(status.lines, classifierOptionsForCheck(config, storyId, ctx.store, ctx.root));
-  const blocked = isBlockingDirty(classification);
-  if (!blocked.blocked) return '';
-  const sample = blocked.blockingPaths.slice(0, 5).join(', ');
-  const suffix = blocked.blockingPaths.length > 5 ? ', ...' : '';
-  return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
-}
-
-export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, storyId: string): ValidationEvidenceAdmissibility {
-  const evidence = ctx.store.readTestEvidence(storyId);
-  // Preserve the legacy gate's cheap path: absent or failed evidence means
-  // "run validate", not "load every PASS-only freshness dependency first".
-  // Some execution-error fixtures intentionally have no checklist yet.
-  if (!evidence) {
-    return {
-      ok: false,
-      reasons: ['validation evidence is missing'],
-      reasonCodes: ['evidence_missing'],
-      lineage: 'rejected',
-      evidence: null,
-    };
-  }
-  if (evidence.result !== 'PASS') {
-    return {
-      ok: false,
-      reasons: ['validation evidence result is not PASS'],
-      reasonCodes: ['result_not_pass'],
-      lineage: 'rejected',
-      evidence,
-    };
-  }
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  return evaluateValidationEvidenceAdmissibility({
-    evidence,
-    expectedCommand: `proof-or-stop validate --story=${storyId} --json`,
-    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
-    recordedCoverageSnapshot: canonicalCoverageSnapshotFromReport(evidence?.verificationCoverage),
-    blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
-    gitCwd,
-    metadataRoot: ctx.root,
-  });
-}
-
 function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibility, validateCommand: string): string {
   const rendered = result.reasonCodes.map((code, index) => {
     const detail = result.reasons[index] ?? code;
@@ -727,20 +609,17 @@ function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibi
 }
 
 /**
- * DEV→TEST proof-or-stop validate gate.
+ * REVIEW→TEST routine validation evidence gate.
  *
- * 自动调 proof-or-stop validate，消费 verifier 返回的 JSON 结果。
+ * This gate consumes a current signed PASS produced by the one unscoped
+ * story-scoped routine suite in REVIEW. It deliberately has no verifier
+ * dependency or execution fallback: allowing TEST entry to call validate
+ * would create a second routine-suite authority after PRE_CERT admission.
  *
- * verifier owns test-evidence.json persistence and canonical metadata commit.
- * This gate must not write the artifact again: a second write would discard
- * commandExecution / routineValidationIdentity / disposition, leave metadata
- * dirty after verifier's commit, and invalidate closeout writer provenance.
- *
- * Fail-closed (preMortem #1): validate throw / JSON-parse failure each still
- * block TEST — the catch rethrows "Cannot enter TEST" and never advances.
- *
- * On gate failure / execution failure this throws; on success it returns
- * normally.
+ * Missing, stale, malformed, or non-PASS evidence therefore fails closed
+ * before any validation child can be discovered or spawned. Recovery returns
+ * to DEV, then re-establishes the REVIEW PRE_CERT workflow and its sole
+ * unscoped `proof-or-stop validate --story=<id> --json` execution.
  *
  * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
  * owned solely by transition-orchestrator.ts, which stops it in a single
@@ -752,60 +631,25 @@ export async function runValidateGate(
   storyId: string,
   _actor: { stop(): void },
 ): Promise<void> {
-  const { store } = ctx;
   const validateCommand = `proof-or-stop validate --story=${storyId} --json`;
+  // Guard before consulting reusable evidence: a terminal/missing PRE_CERT
+  // window cannot be bypassed by an otherwise current PASS.
+  assertTestAdmissibleRoutineValidationWindow(ctx, storyId);
   const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
   if (admissibility.ok) {
-    ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping proof-or-stop validate rerun (admissible lineage=${admissibility.lineage}).`);
+    ctx.log?.(`REVIEW→TEST gate: existing validation PASS is fresh; TEST reuses it without rerunning proof-or-stop validate (admissible lineage=${admissibility.lineage}).`);
     return;
   }
-  const rerunReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand);
-
-  ctx.log?.(rerunReason
-    ? `DEV→TEST gate: ${rerunReason}; running proof-or-stop validate --json...`
-    : 'DEV→TEST gate: running proof-or-stop validate --json...');
-  try {
-    const { createVerifierHandlers } = await import('./verifier.js');
-    const verifierHandlers = createVerifierHandlers(ctx);
-    const jsonResult = await verifierHandlers.validate({ json: true, story: storyId });
-    const parsed = JSON.parse(String(jsonResult));
-
-    if (!parsed.allPass) {
-      const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
-      const coverage = parsed.verificationCoverage;
-      const missingCoverage = coverage?.missingRequired ?? 0;
-      const coverageLines = Array.isArray(coverage?.entries)
-        ? coverage.entries
-          .filter((e: any) => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
-          .map((e: any) => `  - ${e.intentRef} [${e.status}] ${e.desc}`)
-        : [];
-      const sections = [
-        failedDetails.length > 0 ? failedDetails.join('\n') : '',
-        missingCoverage > 0
-          ? `Verification coverage 不足: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
-          : '',
-        parsed.summary ? `Summary: ${parsed.summary}` : '',
-      ].filter(Boolean);
-      throw new Error(
-        `Cannot enter TEST: proof-or-stop validate did not pass` +
-        (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
-        (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
-        '\n' +
-        sections.join('\n') +
-        '\n\n→ 修复后重跑 proof-or-stop validate，再 story_advance --phase=TEST'
-      );
-    }
-    ctx.log?.('validate PASS; canonical test-evidence.json persisted by verifier');
-  } catch (e: any) {
-    if (e.message?.includes('Cannot enter TEST')) throw e;
-    const message = e instanceof Error ? e.message : String(e);
-    throw new Error(
-      `Cannot enter TEST: proof-or-stop validate execution error\n` +
-      `${message}\n\n` +
-      `→ 修复 validate runner 后重跑 proof-or-stop validate --story=${storyId} --json\n` +
-      `→ 然后重跑 proof-or-stop story_advance --phase=TEST`,
-    );
-  }
+  const refusalReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand)
+    || 'the current signed REVIEW routine PASS is missing';
+  ctx.log?.(`REVIEW→TEST gate: ${refusalReason}; refusing to execute a second routine suite.`);
+  throw new Error(
+    `[${PRE_CERT_ROUTINE_PASS_REQUIRED}] Cannot enter TEST: ${refusalReason}.\n` +
+    'TEST never invokes proof-or-stop validate or starts configured validation children.\n\n' +
+    `→ Return to DEV: proof-or-stop story_advance --storyId=${storyId} --phase=DEV\n` +
+    '→ Re-enter REVIEW, complete the signed inventory and PRE_CERT window, then run the sole routine suite:\n' +
+    `  ${validateCommand}`,
+  );
 }
 
 /**

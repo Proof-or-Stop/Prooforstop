@@ -1,0 +1,29 @@
+{
+  "scope": "one original quorum-submit target with all preceding checks",
+  "comparison": "one ordered baseline-to-fixed pair; same restored fixture; existing caches enabled in both rounds",
+  "target": "emits exactly rounds x 2 verdicts after current reviewer passes",
+  "baselineCodeCommit": "02665608f9",
+  "baseline": {
+    "durationMs": 109789.889292,
+    "gitCalls": 10005,
+    "verdicts": 6
+  },
+  "fixed": {
+    "durationMs": 96115.859167,
+    "gitCalls": 8656,
+    "verdicts": 6
+  },
+  "preserved": [
+    "original target assertions",
+    "original prerequisite sequence",
+    "run IDs",
+    "source and dist binding before/after",
+    "live worktree lookup; no new cache"
+  ],
+  "limits": [
+    "not full quorum suite timing",
+    "not whole validation timing",
+    "one ordered pair; no P95 or variance claim"
+  ],
+  "rawEvidenceDirectory": "/tmp/u17-worktree-results/u17-original-abba-DmAz4j"
+}

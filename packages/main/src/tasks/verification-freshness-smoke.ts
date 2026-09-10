@@ -17,6 +17,7 @@ import {
 } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { createChecklistHandlers, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
@@ -29,6 +30,9 @@ import {
 } from '../handlers/recover-evidence.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { resetConfigCache } from '../core/config.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -829,6 +833,10 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       };
       store.writeStory(storyId, story);
       store.writeChecklist(storyId, checklist);
+      acquireOwnerLease(store.storyDirPath(storyId), { command: 'recover-evidence-smoke', cwd: root });
+      const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(causalInputHashes, 'recovery fixture must bind real certification inputs');
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
       return { root, storyId, store, cleanup: () => rmSync(root, { recursive: true, force: true }) };
     } catch (e) {
       rmSync(root, { recursive: true, force: true });
@@ -869,6 +877,17 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     } finally {
       fx.cleanup();
     }
+  }
+
+  // Ownership is a prerequisite, not a reason to silently skip validation.
+  {
+    const fx = makeFixture();
+    try {
+      releaseOwnerLease(fx.store.storyDirPath(fx.storyId));
+      const result = await runHandler(fx.root, fx.storyId, fx.store);
+      assert.equal(result.status, 'fail', 'recovery without ownership cannot claim success');
+      assert.match(result.validateTranscript ?? '', /owner lease lost, expired, or transferred/);
+    } finally { fx.cleanup(); }
   }
 
   // (3) Refuse — material_source_changes blocks recover.
@@ -1050,6 +1069,12 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       timestamp: now,
     } as any);
 
+    // Generate the verifier-owned PLAN artifact through its handler before
+    // introducing drift; the transition now consumes this prerequisite.
+    process.chdir(root);
+    createProofStoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .acceptance_basis_generate({ storyId, json: true });
+
     // ── 3. Simulate the main merge: change material file + commit ──────────
     // (This drifts both headHash and materialHash relative to the pinned
     //  evidence; freshness check should report stale.)
@@ -1190,6 +1215,15 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       'story_advance and validate blocks must be byte-identical');
     assert.equal(briefBlock, validateBlock,
       'session_brief and validate blocks must be byte-identical');
+
+    // Heavy recovery runs only after ownership and certification admission.
+    const recoveryStory = store.readStory(storyId);
+    recoveryStory.phase = 'TEST';
+    store.writeStory(storyId, recoveryStory);
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'recover-evidence-smoke', cwd: root });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
 
     // ── 8. End-to-end recover_evidence happy path ──────────────────────────
     // No non-metadata dirt in worktree → recover must refresh + revalidate.

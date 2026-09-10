@@ -54,7 +54,8 @@ export interface ValidationCommand {
   /**
    * What this command touches, in the SAME vocabulary the full test suite
    * declares (core/keyed-scheduler.ts): git-common-dir / fixed-path /
-   * fixed-port / runtime-lock / main-write-lock, shared or exclusive. Keys are
+   * fixed-port / runtime-lock / main-write-lock, shared or exclusive;
+   * machine-cpu / machine-process use the fixed exclusive heavy/fanout policy. Keys are
    * resolved relative to the PROJECT ROOT, not to `cwd`.
    *
    * Absent (or empty) means UNDECLARED, which is not the same as "touches
@@ -66,6 +67,15 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** Observed by the executor, never inferred from a successful exit code. */
+  sourceProvenance?: {
+    schemaVersion: string;
+    gitCwd: string;
+    headBefore: string | null;
+    headAfter: string | null;
+    cleanBefore: boolean;
+    cleanAfter: boolean;
+  };
   executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
   label: string;
   command: string;
@@ -76,11 +86,15 @@ export interface ValidationCommandResult {
   output: string;
   optional?: boolean;
   timedOut?: boolean;
+  /** Remaining child budget; timeoutMs is the invocation budget, capped by any caller deadline before admission. */
+  effectiveTimeoutMs?: number;
   timeoutMs?: number;
   failureKind?: ValidationFailureKind;
   durationMs: number;
   /** Real command-boundary observations captured by the executor spawn seam. */
   runtimeTrace?: {
+    /** Filesystem paths resolved at call time; not atomic kernel provenance. */
+    readPathSchema?: string;
     command: string;
     argv: string[];
     cwd: string;

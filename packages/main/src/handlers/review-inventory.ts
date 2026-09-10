@@ -1,3 +1,6 @@
+import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
+import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
+import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers } from './reviewer-list.js';
@@ -10,6 +13,7 @@ import {
   currentOpenReviewInventory,
   evaluateReviewInventoryWave,
   finalizedUnconsumedReviewInventory,
+  finalizedLiveAggregateError,
   reviewInventoryDigest,
   reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryAggregateFamilies,
@@ -47,6 +51,16 @@ function signedRoot(ctx: HandlerContext, storyId: string): { root: string; metad
   const root = workspace.signedWorkspaceRoot || workspace.snapshotRoot;
   if (!root) throw new Error(`review inventory: cannot resolve signed workspace for ${storyId}`);
   return { root, metadataRoot: workspace.metadataRoot || ctx.root };
+}
+
+/** Inventory completion remains valid if optional progress observation is unavailable. */
+function captureConvergenceProgress(ctx: HandlerContext, storyId: string, completedEpochId?: string): string {
+  try {
+    recordConvergenceProgressUnlocked(ctx.store, storyId, signedRoot(ctx, storyId).root, { completedEpochId });
+    return '';
+  } catch (error) {
+    return `\nConvergence progress unavailable: ${error instanceof Error ? error.message : String(error)}`;
+  }
 }
 
 function signEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'> | ReviewInventoryEpoch): ReviewInventoryEpoch {
@@ -310,7 +324,7 @@ function evaluateCurrentWave(
   findingDispositions?: ReviewInventoryFindingDisposition[],
 ) {
   const dispositions = findingDispositions ?? criticReceiptForCurrentWave(ctx, epoch)?.findingDispositions;
-  return evaluateReviewInventoryWave({
+  return evaluateReviewInventoryWave({ promptStore: ctx.store,
     epoch,
     runs: ctx.store.readReviewRuns(epoch.storyId).runs,
     passes: ctx.store.readReviewPasses(epoch.storyId).passes,
@@ -328,7 +342,7 @@ function currentCriticComplete(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
   if (epoch.state !== 'OPEN') return epoch.state === 'FINALIZED';
   const evaluation = evaluateCurrentWave(ctx, epoch);
   if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0) return false;
-  return validateReviewInventoryCriticReceipt({
+  return validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
     receipt: criticReceiptForCurrentWave(ctx, epoch),
     epoch,
     evaluation,
@@ -347,7 +361,7 @@ function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpo
     Date.parse(evidenceById.find(row => row.id === id)?.createdAt ?? ''),
   )).filter(Number.isFinite));
   const latest = ctx.store.readReviewRuns(epoch.storyId).runs
-    .filter(run => verifyReviewRun(run) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
+    .filter(run => verifyReviewRun(run, ctx.store) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
       && run.reviewPurpose === 'inventory-completeness' && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
       && run.reviewRound === epoch.reviewRound && run.materialHash === epoch.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
@@ -396,6 +410,11 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
 
 export function createReviewInventoryHandlers(ctx: HandlerContext) {
   return {
+    review_prompt_gc(args: { storyId: string }): string {
+      ctx.store.readStory(args.storyId);
+      const result = collectOrphanPromptBodies(ctx.store, args.storyId);
+      return `Review prompt GC: removed=${result.removed} retained=${result.retained}; signed metadata unchanged`;
+    },
     review_inventory_begin(args: { storyId: string; maxWaves?: number }): string {
       return inventoryLock(ctx, args.storyId, () => {
         const story = ctx.store.readStory(args.storyId);
@@ -463,7 +482,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           } : {}),
         };
-        const baselineFindingIds = captureReviewInventoryBaselineFindingIds({
+        const baselineFindingIds = captureReviewInventoryBaselineFindingIds({ promptStore: ctx.store,
           epoch: { ...provisional, _hash: '' },
           runs: ctx.store.readReviewRuns(args.storyId).runs,
           findings: ctx.store.readFindings(args.storyId).findings,
@@ -472,7 +491,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const epoch = signEpoch(unsigned);
         data.epochs.push(epoch);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return candidateArtifactInvalid ? renderReviewInventoryStatus(epoch) : renderReviewInventoryBegin(epoch);
+        return (candidateArtifactInvalid ? renderReviewInventoryStatus(epoch) : renderReviewInventoryBegin(epoch)) + captureConvergenceProgress(ctx, args.storyId);
       });
     },
 
@@ -553,7 +572,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           createdAt: now,
         };
         const receipt: ReviewInventoryCriticReceipt = { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) };
-        const validated = validateReviewInventoryCriticReceipt({
+        const validated = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt, epoch, evaluation,
           runs: ctx.store.readReviewRuns(args.storyId).runs,
           passes: ctx.store.readReviewPasses(args.storyId).passes,
@@ -576,7 +595,6 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       return inventoryLock(ctx, args.storyId, () => {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
         if (!epoch) {
-          if (args.remediation) throw new Error('REVIEW_INVENTORY_REMEDIATION_REQUIRES_COMPLETE_OPEN_WAVE');
           const story = ctx.store.readStory(args.storyId);
           const cutoff = capture(ctx, args.storyId);
           if (!cutoff.headHash || !cutoff.materialHash || !cutoff.storyFilesHash) {
@@ -584,13 +602,36 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
               'review_inventory_finalize: current headHash/materialHash/storyFilesHash are missing; refuse rather than invent a second freshness hash',
             );
           }
+          const retained = finalizedUnconsumedReviewInventory(ctx.store, args.storyId);
+          if (retained && retained.epoch.waves.length > 0 && retained.epoch.requiredLanes.length > 0) {
+            if ((args.remediation === true) !== (retained.receipt.authority === 'review-remediation-only')) {
+              throw new Error('REVIEW_INVENTORY_FINALIZE_REPLAY_AUTHORITY: retry must preserve the original remediation flag and receipt authority');
+            }
+            if (retained.epoch.reviewRound !== (story.currentReviewRound ?? '')
+              || retained.epoch.cutoff.materialHash !== cutoff.materialHash
+              || (retained.epoch.cutoff.storyFilesHash ?? '') !== (cutoff.storyFilesHash ?? '')
+              || retained.epoch.scopeDigest !== reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, args.storyId)) {
+              throw new Error('REVIEW_INVENTORY_FINALIZE_REPLAY_DRIFT: the completed epoch subject changed; cancel and begin a fresh review');
+            }
+            const invalid = finalizedLiveAggregateError(ctx.store, retained);
+            if (invalid) throw new Error(`REVIEW_INVENTORY_FINALIZE_REPLAY_INVALID: ${invalid}`);
+            return renderFinalizedReviewInventory(retained.epoch, retained.receipt)
+              + captureConvergenceProgress(ctx, args.storyId, retained.epoch.epochId)
+              + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize');
+          }
+          if (args.remediation) throw new Error('REVIEW_INVENTORY_REMEDIATION_REQUIRES_COMPLETE_OPEN_WAVE');
           const persisted = persistFinalizedReviewInventoryUnlocked({
             store: ctx.store,
             storyId: args.storyId,
             reviewRound: story.currentReviewRound ?? '',
             cutoff,
           });
-          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt);
+          // A valid receipt may predate a failed optional observation write.
+          // Retry that observation, but never count a zero-wave compatibility receipt.
+          const progress = persisted.epoch.waves.length && persisted.epoch.requiredLanes.length
+            ? captureConvergenceProgress(ctx, args.storyId, persisted.epoch.epochId) : '';
+          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt) + progress
+            + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize');
         }
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
@@ -607,7 +648,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (evaluation.duplicateIdentities.length > 0) {
           throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}; independent lane evidence required`);
         }
-        const critic = validateReviewInventoryCriticReceipt({
+        const critic = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt: criticReceiptForCurrentWave(ctx, epoch),
           epoch,
           evaluation,
@@ -658,7 +699,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
       });
     },
 
@@ -681,7 +722,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (evaluation.duplicateIdentities.length > 0) {
           throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}`);
         }
-        const critic = validateReviewInventoryCriticReceipt({
+        const critic = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt: criticReceiptForCurrentWave(ctx, epoch),
           epoch,
           evaluation,
@@ -707,6 +748,10 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       return inventoryLock(ctx, args.storyId, () => {
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         const epoch = data.epochs.at(-1);
+        if (epoch?.state === 'CANCELLED' && verifyReviewInventoryEpoch(epoch)) {
+          if (epoch.cancelReason !== args.reason.trim()) throw new Error('review_inventory_cancel: retry must preserve the original cancellation reason');
+          return renderReviewInventoryStatus(epoch) + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, 'review_inventory_cancel');
+        }
         if (!epoch || !verifyReviewInventoryEpoch(epoch)
           || (epoch.state !== 'OPEN' && !(epoch.state === 'FINALIZED' && !epoch.consumedAt))) {
           throw new Error(`review_inventory_cancel: no OPEN or unconsumed FINALIZED epoch for ${args.storyId}`);
@@ -745,7 +790,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           });
         }
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return renderReviewInventoryStatus(cancelled);
+        return renderReviewInventoryStatus(cancelled) + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, 'review_inventory_cancel');
       });
     },
   };

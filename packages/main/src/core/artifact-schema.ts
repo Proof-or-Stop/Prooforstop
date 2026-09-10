@@ -86,3 +86,12 @@ export function isDonePrepareGeneratedMetadataSchema(value: unknown): value is D
 export function isDonePrepareValidationReuseSchema(value: unknown): value is DonePrepareValidationReuseSchema {
   return value === DONE_PREPARE_VALIDATION_REUSE_SCHEMA;
 }
+
+/** Current signed verification bundle identity; data-only to keep consumers import-order independent. */
+export const VERIFICATION_RECEIPT_BUNDLE_V5 = 'proof-or-stop.verification-receipt-bundle.v5' as const;
+
+/** Current Lab gate authority; retired journal domains are not admitted. */
+export const ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA = 'proof-or-stop.acceptance_amendment.v1' as const;
+export const ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA = 'proof-or-stop.acceptance_amendments.v1' as const;
+export const EFFECTIVE_PROGRESS_SCHEMA = 'proof-or-stop.effective_progress.v1' as const;
+export const CONVERGENCE_PROGRESS_JOURNAL_SCHEMA = 'proof-or-stop.convergence_progress_journal.v1' as const;

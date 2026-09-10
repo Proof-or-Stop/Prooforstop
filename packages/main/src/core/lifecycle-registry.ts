@@ -1,3 +1,4 @@
+import { isPromptBodyArtifactPath } from './prompt-body-store.js';
 /**
  * @task B-d339
  * @checklist CHK-003
@@ -347,6 +348,9 @@ export const LIFECYCLE_ARTIFACTS = [
   // B-3f3d: signed frozen-review epochs, critic receipts, and single-use
   // remediation receipts written by StoryStore and consumed by REVIEW -> DEV.
   'review-inventory-epochs.json',
+  'acceptance-amendments.json',
+  'scope-budget-decisions.json',
+  'convergence-progress.json',
   'prompt-envelopes.json',
   'findings.json',
   // Signed append-only persistence carrier. Lifecycle classification is
@@ -727,6 +731,9 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   // Independently gated completeness process fact. Writing it after REVIEW
   // must not be treated as an untrusted closeout artifact.
   'review-inventory-epochs.json',
+  // Signed progress is verified by its own convergence gate; observing an epoch
+  // does not change the material or scope inspected by its reviewers.
+  'convergence-progress.json',
   // Independently signed topology-critic protocol evidence. The receipt is
   // reviewer-owned metadata, not DONE closeout evidence; retaining it here
   // prevents the critic's own receipt from invalidating the ReviewRun that
@@ -920,7 +927,7 @@ export function classifyLifecycleArtifact(
     if (isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
       return null;
     }
-    if (!isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
+    if (!isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath) && !isPromptBodyArtifactPath(relativePath)) {
       return null;
     }
     return {
@@ -992,3 +999,8 @@ import {
  */
 /** @deprecated Use `isAnyProofOrStopStoryMetadataPath`. */
 /** @deprecated Use `isProofOrStopLifecycleArtifactPath`. */
+
+/** Prompt bodies are digest-bound process evidence, not arbitrary Story subtree content. */
+export function isReviewRetentionProtocolMetadataPath(path: string): boolean {
+  return REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path) || isPromptBodyArtifactPath(path);
+}

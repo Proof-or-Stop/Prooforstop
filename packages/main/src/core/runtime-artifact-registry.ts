@@ -1,3 +1,22 @@
+export const REVIEWER_BATCH_ADMISSION_ARTIFACT = { directoryName: 'reviewer-batch-admission', identityKeyFile: 'execution-identity.key', seedDirectoryName: 'provider-seeds', seedFileSuffix: '.seed.json', rosterFile: 'assignments.json', rosterLockDirectory: 'assignments.lock', probeWorkDirectoryName: 'work', probeTemporaryDirectoryName: 'tmp', inputPlanPrefix: 'input-plan-', inputPlanSuffix: '.json', launchReservationDirectoryName: 'launch-reservations', launchReservationFileSuffix: '.json', launchReservationLockSuffix: '.lock', location: 'canonical-project-runtime' } as const;
+export const MANAGED_REVIEW_LANE_ARTIFACT = { directoryName: 'readonly-lane', buildSource: 'build-source', output: 'output', sourceOutput: '.proof-or-stop/runtime/managed-review-build', temporary: 'tmp', cache: 'cache', probe: 'probe', launchers: 'launchers', binding: 'build-binding.json', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
+export const MACHINE_PROVIDER_ADMISSION_ARTIFACT = { directoryName: 'machine-provider-process-slots', location: 'os-user-home-runtime-locks' } as const;
+export const MACHINE_FIXED_PORT_ARTIFACT = { directoryName: 'machine-fixed-port-capacity', location: 'os-user-home-runtime-locks' } as const;
+export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
+
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+
+function hasGitMetadata(dir: string): boolean {
+  let current = dir;
+  for (;;) {
+    if (existsSync(join(current, '.git'))) return true;
+    const parent = dirname(current);
+    if (parent === current) return false;
+    current = parent;
+  }
+}
 /**
  * Runtime-artifact registry: shared classification for material hashing,
  * volatility, ignore patterns, and tracked-artifact repair. Canonical runtime
@@ -49,6 +68,76 @@ export interface RuntimeArtifactRegistryEntry {
 
 export const PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START = '# proof-or-stop runtime artifacts (managed)';
 export const PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END = '# /proof-or-stop runtime artifacts (managed)';
+
+/**
+ * Resolve the primary worktree that owns shared local runtime state. Linked
+ * Story worktrees are intentionally not durable: DONE removes them. Runtime
+ * ownership therefore follows the first primary entry from Git's NUL-delimited
+ * worktree inventory. A proven non-git layout keeps the supplied root.
+ * Transient or incomplete Git inventory fails closed instead of pinning a
+ * linked-worktree fallback.
+ */
+/**
+ * B-137a:F-125 — per-process memoization keyed by the RESOLVED search origin.
+ *
+ * Without it this forked `git worktree list` on every call, and the call sites
+ * are hot: managed-host-run.ts resolves managedHostRunsRoot /
+ * managedHostRunReceiptsRoot repeatedly, and provider slot admission resolves
+ * the slots dir per acquire/release. Each fork costs a process spawn plus git
+ * startup for an answer that cannot change within a process -- the primary
+ * worktree of a given origin is fixed for the CLI's lifetime.
+ *
+ * Only SUCCESSFUL resolutions are cached. A proven non-git layout is not
+ * cached as a primary root. Timeout or incomplete inventory throw rather than
+ * pin a linked-worktree fallback.
+ */
+const canonicalRuntimeProjectRootCache = new Map<string, string>();
+
+export function resolveCanonicalRuntimeProjectRoot(searchOrigin: string): string {
+  const fallback = resolve(searchOrigin);
+  const cached = canonicalRuntimeProjectRootCache.get(fallback);
+  if (cached !== undefined) return cached;
+  try {
+    if (!existsSync(fallback)) return fallback;
+    const inventory = execFileSync('git', ['worktree', 'list', '--porcelain', '-z'], {
+      cwd: fallback,
+      encoding: 'utf8',
+      timeout: 2_000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const primary = inventory
+      .split('\0')
+      .find(field => field.startsWith('worktree '))
+      ?.slice('worktree '.length)
+      .trim();
+    if (!primary) {
+      throw new Error('canonical runtime project root is uncertain: git worktree inventory was incomplete');
+    }
+    const resolved = resolve(primary);
+    canonicalRuntimeProjectRootCache.set(fallback, resolved);
+    return resolved;
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('canonical runtime project root is uncertain:')) {
+      throw error;
+    }
+    const err = error as { killed?: boolean; status?: number | null; stderr?: string };
+    if (err.killed) {
+      throw new Error('canonical runtime project root is uncertain: git worktree inventory timed out');
+    }
+    const stderr = typeof err.stderr === 'string' ? err.stderr : '';
+    if (err.status === 128 && /not a git repository/i.test(stderr)) {
+      return fallback;
+    }
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT' && !hasGitMetadata(fallback)) {
+      return fallback;
+    }
+    throw new Error(
+      `canonical runtime project root is uncertain: git worktree inventory failed (${
+        error instanceof Error ? error.message : String(error)
+      })`,
+    );
+  }
+}
 
 function rx(value: string): RegExp {
   return new RegExp(value);
@@ -194,8 +283,20 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'legacy-activity-log',
-    description: 'Legacy top-level activity log retained for compatibility reads.',
-    matchers: [{ kind: 'exact', value: 'docs/story/activity.jsonl' }],
+    description: 'Legacy activity log retained for compatibility reads, at the repo root or under any nested package directory.',
+    // B-137a: the legacy path resolves against the CLI's CWD, so a command run
+    // from a subdirectory (a reviewer doing `cd packages/main && node ...`)
+    // writes `packages/main/docs/story/activity.jsonl` rather than the root
+    // copy. That is the SAME artifact kind -- the repo already declares it
+    // non-material via the `**/activity.jsonl` gitignore rule -- but an `exact`
+    // matcher recognized only the root spelling, so a nested copy counted as
+    // provider-created material and failed the managed-review scratch check
+    // after a legitimate read-only investigation. Anchor the regexp to the full
+    // `docs/story/activity.jsonl` tail so it still matches nothing else.
+    matchers: [
+      { kind: 'exact', value: 'docs/story/activity.jsonl' },
+      { kind: 'regexp', value: /^(?:[^/]+\/)+docs\/story\/activity\.jsonl$/ },
+    ],
     ignorePatterns: [],
     materialHash: 'exclude',
     volatile: true,
@@ -209,6 +310,68 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
+  },
+  {
+    id: 'reviewer-batch-admission',
+    description: 'Signed operational batch readiness generations and controller locks, never reviewer verdict evidence.',
+    matchers: stateDirPrefix(`runtime/${REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName}/`),
+    ignorePatterns: stateDirIgnore(`runtime/${REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName}/`),
+    materialHash: 'exclude', volatile: true, repairableTrackedArtifact: true,
+  },
+  {
+    id: 'managed-host-runs',
+    // B-137a: derive the path instead of hardcoding a retired state dir. These
+    // matchers named `.lattice/runtime/host-runs/`, but the producers join
+    // PROOF_OR_STOP_DIR (managed-host-run.ts:683), and STATE_DIR_NAMES accepts
+    // no legacy spelling -- so the entry matched nothing. First-match-wins then
+    // handed real artifacts to `runtime-cache` below, which agrees on
+    // materialHash:'exclude' but NOT on repairableTrackedArtifact, silently
+    // losing this entry's declared intent; `proof-or-stop init` also wrote an
+    // ignore rule for a directory nothing writes.
+    description: 'Durable local provider-run specs, one-shot inputs, journals, snapshots, terminals, and evidence bindings under <state-dir>/runtime/host-runs/.',
+    matchers: stateDirPrefix('runtime/host-runs/'),
+    ignorePatterns: stateDirIgnore('runtime/host-runs/'),
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
+  },
+  {
+    id: 'managed-host-run-receipts',
+    // B-137a: same derivation fix as `managed-host-runs` above -- the producer
+    // is managed-host-run.ts:687, which joins PROOF_OR_STOP_DIR.
+    description: 'Bounded terminal receipt archives preserved after heavy ManagedHostRun runtime GC, under <state-dir>/runtime/host-run-receipts/.',
+    matchers: stateDirPrefix('runtime/host-run-receipts/'),
+    ignorePatterns: stateDirIgnore('runtime/host-run-receipts/'),
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
+  },
+  {
+    // B-137a: these two runtime directories are written by this story
+    // (host-run.ts:1954 joins PROOF_OR_STOP_DIR/runtime/host-run-prompts/,
+    // provider-process-registry.ts:37 joins .../provider-process-slots/) but had
+    // no entry of their own, so first-match-wins handed them to the generic
+    // `runtime-cache` below. That fallback agrees on materialHash:'exclude' but
+    // NOT on repairableTrackedArtifact -- it reports `true` where every sibling
+    // managed-run directory declares `false` -- so the declared intent for these
+    // paths was silently replaced by a weaker one. Same defect shape as the
+    // dead `managed-host-runs` matchers repaired earlier in this story.
+    id: 'managed-host-run-prompts',
+    description: 'One-shot provider prompt files for managed host runs under <state-dir>/runtime/host-run-prompts/.',
+    matchers: stateDirPrefix('runtime/host-run-prompts/'),
+    ignorePatterns: stateDirIgnore('runtime/host-run-prompts/'),
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
+  },
+  {
+    id: 'provider-process-slots',
+    description: 'Token-owned provider concurrency slots under <state-dir>/runtime/provider-process-slots/.',
+    matchers: stateDirPrefix('runtime/provider-process-slots/'),
+    ignorePatterns: stateDirIgnore('runtime/provider-process-slots/'),
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: false,
   },
   {
     id: 'runtime-cache',

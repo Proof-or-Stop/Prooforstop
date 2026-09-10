@@ -21,12 +21,16 @@
  */
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { StoryStore } from '../core/store.js';
 import { createHash } from 'node:crypto';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
+import { runAgentLivenessSuiteForPinnedEvidence, agentLivenessSuiteChildEnvironment } from './agent-liveness-suite-smoke.js';
 
 type JsonObject = Record<string, any>;
 
@@ -360,7 +364,48 @@ try {
   assert.equal(unavailable.steps[0].status, 'blocked');
   assert.equal(unavailable.steps[0].reason, 'provider_unavailable', 'codex blocks when the CLI is unavailable on this host');
 
-  console.log('✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed');
+  // F-181: a provider smoke can itself run under a managed reviewer. Its
+  // nested liveness children must remain ordinary CLI fixtures rather than
+  // inheriting provider-only direct-evidence restrictions.
+  const pollutedLivenessEnvironment = {
+    ...process.env,
+    LATTICE_MANAGED_HOST_RUN_ID: 'provider-codex-parent-managed-run',
+    LATTICE_MANAGED_REVIEW_INVOCATION_FD: '3',
+    LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'provider-codex-parent-capability',
+    LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '4',
+    PROOF_OR_STOP_AGENT: 'lattice-review-docs',
+    PROOF_OR_STOP_ACTIVITY_ROLE: 'lattice-review-docs',
+    LATTICE_REVIEWER_READONLY: '1',
+  };
+  if (process.argv.includes('--canonical-core')) {
+    // Preserve F-181 at a real child CLI mutation boundary without replaying
+    // any registered suite. The negative control checks the unsanitized env.
+    const fixture = join(work, 'f181-cli'); mkdirSync(fixture);
+    writeFileSync(join(fixture, 'proof-or-stop.config.json'), JSON.stringify({storyDir:'.proof-or-stop/story/actives'}));
+    const fixtureStore = new StoryStore(fixture);
+    const storyId = 'B-f181';
+    fixtureStore.writeStory(storyId, {storyId,phase:'INIT',title:'Before independent fixture CLI',createdAt:new Date().toISOString()} as any);
+    const probe = join(fixture, 'check-child-environment.mjs');
+    const forbidden = ['LATTICE_MANAGED_HOST_RUN_ID','LATTICE_MANAGED_REVIEW_INVOCATION_FD',
+      'LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY','LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD',
+      'PROOF_OR_STOP_AGENT','PROOF_OR_STOP_ACTIVITY_ROLE','LATTICE_REVIEWER_READONLY'];
+    writeFileSync(probe, `import assert from 'node:assert/strict';
+for(const key of ${JSON.stringify(forbidden)})assert.equal(process.env[key],undefined,'F181_AMBIENT_AUTHORITY_LEAK '+key);
+`);
+    const cli = fileURLToPath(new URL('../cli.js', import.meta.url));
+    const title = 'Independent fixture CLI authority preserved';
+    const argv = ['--import',probe,cli,'story_update','--storyId='+storyId,'--title='+title];
+    const unsanitized = spawnSync(process.execPath,argv,{cwd:fixture,env:pollutedLivenessEnvironment,encoding:'utf8',timeout:30000});
+    assert.notEqual(unsanitized.status,0,'F-181 unsanitized child must be refused');
+    assert.match(unsanitized.stderr,/F181_AMBIENT_AUTHORITY_LEAK/);
+    assert.equal(fixtureStore.readStory(storyId).title,'Before independent fixture CLI');
+    const sanitized = spawnSync(process.execPath,argv,{cwd:fixture,env:agentLivenessSuiteChildEnvironment(pollutedLivenessEnvironment),encoding:'utf8',timeout:30000});
+    assert.equal(sanitized.status,0,`${sanitized.stdout}\n${sanitized.stderr}`);
+    assert.equal(fixtureStore.readStory(storyId).title,title,'F-181 actual child CLI writes only its own fixture');
+    console.log('provider-codex F181 independent child CLI boundary PASS');
+  } else runAgentLivenessSuiteForPinnedEvidence(pollutedLivenessEnvironment);
+  if (process.argv.includes('--canonical-core')) console.log('provider-codex-smoke: CANONICAL CORE PASS');
+  else console.log('✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed');
 } finally {
   rmSync(work, { recursive: true, force: true });
 }

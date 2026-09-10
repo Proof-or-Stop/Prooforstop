@@ -41,6 +41,7 @@ import { readHistoryCatalog, readCanonicalCatalog, historicalStoryContext, ident
 import { buildHistoryIndex, queryHistoryIndex, canonicalCurrent, validateHistoryGraph, validateSupersession, type HistorySupersession,
   verifyIdentityScorecard, scorecardDigest, SCORECARD_KINDS, detectorAdjudicationMeasurements } from '../core/finding-history.js';
 import { getGuardFailureReason as getLifecycleGuardFailureReason } from '../core/machine.js';
+import { nativeReviewFixtureBrokers, withBrokeredNativeReviewInvocation } from './native-review-fixture.js';
 
 const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=')[1] ?? 'candidates';
 const smokeStarted = performance.now();
@@ -89,8 +90,11 @@ try {
   git('init', '-b', 'main');
   git('config', 'user.name', 'Harmonynet'); git('config', 'user.email', '26995688+Harmonynet@users.noreply.github.com');
   writeFileSync(join(scratch, 'source.mjs'), source);
-  writeFileSync(join(scratch, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }));
-  writeFileSync(join(scratch, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n');
+  writeFileSync(join(scratch, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
+  }));
+  writeFileSync(join(scratch, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n.proof-or-stop/runtime/native-review-invocations/\n.native-review-fixture-*.json\n');
   git('add', '.'); git('commit', '-m', 'synthetic candidate source');
   const store = new StoryStore(scratch); const storyId = 'B-CANDIDATES';
   store.writeStory(storyId, { storyId, name: 'candidate-fixture', title: 'Synthetic candidate fixture', description: 'Bounded candidate handler smoke fixture.',
@@ -353,9 +357,10 @@ try {
   process.env.PROOF_OR_STOP_AGENT = lane;
   const start = String(registry.get('review_run_start')!({ storyId, agent: lane }));
   const reviewRunId = start.match(/Review run (\S+) started/)?.[1]; assert.ok(reviewRunId, start);
-  registry.get('finding_add')!({ storyId, agent: lane, reviewRunId, desc: 'Synthetic reproduced value defect: observedDefect returns 2 rather than required 3.',
-    severity: 'high', category: 'edge', files: ['source.mjs'], evidenceState: 'verified', idempotencyKey: 'real-finding',
-    readManifest: { filesReadFully: ['source.mjs'], filesTriagedByName: [], scanEscalationReason: null } });
+  withBrokeredNativeReviewInvocation({ root: scratch, store, storyId, agent: lane, reviewRunId, invoke: () =>
+    registry.get('finding_add')!({ storyId, agent: lane, reviewRunId, desc: 'Synthetic reproduced value defect: observedDefect returns 2 rather than required 3.',
+      severity: 'high', category: 'edge', files: ['source.mjs'], evidenceState: 'verified', idempotencyKey: 'real-finding',
+      readManifest: { filesReadFully: ['source.mjs'], filesTriagedByName: [], scanEscalationReason: null } }) });
   const finding = store.readFindings(storyId).findings.at(-1)!; assert.ok(finding.recordId);
   const marker = `candidate-reproduced:${promotionSource.candidateId}:${promotionSource.currentProjectionHash}`;
   const snapshot = identitySourceSnapshot(ctx); const storyFilesHash = currentStoryFilesHash(scratch, 'HEAD', scratch);
@@ -1165,9 +1170,10 @@ try {
       registry.get('dispatch')!({ storyId: currentId, agentType: lane }); process.env.PROOF_OR_STOP_AGENT = lane;
       const currentStart = String(registry.get('review_run_start')!({ storyId: currentId, agent: lane }));
       const currentRun = currentStart.match(/Review run (\S+) started/)?.[1]; assert.ok(currentRun, currentStart);
-      registry.get('finding_add')!({ storyId: currentId, agent: lane, reviewRunId: currentRun, desc: 'Corrected historical observation: the literal return value is 2 and the current contract requires 3, preserving the old observation trail.',
-        severity: 'high', category: 'edge', files: ['source.mjs', packagePath], evidenceState: 'verified', idempotencyKey: 'historical-successor',
-        readManifest: { filesReadFully: ['source.mjs', packagePath], filesTriagedByName: [], scanEscalationReason: null } });
+      withBrokeredNativeReviewInvocation({ root: scratch, store, storyId: currentId, agent: lane, reviewRunId: currentRun, invoke: () =>
+        registry.get('finding_add')!({ storyId: currentId, agent: lane, reviewRunId: currentRun, desc: 'Corrected historical observation: the literal return value is 2 and the current contract requires 3, preserving the old observation trail.',
+          severity: 'high', category: 'edge', files: ['source.mjs', packagePath], evidenceState: 'verified', idempotencyKey: 'historical-successor',
+          readManifest: { filesReadFully: ['source.mjs', packagePath], filesTriagedByName: [], scanEscalationReason: null } }) });
       const successorFinding = store.readFindings(currentId).findings.at(-1)!;
       const successorRecord = store.readFindingLedger<JsonValue>(currentId).records.find(row => row.recordId === successorFinding.recordId)!;
       const successorRef = { storyId: currentId, findingId: successorFinding.id, recordId: successorRecord.recordId, recordHash: exactLedgerRecordHash(successorRecord) };

@@ -138,10 +138,13 @@ export function resolveAdapterOwnerSession(
 ): AdapterSessionIdentity | null {
   const canonical = trimToNull(readBrandEnv('SESSION_ID', env));
   if (canonical !== null) {
+    const provider = detectProvider(env) ?? undefined;
+    const nativeTask = provider ? nativeTaskIdentity(env, provider) : null;
     return {
       sessionId: canonical,
       sessionSource: 'explicit-env',
-      hostProvider: detectProvider(env) ?? undefined,
+      hostProvider: provider,
+      ...(provider && nativeTask ? { nativeSessionRef: `${provider}:validated-composite` } : {}),
     };
   }
 

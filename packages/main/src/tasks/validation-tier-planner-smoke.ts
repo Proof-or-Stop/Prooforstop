@@ -458,6 +458,13 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // (the item that registered single-owner-extraction-smoke in validate.commands)
 // added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
 // (the item that registered validation-protocol-smoke in validate.commands)
+// added that entry, moving it to 056e47fd.... B-fe8f CHK-001 registered the
+// Finding ledger/runtime integrity RED guard, while B-1482 CHK-003 registered
+// test:narrowing-repin. The combined inventory retains both entries and moves
+// the digest to 5da99a65.... Name the story and item here,
+// Lab U01–U18 expands the registered inventory from 134 to 153 commands,
+// including explicit fixture wrappers and independently registered suite members.
+// Recomputed through configuredValidationCommands -> buildValidationCommandInventory.
 // added that entry, moving it to 056e47fd.... B-1482 CHK-003 (the item that
 // registered test:narrowing-repin in validate.commands) added that entry,
 // moving it to d98a2288.... B-aa5f CHK-004 registered the process-fact and
@@ -529,9 +536,10 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
      'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
      'packages/main/tests/canonical-new-story-artifacts.test.mjs',
    ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-  // Lab integration preserves the complete current main inventory and its timeouts;
-  // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
-  assert.equal(real.commandSetDigest, 'b83e9f7390c0bb06f54c92adfe53a8dd6694e0ff8ee9af82f19911f19693d82b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // v0.3.300 retains the session-performance inventory and adds the Finding
+  // identity delivery and RED commands. Recompute from the merged normalized
+  // inventory before replacing this deliberate merge-time sentinel.
+  assert.equal(real.commandSetDigest, 'dc42ca76e140345b7273565216f7cd3054781423e3d8312f051a8f94b377087b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

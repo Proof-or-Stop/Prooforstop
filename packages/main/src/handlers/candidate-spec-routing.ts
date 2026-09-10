@@ -43,7 +43,6 @@ const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
 export interface CandidateSpecRouteArgs extends FormatArgs {
   storyId: string;
   hosts?: boolean;
-  requestAgy?: boolean;
   persist?: boolean;
   fullScanReason?: string;
 }
@@ -114,6 +113,9 @@ export function renderCandidateSpecRouteText(
     `Candidate spec route: ${artifact.storyId}`,
     `corpus=${artifact.candidateSpecSet.length}/${corpusCount} candidates digest=${artifact.artifactDigest}`,
     `hosts=${attempts.map(attempt => `${attempt.host}:${attempt.status}`).join(',') || 'disabled'}`,
+    `agyReadiness=${artifact.agyReadinessDiagnostic
+      ? `${artifact.agyReadinessDiagnostic.failureKind}:${artifact.agyReadinessDiagnostic.diagnostic ?? 'none'}`
+      : 'not-probed'}`,
     `requiresEscalation=${artifact.requiresEscalation}`,
     `escalationReasons=${artifact.escalationReasons.join(',') || 'none'}`,
     `queryFiltering=maxDocumentFrequencyRatio=${artifact.queryFiltering.maxDocumentFrequencyRatio} filtered=${artifact.queryFiltering.filteredTerms.map(term => `${term.term}:${term.documentCount}:${term.reason}`).join(',') || 'none'}`,
@@ -170,10 +172,45 @@ function parseProposalOutput(text: string): unknown {
   throw new Error('host proposal output did not contain a JSON object');
 }
 
-function hostName(host: HostKeywordProposal['host']): 'codex' | 'claude' | 'agy' {
+/**
+ * Bounded final proposal lane shared by the production passthrough and its
+ * executable boundary smoke. Overflow invalidates the entire candidate stream:
+ * a parseable prefix is never accepted after later bytes exceed the cap.
+ */
+export class CandidateProposalOutputCollector {
+  private output = '';
+  private overflow = false;
+
+  push(text: string): void {
+    if (this.overflow) return;
+    if (Buffer.byteLength(this.output) + Buffer.byteLength(text) > MAX_PROPOSAL_OUTPUT_BYTES) {
+      this.overflow = true;
+      this.output = '';
+      return;
+    }
+    this.output += text;
+  }
+
+  finish(result: Pick<HostRunResult,
+    'blocked' | 'refusalReason' | 'timedOut' | 'timeoutKind' | 'firstOutputMs' | 'durationMs' | 'exitCode' | 'terminalReason' | 'failureKind'>): unknown {
+    const failureReason = candidateHostFailureReason(result);
+    if (failureReason) throw new Error(failureReason);
+    if (this.overflow) throw new Error('host proposal output budget exceeded');
+    if (result.firstOutputMs === null) throw new Error('post_readiness_no_output');
+    return parseProposalOutput(this.output);
+  }
+}
+
+// B-137a:F-122 — exhaustive, no silent fallback. The previous form returned
+// 'agy' for anything that was not codex/claude, so a future host added to the
+// union would have been silently mislabeled as agy rather than failing to
+// compile. The union no longer contains 'agy-cli' (its construction site was
+// deleted), and the `never` check now makes any new host a compile error here.
+function hostName(host: HostKeywordProposal['host']): 'codex' | 'claude' {
   if (host === 'codex-cli') return 'codex';
   if (host === 'claude-cli') return 'claude';
-  return 'agy';
+  const unreachable: never = host;
+  throw new Error(`unsupported candidate-spec routing host: ${String(unreachable)}`);
 }
 
 function projectRootHash(root: string): string {
@@ -208,8 +245,7 @@ function productionExecutor(
       `Required identity: storyId=${storyId} host=${host} promptDigest=${promptDigest} deterministicSeedDigest=${seedDigest}`,
       `Sanitized routing input: ${JSON.stringify(sanitizedPayload)}`,
     ].join('\n');
-    let output = '';
-    let overflow = false;
+    const proposalOutput = new CandidateProposalOutputCollector();
     const result = await runHostRun({
       host: canonicalHost,
       storyId,
@@ -229,20 +265,10 @@ function productionExecutor(
         try { return { phase: ctx.store.readStory(id).phase }; } catch { return null; }
       },
       passthrough: chunk => {
-        if (chunk.stream !== 'stdout' || overflow) return;
-        if (Buffer.byteLength(output) + Buffer.byteLength(chunk.text) > MAX_PROPOSAL_OUTPUT_BYTES) {
-          overflow = true;
-          output = '';
-          return;
-        }
-        output += chunk.text;
+        if (chunk.stream === 'stdout') proposalOutput.push(chunk.text);
       },
     });
-    const failureReason = candidateHostFailureReason(result);
-    if (failureReason) throw new Error(failureReason);
-    if (overflow) throw new Error('host proposal output budget exceeded');
-    if (result.firstOutputMs === null) throw new Error('post_readiness_no_output');
-    return parseProposalOutput(output);
+    return proposalOutput.finish(result);
   };
 }
 
@@ -323,6 +349,10 @@ export function createCandidateSpecRoutingHandlers(
             storyFilesHash: snapshot.storyFilesHash,
             cwd: ctx.root,
           }).hosts))();
+      // agy remains a diagnostics-only readiness probe. Candidate proposal
+      // execution stays exhaustively codex/claude, so this projection can never
+      // turn a negative readiness report into an agy launch attempt.
+      const agyReadiness = readiness.find(row => row.host === 'agy');
       const hostResult = args.hosts === false
         ? { attempts: [], accepted: [], sanitizedDigest: '', hostDisagreement: false }
         : await collectHostKeywordProposals({
@@ -342,7 +372,6 @@ export function createCandidateSpecRoutingHandlers(
               ),
               readiness,
             ),
-            requestAgy: args.requestAgy,
           });
       const artifact = routeCandidateSpecs({
         projectRoot: ctx.root,
@@ -362,6 +391,18 @@ export function createCandidateSpecRoutingHandlers(
         maxDocumentFrequencyRatio: config.candidateSpecRouting?.maxDocumentFrequencyRatio,
         forceFullScanReason: args.fullScanReason,
         storyInputDigest: digestCandidateRoutingValue(input),
+        ...(agyReadiness ? {
+          agyReadinessDiagnostic: {
+            launcherSupport: agyReadiness.launcherSupport,
+            launcherOk: agyReadiness.launcherOk,
+            executionReady: agyReadiness.executionReady,
+            reviewReady: agyReadiness.reviewReady,
+            failureKind: agyReadiness.failureKind,
+            progressMode: agyReadiness.progressMode,
+            diagnostic: agyReadiness.diagnostic ?? null,
+            remediation: agyReadiness.remediation ?? null,
+          },
+        } : {}),
         ...snapshot,
       });
       if (args.persist !== false) {

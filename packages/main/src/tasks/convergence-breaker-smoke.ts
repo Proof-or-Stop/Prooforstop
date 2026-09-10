@@ -1321,6 +1321,7 @@ let digestMatrixSummary = '';
       readStory: (_id: string) => ({ events: [] }),
       readReviewRuns: (_id: string) => ({ runs: [] }),
       readReviewPasses: (_id: string) => ({ passes: [] }),
+      readConvergenceProgress: (_id: string) => null,
     } as unknown as import('../core/store.js').StoryStore;
     const base = { command: 'story_advance', store, env: {}, isTakeoverCommand: false, storyId: 'B-gate' };
 
@@ -1332,11 +1333,11 @@ let digestMatrixSummary = '';
     enforceConvergenceBreakerGate({ ...base, command: 'summary_set' });
     assert.equal(readBreakerState(dir), null, 'non-gated command untouched');
 
-    // Plant a frozen state: story_advance is hard-blocked.
+    // Historical counter freezes do not prove two complete stagnant review epochs.
     writeBreakerState(dir, { advanceBaseline: 0, takeoverBaseline: 0, reviewRunBaseline: 0, reviewPassBaseline: 0, autoRecoveriesSpent: 1, frozen: true, trippedReasons: ['takeover 65>5'] });
-    assert.throws(() => enforceConvergenceBreakerGate(base), /FROZEN/, 'frozen story_advance is hard-blocked');
-    // F-004: a takeover-carrying command is ALSO blocked while frozen.
-    assert.throws(() => enforceConvergenceBreakerGate({ ...base, command: 'story_reconcile', isTakeoverCommand: true }), /FROZEN/, 'frozen takeover command is hard-blocked');
+    assert.doesNotThrow(() => enforceConvergenceBreakerGate(base), 'legacy count-only freeze is diagnostic without completed epochs');
+    // The same epoch-based decision applies to takeover-carrying commands.
+    assert.doesNotThrow(() => enforceConvergenceBreakerGate({ ...base, command: 'story_reconcile', isTakeoverCommand: true }), 'legacy count-only takeover freeze is diagnostic');
     // The sole human recovery command can carry a takeover to acquire a newly
     // created terminal session's lease; its own handler still validates TTY,
     // --ack, and a reason before clearing the breaker.
@@ -1384,6 +1385,7 @@ let digestMatrixSummary = '';
       readStory: (_id: string) => ({ events: [] }),
       readReviewRuns: (_id: string) => ({ runs: [] }),
       readReviewPasses: (_id: string) => ({ passes: [] }),
+      readConvergenceProgress: (_id: string) => null,
     } as unknown as import('../core/store.js').StoryStore;
 
     for (const evil of ['../../outside', 'a/b', '..', 'B-bad/../../x', 'B bad']) {
@@ -1406,5 +1408,5 @@ console.log(
   + digestMatrixSummary
   + ' — plus thresholds, autopilot '
   + 'refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, '
-  + 'enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection',
+  + 'shared-gate count-only freeze migration, no-spurious-reset, canonical-id guard rejection',
 );

@@ -27,6 +27,7 @@ import {
   readLifecycleMetadataOutputHashes,
 } from '../core/auto-commit-metadata.js';
 import { rawArtifactDigest } from '../core/closeout-trust.js';
+import { signTestValidationEvidence } from '../core/validation-artifact-signing.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -865,7 +866,9 @@ function assertHandlerExecutedThenReused(
         missingRequired: 1,
         entries: [],
       };
-      store.writeTestEvidence(storyId, parsedEvidence);
+      // This is an explicit trusted fixture for a coverage-only failure, not a
+      // tamper negative control: authenticate its changed aggregate fields.
+      store.writeTestEvidence(storyId, signTestValidationEvidence(storyId, parsedEvidence, root));
       git(root, ['add', '.proof-or-stop']);
       git(root, ['commit', '-m', 'record coverage-only validation failure before evidence refresh']);
     }

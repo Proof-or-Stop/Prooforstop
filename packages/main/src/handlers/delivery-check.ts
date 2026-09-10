@@ -25,6 +25,7 @@ import {
   DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
   normalizeDeliveryPromiseOutcome,
 } from '../core/delivery-promise-outcome.js';
+import { authorizeNativeDeliveryReview } from '../core/delivery-review-authority.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -39,7 +40,13 @@ import {
  * - When waiverReason is non-empty it must be ≥ 30 chars (enters _hash to prevent post-hoc tampering)
  * - closingSelfCheck.summary ≥ 10 chars
  */
-export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
+export function createDeliveryCheckHandlers(
+  ctx: HandlerContext,
+  options: {
+    /** Test seams may skip native broker issuance; production never does. */
+    authorizeNativeInvocation?: (args: Parameters<typeof authorizeNativeDeliveryReview>[0]) => ReturnType<typeof authorizeNativeDeliveryReview> | void;
+  } = {},
+): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
   return {
     delivery_waiver_add(args: {
@@ -73,6 +80,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.reviewRound,
         data.materialHash,
         data.storyFilesHash,
+        data.nativeEvidenceBinding,
       );
       if (data._hash !== currentExpected) {
         throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the proof-or-stop-review-delivery reviewer');
@@ -103,6 +111,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.reviewRound,
         data.materialHash,
         data.storyFilesHash,
+        data.nativeEvidenceBinding,
       );
 
       // 6) Write back
@@ -199,6 +208,16 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       const storyFilesHash =
         rawStoryFilesHash && rawStoryFilesHash !== EMPTY_STORY_FILES_HASH ? rawStoryFilesHash : undefined;
 
+      // Consume the one-shot native broker capability before the persisted
+      // artifact is assembled, then carry the exact binding into its signature.
+      // The injected test seam may intentionally return void; production always
+      // returns the registered broker binding.
+      const nativeAuthorization = (options.authorizeNativeInvocation ?? authorizeNativeDeliveryReview)({
+        store,
+        storyId: args.storyId,
+        projectRoot: root,
+      });
+      const nativeEvidenceBinding = nativeAuthorization ?? undefined;
       const _hash = signDeliveryCheck(
         args.storyId,
         docsPromises,
@@ -207,6 +226,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         reviewRound,
         materialHash,
         storyFilesHash,
+        nativeEvidenceBinding,
       );
 
       // 4) construct DeliveryCheckData and persist to disk
@@ -221,6 +241,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         docsPromises,
         realMachineTests,
         closingSelfCheck,
+        ...(nativeEvidenceBinding ? { nativeEvidenceBinding } : {}),
         _hash,
       };
       store.writeDeliveryCheck(args.storyId, data);

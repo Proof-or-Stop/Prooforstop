@@ -1520,10 +1520,13 @@ async function selectionAndScheduleCases() {
       const entry = catalog.find(row => row.args[0] === reuseTarget);
       assert.ok(entry, `${label}: reuse target must exist`);
       const closure = closures.get(entry.id);
+      assert.deepEqual(entry.declaredEnvironmentKeys ?? Object.keys(entry.env ?? {}), [],
+        'this bounded scheduler fixture requires an explicitly empty declared environment');
       receipts.push(createValidationCommandReceipt({
         id: 'receipt-' + entry.id, commandId: entry.id, commandIdentityDigest: stableDigest(entry),
         inputDigest: computeValidationInputDigest({
           command: entry, certifiedPaths: closure.certifiedPaths.map(path => ({ path })),
+          environmentDigest: stableDigest([]),
           catalogDigest, graphDigest: '', closureCertificateDigest: closure.signature,
           baselineEpoch: '', toolchainDigest: '', buildProofDigest: '',
         }),

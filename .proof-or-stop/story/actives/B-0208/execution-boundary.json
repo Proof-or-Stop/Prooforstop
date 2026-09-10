@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0208",
+  "allowedCommands": [
+    "git *",
+    "node *",
+    "npm *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Bounded causal tool identity repair, local implementation and verification under the standard Story lifecycle.",
+  "createdAt": "2026-09-08T06:09:34.163Z",
+  "updatedAt": "2026-09-08T06:09:34.163Z",
+  "_hash": "2db8840e850126c5ebc80518071e1a5a30df3aa4263eb8d37f3583baf79515ec"
+}

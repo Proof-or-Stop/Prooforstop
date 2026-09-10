@@ -1,0 +1,140 @@
+import assert from 'node:assert/strict';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+const root = fileURLToPath(new URL('..', import.meta.url));
+const scratch = mkdtempSync(join(tmpdir(), 'flat-provider-validation-'));
+try {
+  const commands = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'))).validate.commands;
+  const registered = commands.flatMap(command => command.args.filter(arg => /\.(?:mjs|js)$/.test(arg)).map(arg => resolve(root, arg)));
+  const roots = process.argv.includes('--readonly-only') ? ['red-w2d-command-readonly.mjs']
+    : process.argv.includes('--remaining-receipts-only') ? ['red-b2aa7-chk007-receipt.mjs', 'red-b2aa7-chk009-receipt.mjs']
+    : process.argv.includes('--receipts-only') ? ['red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs']
+    : process.argv.includes('--usage-only') ? ['host-run-usage-smoke.js'] : ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
+    'red-evidence-target-binding-smoke.js', 'red-evidence-envelope-smoke.js',
+    'red-w2b-wiring-contract.mjs', 'host-run-usage-smoke.js',
+    'red-b2aa7-chk004-receipt.mjs', 'red-b2aa7-chk005-receipt.mjs',
+    'red-b2aa7-chk007-receipt.mjs', 'red-b2aa7-chk009-receipt.mjs',
+    'red-w2d-command-readonly.mjs'];
+  const trace = join(scratch, 'trace.mjs');
+  const log = join(scratch, 'nested.jsonl');
+  writeFileSync(trace, `
+import cp from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
+import { appendFileSync, readFileSync } from 'node:fs';
+import { resolve, basename, dirname, join } from 'node:path';
+const registered = new Set(${JSON.stringify(registered)});
+// These exact modes run fixture workers, not the command's suite entrypoint.
+const fixtureModes = {
+  'provider-process-registry-smoke.js': ['--child'],
+  'managed-host-run-smoke.js': ['--granted-no-identity-worker', '--timer-error-worker',
+    '--fifo-worker', '--post-claim-intake-worker', '--fifo-writer', '--terminal-lock-holder'],
+};
+for (const name of ['execFileSync', 'execFile', 'spawnSync', 'spawn']) {
+  const original = cp[name];
+  cp[name] = function(command, args, ...rest) {
+    const nodeLauncher = typeof command === 'string' && ['node', basename(process.execPath)].includes(basename(command));
+    const entryIndex = nodeLauncher && Array.isArray(args) ? args.findIndex(arg => typeof arg === 'string' && registered.has(resolve(arg))) : -1;
+    const entry = entryIndex >= 0 ? args[entryIndex] : undefined;
+    // W2B intentionally executes two registered contracts against one removed
+    // registration. Require the exact parent, loader shape and mutated bytes.
+    let mutationProbe = false;
+    if (entry && basename(process.argv[1] ?? '') === 'red-w2b-wiring-contract.mjs'
+      && ['lifecycle-registry-contract.js', 'command-ownership-contract.js'].includes(basename(entry))
+      && entryIndex === 2 && args.length === 3 && args[0] === '--import'
+      && basename(args[1]) === 'register-loader.mjs') {
+      try {
+        const patch = rest[0]?.env?.RED_W2B_PATCHED_POLICY;
+        const originalPolicy = readFileSync(${JSON.stringify(join(root, 'packages/main/dist/core/command-policy.js'))}, 'utf8');
+        const expected = originalPolicy.replace(/^[^\\n]*\\bred_evidence_binding_set:[^\\n]*\\n/m, '');
+        mutationProbe = expected !== originalPolicy && patch === join(dirname(args[1]), 'command-policy.patched.js')
+          && readFileSync(patch, 'utf8') === expected
+          && readFileSync(args[1], 'utf8') === "import { register } from 'node:module';\\nregister('./patch-loader.mjs', import.meta.url);\\n"
+          && readFileSync(join(dirname(args[1]), 'patch-loader.mjs'), 'utf8') === [
+            "import { readFileSync } from 'node:fs';",
+            "const PATCHED = readFileSync(process.env.RED_W2B_PATCHED_POLICY, 'utf8');",
+            'export async function load(url, context, nextLoad) {',
+            "  if (url.endsWith('/core/command-policy.js')) {",
+            "    return { format: 'module', source: PATCHED, shortCircuit: true };",
+            '  }', '  return nextLoad(url, context);', '}', '',
+          ].join('\\n');
+      } catch { mutationProbe = false; }
+    }
+    // These two unregistered pre-fix attestations must actually observe a GREEN
+    // artifact to prove they emit no misleading historical failure receipt.
+    const historicalSilenceProbe = entry === ${JSON.stringify(join(root, 'packages/main/tests/red/red-b2aa7-artifact-validation.mjs'))}
+      && args.length === 1 && ${JSON.stringify(['001', '010'].map(num => join(root, 'packages/main/tests/red', 'red-b2aa7-chk' + num + '-receipt.mjs')))}.includes(resolve(process.argv[1] ?? ''));
+    if (entry && !mutationProbe && !historicalSilenceProbe && !fixtureModes[basename(entry)]?.includes(args[entryIndex + 1])) {
+      appendFileSync(${JSON.stringify(log)}, JSON.stringify({command,args})+'\\n');
+      throw new Error('Nested canonical command observed before launch');
+    }
+    return original.call(this,command,args,...rest);
+  };
+}
+syncBuiltinESMExports();
+`);
+  // Prove that ordinary Node preloads cannot hide a nested registered suite.
+  const noop = join(scratch, 'noop.mjs');
+  writeFileSync(noop, '');
+  const probe = join(scratch, 'ordinary-preload-probe.mjs');
+  writeFileSync(probe, `import { spawnSync } from 'node:child_process';
+    spawnSync(process.execPath, ['--import', ${JSON.stringify(noop)},
+      ${JSON.stringify(join(root, 'packages/main/dist/tasks/lifecycle-registry-contract.js'))}]);`);
+  const rejected = spawnSync(process.execPath, ['--import', trace, probe], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(rejected.status, 0, 'ordinary --import must not bypass nested validation detection');
+  assert.match(rejected.stderr, /Nested canonical command observed before launch/);
+  assert.ok(existsSync(log), 'preload probe must record the intercepted launch');
+  writeFileSync(log, '');
+  for (const filename of roots) {
+  const entry = commands.find(command => command.args.some(arg => arg.endsWith('/' + filename)));
+  assert.ok(entry, `${filename} contract remains in the canonical suite`);
+  const child = spawnSync(process.execPath, entry.args, { cwd: root, timeout: 180000, maxBuffer: 16 * 1024 * 1024,
+    env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import=${trace}` }, encoding: 'utf8' });
+  const nested = existsSync(log) ? readFileSync(log, 'utf8') : '';
+  assert.equal(nested, '', 'U18: canonical validation must not launch another registered command');
+  assert.equal(child.status, 0, `${child.error ?? ''}\n${child.stdout}\n${child.stderr}`);
+  if (filename === 'red-w2d-command-readonly.mjs') {
+    assert.match(child.stdout, /red-w2d-command-readonly: CANONICAL PASS/);
+    assert.match(child.stdout, /child failure propagation verified/);
+    assert.doesNotMatch(child.stdout, /red-w2d-command-readonly: PASS|validate pipeline:.*run via runValidationCommand/);
+  }
+  if (filename === 'red-b2aa7-chk007-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_HISTORICAL_PIN_PRESERVED/);
+    assert.match(child.stdout, /VACUOUS_PREFIX_RECEIPTS_EXCLUDED/);
+    assert.doesNotMatch(child.stdout, /INVARIANCE_DIGEST_UNCHANGED_POST_FIX/);
+  }
+  if (filename === 'red-b2aa7-chk009-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_O2_BOUNDARY_DIFFERENTIAL/);
+    assert.doesNotMatch(child.stdout, /ORDER_INDEPENDENT_VERDICT|MALFORMED_REPORTED_BEHIND_SATISFIER|O2_SILENT_CORRUPTION_PINNED/);
+  }
+  if (filename === 'red-b2aa7-chk004-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_WELL_FORMED_ARTIFACT/);
+    assert.doesNotMatch(child.stdout, /WELL_FORMED_ARTIFACT_LOADS_UNCHANGED/);
+  }
+  if (filename === 'red-b2aa7-chk005-receipt.mjs') {
+    assert.match(child.stdout, /CANONICAL_WELL_FORMED_VERDICTS/);
+    assert.doesNotMatch(child.stdout, /WELL_FORMED_VERDICTS_UNCHANGED/);
+  }
+  if (filename === 'host-run-usage-smoke.js') {
+    assert.match(child.stdout, /host-run usage canonical core passed/);
+    assert.match(child.stdout, /candidate overflow boundary checked/);
+    assert.doesNotMatch(child.stdout, /host-run usage smoke passed \(8[35] checks\)/,
+      'canonical mode must not emit full historical receipt selectors');
+  }
+  }
+  for (const filename of ['provider-process-registry-smoke.js', 'managed-host-run-smoke.js',
+    'host-run-usage-smoke.js', 'dispatch-run-smoke.js', 'provider-claude-smoke.js',
+    'managed-host-run-e2e-smoke.js', 'managed-host-run-process-smoke.js',
+    'lifecycle-registry-contract.js', 'command-ownership-contract.js',
+    'managed-host-run-command-smoke.js']) {
+    assert.ok(registered.includes(resolve(root, 'packages/main/dist/tasks', filename)),
+      `canonical coverage union must retain ${filename}`);
+  }
+  assert.ok(registered.includes(resolve(root, 'packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs')),
+    'canonical coverage union must retain independent v1 invariance');
+  assert.ok(registered.includes(resolve(root, 'packages/main/tests/red/red-b2aa7-artifact-validation.mjs')),
+    'canonical coverage union must retain independent artifact validation');
+  console.log('PASS U18 flat-provider-validation');
+} finally { rmSync(scratch, { recursive: true, force: true }); }

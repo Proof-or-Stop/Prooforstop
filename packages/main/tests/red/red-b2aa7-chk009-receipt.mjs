@@ -56,6 +56,7 @@ const ARTIFACT = join(here, 'red-b2aa7-artifact-validation.mjs');
 // would print fewer markers and STILL exit 0. Every marker below is therefore
 // REQUIRED. `emit` records what was actually printed and the epilogue exits
 // non-zero naming any marker that was withheld, and why that is a regression.
+const canonicalCore = process.argv.includes('--canonical-core');
 const REQUIRED_MARKERS = new Map([
   ['ORDER_INDEPENDENT_VERDICT',
     "the artifact's BLOCK C1 no longer shows the 38 permutations over 4 record sets collapsing to one position-free "
@@ -71,6 +72,11 @@ const REQUIRED_MARKERS = new Map([
     + 'boundary the same bytes are no longer quarantined verbatim at index 1 with the verdict unchanged (so the fix regressed)'],
 ]);
 
+if (canonicalCore) {
+  REQUIRED_MARKERS.clear();
+  REQUIRED_MARKERS.set('CANONICAL_O2_BOUNDARY_DIFFERENTIAL',
+    'the direct bypass/validated read comparison must retain corruption at index 1 with unchanged verdict');
+}
 const emitted = new Set();
 /**
  * Print a marker line and record it. The recorded name is derived from the line
@@ -93,6 +99,8 @@ function emit(line) {
 // ════════════════════════════════════════════════════════════════════════════
 // PART 1 — the artifact's own BLOCK C evidence
 // ════════════════════════════════════════════════════════════════════════════
+let artifactFullyGreen = false;
+if (!canonicalCore) {
 const run = spawnSync(process.execPath, [ARTIFACT], { encoding: 'utf8' });
 const stdout = run.stdout ?? '';
 
@@ -121,7 +129,7 @@ const C3 = 'C3-detection-exhaustive-not-first-match';
  * STALE ROW assertion, so reaching a green tally proves the whole file — BLOCK A
  * repro rows, BLOCK B invariants and BLOCK C order rows alike — ran and held.
  */
-const artifactFullyGreen =
+artifactFullyGreen =
   run.status === 0
   && redCount === 0 && total > 0 && greenCount === total
   && state.get(C1) === 'GREEN' && state.get(C2) === 'GREEN' && state.get(C3) === 'GREEN';
@@ -161,6 +169,8 @@ const reportedBehindSatisfier =
   && /ordersAgree=true/.test(proofs.C3 ?? '');
 if (reportedBehindSatisfier) {
   emit(`MALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)`);
+}
+
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -266,7 +276,7 @@ try {
   // so "the fix works" cannot be confused with "the gate started failing".
   const verdictUnchanged = validatedCodes.length === 0 && unvalidatedCodes.length === 0;
 
-  o2Pinned = artifactFullyGreen && silentWithoutValidation && surfacedWithValidation && verdictUnchanged;
+  o2Pinned = (canonicalCore || artifactFullyGreen) && silentWithoutValidation && surfacedWithValidation && verdictUnchanged;
   detail = `unvalidatedCodes=${JSON.stringify(unvalidatedCodes)}, unvalidatedQuarantined=${quarantineEntries(unvalidated.redEvidence).length}, `
     + `validatedCodes=${JSON.stringify(validatedCodes)}, validatedQuarantinedIndex=${hit?.index}`;
 } finally {
@@ -279,7 +289,7 @@ try {
 //    read boundary; the same bytes through the validated boundary are
 //    quarantined at index 1. Same verdict, opposite visibility.
 if (o2Pinned) {
-  emit(`O2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in \`records\` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — ${detail})`);
+  emit(`${canonicalCore ? 'CANONICAL_O2_BOUNDARY_DIFFERENTIAL' : 'O2_SILENT_CORRUPTION_PINNED'} (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in \`records\` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — ${detail})`);
 }
 
 // ── Fail closed ─────────────────────────────────────────────────────────────

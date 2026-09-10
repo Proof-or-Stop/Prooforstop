@@ -8,7 +8,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import type {
   FindingData,
+  DisprovenEvidence,
   GapLogProvenanceBinding,
+  ManagedReviewEvidenceBinding,
+  NativeReviewEvidenceBinding,
   ReviewerReadDiagnostic,
   ReviewerReadLogEvidence,
   ReviewerReadManifest,
@@ -37,7 +40,58 @@ export function signFinding(
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
   gapLogBinding?: GapLogProvenanceBinding,
+  managedEvidenceBinding?: ManagedReviewEvidenceBinding,
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding,
+  nativeFindingSemantics?: {
+    category: string;
+    evidenceState: string | null;
+    uncertaintyReason: string | null;
+    files: string[];
+    /** Present only for newer native records; omit preserves v6 compatibility. */
+    disprovenEvidence?: DisprovenEvidence;
+  },
 ): string {
+  if (managedEvidenceBinding !== undefined && nativeEvidenceBinding !== undefined) {
+    throw new Error('signFinding: managed and native evidence bindings are mutually exclusive');
+  }
+  if (nativeEvidenceBinding !== undefined) {
+    if (!nativeFindingSemantics || nativeFindingSemantics.category.trim().length === 0) {
+      throw new Error('signFinding: native evidence requires exact finding semantics');
+    }
+    return digestCanonicalJson({
+      version: 6,
+      salt: FINDING_SALT,
+      storyId,
+      id,
+      desc,
+      severity,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      nativeEvidenceBinding,
+      nativeFindingSemantics,
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
+  if (managedEvidenceBinding !== undefined) {
+    return digestCanonicalJson({
+      version: 4,
+      salt: FINDING_SALT,
+      storyId,
+      id,
+      desc,
+      severity,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      managedEvidenceBinding,
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   if (gapLogBinding !== undefined) {
     return digestCanonicalJson({
       version: 3,
@@ -86,10 +140,66 @@ export function verifyFinding(
     readLog?: ReviewerReadLogEvidence;
     readDiagnostics?: ReviewerReadDiagnostic[];
     gapLogBinding?: GapLogProvenanceBinding;
+    managedEvidenceBinding?: ManagedReviewEvidenceBinding;
+    nativeEvidenceBinding?: NativeReviewEvidenceBinding;
+    category?: string;
+    evidenceState?: string;
+    uncertaintyReason?: string;
+    files?: string[];
+    disprovenEvidence?: DisprovenEvidence;
   },
 ): boolean {
   if (!f._hash || !f.createdAt) return false;
   const reviewRunId = f.reviewRunId?.trim() || '';
+  if (f.managedEvidenceBinding !== undefined && f.nativeEvidenceBinding !== undefined) return false;
+  if (f.nativeEvidenceBinding !== undefined) {
+    try {
+      return f._hash === signFinding(
+        storyId,
+        f.id,
+        f.desc,
+        f.severity,
+        f.createdAt,
+        f.reviewRound || '',
+        reviewRunId,
+        f.readManifest,
+        f.readLog,
+        f.readDiagnostics,
+        undefined,
+        undefined,
+        f.nativeEvidenceBinding,
+        {
+          category: f.category ?? '',
+          evidenceState: f.evidenceState ?? null,
+          uncertaintyReason: f.uncertaintyReason ?? null,
+          files: f.files ?? [],
+          ...(f.disprovenEvidence !== undefined ? { disprovenEvidence: f.disprovenEvidence } : {}),
+        },
+      );
+    } catch {
+      return false;
+    }
+  }
+  if (f.managedEvidenceBinding !== undefined) {
+    try {
+      return f._hash === signFinding(
+        storyId,
+        f.id,
+        f.desc,
+        f.severity,
+        f.createdAt,
+        f.reviewRound || '',
+        reviewRunId,
+        f.readManifest,
+        f.readLog,
+        f.readDiagnostics,
+        undefined,
+        f.managedEvidenceBinding,
+      );
+    } catch {
+      return false;
+    }
+  }
   if (f.gapLogBinding !== undefined) {
     try {
       return f._hash === signFinding(
@@ -387,7 +497,72 @@ export function signReviewPass(
   readDiagnostics?: ReviewerReadDiagnostic[],
   provenance?: ReviewPassWriterProvenance,
   envelopeId?: string,
+  managedEvidenceBinding?: ManagedReviewEvidenceBinding,
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding,
 ): string {
+  if (managedEvidenceBinding !== undefined && nativeEvidenceBinding !== undefined) {
+    throw new Error('signReviewPass: managed and native evidence bindings are mutually exclusive');
+  }
+  if (nativeEvidenceBinding !== undefined) {
+    // B-137a:F-123 — same envelopeId format re-validation the managed branch
+    // performs. Per CLAUDE.md "Handler 编码约定", a constrained field must be
+    // re-checked at EVERY consumption point, not just where Zod happens to run:
+    // this branch folds envelopeId straight into the signed digest, so an
+    // internal caller bypassing schema parsing could sign a pass over a
+    // malformed envelope binding that the managed path would have rejected.
+    if (envelopeId !== undefined && !/^[a-f0-9]{64}$/.test(envelopeId)) {
+      throw new Error('signReviewPass: native evidence envelopeId must be a SHA-256 digest when present');
+    }
+    if (!provenance || typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
+      throw new Error('signReviewPass: native evidence requires writer provenance');
+    }
+    return digestCanonicalJson({
+      version: 6,
+      salt: REVIEW_PASS_SALT,
+      storyId,
+      id,
+      agent,
+      note,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      envelopeId: envelopeId ?? '',
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource ?? '',
+      provenanceFlag: provenance.provenanceFlag ?? '',
+      nativeEvidenceBinding,
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
+  if (managedEvidenceBinding !== undefined) {
+    if (envelopeId !== undefined && !/^[a-f0-9]{64}$/.test(envelopeId)) {
+      throw new Error('signReviewPass: managed evidence envelopeId must be a SHA-256 digest when present');
+    }
+    if (!provenance || typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
+      throw new Error('signReviewPass: managed evidence requires writer provenance');
+    }
+    return digestCanonicalJson({
+      version: 5,
+      salt: REVIEW_PASS_SALT,
+      storyId,
+      id,
+      agent,
+      note,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      envelopeId: envelopeId ?? '',
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource ?? '',
+      provenanceFlag: provenance.provenanceFlag ?? '',
+      managedEvidenceBinding,
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   if (envelopeId !== undefined) {
     if (!/^[a-f0-9]{64}$/.test(envelopeId)) throw new Error('signReviewPass: envelopeId must be a SHA-256 digest');
     if (!provenance || typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
@@ -474,10 +649,66 @@ export function verifyReviewPass(
     sessionSource?: string;
     provenanceFlag?: string;
     envelopeId?: string;
+    managedEvidenceBinding?: ManagedReviewEvidenceBinding;
+    nativeEvidenceBinding?: NativeReviewEvidenceBinding;
   },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
+  if (p.managedEvidenceBinding !== undefined && p.nativeEvidenceBinding !== undefined) return false;
+  if (p.nativeEvidenceBinding !== undefined) {
+    if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
+    try {
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+        {
+          writerSessionId: p.writerSessionId,
+          sessionSource: p.sessionSource ?? '',
+          provenanceFlag: p.provenanceFlag ?? '',
+        },
+        p.envelopeId,
+        undefined,
+        p.nativeEvidenceBinding,
+      );
+    } catch {
+      return false;
+    }
+  }
+  if (p.managedEvidenceBinding !== undefined) {
+    if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
+    try {
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+        {
+          writerSessionId: p.writerSessionId,
+          sessionSource: p.sessionSource ?? '',
+          provenanceFlag: p.provenanceFlag ?? '',
+        },
+        p.envelopeId,
+        p.managedEvidenceBinding,
+      );
+    } catch {
+      return false;
+    }
+  }
   if (p.envelopeId !== undefined) {
     if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
     try {

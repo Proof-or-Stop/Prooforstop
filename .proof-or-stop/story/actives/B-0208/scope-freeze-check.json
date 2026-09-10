@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0208",
+  "checkedAt": "2026-09-08T06:10:20.414Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "fb4b4e94682a954910c27fbb25787129f647cd998c02f937a8df79d530b8ecfd",
+  "executionBoundaryHash": "2db8840e850126c5ebc80518071e1a5a30df3aa4263eb8d37f3583baf79515ec",
+  "freshnessHash": "29afe519253cfde423c5960ca10d6a5ce83a938427bf102fd18917a01cb9a158",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Evidence schema migrations",
+    "Layer4",
+    "repair UX",
+    "Unrelated config doctor changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Evidence schema migrations",
+      "source": "scopeBoundary.excluded",
+      "text": "Evidence schema migrations",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated config doctor changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated config doctor changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f5fe3986ebf26e7271a153f1e114158fd3636dd332aea6276eb57a507a1e02a3"
+}

@@ -1,3 +1,4 @@
+import { runSupervisedProviderProcess, type SupervisedProcessOptions } from './supervised-process.js';
 
 import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
@@ -35,35 +36,18 @@ export interface ProviderProcessOutcome {
   stdout: string;
   stderr: string;
   signal?: NodeJS.Signals | null;
+  replacementSafe?: boolean;
+  timedOut?: boolean;
   error?: NodeJS.ErrnoException;
 }
 
 export type ProviderProcessRunner = (
   binary: string,
   argv: string[],
-  opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number; stdin?: string },
+  opts: SupervisedProcessOptions,
 ) => ProviderProcessOutcome;
 
-const defaultGeminiProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
-  const proc = spawnSync(binary, argv, {
-    cwd: opts.cwd,
-    env: opts.env,
-    timeout: opts.timeoutMs,
-    // Close stdin: a bounded, non-interactive action must never block waiting
-    // for a prompt. An unattended runner must not hang on an open gemini
-    // stdin pipe.
-    input: opts.stdin ?? '',
-    encoding: 'utf8',
-    maxBuffer: 8 * 1024 * 1024,
-  });
-  return {
-    status: proc.status,
-    stdout: proc.stdout ?? '',
-    stderr: proc.stderr ?? '',
-    signal: proc.signal,
-    error: proc.error as NodeJS.ErrnoException | undefined,
-  };
-};
+const defaultGeminiProcessRunner: ProviderProcessRunner = runSupervisedProviderProcess;
 
 function providerDigest(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
@@ -212,6 +196,7 @@ export function runBoundedGeminiProvider(
   let spawnErrorCode: string | undefined;
   let spawnErrorKind: ProviderExecResult['spawnErrorKind'] | undefined;
   let timedOut = false;
+  let replacementSafe: boolean | undefined;
 
   while (attempts < maxAttempts) {
     attempts++;
@@ -219,16 +204,19 @@ export function runBoundedGeminiProvider(
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
+      admission: request.admission,
       stdin: request.stdin,
     });
-    timedOut = out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
-      || (!!out.error && out.error.code === 'ETIMEDOUT');
+    replacementSafe = out.replacementSafe;
+    timedOut = out.timedOut ?? (out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
+      || (!!out.error && out.error.code === 'ETIMEDOUT'));
     spawnError = !!out.error && !timedOut;
     spawnErrorCode = spawnError ? out.error?.code : undefined;
     spawnErrorKind = spawnError ? classifySpawnErrorKind(spawnErrorCode) : undefined;
     status = out.status;
     stdout = out.stdout ?? '';
     stderr = out.stderr ?? '';
+    if (replacementSafe === false) break;
     if (spawnError) break; // spawn setup failures are not retryable
     if (!timedOut) break;  // success or non-zero exit is terminal
   }
@@ -237,6 +225,7 @@ export function runBoundedGeminiProvider(
   const reportedUsage = extractGeminiUsage(stdout);
   return {
     provider: 'gemini',
+    ...(replacementSafe !== undefined ? { replacementSafe } : {}),
     ...(model ? { model } : {}),
     ...(reportedUsage ? { reportedUsage } : {}),
     argvDigest: providerDigest(request.argv),
