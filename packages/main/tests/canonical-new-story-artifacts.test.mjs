@@ -983,8 +983,12 @@ function snapshotTree(root) {
 }
 
 function snapshotGitMaterial(root) {
-  const paths = git(root, ['ls-files', '--cached', '--others', '--exclude-standard'])
-    .split('\n')
+  // Preserve literal Git paths, including quotes, newlines and edge spaces.
+  // The general text helper trims output and must not parse a path protocol.
+  const paths = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], {
+    cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024,
+  })
+    .split('\0')
     .filter(Boolean)
     .sort();
   return paths.map((path) => {
@@ -3371,6 +3375,12 @@ for (const [sourcePath, canonical] of [
     assert.equal(cases.filter((candidate) => candidate.siteId === site.siteId).length, 1, `${site.siteId}: requires exactly one public-operation mutation case`);
   });
 }
+
+await check(['identity-cutover', 'identity-snapshot'], 'Git material snapshot detects changes at exact special-character paths', () => {
+  const result = spawnSync(process.execPath, [join(packageRoot, 'tests/identity-snapshot-paths.test.mjs')], { encoding: 'utf8' });
+  assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+  assert.match(result.stdout, /IDENTITY_SNAPSHOT_PATH_GREEN/);
+});
 
 await check(['identity-cutover', 'identity-snapshot'], 'sparse public fixture retains complete indexed-path creation detection and outside material', () => {
   const { root } = ensurePublicIdentityOperationFixture();

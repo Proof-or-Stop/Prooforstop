@@ -5,8 +5,8 @@ import path from 'node:path';
 import ts from 'typescript';
 import { performance } from 'node:perf_hooks';
 
-const [rootArg, outputArg] = process.argv.slice(2);
-if (!rootArg || !outputArg) throw new Error('Usage: profile-snapshot.mjs ROOT NEW_OUTPUT');
+const [rootArg, outputArg, ...storyIds] = process.argv.slice(2);
+if (!rootArg || !outputArg) throw new Error('Usage: profile-snapshot.mjs ROOT NEW_OUTPUT [STORY_ID ...]');
 const root = fs.realpathSync(rootArg);
 const output = path.resolve(outputArg);
 const sourcePath = path.resolve('packages/main/tests/canonical-new-story-artifacts.test.mjs');
@@ -45,7 +45,7 @@ const imports = {
   join: path.join, createHash: crypto.createHash, execFileSync: measured('git', child.execFileSync),
 };
 const snapshot = new Function(...Object.keys(imports), source + '\nreturn snapshotPublicOperationState;')(...Object.values(imports));
-const start = performance.now(); const result = snapshot(root, []); const elapsedMs = performance.now() - start;
+const start = performance.now(); const result = snapshot(root, storyIds); const elapsedMs = performance.now() - start;
 const files = [...reads.values()].sort((a, b) => b.bytes - a.bytes || a.path.localeCompare(b.path));
 const groups = new Map();
 for (const file of files) {
@@ -55,8 +55,8 @@ for (const file of files) {
   group.files++; group.calls += file.calls; group.bytes += file.bytes; group.ms += file.ms; groups.set(key, group);
 }
 const report = {
-  scope: 'One read-only invocation of the exact current snapshot functions; bytes are logical readFileSync return bytes, not physical disk IO or resident memory.',
-  root, sourcePath, sourceSha256: sha(source), testFileSha256: sha(text),
+  scope: 'One read-only invocation of the exact current snapshot functions at the named frozen root and explicit storyIds variant; bytes are logical readFileSync return bytes, not physical disk IO or resident memory. This is not a whole-suite measurement.',
+  root, storyIds, sourcePath, sourceSha256: sha(source), testFileSha256: sha(text),
   head: child.execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   rootHead: child.execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   elapsedMs, stats, uniqueReadPaths: files.length,
