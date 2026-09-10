@@ -536,6 +536,43 @@ export function assertValidationPlanStatusInvariant(report: ValidationPlanReport
         unexplained.map((unit) => unit.id).join(', '),
       );
     }
+    const selectedUnits = report.units.filter((unit) => unit.selected);
+    if (report.units.length !== report.counts.total || selectedUnits.length !== report.counts.selected) {
+      throw new Error(
+        'validation_plan: report counts must equal the rendered unit inventory and its selected flags',
+      );
+    }
+    const expectedReduction = report.counts.selected < report.counts.total;
+    if (report.reductionApplied !== expectedReduction) {
+      throw new Error(
+        `validation_plan: reductionApplied must equal selected < total; got ${report.reductionApplied} for ` +
+        `${report.counts.selected} of ${report.counts.total}`,
+      );
+    }
+    const omittedIds = new Set(report.units.filter((unit) => !unit.selected).map((unit) => unit.id));
+    const proofCounts = new Map<string, number>();
+    for (const proof of report.exclusionProofs) {
+      proofCounts.set(proof.commandId, (proofCounts.get(proof.commandId) ?? 0) + 1);
+      if (!omittedIds.has(proof.commandId)) {
+        throw new Error(
+          `validation_plan: exclusion proof for ${proof.commandId} does not identify an omitted unit`,
+        );
+      }
+    }
+    for (const unit of report.units) {
+      const omissionReasons = unit.inclusionReasons.filter((reason) => reason.startsWith('omitted:'));
+      if (!unit.selected && (proofCounts.get(unit.id) !== 1 || omissionReasons.length !== unit.inclusionReasons.length)) {
+        throw new Error(
+          `validation_plan: omitted unit ${unit.id} must carry exactly one positive exclusion proof and only ` +
+          'omission-shaped reasons',
+        );
+      }
+      if (unit.selected && (proofCounts.has(unit.id) || omissionReasons.length > 0)) {
+        throw new Error(
+          `validation_plan: selected unit ${unit.id} may not carry an exclusion proof or omission-shaped reason`,
+        );
+      }
+    }
   }
   // B-a745 F-022: the binding is part of what "status: plan" asserts. A plan
   // either binds freshness (all three digests present) or SAYS it could not

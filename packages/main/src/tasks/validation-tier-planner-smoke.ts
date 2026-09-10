@@ -165,6 +165,7 @@ import {
   validationWideningReason,
   validationWideningReasonGloss,
   type ValidationTier,
+  type ValidationImpactIndex,
   type ValidationTierPlanResult,
   type ValidationWideningReasonCode,
 } from '../core/validation-tier-planner.js';
@@ -2289,6 +2290,11 @@ testCase('a complete current impact index produces nested Story-relevant tiers w
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
   for (const sensitivePath of [
     'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/runtime-artifact-registry.ts',
+    'packages/main/src/core/digest.ts',
+    'packages/main/src/core/config.ts',
     'packages/main/src/handlers/story-aware-validation.ts',
     'packages/main/src/handlers/validate-lint.ts',
     'packages/main/src/core/guard-utils.ts',
@@ -2412,6 +2418,50 @@ testCase('an atomic source with a configured index reports atomicity rather than
   assert.ok(!reasonCodes(result).includes('impact_index_unusable'));
   assert.ok(!reasonCodes(result).includes('command_exclusion_unproven'));
   assert.deepEqual(result.unclassifiedInputs, []);
+
+  const malformed = resolveValidationTierPlan({
+    input,
+    requestedTier: 'story-fast',
+    impactIndex: {} as ValidationImpactIndex,
+  });
+  assert.equal(malformed.status, 'plan');
+  assert.ok(reasonCodes(malformed).includes('impact_index_unusable'));
+  assert.ok(malformed.unclassifiedInputs.every((entry) =>
+    entry.detail.includes('configured impact index is malformed') && !entry.detail.includes('no impact index maps')));
+});
+
+testCase('configured-index stop and no-validator results never fall back to missing-index prose', () => {
+  const changedPath = 'docs/guide.md';
+  const indexedInput = planInput({
+    readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+  });
+  const impactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'all-outcomes-index-v1',
+    commandSetDigest: indexedInput.executionInventory.commandSetDigest,
+    entries: [
+      { commandId: 'unit-suite', selection: 'story-fast' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
+      { commandId: 'lint-suite', selection: 'story-intermediate' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
+    ],
+  };
+  const stopInput = {
+    ...indexedInput,
+    escalations: [...indexedInput.escalations, { code: 'pinned_command_missing' as const, detail: 'fixture missing pin' }],
+  };
+  const stop = resolveValidationTierPlan({ input: stopInput, requestedTier: 'story-fast', impactIndex });
+  assert.equal(stop.status, 'stop');
+  assert.deepEqual(stop.unclassifiedInputs, []);
+
+  const noValidatorInput = planInput({
+    routine: { sourceKind: 'no-validator', commands: [] },
+    readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+  });
+  const noValidator = resolveValidationTierPlan({ input: noValidatorInput, requestedTier: 'story-fast', impactIndex });
+  assert.equal(noValidator.status, 'no-tier-pass');
+  assert.deepEqual(noValidator.unclassifiedInputs, []);
+  for (const result of [stop, noValidator]) {
+    assert.ok(result.unclassifiedInputs.every((entry) => !entry.detail.includes('no impact index maps')));
+  }
 });
 
 testCase('material dirty paths participate in indexed selection and cannot receive false non-intersection proofs', () => {
@@ -2442,6 +2492,45 @@ testCase('material dirty paths participate in indexed selection and cannot recei
   assert.equal(result.effectiveTier, 'story-fast');
   assert.deepEqual(result.selectedUnitIds, ['unit-suite']);
   assert.ok(!(result.exclusionProofs ?? []).some((proof) => proof.commandId === 'unit-suite'));
+});
+
+testCase('selector proof digests ignore capture time and absolute checkout paths', () => {
+  const baseInput = planInput({
+    readers: { changedFileStatuses: statusReader({ 'docs/guide.md': 'M' }), hashSnapshot: fixtureHashSnapshot },
+  });
+  const impactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'portable-proof-index-v1',
+    commandSetDigest: baseInput.executionInventory.commandSetDigest,
+    entries: [
+      { commandId: 'unit-suite', selection: 'story-fast' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
+      { commandId: 'lint-suite', selection: 'repository-full' as const, inputPatterns: ['other/**'], coverage: 'complete' as const },
+    ],
+  };
+  const movedInput = {
+    ...baseInput,
+    hashes: baseInput.hashes.status === 'available'
+      ? {
+          status: 'available' as const,
+          head: {
+            ...baseInput.hashes.head,
+            capturedAt: '2030-01-01T00:00:00.000Z',
+            gitCwd: '/another/checkout',
+            metadataRoot: '/another/metadata-root',
+          },
+        }
+      : baseInput.hashes,
+  };
+  const first = resolveValidationTierPlan({ input: baseInput, requestedTier: 'story-fast', impactIndex });
+  const second = resolveValidationTierPlan({ input: movedInput, requestedTier: 'story-fast', impactIndex });
+  assert.equal(first.status, 'plan');
+  assert.equal(second.status, 'plan');
+  if (first.status !== 'plan' || second.status !== 'plan') return;
+  assert.equal(first.selectorDecisionDigest, second.selectorDecisionDigest);
+  assert.deepEqual(
+    (first.exclusionProofs ?? []).map((proof) => proof.snapshotDigest),
+    (second.exclusionProofs ?? []).map((proof) => proof.snapshotDigest),
+  );
 });
 
 testCase('no-validator preserves the existing skip/warn and produces NO tier pass', () => {
@@ -2759,6 +2848,7 @@ const PLAN_CLI_STORY_ID = 'B-a745';
  */
 function planCliRoot(options: {
   commands?: unknown[];
+  impactIndex?: ValidationImpactIndex;
   phase?: string;
   items?: ChecklistItem[];
   doneRequiredEvidence?: Record<string, unknown>;
@@ -2774,6 +2864,7 @@ function planCliRoot(options: {
           { label: 'unit', command: 'npm', args: ['test'], id: 'unit-suite' },
           { label: 'lint', command: 'npm', args: ['run', 'lint'], id: 'lint-suite' },
         ],
+        ...(options.impactIndex ? { dynamic: { impactIndex: options.impactIndex } } : {}),
       },
     }, null, 2)}\n`,
     'utf-8',
@@ -2945,6 +3036,54 @@ testCase('the printed counts are derived at runtime, not written into the render
   assert.match(text, /^selected: 3 of 3 validation unit\(s\)$/m);
   assert.match(text, /^inclusion reasons by unit \(3\):$/m);
   assert.match(text, /^requestedTier: story-intermediate \(requested as "intermediate"\)$/m);
+});
+
+testCase('the real config-to-CLI path renders a narrowed plan with bound exclusion proofs', () => {
+  const commands: ValidationCommand[] = [
+    { label: 'build', command: 'npm', args: ['run', 'build'], id: 'build' },
+    { label: 'docs contract', command: 'npm', args: ['run', 'docs'], id: 'docs-contract' },
+  ];
+  const commandSetDigest = buildValidationCommandInventory({ commands }).commandSetDigest;
+  const impactIndex: ValidationImpactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'cli-index-v1',
+    commandSetDigest,
+    entries: [
+      { commandId: 'build', selection: 'always', inputPatterns: [], coverage: 'complete' },
+      { commandId: 'docs-contract', selection: 'story-intermediate', inputPatterns: ['docs/**'], coverage: 'complete' },
+    ],
+  };
+  const { root, ctx } = planCliRoot({ commands, impactIndex });
+  const runFixtureGit = (args: string[]): void => {
+    execFileSync('git', ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', ...args], {
+      cwd: root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  };
+  mkdirSync(join(root, 'docs'), { recursive: true });
+  writeFileSync(join(root, 'docs/guide.md'), 'before\n', 'utf-8');
+  runFixtureGit(['init', '-q', '-b', 'main']);
+  runFixtureGit(['add', '-A']);
+  runFixtureGit(['commit', '-qm', 'fixture baseline']);
+  writeFileSync(join(root, 'docs/guide.md'), 'after\n', 'utf-8');
+
+  const report = JSON.parse(planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true })) as Record<string, any>;
+  assert.equal(report.status, 'plan');
+  assert.equal(report.effectiveTier, 'story-fast');
+  assert.equal(report.reductionApplied, true);
+  assert.deepEqual(report.counts, { selected: 1, total: 2 });
+  assert.equal(typeof report.selectorDecisionDigest, 'string');
+  assert.equal(report.exclusionProofs.length, 1);
+  assert.equal(report.exclusionProofs[0].commandId, 'docs-contract');
+  const omitted = report.units.find((unit: Record<string, unknown>) => unit.id === 'docs-contract');
+  assert.equal(omitted.selected, false);
+  assert.ok(omitted.inclusionReasons.every((reason: string) => reason.startsWith('omitted:')));
+
+  const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
+  assert.match(text, /^effectiveTier: story-fast$/m);
+  assert.match(text, /^selected: 1 of 2 validation unit\(s\)$/m);
+  assert.match(text, /^exclusion proofs \(1\):$/m);
+  assert.ok(text.includes(report.selectorDecisionDigest));
 });
 
 testCase('a no-validator project reports no tier pass instead of an empty plan', () => {
@@ -3138,6 +3277,24 @@ testCase('F-024/F-025: the --json render path refuses an inconsistent report exa
       label: 'status: stop that still carries a selection',
       forged: { ...report, status: 'stop' },
       expect: /stop result may not carry plan-shaped facts/,
+    },
+    {
+      label: 'a reduced plan whose omitted unit has no positive exclusion proof',
+      forged: {
+        ...report,
+        counts: { selected: 1, total: report.units.length },
+        reductionApplied: true,
+        units: report.units.map((unit, index) => index === 0
+          ? unit
+          : { ...unit, selected: false, inclusionReasons: ['omitted:fixture'] }),
+        exclusionProofs: [],
+      },
+      expect: /exactly one positive exclusion proof/,
+    },
+    {
+      label: 'reductionApplied contradicts selected-versus-total counts',
+      forged: { ...report, reductionApplied: true },
+      expect: /reductionApplied must equal selected < total/,
     },
     {
       label: 'freshnessBinding "bound" with a null headHash',
@@ -3717,6 +3874,22 @@ testCase('F-022: a complete snapshot stays available with no hash escalation (no
   assert.equal(input.escalations.some((entry) => entry.code === 'hash_snapshot_unavailable'), false);
 });
 
+testCase('F-022: the collector classifies a snapshot without materialDirtyFiles as unavailable', () => {
+  const input = collect({
+    readers: {
+      changedFileStatuses: statusReader({}),
+      hashSnapshot: () => {
+        const snapshot: Record<string, unknown> = { ...FIXTURE_HEAD_SNAPSHOT };
+        delete snapshot.materialDirtyFiles;
+        return snapshot as unknown as EvidenceHashSnapshot;
+      },
+    },
+  });
+  assert.equal(input.hashes.status, 'hash_snapshot_unavailable');
+  assert.ok(input.escalations.some((entry) =>
+    entry.code === 'hash_snapshot_unavailable' && entry.detail.includes('materialDirtyFiles')));
+});
+
 testCase('F-022: the planner escalates an incomplete snapshot with a glossed hash_snapshot_unavailable reason', () => {
   assert.ok(
     Object.prototype.hasOwnProperty.call(VALIDATION_WIDENING_REASONS, 'hash_snapshot_unavailable'),
@@ -3735,17 +3908,28 @@ testCase('F-022: the planner escalates an incomplete snapshot with a glossed has
   assert.equal(reason.gloss, validationWideningReasonGloss('hash_snapshot_unavailable'));
 });
 
-testCase('F-022: the planner refuses a schema-bypassing "available" snapshot that carries a null binding', () => {
+testCase('F-022: the planner classifies a schema-bypassing "available" snapshot that carries a null binding', () => {
   for (const missing of EVIDENCE_DIGEST_NAMES) {
     const head: Record<string, unknown> = { ...FIXTURE_HEAD_SNAPSHOT };
     delete head[missing];
     const input = { ...planInput(), hashes: { status: 'available', head } } as unknown as StoryRelevanceInput;
-    assert.throws(
-      () => resolveValidationTierPlan({ input, requestedTier: 'story-fast' }),
-      new RegExp(missing),
-      `an available snapshot without ${missing} must be rejected at the planner entry, naming ${missing}`,
-    );
+    const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+    assert.equal(result.status, 'plan');
+    assert.equal(result.status === 'plan' && result.effectiveTier, 'repository-full');
+    assert.ok(reasonCodes(result).includes('hash_snapshot_unavailable'));
+    assert.ok(result.escalationReasons.some((reason) => reason.detail.includes(missing)));
   }
+});
+
+testCase('F-022: a schema-bypassing snapshot without materialDirtyFiles widens instead of throwing', () => {
+  const head: Record<string, unknown> = { ...FIXTURE_HEAD_SNAPSHOT };
+  delete head.materialDirtyFiles;
+  const input = { ...planInput(), hashes: { status: 'available', head } } as unknown as StoryRelevanceInput;
+  const result = resolveValidationTierPlan({ input, requestedTier: 'story-fast' });
+  assert.equal(result.status, 'plan');
+  assert.equal(result.status === 'plan' && result.effectiveTier, 'repository-full');
+  assert.ok(reasonCodes(result).includes('hash_snapshot_unavailable'));
+  assert.ok(result.escalationReasons.some((reason) => reason.detail.includes('materialDirtyFiles')));
 });
 
 testCase('F-022: the CLI report carries the freshness binding and discloses an unbound one', () => {

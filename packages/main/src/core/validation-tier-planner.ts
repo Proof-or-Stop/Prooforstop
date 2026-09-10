@@ -32,7 +32,11 @@
  * CLI (CHK-005), and every result says so through `finalAuthority: false`.
  */
 
-import { missingEvidenceHashDigests, type StoryRelevanceInput } from './validation-relevance-input.js';
+import {
+  evidenceMaterialDirtyFiles,
+  missingEvidenceHashDigests,
+  type StoryRelevanceInput,
+} from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 import { digestCanonicalJson } from './digest.js';
 
@@ -215,6 +219,11 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
   'proof-or-stop.config.json',
   'packages/main/src/core/process-fact-registry.ts',
   'packages/main/src/core/process-fact-levels.ts',
+  'packages/main/src/core/evidence-freshness.ts',
+  'packages/main/src/core/material-path-policy.ts',
+  'packages/main/src/core/runtime-artifact-registry.ts',
+  'packages/main/src/core/digest.ts',
+  'packages/main/src/core/config.ts',
   'packages/main/src/core/machine.ts',
   'packages/main/src/core/guard-utils.ts',
   'packages/main/src/core/command-policy.ts',
@@ -332,6 +341,7 @@ export function selectValidationTiers(rawInput: SelectValidationTiersInput): Val
 
   const impactIndexDigest = digestCanonicalJson(index);
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
+  for (const reason of classifySensitiveStoryPaths(changedPaths)) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
   if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');
@@ -592,6 +602,13 @@ export const VALIDATION_WIDENING_REASONS = {
       'This Story changed the machinery that decides what to run or how to judge it, so that machinery cannot ' +
       'be trusted to shrink its own test set.',
   },
+  story_risk_signal_present: {
+    condition: 'Story risk policy marks the change as high-risk',
+    outcome: 'repository-full',
+    gloss:
+      'The Story carries a configured risk signal, so the smaller validation tiers are not used even when ' +
+      'the changed files can otherwise be mapped.',
+  },
   build_graph_change: {
     condition: 'Package manifest, lockfile, build graph, or shared compiler configuration changes',
     outcome: 'repository-full',
@@ -844,22 +861,66 @@ function assertPlannerInput(input: StoryRelevanceInput): void {
   if (!Array.isArray(input.executionInventory.commandIds)) {
     throw new Error('resolveValidationTierPlan: input.executionInventory.commandIds must be an array');
   }
-  // B-a745 F-022: a snapshot labelled available must carry every binding. The
-  // collector classifies a partial one, but a schema-bypassing input (an
-  // internal caller, a fixture, an older serialized input) is re-checked here
-  // so no code path plans over a null head / material / story-files binding.
+  // The resolver normalizes an older or schema-bypassing available snapshot to
+  // hash_snapshot_unavailable after this structural check. That produces a
+  // classified full plan instead of throwing or assuming a missing overlay is
+  // an empty worktree.
   if (!input.hashes || typeof input.hashes !== 'object' || typeof input.hashes.status !== 'string') {
     throw new Error('resolveValidationTierPlan: input.hashes must classify the evidence hash snapshot');
   }
-  if (input.hashes.status === 'available') {
-    const missing = missingEvidenceHashDigests(input.hashes.head);
-    if (missing.length > 0) {
-      throw new Error(
-        `resolveValidationTierPlan: input.hashes is labelled available but carries no ${missing.join(', ')}; ` +
-        'a snapshot missing a digest binds nothing and must be classified hash_snapshot_unavailable, never planned over',
-      );
-    }
+  if (!Array.isArray(input.seeds) || !Array.isArray(input.escalations) || !Array.isArray(input.unclassifiedInputs)) {
+    throw new Error('resolveValidationTierPlan: input seeds, escalations and unclassifiedInputs must be arrays');
   }
+}
+
+function normalizePlannerHashSnapshot(input: StoryRelevanceInput): StoryRelevanceInput {
+  if (input.hashes.status !== 'available') return input;
+  const missingDigests = missingEvidenceHashDigests(input.hashes.head);
+  const dirtyFiles = evidenceMaterialDirtyFiles(input.hashes.head);
+  if (missingDigests.length === 0 && dirtyFiles !== null) return input;
+
+  const missingDescription = missingDigests.length > 0
+    ? `missing ${missingDigests.join(', ')}`
+    : 'missing or malformed materialDirtyFiles';
+  const detail =
+    `the evidence hash snapshot labelled available is incomplete (${missingDescription}), so no freshness ` +
+    'binding or bounded material overlay can be proven for this plan';
+  return {
+    ...input,
+    hashes: {
+      status: 'hash_snapshot_unavailable',
+      summary: `the available snapshot is incomplete: ${missingDescription}`,
+      error: `schema-bypassing incomplete evidence hash snapshot: ${missingDescription}`,
+      missingDigests,
+    },
+    escalations: input.escalations.some((entry) => entry.code === 'hash_snapshot_unavailable')
+      ? [...input.escalations]
+      : [...input.escalations, { code: 'hash_snapshot_unavailable', detail }],
+  };
+}
+
+function validationImpactIndexHasUsableShape(value: unknown): value is ValidationImpactIndex {
+  if (!value || typeof value !== 'object') return false;
+  const index = value as Record<string, unknown>;
+  if (
+    index.schema !== VALIDATION_IMPACT_INDEX_SCHEMA
+    || typeof index.version !== 'string'
+    || index.version.trim() === ''
+    || typeof index.commandSetDigest !== 'string'
+    || index.commandSetDigest.trim() === ''
+    || !Array.isArray(index.entries)
+  ) return false;
+  return index.entries.every((rawEntry) => {
+    if (!rawEntry || typeof rawEntry !== 'object') return false;
+    const entry = rawEntry as Record<string, unknown>;
+    return typeof entry.commandId === 'string'
+      && entry.commandId.trim() !== ''
+      && (entry.selection === 'always' || (VALIDATION_TIERS as readonly unknown[]).includes(entry.selection))
+      && Array.isArray(entry.inputPatterns)
+      && entry.inputPatterns.every((pattern) => typeof pattern === 'string')
+      && (entry.coverage === 'complete' || entry.coverage === 'partial')
+      && (entry.fullReason === undefined || VALIDATION_WIDENING_REASON_CODES.includes(entry.fullReason as ValidationWideningReasonCode));
+  });
 }
 
 /**
@@ -915,6 +976,26 @@ function collectIndexedUnclassifiedInputs(
   return entries;
 }
 
+function collectMalformedIndexUnclassifiedInputs(
+  input: StoryRelevanceInput,
+  materialSeedPaths: readonly string[],
+): ValidationTierPlanUnclassifiedInput[] {
+  const entries: ValidationTierPlanUnclassifiedInput[] = materialSeedPaths.map((path) => {
+    const seed = input.seeds.find((candidate) => candidate.kind === 'path' && normalizedPath(candidate.value) === path);
+    return {
+      kind: 'material-path' as const,
+      value: path,
+      detail:
+        `the configured impact index is malformed, so ${path}` +
+        `${seed ? ` (provenance: ${seed.provenance.join(', ')})` : ''} cannot be attributed safely`,
+    };
+  });
+  for (const upstream of input.unclassifiedInputs) {
+    entries.push({ kind: upstream.kind, value: upstream.detail, detail: upstream.detail });
+  }
+  return entries;
+}
+
 /**
  * The FIRST collected escalation whose table row says it produces no plan. The
  * membership test is the table's, so this function never needs to be edited when
@@ -958,11 +1039,30 @@ function assertStopReason(reason: ValidationWideningReason): ValidationWideningR
  */
 export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): ValidationTierPlanResult {
   const requestedTier = assertValidationTier(args?.requestedTier, 'resolveValidationTierPlan');
-  const input = args?.input as StoryRelevanceInput;
-  assertPlannerInput(input);
+  const rawInput = args?.input as StoryRelevanceInput;
+  assertPlannerInput(rawInput);
+  const input = normalizePlannerHashSnapshot(rawInput);
+
+  const materialSeedPaths = [...new Set([
+    ...input.seeds
+      .filter((seed) => seed.kind === 'path')
+      .map((seed) => normalizedPath(seed.value))
+      .filter(Boolean),
+    ...(input.hashes.status === 'available'
+      ? (evidenceMaterialDirtyFiles(input.hashes.head) ?? []).map(normalizedPath).filter(Boolean)
+      : []),
+  ])].sort();
+  const configuredImpactIndex = args.impactIndex !== null && args.impactIndex !== undefined;
+  const usableImpactIndex = validationImpactIndexHasUsableShape(args.impactIndex)
+    ? args.impactIndex
+    : null;
+  const unclassifiedInputs = configuredImpactIndex
+    ? usableImpactIndex
+      ? collectIndexedUnclassifiedInputs(input, usableImpactIndex, materialSeedPaths)
+      : collectMalformedIndexUnclassifiedInputs(input, materialSeedPaths)
+    : collectUnclassifiedInputs(input);
 
   const sourceKind = input.executionInventory.sourceKind;
-  const unclassifiedInputs = collectUnclassifiedInputs(input);
   const common = {
     schema: VALIDATION_TIER_PLAN_SCHEMA,
     storyId: input.storyId,
@@ -1018,24 +1118,10 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     return { ...common, status: 'stop', reason, escalationReasons: [...escalationReasons, reason] };
   }
 
-  // Story seeds cover committed diff plus declared checklist paths. The hash
-  // snapshot additionally names uncommitted material overlay paths; omitting
-  // those could manufacture a false non-intersection proof against the very
-  // snapshot the decision claims to bind.
-  const materialSeedPaths = [...new Set([
-    ...input.seeds
-      .filter((seed) => seed.kind === 'path')
-      .map((seed) => normalizedPath(seed.value))
-      .filter(Boolean),
-    ...(input.hashes.status === 'available'
-      ? input.hashes.head.materialDirtyFiles.map(normalizedPath).filter(Boolean)
-      : []),
-  ])].sort();
-
   // 4b. A configured command-set may narrow only through the canonical pure
   // selector. Opaque fallback/validate-file sources have no per-command
   // inventory and therefore retain their atomic full behavior below.
-  if (!atomic && args.impactIndex) {
+  if (!atomic && configuredImpactIndex) {
     // Pass codes through to the inner validator instead of silently filtering
     // an unknown future collector code. The selector converts an unknown code
     // into impact_index_unusable.
@@ -1045,8 +1131,7 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     if (input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
     if (input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
     if (input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');
-    forceFullReasons.push(...classifySensitiveStoryPaths(materialSeedPaths));
-    if (input.riskSignals.length > 0) forceFullReasons.push('validation_framework_sensitive_change');
+    if (input.riskSignals.length > 0) forceFullReasons.push('story_risk_signal_present');
 
     const decision = selectValidationTiers({
       storyId: input.storyId,
@@ -1056,7 +1141,20 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
       pinnedCommandIds: input.pinnedCommands.map((pin) => pin.commandId),
       forceFullReasons,
       commandSetDigest: input.executionInventory.commandSetDigest,
-      snapshotDigest: digestCanonicalJson({ hashes: input.hashes, selectionDigest: input.selectionDigest }),
+      snapshotDigest: digestCanonicalJson({
+        selectionDigest: input.selectionDigest,
+        hashes: input.hashes.status === 'available'
+          ? {
+              headHash: input.hashes.head.headHash,
+              materialHash: input.hashes.head.materialHash,
+              storyFilesHash: input.hashes.head.storyFilesHash,
+              materialDirtyFiles: [...(evidenceMaterialDirtyFiles(input.hashes.head) ?? [])]
+                .map(normalizedPath)
+                .filter(Boolean)
+                .sort(),
+            }
+          : { status: input.hashes.status, missingDigests: input.hashes.missingDigests },
+      }),
       impactIndex: args.impactIndex,
     });
     const dynamicReasons = decision.escalationReasonCodes.map((code) => validationWideningReason(
@@ -1066,17 +1164,12 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
         : `the versioned impact-index decision for story ${input.storyId} classified ${code}; ` +
           'the requested subset was refused and the repository-full command universe was selected',
     ));
-    const indexedUnclassifiedInputs = collectIndexedUnclassifiedInputs(
-      input,
-      args.impactIndex,
-      materialSeedPaths,
-    );
     const dynamicStop = dynamicReasons.find((reason) => isValidationStopReasonCode(reason.code));
     if (dynamicStop) {
       const reason = assertStopReason(dynamicStop);
       return {
         ...common,
-        unclassifiedInputs: indexedUnclassifiedInputs,
+        unclassifiedInputs,
         status: 'stop',
         reason,
         escalationReasons: dynamicReasons,
@@ -1084,7 +1177,7 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     }
     return {
       ...common,
-      unclassifiedInputs: indexedUnclassifiedInputs,
+      unclassifiedInputs,
       status: 'plan',
       effectiveTier: decision.effectiveTier,
       executionMode: 'command-set',
@@ -1114,7 +1207,7 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
   // 5. Why nothing was reduced on the compatibility path. A configured index
   // cannot decompose an atomic source, but it does exist and must never be
   // reported as missing.
-  if (!args.impactIndex) {
+  if (!configuredImpactIndex) {
     escalationReasons.push(
       validationWideningReason(
         'impact_index_unusable',
@@ -1125,6 +1218,14 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
         'command_exclusion_unproven',
         `none of the ${universe.length} executable unit(s) carries a positive current-head exclusion proof, so ` +
         'none of them may be left out',
+      ),
+    );
+  } else if (atomic && !usableImpactIndex) {
+    escalationReasons.push(
+      validationWideningReason(
+        'impact_index_unusable',
+        'an impact index is configured, but its runtime shape is malformed; the atomic validation source still ' +
+        'runs in full and the index must be repaired before it can explain path coverage',
       ),
     );
   }
@@ -1150,9 +1251,9 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     escalationReasons.push(
       validationWideningReason(
         'hash_snapshot_unavailable',
-        `the evidence hash snapshot could not be established (${input.hashes.summary}), so this plan is bound to ` +
-        'no head, material or story-files digest and cannot be re-checked for freshness; nothing may be narrowed ' +
-        'on its account',
+        `the evidence hash snapshot could not be established (${input.hashes.summary}), so this plan lacks a ` +
+        'complete digest and material-overlay binding and cannot be re-checked for freshness; nothing may be ' +
+        'narrowed on its account',
       ),
     );
   }
@@ -1182,9 +1283,6 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
 
   return {
     ...common,
-    ...(atomic && args.impactIndex
-      ? { unclassifiedInputs: collectIndexedUnclassifiedInputs(input, args.impactIndex, materialSeedPaths) }
-      : {}),
     status: 'plan',
     effectiveTier: REPOSITORY_FULL_TIER,
     executionMode: atomic ? 'atomic' : 'command-set',
