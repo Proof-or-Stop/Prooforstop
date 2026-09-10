@@ -3191,7 +3191,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "db39e78c4cfa871240cdfb7aa3723b43316d42fefd19156a4bc490bacfc101af"
+    "sha256": "5d20308151da6603830dc78c6ad9992e3c871dbfff1baf3c65b810103c6e1272"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "756956ee0f1929f4306fea1288c2e26252628ce4c13383af780123afa217bb17"
+    "sha256": "b48ae856a641e28cfac44fef5ec712e5c404fa6293da103fb8357f0e120b8e98"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -7422,7 +7422,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "c4ebdb434ab1b55d0dfa85c14359ffd100fc64afb97b2484ff096535d1e769f2"
+    "sha256": "d3fa8f8f4eeda35b02339a1a004d4dfa2402a25e319d5dc673635802058f4fb3"
   }
 ];
 function verifyReviewedContextReaders(root) {

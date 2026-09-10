@@ -2388,7 +2388,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b',
+    'f0d2a8788e893db2620378b346b4b6ac7d130fff4f9f14d90769313e500ed5e9',
     'ca1a6aa99b2413a4bdfb31fa59c7f327ad55ec837f8107348de68935ee28e22b',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
@@ -2403,7 +2403,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b',
+    'f0d2a8788e893db2620378b346b4b6ac7d130fff4f9f14d90769313e500ed5e9',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.

@@ -491,9 +491,11 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // byte-identical to main. The only change is the structured watchdog command
   // list plus the evidence-writer abort/deadline injection, so this whole-file
   // structural fingerprint simply moves with that edit.
-  // 2a3132ab47/7f0981e941: watchdog budget/continuation wiring and static
-  // imports changed; the runCli initPath producer and import expression did not.
-  ['packages/main/src/cli-engine.ts', 'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b'],
+  // fc33a89782: the pre-side-effect canonical identity consumer check added one
+  // static import and one ordinary call before Story reads. The complete dynamic
+  // load surface remains the same two expressions, and the runCli initPath
+  // producer plus import argument are unchanged. Repin the whole-file AST digest.
+  ['packages/main/src/cli-engine.ts', 'f0d2a8788e893db2620378b346b4b6ac7d130fff4f9f14d90769313e500ed5e9'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
