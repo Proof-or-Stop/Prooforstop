@@ -44,6 +44,7 @@ import { computeFinalReviewRoster, renderFinalReviewRoster, type ActiveReviewer 
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import { getSessionId } from '../core/owner-session.js';
+import { deriveReviewerBatchSubject } from '../core/reviewer-batch-subject.js';
 
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
@@ -781,6 +782,10 @@ const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'pro
 });
 const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(criticReviewRunId, `real critic review_run_start must return a signed run: ${criticStarted}`);
+assert.ok(
+  deriveReviewerBatchSubject(reloaded, first.root, { storyId }).requiredLanes.includes('proof-or-stop-review-topology-critic'),
+  'inventory completeness critic is admitted through the managed reviewer batch after its purpose-bound run starts',
+);
 await fixtureReviewCli(first, 'review_pass_set', {
   storyId,
   agent: 'proof-or-stop-review-topology-critic',
