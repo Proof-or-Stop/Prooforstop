@@ -9,12 +9,11 @@
         "docs/requirements/decisions/red-evidence-subsystem-spec.md",
         "AGENTS.md#two-layer-process-fact-contract"
       ],
-      "userSees": "Registry inspection exposes deterministic fact IDs, normalized paths, component IDs, serialization boundaries, and generated-from lineage needed by later RED/GREEN classification.",
+      "userSees": "npm run test:process-fact-contract prints registry-component-mapping: registry=process unavailable=0 before Process-fact contract verification passed; npm run test:runtime-fact-contract prints registry-component-mapping: registry=runtime unavailable=0 before Runtime fact contract verified.",
       "files": {
         "modify": [
           "src/core/process-fact-registry.ts",
-          "src/core/runtime-fact-registry.ts",
-          "src/core/types.ts"
+          "src/core/runtime-fact-registry.ts"
         ],
         "create": [],
         "test": [
@@ -60,7 +59,7 @@
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#12-workstreams-and-delivery-order",
         "docs/requirements/decisions/red-evidence-subsystem-spec.md"
       ],
-      "userSees": "Invalid registry mappings stop downstream RED/GREEN classification instead of silently selecting a component.",
+      "userSees": "npm run test:red-p0m-component-mapping -- --case=process-missing and --case=runtime-missing each print registry-component-mapping-unavailable with registry=<process|runtime> and exit nonzero; the normal test plus both contract commands print registry-component-mapping: registry=<process|runtime> unavailable=0.",
       "files": {
         "modify": [
           "../../scripts/verify-process-fact-contract.mjs",
@@ -109,17 +108,17 @@
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#13-acceptance-matrix",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "The P0m prerequisite is protected by executable RED/GREEN, adversarial mutation, and process/runtime contract checks.",
+      "userSees": "The final evidence report cites the immutable pre-repair commit and captured nonzero output from npm run test:red-p0m-component-mapping, then shows the identical command printing GREEN plus mutation=PASS and concurrent-read=PASS after repair; it explicitly states P0m supplies only the mapping foundation, P1 adds classification consumers, and full enforcement remains deferred to P4.",
       "files": {
         "modify": [
           "../../scripts/verify-process-fact-contract.mjs",
           "../../scripts/verify-runtime-fact-contract.mjs",
           "package.json"
         ],
-        "create": [],
-        "test": [
+        "create": [
           "tests/red/red-repro-first-p0m-component-mapping.mjs"
-        ]
+        ],
+        "test": []
       },
       "verificationIntent": {
         "happy": [
