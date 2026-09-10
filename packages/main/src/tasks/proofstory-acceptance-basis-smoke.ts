@@ -18,6 +18,7 @@ import {
   verifyAcceptanceCoverageBasis,
 } from '../core/acceptance-coverage-basis.js';
 import {
+  MAX_PROOF_OR_STOP_CONFIG_BYTES,
   detectAcceptanceDiscoverySupport,
   reconcileAcceptanceDiscoveryResults,
   deriveRegisteredProcessFactClosure,
@@ -158,6 +159,11 @@ const topology: AcceptanceVerificationTopologyV1 = {
 };
 
 function writeCanonicalAcceptanceRegistration(root: string): void {
+  // Snapshot-only dependencies registered by current process facts; not execution evidence.
+  for (const file of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/acceptance-amendment-journal.ts", "packages/main/src/core/convergence-progress-gate.ts", "packages/main/src/core/convergence-progress-journal.ts", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/host-run.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-host-run.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-review-lane-build.mjs", "packages/main/src/core/managed-review-lane-policy.ts", "packages/main/src/core/managed-review-lane.ts", "packages/main/src/core/managed-review-provider-state.ts", "packages/main/src/core/managed-review-readonly.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/planned-steps-executor.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/proof-or-stop-dispatch.ts", "packages/main/src/core/provider-process-admission.ts", "packages/main/src/core/provider-process-registry.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/core/scope-inventory-budget.ts", "packages/main/src/core/story-scope-budget-decisions.ts", "packages/main/src/core/story-scope-budget-legacy.ts", "packages/main/src/core/story-scope-budget.ts", "packages/main/src/core/story-scope-decomposition.ts", "packages/main/src/handlers/cross-host-review.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts", "packages/main/src/handlers/story-review.ts", "packages/main/src/providers/supervised-process-worker.ts", "packages/main/src/providers/supervised-process.ts"]) {
+    if (!existsSync(join(root, file))) write(root, file, "export const fixtureDependency = true;\n");
+  }
+
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'branch_status', description: 'infer from the story/* branch' },",
@@ -385,7 +391,7 @@ try {
   const policyRichConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(policyRichConfig.basis.status, 'complete', 'a policy-rich config above the former 64 KiB ceiling remains discoverable');
   assert.ok(!policyRichConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'an admitted policy-rich config has no bounded-read blind spot');
-  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(MAX_PROOF_OR_STOP_CONFIG_BYTES + 1) }));
   const oversizedConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
@@ -680,6 +686,9 @@ try {
       "const target = './handlers/proofstory.js';",
       'export const loadUnrelated = () => import(target);', '',
     ].join('\n'));
+    for (const name of ['scope-inventory-budget', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-budget-legacy']) {
+      write(repositoryShapeRoot, `packages/main/src/core/${name}.ts`, 'export const fixtureDependency = true;\n');
+    }
     const repositoryShapePath = structuredClone(first.basis.plannedPathRecords[0]);
     repositoryShapePath.producer.expectedFileRef = 'packages/main/src/handlers/proofstory.ts';
     repositoryShapePath.producer.expectedSymbolOrFact = 'acceptanceBasisProducer';

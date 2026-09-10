@@ -415,16 +415,8 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
     riskSignals: [],
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
   } as StoryInfo);
-  store.writeChecklist(storyId, {
-    items: [{
-      id: 'CHK-001',
-      title: 'Synthetic heartbeat verification',
-      context: 'Synthetic done item for story_advance heartbeat smoke.',
-      status: 'done',
-      startTime: now,
-      endTime: now,
-    }],
-  } as ChecklistData);
+  // This fixture tests routine execution/transition ownership, not checklist evidence.
+  store.writeChecklist(storyId, { items: [] });
   commitAll(root, 'seed heartbeat story metadata');
   persistFixtureCertificationWindow(store, storyId, root);
   return { ...fixture, storyId };
@@ -775,6 +767,7 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
     const fixture = prepareDonePrepareRoutineFixture();
     try {
       configureRoutineValidate(fixture.root, 2_000);
+      admitSyntheticWindow(fixture.root, fixture.storyId);
       const result = await runCli(fixture.root, [
         'done_prepare',
         '--storyId', fixture.storyId,
@@ -798,6 +791,7 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
       assert.equal(parsed.existingEvidenceBasis, 'stale');
 
       configureRoutineValidate(fixture.root, 0);
+      admitSyntheticWindow(fixture.root, fixture.storyId);
       const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
         PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
@@ -871,6 +865,7 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
   const fixture = prepareDonePrepareRoutineFixture();
   try {
     configureRoutineValidate(fixture.root, 2_000);
+    admitSyntheticWindow(fixture.root, fixture.storyId);
     const result = await runCli(fixture.root, [
       'done_prepare',
       '--storyId', fixture.storyId,
@@ -894,6 +889,7 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
     assert.ok(!/validation failed/i.test(parsed.reason ?? ''), 'named deadline must not collapse into generic validation failure');
 
     configureRoutineValidate(fixture.root, 0);
+    admitSyntheticWindow(fixture.root, fixture.storyId);
     const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
       PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
       PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
@@ -975,12 +971,16 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
   const { root, storyId, started, finished } = setupStoryAdvanceFixture();
   try {
     git(root, ['checkout', '-b', `story/${storyId}`]);
+    const routine = await runCli(root, ['validate', '--story', storyId, '--json'], NON_MAX_HARNESS_CEILING_MS);
+    assert.equal(routine.status, 0, `REVIEW routine must pass with heartbeat: ${routine.stderr}\n${routine.stdout}`);
+    const terminalBeforeTest = readFileSync(finished, 'utf8');
     const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], NON_MAX_HARNESS_CEILING_MS);
+    assert.equal(readFileSync(finished, 'utf8'), terminalBeforeTest, 'TEST consumes routine PASS without another configured child');
     assert.equal(result.status, 0, `story_advance should survive active validate heartbeat:\n${result.stderr}\n${result.stdout}`);
     assert.ok(existsSync(started), 'story_advance internal validate command must start');
     assert.ok(existsSync(finished), 'story_advance internal validate command must finish');
     assert.ok(!result.stderr.includes('without output; forcing exit'), `story_advance must not hit idle watchdog:\n${result.stderr}`);
-    assert.match(result.stderr, /validate heartbeat: command 1\/1 silent-active-validate elapsedMs=/);
+    assert.match(routine.stderr, /validate heartbeat: command 1\/1 silent-active-validate elapsedMs=/);
     const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'TEST', 'story_advance should persist TEST phase');
     const evidence = store.readTestEvidence(storyId);
@@ -1008,6 +1008,9 @@ async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
   const { root, storyId } = setupStoryAdvanceFixture();
   try {
     configureRoutineValidate(root, 0);
+    admitSyntheticWindow(root, storyId);
+    const routine = await runCli(root, ['validate', '--story', storyId, '--json'], NON_MAX_HARNESS_CEILING_MS);
+    assert.equal(routine.status, 0, `main REVIEW routine must pass: ${routine.stderr}\n${routine.stdout}`);
     const result = await runCli(
       root,
       ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
@@ -1050,7 +1053,7 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
     const processEventsPath = join(root, processEventsRel);
     run = runCli(
       root,
-      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      ['validate', '--story', storyId, '--json'],
       NON_MAX_HARNESS_CEILING_MS,
     );
     await waitForValidationStart(started, finished, run);
@@ -1066,13 +1069,15 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
     writeFileSync(release, 'foreign append completed');
 
     const result = await run;
-    assert.notEqual(result.status, 0,
-      'mid-validation foreign canonical append must fail closed instead of joining the TEST transaction');
+    const verdict = JSON.parse(result.stdout) as ValidateJson;
+    assert.equal(verdict.allPass, false, 'foreign canonical append cannot produce a validation PASS');
+    assert.equal(verdict.failureKind, 'infra_failure', 'foreign append is attributed to evidence persistence');
+    assert.match(result.stdout, /canonical metadata was already dirty/);
     const preservedEvents = readFileSync(processEventsPath, 'utf8');
     assert.ok(preservedEvents.startsWith(foreignLine),
       'foreign bytes must remain the exact prefix when the validator appends its dirty-gate audit');
     assert.match(preservedEvents, /"type":"dirty_gate_audit"/,
-      'existing validation side-effect diagnostics remain preserved after fail-closed persistence');
+      'validation side-effect diagnostics remain preserved after fail-closed persistence');
     assert.doesNotMatch(preservedEvents, /"type":"validation_terminal"|"type":"phase_transition"/,
       'rejected persistence must append neither a validation terminal nor TEST transition');
     assert.match(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), /^\?\?/,
@@ -1110,18 +1115,23 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
     commitAll(root, 'configure intentional validation failure');
 
+    admitSyntheticWindow(root, storyId);
+    const routine = await runCli(root, ['validate', '--story', storyId, '--json'], NON_MAX_HARNESS_CEILING_MS);
+    assert.equal((JSON.parse(routine.stdout) as ValidateJson).allPass, false, 'the sole REVIEW routine records its real command failure');
+    const failedEvidence = new StoryStore(root).readTestEvidence(storyId);
     const result = await runCli(
       root,
       ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
       NON_MAX_HARNESS_CEILING_MS,
     );
     assert.notEqual(result.status, 0, 'failed internal validation must block TEST transition');
-    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: proof-or-stop validate did not pass/);
+    assert.match(`${result.stderr}\n${result.stdout}`, /pre_cert_routine_pass_required/);
 
     const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'REVIEW',
       'capture-before-gate must never persist TEST phase when validation fails');
     const evidence = store.readTestEvidence(storyId);
+    assert.deepEqual(evidence, failedEvidence, 'TEST refusal preserves the original routine failure without rerunning');
     assert.equal(evidence?.result, 'FAIL',
       'failed direct-handler validation evidence must retain its existing persistence semantics');
     assert.equal(evidence?.failureKind, 'validation_failure');
@@ -1165,7 +1175,7 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
     assert.equal(command.timeoutMs, 1_000, 'true hang command must preserve timeoutMs');
     assert.equal(command.failureKind, 'infra_failure', 'true hang command should carry infra_failure');
     const details = parsed.details?.join('\n') ?? '';
-    assert.match(details, /timeout diagnostic: command 1\/1 "true-hang" exceeded configured timeoutMs=1000ms after elapsedMs=/);
+    assert.match(details, /timeout diagnostic: command 1\/1 "true-hang" reached its execution deadline; configured timeoutMs=1000ms, effective timeoutMs=\d+ms, elapsedMs=/);
     assert.match(details, /command: /);
     assert.match(details, /args: \["-e","setInterval\(\(\) => \{\}, 1000\)"\]/);
   } finally {
@@ -1214,16 +1224,17 @@ function setupRefreshFixture(mode: 'heartbeat' | 'batch-heartbeat' | 'hang' | 's
     '${PROOF_OR_STOP_DIR}/runtime/',
     '',
   ].join('\n'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: PROOF_OR_STOP_STORY_DIR,
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2) + '\n');
   write(root, 'packages/main/src/base.ts', 'export const refreshWatchdogFixture = true;\n');
   git(root, ['init', '-b', 'work']);
   commitAll(root, 'seed refresh watchdog fixture');
+  git(root, ['branch', 'main']);
 
   const sharedCommand = pinnedNodeCommand([
     "const fs=require('fs');",
@@ -1386,6 +1397,42 @@ function killRefreshFixtureTree(fixture: RefreshFixture): void {
   }
 }
 
+// A pre-spawn watchdog is not evidence that a process tree was reaped. Retry only
+// that unobserved case with a bounded larger budget, retaining the exact layer
+// and the no-write assertion on every attempt. Any live published PID fails.
+async function runRefreshWatchdogCli(
+  fixture: RefreshFixture, args: string[], env: Record<string, string>,
+): Promise<CliResult> {
+  const maxLayer = Number(env.PROOF_OR_STOP_MAX_TIMEOUT_MS) < Number(env.PROOF_OR_STOP_IDLE_TIMEOUT_MS);
+  const budgetKey = maxLayer ? 'PROOF_OR_STOP_MAX_TIMEOUT_MS' : 'PROOF_OR_STOP_IDLE_TIMEOUT_MS';
+  const before = readFileSync(fixture.checklistPath, 'utf8');
+  for (let attempt = 0; attempt < DESCENDANT_KILL_ESCALATIONS; attempt++) {
+    const budget = Number(env[budgetKey]) * 2 ** attempt;
+    const knobs = { ...env, [budgetKey]: String(budget) };
+    if (maxLayer) knobs.PROOF_OR_STOP_IDLE_TIMEOUT_MS = String(NON_MAX_OUTER_TIMEOUT_MS);
+    else {
+      knobs.PROOF_OR_STOP_MAX_TIMEOUT_MS = String(NON_MAX_OUTER_TIMEOUT_MS);
+      knobs.PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS = String(budget * 4);
+    }
+    const result = await runCli(fixture.root, args, NON_MAX_HARNESS_CEILING_MS, knobs);
+    assert.equal(result.status, 1, `watchdog must fail through the structured handler:\n${result.stderr}`);
+    const expected = maxLayer
+      ? new RegExp(`(?:exceeded max timeout ${budget}ms|CLI max timeout exceeded ${budget}ms)`)
+      : new RegExp(`(?:stuck: ${budget / 1000} seconds without output|CLI idle timeout exceeded ${budget}ms)`);
+    assert.match(result.stderr, expected);
+    assert.equal(readFileSync(fixture.checklistPath, 'utf8'), before, 'every timeout attempt preserves checklist bytes');
+    const published = [fixture.parentPidFile, fixture.descendantPidFile].filter(fileHasContent);
+    for (const path of published) {
+      const pid = Number(readFileSync(path, 'utf8'));
+      assert.ok(Number.isSafeInteger(pid) && pid > 1, 'published PID must be valid');
+      assert.equal(pidIsAlive(pid), false, 'a published process must be reaped before return');
+    }
+    if (published.length === 2) return result;
+    for (const path of [fixture.parentPidFile, fixture.descendantPidFile, fixture.parentIdentityFile, fixture.descendantIdentityFile]) rmSync(path, { force: true });
+  }
+  assert.fail('watchdog fired before a complete process tree was published in every bounded attempt');
+}
+
 async function assertRefreshHeartbeatAndDedupe(): Promise<void> {
   const fixture = setupRefreshFixture('heartbeat', 'heartbeat');
   try {
@@ -1431,10 +1478,9 @@ async function assertRefreshWatchdogReapsWithoutPartialWrites(): Promise<void> {
     const fixture = setupRefreshFixture('hang', testCase.name);
     const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
     try {
-      const result = await runCli(
-        fixture.root,
+      const result = await runRefreshWatchdogCli(
+        fixture,
         ['verification_evidence_refresh_stale', JSON.stringify({ storyId: fixture.storyId })],
-        NON_MAX_HARNESS_CEILING_MS,
         {
           PROOF_OR_STOP_SESSION_ID: `refresh-${testCase.name}-smoke`,
           PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
@@ -1443,7 +1489,6 @@ async function assertRefreshWatchdogReapsWithoutPartialWrites(): Promise<void> {
         },
       );
       assert.equal(result.status, 1, `${testCase.name} watchdog must surface a structured handler failure, not process.exit(2):\n${result.stderr}`);
-      assert.match(result.stderr, testCase.transcript);
       assert.doesNotMatch(result.stdout, /Refreshed /, `${testCase.name} abort cannot claim a refresh result`);
       await waitForFile(fixture.parentPidFile);
       await waitForFile(fixture.descendantPidFile);
@@ -1528,10 +1573,9 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
               intentRef: 'INT-HANG',
               note: 'single verification run abort smoke',
             };
-        const result = await runCli(
-          fixture.root,
+        const result = await runRefreshWatchdogCli(
+          fixture,
           [commandKind, JSON.stringify(args)],
-          NON_MAX_HARNESS_CEILING_MS,
           {
             PROOF_OR_STOP_SESSION_ID: `single-${commandKind}-${testCase.name}-abort-smoke`,
             PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
@@ -1541,8 +1585,7 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
         );
         assert.equal(result.status, 1,
           `${commandKind} ${testCase.name} watchdog must return a structured handler failure, not process.exit(2):\n${result.stderr}`);
-        assert.match(result.stderr, testCase.transcript);
-        await waitForFile(fixture.parentPidFile);
+          await waitForFile(fixture.parentPidFile);
         await waitForFile(fixture.descendantPidFile);
         await new Promise(resolve => setTimeout(resolve, 120));
         const parentPid = Number(readFileSync(fixture.parentPidFile, 'utf8'));
@@ -1708,13 +1751,12 @@ async function assertBatchWatchdogReapsWithoutPartialWrites(): Promise<void> {
     const fixture = setupRefreshFixture('hang', testCase.name);
     const checklistBefore = readFileSync(fixture.checklistPath, 'utf8');
     try {
-      const result = await runCli(
-        fixture.root,
+      const result = await runRefreshWatchdogCli(
+        fixture,
         ['verification_evidence_batch_add', JSON.stringify({
           storyId: fixture.storyId,
           evidences: fixture.batchEvidences,
         })],
-        NON_MAX_HARNESS_CEILING_MS,
         {
           PROOF_OR_STOP_SESSION_ID: `${testCase.name}-smoke`,
           PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
@@ -1723,7 +1765,6 @@ async function assertBatchWatchdogReapsWithoutPartialWrites(): Promise<void> {
         },
       );
       assert.equal(result.status, 1, `${testCase.name} must surface a structured handler failure, not process.exit(2):\n${result.stderr}`);
-      assert.match(result.stderr, testCase.transcript);
       assert.doesNotMatch(result.stdout, /Verification evidence batch recorded/, `${testCase.name} cannot claim a batch write`);
       await waitForFile(fixture.parentPidFile);
       await waitForFile(fixture.descendantPidFile);

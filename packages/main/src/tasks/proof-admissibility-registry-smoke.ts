@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -67,6 +67,7 @@ function main(): void {
   try {
     const isolatedDist = join(mutationRoot, 'dist');
     cpSync(distRoot, isolatedDist, { recursive: true });
+    symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(isolatedDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(mutationRoot, 'templates'), { recursive: true });
     const verifierPath = join(isolatedDist, 'core', 'managed-review-evidence.js');
     const originalVerifier = readFileSync(verifierPath, 'utf8');
@@ -103,6 +104,7 @@ function main(): void {
   try {
     const isolatedDist = join(sourceMutationRoot, 'dist');
     cpSync(distRoot, isolatedDist, { recursive: true });
+    symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(isolatedDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(sourceMutationRoot, 'templates'), { recursive: true });
     const executeMutation = (args: {
       name: string;
@@ -223,6 +225,7 @@ function main(): void {
     const parallelRoot = join(sourceMutationRoot, 'parallel-registry');
     const parallelDist = join(parallelRoot, 'dist');
     cpSync(distRoot, parallelDist, { recursive: true });
+    symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(parallelDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(parallelRoot, 'templates'), { recursive: true });
     const compatibilityPath = join(parallelDist, 'core', 'evidence', 'admissibility', 'index.js');
     const compatibilitySource = readFileSync(compatibilityPath, 'utf8');
@@ -247,6 +250,7 @@ function main(): void {
   try {
     const isolatedDist = join(dispatchMutationRoot, 'dist');
     cpSync(distRoot, isolatedDist, { recursive: true });
+    symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(isolatedDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(dispatchMutationRoot, 'templates'), { recursive: true });
     // B-137a: the brand rename moved core/lattice-dispatch.ts to
     // core/proof-or-stop-dispatch.ts, but this mutation target kept the retired
@@ -283,6 +287,7 @@ function main(): void {
   try {
     const isolatedDist = join(platformMutationRoot, 'dist');
     cpSync(distRoot, isolatedDist, { recursive: true });
+    symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(isolatedDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(platformMutationRoot, 'templates'), { recursive: true });
     const managedPath = join(isolatedDist, 'core', 'managed-host-run.js');
     const originalManaged = readFileSync(managedPath, 'utf8');

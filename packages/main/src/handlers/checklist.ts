@@ -11,7 +11,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
-import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, formatValidationProgressEvent, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -3217,7 +3217,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           else groups.set(candidate.executionKey, { representative: candidate, rowKeys: [candidate.rowKey] });
         }
 
+        const rawCommandOrdinals = new Map(
+          [...new Set([...groups.values()].map(group => group.representative.rawExecutionKey))]
+            .map((key, index) => [key, index + 1]),
+        );
         for (const group of groups.values()) {
+          assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
           const candidate = group.representative;
           try {
             const stamp = await enforceAndStampEvidence(
@@ -3241,7 +3246,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                   const execution = runSingleAllowlistedCommand(
                     command,
                     root,
-                    { cwd, timeoutMs: effectiveTimeoutMs },
+                    {
+                      cwd, timeoutMs: effectiveTimeoutMs,
+                      commandIndex: rawCommandOrdinals.get(candidate.rawExecutionKey),
+                      totalCommands: rawCommandOrdinals.size,
+                      progress: event => ctx.log?.(formatValidationProgressEvent(event)),
+                      abortSignal: args.abortSignal,
+                      deadlineAt: args.deadlineAt,
+                      deadlineError: args.deadlineError,
+                    },
                   ).then((result) => Object.freeze({ ...result }));
                   rawProcessResults.set(cacheKey, execution);
                   return execution;

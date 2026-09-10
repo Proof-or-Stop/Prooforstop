@@ -486,7 +486,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate after abort-atomic pinned re-execution: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate after abort-atomic pinned re-execution with shared executor progress, unique raw-command ordinals and forwarded abort/deadline controls: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
@@ -813,7 +813,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'delivery-check.json',
     path: 'delivery-check.json',
     signed: true,
-    signature: 'signDeliveryCheck/recomputeDeliveryCheckHash; native delivery broker binding is folded into the signed domain and reverified by DONE readers',
+    signature: 'signDeliveryCheck/recomputeDeliveryCheckHash; native delivery broker binding is folded into the signed domain and reverified by DONE readers using canonical role identity for public and legacy dispatch aliases',
     producerCommand: 'delivery_check_set',
     consumerGate: 'storyMachine.canFinish DONE gate',
     reviewerLane: 'proof-or-stop-review-delivery',
@@ -1930,7 +1930,7 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
     producerSourceRefs: ['packages/main/src/core/managed-run-dashboard.ts', 'packages/main/src/core/managed-host-run.ts'],
     consumerSourceRefs: ['packages/main/src/handlers/graph.ts', 'packages/graph/src/core/app.ts', 'packages/graph/src/shells/web/app.js'],
     consumerGate: 'Read-only owner/UI observation; no lifecycle or replacement authority',
-    rationale: 'The existing Graph status poll reads managed runtime independently of Story hashes. Only validated public stage, provider output progress, historical ETA and terminal identity are exposed. Corrupt records and bounded observation failures are explicit diagnostics. Visible terminal notifications are deduplicated in browser storage by project, run and terminal identity, with in-memory fallback. Hidden tabs do not acknowledge delivery. Heartbeat is not provider progress; observation never signals processes or renews leases. These operational identities are not new signed review evidence or product release approval.',
+    rationale: 'The existing Graph status poll reads managed runtime independently of Story hashes. Only validated public stage, provider output progress, historical ETA and terminal identity are exposed. Corrupt records and bounded observation failures are explicit diagnostics. The first status snapshot primes a silent history baseline; late historical records remain silent. New terminal notifications are aggregated per poll, limited to three visible notices and auto-dismiss after eight seconds. Visible terminal notifications are deduplicated in browser storage by project, run and terminal identity, with in-memory fallback. Hidden tabs do not acknowledge delivery. Heartbeat is not provider progress; observation never signals processes or renews leases. These operational identities are not new signed review evidence or product release approval.',
   },
   {
     name: 'managed-terminal-supervision',

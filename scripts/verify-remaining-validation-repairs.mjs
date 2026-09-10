@@ -36,6 +36,15 @@ const targets=[
 ];
 const configured=configuredValidationCommands(process.cwd());
 const rows=[];
+// Additional watchdog regression covers cancellation and heartbeats on the
+// evidence-writing commands; the original thirty configured entries still run.
+const heartbeat=configured.find(c=>c.args.includes('packages/main/dist/tasks/validate-progress-heartbeat-smoke.js'));
+assert.ok(heartbeat, 'configured heartbeat entry exists');
+const watchdog=await runValidationCommand({...heartbeat, env:{...heartbeat.env, REFRESH_STALE_WATCHDOG_ONLY:'1'}},process.cwd());
+rows.push({target:'evidence-write-watchdogs',...watchdog});
+if(process.env.REMAINING_VALIDATION_REPORT_PATH)fs.writeFileSync(process.env.REMAINING_VALIDATION_REPORT_PATH,JSON.stringify(rows,null,2));
+console.log(JSON.stringify({target:'evidence-write-watchdogs',code:watchdog.code,durationMs:watchdog.durationMs}));
+assert.equal(watchdog.code,0,'REMAINING_VALIDATION_FAILURE: evidence-write-watchdogs\n'+watchdog.output);
 for(const target of targets){
  const matches=configured.filter(c=>c.args.includes(target));assert.equal(matches.length,1,'unique configured target '+target);
  const result=await runValidationCommand(matches[0],process.cwd());rows.push({target,...result});

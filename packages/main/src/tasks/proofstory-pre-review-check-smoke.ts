@@ -797,6 +797,10 @@ function writeRegistration(root: string): void {
   // makes acceptance_basis_generate correctly return partial.
   write(root, 'packages/main/src/core/machine.ts', 'export const reviewInventoryGate=true;\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch=true;\n');
+  // Source snapshot closure only; these modules are not executed by this fixture.
+  for (const path of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/host-run.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-host-run.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-review-lane-build.mjs", "packages/main/src/core/managed-review-lane-policy.ts", "packages/main/src/core/managed-review-lane.ts", "packages/main/src/core/managed-review-provider-state.ts", "packages/main/src/core/managed-review-readonly.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/planned-steps-executor.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/proof-or-stop-dispatch.ts", "packages/main/src/core/provider-process-admission.ts", "packages/main/src/core/provider-process-registry.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/handlers/cross-host-review.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts", "packages/main/src/providers/supervised-process-worker.ts", "packages/main/src/providers/supervised-process.ts"]) {
+    if (!existsSync(join(root, path))) write(root, path, "export const fixtureDependency = true;\n");
+  }
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
@@ -806,6 +810,8 @@ function writeRegistration(root: string): void {
   // so declared registry source refs must exist even when this fixture does
   // not execute their production implementations.
   for (const path of [
+    'packages/main/src/core/scope-inventory-budget.ts',
+    'packages/main/src/core/story-scope-budget-legacy.ts',
     'packages/main/src/core/evidence-freshness.ts',
     'packages/main/src/core/material-path-policy.ts',
     'packages/main/src/core/shared-validation-execution.ts',

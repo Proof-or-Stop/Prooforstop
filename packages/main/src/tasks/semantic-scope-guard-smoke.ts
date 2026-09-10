@@ -743,6 +743,7 @@ function writeScopeStory(root: string, opts: { withContract: boolean }): { store
       id: `CHK-${suffix}`,
       title: `Done item ${suffix}`,
       context: 'Synthetic checklist item.',
+      verificationIntent: { happy: [{ desc: 'Reviewer evidence remains bound to the current semantic scope', type: 'logic' as const, priority: 'must' as const }], edge: [], adversarial: [] },
       status: 'done',
       startTime: now,
       endTime: now,
@@ -1049,6 +1050,11 @@ function seedScopePasses(
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-initplan';
+    execFileSync('git',['init','-b','main'],{cwd:root,stdio:'ignore'});
+    execFileSync('git',['config','user.email','scope@example.invalid'],{cwd:root});
+    execFileSync('git',['config','user.name','Scope Fixture'],{cwd:root});
+    execFileSync('git',['add','.'],{cwd:root});
+    execFileSync('git',['commit','-m','fixture'],{cwd:root,stdio:'ignore'});
     const now = '2026-05-23T12:00:00.000Z';
     const story: StoryInfo = {
       storyId,
@@ -1878,6 +1884,8 @@ function seedScopePasses(
           endedAt: null,
           events: [],
         });
+        store.writeChecklist(storyId,{items:[]});
+        store.writeStory(storyId,{...store.readStory(storyId),phase:'PLAN'});
         const handlers = createScopeContractHandlers({ store, root } as HandlerContext);
         handlers.scope_contract_set({
           storyId,
@@ -1885,7 +1893,8 @@ function seedScopePasses(
           allowedModify: ['matrix.ts'],
           fileRules: [{ path: 'matrix.ts', allowedAnchors: ['matrix'] }],
         });
-        const contract = store.readScopeContract(storyId)!;
+        if(storyId==='B-a13f')store.writeStory(storyId,{...store.readStory(storyId),phase:'DEV'});
+ const contract = store.readScopeContract(storyId)!;
         assert.equal(
           contract.pathCanonicalizerVersion,
           pathMode === 'off' ? undefined : SCOPE_PATH_CANONICALIZER_VERSION,
@@ -1970,6 +1979,7 @@ function seedScopePasses(
     execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
     const store = new StoryStore(root);
     const storyId = 'B-b13f';
+    store.writeChecklist(storyId,{items:[]});
     store.writeStory(storyId, {
       storyId, name: storyId, title: storyId, description: 'persisted rollback', type: 'feature',
       phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(),

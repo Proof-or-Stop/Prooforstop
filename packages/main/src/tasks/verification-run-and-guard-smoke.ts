@@ -351,12 +351,14 @@ async function partB(): Promise<void> {
       2,
       'B0: two unique cwd+command pins execute exactly once while duplicate intents share one execution',
     );
-    assert.match(progress.join('\n'), /validate progress: command 1\/2 started verification-evidence-command:/,
+    assert.match(progress.join('\n'), /validate progress: command 1\/3 started verification-evidence-command:/,
       'B0: refresh exposes the first unique pinned command through the shared validation progress surface');
-    assert.match(progress.join('\n'), /validate progress: command 2\/2 started verification-evidence-command:/,
+    assert.match(progress.join('\n'), /validate progress: command 2\/3 started verification-evidence-command:/,
       'B0: refresh exposes the second unique pinned command with the exact aggregate ordinal');
-    assert.match(progress.join('\n'), /validate progress: command 1\/2 ended verification-evidence-command:/);
-    assert.match(progress.join('\n'), /validate progress: command 2\/2 ended verification-evidence-command:/);
+    assert.match(progress.join('\n'), /validate progress: command 1\/3 ended verification-evidence-command:/);
+    assert.match(progress.join('\n'), /validate progress: command 2\/3 ended verification-evidence-command:/);
+    assert.match(progress.join('\n'), /validate progress: command 3\/3 started verification-evidence-command:/, 'Pinned docs/manual share a third raw command rather than being skipped');
+    assert.match(progress.join('\n'), /validate progress: command 3\/3 ended verification-evidence-command:/);
 
     // B1: INT-REEXEC still passes on re-run → RE-EXECUTED, stays mechanical:true, bound to
     //     the NEW materialHash (NOT demoted). Reverting refresh to DEMOTE kills this.

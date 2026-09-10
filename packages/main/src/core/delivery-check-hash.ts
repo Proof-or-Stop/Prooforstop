@@ -25,6 +25,7 @@ import type { DocsPromise, RealMachineTest, ClosingSelfCheck, NativeReviewEviden
 import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
 import { DELIVERY_REVIEW_LANE, deliveryReviewInvocationId } from './delivery-review-authority.js';
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
+import { agentRoleIdsEqual } from './agent-role-identity.js';
 
 export const DELIVERY_CHECK_SALT = 'lattice-delivery-check-integrity-v1';
 
@@ -131,7 +132,7 @@ function hasVerifiedNativeDeliveryProvenance(
   const matchingDispatch = store.readProcessEvents(storyId).some(event =>
     event.type === 'dispatch'
     && event.targetKind === 'delivery-review'
-    && event.agentType === DELIVERY_REVIEW_LANE
+    && agentRoleIdsEqual(String(event.agentType ?? ''), DELIVERY_REVIEW_LANE)
     && event.hostRenderHost === binding.host
     && event.dispatchPromptDigest === binding.dispatchPromptDigest
     && event.hostRenderIdentityDigest === binding.hostRenderIdentityDigest

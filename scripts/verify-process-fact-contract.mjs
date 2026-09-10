@@ -2120,7 +2120,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    '22c8878385de3f11fa6a64657a700c1a46b7c6cfe2c73cce17437b8fb7ed08cf',
+    '449328f3f0b94be40d58dcf8c9f27cadb2cf72ce635f60f36a50a7ea07ef6c08',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2221,7 +2221,7 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
+    'de4cc2a94af9ce74baa02f6e5aea2aa3dc0e34f01b9ce00210268fa3dc464cf4',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
     'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
@@ -5970,6 +5970,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     'abortSignal?: AbortSignal',
     "assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args)",
     'return writeStaleRefresh',
+    'totalCommands: rawCommandOrdinals.size',
+    'progress: event => ctx.log?.(formatValidationProgressEvent(event))',
+    'abortSignal: args.abortSignal',
+    'deadlineAt: args.deadlineAt',
+    'deadlineError: args.deadlineError',
   ]) {
     assert(refreshHandlerWatchdogText.includes(token), `stale refresh progress/abort-atomic contract missing ${token}`);
   }
@@ -6838,6 +6843,8 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const deliveryHandlerText = read('packages/main/src/handlers/delivery-check.ts');
   assert(deliveryHandlerText.includes('authorizeNativeInvocation'), 'delivery_check_set must authorize the native broker invocation before persistence');
   const deliveryBrokerSmokeText = read('packages/main/src/tasks/delivery-check-native-attestation-smoke.ts');
+  assert(read('packages/main/src/core/delivery-check-hash.ts').includes("agentRoleIdsEqual(String(event.agentType ?? ''), DELIVERY_REVIEW_LANE)"), 'delivery DONE reader must compare registered role identities without dropping broker signature checks');
+  assert(deliveryBrokerSmokeText.includes('canonical delivery dispatch preserves valid broker provenance at the DONE reader'), 'delivery broker smoke must accept untampered canonical dispatch before testing forged provenance');
   for (const token of ['a raw delivery-reviewer identity without broker provenance must fail closed', 'Brokered delivery reviewer authors exact formal evidence.']) {
     assert(deliveryBrokerSmokeText.includes(token), `delivery-check-native-attestation-smoke.ts: required executable broker assertion missing: ${token}`);
   }

@@ -1,9 +1,18 @@
 // Explicit fixture entrypoints only. Real machine-admission witnesses are excluded.
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createFixtureMachineEnvironment } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
 
 export const FIXTURE_ENTRIES = new Set([
+  'packages/main/dist/tasks/withdrawn-disposition-smoke.js',
+  'packages/main/dist/tasks/quorum-submit-smoke.js',
+  'packages/main/dist/tasks/verification-run-and-guard-smoke.js',
+  'packages/main/dist/tasks/done-required-head-drift-proof.js',
+  'packages/main/dist/tasks/post-done-closure-snapshot-smoke.js',
+  'packages/main/dist/tasks/validate-progress-heartbeat-smoke.js',
+  'packages/main/dist/tasks/narrowing-repin-smoke.js',
+
   'packages/main/dist/tasks/flow-stability-smoke.js',
   'packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js',
   'packages/main/dist/tasks/validate-command-timeout-smoke.js',
@@ -21,7 +30,9 @@ const [entry, ...rest] = process.argv.slice(2);
 assert.ok(FIXTURE_ENTRIES.has(entry), 'expected one registered validation fixture entry');
 assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry.endsWith('/flow-stability-smoke.js')) ? ['--canonical-core'] : [], 'registered fixture arguments');
 const fixture = createFixtureMachineEnvironment();
-const result = spawnSync(process.execPath, [entry, ...rest], { env: fixture.env, stdio: 'inherit' });
+const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
+delete env.LATTICE_HEALTH_PATH;
+const result = spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
 if (result.status === 0) {
   fixture.cleanup();
 } else {

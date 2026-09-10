@@ -1,7 +1,7 @@
 {
   "schema": "u18-static-exceptions.v1",
   "status": "reviewed-local-lab",
-  "configDigest": "18b34f1ed6d3fd59575ee79b10d212e89bcf78953986f593ca543f9fbdc4c97c",
+  "configDigest": "907207dba0984f88de31f415d51e3aee0181db44293732e1dcb6e8a8e534e8b1",
   "binding": "Source/call and invoking source/helper/package digests; any drift requires renewed review. These are local static review records, not Story or release credentials.",
   "entries": [
     {
@@ -165,9 +165,9 @@
     },
     {
       "id": "EX-0009",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         9
       ],
@@ -176,19 +176,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "67600c1fb32acb15a1236b63be29b1eb92f16ffce869e3f6a77ef7a79d7d45b7",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0010",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         12
       ],
@@ -197,19 +198,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-command-timeout-smoke.ts": "090dc6433202693da3e42530d38237bc723b07b00c4c9bf1737137157392cabd",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0011",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         14
       ],
@@ -218,19 +220,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-focused-full-layering-smoke.ts": "dc980cd9a2d1524d88682c70ee14476c90310bad7a2749c632e6f59ff72aa672",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0012",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         21
       ],
@@ -239,20 +242,21 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/handlers/done-required-validation.ts": "9c520969569120df073839aa9ed5cb3602172a0fa0435717b9d78dd798446a57",
         "packages/main/src/tasks/done-required-validation-smoke.ts": "925755923f3fc8b4df5626ce59e8cd964bc75ff581cb087b3ebe5c0b23b35837",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0013",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         111
       ],
@@ -261,19 +265,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs": "918d67beb7ed19cd2c90e818e7c8e9a90788ae84113a9c158ed1b15623a32646",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0014",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         112
       ],
@@ -282,19 +287,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/validate-plan-scheduling.test.mjs": "232e8c2f9e00cc6ac34651b66848395531e31bd8713184595f35c69712e2526e",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0015",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         114
       ],
@@ -303,19 +309,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts": "8e9b06a4ce81516e829d98d67d79ab654e2379879a0e26c04c848850c4d62b4c",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0016",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         115
       ],
@@ -324,19 +331,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/validate-pollution-attribution.test.mjs": "995db98e62f729813c7650aeb95bc3465d9ec358a2d34bbbe84b87e840e53977",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0017",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         122
       ],
@@ -345,19 +353,20 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/tests/red/red-w2d-command-readonly.mjs": "9767dcdc4b760b65514a4ff7b8e1ae841496b25f439c59fec2e8c0b1445ff871",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/tests/red/red-w2d-command-readonly.mjs": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0018",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         134
       ],
@@ -366,20 +375,21 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0019",
-      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
-      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
-      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
       "configIndexes": [
         148
       ],
@@ -388,15 +398,16 @@
       "requiredEvidence": [
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
-        "scanner separately expands selected wrapper entry"
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
@@ -933,9 +944,9 @@
     },
     {
       "id": "EX-0046",
-      "key": "packages/main/src/tasks/flow-stability-smoke.ts:2910:execFileSync",
+      "key": "packages/main/src/tasks/flow-stability-smoke.ts:2915:execFileSync",
       "callDigest": "f038ca2b89b9dd292fa5e8397b717c6afd9b5f66a682a20e46dc48751b54ad68",
-      "sourceDigest": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+      "sourceDigest": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
       "configIndexes": [
         148
       ],
@@ -943,22 +954,23 @@
       "reason": "localCliPath resolves ../cli.js. This validate call runs a generated fixture-only validate-smoke.js with one JSON result; it does not consume repository validate.commands.",
       "requiredEvidence": [
         "localCliPath 184-186",
-        "fixture validate command 2884-2891"
+        "fixture validate command 2884-2891",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0047",
-      "key": "packages/main/src/tasks/flow-stability-smoke.ts:979:execFileSync",
+      "key": "packages/main/src/tasks/flow-stability-smoke.ts:984:execFileSync",
       "callDigest": "50feeb31501aa39e221a8dd9ab77d5c4934a78d5beeefbc86ad50b93c7efcd0f",
-      "sourceDigest": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+      "sourceDigest": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
       "configIndexes": [
         148
       ],
@@ -966,22 +978,23 @@
       "reason": "localCliPath resolves ../cli.js; runBlockedCli callers invoke phase-gated commands on isolated Story fixtures, assertions require rejection.",
       "requiredEvidence": [
         "localCliPath 184-186",
-        "runBlockedCli and callers 977 onward"
+        "runBlockedCli and callers 977 onward",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0048",
       "key": "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts:47:spawnSync",
       "callDigest": "6d680bf65e31273ab71fd97170fc56b51ee6250fea7dfaaa1a2cdea4d5d85d4b",
-      "sourceDigest": "7bd567985cda51c8643325cbc41a4b2b3405d33a73055404116a9230db3557f1",
+      "sourceDigest": "3284d9893c98d275c6885824fa90ca4b6085d9d6d55d928582c8031733e1ef3a",
       "configIndexes": [
         105
       ],
@@ -989,10 +1002,11 @@
       "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call.",
       "requiredEvidence": [
         "cliPath/CLI/distCli or cliBin definition in same pinned source",
-        "actual pinned argv and finite local callers inspected"
+        "actual pinned argv and finite local callers inspected",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts SHA256 3284d9893c98d275c6885824fa90ca4b6085d9d6d55d928582c8031733e1ef3a; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts": "7bd567985cda51c8643325cbc41a4b2b3405d33a73055404116a9230db3557f1"
+        "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts": "3284d9893c98d275c6885824fa90ca4b6085d9d6d55d928582c8031733e1ef3a"
       }
     },
     {
@@ -1272,12 +1286,15 @@
       "requiredEvidence": [
         "CLI constant 28",
         "native reviewer command invocation 189",
-        "fixed first Node script argument"
+        "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c"
+        "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
@@ -1293,12 +1310,13 @@
       "requiredEvidence": [
         "CLI constant 28",
         "native reviewer command invocation 189",
-        "fixed first Node script argument"
+        "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "b0cf7d632cf65c76fb6765706fc1a8a4a2094cebe7418cb01ab469e82fb8d913"
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "77e166ef2836875391a19d1a7119f2e60b4a464492d8d314951478a7f7aac48f"
       }
     },
     {
@@ -1314,22 +1332,23 @@
       "requiredEvidence": [
         "CLI constant 28",
         "native reviewer command invocation 189",
-        "fixed first Node script argument"
+        "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0066",
-      "key": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:67:execFileSync",
+      "key": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:68:execFileSync",
       "callDigest": "195ba6db1f8e51d7cfd772a35722ad0a1f4fbecd6772c9ac1a28ce9e5ff44929",
-      "sourceDigest": "27b52d6b4607fa9fe6c9da798c9ef4ee66226aa01629b80483b16fab887ec658",
+      "sourceDigest": "7ca554b586a2bbae9796fe8545a70b85f7fc0fd7ff3a9195e845868ace855a42",
       "configIndexes": [
         107
       ],
@@ -1337,10 +1356,11 @@
       "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call.",
       "requiredEvidence": [
         "cliPath/CLI/distCli or cliBin definition in same pinned source",
-        "actual pinned argv and finite local callers inspected"
+        "actual pinned argv and finite local callers inspected",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts SHA256 7ca554b586a2bbae9796fe8545a70b85f7fc0fd7ff3a9195e845868ace855a42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "27b52d6b4607fa9fe6c9da798c9ef4ee66226aa01629b80483b16fab887ec658"
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "7ca554b586a2bbae9796fe8545a70b85f7fc0fd7ff3a9195e845868ace855a42"
       }
     },
     {
@@ -1631,10 +1651,13 @@
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data.",
       "requiredEvidence": [
-        "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504"
+        "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
@@ -1648,90 +1671,97 @@
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data.",
       "requiredEvidence": [
-        "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504"
+        "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0084",
       "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1182:spawnSync",
       "callDigest": "badaba5e489bab02f6bb9a6157367571ae76876a020d8b6ce7766808983c2c83",
-      "sourceDigest": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
+      "sourceDigest": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
       "configIndexes": [
         134
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "Fixed package cli.js checklist_update with intentionally invalid verificationIntent schema; no test target execution.",
       "requiredEvidence": [
-        "validation-protocol-smoke.ts:1174-1197"
+        "validation-protocol-smoke.ts:1174-1197",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0085",
       "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1514:spawnSync",
       "callDigest": "704b6330f38c92fd90b557314c5e21a8fe12176762597e62acb7c9ad99fa990f",
-      "sourceDigest": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
+      "sourceDigest": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
       "configIndexes": [
         134
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "Generated temporary bin/proof-or-stop.js help checks CommonJS wrapper syntax.",
       "requiredEvidence": [
-        "validation-protocol-smoke.ts:1506-1529"
+        "validation-protocol-smoke.ts:1506-1529",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0086",
       "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1518:spawnSync",
       "callDigest": "23edfe3b938b4aa4fc1b335af675867acdab4de3f42af8e9998e63096748b6b5",
-      "sourceDigest": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
+      "sourceDigest": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
       "configIndexes": [
         134
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "Generated temporary bin/proof-or-stop-codex.js help checks ESM-compatible wrapper syntax.",
       "requiredEvidence": [
-        "validation-protocol-smoke.ts:1510-1533"
+        "validation-protocol-smoke.ts:1510-1533",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0087",
-      "key": "packages/main/src/tasks/validation-protocol-smoke.ts:2400:spawnSync",
+      "key": "packages/main/src/tasks/validation-protocol-smoke.ts:2406:spawnSync",
       "callDigest": "b52bf30828ac354b374a8a9a5a5d7d8611615afa3f7f9fcbc8bb6ce398ea91e8",
-      "sourceDigest": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
+      "sourceDigest": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
       "configIndexes": [
         134
       ],
       "kind": "ISOLATED_WRAPPER_PROPERTY",
       "reason": "Copied replay wrapper runs with BUN_BINARY pinned to generated fakeBun; argv verifies threshold/admission/producer modes and failure statuses, not canonical replay workload.",
       "requiredEvidence": [
-        "validation-protocol-smoke.ts:2392-2415"
+        "validation-protocol-smoke.ts:2392-2415",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
@@ -1857,391 +1887,414 @@
       "id": "EX-0095",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:143:execFileSync",
       "callDigest": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "INLINE_PROCESS_PROBE",
       "reason": "Exact node -e JSON projection of reviewer env keys, not a suite invocation.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:143-151"
+        "managed-review-evidence-smoke.ts:143-151",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0096",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:420:spawnSync",
-      "callDigest": "8865606e6deb74d23fd7b0f642cc2a4d7cde83567145864e6f9d36ad68e6e460",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:424:spawnSync",
+      "callDigest": "bd2482e4e5bae8ba4c6ecf4d17a6fc1cfcd43bdd580cda1d3c8ff98ad10c66ba",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,420-432"
+        "managed-review-evidence-smoke.ts:73-84,420-432",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0097",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:450:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:454:spawn",
       "callDigest": "5d655c9ba4149cd4834fb08625a11c9f4a0e63ded2712324ae7d44189f9ef2c7",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,450-462"
+        "managed-review-evidence-smoke.ts:73-84,450-462",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0098",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:507:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:511:spawn",
       "callDigest": "084044ebe5b8707554a3ffa7a5a3da52b1be6775a9a5597d13448631f7c9a3e0",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:507-515,3744-3779"
+        "managed-review-evidence-smoke.ts:507-515,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0099",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:532:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:536:spawn",
       "callDigest": "5716033cf41268ad65c91245f56c8847c1f99d4fea5135e217cd1c4a58bf30f0",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,532-544"
+        "managed-review-evidence-smoke.ts:73-84,532-544",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0100",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:582:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:586:spawn",
       "callDigest": "c18c371a36901f3122ab0dda669376347c6ac33c687664d5329c61619f9c8ae3",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,582-594"
+        "managed-review-evidence-smoke.ts:73-84,582-594",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0101",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1250:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1270:spawn",
       "callDigest": "55482059a5f3cc792e8672da20762323e47804ddeb82b05d1813bf639cd963cd",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:1250-1258,3744-3779"
+        "managed-review-evidence-smoke.ts:1250-1258,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0102",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1297:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1317:spawn",
       "callDigest": "c94cfc0a9350edd1ec2c83f029bf16b13e8b7cae3ad90f743abe271384a15d4c",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:1297-1305,3744-3779"
+        "managed-review-evidence-smoke.ts:1297-1305,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0103",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1940:spawn",
-      "callDigest": "2503bded8d5a5260a63552bc02b3b89ce23feef9f8bce4bd066816ea9f2130d5",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1978:spawn",
+      "callDigest": "2b37076e05a496a584e48f1683af04e974be698e03f7263c910260811bb194d0",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:1940-1948,3744-3779"
+        "managed-review-evidence-smoke.ts:1940-1948,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0104",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2061:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2100:spawn",
       "callDigest": "23c0e8fb26d9bed4234ea2b925136ec1a2b9fc6084fe062d72ffbfd1a7058b35",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,2061-2073"
+        "managed-review-evidence-smoke.ts:73-84,2061-2073",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0105",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2289:spawnSync",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2330:spawnSync",
       "callDigest": "0e5f33cdb491dc314ba34cb57a520ce6a37b10e903e75283e39d80b959c41601",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,2289-2301"
+        "managed-review-evidence-smoke.ts:73-84,2289-2301",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0106",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2299:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2340:spawn",
       "callDigest": "552b18cd7b1e12867b0ded88d62f60f5b202ef4f86ff37d3da14ba0236110ecc",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,2299-2311"
+        "managed-review-evidence-smoke.ts:73-84,2299-2311",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0107",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3004:spawnSync",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3051:spawnSync",
       "callDigest": "5fab1b73673a90f9fc33aed22ea614f08f0d5ae0668d49eec4a6f21ff909550e",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,3004-3016"
+        "managed-review-evidence-smoke.ts:73-84,3004-3016",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0108",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3161:spawnSync",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3208:spawnSync",
       "callDigest": "0b9d0ab06deaac81b4721e9ba4bb23b2be1adf6421cf4f70d42d70a8cd84e99d",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,3161-3173"
+        "managed-review-evidence-smoke.ts:73-84,3161-3173",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0109",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3197:spawnSync",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3244:spawnSync",
       "callDigest": "11b7625247e6b95145fc121c84b442bed5bbf2a8e1e49349e5be2c73e3ba47e0",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "CLI_TARGET_NOT_REGISTERED",
       "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:73-84,3197-3209"
+        "managed-review-evidence-smoke.ts:73-84,3197-3209",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0110",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3329:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3377:spawn",
       "callDigest": "57a0b89d1f4ef5bc0bceeb091c449b4caed583b1f4ddd559ac5e1dc00a49843e",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:3329-3337,3744-3779"
+        "managed-review-evidence-smoke.ts:3329-3337,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0111",
-      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3441:spawn",
+      "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3489:spawn",
       "callDigest": "0fa081b5736801d06f87cb74756a96ca5a059da8c0a3991b803ec2312dd48848",
-      "sourceDigest": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a",
+      "sourceDigest": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62",
       "configIndexes": [
         140
       ],
       "kind": "SELF_WORKER_MODE",
       "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance.",
       "requiredEvidence": [
-        "managed-review-evidence-smoke.ts:3441-3449,3744-3779"
+        "managed-review-evidence-smoke.ts:3441-3449,3744-3779",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/managed-review-evidence-smoke.ts SHA256 6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "a57fc70ba464872cdbd68bc209934acd167ac6eaaf7d9711aacd59310e59221a"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "6076cb3fe51e1408a38d662a10476f47093b0aa8eb0f979085ccdd65f3644d62"
       }
     },
     {
       "id": "EX-0112",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:80:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:81:spawnSync",
       "callDigest": "b10fd2e677491e5a740105d134cad13c8c87c42cc4a764d69adbea9f2051b264",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "MUTATION_CHILD",
       "reason": "Copied isolated dist mutates shared verifier valid=true; managed-review child must fail specific intake/gate assertion, signal/timeout rejected.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:66-95"
+        "proof-admissibility-registry-smoke.ts:66-95",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
       "id": "EX-0113",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:124:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:126:spawnSync",
       "callDigest": "01a0435c5d505d50b009b640aa465bc55cd6e23995ff0fd427ce2efae4d41fe8",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "MUTATION_CHILD",
       "reason": "Copied isolated dist executes named production-source mutation with expected boundary diagnostic and nonzero real exit; target bytes restored between mutations.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:110-139"
+        "proof-admissibility-registry-smoke.ts:110-139",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
       "id": "EX-0114",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:145:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:147:spawnSync",
       "callDigest": "47673eb09e0eb8bf259ba168de1b290787fcff9556af44cda190b16e4dab049b",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "PROPERTY_DIFFERENTIAL_CONTROL",
       "reason": "Healthy copied-dist --descriptor-proposal-transport control precedes importer admission mutant, proving copied transport identity works before detector failure.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:131-160"
+        "proof-admissibility-registry-smoke.ts:131-160",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
       "id": "EX-0115",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:234:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:237:spawnSync",
       "callDigest": "11f451fa4dc155368ccfbb4257b8319e5adc2247699268124ff3bfaea0c89292",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "MUTATION_CHILD",
       "reason": "Isolated self child sees duplicate registry object mutation; exact child env selects bounded contract and diagnostic must identify parallel registry.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:220-249"
+        "proof-admissibility-registry-smoke.ts:220-249",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
       "id": "EX-0116",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:262:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:266:spawnSync",
       "callDigest": "ee4ff7e7d11917967d22fc55a90dbb1a84d9a981ed5742504f170fb5fa276d0f",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "MUTATION_CHILD",
       "reason": "Copied isolated dispatch module admission if is disabled; dispatch-run child must fail actual saturated reviewer launch assertion.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:248-277"
+        "proof-admissibility-registry-smoke.ts:248-277",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
       "id": "EX-0117",
-      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:295:spawnSync",
+      "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:300:spawnSync",
       "callDigest": "9a997eede81e3d7964a3e27934195faa9222370b4a753a7f849fedd0a2aad3af",
-      "sourceDigest": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0",
+      "sourceDigest": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229",
       "configIndexes": [
         141
       ],
       "kind": "MUTATION_CHILD",
       "reason": "Copied isolated managed-host module platform preflight removed; managed-host child must fail actual unsupported-platform pre-spawn assertion.",
       "requiredEvidence": [
-        "proof-admissibility-registry-smoke.ts:281-310"
+        "proof-admissibility-registry-smoke.ts:281-310",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proof-admissibility-registry-smoke.ts SHA256 33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "9532a2ea280c227755c2473516f5c4d17b0d9a25357a0765ef0b6f75e5ab5bd0"
+        "packages/main/src/tasks/proof-admissibility-registry-smoke.ts": "33582a5a4b3ddeb5b06b45fedb2f0ae0d3274c8431a0911bb3ce5720587db229"
       }
     },
     {
@@ -2450,9 +2503,9 @@
     },
     {
       "id": "EX-0129",
-      "key": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5877:execFileSync",
+      "key": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5898:execFileSync",
       "callDigest": "b1b64844a8c56fe8096c006700929619615655f04689d369180b76c79adb09b2",
-      "sourceDigest": "818c1660490afc506df955df6feec7280c739f8e676c36d75d037dad6d083682",
+      "sourceDigest": "e857cee648bb00337cd2fa399f95272ec7a63891a3729a00f4e3e4f93d4a2d88",
       "configIndexes": [
         4
       ],
@@ -2465,10 +2518,11 @@
           "endLine": 5905,
           "sourceDigest": "818c1660490afc506df955df6feec7280c739f8e676c36d75d037dad6d083682",
           "excerpt": "function runCli(args: string[]): string {\n  const cliPath = join(pkgRoot, 'dist', 'cli.js');\n  return execFileSync(process.execPath, [cliPath, ...args], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    stdio: ['ignore', 'pipe', 'pipe'],\n    env: {\n      ...process.env,\n      PROOF_OR_STOP_NO_HOOKS: '1',\n    },\n  });\n}\n\nfunction assertGeneratedHelp(): Violation[] {\n  const outputs = [\n    ['help'],\n    ['done_closure', '--help'],\n    ['dispatch_policy_create', '--help'],\n    ['observability_snapshot', '--help'],\n    ['evidence_plan', '--help'],\n    ['lifecycle_orchestrate', '--help'],\n    ['live_smoke_transcript', '--help'],\n    ['delivery_context_pack', '--help'],\n    ['reviewer_batch', '--help'],\n    ['init_preflight', '--help'],\n    ['host_probe', '--help'],\n    ['conduit_status', '--help'],\n    ['story_export', '--help'],\n  ];\n  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));\n}"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts SHA256 e857cee648bb00337cd2fa399f95272ec7a63891a3729a00f4e3e4f93d4a2d88; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "818c1660490afc506df955df6feec7280c739f8e676c36d75d037dad6d083682"
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "e857cee648bb00337cd2fa399f95272ec7a63891a3729a00f4e3e4f93d4a2d88"
       }
     },
     {
@@ -2609,7 +2663,7 @@
       "id": "EX-0134",
       "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:219:spawn",
       "callDigest": "f193033dbc826b6f6572d1621d833f7620d4fc54ed744c31cb73b175b49b6582",
-      "sourceDigest": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535",
+      "sourceDigest": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
       "configIndexes": [
         13
       ],
@@ -2622,17 +2676,21 @@
           "endLine": 247,
           "sourceDigest": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535",
           "excerpt": "function createReadinessProbe(mode: 'delayed' | 'error' | 'zero' | 'finished' | 'never'): {\n  root: string; started: string; finished: string; release: string; run: CliRun;\n} {\n  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-readiness-'));\n  const started = join(root, 'started');\n  const finished = join(root, 'finished');\n  const release = join(root, 'release');\n  const child = spawn(process.execPath, ['-e', `\n    const fs = require('node:fs');\n    const [started, finished, release, mode] = process.argv.slice(1);\n    if (mode === 'error') { console.log('probe stdout'); console.error('probe preflight failed'); process.exit(23); }\n    if (mode === 'zero') process.exit(0);\n    if (mode === 'never') {\n      setTimeout(() => process.exit(0), 150);\n    } else {\n    setTimeout(() => process.exit(98), 45000).unref();\n    setTimeout(() => {\n      fs.writeFileSync(started, 'ready');\n      if (mode === 'finished') fs.writeFileSync(finished, 'finished');\n      const poll = setInterval(() => {\n        if (!fs.existsSync(release)) return;\n        clearInterval(poll);\n        fs.writeFileSync(finished, 'finished');\n      }, 20);\n    }, mode === 'delayed' ? 6000 : 0);\n    }\n  `,\n  started, finished, release, mode], { stdio: ['ignore', 'pipe', 'pipe'] });\n  let stdout = '';\n  let stderr = '';\n  child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });\n  child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });\n  const closed = new Promise<void>(resolveClosed => child.once('close', () => resolveClosed()));\n  const run = Object.assign(new Promise<CliResult>((resolveResult) => {\n    child.on('close', status => resolveResult({ status, stdout, stderr, elapsedMs: 0 }));\n    child.on('error', error => { stderr += error.message; });"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0135",
-      "key": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:506:spawnSync",
+      "key": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:508:spawnSync",
       "callDigest": "a1e0656a45db7b1768308ff7df54453a18d03f0cfa9f0b252e1ff55242507d77",
-      "sourceDigest": "3ee6623daadd25b36e514d5ed60e6baf8bddbeb8a75cc5d0bf5b8f61fb8a060b",
+      "sourceDigest": "a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52",
       "configIndexes": [
         10
       ],
@@ -2673,19 +2731,22 @@
           "endLine": 85,
           "sourceDigest": "323e87030e8b482f9628ba7dd2b3ccd1268171595b3e2ba06c11be9bda5b64ea",
           "excerpt": "\n    const toolName = String(payload.tool_name || '').trim();\n    if (!WRITE_TOOLS.has(toolName)) { process.exit(0); return; }\n\n    const command = extractCommand(payload.tool_input);\n    if (!command.trim()) { process.exit(0); return; }\n\n    const cwd = payload.cwd || process.cwd();\n    const root = findRepoRoot(cwd);\n    const cli = resolveCli(root);\n    if (!cli) { process.exit(0); return; }\n\n    const checkArgs = JSON.stringify({\n      provider: 'codex',\n      toolName,\n      commandString: command,\n      cwd,\n      json: true,\n    });\n\n    const result = spawnSync(cli.command, [...cli.args, 'verification_pin_guard_check', checkArgs], {\n      cwd: root,\n      encoding: 'utf8',\n      timeout: GUARD_TIMEOUT_MS,\n      stdio: ['pipe', 'pipe', 'pipe'],\n    });\n\n    // FAIL-OPEN: a timeout / spawn error must NOT block (seatbelt, not the floor).\n    if (result.signal || result.error) { process.exit(0); return; }\n\n    if (result.status === 0 && !result.signal) {\n      const verdict = parseGuardVerdict(result.stdout);\n      if (verdict && verdict.verdict === 'deny') {\n        const reason = Array.isArray(verdict.reasons)\n          ? verdict.reasons.join('\\n')\n          : 'Codex PreToolUse evidence-pin seatbelt denied this evidence write.';\n        process.stderr.write(reason + '\\n');\n        process.exit(2);"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/verification-run-and-guard-smoke.ts SHA256 a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         ".claude/hooks/proof-or-stop-evidence-pretool.cjs": "dca3aa471a86ef275e00c7cbf089dba5b3f5103f2de618fb87bf97204cf18f1f",
         ".codex/hooks/proof-or-stop-evidence-pretool.cjs": "323e87030e8b482f9628ba7dd2b3ccd1268171595b3e2ba06c11be9bda5b64ea",
-        "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "3ee6623daadd25b36e514d5ed60e6baf8bddbeb8a75cc5d0bf5b8f61fb8a060b"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0136",
       "key": "packages/main/tests/milestone-status.test.mjs:146:execFileSync",
       "callDigest": "4f3ebd81c75b825cbb89542113942500bf84d9c1709af9da2ceeb60f14185494",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2712,17 +2773,18 @@
           "endLine": 680,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.deepEqual(storyDirs(root), beforeMalformed, 'malformed milestone rows fail before story metadata is persisted');\n\n    const plannerDraft = runJsonCommand(root, 'planner_draft', {\n      request: 'Implement an explicit planner milestone ledger pass-through.',\n      milestones: explicitMilestones,\n    });\n    const plannerCreated = runJsonCommand(root, 'planner_create_story', {\n      runId: plannerDraft.plannerRunId,\n      forceNew: true,\n    });\n    assert.equal(plannerCreated.status, 'created');\n    const plannerLedger = readLedger(plannerCreated.storyId);\n    assert.equal(plannerLedger.state, 'candidate', 'planner_create_story passes explicit draft milestones into story_create');\n    assert.equal(plannerLedger.milestones[0].id, 'M-auto');\n\n    const proseOnlyDraft = runJsonCommand(root, 'planner_draft', {\n      request: 'Deliver all milestones M1 and M2 from this prose-only planner request.',\n      forceNewRun: true,\n      forceNewRunReason: 'verify prose-only planner draft does not infer milestone rows',\n    });\n    const proseOnlyCreated = runJsonCommand(root, 'planner_create_story', {\n      runId: proseOnlyDraft.plannerRunId,\n      forceNew: true,\n    });\n    assert.equal(proseOnlyCreated.status, 'created');\n    assert.equal(ledgerExists(proseOnlyCreated.storyId), false, 'planner_create_story does not infer ledgers from draft prose');\n\n    const previewStoryId = 'B-planpreview';\n    const previewStoryDir = join(root, '.proof-or-stop', 'story', 'actives', previewStoryId);\n    mkdirSync(previewStoryDir, { recursive: true });\n    writeJson(join(previewStoryDir, 'index.json'), {\n      ...story(previewStoryId),\n      phase: 'PLAN',\n      description: 'Plan skeleton preview mentions all milestones, but preview mode must stay read-only.',\n    });\n    writeJson(join(previewStoryDir, 'checklist.json'), { items: [] });\n    const previewReport = runJsonCommand(root, 'plan_skeleton', {\n      storyId: previewStoryId,\n      milestones: explicitMilestones,\n    });\n    assert.equal(previewReport.mode.write, false);\n    assert.equal(ledgerExists(previewStoryId), false, 'plan_skeleton preview never writes a ledger even when rows are supplied');\n\n    const writeStoryId = 'B-planwrite';\n    const writeStoryDir = join(root, '.proof-or-stop', 'story', 'actives', writeStoryId);\n    mkdirSync(writeStoryDir, { recursive: true });\n    writeJson(join(writeStoryDir, 'index.json'), {\n      ...story(writeStoryId),\n      phase: 'PLAN',\n      description: 'Plan skeleton write should persist explicit rows only.',\n    });\n    writeJson(join(writeStoryDir, 'checklist.json'), { items: [] });\n    const writeReport = runJsonCommand(root, 'plan_skeleton', {\n      storyId: writeStoryId,\n      write: true,\n      milestones: explicitMilestones,\n    });\n    assert.equal(writeReport.write.milestoneLedger.status, 'written');\n    const planSkeletonLedger = readLedger(writeStoryId);\n    assert.equal(planSkeletonLedger.state, 'candidate', 'plan_skeleton --write writes explicit rows as a candidate ledger');\n    assert.equal(planSkeletonLedger.milestones[0].id, 'M-auto');\n\n    const noMilestoneWriteStoryId = 'B-planwrite-no-rows';\n    const noMilestoneWriteStoryDir = join(root, '.proof-or-stop', 'story', 'actives', noMilestoneWriteStoryId);\n    mkdirSync(noMilestoneWriteStoryDir, { recursive: true });\n    writeJson(join(noMilestoneWriteStoryDir, 'index.json'), {\n      ...story(noMilestoneWriteStoryId),\n      phase: 'PLAN',\n      description: 'Deliver all milestones from prose only; no structured rows are present.',\n    });\n    writeJson(join(noMilestoneWriteStoryDir, 'checklist.json'), { items: [] });\n    const noMilestoneWriteReport = runJsonCommand(root, 'plan_skeleton', {\n      storyId: noMilestoneWriteStoryId,\n      write: true,\n    });\n    assert.equal(noMilestoneWriteReport.write.milestoneLedger.status, 'skipped_absent');\n    assert.equal(ledgerExists(noMilestoneWriteStoryId), false, 'plan_skeleton --write does not synthesize milestone rows from prose');\n  } finally {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0137",
       "key": "packages/main/tests/milestone-status.test.mjs:157:execFileSync",
       "callDigest": "7307f6a250be173c37f4865fd6f17ac702fcf98a5cbebfe3b675106f3d428cb9",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2749,17 +2811,18 @@
           "endLine": 574,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    writeTestConfig(root);\n\n    const createdWithLedger = runTextCommand(root, 'story_create', {\n      name: 'auto-ledger-story-create',\n      title: 'Auto ledger story create',\n      description: 'Create a candidate milestone ledger from explicit structured milestone rows.',\n      type: 'feature',\n      priority: 'high',\n      forceNew: true,\n      background: validStoryBackground('story_create structured rows'),\n      checklist: [{ title: 'Deliver structured milestone rows', context: 'Explicit rows should be persisted as a ledger.' }],\n      milestones: explicitMilestones,\n    });\n    const storyCreateLedgerId = parseStoryId(createdWithLedger);\n    const storyCreateLedger = readLedger(storyCreateLedgerId);\n    assert.equal(storyCreateLedger.state, 'candidate', 'story_create writes explicit rows as a candidate ledger');\n    assert.equal(storyCreateLedger.milestones.length, 1);\n    assert.equal(storyCreateLedger.milestones[0].id, 'M-auto');\n\n    const createdWithoutLedger = runTextCommand(root, 'story_create', {\n      name: 'auto-ledger-story-create-no-rows',\n      title: 'Auto ledger story create no rows',\n      description: 'Deliver all milestones mentioned in prose, but do not provide structured rows.',\n      type: 'feature',\n      priority: 'high',\n      forceNew: true,\n      background: validStoryBackground('story_create prose only'),\n      checklist: [{ title: 'Deliver all milestones from prose only', context: 'No structured milestone rows are supplied.' }],\n    });\n    const noLedgerStoryId = parseStoryId(createdWithoutLedger);\n    assert.equal(ledgerExists(noLedgerStoryId), false, 'story_create does not infer milestone-ledger.json from prose/checklist text');\n"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0138",
-      "key": "packages/main/tests/milestone-status.test.mjs:2258:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:2261:execFileSync",
       "callDigest": "3a6f9e5378ca1dc598bbe45f0908361711aceea0e660c2d67c8965d9e0ce5c3d",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2779,17 +2842,18 @@
           "endLine": 2278,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.equal(snapshot.bindings.materialHash, preEvidenceMaterialHash);\n    assert.equal(snapshot.rows[0].milestone, 'M-done-closeout-worktree');\n\n    const closeoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      mainRoot,\n      '--storyId',\n      storyId,\n      '--format=json',\n    ], { cwd: mainRoot, encoding: 'utf8' }));\n    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');\n    assert.equal(closeoutJson.rows[0].milestone, 'M-done-closeout-worktree');\n    assert.equal(\n      gitMain(['status', '--porcelain', '--untracked-files=no']),\n      '',\n      'DONE merge cleanup should leave canonical main without tracked dirt',\n    );\n  } finally {\n    process.chdir(originalCwd);\n    if (originalSettlementEnabled === undefined) {\n      delete process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;\n    } else {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0139",
-      "key": "packages/main/tests/milestone-status.test.mjs:3040:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3043:execFileSync",
       "callDigest": "3592e0feabcc82c0ce0a1d12efd3c95b0bb9be7e4113511afdc086f33e3cc21c",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2809,17 +2873,18 @@
           "endLine": 3060,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "\n    // B-7c05: bare milestone_status is brief by default; assert the full grouped\n    // table via --full.\n    const stdout = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(stdout, /Milestone Status - B-cli-ms/);\n    assert.match(stdout, /Completed/);\n    assert.match(stdout, /Current/);\n    assert.match(stdout, /Remaining/);\n    assert.match(stdout, /\\| M-cli \\| CLI report milestone \\|/);\n\n    const missingCloseout = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0140",
-      "key": "packages/main/tests/milestone-status.test.mjs:3055:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3058:execFileSync",
       "callDigest": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2839,17 +2904,18 @@
           "endLine": 3075,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.match(stdout, /Remaining/);\n    assert.match(stdout, /\\| M-cli \\| CLI report milestone \\|/);\n\n    const missingCloseout = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n    ], { cwd: root, encoding: 'utf8' });\n    assertCloseoutTextContract(missingCloseout);\n    assert.match(missingCloseout, /Snapshot: missing/);\n    assert.match(missingCloseout, /No milestone-closeout\\.json snapshot exists for B-cli-ms/);\n    assert.match(missingCloseout, /Next action:/);\n\n    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--json',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0141",
-      "key": "packages/main/tests/milestone-status.test.mjs:3068:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3071:execFileSync",
       "callDigest": "5773baa182406f3034cda37ef08d4be2dcd84cb29b26a7957b8e4dd513a8faf1",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2869,17 +2935,18 @@
           "endLine": 3088,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.match(missingCloseout, /No milestone-closeout\\.json snapshot exists for B-cli-ms/);\n    assert.match(missingCloseout, /Next action:/);\n\n    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.equal(missingCloseoutJson.schemaVersion, 'proofbound.milestone_closeout_missing.v1');\n    assert.equal(missingCloseoutJson.snapshotPresent, false);\n    assert.match(missingCloseoutJson.diagnostic, /No milestone-closeout\\.json snapshot exists/);\n\n    const cliReport = buildMilestoneStatusReport({\n      story: cliStory,\n      checklist: cliChecklist,\n      milestoneLedger: cliLedger,\n    });\n    const cliSnapshot = buildMilestoneCloseoutSnapshot({\n      report: cliReport,\n      bindings: { headHash: 'head-cli', materialHash: 'material-cli', storyFilesHash: 'story-cli' },"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0142",
-      "key": "packages/main/tests/milestone-status.test.mjs:3093:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3096:execFileSync",
       "callDigest": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2899,17 +2966,18 @@
           "endLine": 3113,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    });\n    writeJson(join(storyDir, 'milestone-closeout.json'), cliSnapshot);\n\n    const closeoutText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n    ], { cwd: root, encoding: 'utf8' });\n    assertCloseoutTextContract(closeoutText);\n    assert.match(closeoutText, /Generated: 2026-07-04T14:00:00\\.000Z/);\n    assert.match(closeoutText, /Bindings: headHash=head-cli materialHash=material-cli storyFilesHash=story-cli/);\n    assert.match(closeoutText, /\\| M-cli \\| completed \\(ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered\\) \\| CLI report milestone \\|/);\n\n    const closeoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--format=json',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0143",
-      "key": "packages/main/tests/milestone-status.test.mjs:3106:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3109:execFileSync",
       "callDigest": "067dd5a514e128b601e192ffcdaea28901390f80cfc1873c463ae32f58b396c4",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2929,17 +2997,18 @@
           "endLine": 3126,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.match(closeoutText, /Bindings: headHash=head-cli materialHash=material-cli storyFilesHash=story-cli/);\n    assert.match(closeoutText, /\\| M-cli \\| completed \\(ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered\\) \\| CLI report milestone \\|/);\n\n    const closeoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--format=json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');\n    assert.equal(closeoutJson.sourceReport.digest, milestoneStatusReportDigest(cliReport));\n    assert.equal(closeoutJson.rows[0].milestone, 'M-cli');\n\n    const unknownFlag = spawnSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--format=json',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0144",
-      "key": "packages/main/tests/milestone-status.test.mjs:3119:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3122:spawnSync",
       "callDigest": "17af77a6dc14ab85d0bf821612b166e43339c5236994b771a96bce290c8d7365",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2959,17 +3028,18 @@
           "endLine": 3139,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.equal(closeoutJson.sourceReport.digest, milestoneStatusReportDigest(cliReport));\n    assert.equal(closeoutJson.rows[0].milestone, 'M-cli');\n\n    const unknownFlag = spawnSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--format=json',\n      '--surpriseFlag=true',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.notEqual(unknownFlag.status, 0, 'CLI parser must reject unknown milestone_status flags');\n    assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');\n    assert.match(unknownFlag.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n\n    const unknownCloseoutFlag = spawnSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0145",
-      "key": "packages/main/tests/milestone-status.test.mjs:3133:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3136:spawnSync",
       "callDigest": "4db4f20f86eedcc7ef96cdd7b8ad04f4db7362adf4f43b4e4389e663e1c9400f",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -2989,17 +3059,18 @@
           "endLine": 3153,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');\n    assert.match(unknownFlag.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n\n    const unknownCloseoutFlag = spawnSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--format=json',\n      '--surpriseFlag=true',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.notEqual(unknownCloseoutFlag.status, 0, 'CLI parser must reject unknown milestone_closeout flags');\n    assert.equal(unknownCloseoutFlag.stdout, '', 'unknown closeout flags must fail before story facts are printed');\n    assert.match(unknownCloseoutFlag.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n\n    {\n      const activeStoryId = 'B-preflight';\n      const activeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-status-preflight-'));\n      try {\n        const activeStoryDir = join(activeRoot, '.proof-or-stop', 'story', 'actives', activeStoryId);\n        mkdirSync(activeStoryDir, { recursive: true });\n        writeJson(join(activeRoot, 'proof-or-stop.config.json'), {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0146",
-      "key": "packages/main/tests/milestone-status.test.mjs:3170:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3173:spawnSync",
       "callDigest": "4ac209031cd2eb1546dee324ae4ebce09514f81372eff534344b93aca9713a38",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3019,17 +3090,18 @@
           "endLine": 3190,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "        execFileSync('git', ['checkout', '-b', `story/${activeStoryId}`], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });\n        execFileSync('mkfifo', [join(activeStoryDir, 'index.json')], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });\n\n        const rejectedBeforeActiveRead = spawnSync(process.execPath, [\n          cliPath,\n          'milestone_status',\n          '--root',\n          activeRoot,\n          '--storyId',\n          activeStoryId,\n          '--surpriseFlag=true',\n        ], { cwd: activeRoot, encoding: 'utf8', timeout: 2000 });\n        assert.notEqual(rejectedBeforeActiveRead.error?.code, 'ETIMEDOUT', 'malformed milestone_status args must reject before active-story metadata reads');\n        assert.notEqual(rejectedBeforeActiveRead.status, 0, 'malformed milestone_status args must be rejected');\n        assert.match(rejectedBeforeActiveRead.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n\n        const rejectedCloseoutBeforeActiveRead = spawnSync(process.execPath, [\n          cliPath,\n          'milestone_closeout',\n          '--root',\n          activeRoot,\n          '--storyId',\n          activeStoryId,\n          '--surpriseFlag=true',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0147",
-      "key": "packages/main/tests/milestone-status.test.mjs:317:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:318:execFileSync",
       "callDigest": "ca93c45689139f8c8fd5818865508b99fe7230421cc16bfb4155e75ebd2d2a44",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3049,17 +3121,18 @@
           "endLine": 337,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "\n    // B-7c05: bare milestone_status is BRIEF by default; this block asserts the\n    // full 7-column table markers, so request the full rendering explicitly.\n    const cliText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      cliMarkerStoryId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(cliText, /\\| M-marker-done \\| Marker completed milestone \\| ✅ Done \\(ledger=done;/);\n    assert.match(cliText, /\\| M-marker-review \\| Marker pending review milestone \\| 🟡 Pending Review \\(ledger=covered;/);\n    assert.match(cliText, /\\| M-marker-planned-review \\| Marker planned pending review milestone \\| 🟡 Pending Review \\(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\\)/);\n    assert.match(cliText, /\\| M-marker-current \\| Marker current milestone \\| ⏳ In Progress \\(ledger=planned;/);\n    assert.match(cliText, /\\| M-marker-remaining \\| Marker remaining milestone \\| ⬜ Not Started \\(ledger=planned;/);\n    assert.match(cliText, /\\| M-marker-blocked \\| Marker blocked milestone \\| 🔴 Blocked \\(ledger=planned;/);\n    assert.match(cliText, /\\| M-marker-failed \\| Marker failed milestone \\| ❌ Failed \\(ledger=done;/);\n    assert.match(cliText, /✅ Done CHK-MARKER-DONE \\[done\\] CHK-MARKER-DONE title/);\n    assert.match(cliText, /⏳ In Progress CHK-MARKER-CURRENT \\[in_progress\\] CHK-MARKER-CURRENT title/);\n    assert.match(cliText, /⬜ Not Started CHK-MARKER-REMAINING \\[pending\\] CHK-MARKER-REMAINING title/);\n    assert.match(cliText, /🔴 Blocked CHK-MARKER-MISSING \\[missing\\] CHK-MARKER-MISSING/);\n    assert.match(cliText, /❌ Failed CHK-MARKER-FAILED:happy:0 \\[fail\\/logic_test\\]/);"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0148",
-      "key": "packages/main/tests/milestone-status.test.mjs:3183:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3186:spawnSync",
       "callDigest": "9b313ae0adaf5f19ed8768ef02761de3eafc372fa9ad16f3de5a96c04fd65f5e",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3079,17 +3152,18 @@
           "endLine": 3203,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "        assert.notEqual(rejectedBeforeActiveRead.status, 0, 'malformed milestone_status args must be rejected');\n        assert.match(rejectedBeforeActiveRead.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n\n        const rejectedCloseoutBeforeActiveRead = spawnSync(process.execPath, [\n          cliPath,\n          'milestone_closeout',\n          '--root',\n          activeRoot,\n          '--storyId',\n          activeStoryId,\n          '--surpriseFlag=true',\n        ], { cwd: activeRoot, encoding: 'utf8', timeout: 2000 });\n        assert.notEqual(rejectedCloseoutBeforeActiveRead.error?.code, 'ETIMEDOUT', 'malformed milestone_closeout args must reject before active-story metadata reads');\n        assert.notEqual(rejectedCloseoutBeforeActiveRead.status, 0, 'malformed milestone_closeout args must be rejected');\n        assert.match(rejectedCloseoutBeforeActiveRead.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);\n      } finally {\n        rmSync(activeRoot, { recursive: true, force: true });\n      }\n    }\n\n    for (const flag of [\n      'runCommands',\n      'writeEvidence',\n      'advancePhase',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0149",
-      "key": "packages/main/tests/milestone-status.test.mjs:3216:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3219:spawnSync",
       "callDigest": "b561b55187d37047fbc6e07a68a31531b5ce98b88d7d122f41a6f0baa2bd34d4",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3116,17 +3190,18 @@
           "endLine": 3230,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    }\n\n    for (const flag of [\n      'runCommands',\n      'writeEvidence',\n      'advancePhase',\n      'launchReviewers',\n      'write',\n      'apply',\n      'execute',\n      'run',\n      'launch',\n      'capture',\n      'refresh',\n      'authorityDone',\n      'productionDone',\n    ]) {\n      for (const command of ['milestone_status', 'milestone_closeout']) {\n        const rejected = spawnSync(process.execPath, [\n          cliPath,\n          command,\n          '--root',\n          root,\n          '--storyId',\n          storyId,\n          `--${flag}=true`,\n        ], { cwd: root, encoding: 'utf8' });\n        assert.notEqual(rejected.status, 0, `CLI parser must reject ${flag} for ${command}`);\n        assert.match(rejected.stderr, new RegExp(`Argument validation failed[\\\\s\\\\S]*${flag}`));\n      }\n    }\n  } finally {\n    rmSync(root, { recursive: true, force: true });"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0150",
-      "key": "packages/main/tests/milestone-status.test.mjs:3366:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3369:execFileSync",
       "callDigest": "9f84354144aeb5337e91cb7798eda9bf0a6d1f3c848abcb7c6ab8b3a653898d8",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3146,17 +3221,18 @@
           "endLine": 3386,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "\n    // B-7c05: these three text invocations assert full-table rows, so pass --full\n    // (bare milestone_status is brief by default).\n    const doneText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      doneStoryId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(doneText, new RegExp(`Milestone Status - ${doneStoryId}`));\n    assert.match(doneText, /Completed\\n\\| Milestone \\| Purpose \\| Status:/);\n    assert.match(doneText, /\\| M-done-snapshot \\| DONE milestone_status reports the frozen closeout row \\| ✅ Done \\(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\\) \\|/);\n    assert.doesNotMatch(doneText, /🔴 Blocked/);\n    assert.doesNotMatch(doneText, /stale-evidence/);\n    assert.doesNotMatch(doneText, /evidence=stale/);\n\n    const doneJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0151",
-      "key": "packages/main/tests/milestone-status.test.mjs:3382:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3385:execFileSync",
       "callDigest": "90de2312667ab49ce2148cc4608c8b0feb0bbb0d5ce3026e9be935e055df9221",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3176,17 +3252,18 @@
           "endLine": 3402,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.doesNotMatch(doneText, /stale-evidence/);\n    assert.doesNotMatch(doneText, /evidence=stale/);\n\n    const doneJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      doneStoryId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.equal(doneJson.schemaVersion, 'proofbound.milestone_status.v1');\n    assert.equal(doneJson.phase, 'DONE');\n    assert.deepEqual(doneJson.groups, { completed: ['M-done-snapshot'], current: [], remaining: [] });\n    assert.equal(doneJson.milestones[0].status, 'completed');\n    assert.equal(doneJson.milestones[0].ledgerStatus, 'done');\n    assert.equal(doneJson.milestones[0].evidenceRefs[0].status, 'pass');\n\n    const activeText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0152",
-      "key": "packages/main/tests/milestone-status.test.mjs:3398:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3401:execFileSync",
       "callDigest": "7412278769eefbbaaa38707f840e86192320723fa4e987c7c0f87ff2cf00d3ea",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3206,17 +3283,18 @@
           "endLine": 3418,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.equal(doneJson.milestones[0].ledgerStatus, 'done');\n    assert.equal(doneJson.milestones[0].evidenceRefs[0].status, 'pass');\n\n    const activeText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      activeStoryId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(activeText, /\\| M-active-snapshot \\| Active milestone_status ignores closeout snapshots \\| 🔴 Blocked \\(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\\) \\|/);\n    const activeJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      activeStoryId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.deepEqual(activeJson.groups, { completed: [], current: ['M-active-snapshot'], remaining: [] });\n"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0153",
-      "key": "packages/main/tests/milestone-status.test.mjs:3408:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3411:execFileSync",
       "callDigest": "10c78ed9bbb410120a4514a9d344b79b8d174b8ff6398031b688fc3b557d7ced",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3236,17 +3314,18 @@
           "endLine": 3428,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(activeText, /\\| M-active-snapshot \\| Active milestone_status ignores closeout snapshots \\| 🔴 Blocked \\(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\\) \\|/);\n    const activeJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      activeStoryId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.deepEqual(activeJson.groups, { completed: [], current: ['M-active-snapshot'], remaining: [] });\n\n    const missingCloseoutText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      missingCloseoutStoryId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(missingCloseoutText, /\\| M-missing-closeout \\| DONE milestone_status without closeout remains live and fail-closed \\| 🔴 Blocked \\(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\\) \\|/);"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0154",
-      "key": "packages/main/tests/milestone-status.test.mjs:3419:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3422:execFileSync",
       "callDigest": "0efe3ec9d49595cc490ab09574cd5ef60d82366b7fadce5c169f15ce722ee583",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3266,17 +3345,18 @@
           "endLine": 3439,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    ], { cwd: root, encoding: 'utf8' }));\n    assert.deepEqual(activeJson.groups, { completed: [], current: ['M-active-snapshot'], remaining: [] });\n\n    const missingCloseoutText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      missingCloseoutStoryId,\n      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(missingCloseoutText, /\\| M-missing-closeout \\| DONE milestone_status without closeout remains live and fail-closed \\| 🔴 Blocked \\(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\\) \\|/);\n    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      missingCloseoutStoryId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.deepEqual(missingCloseoutJson.groups, { completed: [], current: ['M-missing-closeout'], remaining: [] });\n  } finally {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0155",
-      "key": "packages/main/tests/milestone-status.test.mjs:3429:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:3432:execFileSync",
       "callDigest": "432a970b37c63ed9f932c75f73f3e409cebcd5679411029662b72c02935ab3d8",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3296,17 +3376,18 @@
           "endLine": 3444,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "      '--full',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(missingCloseoutText, /\\| M-missing-closeout \\| DONE milestone_status without closeout remains live and fail-closed \\| 🔴 Blocked \\(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\\) \\|/);\n    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_status',\n      '--root',\n      root,\n      '--storyId',\n      missingCloseoutStoryId,\n      '--json',\n    ], { cwd: root, encoding: 'utf8' }));\n    assert.deepEqual(missingCloseoutJson.groups, { completed: [], current: ['M-missing-closeout'], remaining: [] });\n  } finally {\n    rmSync(root, { recursive: true, force: true });\n  }\n}\n\nconsole.log('ok milestone-status');"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0156",
-      "key": "packages/main/tests/milestone-status.test.mjs:342:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:343:execFileSync",
       "callDigest": "21003ac7b70a5e45ce7cb64086dd33a480ff61764c0adf398a0ee1435546b230",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3326,17 +3407,18 @@
           "endLine": 362,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    // B-7c05: the post-mutation milestone suffix is BRIEF by default; per-call\n    // flags do not flow through checklist_update's schema, so restore the full\n    // table via the PROOF_OR_STOP_BRIEF_OUTPUT=0 env hatch for these table assertions.\n    const autoAppendText = execFileSync(process.execPath, [\n      cliPath,\n      'checklist_update',\n      '--root',\n      root,\n      '--storyId',\n      cliMarkerStoryId,\n      '--itemId',\n      'CHK-MARKER-CURRENT',\n      '--status',\n      'pending',\n    ], { cwd: root, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_BRIEF_OUTPUT: '0' } });\n    assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);\n    assert.match(autoAppendText, /\\| M-marker-done \\| Marker completed milestone \\| ✅ Done \\(ledger=done;/);\n    assert.match(autoAppendText, /\\| M-marker-review \\| Marker pending review milestone \\| 🟡 Pending Review \\(ledger=covered;/);\n    assert.match(autoAppendText, /\\| M-marker-planned-review \\| Marker planned pending review milestone \\| 🟡 Pending Review \\(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\\)/);\n    assert.match(autoAppendText, /\\| M-marker-current \\| Marker current milestone \\| ⏳ In Progress \\(ledger=planned;/);\n    assert.match(autoAppendText, /\\| M-marker-remaining \\| Marker remaining milestone \\| ⬜ Not Started \\(ledger=planned;/);\n    assert.match(autoAppendText, /\\| M-marker-blocked \\| Marker blocked milestone \\| 🔴 Blocked \\(ledger=planned;/);\n    assert.match(autoAppendText, /\\| M-marker-failed \\| Marker failed milestone \\| ❌ Failed \\(ledger=done;/);\n    assert.match(autoAppendText, /✅ Done CHK-MARKER-DONE \\[done\\] CHK-MARKER-DONE title/);"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0157",
-      "key": "packages/main/tests/milestone-status.test.mjs:368:execFileSync",
-      "callDigest": "c9122c7a8ee60e3c001c25f7dbd672791edc116bdb9ce1056a90c3361c2652c5",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "key": "packages/main/tests/milestone-status.test.mjs:369:execFileSync",
+      "callDigest": "132ccc7fe4c629993011b81845957f5a4c0654c501d51a5bb2d69e49816563c4",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3356,17 +3438,18 @@
           "endLine": 388,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.match(autoAppendText, /❌ Failed CHK-MARKER-FAILED:happy:0 \\[fail\\/logic_test\\]/);\n\n    const ledgerBeforeChecklistAdd = readFileSync(milestoneLedgerPath, 'utf8');\n    const checklistAddText = execFileSync(process.execPath, [\n      cliPath,\n      'checklist_add',\n      '--root',\n      root,\n      '--storyId',\n      cliMarkerStoryId,\n      '--title',\n      'Exercise ledger-backed checklist add UX',\n      '--context',\n      'Adding a checklist row to a ledger-backed story should show status and advisory text without changing milestone-ledger.json.',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(checklistAddText, /Checklist item CHK-001 added to B-cli-marker-icons/);\n    assert.ok(\n      checklistAddText.includes('Advisory: milestone ledger exists for B-cli-marker-icons; if this new checklist item (CHK-001) changes milestone coverage, update/sync the ledger with `proof-or-stop milestone_ledger_add` or an explicit ledger update.'),\n      'ledger-backed checklist_add output includes the milestone ledger advisory',\n    );\n    assert.match(checklistAddText, /Milestone Status - B-cli-marker-icons/);\n    assert.equal(\n      readFileSync(milestoneLedgerPath, 'utf8'),\n      ledgerBeforeChecklistAdd,"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0158",
-      "key": "packages/main/tests/milestone-status.test.mjs:401:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:404:execFileSync",
       "callDigest": "12aff923c6d8c9803e686ff6b63cb24d72b3fdff1f4f7b3cea5da43ee0f968a2",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3386,17 +3469,18 @@
           "endLine": 421,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "        checklistItem('CHK-MARKER-NO-LEDGER', 'pending'),\n      ],\n    });\n    const noLedgerStdout = execFileSync(process.execPath, [\n      cliPath,\n      'checklist_update',\n      '--root',\n      root,\n      '--storyId',\n      noLedgerStoryId,\n      '--itemId',\n      'CHK-MARKER-NO-LEDGER',\n      '--status',\n      'in_progress',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(noLedgerStdout, /Checklist CHK-MARKER-NO-LEDGER:/);\n    // A missing-ledger story must NOT fabricate a milestone status table...\n    assert.equal(\n      noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),\n      false,\n      'missing-ledger story mutations must not fabricate a milestone status table',\n    );\n    // ...but the mutation MUST still always show a status view: the\n    // checklist-derived ledger, distinctly labelled and grouping items by status."
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0159",
-      "key": "packages/main/tests/milestone-status.test.mjs:441:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:444:execFileSync",
       "callDigest": "9bf5843220d537e6350961b10361065257b5b163c424e749fe6d9a56558a9aff",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3416,17 +3500,18 @@
           "endLine": 461,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "      items: [checklistItem('CHK-CORRUPT', 'pending')],\n    });\n    writeFileSync(join(corruptStoryDir, 'milestone-ledger.json'), 'THIS IS NOT JSON {{{');\n    const corruptStdout = execFileSync(process.execPath, [\n      cliPath,\n      'checklist_update',\n      '--root',\n      root,\n      '--storyId',\n      corruptStoryId,\n      '--itemId',\n      'CHK-CORRUPT',\n      '--status',\n      'in_progress',\n    ], { cwd: root, encoding: 'utf8' });\n    assert.match(corruptStdout, /Checklist CHK-CORRUPT:/, 'the mutation itself still succeeds');\n    assert.match(\n      corruptStdout,\n      new RegExp(`⚠ Milestone Ledger: render FAILED for ${corruptStoryId}`),\n      'a corrupt milestone ledger must surface a visible render-failure block, not be swallowed',\n    );\n    assert.doesNotMatch(\n      corruptStdout,\n      new RegExp(`Checklist-derived ledger \\\\(no milestone ledger set\\\\) - ${corruptStoryId}`),"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0160",
-      "key": "packages/main/tests/milestone-status.test.mjs:469:execFileSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:472:execFileSync",
       "callDigest": "2c43f45046286528d8b848bf26c0a76f16c64b34f6f0d9a78b5d3a7c51ccb103",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3446,17 +3531,18 @@
           "endLine": 489,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    const jsonStoryDir = join(root, '.proof-or-stop', 'story', 'actives', jsonStoryId);\n    mkdirSync(jsonStoryDir, { recursive: true });\n    writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));\n    const jsonStdout = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_ledger_add',\n      '--root',\n      root,\n      '--storyId',\n      jsonStoryId,\n      '--id',\n      'M-json',\n      '--sourceRequirementId',\n      'REQ-json',\n      '--claim',\n      'JSON stdout remains parseable',\n      '--doneMeans',\n      'The command writes only JSON when --json is set',\n      '--status',\n      'planned',\n      '--json',\n    ], { cwd: root, encoding: 'utf8' });\n    const jsonLedger = JSON.parse(jsonStdout);\n    assert.equal(jsonLedger.storyId, jsonStoryId);"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
       "id": "EX-0161",
-      "key": "packages/main/tests/milestone-status.test.mjs:576:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:579:spawnSync",
       "callDigest": "9a7433e83073e6b81eb2497425702c9ba2d6858f23b469724d5cd9c21d12beb6",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3476,10 +3562,11 @@
           "endLine": 596,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "    assert.equal(ledgerExists(noLedgerStoryId), false, 'story_create does not infer milestone-ledger.json from prose/checklist text');\n\n    const beforeMalformed = storyDirs(root);\n    const malformed = spawnSync(process.execPath, [\n      cliPath,\n      '--root',\n      root,\n      'story_create',\n      JSON.stringify({\n        name: 'auto-ledger-story-create-duplicate-rows',\n        title: 'Auto ledger story create duplicate rows',\n        description: 'Duplicate milestone ids should reject before metadata is written.',\n        type: 'feature',\n        priority: 'high',\n        forceNew: true,\n        background: validStoryBackground('story_create malformed rows'),\n        checklist: [{ title: 'Reject duplicate rows', context: 'The ledger builder must fail before persistence.' }],\n        milestones: [\n          ...explicitMilestones,\n          milestone({\n            id: 'M-auto',\n            sourceRequirementId: 'REQ-auto-duplicate',\n            claim: 'Duplicate row',\n            doneMeans: 'This duplicate must be rejected',"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
@@ -3657,9 +3744,9 @@
     },
     {
       "id": "EX-0168",
-      "key": "packages/main/tests/red/red-global-cli-exec-bit.mjs:94:execFileSync",
+      "key": "packages/main/tests/red/red-global-cli-exec-bit.mjs:95:execFileSync",
       "callDigest": "a006be57b826f61bbdf951870820c4b844e110e410d93cc5db6b20d0c909dfcf",
-      "sourceDigest": "9d3af68c594234b55bd65c628a685ac4882c204e07645554a4bce4da6a81a988",
+      "sourceDigest": "189696ec7fbe1a37dd19954f5524baee0ad23ca7cb7ff245fd64124798e4f593",
       "configIndexes": [
         86
       ],
@@ -3672,10 +3759,11 @@
           "endLine": 96,
           "sourceDigest": "9d3af68c594234b55bd65c628a685ac4882c204e07645554a4bce4da6a81a988",
           "excerpt": "// 1. tsc emit never sets the executable bit (hermetic fixture)\nconst tmp = mkdtempSync(join(tmpdir(), 'red-exec-bit-'));\ntry {\n  writeFileSync(join(tmp, 'entry.ts'), '#!/usr/bin/env node\\nexport const x = 1;\\n');\n  writeFileSync(join(tmp, 'tsconfig.json'), JSON.stringify({ compilerOptions: { target: 'es2022', module: 'es2022', outDir: 'out' }, files: ['entry.ts'] }));\n  const tsc = join(repoRoot, 'node_modules/typescript/bin/tsc');\n  execFileSync(process.execPath, [tsc, '-p', join(tmp, 'tsconfig.json')], { cwd: tmp, stdio: ['ignore', 'pipe', 'pipe'] });\n  const emitted = join(tmp, 'out/entry.js');\n  assert.match(readFileSync(emitted, 'utf8'), /^#!\\/usr\\/bin\\/env node\\n/, 'tsc output must preserve the Node shebang used by npm command shims');"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-global-cli-exec-bit.mjs SHA256 189696ec7fbe1a37dd19954f5524baee0ad23ca7cb7ff245fd64124798e4f593; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/red/red-global-cli-exec-bit.mjs": "9d3af68c594234b55bd65c628a685ac4882c204e07645554a4bce4da6a81a988"
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs": "189696ec7fbe1a37dd19954f5524baee0ad23ca7cb7ff245fd64124798e4f593"
       }
     },
     {
@@ -3765,7 +3853,7 @@
       "id": "EX-0172",
       "key": "scripts/verify-lab-worktree.mjs:16:spawnSync",
       "callDigest": "3a8c486e4b5e39931f24203b37edac6b826141444955834ef46fbc93c5d697c9",
-      "sourceDigest": "02fc2aeb9a47b10a63f1ba1b6a1137410bb5095ebc0bbc6657baf31ccb905665",
+      "sourceDigest": "fdf95c65552c565e4e799b87cdde465c6bd9d62b674656ae8f9eb7072ffdeebe",
       "configIndexes": [
         0
       ],
@@ -3799,10 +3887,11 @@
           "endLine": 95,
           "sourceDigest": "02fc2aeb9a47b10a63f1ba1b6a1137410bb5095ebc0bbc6657baf31ccb905665",
           "excerpt": "  const retry = fixture('retry'); cmd(retry, ['create', 'retry']);\n  const retryLab = join(retry, '.worktrees/Lab-retry');\n  cmd(retry, ['red', 'retry', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);\n  write(retryLab, 'bug.txt', 'fixed'); write(retryLab, 'packages/main/src/fix.ts', 'export const fixed = true;'); commit(retryLab, 'fix: retry target'); cmd(retry, ['green', 'retry']);\n  // Ignored marker makes main build fail only AFTER successful candidate verification.\n  write(retry, '.git/info/exclude', '.fail-build\\n'); write(retry, '.fail-build', 'fail');\n  cmd(retry, finish('retry'), 1, /Build failed/);\n  assert.ok(existsSync(retryLab)); assert.equal(JSON.parse(cmd(retry, ['status', 'retry'])).phase, 'integrated');\n  rmSync(join(retry, '.fail-build')); cmd(retry, finish('retry'));\n  assert.equal(JSON.parse(readFileSync(join(retry, 'package.json'))).version, '1.0.1');\n\n  const docs = fixture('docs'); cmd(docs, ['create', 'docs']);\n  const docsLab = join(docs, '.worktrees/Lab-docs');\n  cmd(docs, ['red', 'docs', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);\n  write(docsLab, 'bug.txt', 'fixed'); commit(docsLab, 'docs: repair non-runtime content');\n  cmd(docs, ['green', 'docs']); cmd(docs, finish('docs'));\n  assert.equal(JSON.parse(readFileSync(join(docs, 'package.json'))).version, '1.0.0');"
-        }
+        },
+        "2026-09-10 repair review: current caller scripts/verify-lab-worktree.mjs SHA256 fdf95c65552c565e4e799b87cdde465c6bd9d62b674656ae8f9eb7072ffdeebe; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "scripts/verify-lab-worktree.mjs": "02fc2aeb9a47b10a63f1ba1b6a1137410bb5095ebc0bbc6657baf31ccb905665"
+        "scripts/verify-lab-worktree.mjs": "fdf95c65552c565e4e799b87cdde465c6bd9d62b674656ae8f9eb7072ffdeebe"
       }
     },
     {
@@ -3836,19 +3925,22 @@
           "endLine": 1428,
           "sourceDigest": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
           "excerpt": "          materialDigest: 'historical-red-material',\n          storyFilesHash: 'historical-red-story-files',\n          validationDigest: 'historical-red-validation',\n          promptDigest: 'historical-red-prompt',\n        });\n      }\n      const dirtyBytes = readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl'));\n      const result = runFixtureCli(fixture.root, ['validate', `--story=${STORY_ID}`, '--json']);\n      const payload = JSON.parse(result.stdout.trim()) as {\n        status?: unknown;\n        allPass?: unknown;\n        failureKind?: unknown;\n        disposition?: unknown;\n        commandExecutions?: unknown;\n      };\n      assert.equal(payload.status, 'fail');\n      assert.equal(payload.allPass, false);\n      assert.equal(payload.failureKind, 'infra_failure');\n      assert.equal(payload.disposition, 'executed');\n      assert.equal(payload.commandExecutions, 1);\n      assert.match(`${result.stdout}\\n${result.stderr}`, /canonical metadata was already dirty|pre-existing|infra_failure/);\n      assert.equal(fixture.store.readTestEvidence(STORY_ID)?.result, 'FAIL');\n      assert.deepEqual(\n        readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl')),\n        dirtyBytes,\n        'validation refusal preserves the historical dirty baseline',\n      );\n      assert.doesNotMatch(result.stdout, /\"result\"\\s*:\\s*\"PASS\"|\"status\"\\s*:\\s*\"pass\"/);\n    });\n  });\n"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/quorum-submit-smoke.ts SHA256 9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c"
+        "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0174",
-      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:449:spawn",
+      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
       "callDigest": "7791bd896df9617057155da4ebaa24a36a1ac9f2d468cf7a389bc36fe55e5431",
-      "sourceDigest": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535",
+      "sourceDigest": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
       "configIndexes": [
         13
       ],
@@ -3875,17 +3967,21 @@
           "endLine": 910,
           "sourceDigest": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535",
           "excerpt": "    });\n    assert.equal(retry.status, 0, 'named deadline path must preserve cleanup for immediate rerun');\n  } finally {\n    rmSync(fixture.root, { recursive: true, force: true });\n  }\n}\n\nfunction runValidate(root: string, ceilingMs?: number): Promise<CliResult> {\n  return runCli(root, ['validate', '--json'], ceilingMs);\n}"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "6e391ddbadb0a6200d5775755bb8ad1c3a5442d5018b0ecc5e86adc298769535"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0175",
-      "key": "packages/main/tests/milestone-status.test.mjs:2966:spawnSync",
+      "key": "packages/main/tests/milestone-status.test.mjs:2969:spawnSync",
       "callDigest": "8a0b52796bb437d02a7660e34b9ac7ecea82db13cbdf38c018afa1e28c540ac9",
-      "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
+      "sourceDigest": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3",
       "configIndexes": [
         3
       ],
@@ -3905,10 +4001,11 @@
           "endLine": 2986,
           "sourceDigest": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c",
           "excerpt": "\n    // B-7c05: the post-mutation milestone suffix is BRIEF by default; this block\n    // asserts the full table row, so restore it via the env hatch.\n    const result = spawnSync(process.execPath, [\n      cliPath,\n      'story_advance',\n      '--root',\n      worktreeRoot,\n      '--storyId',\n      storyId,\n      '--phase',\n      'DONE',\n    ], { cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_BRIEF_OUTPUT: '0' } });\n\n    assert.equal(result.status, 0, `story_advance DONE should succeed\\nstdout:\\n${result.stdout}\\nstderr:\\n${result.stderr}`);\n    assert.ok(\n      !existsSync(worktreeRoot),\n      `runCli story_advance DONE should remove the story worktree\\nstdout:\\n${result.stdout}\\nstderr:\\n${result.stderr}`,\n    );\n    assert.match(result.stdout, new RegExp(`Story ${storyId} advanced to DONE`));\n    assert.match(result.stdout, new RegExp(`Milestone Status - ${storyId}`));\n    assert.match(result.stdout, /\\| M-done-cli-append \\| The built CLI appends milestone status after DONE worktree cleanup \\|/);\n    assert.doesNotMatch(result.stdout, /milestone ledger required/);\n  } finally {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/milestone-status.test.mjs": "346fb457f12210ce74becae9dfcb6af0727595c40bce9a5578c9a5ed37f1149c"
+        "packages/main/tests/milestone-status.test.mjs": "4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3"
       }
     },
     {
@@ -4030,14 +4127,15 @@
         "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources.",
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
-        "packages/main/src/tasks/validation-protocol-smoke.ts"
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/handlers/validation-plan.ts": "d7c889db914fab8b5b10ea410e76df099e28aafa29cdb8df4618922416c47229",
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
-        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "b2eb6468f39f7fe80bab4a8e793cf415ebb08c0a963e0453b018c0c8c7f322b7",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "5fda1b0451ed60756fe2bce03676b6b69797798d8f82fcd55fca24aa434827b1"
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad"
       }
     },
     {
@@ -4054,14 +4152,15 @@
         "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources.",
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
-        "packages/main/src/tasks/validation-protocol-smoke.ts"
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/handlers/validation-plan.ts": "d7c889db914fab8b5b10ea410e76df099e28aafa29cdb8df4618922416c47229",
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
-        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "b2eb6468f39f7fe80bab4a8e793cf415ebb08c0a963e0453b018c0c8c7f322b7",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "5fda1b0451ed60756fe2bce03676b6b69797798d8f82fcd55fca24aa434827b1"
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad"
       }
     },
     {
@@ -4078,15 +4177,16 @@
         "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources.",
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
-        "packages/main/src/tasks/validation-protocol-smoke.ts"
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "b2eb6468f39f7fe80bab4a8e793cf415ebb08c0a963e0453b018c0c8c7f322b7",
-        "packages/main/src/tasks/validation-protocol-smoke.ts": "64ab2d1419da775ce74beb58ebefcd365e52339369478cf9005e354f86a2de1a",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "5fda1b0451ed60756fe2bce03676b6b69797798d8f82fcd55fca24aa434827b1",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
+        "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
@@ -4118,11 +4218,12 @@
       "reason": "The exact --rollout-cohort-case child produces omission mutation/restoration evidence. Parent compares real replay with substituted report, missing/reordered restoration, and malicious-hook negatives. The child is a production case, not an ordinary duplicate suite; preserve this causal positive control.",
       "requiredEvidence": [
         "The exact --rollout-cohort-case child produces omission mutation/restoration evidence. Parent compares real replay with substituted report, missing/reordered restoration, and malicious-hook negatives. The child is a production case, not an ordinary duplicate suite; preserve this causal positive control.",
-        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts SHA256 f746be45261d4e458872647b832c669c5f816593f01219b330d722febf943d95; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts": "f746be45261d4e458872647b832c669c5f816593f01219b330d722febf943d95",
-        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "8d43414cf7a52e40ae09a1b3514214ccb799ec8852fecc1ee3d18f9925377996"
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "fe6a4e4e516f1ce30ae8245de4656a9e2a75759452a78d5ab0340683a0caeebd"
       }
     },
     {
@@ -4156,22 +4257,23 @@
       "kind": "canonical helper unreachable",
       "reason": "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently.",
       "requiredEvidence": [
-        "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently."
+        "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/agent-liveness-suite-smoke.ts SHA256 cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "4c0332b993a0f15334eb46ebd88524e14b8b8ea6b7c360f311a289b5bd08aa6a",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0"
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
     {
       "id": "EX-0185",
       "key": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
       "callDigest": "bb488b89883939b761b3ffef41fce1cbf8a86741ecada418a6734976a1ee6fd2",
-      "sourceDigest": "9767dcdc4b760b65514a4ff7b8e1ae841496b25f439c59fec2e8c0b1445ff871",
+      "sourceDigest": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
       "configIndexes": [
         122
       ],
@@ -4182,12 +4284,196 @@
           "file": "packages/main/tests/red/red-w2d-command-readonly.mjs",
           "lines": "125-145, 205-215",
           "property": "The recorder delegates only the explicit git fixture helper; builtin recorder interception remains observable."
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "scripts/run-validation-fixture-suite.mjs": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/tests/red/red-w2d-command-readonly.mjs": "9767dcdc4b760b65514a4ff7b8e1ae841496b25f439c59fec2e8c0b1445ff871"
+        "packages/main/tests/red/red-w2d-command-readonly.mjs": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0186",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        10
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0187",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        13
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0188",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        25
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/done-required-head-drift-proof.ts": "5ba8b1901deb9ef7f7437721696459a2a6d13dc6e39608009bc8e79608e0723d",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0189",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        41
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
+        "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0190",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        57
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/withdrawn-disposition-smoke.ts": "9b6b47543b3accabe5aa2530c87de63f4d5a79ee3d6e8d1015de66a7bcee8656",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0191",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        78
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts": "86b7b8cafbc8c9d33adc56c8e251c086d825b3c02aaef07acc142c8f49c78f23",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0192",
+      "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+      "callDigest": "628eccc650cf0a9a6c9f04a5907baa18b732eeb1a9d9f832d70fdcc4880dc287",
+      "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
+      "configIndexes": [
+        78
+      ],
+      "kind": "ordinary-cli",
+      "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch.",
+      "requiredEvidence": [
+        "CLI constant 28",
+        "native reviewer command invocation 189",
+        "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts": "86b7b8cafbc8c9d33adc56c8e251c086d825b3c02aaef07acc142c8f49c78f23",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+      }
+    },
+    {
+      "id": "EX-0193",
+      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "configIndexes": [
+        133
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
+        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     }
   ]

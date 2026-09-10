@@ -11,7 +11,7 @@ const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote pus
   node scripts/lab-worktree.mjs sync NAME
   node scripts/lab-worktree.mjs status NAME
   node scripts/lab-worktree.mjs reopen NAME --confirm
-  node scripts/lab-worktree.mjs red NAME --expect TEXT -- EXECUTABLE ARG...
+  node scripts/lab-worktree.mjs red NAME --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs green NAME
   node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm
 
@@ -46,12 +46,12 @@ function assertClean(cwd, override) {
 function assertAncestor(cwd, ancestor, child) {
   try { git(cwd, 'merge-base', '--is-ancestor', ancestor, child); } catch { fail(`${ancestor} is not integrated into ${child}.`); }
 }
-function run(cwd, command) {
+function run(cwd, command, timeoutMs = 900000) {
   const start = Date.now();
-  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: 900000, maxBuffer: 32 * 1024 * 1024, shell: false });
+  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 32 * 1024 * 1024, shell: false });
   const output = (r.stdout || '') + (r.stderr || '');
   if (output) process.stdout.write(output);
-  return { command, head: sha(cwd), status: r.status, signal: r.signal, error: r.error?.message, elapsedMs: Date.now() - start, output, at: new Date().toISOString() };
+  return { command, timeoutMs, head: sha(cwd), status: r.status, signal: r.signal, error: r.error?.message, elapsedMs: Date.now() - start, output, at: new Date().toISOString() };
 }
 function passed(result) { return result.status === 0 && !result.signal && !result.error; }
 function instructions(name) {
@@ -80,10 +80,17 @@ async function main() {
   if (!action || action === '--help') { console.log(help); return; }
   if (!['create', 'sync', 'status', 'red', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
-  let notesPath, expected, command;
+  let notesPath, expected, command, timeoutMs = 900000;
   if (action === 'red') {
-    if (rest[0] !== '--expect' || !rest[1]?.trim() || rest[2] !== '--' || !rest[3]) fail('red requires --expect TEXT -- EXECUTABLE ARG...');
-    expected = rest[1]; command = rest.slice(3);
+    if (rest[0] !== '--expect' || !rest[1]?.trim()) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
+    let separator = 2;
+    if (rest[separator] === '--timeout-ms') {
+      const value = rest[separator + 1];
+      if (!/^[1-9]\d*$/.test(value ?? '') || !Number.isSafeInteger(Number(value)) || Number(value) > 3600000) fail('--timeout-ms must be an integer from 1 to 3600000');
+      timeoutMs = Number(value); separator += 2;
+    }
+    if (rest[separator] !== '--' || !rest[separator + 1]) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
+    expected = rest[1]; command = rest.slice(separator + 1);
   } else if (action === 'finish') {
     if (rest.length !== 3 || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm') fail('finish requires --notes FILE --confirm (explicit local integration request).');
     notesPath = resolve(rest[1]);
@@ -155,7 +162,7 @@ async function main() {
     if (action === 'red') {
       if (s.phase !== 'active') fail('RED is only accepted for an active Lab.');
       assertAncestor(s.path, sha(mainRoot), 'HEAD');
-      const before = sha(s.path), r = run(s.path, command);
+      const before = sha(s.path), r = run(s.path, command, timeoutMs);
       if (passed(r) || r.status === null || r.signal || r.error || !r.output.includes(expected)) fail('Expected target RED was not observed; no RED recorded.');
       assertClean(s.path, s.override);
       if (sha(s.path) !== before) fail('RED command changed HEAD.');
@@ -165,7 +172,7 @@ async function main() {
       if (s.phase !== 'active' || !s.red) fail('An active Lab with a recorded RED is required.');
       assertAncestor(s.path, s.red.head, 'HEAD');
       if (sha(s.path) === s.red.head) fail('Commit a repair after RED before recording GREEN.');
-      const before = sha(s.path), r = run(s.path, s.red.command);
+      const before = sha(s.path), r = run(s.path, s.red.command, s.red.timeoutMs);
       assertClean(s.path, s.override);
       if (!passed(r) || sha(s.path) !== before) fail('GREEN failed or command changed HEAD.');
       s.green = r; s.history.push({ kind: 'green', ...r }); save(s); console.log('GREEN recorded for current committed HEAD.'); return;
@@ -176,7 +183,7 @@ async function main() {
     const versions = await core('version-bump');
     const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     const check = (root, kind) => {
-      const before = sha(root), r = run(root, s.red.command);
+      const before = sha(root), r = run(root, s.red.command, s.red.timeoutMs);
       s.history.push({ kind, ...r }); save(s);
       assertClean(root, root === s.path ? s.override : undefined);
       if (!passed(r) || sha(root) !== before) fail(`${kind} failed or modified the checkout; workspace retained.`);

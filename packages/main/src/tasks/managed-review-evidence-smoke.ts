@@ -162,9 +162,13 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
-function managedReadEvidence(root: string, filesReadFully: string[] = ['packages/main/src/example.ts']) {
+function managedReadEvidence(root: string, requestedFiles?: string[]) {
   const artifact = new StoryStore(root).readCandidateSpecSet(STORY_ID);
   assert.ok(artifact, 'managed review fixture requires a candidate artifact');
+  // Positive fixture worker actually reads all current required candidate files.
+  // Explicit subsets remain untouched for rejection and drift controls.
+  const filesReadFully = requestedFiles ?? [...new Set(['packages/main/src/example.ts', ...artifact.candidateSpecSet])].sort();
+  for (const file of filesReadFully) readFileSync(join(root, file));
   return {
     readManifest: {
       filesReadFully,
@@ -413,7 +417,7 @@ function waitForExit(child: ReturnType<typeof spawn>): Promise<number | null> {
   });
 }
 
-async function sanitizedProposalToolMain(root: string, gatePath: string): Promise<void> {
+async function sanitizedProposalToolMain(root: string, gatePath: string, reviewRunId: string): Promise<void> {
   await eventually(async () => {
     try { readFileSync(gatePath); return true; } catch { return false; }
   }, 'sanitized provider tool child was never released');
@@ -421,7 +425,7 @@ async function sanitizedProposalToolMain(root: string, gatePath: string): Promis
     storyId: STORY_ID,
     providerAgent: LANE,
     lane: LANE,
-    reviewRunId: REVIEW_RUN_ID,
+    reviewRunId,
     conclusion: 'pass',
     note: 'Sanitized Codex tool child authored this exact provider verdict.',
     ...managedReadEvidence(root),
@@ -1039,6 +1043,7 @@ async function assertManagedImportRejectsLateLiveMaterialDrift(brokerPublicKey: 
 
 /** F-189: managed receipt import must enforce the same candidate reads as native evidence. */
 async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: string): Promise<void> {
+  for (const scenario of ['pass', 'findings', 'complete'] as const) {
   const candidateRoot = mkdtempSync(join(tmpdir(), 'managed-review-import-candidate-binding-'));
   try {
     const { store } = seedReviewStory(candidateRoot, brokerPublicKey, { candidateRoutingMode: 'enforce' });
@@ -1052,12 +1057,12 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
       candidateSpecSetDigest: artifact!.artifactDigest,
       corpusDigest: artifact!.corpusDigest,
     });
-    const completeReceipt = async (envelope: Record<string, unknown>): Promise<{ runId: string; receiptId: string }> => {
+    const completeReceipt = async (envelope: Record<string, unknown> | (() => Record<string, unknown>)): Promise<{ runId: string; receiptId: string }> => {
       const submitted = await createHostRunHandlers(
         { store, root: candidateRoot, scanRoot: join(candidateRoot, 'packages/main') },
         { runner: async () => ({
           stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed',
-          finalAssistantResult: JSON.stringify(envelope),
+          finalAssistantResult: JSON.stringify(typeof envelope === 'function' ? envelope() : envelope),
           finalAssistantResultCount: 1,
           finalAssistantResultTruncated: false,
         }) },
@@ -1100,25 +1105,24 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
       scanRoot: join(candidateRoot, 'packages/main'),
     });
 
-    const rejectedPass = await completeReceipt(envelope('pass', manifest(['packages/main/src/example.ts'])));
-    assert.throws(
-      () => handlers.managed_review_evidence_import(rejectedPass),
-      /candidate routing evidence rejected: read manifest is missing candidate full reads/,
-      'a managed pass with matching routing digests but no full candidate read is rejected',
-    );
-    assert.equal(store.readReviewPasses(STORY_ID).passes.length, 0,
-      'rejected candidate-incomplete managed pass creates no REVIEW evidence');
+    if (scenario !== 'complete') {
+      const rejected = await completeReceipt(envelope(scenario, manifest(['packages/main/src/example.ts'])));
+      assert.throws(
+        () => handlers.managed_review_evidence_import(rejected),
+        /candidate routing evidence rejected: read manifest is missing candidate full reads/,
+        `a managed ${scenario} with matching routing digests but no full candidate read is rejected`,
+      );
+      assert.equal(store.readReviewPasses(STORY_ID).passes.length, 0,
+        'candidate-incomplete managed evidence creates no REVIEW pass');
+      assert.equal(store.readFindings(STORY_ID).findings.length, 0,
+        'candidate-incomplete managed evidence creates no REVIEW finding');
+      continue;
+    }
 
-    const rejectedFinding = await completeReceipt(envelope('findings', manifest(['packages/main/src/example.ts'])));
-    assert.throws(
-      () => handlers.managed_review_evidence_import(rejectedFinding),
-      /candidate routing evidence rejected: read manifest is missing candidate full reads/,
-      'a managed finding with matching routing digests but no full candidate read is rejected',
-    );
-    assert.equal(store.readFindings(STORY_ID).findings.length, 0,
-      'rejected candidate-incomplete managed finding creates no REVIEW evidence');
-
-    const acceptedPass = await completeReceipt(envelope('pass', manifest(artifact.candidateSpecSet)));
+    const acceptedPass = await completeReceipt(() => ({
+      ...envelope('pass', manifest([])),
+      ...managedReadEvidence(candidateRoot),
+    }));
     assert.match(
       handlers.managed_review_evidence_import(acceptedPass),
       /Managed review evidence imported/,
@@ -1136,6 +1140,7 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
     rmSync(candidateRoot, { recursive: true, force: true });
   }
 }
+}
 
 async function main(): Promise<void> {
   assertHostOwnedMutationEnvDropsReviewerDispatchAuthority();
@@ -1146,6 +1151,21 @@ async function main(): Promise<void> {
   try {
     const brokerKeys = generateEd25519KeyPair();
     const { store, run, nativeDispatch } = seedReviewStory(root, brokerKeys.publicKey);
+    let attemptSequence = 0;
+    const newAttempt = (name: string): ReviewRun => {
+      // Separate experiments need distinct signed runs, not another dispatch
+      // that supersedes the native-authority control shared by this fixture.
+      const reviewRunId = `${REVIEW_RUN_ID}:${name}-${++attemptSequence}`;
+      const headHash = currentGitHead(root)!;
+      const materialHash = currentMaterialHash(root)!;
+      const storyFilesHash = currentStoryFilesHash(root)!;
+      const attempt: ReviewRun = { ...run, reviewRunId, headHash, materialHash, storyFilesHash,
+        _hash: signReviewRun(STORY_ID, reviewRunId, LANE, LANE, REVIEW_ROUND,
+          REVIEW_ROUND, headHash, materialHash, run.promptHash, undefined, undefined, storyFilesHash),
+      };
+      store.writeReviewRuns(STORY_ID, { runs: [...store.readReviewRuns(STORY_ID).runs, attempt] });
+      return attempt;
+    };
     if (process.argv[2] === '--descriptor-proposal-transport') {
       await assertDescriptorBackedProviderProposalTransport(root, store, run);
       console.log('managed-review-evidence descriptor-proposal-transport PASS');
@@ -1439,12 +1459,13 @@ async function main(): Promise<void> {
     // proposal capability and arbitrary streamed output is not an evidence
     // source. This injected runner is the same public adapter seam used by the
     // production Codex/Claude runners.
+    const finalResultReviewRunId = newAttempt('finalResult').reviewRunId;
     const finalEnvelope = JSON.stringify({
       schemaVersion: 'lattice.managed_review_final_proposal.v1',
       storyId: STORY_ID,
       providerAgent: LANE,
       lane: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: finalResultReviewRunId,
       conclusion: 'pass',
       note: 'The provider reviewed the exact managed material and found no blocking issue.',
       ...managedReadEvidence(root),
@@ -1464,7 +1485,7 @@ async function main(): Promise<void> {
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: codexMultiMessageRunner },
     ).host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: finalResultReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: 5_000, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: finalResultRun.run.runId })).run.terminal !== null,
@@ -1484,42 +1505,47 @@ async function main(): Promise<void> {
       ),
     });
 
+    const finalEnvelopeFor = (reviewRunId: string): string => JSON.stringify({ ...JSON.parse(finalEnvelope), reviewRunId });
+
     // Force the exact worker TOCTOU window after the initial no-proposal read,
     // but before the final-result writer takes the immutable-file fence.
     const submitProposalRace = async (
-      runner: HostRunRunner,
-      afterManagedReviewProposalPreRead?: (args: { runId: string }) => void,
-    ) => submitManagedHostRun({
+      runnerFor: (reviewRunId: string) => HostRunRunner,
+      afterManagedReviewProposalPreRead?: (args: { runId: string; reviewRunId: string }) => void,
+    ) => {
+      const raceRun = newAttempt('proposal-race');
+      return submitManagedHostRun({
       root,
       cwd: root,
       host: 'codex',
       storyId: STORY_ID,
       phase: 'REVIEW',
       agentType: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: raceRun.reviewRunId,
       lane: LANE,
-      promptText: buildManagedReviewerPrompt(root, run),
+      promptText: buildManagedReviewerPrompt(root, raceRun),
       deadlineMs: 5_000,
       projectRootHash: `sha256:${'a'.repeat(64)}`,
       profile: 'managed_reviewer',
       reviewBinding: {
-        headHash: run.headHash,
-        materialHash: run.materialHash,
-        storyFilesHash: run.storyFilesHash ?? '',
-        promptHash: run.promptHash,
-        envelopeId: run.envelopeId ?? null,
+        headHash: raceRun.headHash,
+        materialHash: raceRun.materialHash,
+        storyFilesHash: raceRun.storyFilesHash ?? '',
+        promptHash: raceRun.promptHash,
+        envelopeId: raceRun.envelopeId ?? null,
       },
     }, {
       launchWorker: async request => {
         void runManagedHostRunWorker(request, {
-          runner,
-          afterManagedReviewProposalPreRead: args => afterManagedReviewProposalPreRead?.({ runId: args.runId }),
+          runner: runnerFor(raceRun.reviewRunId),
+          afterManagedReviewProposalPreRead: args => afterManagedReviewProposalPreRead?.({ runId: args.runId, reviewRunId: raceRun.reviewRunId }),
         });
         return { pid: process.pid };
       },
       claimTimeoutMs: 2_000,
       claimPollMs: 10,
     });
+    };
 
     // B-137a:F-187 regression. The cross-provider aggregate launches this
     // smoke after several long-running child suites. Reproduce an otherwise
@@ -1527,6 +1553,7 @@ async function main(): Promise<void> {
     // than the former 2s test-only allowance. It must still claim and reach a
     // completed terminal; this is deliberately not a retry or a relaxation of
     // the formal evidence terminal contract.
+    const delayedClaimReviewRunId = newAttempt('delayedClaim').reviewRunId;
     let delayedClaimWorkerError: unknown = null;
     let resolveDelayedClaimWorker: (() => void) | null = null;
     const delayedClaimWorkerFinished = new Promise<void>(resolve => {
@@ -1539,9 +1566,9 @@ async function main(): Promise<void> {
       storyId: STORY_ID,
       phase: 'REVIEW',
       agentType: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: delayedClaimReviewRunId,
       lane: LANE,
-      promptText: buildManagedReviewerPrompt(root, run),
+      promptText: buildManagedReviewerPrompt(root, store.readReviewRuns(STORY_ID).runs.find(candidate => candidate.reviewRunId === delayedClaimReviewRunId)!),
       deadlineMs: MANAGED_REVIEW_DESCRIPTOR_DEADLINE_MS,
       projectRootHash: `sha256:${'f'.repeat(64)}`,
       profile: 'managed_reviewer',
@@ -1558,7 +1585,7 @@ async function main(): Promise<void> {
           void runManagedHostRunWorker(request, {
             runner: async () => ({
               stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed',
-              finalAssistantResult: finalEnvelope,
+              finalAssistantResult: finalEnvelopeFor(delayedClaimReviewRunId),
               finalAssistantResultCount: 1,
               finalAssistantResultTruncated: false,
             }),
@@ -1585,16 +1612,16 @@ async function main(): Promise<void> {
 
     let compatibilityProviderEnv: NodeJS.ProcessEnv | null = null;
     const compatibilityRaceRun = await submitProposalRace(
-      async plan => {
+      reviewRunId => async plan => {
         compatibilityProviderEnv = { ...plan.env };
         return {
           stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed',
-          finalAssistantResult: finalEnvelope,
+          finalAssistantResult: finalEnvelopeFor(reviewRunId),
           finalAssistantResultCount: 1,
           finalAssistantResultTruncated: false,
         };
       },
-      ({ runId }) => {
+      ({ runId, reviewRunId }) => {
         writeManagedReviewEvidenceProposal({
           root,
           runId,
@@ -1603,7 +1630,7 @@ async function main(): Promise<void> {
             storyId: STORY_ID,
             providerAgent: LANE,
             lane: LANE,
-            reviewRunId: REVIEW_RUN_ID,
+            reviewRunId,
             conclusion: 'pass',
             note: 'Compatibility proposal won exactly after the final-result pre-read.',
             ...managedReadEvidence(root),
@@ -1633,9 +1660,9 @@ async function main(): Promise<void> {
     });
 
     const corruptCompatibilityRaceRun = await submitProposalRace(
-      async () => ({
+      reviewRunId => async () => ({
         stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed',
-        finalAssistantResult: finalEnvelope,
+        finalAssistantResult: finalEnvelopeFor(reviewRunId),
         finalAssistantResultCount: 1,
         finalAssistantResultTruncated: false,
       }),
@@ -1654,7 +1681,7 @@ async function main(): Promise<void> {
       'a corrupt competing proposal retains fail-closed final-result semantics');
 
     const missingProposalRun = await submitProposalRace(
-      async () => ({ stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' }),
+      reviewRunId => async () => ({ stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' }),
     );
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: missingProposalRun.runId })).run.terminal !== null,
       'missing proposal control run did not reach terminal');
@@ -1693,7 +1720,7 @@ async function main(): Promise<void> {
         const schemaIndex = plan.argv.indexOf('--json-schema');
         assert.ok(schemaIndex >= 0 && typeof plan.argv[schemaIndex + 1] === 'string',
           'public managed Claude launch supplies its bounded structured-output schema');
-        const fencedProse = `Review complete.\n\`\`\`json\n${finalEnvelope}\n\`\`\``;
+        const fencedProse = `Review complete.\n\`\`\`json\n${finalEnvelopeFor(REVIEW_RUN_ID)}\n\`\`\``;
         return defaultHostRunRunner({
           ...plan,
           command: process.execPath,
@@ -1701,7 +1728,7 @@ async function main(): Promise<void> {
             type: 'result',
             subtype: 'success',
             result: fencedProse,
-            structured_output: JSON.parse(finalEnvelope),
+            structured_output: JSON.parse(finalEnvelopeFor(REVIEW_RUN_ID)),
           })}\n`)})`],
         });
       } },
@@ -1729,9 +1756,20 @@ async function main(): Promise<void> {
     if (previousWorkerCapabilityFd === undefined) delete process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;
     else process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD = previousWorkerCapabilityFd;
 
+    // Resolving a finding creates authoritative append-only lifecycle records.
+    // Keep that experiment in its own project instead of erasing only its mirror.
+    const findingsBeforeLifecycleCase = structuredClone(store.readFindings(STORY_ID));
+    {
+      const root = mkdtempSync(join(tmpdir(), 'managed-finding-lifecycle-'));
+      try {
+      const {store, run} = seedReviewStory(root, brokerKeys.publicKey);
+      const handlers = createManagedReviewEvidenceHandlers({store, root, scanRoot: join(root, 'packages/main')});
+    const findingsFinalReviewRunId = REVIEW_RUN_ID;
     const findingsExplanation = 'Provider explanation remains diagnostic and cannot become a formal finding or evidence field.';
     const findingsEnvelope = JSON.stringify({
-      ...JSON.parse(finalEnvelope),
+      schemaVersion: 'lattice.managed_review_final_proposal.v1',
+      storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: findingsFinalReviewRunId,
+      ...managedReadEvidence(root),
       conclusion: 'findings',
       note: findingsExplanation,
       findings: [{
@@ -1751,7 +1789,7 @@ async function main(): Promise<void> {
         finalAssistantResultTruncated: false,
       }) },
     ).host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: findingsFinalReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: findingsRun.run.runId })).run.terminal !== null,
@@ -1776,7 +1814,6 @@ async function main(): Promise<void> {
     // managed finding deadlocked the gate at any severity. Import the finding,
     // then walk it through BOTH terminal lifecycle transitions and assert the
     // receipt survives each one. Re-pinning the literal makes this fail.
-    const f100FindingsBefore = structuredClone(store.readFindings(STORY_ID).findings);
     const f100ImportOutput = handlers.managed_review_evidence_import({
       runId: findingsRun.run.runId,
       receiptId: findingsReceipt.receiptId,
@@ -1804,7 +1841,7 @@ async function main(): Promise<void> {
         root,
         storyId: STORY_ID,
         agent: current!.agent ?? LANE,
-        reviewRunId: current!.reviewRunId ?? REVIEW_RUN_ID,
+        reviewRunId: current!.reviewRunId ?? findingsFinalReviewRunId,
         lane: LANE,
         binding: current!.managedEvidenceBinding!,
         expected: f100Expected,
@@ -1861,12 +1898,6 @@ async function main(): Promise<void> {
       'F-100 fixture: finding_resolve actually moved the lifecycle status',
     );
     verifyF100('after finding_resolve (status=resolved)');
-    // Restore the pre-fixture finding set: later checks in this smoke assert on
-    // exact finding counts, so this regression fixture must leave no residue.
-    store.writeFindings(STORY_ID, { findings: f100FindingsBefore });
-    assert.equal(store.readFindings(STORY_ID).findings.length, f100FindingsBefore.length,
-      'F-100 fixture leaves the finding set exactly as it found it');
-
     // B-137a:F-120: the runtime artifact reads after the receipt/proposal guard
     // are now inside the same fail-closed try/catch (see
     // managed-review-evidence.ts). This suite deliberately carries NO negative
@@ -1887,7 +1918,7 @@ async function main(): Promise<void> {
       root,
       storyId: STORY_ID,
       agent: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: findingsFinalReviewRunId,
       lane: LANE,
       binding: f100Imported!.managedEvidenceBinding!,
       expected: {
@@ -1904,12 +1935,18 @@ async function main(): Promise<void> {
     assert.equal(f120Verification.valid, true,
       `F-120: an intact managed run must still verify cleanly (reason=${f120Verification.reason ?? 'none'})`);
 
+      } finally { resetConfigCache(); rmSync(root, {recursive: true, force: true}); }
+    }
+    assert.deepEqual(store.readFindings(STORY_ID), findingsBeforeLifecycleCase,
+      'independent finding lifecycle case leaves the main fixture unchanged');
+
     for (const control of [
       { name: 'missing', result: {} },
       { name: 'malformed', result: { finalAssistantResult: '{', finalAssistantResultCount: 1, finalAssistantResultTruncated: false } },
       { name: 'multiple', result: { finalAssistantResult: finalEnvelope, finalAssistantResultCount: 2, finalAssistantResultTruncated: false } },
       { name: 'oversize', result: { finalAssistantResult: null, finalAssistantResultCount: 1, finalAssistantResultTruncated: true } },
     ] as const) {
+      const controlledReviewRunId = newAttempt(`final-control-${control.name}`).reviewRunId;
       const controlled = await createHostRunHandlers(
         { store, root, scanRoot: join(root, 'packages/main') },
         { runner: async () => ({
@@ -1917,7 +1954,7 @@ async function main(): Promise<void> {
           ...control.result,
         }) },
       ).host_run({
-        host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+        host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: controlledReviewRunId, lane: LANE,
         managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
       }) as HostRunDetachResult;
       await eventually(async () => (await getManagedHostRunStatus({ root, runId: controlled.run.runId })).run.terminal !== null,
@@ -1934,10 +1971,11 @@ async function main(): Promise<void> {
     // transport E2E in normal mode: its deadline/worker scheduling is not an
     // evaluator boundary and must not obscure the intended mutant refusal.
     if (!evaluatorMutationBoundary) {
+    const sanitizedReviewRunId = newAttempt('sanitized').reviewRunId;
     let sanitizedAttestation: ReturnType<typeof signManagedReviewProposalInvocation> | null = null;
     const sanitizedToolRunner: HostRunRunner = async plan => {
       const gatePath = join(root, `${plan.env.LATTICE_MANAGED_HOST_RUN_ID}-sanitized-tool.go`);
-      const child = spawn(process.execPath, [SELF, '--sanitized-proposal-tool', root, gatePath], {
+      const child = spawn(process.execPath, [SELF, '--sanitized-proposal-tool', root, gatePath, sanitizedReviewRunId], {
         cwd: root,
         detached: true,
         env: { PATH: process.env.PATH ?? '/usr/bin:/bin' },
@@ -1959,7 +1997,7 @@ async function main(): Promise<void> {
         storyId: STORY_ID,
         providerAgent: LANE,
         lane: LANE,
-        reviewRunId: REVIEW_RUN_ID,
+        reviewRunId: sanitizedReviewRunId,
         providerIdentity,
         invocationNonce: randomUUID(),
         issuedAt: new Date().toISOString(),
@@ -1993,7 +2031,7 @@ async function main(): Promise<void> {
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: sanitizedToolRunner },
     ).host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: sanitizedReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: 5_000, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: sanitizedRun.run.runId })).run.terminal !== null,
@@ -2013,7 +2051,7 @@ async function main(): Promise<void> {
       storyId: STORY_ID,
       providerAgent: LANE,
       lane: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: sanitizedReviewRunId,
       conclusion: 'pass',
       note: 'An old provider invocation attestation cannot authorize a later write.',
       ...managedReadEvidence(root),
@@ -2039,6 +2077,7 @@ async function main(): Promise<void> {
     // fake-Codex fd-3 transport assertion. Do not let transport setup obscure
     // an evaluator mutation's intended boundary.
     if (!evaluatorMutationBoundary) {
+    const descriptorReviewRunId = newAttempt('descriptor').reviewRunId;
     const fakeBin = join(root, PROOF_OR_STOP_DIR, 'runtime', 'fake-provider-bin');
     mkdirSync(fakeBin, { recursive: true });
     const fakeCodex = join(fakeBin, 'codex');
@@ -2046,7 +2085,7 @@ async function main(): Promise<void> {
       storyId: STORY_ID,
       providerAgent: LANE,
       lane: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: descriptorReviewRunId,
       conclusion: 'pass',
       note: 'Real descriptor-brokered Codex-style tool submitted this exact verdict.',
       ...managedReadEvidence(root),
@@ -2082,9 +2121,9 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       storyId: STORY_ID,
       phase: 'REVIEW',
       agentType: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: descriptorReviewRunId,
       lane: LANE,
-      promptText: buildManagedReviewerPrompt(root, run),
+      promptText: buildManagedReviewerPrompt(root, store.readReviewRuns(STORY_ID).runs.find(candidate => candidate.reviewRunId === descriptorReviewRunId)!),
       deadlineMs: MANAGED_REVIEW_DESCRIPTOR_DEADLINE_MS,
       projectRootHash: `sha256:${'1'.repeat(64)}`,
       profile: 'managed_reviewer',
@@ -2183,6 +2222,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     let releasePreterminal!: () => void;
     let duplicateProposalRejected = false;
     const preterminalGate = new Promise<void>(resolve => { releasePreterminal = resolve; });
+    const preterminalReviewRunId = newAttempt('preterminal').reviewRunId;
     const preterminalHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2190,7 +2230,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
           storyId: STORY_ID,
           providerAgent: LANE,
           lane: LANE,
-          reviewRunId: REVIEW_RUN_ID,
+          reviewRunId: preterminalReviewRunId,
           conclusion: 'pass' as const,
           note: 'Provider proposal exists but the terminal has not been sealed yet.',
           ...managedReadEvidence(root),
@@ -2206,7 +2246,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const preterminal = await preterminalHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: preterminalReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => duplicateProposalRejected, 'provider proposal was not durably written before the preterminal assertion');
@@ -2222,6 +2262,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     let releaseForgery!: () => void;
     let forgedTargetEnvironment: NodeJS.ProcessEnv | null = null;
     const forgeryGate = new Promise<void>(resolve => { releaseForgery = resolve; });
+    const forgeryReviewRunId = newAttempt('forgery').reviewRunId;
     const forgeryHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2231,7 +2272,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const forgeryRun = await forgeryHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: forgeryReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: 5_000, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => forgedTargetEnvironment !== null, 'managed provider did not receive its proposal environment');
@@ -2239,7 +2280,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       storyId: STORY_ID,
       providerAgent: LANE,
       lane: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: forgeryReviewRunId,
       conclusion: 'pass' as const,
       note: 'Authentic provider-only proposal capability control.',
       ...managedReadEvidence(root),
@@ -2336,6 +2377,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       'a successful terminal without an authenticated provider proposal remains inadmissible',
     );
 
+    const failedReviewRunId = newAttempt('failed').reviewRunId;
     const failedHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2344,7 +2386,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
           runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,
           environment: plan.env,
           proposal: {
-            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: failedReviewRunId,
             conclusion: 'pass', note: 'Provider proposal cannot survive a failed provider terminal.',
             ...managedReadEvidence(root),
           },
@@ -2353,7 +2395,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const failed = await failedHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: failedReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: failed.run.runId })).run.state === 'failed', 'failed managed reviewer did not reach terminal');
@@ -2367,6 +2409,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     let releaseCancelled!: () => void;
     let cancelledProposalReady = false;
     const cancelledGate = new Promise<void>(resolve => { releaseCancelled = resolve; });
+    const cancelledReviewRunId = newAttempt('cancelled').reviewRunId;
     const cancelledHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2375,7 +2418,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
           runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,
           environment: plan.env,
           proposal: {
-            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: cancelledReviewRunId,
             conclusion: 'pass', note: 'Cancellation must defeat this otherwise authentic proposal.',
             ...managedReadEvidence(root),
           },
@@ -2386,7 +2429,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const cancelled = await cancelledHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: cancelledReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => cancelledProposalReady, 'cancelled managed reviewer did not publish its provider proposal');
@@ -2404,6 +2447,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       /producer_owned_required|signature_invalid/,
       'a cancelled terminal cannot upgrade an authentic provider proposal into REVIEW evidence',
     );
+    const timedOutReviewRunId = newAttempt('timedOut').reviewRunId;
     const timedOutHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2412,7 +2456,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
           runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,
           environment: plan.env,
           proposal: {
-            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: timedOutReviewRunId,
             conclusion: 'pass', note: 'Timed-out evidence control.',
             ...managedReadEvidence(root),
           },
@@ -2421,7 +2465,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const timedOut = await timedOutHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: timedOutReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: timedOut.run.runId })).run.state === 'timed_out',
@@ -2434,6 +2478,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     );
 
     let rawProposalRejected = false;
+    const rawReviewRunId = newAttempt('raw').reviewRunId;
     const rawHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async plan => {
@@ -2443,7 +2488,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
             runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,
             environment: plan.env,
             proposal: {
-              storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+              storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: rawReviewRunId,
               conclusion: 'pass', note: 'Raw execution must not author formal reviewer evidence.',
               ...managedReadEvidence(root),
             },
@@ -2455,7 +2500,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const raw = await rawHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: rawReviewRunId, lane: LANE,
       prompt: 'manual raw reviewer prompt', detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: raw.run.runId })).run.state === 'completed', 'raw control run did not complete');
@@ -2475,7 +2520,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     assert.equal(passes.length, 1);
     assert.equal(passes[0]?.agent, LANE);
     assert.equal(passes[0]?.writerSessionId, `managed:${submitted.runId}`);
-    assert.deepEqual(passes[0]?.readManifest?.filesReadFully, ['packages/main/src/example.ts']);
+    assert.deepEqual(passes[0]?.readManifest?.filesReadFully, ['docs/requirements/decisions/managed-review-evidence.md', 'packages/main/src/example.ts']);
     assert.equal(passes[0]?.managedEvidenceBinding?.receiptId, receipt.receiptId);
 
     const managedBinding = readManagedHostRunBinding(root, submitted.runId);
@@ -2852,8 +2897,10 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     store.writeReviewPasses(STORY_ID, { passes: passesBeforeDuplicateMutation });
 
     const findingsBeforeNativeBroker = structuredClone(store.readFindings(STORY_ID).findings);
+    const nativeFindingReviewRunId = newAttempt('native-finding').reviewRunId;
     const nativeFindingClaims = {
       ...invocationClaims,
+      reviewRunId: nativeFindingReviewRunId,
       writerSessionId: 'native-brokered-finding-session',
       invocationNonce: randomUUID(),
       issuedAt: new Date().toISOString(),
@@ -2864,7 +2911,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       storyId: STORY_ID,
       agent: LANE,
       lane: LANE,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: nativeFindingReviewRunId,
       identity: {
         sessionId: nativeFindingClaims.writerSessionId,
         sessionSource: 'host-adapter',
@@ -2895,7 +2942,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       agent: LANE,
       createdAt: new Date().toISOString(),
       reviewRound: REVIEW_ROUND,
-      reviewRunId: REVIEW_RUN_ID,
+      reviewRunId: nativeFindingReviewRunId,
       nativeEvidenceBinding: nativeFindingBinding,
       _hash: '',
     };
@@ -3285,12 +3332,13 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     }, 'cross-provider CLI without a managed receipt remains advisory-only');
     store.writeReviewPasses(STORY_ID, { passes: [originalPass] });
 
+    const findingRaceReviewRunId = newAttempt('findingRace').reviewRunId;
     const findingHandlers = createHostRunHandlers(
       { store, root, scanRoot: join(root, 'packages/main') },
       { runner: async () => {
         const finalAssistantResult = JSON.stringify({
           schemaVersion: 'lattice.managed_review_final_proposal.v1',
-            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: findingRaceReviewRunId,
             conclusion: 'findings',
             findings: [{
               desc: 'packages/main/src/example.ts:1 managed provider found a blocking behavior defect',
@@ -3305,13 +3353,13 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const findingRun = await findingHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: findingRaceReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: findingRun.run.runId })).run.state === 'completed', 'managed finding run did not complete');
     const findingReceipt = managedHostRunReceipt(root, findingRun.run.runId);
     const secondFindingRun = await findingHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'claude', storyId: STORY_ID, agentType: LANE, reviewRunId: findingRaceReviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: secondFindingRun.run.runId })).run.state === 'completed',
@@ -3402,7 +3450,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
           runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,
           environment: plan.env,
           proposal: {
-            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN_ID,
+            storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: readManagedHostRunBinding(root, plan.env.LATTICE_MANAGED_HOST_RUN_ID!).reviewRunId!,
             conclusion: 'pass', note: 'A second authentic receipt is a distinct provider proposal, never a rewrite of the first.',
             ...managedReadEvidence(root),
           },
@@ -3411,7 +3459,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       } },
     );
     const secondReceiptRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: secondReceiptRun.run.runId })).run.state === 'completed',
@@ -3423,7 +3471,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       'an authentic receipt from a different run cannot be swapped onto the already imported provider proposal',
     );
     const thirdReceiptRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: thirdReceiptRun.run.runId })).run.state === 'completed',
@@ -3472,7 +3520,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     );
 
     const prePersistCrashRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({
@@ -3513,7 +3561,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     // would have selected. The retry must allocate its own next identity and
     // seal it, not collide with a stale pre-persistence binding.
     const interveningRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: interveningRun.run.runId })).run.state === 'completed',
@@ -3546,7 +3594,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       'the retry seals the recovered receipt against its own durable RP id');
 
     const crashRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: crashRun.run.runId })).run.state === 'completed',
@@ -3602,7 +3650,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     // gate-inadmissible, then prove a normal retry seals the same receipt and
     // does not allocate another review pass.
     const bindingSealCrashRun = await secondReceiptHandlers.host_run({
-      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      host: 'codex', storyId: STORY_ID, agentType: LANE, reviewRunId: newAttempt('receipt-recovery').reviewRunId, lane: LANE,
       managedReview: true, detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true,
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({
@@ -3759,7 +3807,7 @@ if (process.argv[2] === '--proposal-worker') {
     process.exitCode = 1;
   });
 } else if (process.argv[2] === '--sanitized-proposal-tool') {
-  sanitizedProposalToolMain(process.argv[3] ?? '', process.argv[4] ?? '').catch(error => {
+  sanitizedProposalToolMain(process.argv[3] ?? '', process.argv[4] ?? '', process.argv[5] ?? '').catch(error => {
     console.error(error instanceof Error ? error.stack : String(error));
     process.exitCode = 1;
   });

@@ -117,9 +117,14 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  // Current registered source snapshots, not execution evidence for these modules.
+  for (const file of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts"]) {
+    if (!existsSync(join(root, file))) write(root, file, "export const fixtureDependency = true;\n");
+  }
+
   // Current registered producer/consumer snapshots must exist even though this
   // fixture isolates discovery and does not execute those dependency modules.
-  for (const name of ['evidence-freshness', 'material-path-policy', 'review-convergence',
+  for (const name of ['scope-inventory-budget', 'evidence-freshness', 'material-path-policy', 'review-convergence',
     'shared-validation-execution', 'story-aware-validation', 'story-owner-lease', 'validation-execution-lock',
     'acceptance-amendment-journal', 'convergence-progress-gate', 'convergence-progress-journal',
     'host-run', 'planned-steps-executor', 'proof-or-stop-dispatch', 'provider-process-admission',
@@ -2553,7 +2558,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(basisOnly = false
       root,
       scanRoot: join(root, 'packages/main'),
     }).acceptance_basis_generate({ storyId });
-    assert.match(basisOutput, /Acceptance coverage basis: complete/);
+    assert.match(basisOutput, /Acceptance coverage basis: complete/, JSON.stringify(store.readAcceptanceBasis(storyId)));
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');

@@ -22,6 +22,8 @@ const [
   { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody },
   { StoryStore },
   { createDeliveryCheckHandlers },
+  { createStoryDispatchHandlers },
+  { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, withBrokeredNativeDeliveryInvocation },
   { buildDoneClosureRunbook },
   { createPlaybookRuntimeMemoryHandlers },
 ] = await Promise.all([
@@ -35,6 +37,8 @@ const [
   load('core/prompt-role-contract-registry.js'),
   load('core/store.js'),
   load('handlers/delivery-check.js'),
+  load('handlers/story-dispatch.js'),
+  load('tasks/native-review-fixture.js'),
   load('handlers/done-closure.js'),
   load('handlers/playbook-runtime-memory.js'),
 ]);
@@ -97,6 +101,7 @@ try {
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2));
   write(root, 'packages/main/src/index.ts', 'export const stable = true;\n');
   write(root, 'docs/requirements/decisions/parity.md', '# parity fixture\n');
@@ -153,7 +158,8 @@ try {
     materialHash,
   });
   const ctx = { store, root, scanRoot: join(root, 'packages/main'), log: () => {} };
-  createDeliveryCheckHandlers(ctx).delivery_check_set({
+  withNativeReviewFixtureHostIdentity({ agent: 'proof-or-stop-review-delivery', invoke: () => createStoryDispatchHandlers(ctx).dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-review-delivery' }) });
+  withBrokeredNativeDeliveryInvocation({ root, store, storyId: STORY_ID, invoke: () => createDeliveryCheckHandlers(ctx).delivery_check_set({
     storyId: STORY_ID,
     docsPromises: [],
     realMachineTests: [{ featureId: 'done-parity', transcript: 'synthetic executable parity probe' }],
@@ -164,7 +170,7 @@ try {
       summary: 'The real DONE guard and done_prepare oracle are compared on identical state.',
     },
     agentId: 'proof-or-stop-review-delivery',
-  });
+  }) });
 
   const missingReason = getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '';
   const missingRows = buildDoneClosureRunbook(ctx, STORY_ID).blockers;

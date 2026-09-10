@@ -731,6 +731,7 @@ export function isProviderExecutionSurfaceCandidate(relativePath: string, source
 
 /** Auditable inventory; the source-contract smoke rejects unclassified spawns. */
 export const PROVIDER_EXECUTION_SURFACES: readonly ProviderExecutionSurface[] = Object.freeze([
+  { path: 'core/managed-review-provider-state.ts', status: 'readiness_probe', admissionOwner: null, note: 'Private file-cache capture/materialization imports Claude auth environment names only; no child-process launch or provider workload.' },
   { path: 'core/managed-review-lane.ts', status: 'readiness_probe', admissionOwner: null, note: 'Trusted isolated runtime compiler uses the validation executor with machine CPU/process claims; never launches a provider.' },
   { path: 'core/managed-review-readonly.ts', status: 'readiness_probe', admissionOwner: null, note: 'Bounded local OS write-isolation capability probe only; provider launch remains inside host-run admission.' },
   { path: 'providers/supervised-process.ts', status: 'admission_only', admissionOwner: 'core/provider-process-admission.ts', note: 'Synchronous bridge launch retains both admission slots unless control proof and group exit establish cleanup.' },

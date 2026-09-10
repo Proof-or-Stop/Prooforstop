@@ -486,7 +486,9 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // byte-identical to main. The only change is the structured watchdog command
   // list plus the evidence-writer abort/deadline injection, so this whole-file
   // structural fingerprint simply moves with that edit.
-  ['packages/main/src/cli-engine.ts', '22c8878385de3f11fa6a64657a700c1a46b7c6cfe2c73cce17437b8fb7ed08cf'],
+  // 2a3132ab47/7f0981e941: watchdog budget/continuation wiring and static
+  // imports changed; the runCli initPath producer and import expression did not.
+  ['packages/main/src/cli-engine.ts', '449328f3f0b94be40d58dcf8c9f27cadb2cf72ce635f60f36a50a7ea07ef6c08'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -548,7 +550,10 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // e15e0bbc2f adds only the statically imported readManagedRunDashboard callback
+  // to both createApp options. Runtime module resolution/import targets and
+  // eval/Function surfaces are unchanged; exact mutation-sensitive pin retained.
+  ['packages/main/src/handlers/graph.ts', 'de4cc2a94af9ce74baa02f6e5aea2aa3dc0e34f01b9ce00210268fa3dc464cf4'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -1030,9 +1035,16 @@ function assertTypeProgramInstrumentation(): void {
   const syntheticBindingBuilds = [...typeProgramInstrumentation.dynamicBindingBuildFiles]
     .filter(([file]) => file.includes('dynamic-code-control-'))
     .reduce((total, [, count]) => total + count, 0);
-  const repoBuildSample = [...typeProgramInstrumentation.dynamicBindingBuildFiles.keys()]
-    .filter(file => !file.includes('dynamic-code-control-')).slice(0, 12).join(',');
-  assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= 850, `dynamic binding graph builds must remain bounded at 850, got ${typeProgramInstrumentation.dynamicBindingBuilds} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`);
+  // Fixed mutation corpus remains bounded independently of growing repository inputs.
+  assert.ok(syntheticBindingBuilds <= 419, `synthetic dynamic binding builds exceed the fixed corpus bound: ${syntheticBindingBuilds}`);
+  const warmProgram = sharedProjectProgram();
+  const warmSource = warmProgram.getSourceFile(resolve(repoRoot, 'packages/main/src/cli-engine.ts'))!;
+  const coldOrCached = collectDynamicExecutionBindings(warmSource, warmProgram.getTypeChecker(), warmProgram);
+  const buildsBeforeWarm = typeProgramInstrumentation.dynamicBindingBuilds;
+  const hitsBeforeWarm = typeProgramInstrumentation.dynamicBindingCacheHits;
+  assert.strictEqual(collectDynamicExecutionBindings(warmSource, warmProgram.getTypeChecker(), warmProgram), coldOrCached, 'warm binding graph preserves identity');
+  assert.equal(typeProgramInstrumentation.dynamicBindingBuilds, buildsBeforeWarm, 'warm binding graph does not rebuild');
+  assert.equal(typeProgramInstrumentation.dynamicBindingCacheHits, hitsBeforeWarm + 1, 'warm binding graph uses the cache');
   assert.ok(typeProgramInstrumentation.dynamicAstCandidateScans >= 1, 'decoded AST candidates missed by the raw token hint must reach full analysis');
   assert.ok(typeProgramInstrumentation.dynamicPrefilterSkips >= 1, 'call-free sources must retain the cheap AST skip path');
   assert.equal(typeProgramInstrumentation.dynamicReachabilityAssertions, DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size, 'critical safe provenance reachability count must remain exact');
@@ -1769,7 +1781,10 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // e15e0bbc2f adds only the statically imported readManagedRunDashboard callback
+  // to both createApp options. Runtime module resolution/import targets and
+  // eval/Function surfaces are unchanged; exact mutation-sensitive pin retained.
+  ['packages/main/src/handlers/graph.ts', 'de4cc2a94af9ce74baa02f6e5aea2aa3dc0e34f01b9ce00210268fa3dc464cf4'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -2512,6 +2527,7 @@ function functionCallableReference(
   return staticallyCallableKind(expression, checker, bindings);
 }
 
+const dynamicBindingBuildInputs = new WeakMap<ts.Program, WeakSet<ts.SourceFile>>();
 const dynamicBindingsCache = new WeakMap<ts.Program, WeakMap<ts.SourceFile, DynamicExecutionBindings>>();
 const exactSafeMutableWriteCache = new WeakMap<ts.Symbol, boolean>();
 
@@ -2538,6 +2554,11 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     typeProgramInstrumentation.dynamicBindingCacheHits += 1;
     return cached;
   }
+  assert.ok(program, 'dynamic binding cache must have a Program identity');
+  let builtInputs = dynamicBindingBuildInputs.get(program);
+  if (!builtInputs) { builtInputs = new WeakSet(); dynamicBindingBuildInputs.set(program, builtInputs); }
+  assert.ok(!builtInputs.has(source), 'DYNAMIC_BINDING_REBUILT_SAME_INPUT: a Program/SourceFile pair must build once');
+  builtInputs.add(source);
   typeProgramInstrumentation.dynamicBindingBuilds += 1;
   typeProgramInstrumentation.dynamicBindingBuildFiles.set(
     source.fileName,

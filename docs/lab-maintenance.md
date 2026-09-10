@@ -71,7 +71,11 @@ checked again. Only after post-merge verification and reachability checks does t
 command remove the generated override, clean worktree and merged branch. It never
 uses force removal, a hard reset, a forced branch deletion or a push. Existing
 mechanical restrictions are not disabled. Long checks hold the main write lock;
-other writers must wait or retry. The command timeout is 15 minutes per process.
+other writers must wait or retry. The default command timeout is 15 minutes per process. Long regression commands
+may declare `--timeout-ms MS` between the RED marker and `--` (1–3600000 ms).
+The signed RED record binds that budget; GREEN and integration checks replay it
+unchanged. Existing records retain the 15-minute default. A timeout never counts
+as target RED or passing GREEN.
 
 Local HMAC-bound command records and captured output stay in the Git common
 `lab-maintenance/` directory after worktree cleanup. They are tool-owned local

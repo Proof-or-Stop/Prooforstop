@@ -94,8 +94,8 @@ try {
     priority: 'medium',
     background,
     checklist: [
-      { title: 'Item with a delivered claim', context: 'ctx-claim', userSees: CLAIM },
-      { title: 'Item with no delivered claim', context: 'ctx-none' }, // no userSees
+      { title: 'Item with a delivered claim', context: 'ctx-claim', userSees: CLAIM, verificationIntent: { happy: [{ desc: 'Done transition captures the delivered claim exactly once', type: 'logic', priority: 'must' }] } },
+      { title: 'Item with no delivered claim', context: 'ctx-none', verificationIntent: { happy: [{ desc: 'An item without a delivered claim does not acquire a snapshot', type: 'logic', priority: 'must' }] } }, // no userSees
     ],
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];

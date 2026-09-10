@@ -17,6 +17,8 @@
  */
 
 import assert from 'node:assert/strict';
+import {nativeReviewFixtureBrokers,withNativeReviewFixtureHostIdentity,issueBrokeredNativeReviewBinding} from './native-review-fixture.js';
+import {createMainRegistry} from '../registry.js';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -65,7 +67,8 @@ function writeConfig(root: string): void {
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
-      doneRequiredCommands: [
+      nativeReviewInvocation:{brokers:nativeReviewFixtureBrokers()},
+            doneRequiredCommands: [
         { label: 'required pass', command: process.execPath, args: ['-e', 'process.exit(0)'] },
       ],
     }, null, 2) + '\n',
@@ -172,10 +175,17 @@ async function createDoneReadyFixture(): Promise<{
       headHash, materialHash, storyFilesHash: storyFilesHash ?? undefined, promptHash, scopeBinding,
       _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, 'round-1', NOW, headHash, materialHash, promptHash, scopeBinding.bindingHash, undefined, storyFilesHash ?? undefined) };
   }) });
-  store.writeReviewPasses(STORY_ID, { passes: lanes.map((lane, index) => {
+  const dispatch=createMainRegistry({root,store,scanRoot:join(root,'packages/main')}).get('dispatch');
+  assert.ok(dispatch, 'native reviewer dispatch is registered');
+    store.writeStory(STORY_ID,{...store.readStory(STORY_ID),phase:'REVIEW'});
+    for(const agent of lanes)withNativeReviewFixtureHostIdentity({agent,invoke:()=>dispatch({storyId:STORY_ID,agentType:agent})});
+    store.writeStory(STORY_ID,{...store.readStory(STORY_ID),phase:'TEST'});
+    store.writeReviewPasses(STORY_ID, { passes: lanes.map((lane, index) => {
     const id = `RP-${index}`; const reviewRunId = `${STORY_ID}:${lane}`; const note = 'Signed historical snapshot regression fixture';
-    return { id, agent: lane, reviewRound: 'round-1', createdAt: NOW, reviewRunId, note,
-      _hash: signReviewPass(STORY_ID, id, lane, note, NOW, 'round-1', reviewRunId) };
+    const nativeEvidenceBinding=issueBrokeredNativeReviewBinding({root,store,storyId:STORY_ID,agent:lane,reviewRunId});
+        const provenance={writerSessionId:nativeEvidenceBinding.writerSessionId,sessionSource:nativeEvidenceBinding.sessionSource};
+        return { id, agent: lane, reviewRound: 'round-1', createdAt: NOW, reviewRunId, note,nativeEvidenceBinding,...provenance,
+      _hash: signReviewPass(STORY_ID, id, lane, note, NOW, 'round-1', reviewRunId,undefined,undefined,undefined,provenance,undefined,undefined,nativeEvidenceBinding) };
   }) });
 
   const docsPromises: DocsPromise[] = [];

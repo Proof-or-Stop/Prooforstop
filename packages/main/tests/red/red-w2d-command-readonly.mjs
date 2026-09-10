@@ -443,10 +443,16 @@ try {
   );
   /** Read-only git subcommands, with the exact read-only sub-form required. */
   const READ_ONLY_GIT = {
-    'rev-parse': (argv) => argv.slice(2).every((a) => /^(?:--verify|--quiet|--show-toplevel|--git-common-dir)$/.test(a) || /\^\{commit\}$/.test(a)),
+    'rev-parse': (argv) => JSON.stringify(argv.slice(2)) === JSON.stringify(['--is-inside-work-tree', '--path-format=absolute', '--git-common-dir']) || argv.slice(2).every((a) => /^(?:--verify|--quiet|--show-toplevel|--git-common-dir)$/.test(a) || /\^\{commit\}$/.test(a)),
     show: (argv) => argv.length === 3 && argv[2].includes(':'),
     worktree: (argv) => argv[2] === 'list',
   };
+  // The optimized root probe is one exact read-only form, not permission for arbitrary flags.
+  assert.equal(READ_ONLY_GIT['rev-parse'](['git', 'rev-parse', '--is-inside-work-tree', '--path-format=absolute', '--git-common-dir']), true);
+  for (const extra of ['--verify', '--output=/tmp/forbidden', '--git-dir=/tmp/foreign']) {
+    assert.equal(READ_ONLY_GIT['rev-parse'](['git', 'rev-parse', '--is-inside-work-tree', '--path-format=absolute', '--git-common-dir', extra]), false,
+      `optimized root probe must reject extra argument ${extra}`);
+  }
   for (const call of spawns) {
     const argv = argvOf(call);
     assert.equal(argv[0], 'git', `every child process must be git; observed ${argv.join(' ')}`);

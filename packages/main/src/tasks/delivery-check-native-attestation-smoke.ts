@@ -29,10 +29,10 @@ try {
   git('config', 'user.name', 'Smoke');
   git('config', 'user.email', 'smoke@example.test');
   writeFileSync(join(root, 'README.md'), 'delivery native authority smoke\n');
-  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), `${JSON.stringify({
     nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2)}\n`);
-  git('add', 'README.md', 'lattice.config.json');
+  git('add', 'README.md', 'proof-or-stop.config.json');
   git('commit', '-m', 'init');
 
   const store = new StoryStore(root);
@@ -63,7 +63,7 @@ try {
     host: 'codex',
     invoke: () => createStoryDispatchHandlers(ctx).dispatch({
       storyId,
-      agentType: 'lattice-review-delivery',
+      agentType: 'proof-or-stop-review-delivery',
     }),
   });
 
@@ -122,6 +122,8 @@ try {
     const delivery = store.readDeliveryCheck(storyId);
     assert.equal(delivery?.agentId, 'lattice-review-delivery');
     assert.ok(delivery?.nativeEvidenceBinding, 'delivery check persists the broker evidence binding it consumed');
+    assert.equal(evaluateDeliveryCheckFreshness(storyId, store, root, root).ok, true,
+      'canonical delivery dispatch preserves valid broker provenance at the DONE reader');
     const originalHash = delivery!._hash;
     delivery!.nativeEvidenceBinding = { ...delivery!.nativeEvidenceBinding!, brokerId: 'forged-broker' };
     store.writeDeliveryCheck(storyId, delivery!);

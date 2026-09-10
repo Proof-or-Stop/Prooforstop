@@ -462,6 +462,9 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // Finding ledger/runtime integrity RED guard, while B-1482 CHK-003 registered
 // test:narrowing-repin. The combined inventory retains both entries and moves
 // the digest to 5da99a65.... Name the story and item here,
+// Lab U01–U18 expands the registered inventory from 134 to 153 commands,
+// including explicit fixture wrappers and independently registered suite members.
+// Recomputed through configuredValidationCommands -> buildValidationCommandInventory.
 // never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning', () => {
@@ -501,7 +504,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // 129-entry inventory form a 132-entry union without losing either side;
   // B-e256 then adds its global launcher row, and the lab-worktree guard brings
   // the merged inventory to 134 entries.
-  assert.equal(real.commandSetDigest, 'b5e05c15917f461d8ba72b3369fe3637968ac26c542469281d419ee9b2a46a03', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // Current union: 153 entries; seven synthetic suites now enter through the
+  // fixture wrapper. Every original leaf remains present; only their argv changed.
+  assert.equal(real.commandSetDigest, '89f94becdafacd5136e82651d28e604e711169a24d9a3003fa429eeab9ed0924', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

@@ -465,7 +465,7 @@ try {
         storyId,
         'root-cwd run reconciliation resolves the immutable managed run Story subject',
       );
-      for (const command of ['host_run_cancel', 'host_run_status'] as const) {
+      for (const command of ['host_run_cancel'] as const) {
         assert.throws(
           () => enforceStoryOwnerLeaseGate(command, { runId: managedRunId }, store, { storyId: ownStoryId }, root),
           (err: Error) => err.message.includes(storyId) && err.message.includes('owner-gated'),
@@ -477,6 +477,20 @@ try {
           `${command} rejects the foreign run owner from root cwd without an active Story`,
         );
       }
+
+      // Status is a read-only projection; cancellation still owns the mutation gate above.
+      const foreignLeaseBeforeStatus = readFileSync(ownerLeasePath(storyDir), 'utf8');
+      const localLeaseBeforeStatus = readFileSync(ownerLeasePath(ownStoryDir), 'utf8');
+      for (const active of [{ storyId: ownStoryId }, null]) {
+        assert.doesNotThrow(
+          () => enforceStoryOwnerLeaseGate('host_run_status', { runId: managedRunId }, store, active, root),
+          'read-only status remains available across Story owners without acquiring their lease',
+        );
+      }
+      assert.equal(readFileSync(ownerLeasePath(storyDir), 'utf8'), foreignLeaseBeforeStatus,
+        'status does not renew or replace the foreign Story owner lease');
+      assert.equal(readFileSync(ownerLeasePath(ownStoryDir), 'utf8'), localLeaseBeforeStatus,
+        'status does not renew the unrelated active Story owner lease');
 
       // 5f. An unclassified command is rejected fail-closed by the gate.
       assert.throws(

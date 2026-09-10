@@ -469,6 +469,7 @@ function buildDoneReadyFixture(storyId: string): { root: string; store: StorySto
 
   const store = new StoryStore(root);
   store.writeStory(storyId, syntheticStory(storyId, 'TEST'));
+    store.writeChecklist(storyId, {items: []});
   const headHash = currentGitHead(root);
   const materialHash = currentMaterialHash(root, 'HEAD', root);
   assert.ok(headHash, 'fixture must have a git HEAD');

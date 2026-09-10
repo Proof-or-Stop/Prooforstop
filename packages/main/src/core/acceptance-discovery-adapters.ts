@@ -424,7 +424,9 @@ export function enumerateBoundedSourceTree(
 // 64 KiB. A 128 KiB single-file ceiling admits that real authority source while
 // remaining independently bounded well below the 2 MiB lexical-source limit
 // and the 100 MiB aggregate inventory budget.
-const MAX_PROOF_OR_STOP_CONFIG_BYTES = 128 * 1024;
+// The approved root ownership policy is larger than 128 KiB. Keep the
+// config bounded by the existing per-source read ceiling, not an unbounded read.
+export const MAX_PROOF_OR_STOP_CONFIG_BYTES = 2 * 1024 * 1024;
 
 /**
  * Which project-config spelling this snapshot should read (B-cc10 CHK-004).

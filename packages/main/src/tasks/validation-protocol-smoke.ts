@@ -1679,12 +1679,34 @@ try {
   // execution or rewriting the evidence it was asked to consume.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
-  function seedValidateGateSkipRoot(prefix: string, storyId: string): {
+  const { signTestValidationEvidence } = await import('../core/validation-artifact-signing.js');
+  async function produceOnceOnlyGateEvidence(root: string, store: StoryStore, storyId: string): Promise<any> {
+    // Real producer: the configured command passes once; any accidental gate
+    // rerun fails without changing its command/config/environment identity.
+    const oldCwd = process.cwd();
+    try {
+      process.chdir(root);
+      acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
+      gitQuiet(root, ['add', `.proof-or-stop/story/actives/${storyId}`]);
+      gitQuiet(root, ['commit', '-m', 'seed gate producer story']);
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
+      const result = JSON.parse(await createVerifierHandlers({ root, store, scanRoot: join(root, 'packages/main') })
+        .validate({ story: storyId, json: true, noSync: true }));
+      assert.equal(result.status, 'pass', JSON.stringify(result));
+      assert.equal(result.commandExecutions, 1);
+      const evidence = store.readTestEvidence(storyId);
+      assert.ok(evidence?.validationArtifactSignature, 'real producer signs the gate fixture');
+      return evidence;
+    } finally { process.chdir(oldCwd); }
+  }
+
+
+  async function seedValidateGateSkipRoot(prefix: string, storyId: string): Promise<{
     root: string;
     store: StoryStore;
     storyId: string;
     evidence: any;
-  } {
+  }> {
     const root = mkdtempSync(join(tmpdir(), prefix));
     writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
@@ -1692,7 +1714,7 @@ try {
       storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
-          { label: 'failing skip guard rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+          { label: 'failing skip guard rerun', command: process.execPath, args: ['-e', "const fs=require('fs'),p='.git/validation-once';if(fs.existsSync(p))process.exit(5);fs.writeFileSync(p,'once');console.log('ONCE_PASS')"] },
         ],
       },
     }));
@@ -1719,16 +1741,7 @@ try {
     // acquire, so B-5a15's causal preflight probes an available writer instead of
     // refusing with writerLease:writer_unavailable before validate can run.
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: transitionFallbackRoot });
-    const evidence: any = {
-      command: `proof-or-stop validate --story=${storyId} --json`,
-      output: '{"allPass":true,"summary":"already passed"}',
-      result: 'PASS' as const,
-      timestamp: '2026-05-16T03:01:00.000Z',
-      headHash: currentGitHead(root)!,
-      materialHash: currentMaterialHash(root, 'HEAD', root)!,
-      storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
-      verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
-    };
+    const evidence: any = await produceOnceOnlyGateEvidence(root, store, storyId);
     // origin/main merge: this fixture drives runValidateGate directly, which bypasses the
     // CLI ownership gate that a real story-scoped validate goes through. B-5a15 added a
     // causal preflight that probes writer availability (causal-evidence.ts:911), and with
@@ -1750,11 +1763,12 @@ try {
     mutateEvidence?: (evidence: any) => void;
     mutateAfterCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
   }): Promise<void> {
-    const fixture = seedValidateGateSkipRoot(`proof-or-stop-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
+    const fixture = await seedValidateGateSkipRoot(`proof-or-stop-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
     try {
       args.prepareBeforeEvidenceCommit?.(fixture);
       args.mutateEvidence?.(fixture.evidence);
-      fixture.store.writeTestEvidence(fixture.storyId, fixture.evidence);
+      // Test-only re-attestation isolates the original semantic refusal from signature integrity.
+      fixture.store.writeTestEvidence(fixture.storyId, signTestValidationEvidence(fixture.storyId, fixture.evidence, fixture.root));
       gitQuiet(fixture.root, ['add', `.proof-or-stop/story/actives/${fixture.storyId}`]);
       gitQuiet(fixture.root, ['commit', '-m', `record ${args.name} validation evidence`]);
       args.mutateAfterCommit?.(fixture);
@@ -1802,7 +1816,7 @@ try {
       storyDir: '.proof-or-stop/story/actives',
       validate: {
         commands: [
-          { label: 'would fail if rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+          { label: 'would fail if rerun', command: process.execPath, args: ['-e', "const fs=require('fs'),p='.git/validation-once';if(fs.existsSync(p))process.exit(5);fs.writeFileSync(p,'once');console.log('ONCE_PASS')"] },
         ],
       },
     }));
@@ -1830,27 +1844,18 @@ try {
     // acquire, so B-5a15's causal preflight probes an available writer instead of
     // refusing with writerLease:writer_unavailable before validate can run.
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateFreshRoot });
-    const evidence = {
-      command: `proof-or-stop validate --story=${storyId} --json`,
-      output: '{"allPass":true,"summary":"already passed"}',
-      result: 'PASS' as const,
-      timestamp: '2026-05-16T03:01:00.000Z',
-      headHash: currentGitHead(gateFreshRoot)!,
-      materialHash: currentMaterialHash(gateFreshRoot, 'HEAD', gateFreshRoot)!,
-      storyFilesHash: currentStoryFilesHash(gateFreshRoot, 'HEAD', gateFreshRoot)!,
-      verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
-    };
+    const evidence: any = await produceOnceOnlyGateEvidence(gateFreshRoot, store, storyId);
     assert.ok(evidence.headHash, 'fresh skip smoke must bind headHash');
     assert.ok(evidence.materialHash, 'fresh skip smoke must bind materialHash');
     assert.ok(evidence.storyFilesHash, 'fresh skip smoke must bind storyFilesHash');
-    store.writeTestEvidence(storyId, evidence);
+    store.writeTestEvidence(storyId, signTestValidationEvidence(storyId, evidence, gateFreshRoot));
     persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: gateFreshRoot });
     gitQuiet(gateFreshRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateFreshRoot, ['commit', '-m', 'record fresh validation evidence']);
     evidence.headHash = currentGitHead(gateFreshRoot)!;
     evidence.materialHash = currentMaterialHash(gateFreshRoot, 'HEAD', gateFreshRoot)!;
     evidence.storyFilesHash = currentStoryFilesHash(gateFreshRoot, 'HEAD', gateFreshRoot)!;
-    store.writeTestEvidence(storyId, evidence);
+    store.writeTestEvidence(storyId, signTestValidationEvidence(storyId, evidence, gateFreshRoot));
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
@@ -1869,7 +1874,7 @@ try {
     resetConfigCache();
   }
 
-  const gateWarningRoot = seedValidateGateSkipRoot('proof-or-stop-validate-gate-warning-skip-', 'B-vgate-warning');
+  const gateWarningRoot = await seedValidateGateSkipRoot('proof-or-stop-validate-gate-warning-skip-', 'B-vgate-warning');
   try {
     gateWarningRoot.store.writeTestEvidence(gateWarningRoot.storyId, gateWarningRoot.evidence);
     gitQuiet(gateWarningRoot.root, ['add', `.proof-or-stop/story/actives/${gateWarningRoot.storyId}`]);
@@ -2073,7 +2078,8 @@ try {
     assert.ok(legacyEvidence.headHash, 'legacy no coverage smoke must bind headHash');
     assert.ok(legacyEvidence.materialHash, 'legacy no coverage smoke must bind materialHash');
     assert.ok(legacyEvidence.storyFilesHash, 'legacy no coverage smoke must bind storyFilesHash');
-    store.writeTestEvidence(storyId, legacyEvidence);
+    // Signed test-only legacy shape isolates the missing-coverage refusal.
+    store.writeTestEvidence(storyId, signTestValidationEvidence(storyId, legacyEvidence, gateLegacyNoCoverageRoot));
     gitQuiet(gateLegacyNoCoverageRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'record legacy validation evidence']);
     persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: gateLegacyNoCoverageRoot });
@@ -2151,7 +2157,7 @@ try {
     assert.ok(staleEvidence.headHash, 'stale rerun smoke must bind headHash');
     assert.ok(staleEvidence.materialHash, 'stale rerun smoke must bind materialHash');
     assert.ok(staleEvidence.storyFilesHash, 'stale rerun smoke must bind storyFilesHash');
-    store.writeTestEvidence(storyId, staleEvidence);
+    store.writeTestEvidence(storyId, signTestValidationEvidence(storyId, staleEvidence, gateStaleRoot));
     gitQuiet(gateStaleRoot, ['add', `.proof-or-stop/story/actives/${storyId}`]);
     gitQuiet(gateStaleRoot, ['commit', '-m', 'record stale validation evidence']);
     writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 3;\n');

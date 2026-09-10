@@ -37,6 +37,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import {acquireOwnerLease,releaseOwnerLease} from '../core/story-owner-lease.js';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -247,7 +248,7 @@ function assertSessionBriefExcludesWithdrawn(): void {
   }
 }
 
-function run(): void {
+async function run(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'b1909-withdrawn-disposition-'));
   try {
     // A fresh temp root carries NO proof-or-stop.config.json, so config resolves to
@@ -470,13 +471,20 @@ function run(): void {
     // A checklist of done + withdrawn items satisfies the DEV→REVIEW every-item
     // terminal guard (withdrawn is recorded-undeliverable, no longer outstanding).
     const sGuard = 'B-guard-terminal';
+        execFileSync('git',['init','-b','main'],{cwd:root,stdio:'ignore'});
+        execFileSync('git',['config','user.email','withdrawn@example.invalid'],{cwd:root});
+        execFileSync('git',['config','user.name','Withdrawn Fixture'],{cwd:root});
     seedStory(h.store, sGuard, 'DEV');
     h.store.writeChecklist(sGuard, {
       items: [
-        { id: 'CHK-001', title: 'CHK-001', status: 'done', startTime: null, endTime: null },
+        { id: 'CHK-001', title: 'CHK-001', status: 'done', startTime: null, endTime: null, verificationIntent: { happy: [{ desc: 'Completed sibling remains terminal alongside a withdrawn item', type: 'logic', priority: 'must' }] } },
         { id: 'CHK-002', title: 'CHK-002', status: 'withdrawn', decisionRef: 'SD-terminal-fixture', startTime: null, endTime: null },
       ],
     } as ChecklistData);
+execFileSync('git',['add','.'],{cwd:root});
+        execFileSync('git',['commit','-m','guard fixture'],{cwd:root,stdio:'ignore'});
+        acquireOwnerLease(h.store.storyDirPath(sGuard),{command:'verification_evidence_add',cwd:root});
+        try{await h.chk.verification_evidence_add({storyId:sGuard,itemId:'CHK-001',intentRef:'CHK-001:happy:0',kind:'logic_test',result:'pass',command: `node -e "const c=require('fs').readFileSync('${h.store.storyDirPath(sGuard)}/checklist.json','utf8');const a=JSON.parse(c).items;require('assert').deepEqual(a.map(x=>x.status),['done','withdrawn']);console.log('WITHDRAWN_SIBLING_OK')"`,selector:'WITHDRAWN_SIBLING_OK',note:'Actual stored terminal sibling and withdrawn item verified'});}finally{releaseOwnerLease(h.store.storyDirPath(sGuard));}
     assert.equal(
       checklistAllDoneGuard({ store: h.store, storyId: sGuard, projectRoot: root }),
       true,
@@ -658,4 +666,4 @@ function run(): void {
   }
 }
 
-run();
+await run();

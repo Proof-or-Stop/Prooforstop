@@ -253,6 +253,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -313,6 +314,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
         ],
         "focus": [
@@ -541,6 +543,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/done-required-head-drift-proof.js"
         ],
         "resources": [
@@ -835,6 +838,7 @@
         "label": "quorum-submit-smoke",
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/quorum-submit-smoke.js"
         ],
         "timeoutMs": 1200000,
@@ -1134,6 +1138,7 @@
       {
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -1531,6 +1536,7 @@
         "label": "B-212f CHK-003: historical DONE presentation preserves snapshot assurance without reopening live reviewer eligibility, and rejected delivery artifacts remain structured blockers",
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -2419,6 +2425,7 @@
         "label": "B-1482 CHK-003: the narrowing-only evidence re-pin suite (receipt selector persistence, the narrowing-only re-pin and its refusals, CLI reachability, the three registration inventories, the documentation). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/narrowing-repin-smoke.js"
         ],
         "timeoutMs": 180000,
@@ -6842,7 +6849,8 @@
           "tests/fixtures/.gitkeep",
           "tests/fixtures/README.md",
           "tests/helpers/README.md",
-          "tests/helpers/index.ts"
+          "tests/helpers/index.ts",
+          "scripts/verify-remaining-validation-repairs.mjs"
         ],
         "hostAdapters": [],
         "validationGroups": [
