@@ -1,3 +1,5 @@
+import { posix as pathPosix } from 'node:path';
+
 // DEV acceptance transport uses only proof-or-stop.acceptance_amendment_review_final.v1; old inner schemas cannot be produced or consumed. The outer worker-signed receipt remains a compatibility container, never an alias for the inner schema.
 export const REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY = { versionTimeoutMs: 10000, readinessTimeoutMs: 30000, maxRecordBytes: 4194304, ordinaryProfile: 'managed_reviewer', generatedPathPlan: { schema: 'batch-generated-paths.v1', probeCwd: 'canonical-verified-subject-workspace', providerHome: 'controller/provider-seeds/work/generation/host/provider-host', probeTemp: 'controller/provider-seeds/work/generation/host/tmp', lanePaths: 'separately-sealed-readonly-layout-no-base-env-omission' } } as const;
 export const MANAGED_PROVIDER_SEED_RUNTIME_POLICY = { maxFiles: 2, encodedFileMultiplier: 4, envelopeAllowanceBytes: 4096 } as const;
@@ -258,17 +260,21 @@ export type RuntimeFactRegistryMappingFailure =
 
 export class RuntimeFactRegistryMappingError extends Error {
   readonly code = 'registry-component-mapping-unavailable' as const;
+  readonly reason: RuntimeFactRegistryMappingFailure;
 
-  constructor(readonly reason: RuntimeFactRegistryMappingFailure, detail: string) {
+  constructor(reason: RuntimeFactRegistryMappingFailure, detail: string) {
     super(`registry-component-mapping-unavailable: ${reason}: ${detail}`);
     this.name = 'RuntimeFactRegistryMappingError';
+    this.reason = reason;
   }
 }
 
 const GENERATED_RUNTIME_FACT_PATH_PREFIXES = [
   '.claude/agents/',
   '.proof-or-stop-codex/agents/',
-  'packages/main/dist/',
+  'dist/',
+  'packages/graph/assets/',
+  'tests/output/',
 ] as const;
 
 function compareRuntimeFactUtf8(left: string, right: string): number {
@@ -279,11 +285,10 @@ function normalizeRuntimeFactPath(value: unknown, reason: RuntimeFactRegistryMap
   if (typeof value !== 'string' || value.length === 0 || value.trim() !== value || value.includes('\0')) {
     throw new RuntimeFactRegistryMappingError(reason, 'path must be a non-empty exact string');
   }
-  const slashPath = value.replaceAll('\\', '/');
-  if (pathPosix.isAbsolute(slashPath)) {
+  if (value.includes('\\') || /^[A-Za-z]:/u.test(value) || pathPosix.isAbsolute(value)) {
     throw new RuntimeFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
   }
-  const normalized = pathPosix.normalize(slashPath).replace(/^\.\//u, '');
+  const normalized = pathPosix.normalize(value).replace(/^\.\//u, '').replace(/\/+$/u, '');
   if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
     throw new RuntimeFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
   }
@@ -316,11 +321,21 @@ function normalizeRuntimeFactMappingEntry(entry: Partial<RuntimeFactRegistryEntr
   const generatedFrom = entry.generatedFrom === undefined
     ? undefined
     : normalizeRuntimeFactPath(entry.generatedFrom, 'runtime-non-total');
-  if (componentId && paths.some(path => GENERATED_RUNTIME_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix)))
+  const generatedPath = (path: string) => GENERATED_RUNTIME_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
+    || path.includes('/dist/')
+    || path.includes('/generated/');
+  if (componentId && paths.some(generatedPath)
     && generatedFrom === undefined) {
     throw new RuntimeFactRegistryMappingError(
       'runtime-generated-without-lineage',
       `${entry.runtimeFactId} maps a generated component path without generatedFrom`,
+    );
+  }
+  if (generatedFrom !== undefined
+    && (componentId === undefined || paths.length !== 1 || !generatedPath(paths[0]) || paths[0] === generatedFrom)) {
+    throw new RuntimeFactRegistryMappingError(
+      'runtime-non-total',
+      `${entry.runtimeFactId} generatedFrom must bind exactly one generated component path to a different source path`,
     );
   }
   return { runtimeFactId: entry.runtimeFactId, kind: entry.kind, paths, componentId, generatedFrom };
@@ -510,4 +525,3 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;
-import { posix as pathPosix } from 'node:path';

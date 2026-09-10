@@ -448,6 +448,14 @@ async function main() {
       const projection = registryModule.projectRuntimeFactRegistry();
       check(projection.length === registry.length && projection.length > 0, 'runtime registry component mapping must be total');
       check(projection.every(entry => !Object.hasOwn(entry, 'generatedFrom')), 'whole runtime registry projection must omit generatedFrom');
+      const componentProjection = registryModule.projectComponentRuntimeFactMapping('P0m', [
+        { runtimeFactId: 'z', kind: 'environment-check', paths: ['z.ts'], componentId: 'P0m' },
+        { runtimeFactId: 'a', kind: 'environment-check', paths: ['a.ts'], componentId: 'P0m' },
+      ]);
+      check(componentProjection.length === 2
+        && componentProjection[0].runtimeFactId === 'a'
+        && componentProjection.every(entry => entry.componentId === 'P0m'),
+      'runtime component-filtered mapping must filter and UTF-8 sort explicit tuples');
       try {
         registryModule.projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]);
         fail('runtime registry verifier accepted a missing mapping');

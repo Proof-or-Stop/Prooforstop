@@ -5296,8 +5296,8 @@ function assertProcessFactMappedSourceContracts(sourceText) {
   assertInitializerPattern(
     commandFactsInitializer,
     'COMMAND_PROCESS_FACTS',
-    /\bPROCESS_FACT_LEVELS\s*[\s\S]*\.filter\s*\(\s*\(entry:\s*ProcessFactLevelEntry\)\s*=>\s*!entry\.name\.startsWith\('flow-policy:'\)\s*\)\s*[\s\S]*\.map\s*\(/,
-    'must map PROCESS_FACT_LEVELS directly while excluding flow-policy facts from command facts',
+    /\bPROCESS_FACT_LEVELS\s*[\s\S]*\.filter\s*\(\s*\(entry:\s*ProcessFactLevelEntry\)\s*=>\s*!entry\.name\.startsWith\('flow-policy:'\)\s*&&\s*entry\.name\s*!==\s*'runtime:story_scope_budget'\s*\)\s*[\s\S]*\.map\s*\(/,
+    'must map PROCESS_FACT_LEVELS directly while excluding flow-policy facts and the explicitly authored story-scope-budget fact',
   );
   assertInitializerPattern(
     commandFactsInitializer,
@@ -10820,25 +10820,25 @@ assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').inclu
     'process-generated-without-lineage',
     'runtime:registry_component_mapping_projection',
   ]) assert(mappingSource.includes(token), `${processFactRegistryPath}: P0m mapping contract missing ${token}`);
-  const mappingModule = await importBuiltModule('packages/main/dist/core/process-fact-registry.js');
-  assert(Boolean(mappingModule), 'compiled process fact registry mapping should exist; run npm run build first');
-  if (mappingModule) {
-    const projection = mappingModule.projectProcessFactRegistry();
-    assert(projection.length === mappingModule.PROCESS_FACT_REGISTRY.length && projection.length > 0,
-      'process registry component mapping must be total');
-    assert(projection.every(entry => !Object.hasOwn(entry, 'generatedFrom')),
-      'whole process registry projection must omit generatedFrom');
-    const p0m = mappingModule.projectComponentProcessFactMapping('P0m');
-    assert(p0m.length > 0 && p0m.every(entry => entry.componentId === 'P0m'),
-      'P0m component-filtered process mapping must be explicit and non-empty');
-    try {
-      mappingModule.projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]);
-      fail('process registry verifier accepted a missing mapping');
-    } catch (error) {
-      assert(error?.code === 'registry-component-mapping-unavailable',
-        'process registry missing mapping must use the typed unavailable diagnostic');
-    }
-  }
+  const sourceProbe = execFileSync(process.execPath, [
+    '--import', join(root, 'scripts/lab-source-loader.mjs'),
+    '--input-type=module',
+    '--eval',
+    `import { PROCESS_FACT_REGISTRY, projectProcessFactRegistry, projectComponentProcessFactMapping } from './packages/main/src/core/process-fact-registry.ts';
+const projection = projectProcessFactRegistry();
+const p0m = projectComponentProcessFactMapping('P0m');
+let refusal = null;
+try { projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }
+process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), p0m: p0m.length, p0mOnly: p0m.every(entry => entry.componentId === 'P0m'), refusal }));`,
+  ], { cwd: root, encoding: 'utf8' });
+  const sourceResult = JSON.parse(sourceProbe);
+  assert(sourceResult.registry > 0 && sourceResult.projection === sourceResult.registry,
+    'current source process registry component mapping must be total');
+  assert(sourceResult.generatedInWhole === false, 'whole process registry projection must omit generatedFrom');
+  assert(sourceResult.p0m > 0 && sourceResult.p0mOnly === true,
+    'P0m component-filtered process mapping must be explicit and non-empty');
+  assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
+    'process registry missing mapping must use the typed unavailable diagnostic');
 }
 if (failures.length) {
   console.error('');

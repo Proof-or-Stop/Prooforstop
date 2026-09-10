@@ -125,18 +125,38 @@ export type ProcessFactRegistryMappingFailure =
 
 export class ProcessFactRegistryMappingError extends Error {
   readonly code = 'registry-component-mapping-unavailable' as const;
+  readonly reason: ProcessFactRegistryMappingFailure;
 
-  constructor(readonly reason: ProcessFactRegistryMappingFailure, detail: string) {
+  constructor(reason: ProcessFactRegistryMappingFailure, detail: string) {
     super(`registry-component-mapping-unavailable: ${reason}: ${detail}`);
     this.name = 'ProcessFactRegistryMappingError';
+    this.reason = reason;
   }
 }
 
-const PROCESS_FACT_REGISTRY_DECLARATION_PATH = 'packages/main/src/core/process-fact-registry.ts';
+const PROCESS_FACT_DECLARATION_PATHS_BY_KIND: Record<ProcessFactKind, readonly string[]> = {
+  artifact: ['packages/main/src/core/process-fact-registry.ts', 'packages/main/src/core/store.ts'],
+  command: ['packages/main/src/core/command-policy.ts', 'packages/main/src/core/process-fact-levels.ts'],
+  'execution-status': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/core/process-fact-registry.ts'],
+  finding: ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/handlers/finding.ts'],
+  'flow-policy': ['packages/main/src/core/flow-fact-policy.ts'],
+  'gate-evidence': ['packages/main/src/core/machine.ts', 'packages/main/src/core/process-fact-levels.ts'],
+  'host-availability-probe': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/handlers/review-escalation.ts'],
+  'host-verdict': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/handlers/quorum-submit.ts'],
+  'prompt-envelope': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/core/prompt-envelope.ts'],
+  'review-pass': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/core/review-run.ts'],
+  'review-run': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/core/review-run.ts'],
+  'reviewer-lane': ['packages/main/src/core/process-fact-registry.ts', 'packages/main/src/core/prompt-role-contract-registry.ts'],
+  'runtime-behavior': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/core/process-fact-registry.ts'],
+  'signed-artifact': ['packages/main/src/core/process-fact-registry.ts', 'packages/main/src/core/validation-artifact-signing.ts'],
+  'validation-status': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/handlers/verifier.ts'],
+};
 const GENERATED_PROCESS_FACT_PATH_PREFIXES = [
   '.claude/agents/',
   '.proof-or-stop-codex/agents/',
-  'packages/main/dist/',
+  'dist/',
+  'packages/graph/assets/',
+  'tests/output/',
 ] as const;
 
 function compareUtf8(left: string, right: string): number {
@@ -147,11 +167,10 @@ function normalizeProcessFactPath(value: unknown, reason: ProcessFactRegistryMap
   if (typeof value !== 'string' || value.length === 0 || value.trim() !== value || value.includes('\0')) {
     throw new ProcessFactRegistryMappingError(reason, 'path must be a non-empty exact string');
   }
-  const slashPath = value.replaceAll('\\', '/');
-  if (pathPosix.isAbsolute(slashPath)) {
+  if (value.includes('\\') || /^[A-Za-z]:/u.test(value) || pathPosix.isAbsolute(value)) {
     throw new ProcessFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
   }
-  const normalized = pathPosix.normalize(slashPath).replace(/^\.\//u, '');
+  const normalized = pathPosix.normalize(value).replace(/^\.\//u, '').replace(/\/+$/u, '');
   if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
     throw new ProcessFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
   }
@@ -159,7 +178,9 @@ function normalizeProcessFactPath(value: unknown, reason: ProcessFactRegistryMap
 }
 
 function isGeneratedProcessFactPath(path: string): boolean {
-  return GENERATED_PROCESS_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix));
+  return GENERATED_PROCESS_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
+    || path.includes('/dist/')
+    || path.includes('/generated/');
 }
 
 function validateOptionalProcessFactIdentity(value: unknown, label: string): string | undefined {
@@ -198,6 +219,13 @@ function normalizeProcessFactMappingEntry(entry: Partial<ProcessFactRegistryEntr
     throw new ProcessFactRegistryMappingError(
       'process-generated-without-lineage',
       `${entry.factId} maps a generated component path without generatedFrom`,
+    );
+  }
+  if (generatedFrom !== undefined
+    && (componentId === undefined || paths.length !== 1 || !isGeneratedProcessFactPath(paths[0]) || paths[0] === generatedFrom)) {
+    throw new ProcessFactRegistryMappingError(
+      'process-non-total',
+      `${entry.factId} generatedFrom must bind exactly one generated component path to a different source path`,
     );
   }
   return { factId: entry.factId, kind: entry.kind, paths, componentId, serializationBoundaryId, generatedFrom };
@@ -256,10 +284,14 @@ export function projectComponentProcessFactMapping(
 }
 
 function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+  const declaredPaths = entry.paths ?? PROCESS_FACT_DECLARATION_PATHS_BY_KIND[entry.kind];
+  if (!declaredPaths) {
+    throw new ProcessFactRegistryMappingError('process-missing', `${entry.name} has no authored mapping for kind ${entry.kind}`);
+  }
   return {
     ...entry,
     factId: entry.factId ?? entry.name,
-    paths: entry.paths ?? [PROCESS_FACT_REGISTRY_DECLARATION_PATH],
+    paths: declaredPaths.map(path => normalizeProcessFactPath(path, 'process-non-total')).sort(compareUtf8),
   };
 }
 
@@ -1379,6 +1411,19 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   producerSourceRefs: readonly string[];
   consumerSourceRefs: readonly string[];
 }> = {
+  'runtime:story_scope_budget': {
+    producerSourceRefs: [
+      'packages/main/src/core/story-scope-budget.ts',
+      'packages/main/src/core/story-scope-budget-decisions.ts',
+      'packages/main/src/core/story-scope-decomposition.ts',
+      'packages/main/src/core/story-scope-budget-legacy.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/acceptance-amendment-journal.ts',
+      'packages/main/src/core/machine.ts',
+      'packages/main/src/handlers/story-review.ts',
+    ],
+  },
   'verification_pin_narrow': {
     producerSourceRefs: [
       'packages/main/src/core/verification-execution-evidence.ts',
@@ -1421,7 +1466,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
 };
 
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
-  .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
+  .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:') && entry.name !== 'runtime:story_scope_budget')
   .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
   const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
@@ -2317,7 +2362,6 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     rationale: 'Project configuration cannot raise the machine pool. Machine refusal releases the local reservation. Identity-aware launchers transfer both tokens to provider groups; release attempts both and unsafe provider results retain capacity. Synchronous launchers transfer both tokens before provider execution and release only after an independent control result and observed group exit; unknown cleanup forbids retry. Capability readiness probes use that same synchronous supervisor before returning READY, retaining auth/timeout classification and refusing unproven cleanup. Ordinary same-group descendants are covered, not daemon process-group escape.',
   },
   {
-    factId: 'runtime:story_scope_budget:implementation-contract',
     name: 'runtime:story_scope_budget', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'],
     producer: 'core/story-scope-budget',
