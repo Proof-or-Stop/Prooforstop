@@ -478,7 +478,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3'],
+  // B-03b7 latest-main integration: command registration moved the whole-file
+  // AST fingerprint, while the initPath producer and dynamic import call site
+  // remain byte-identical to main. The allowlist shape and budget are unchanged.
+  ['packages/main/src/cli-engine.ts', '05ae5fdbdb2335f74fc82e9ab0319524ddceff13a36d912e91b8e4f4f883fc09'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -825,8 +828,10 @@ const typeProgramInstrumentation = {
 // prior split was synthetic=419 plus repo=393, total 812.
 // B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
 // Evidence Integrity sources. Retaining both source sets gives a ceiling of 817.
-const DYNAMIC_BINDING_BUILD_CEILING = 817;
-const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
+// Subsequent main work measures 844. B-03b7 adds nine independently scanned
+// identity/history/route modules, so its latest-main integration is exactly 853.
+const DYNAMIC_BINDING_BUILD_CEILING = 853;
+const MAX_DYNAMIC_BINDING_BUILD_CEILING = 860;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
   assert.ok(
@@ -1059,7 +1064,7 @@ function assertTypeProgramInstrumentation(): void {
     .reduce((total, [, count]) => total + count, 0);
   const repoBuildSample = [...typeProgramInstrumentation.dynamicBindingBuildFiles.keys()]
     .filter(file => !file.includes('dynamic-code-control-')).slice(0, 12).join(',');
-  assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= 850, `dynamic binding graph builds must remain bounded at 850, got ${typeProgramInstrumentation.dynamicBindingBuilds} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`);
+  assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= DYNAMIC_BINDING_BUILD_CEILING, `dynamic binding graph builds must remain bounded at ${DYNAMIC_BINDING_BUILD_CEILING}, got ${typeProgramInstrumentation.dynamicBindingBuilds} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`);
   assert.ok(typeProgramInstrumentation.dynamicAstCandidateScans >= 1, 'decoded AST candidates missed by the raw token hint must reach full analysis');
   assert.ok(typeProgramInstrumentation.dynamicPrefilterSkips >= 1, 'call-free sources must retain the cheap AST skip path');
   assert.equal(typeProgramInstrumentation.dynamicReachabilityAssertions, DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size, 'critical safe provenance reachability count must remain exact');

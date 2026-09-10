@@ -104,7 +104,8 @@ export function resolveEffectiveOwnershipClass(
   if (!isOwnershipClass(declaredClass)) return null;
   let cls: OwnershipClass = declaredClass;
 
-  if ((cmd === 'finding_resolve' || cmd === 'finding_dismiss') && storyId && storyId.startsWith('B-META-')) {
+  if (['finding_resolve', 'finding_dismiss', 'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture'].includes(cmd)
+    && storyId && storyId.startsWith('B-META-')) {
     cls = 'mainSharedMutating';
   }
 

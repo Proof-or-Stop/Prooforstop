@@ -496,6 +496,25 @@ const STRICT_OWNER_META_COMMANDS = new Set([
 ]);
 
 const STRICT_COMMAND_ARG_COMMANDS = new Set([
+  'finding_progress_predecessor',
+  'finding_identity_confirm',
+  'finding_identity_query',
+  'finding_supersession_add',
+  'finding_identity_supersede',
+  'finding_history_query',
+  'finding_identity_scorecard',
+  'finding_history_recall',
+  'finding_route_accept',
+  'finding_route_reject',
+  'finding_route_revoke',
+  'finding_route_verify',
+  'finding_candidate_route',
+  'finding_progress_capture',
+  'finding_candidate_add',
+  'finding_candidate_get',
+  'finding_candidate_merge',
+  'finding_candidate_disprove',
+  'finding_candidate_promote',
   'milestone_status',
   'milestone_closeout',
 ]);

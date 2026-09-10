@@ -516,6 +516,8 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // Derived through configuredValidationCommands -> buildValidationCommandInventory.
   // B-aa5f timeout remediation keeps that inventory intact while raising only
   // verification-run-and-guard-smoke from 600000ms to its audited 1200000ms budget.
+  // B-03b7 CHK-001 registers the identity-lineage delivery campaign and frozen
+  // RED/GREEN replay without dropping any predecessor, yielding 143 commands.
   for (const required of [
     'packages/main/tests/red/red-done-prepare-done-parity.mjs',
     'packages/main/tests/red/red-done-shared-predicates.mjs',
@@ -527,9 +529,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
      'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
      'packages/main/tests/canonical-new-story-artifacts.test.mjs',
    ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-   // Lab integration preserves the complete current main inventory and its timeouts;
-   // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
-   assert.equal(real.commandSetDigest, 'a01e632023f3a066c76cc92c32ed0796fc2c538b2ea19152418be3b04e08020e', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // Lab integration preserves the complete current main inventory and its timeouts;
+  // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
+  assert.equal(real.commandSetDigest, 'b83e9f7390c0bb06f54c92adfe53a8dd6694e0ff8ee9af82f19911f19693d82b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

@@ -2,6 +2,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
@@ -210,6 +211,25 @@ const processFactRegistryKinds = new Set([
   'artifact',
 ]);
 const requiredProcessFactSemantics = {
+  finding_progress_predecessor: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_confirm: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_query: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_supersession_add: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_supersede: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_history_query: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_scorecard: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_history_recall: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_accept: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_reject: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_revoke: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_verify: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_route: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_progress_capture: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_add: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_get: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_merge: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_disprove: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_promote: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
@@ -2186,7 +2206,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3',
+    '05ae5fdbdb2335f74fc82e9ab0319524ddceff13a36d912e91b8e4f4f883fc09',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -9798,6 +9818,185 @@ assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
 assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
+// B-03b7: Story2 semantics are separate from Story3 persistence authority.
+// Mutation probes protect the checker itself; the focused task exercises actual IO.
+function candidateBoundaryIssues(core, handler, store, policy) {
+  const issues = [];
+  if (/^import(?! type).*from ['"](?:node:|.*(?:store|finding-ledger)\.js)/m.test(core)) issues.push('pure core IO import');
+  for (const marker of ['assertIdentityJson', 'Reflect.ownKeys', 'canonicalHash(row) !== canonicalHash(value)', 'verifyCanonical(unsigned, signature',
+    'evidenceAnchors: anchors', 'validateCandidateReproductionAttestation']) {
+    if (!core.includes(marker)) issues.push(`strict semantic guard ${marker}`);
+  }
+  for (const marker of ['assertCurrentReviewRunForEvidence', 'verifyCausalEvidenceReceipt', 'verifiedIdentityCarrier', 'candidate-reproduced:',
+    'candidate.reproductionContract', 'materializeCandidateReproductionCommand', 'receipt.identity.command', 'reproductionContract.selector',
+    'receipt.identity.storyFilesHash', 'source.envelope.producedAt',
+    'args.reproductionAttestation.selector !== reproductionContract.selector', "kind: 'candidate_reproduction_attestation'",
+    'candidateProjectionHash: candidate.currentProjectionHash', 'reproductionContractHash: identityHash(reproductionContract)',
+    'reproductionReceiptHash: args.reproductionReceiptHash', 'findingRef', 'reviewRunId: args.reviewRunId', 'reviewer: actor']) {
+    if (!handler.includes(marker)) issues.push(`promotion evidence ${marker}`);
+  }
+  if (/\.(?:finding_add|writeFindings|writeStory)\s*\(/.test(handler)) issues.push('candidate handler mutates Finding/lifecycle');
+  for (const marker of ['verifyFindingLedgerReceipt', 'verifyIdentityEnvelope', 'captureMkdirLockFence', 'expectedPriorLedgerDigest: old.priorLedgerDigest', 'old.casBindings', 'requestDigest !== requestDigest']) {
+    if (!store.includes(marker)) issues.push(`signed persistence ${marker}`);
+  }
+  if (!policy.includes("lifecycleAuthority: 'none'") || !policy.includes('gateEvidence: false')) issues.push('candidate gate authority');
+  return issues;
+}
+const candidateSources = [read('packages/main/src/core/finding-identity.ts'), read('packages/main/src/handlers/finding-identity.ts'),
+  read('packages/main/src/handlers/finding-identity-store.ts'), read(processFactRegistryPath).split('export const PROCESS_FACT_STORY2_CANDIDATE_POLICY =')[1]?.split('} as const;')[0] ?? ''];
+for (const issue of candidateBoundaryIssues(...candidateSources)) fail(`Story2 candidate boundary: ${issue}`);
+for (const [index, before, after] of [[0, 'canonicalHash(row) !== canonicalHash(value)', 'false'], [0, 'validateCandidateReproductionAttestation', 'acceptUnboundAttestation'],
+  [1, 'verifyCausalEvidenceReceipt', 'acceptCallerClaim'],
+  [1, 'materializeCandidateReproductionCommand', 'acceptAnyCommand'], [1, 'reproductionContract.selector', 'marker'],
+  [1, 'args.reproductionAttestation.selector !== reproductionContract.selector', 'false'],
+  [1, "kind: 'candidate_reproduction_attestation'", "kind: 'candidate'"],
+  [2, 'verifyFindingLedgerReceipt', 'acceptUnsignedReceipt'], [3, 'gateEvidence: false', 'gateEvidence: true']]) {
+  const mutation = [...candidateSources]; mutation[index] = mutation[index].replaceAll(before, after);
+  assert(candidateBoundaryIssues(...mutation).length > 0, `Story2 candidate verifier must catch ${before} removal`);
+}
+function routeBoundaryIssues(route, progress, handler, policy) {
+  const issues = [];
+  for (const source of [route, progress]) if (/^import(?! type).*from ['"](?:node:(?!crypto)|.*(?:store|finding-ledger)\.js)/m.test(source)) issues.push('pure route/progress IO import');
+  for (const [source, markers] of [[route, ['receiptSubjectDigest', 'assertReceiptCurrent', 'evidenceAuthority', 'target_route_semantic_only']],
+    [progress, ['assertProjectionSubject', 'verifyIdentityEnvelope', 'assertProgressTransition', 'predecessorBaselineDigest', 'target signer mismatch']],
+    [handler, ['withIdentityLedgerLocks', 'verifyAssessmentProposal', 'proposalScopeDigest', 'proposalFindingHash', 'baselineSetForReceipt', 'execution predates', 'sourceRouteRecord']]]) {
+    for (const marker of markers) if (!source.includes(marker)) issues.push(`route/progress guard ${marker}`);
+  }
+  if (!policy.includes('gateEvidence: false') || !policy.includes("lifecycleAuthority: 'none'")) issues.push('route gate authority');
+  if (/\.(?:writeFindings|writeStory|finding_dismiss|finding_resolve)\s*\(/.test(handler)) issues.push('route handler mutates lifecycle');
+  return issues;
+}
+const routeSources = [read('packages/main/src/core/finding-route.ts'), read('packages/main/src/core/finding-progress.ts'),
+  read('packages/main/src/handlers/finding-route.ts'), read(processFactRegistryPath).split('export const PROCESS_FACT_STORY2_ROUTE_POLICY =')[1]?.split('} as const;')[0] ?? ''];
+for (const issue of routeBoundaryIssues(...routeSources)) fail(`Story2 route boundary: ${issue}`);
+for (const [index, marker] of [[0, 'assertReceiptCurrent'], [1, 'assertProjectionSubject'], [1, 'verifyIdentityEnvelope'], [2, 'verifyAssessmentProposal'], [2, 'withIdentityLedgerLocks'], [3, 'gateEvidence: false']]) {
+  const mutation = [...routeSources]; mutation[index] = mutation[index].replaceAll(marker, 'REMOVED_GUARD');
+  assert(routeBoundaryIssues(...mutation).length > 0, `Story2 route verifier must detect removal of ${marker}`);
+}
+function historyBoundaryIssues(core, handler, store, policy) {
+  const issues = [];
+  if (/^import(?! type).*from ['"](?:node:(?!crypto)|.*(?:store|finding-ledger)\.js)/m.test(core)) issues.push('pure history IO import');
+  for (const [source, markers] of [[core, ['validateHistoryGraph', 'indexDigest', 'canonicalCurrent']],
+    [handler, ['withIdentityCatalogLock', 'triggerDigest', 'verifiedIdentityCarrier', 'currentConsent']],
+    [store, ['strictMirror: true', 'historicalFindingRef']], [policy, ['gateEvidence: false', "lifecycleAuthority: 'none'"]]]) {
+    for (const marker of markers) if (!source.includes(marker)) issues.push(`missing ${marker}`);
+  }
+  return issues;
+}
+const historySources = [read('packages/main/src/core/finding-history.ts'), read('packages/main/src/handlers/finding-history.ts'),
+  read('packages/main/src/handlers/finding-identity-store.ts'), read(processFactRegistryPath).split('export const PROCESS_FACT_STORY2_HISTORY_POLICY =')[1]?.split('} as const;')[0] ?? ''];
+for (const issue of historyBoundaryIssues(...historySources)) fail(`Story2 history boundary: ${issue}`);
+for (const [index, marker] of [[0, 'validateHistoryGraph'], [1, 'triggerDigest'], [1, 'verifiedIdentityCarrier'], [2, 'strictMirror: true'], [3, 'gateEvidence: false']]) {
+  const mutation = [...historySources]; mutation[index] = mutation[index].replaceAll(marker, 'REMOVED_GUARD');
+  assert(historyBoundaryIssues(...mutation).length > 0, `Story2 history verifier must detect removal of ${marker}`);
+}
+// Independent Story2 gate-isolation matrix. Inspect actual declarations rather
+// than deriving expectations from the policy being checked, then mutate each axis.
+const story2ReadCommands = ['finding_candidate_get', 'finding_identity_query', 'finding_history_query', 'finding_route_verify', 'finding_identity_scorecard'];
+const story2ReviewCommands = ['finding_candidate_promote', 'finding_identity_confirm', 'finding_supersession_add', 'finding_identity_supersede'];
+const story2OwnerCommands = ['finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove', 'finding_route_accept', 'finding_route_reject',
+  'finding_route_revoke', 'finding_candidate_route', 'finding_progress_capture', 'finding_progress_predecessor', 'finding_history_recall'];
+function staticDeclaration(source, name) {
+  const parsed = ts.createSourceFile('contract.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS); let found;
+  const value = node => {
+    if (ts.isAsExpression(node) || ts.isParenthesizedExpression(node) || ts.isSatisfiesExpression(node)) return value(node.expression);
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+    if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+    if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+    if (ts.isArrayLiteralExpression(node)) return node.elements.map(value);
+    if (ts.isObjectLiteralExpression(node)) return Object.fromEntries(node.properties.filter(ts.isPropertyAssignment).map(row => [row.name.getText(parsed).replace(/^['"]|['"]$/g, ''), value(row.initializer)]));
+    return undefined;
+  };
+  const visit = node => { if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === name && node.initializer) found = value(node.initializer); ts.forEachChild(node, visit); };
+  visit(parsed); return found;
+}
+function story2RegistrationIssues(policySource, configSource, roleSource, registrySource) {
+  const issues = []; const policies = staticDeclaration(policySource, 'COMMAND_POLICIES') ?? {};
+  const phases = staticDeclaration(configSource, 'DEFAULT_PHASE_TOOLS') ?? {}; const roles = staticDeclaration(roleSource, 'CANDIDATE_MUTATION_POLICIES') ?? {};
+  const all = [...story2ReadCommands, ...story2ReviewCommands, ...story2OwnerCommands];
+  for (const command of all) {
+    const row = policies[command]; const readOnly = story2ReadCommands.includes(command); const reviewer = story2ReviewCommands.includes(command);
+    const targetCommand = ['finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture'].includes(command);
+    const expectedPhases = readOnly ? 'all' : reviewer ? ['REVIEW'] : targetCommand ? ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST'] : ['DEV', 'REVIEW', 'TEST'];
+    if (!row || row.status !== 'supported' || row.gateEvidence === true || row.ownershipClass !== (readOnly ? 'readOnly' : reviewer ? 'reviewerWrite' : 'storyScopedMutating')
+      || JSON.stringify(row.allowedPhases) !== JSON.stringify(expectedPhases)) issues.push(`command policy ${command}`);
+    for (const phase of ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']) {
+      const actual = [...(phases['*'] ?? []), ...(phases[phase] ?? [])].includes(command);
+      if (actual !== (readOnly || expectedPhases.includes(phase))) issues.push(`phase allowlist ${command}/${phase}`);
+    }
+  }
+  for (const command of Object.keys(roles).filter(command => all.includes(command))) {
+    if (roles[command].reviewerOnly !== story2ReviewCommands.includes(command)
+      || JSON.stringify(roles[command].phases) !== JSON.stringify(story2ReviewCommands.includes(command) ? ['REVIEW'] : ['DEV', 'REVIEW', 'TEST'])) issues.push(`role authority ${command}`);
+  }
+  const registeredKinds = [];
+  for (const name of ['CANDIDATE', 'ROUTE', 'HISTORY', 'SCORECARD']) {
+    const policy = staticDeclaration(registrySource, `PROCESS_FACT_STORY2_${name}_POLICY`);
+    registeredKinds.push(...(policy?.recordTypes ?? []));
+    if (!policy || policy.gateEvidence !== false || policy.lifecycleAuthority !== 'none'
+      || !Array.isArray(policy.allowedConsumers) || policy.allowedConsumers.some(command => !all.includes(command))) issues.push(`direct gate consumer ${name}`);
+  }
+  const expectedKinds = ['detector_signal', 'candidate', 'candidate_reproduction_attestation', 'canonical_defect', 'canonical_revision', 'route_receipt', 'candidate_route', 'progress_baseline',
+    'progress_baseline_set', 'progress_evidence', 'progress_predecessor', 'finding_supersession', 'canonical_defect_supersession', 'history_recall'];
+  if (JSON.stringify([...registeredKinds].sort()) !== JSON.stringify(expectedKinds.sort())) issues.push('complete exact semantic kind inventory');
+  return issues;
+}
+const story2Registration = [read('packages/main/src/core/command-policy.ts'), read('packages/main/src/core/config.ts'),
+  read('packages/main/src/core/agent-dispatch-registry.ts'), read(processFactRegistryPath)];
+for (const issue of story2RegistrationIssues(...story2Registration)) fail(`Story2 registration: ${issue}`);
+for (const [index, before, after] of [
+  [0, "finding_identity_scorecard: { status: 'supported'", "finding_identity_scorecard: { status: 'gateEvidence', gateEvidence: true"],
+  [1, "'finding_identity_scorecard',", "'removed_scorecard',"],
+  [2, "finding_candidate_promote: { phases: ['REVIEW'], reviewerOnly: true }", "finding_candidate_promote: { phases: ['DEV'], reviewerOnly: false }"],
+  [3, "allowedConsumers: ['finding_identity_scorecard']", "allowedConsumers: ['storyMachine.canPassReview']"],
+]) {
+  const changed = [...story2Registration]; changed[index] = changed[index].replace(before, after);
+  assert(changed[index] !== story2Registration[index], `Story2 mutation target ${before} exists`);
+  assert(story2RegistrationIssues(...changed).length > 0, `Story2 verifier rejects independent axis ${index}`);
+}
+for (const kind of ['detector_signal', 'candidate', 'candidate_reproduction_attestation', 'canonical_defect', 'canonical_revision', 'route_receipt', 'candidate_route', 'progress_baseline',
+  'progress_baseline_set', 'progress_evidence', 'progress_predecessor', 'finding_supersession', 'canonical_defect_supersession', 'history_recall']) {
+  const mutation = [...story2Registration];
+  const start = mutation[3].indexOf('export const PROCESS_FACT_STORY2_CANDIDATE_POLICY');
+  const end = mutation[3].indexOf('export const PROCESS_FACT_STORY2_SCORECARD_POLICY');
+  const slice = mutation[3].slice(start, end).replace(`'${kind}'`, "'unregistered_kind'");
+  mutation[3] = mutation[3].slice(0, start) + slice + mutation[3].slice(end);
+  assert(story2RegistrationIssues(...mutation).length > 0, `Story2 independently rejects missing semantic kind ${kind}`);
+}
+function story2DependencyIssues(source) {
+  const issues = []; const parsed = ts.createSourceFile('story2.ts', source, ts.ScriptTarget.Latest, true);
+  const visit = node => {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
+      && /(?:dynamic-finding-blocking|finding-(?:assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(node.moduleSpecifier.text)) issues.push('Story1/3B dependency');
+    if (ts.isCallExpression(node) && /^(?:readJson|readJsonCandidate)$/.test(ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : node.expression.getText(parsed))) issues.push('protected parser');
+    ts.forEachChild(node, visit);
+  }; visit(parsed); return issues;
+}
+for (const file of ['core/finding-identity.ts', 'core/finding-history.ts', 'core/finding-route.ts', 'core/finding-progress.ts',
+  'handlers/finding-identity.ts', 'handlers/finding-identity-store.ts', 'handlers/finding-history.ts', 'handlers/finding-route.ts']) {
+  const source = read(`packages/main/src/${file}`);
+  for (const issue of story2DependencyIssues(source)) fail(`Story2 ${file}: ${issue}`);
+  for (const injection of ["import { gate } from './finding-deferral.js';", "import { enforce } from './finding-ledger-runtime-smoke.js';", "store.readJson(storyId, 'findings.json');"]) {
+    assert(story2DependencyIssues(`${source}\n${injection}`).length > 0, `Story2 dependency verifier detects ${injection}`);
+  }
+}
+const story2ValidationTargets = new Set([
+  'packages/main/dist/tasks/finding-identity-lineage-smoke.js',
+  'packages/main/tests/red/red-b03b7-identity-lineage.mjs',
+]);
+const originalStory2Validation = JSON.parse(execFileSync('git', ['show', '7f7aa82c1a:proof-or-stop.config.json'], { encoding: 'utf8' })).validate.commands
+  .filter(command => command.args?.some(arg => story2ValidationTargets.has(arg)));
+const currentStory2Validation = JSON.parse(read('proof-or-stop.config.json')).validate.commands;
+assert(originalStory2Validation.length === 2, 'Story2 frozen delivery and RED registration anchors remain uniquely identifiable');
+for (const command of originalStory2Validation) {
+  const { resources: _originalResources, ...frozenCommand } = command;
+  assert(currentStory2Validation.some(current => {
+    const { resources: _currentResources, ...currentCommand } = current;
+    return JSON.stringify(currentCommand) === JSON.stringify(frozenCommand)
+      && !Object.hasOwn(current, 'resources');
+  }), 'Story2 preserves each frozen validation command exactly except for removing resources so real-root bootstrap admission uses the undeclared fail-closed barrier');
+}
+assert(currentStory2Validation.some(row => row.command === 'node' && row.args?.includes('--section=delivery') && row.timeoutMs === 600000), 'Story2 full delivery selector has bounded measured-duration timeout');
 assertCurrentPromptIdentityBoundary();
 assertCapabilityMaterialContract();
 assertStoryWriterRuntimeAdmissionContract();

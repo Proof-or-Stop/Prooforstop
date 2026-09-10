@@ -1173,11 +1173,15 @@ export class StoryStore {
   // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
   // JSON passthrough does not affect serialization.
 
-  readFindings(storyId: string): FindingData {
+  readFindings(storyId: string, options: { strictMirror?: boolean } = {}): FindingData {
     let data: FindingData;
     try {
       data = this.readJson<FindingData>(storyId, 'findings.json');
-    } catch {
+      if (options.strictMirror && (!data || typeof data !== 'object' || Array.isArray(data) || !Array.isArray(data.findings))) {
+        throw new Error(`FINDING_MIRROR_INVALID: ${storyId} mirror must contain a findings array`);
+      }
+    } catch (error) {
+      if (options.strictMirror && !(error instanceof StoryArtifactMissingError)) throw error;
       data = { findings: [] };
     }
     // The separate append ledger is authoritative for new Finding commits. The

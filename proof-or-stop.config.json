@@ -63,6 +63,21 @@
       {
         "command": "node",
         "args": [
+          "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
+          "--section=delivery"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b03b7-identity-lineage.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
           "scripts/verify-lab-worktree.mjs"
         ],
         "timeoutMs": 180000,

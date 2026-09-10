@@ -119,6 +119,7 @@
     "test:identity-state-migrate-atomicity": "node tests/identity-state-migrate-atomicity.test.mjs",
     "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "test:finding-identity-delivery": "node dist/tasks/finding-identity-lineage-smoke.js --section=delivery",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",

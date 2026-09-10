@@ -91,6 +91,8 @@ export interface ProcessFactRegistryEntry {
 }
 
 export interface Story3PersistenceOnlyRecordPolicy {
+  // Story 2 semantic validation is a separate contract below, not an expansion
+  // of this persistence-only consumer allowlist.
   recordClass: 'persistence' | 'candidate' | 'route' | 'baseline' | 'history' | 'standalone-receipt' | 'ledger-receipt';
   recordTypes: readonly string[];
   level: 'L2';
@@ -100,6 +102,58 @@ export interface Story3PersistenceOnlyRecordPolicy {
   lifecycleAuthority: 'none';
   rationale: string;
 }
+
+export const PROCESS_FACT_STORY2_CANDIDATE_POLICY = {
+  recordTypes: ['detector_signal', 'candidate', 'candidate_reproduction_attestation'],
+  producer: 'handlers/finding-identity',
+  semanticVerifier: 'core/finding-identity.verifyIdentityEnvelope',
+  carrierVerifier: 'handlers/finding-identity-store.verifiedIdentityCarrier',
+  allowedConsumers: ['finding_candidate_get', 'finding_candidate_merge', 'finding_candidate_disprove', 'finding_candidate_promote'],
+  gateEvidence: false,
+  lifecycleAuthority: 'none',
+  promotion: 'current eligible review run signs a semantic reproduction attestation bound to the exact candidate hash, preregistered command/selector, causal receipt hash, and verified FindingRef; marker-only receipt evidence cannot authorize promotion',
+} as const;
+
+/** Semantic target consent is independent of durable-byte receipts and gates. */
+export const PROCESS_FACT_STORY2_ROUTE_POLICY = {
+  recordTypes: ['canonical_defect', 'route_receipt', 'candidate_route', 'progress_baseline', 'progress_baseline_set', 'progress_evidence', 'progress_predecessor'],
+  producer: 'handlers/finding-route',
+  semanticVerifiers: ['core/finding-route', 'core/finding-progress', 'core/finding-identity'],
+  carrierVerifier: 'handlers/finding-identity-store.verifiedIdentityCarrier',
+  allowedConsumers: ['finding_identity_query', 'finding_route_verify', 'finding_candidate_route', 'finding_progress_capture', 'finding_progress_predecessor'],
+  gateEvidence: false,
+  lifecycleAuthority: 'none',
+  targetAuthority: 'current target owner or canonical B-META main authority; never source self-authorization',
+  predecessorBoundary: 'neutral source checkpoint is not proof of canonical deferral or renewal eligibility',
+  initialPublication: 'one atomic receipt plus four signed same-kind baselines and complete signed set',
+} as const;
+
+/** History is an exact signed lineage projection, never current gate evidence. */
+export const PROCESS_FACT_STORY2_HISTORY_POLICY = {
+  recordTypes: ['finding_supersession', 'canonical_revision', 'canonical_defect_supersession', 'history_recall'],
+  producer: 'handlers/finding-history',
+  semanticVerifiers: ['core/finding-history.validateHistoryGraph', 'core/finding-identity.verifyIdentityEnvelope'],
+  carrierVerifier: 'handlers/finding-identity-store.verifiedIdentityCarrier',
+  allowedConsumers: ['finding_history_query', 'finding_history_recall', 'finding_identity_query', 'finding_route_verify'],
+  gateEvidence: false,
+  lifecycleAuthority: 'none',
+  legacyPolicy: 'strict opt-in Store mirror read; no rewrite or identity creation on reads',
+  revisionPublication: 'staged non-current revision activated only by exact signed link; two recoverable transactions',
+  recallPolicy: 'once per canonical subject and observed trigger state; invalid historical receipt is never current consent',
+} as const;
+
+/** Read-only transport of verified signed records, never a minted credential. */
+export const PROCESS_FACT_STORY2_SCORECARD_POLICY = {
+  producer: 'handlers/finding-history.finding_identity_scorecard',
+  semanticVerifier: 'core/finding-history.verifyIdentityScorecard',
+  carrierVerifier: 'handlers/finding-identity-store.verifiedIdentityCarrier',
+  allowedConsumers: ['finding_identity_scorecard'],
+  gateEvidence: false,
+  lifecycleAuthority: 'none',
+  currentness: 'exact declared source set, complete record inventory and double-read current snapshot digest; stale expected input refuses',
+  measurements: 'per-detector/version/category descriptive adjudication counts, not precision/recall; zero denominator is null insufficient_evidence',
+  qualification: 'observe/warn only; no enforce, qualifying window, latency or joint batching certification',
+} as const;
 
 /**
  * Persistence authority is deliberately narrower than semantic authority.
@@ -198,8 +252,27 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
   verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   verification_pin_narrow: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
-  verification_intent_recover: ['signed-artifact','verification-policy','gate-evidence'],
-  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
+  finding_progress_predecessor: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_confirm: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_query: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_supersession_add: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_supersede: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_history_query: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_identity_scorecard: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_history_recall: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_accept: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_reject: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_revoke: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_route_verify: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_route: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_progress_capture: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_add: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_get: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_merge: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_disprove: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  finding_candidate_promote: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'normalization-policy'],
+  verification_intent_recover: ['signed-artifact', 'verification-policy', 'gate-evidence'],
+  verification_intent_append: ['signed-artifact', 'verification-policy', 'gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],

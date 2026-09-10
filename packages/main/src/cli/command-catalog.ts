@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { findingSupersessionRequestSchema, canonicalSupersessionRequestSchema, historyQuerySchema, historyRecallSchema, scorecardQuerySchema } from '../core/finding-history.js';
+import { candidateAddSchema, candidateGetSchema, candidateMergeSchema, candidateDisproveSchema, candidatePromoteSchema, identityConfirmSchema, identityQuerySchema } from '../core/finding-identity.js';
+import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema } from '../core/finding-route.js';
+import { progressCaptureSchema, progressPredecessorRequestSchema } from '../core/finding-progress.js';
 import type { ToolDef } from './main-tools.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
 import {
@@ -2222,6 +2226,25 @@ Behavior:
     ...BRIEF_OUTPUT_FLAGS,
     ...JSON_OUTPUT_FLAGS,
   }},
+  { name: 'finding_progress_predecessor', description: 'Source-owned signed neutral predecessor reference; does not prove deferral validity or renewal eligibility', schema: progressPredecessorRequestSchema.shape },
+  { name: 'finding_identity_confirm', description: 'Strict signed non-gate finding identity confirm with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: identityConfirmSchema.shape },
+  { name: 'finding_identity_query', description: 'Strict signed non-gate finding identity query with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: identityQuerySchema.shape },
+  { name: 'finding_supersession_add', description: 'Append reviewer-authorized exact historical Finding correction without rewriting observations', schema: findingSupersessionRequestSchema.shape },
+  { name: 'finding_identity_supersede', description: 'Stage and activate an exact signed canonical cause correction; unlinked revisions are never current', schema: canonicalSupersessionRequestSchema.shape },
+  { name: 'finding_history_query', description: 'Read a complete versioned exact history projection with immutable predecessor trails and distinct projection digest', schema: historyQuerySchema.shape },
+  { name: 'finding_identity_scorecard', description: 'Read complete signed-carrier rows and a current digest-bound non-gate scorecard; adjudication counts are not precision/recall', schema: scorecardQuerySchema.shape },
+  { name: 'finding_history_recall', description: 'Recall a verified historical trigger once as a non-gate candidate, never as an assessment', schema: historyRecallSchema.shape },
+  { name: 'finding_route_accept', description: 'Strict signed non-gate finding route accept with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRequestSchema.shape },
+  { name: 'finding_route_reject', description: 'Strict signed non-gate finding route reject with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRequestSchema.shape },
+  { name: 'finding_route_revoke', description: 'Strict signed non-gate finding route revoke with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRevokeSchema.shape },
+  { name: 'finding_route_verify', description: 'Strict signed non-gate finding route verify with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeVerifySchema.shape },
+  { name: 'finding_candidate_route', description: 'Strict signed non-gate finding candidate route with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: candidateRouteRequestSchema.shape },
+  { name: 'finding_progress_capture', description: 'Strict signed non-gate finding progress capture with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: progressCaptureSchema.shape },
+  { name: 'finding_candidate_add', description: 'Append a non-authoritative detector signal and pending candidate with exact source anchors, retry identity, and preregistered reproduction command template/selector; never creates a verified Finding', schema: candidateAddSchema.shape },
+  { name: 'finding_candidate_get', description: 'Inspect verified immutable candidate versions and source lineage; read-only and never gate evidence', schema: candidateGetSchema.shape },
+  { name: 'finding_candidate_merge', description: 'Append evidenced candidate merge versions with exact current hashes while retaining both sources; no semantic-defect confirmation or Finding mutation', schema: candidateMergeSchema.shape },
+  { name: 'finding_candidate_disprove', description: 'Append an evidenced non-gate disproof retaining the original candidate', schema: candidateDisproveSchema.shape },
+  { name: 'finding_candidate_promote', description: 'Eligible current reviewer signs a non-gate semantic reproduction attestation bound to the exact candidate hash, preregistered command/selector, causal receipt, and existing verified Finding; marker-only receipt evidence cannot promote', schema: candidatePromoteSchema.shape },
   { name: 'finding_ledger_query', description: 'Read a complete signed ledger/CAS/idempotency/runtime/migration scorecard projection without exposing protected storage paths', schema: {
     storyId: z.string().describe('Story ID.'),
   }},

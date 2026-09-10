@@ -359,6 +359,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
     'finding_ledger_query', // Story 3: protected read-only signed scorecard/migration projection; no payload/path exposure or lifecycle authority
+    'finding_candidate_get', // Story 2: signed non-gate provenance inspection
+    'finding_identity_query', 'finding_route_verify',
+    'finding_history_query',
+    'finding_identity_scorecard',
     'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
@@ -462,6 +466,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_resume',  // B-bbaf CHK-003: human-only ack that clears a convergence-breaker freeze; a freeze can occur at story_advance in ANY phase, so the ack must be available in every phase (declared allowedPhases:all storyScopedMutating in command-policy; refused under autopilot/non-interactive)
   ],
   INIT: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'verification_intent_recover',
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
@@ -473,11 +478,13 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'original_intent_snapshot_set',
   ],
   INIT_CHECK: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'verification_intent_recover',
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
@@ -506,6 +513,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
+    'finding_progress_predecessor', 'finding_history_recall',
+    'finding_candidate_route',
+    'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
@@ -539,6 +550,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
+    'finding_progress_predecessor', 'finding_history_recall',
+    'finding_identity_confirm', 'finding_supersession_add', 'finding_identity_supersede', 'finding_candidate_route',
+    'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove', 'finding_candidate_promote',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
@@ -572,6 +587,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   TEST: [
+    'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
+    'finding_progress_predecessor', 'finding_history_recall',
+    'finding_candidate_route',
+    'finding_candidate_add', 'finding_candidate_merge', 'finding_candidate_disprove',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询

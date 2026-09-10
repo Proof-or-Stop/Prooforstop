@@ -11,6 +11,28 @@ import { LEGACY_AGENT_ROLE_ALIASES, type CanonicalAgentRoleId } from './agent-ro
 const ITEM_REVIEW_MUTATIONS = ['review_run_start', 'finding_add', 'review_pass_set'] as const;
 const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
 
+/** Story 2 advisory mutation authority is separate from legacy gate evidence. */
+export const CANDIDATE_MUTATION_POLICIES = {
+  finding_candidate_add: { phases: ['DEV', 'REVIEW', 'TEST'], reviewerOnly: false },
+  finding_candidate_merge: { phases: ['DEV', 'REVIEW', 'TEST'], reviewerOnly: false },
+  finding_candidate_disprove: { phases: ['DEV', 'REVIEW', 'TEST'], reviewerOnly: false },
+  finding_candidate_promote: { phases: ['REVIEW'], reviewerOnly: true },
+  finding_supersession_add: { phases: ['REVIEW'], reviewerOnly: true },
+  finding_identity_supersede: { phases: ['REVIEW'], reviewerOnly: true },
+  finding_history_recall: { phases: ['DEV', 'REVIEW', 'TEST'], reviewerOnly: false },
+} as const;
+export type CandidateMutationCommand = keyof typeof CANDIDATE_MUTATION_POLICIES;
+export function resolveCandidateMutationAuthority(command: CandidateMutationCommand, phase: string): string {
+  const policy = CANDIDATE_MUTATION_POLICIES[command];
+  if (!(policy.phases as readonly string[]).includes(phase)) throw new Error(`identity: ${command} refused in phase ${phase}`);
+  const actor = readBrandEnv('AGENT')?.trim() || 'main';
+  const entry = resolveRegisteredAgentActor(actor);
+  const reviewer = !!entry?.reviewerLane && entryPermitsMutation(entry, 'finding_add') && entry.allowedPhases.includes('REVIEW');
+  if (policy.reviewerOnly && !reviewer) throw new Error('identity: promotion requires an eligible reviewer actor');
+  if (!policy.reviewerOnly && !isTrustedHostActor(actor) && entry?.roleClass !== 'implementer' && !reviewer) throw new Error(`identity: unauthorized candidate actor ${actor}`);
+  return entry?.canonicalName ?? actor;
+}
+
 function roleAliases(canonical: CanonicalAgentRoleId, extra: readonly string[] = []): readonly string[] {
   return [...LEGACY_AGENT_ROLE_ALIASES[canonical], ...extra];
 }
