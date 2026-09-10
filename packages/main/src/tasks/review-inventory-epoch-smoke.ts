@@ -181,9 +181,9 @@ async function authenticatedInventoryRegression(): Promise<void> {
     await handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS-V2', kind: 'integration_test', command,
       selector: 'INVENTORY_OK', result: 'pass', note: 'replacement observation contract' });
     const renamedAuthentic = store.readChecklist(sid);
-    const renamedSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    let renamedSubject = '';
     assert.doesNotThrow(
-      () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      () => { renamedSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid); },
       'RETIRED_EVIDENCE_MUST_NOT_BLOCK_CURRENT_INVENTORY',
     );
     const changedRetired = structuredClone(renamedAuthentic);
@@ -1178,6 +1178,20 @@ const evidenceRow = (overrides: Record<string, unknown>): ChecklistData => ({
   }],
 });
 const digestBaseline = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({}));
+const nullLegacyRow = evidenceRow({});
+(nullLegacyRow.items[0] as unknown as { verificationIntent: null }).verificationIntent = null;
+const nullLegacyChanged = evidenceRow({ result: 'fail' });
+(nullLegacyChanged.items[0] as unknown as { verificationIntent: null }).verificationIntent = null;
+assert.notEqual(
+  reviewInventoryAcceptanceSubjectDigest(null, nullLegacyChanged),
+  reviewInventoryAcceptanceSubjectDigest(null, nullLegacyRow),
+  'legacy evidence semantics remain bound when verificationIntent is null',
+);
+assert.notEqual(
+  reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({ result: 'fail' })),
+  digestBaseline,
+  'legacy evidence semantics remain in the acceptance subject when verificationIntent is absent',
+);
 const digestRepinned = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({
   headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1', timestamp: '2026-09-09T09:09:09.000Z',
   receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: true, executedAt: '2026-09-09T09:09:09.000Z' },
