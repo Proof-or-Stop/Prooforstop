@@ -39,116 +39,94 @@ if (!fs.existsSync(asset)) {
 }
 
 const failures = [];
+let interrupted = null;
+const onInterrupt = signal => { interrupted = signal; };
+const onSigint = () => onInterrupt('SIGINT');
+const onSigterm = () => onInterrupt('SIGTERM');
+process.on('SIGINT', onSigint);
+process.on('SIGTERM', onSigterm);
+function checkInterrupted() { if (interrupted) throw new Error(`graph verifier interrupted by ${interrupted}`); }
 fs.renameSync(asset, stash);
+function startOwnedServer() {
+  const child = spawn(process.execPath, ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
+    { cwd: repo, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+  let log = '', error = null, closed = false;
+  child.stdout.on('data', d => { log += String(d); });
+  child.stderr.on('data', d => { log += String(d); });
+  child.on('error', e => { error = e; });
+  const close = new Promise(resolve => child.once('close', () => { closed = true; resolve(); }));
+  const alive = () => {
+    if (!child.pid) return false;
+    try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, 0); return true; }
+    catch (e) { if (e.code === 'ESRCH') return false; throw e; }
+  };
+  const signal = sig => {
+    if (!child.pid) return;
+    try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, sig); }
+    catch (e) { if (e.code !== 'ESRCH') throw e; }
+  };
+  return { child, get log() { return log; }, get error() { return error; }, get closed() { return closed; },
+    ready: () => log.split('\n').some(line => line.trim().replace(/^\[\d+(?:\.\d+)?s\] /, '') === `graph serving http://localhost:${PORT}/`),
+    async stop() {
+      signal('SIGTERM');
+      const grace = Date.now() + 2000;
+      while (alive() && Date.now() < grace) await new Promise(r => setTimeout(r, 25));
+      if (alive()) signal('SIGKILL');
+      const deadline = Date.now() + 5000;
+      while ((!closed || alive()) && Date.now() < deadline) await new Promise(r => setTimeout(r, 25));
+      if (!closed || alive()) throw new Error('owned graph process group did not exit');
+      await close;
+    }
+  };
+}
+const pause = () => new Promise(r => setTimeout(r, 50));
 async function serveAndFetch() {
-  const child = spawn('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
-    { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'] });
-  let log = '';
-  child.stdout.on('data', (d) => { log += String(d); });
-  child.stderr.on('data', (d) => { log += String(d); });
-  // B-5a15:F-379 -- without this listener a spawn-level failure (ENOENT, EACCES) is
-  // emitted as an unhandled 'error' event and takes down the whole verifier, so a real
-  // environment problem would surface as a crash instead of this script's own
-  // MISSING_ASSET_HANDLING_BROKEN report. Capture it and let the caller decide.
-  let spawnError = null;
-  child.on('error', (e) => { spawnError = e; });
+  const owned = startOwnedServer();
   try {
     const deadline = Date.now() + 90_000;
-    let body = null;
-    let status = 0;
-    // B-5a15:F-379 -- every failure reason below quotes the child's own output, which was
-    // previously captured into `log` and then discarded, making "exited early" undebuggable.
-    const tail = () => {
-      const t = log.trim().split('\n').slice(-6).join(' | ');
-      return t ? ` -- child output: ${t}` : ' -- child produced no output';
-    };
+    let body = null, status = 0;
+    const tail = () => ` -- child output: ${owned.log.trim().split('\n').slice(-6).join(' | ')}`;
     while (Date.now() < deadline) {
-      if (spawnError) return { ok: false, reason: `could not spawn the server: ${spawnError.message}` };
-      if (child.exitCode !== null) {
-        return { ok: false, reason: `server exited early with code ${child.exitCode}${tail()}` };
-      }
+      checkInterrupted();
+      if (owned.error) return { ok: false, reason: `could not spawn the server: ${owned.error.message}` };
+      if (owned.closed || owned.child.exitCode !== null) return { ok: false, reason: `server exited early with code ${owned.child.exitCode}${tail()}` };
+      if (!owned.ready()) { await pause(); continue; }
       try {
-        const res = await fetch(`http://127.0.0.1:${PORT}/`);
-        status = res.status;
-        body = await res.text();
-        break;
-      } catch {
-        await new Promise((r) => setTimeout(r, 500));
-      }
+        const res = await fetch(`http://127.0.0.1:${PORT}/`, { signal: AbortSignal.timeout(Math.max(1, Math.min(2000, deadline - Date.now()))) });
+        status = res.status; body = await res.text(); break;
+      } catch { await pause(); }
     }
     if (body === null) return { ok: false, reason: `server never answered on the port${tail()}` };
     if (status !== 200) return { ok: false, reason: `GET / returned ${status}${tail()}` };
-    // A blank/placeholder page is exactly what this verifier exists to catch.
-    if (body.length < 1000 || !/<(script|div|body)/i.test(body)) {
-      return { ok: false, reason: `GET / returned ${body.length} bytes with no client markup` };
-    }
-    if (!fs.existsSync(asset)) {
-      return { ok: false, reason: 'served a page but assets/app.html was never rebuilt' };
-    }
+    if (body.length < 1000 || !/<(script|div|body)/i.test(body)) return { ok: false, reason: `GET / returned ${body.length} bytes with no client markup` };
+    if (!fs.existsSync(asset)) return { ok: false, reason: 'served a page but assets/app.html was never rebuilt' };
     return { ok: true };
-  } finally {
-    child.kill('SIGTERM');
-    await new Promise((r) => setTimeout(r, 300));
-    if (child.exitCode === null) child.kill('SIGKILL');
-  }
+  } finally { await owned.stop(); }
 }
 
 try {
-  let out = '';
-  let exitCode = 0;
+  const owned = startOwnedServer();
+  let out = '', exitCode = 1, leaked = [];
   try {
-    out = execFileSync('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
-      { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000 });
-  } catch (e) {
-    exitCode = typeof e.status === 'number' ? e.status : 1;
-    out = String(e.stdout ?? '') + String(e.stderr ?? '');
-  }
-
-  // Our own listener must be stopped BEFORE sampling, and UNCONDITIONALLY.
-  //
-  // Two defects this ordering fixes, both found by review:
-  //   - RACE: execFileSync's timeout can fire while the child is still inside its own
-  //     `npm run build`, so a single fs.existsSync() sample taken immediately after can
-  //     read false for a rebuild that succeeds moments later. Stopping the child first
-  //     makes the sample deterministic: once it is dead, assets/app.html stops changing.
-  //   - LEAK: cleanup used to be gated behind `if (rebuilt)`, so in exactly the branch
-  //     where a leaked listener matters most (recovery believed impossible) the still
-  //     serving process was neither killed nor reported. It is now always stopped, and
-  //     separately still REPORTED as a failure in that branch.
-  const ours = (pid) => {
-    try {
-      return execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })
-        .includes('proof-or-stop');
-    } catch { return false }
-  };
-  const listeners = () => {
-    try {
-      return execFileSync('lsof', ['-ti', `:${PORT}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
-        .split('\n').filter(Boolean).filter(ours);
-    } catch { return [] }
-  };
-  const leaked = listeners();
-  for (const pid of leaked) { try { process.kill(Number(pid), 'SIGKILL') } catch { /* already gone */ } }
-
-  // Settle UNCONDITIONALLY, and by polling rather than by a blind sleep.
-  //
-  // An earlier version armed the settle only `if (leaked.length)`, which review showed
-  // misses the worse window. ensureGraphClientBuilt runs `npm run build` through a
-  // SYNCHRONOUS spawnSync, so while that build is in flight the command has not bound the
-  // port yet. If execFileSync's timeout fires during the build, the SIGTERM reaches only
-  // our direct child; the nested build is orphaned and keeps writing assets/app.html. In
-  // that case `leaked` is empty -- nothing was ever listening -- so the settle was skipped
-  // and `rebuilt` was sampled with zero delay against a file still being written.
-  //
-  // Polling for the asset is both stricter and faster than a fixed sleep: it returns as
-  // soon as the orphan finishes, and it waits the full budget when it never does. The
-  // budget is deliberately longer than a slow rebuild's tail so a true negative (recovery
-  // genuinely impossible) still costs it in full, which is the correct trade for a check
-  // that must not report a working rebuild as broken.
-  const settleDeadline = Date.now() + 15_000;
-  while (!fs.existsSync(asset) && Date.now() < settleDeadline) {
-    execFileSync('sleep', ['0.25']);
-  }
+    const deadline = Date.now() + 60_000;
+    while (!owned.ready() && !owned.closed && !owned.error && Date.now() < deadline) { checkInterrupted(); await pause(); }
+    checkInterrupted();
+    out = owned.log;
+    exitCode = owned.child.exitCode ?? 1;
+    // Observe listeners BEFORE cleanup. Only this newly created process group is
+    // ours; unrelated listeners on the same port must never be killed or blamed.
+    if (owned.child.pid) {
+      let pids = [];
+      try { pids = execFileSync('lsof', ['-t', '-iTCP:' + PORT, '-sTCP:LISTEN'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().split(/\s+/).filter(Boolean); }
+      catch (e) { if (e.status !== 1) throw e; }
+      leaked = pids.filter(pid => {
+        try { return Number(execFileSync('ps', ['-p', pid, '-o', 'pgid='], { encoding: 'utf8' }).trim()) === owned.child.pid; }
+        catch { return false; }
+      });
+    }
+    if (owned.error) failures.push(`could not spawn the server: ${owned.error.message}`);
+    if (!owned.ready() && !owned.closed && !owned.error) failures.push('server startup exceeded 60000 ms');
+  } finally { await owned.stop(); }
 
   const rebuilt = fs.existsSync(asset);
 
@@ -209,11 +187,11 @@ try {
   // The no-silent-blank-page invariant is about OUR command, so the port check only
   // applies to the failure scenario. In the recovery scenario `graph` is a foreground
   // serve command: rebuilding and then serving is the correct outcome, so it is still
-  // listening when execFileSync's timeout returns, and killing it is cleanup rather than
+  // listening when readiness is observed, and stopping it is cleanup rather than
   // a finding. The port is also NOT a reliable identity check on its own -- an unrelated
   // process (observed here: Google Chrome, holding both 8819 and a freshly chosen 8877)
   // can occupy any high port, so a bare `lsof -ti:<port>` hit must never be reported as
-  // our leaked listener. Match on the command line instead.
+  // our leaked listener. Match the owned process group instead.
   // Reporting, using the pre-sample snapshot. Serving after a successful rebuild is
   // correct for a foreground serve command, so it is only a failure when the client was
   // still missing -- which is the invariant this script exists to protect.
@@ -227,6 +205,8 @@ try {
       : `refused with exit ${exitCode}, named the asset and the build command, started no listener`);
   }
 } finally {
+  process.off('SIGINT', onSigint);
+  process.off('SIGTERM', onSigterm);
   if (fs.existsSync(rebuiltStash)) fs.rmSync(rebuiltStash);
   if (fs.existsSync(stash)) {
     // B-5a15:F-383 -- single atomic restore. An earlier version did rmSync(asset) first,
@@ -236,6 +216,7 @@ try {
   }
 }
 
+checkInterrupted();
 if (failures.length) {
   console.error('MISSING_ASSET_HANDLING_BROKEN');
   for (const f of failures) console.error(`  ${f}`);

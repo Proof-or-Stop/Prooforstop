@@ -29,4 +29,10 @@ assert.equal(result.status, 0, 'Original missing-assets verifier must complete s
 assert.match(result.stdout, /^MISSING_ASSETS_HANDLED_OK$/m);
 console.log(JSON.stringify({ schemaVersion: 'graph-recovery-latency.v1', elapsedMs, limitMs: 45000, port, originalVerifierExit: result.status }));
 assert.ok(elapsedMs < 45000, `GRAPH_ASSET_RECOVERY_WAITS_FOR_TIMEOUT: original checks passed but took ${elapsedMs.toFixed(1)} ms (limit 45000 ms)`);
+const negatives = spawnSync(process.execPath, [path.join(repo, 'scripts/verify-graph-recovery-negative-controls.mjs'), repo], { cwd: repo, encoding: 'utf8' });
+process.stdout.write(negatives.stdout ?? '');
+process.stderr.write(negatives.stderr ?? '');
+assert.ifError(negatives.error);
+assert.equal(negatives.status, 0, 'Missing-assets verifier fault controls must pass');
+assert.match(negatives.stdout, /^GRAPH_RECOVERY_VERIFIER_NEGATIVE_CONTROLS_PASS /m);
 console.log('GRAPH_ASSET_RECOVERY_LATENCY_PASS');
