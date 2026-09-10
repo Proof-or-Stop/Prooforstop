@@ -7,6 +7,7 @@
  * foreign-runtime, and post-release verifier failures in one run.
  */
 import assert from 'node:assert/strict';
+import { createPrivateMutationObserver } from './support/private-mutation-observer.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { closeSync, cpSync, existsSync, lstatSync, mkdtempSync, mkdirSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
@@ -3489,6 +3490,13 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
   const externalReadRoot = operationFixture.externalRoot;
   const operationEntrypoint = operationFixture.entrypoint;
   assertCanonicalPublicIdentityOperations(operationFixture, 'consumer preflight ablated');
+  const observers = new Map();
+  const observerFor = root => {
+    if (!observers.has(root)) observers.set(root, createPrivateMutationObserver({
+      root, snapshot: () => snapshotPublicOperationState(root, root === operationRuntimeRoot ? ['B-49df'] : []),
+    }));
+    return observers.get(root);
+  };
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     assert.ok(
       Array.isArray(boundary.identitySites) && boundary.identitySites.length > 0,
@@ -3591,7 +3599,8 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
       writeFileSync(injectedPath, injectedSource);
       if (identityCase.originMutation) assert.deepEqual(readFileSync(join(base, registeredPath.path)), consumerBytes, `${identityCase.siteId}: origin-only control changed the consumer expression`);
       const operationRoot = boundary.id === 'process-fact-registry' ? externalReadRoot : operationRuntimeRoot;
-      const beforeOperation = snapshotPublicOperationState(operationRoot, operationRoot === operationRuntimeRoot ? ['B-49df'] : []);
+      const observer = observerFor(operationRoot);
+      const beforeOperation = observer.before(injectedPath);
       const rejected = runCli(operationRoot, command, payload, {}, { entrypoint: operationEntrypoint });
       assert.notEqual(
         rejected.status,
@@ -3601,15 +3610,14 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
       const diagnostic = `${rejected.stdout}${rejected.stderr}`;
       assert.ok(diagnostic.includes(identityCase.siteId) && diagnostic.includes(identityCase.retired) && diagnostic.includes(identityCase.canonical),
         `${boundary.id}/${identityCase.siteId}: ${command} did not identify the exact injected site, retired and canonical values:\n${diagnostic}`);
-      assert.deepEqual(
-        snapshotPublicOperationState(operationRoot, operationRoot === operationRuntimeRoot ? ['B-49df'] : []),
+      observer.after(
         beforeOperation,
         `${boundary.id}/${registeredPath.sourcePath}: ${command} changed Git, Story, lock, or runtime state`,
       );
       writeFileSync(injectedPath, canonicalBytes);
       process.stdout.write(`PASS exact public identity mutation ${identityCase.siteId} (${identityCase.originMutation ? 'origin-only' : 'consumer-source'}) elapsedMs=${Date.now() - caseStartedAt}\n`);
     }
-  }
+  }  process.stdout.write('IDENTITY_OBSERVER_STATS ' + JSON.stringify([...observers.values()].map(o => o.stats)) + '\n');
 });
 
 await check(['identity-cutover'], 'CHK-007:adversarial:1 mixed and lookalike identity families are rejected exactly', () => {
