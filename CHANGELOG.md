@@ -1,5 +1,18 @@
 # Changelog
 
+## Lab final-160-closure - v0.3.298 - 2026-09-10
+
+The exact 160-command final validation completed with 158 passes and two failures.
+This Lab repairs the stale cli-engine structural identity pin and closes the packed
+consumer dependency graph for smol-toml and ws. It also refreshes only the exact
+reviewed identity and U-18 static-edge bindings. The retired vocabulary guard,
+process-fact contract, package boundary, identity boundary, reviewed-context
+mutations, and U-18 static controls all pass after the repair.
+
+Maintenance provenance: codex/lab-final-160-closure, repair a84c5f6091724b4f86da4065b0a155c5aa01b1b2.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab session-performance-plan - v0.3.297 - 2026-09-10
 
 Integrate the session-performance Lab maintenance work and the validation repairs into local main.
