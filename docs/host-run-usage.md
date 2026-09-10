@@ -69,9 +69,11 @@ inspect the current snapshot”, not “the provider failed”. Completion is kn
 only from `state=completed|failed|cancelled|timed_out` plus the terminal
 receipt. Provider-output silence and a stale output timestamp are diagnostics,
 never terminal predicates and never automatic-restart authorization. The
-absolute deadline prevents permanent waiting; the next status/cancel/attach
-touch reconciles an overdue run to terminal truth and records whether process
-cleanup made replacement safe.
+absolute deadline is enforced by the worker and autonomous supervisor, which
+publish terminal truth and record whether process cleanup made replacement safe.
+Status queries only observe that state; they never reconcile an overdue run,
+refresh an owner lease, or authorize a replacement. Cancellation remains an
+explicit control operation.
 
 An ordinary host run executes in the **resolved project root** (the `--root`
 target — the same root the usage-ledger rows are attributed to), independent of
