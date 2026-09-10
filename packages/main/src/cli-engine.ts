@@ -80,6 +80,7 @@ import {
 import { CliWatchdogTimeoutError, commandCliMaxBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
 import {
+  assertCanonicalActiveIdentityCommandConsumers,
   assertCanonicalActiveIdentityRuntime,
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
@@ -815,6 +816,18 @@ export async function runCli(opts?: {
   // Historical artifacts remain outside this active runtime registry.
   try {
     assertCanonicalActiveIdentityRuntime({ command: cmd || 'help', projectRoot: root0 });
+  } catch (error: any) {
+    process.stderr.write(`Error: ${error.message}\n`);
+    process.exitCode = 1;
+    return;
+  }
+
+  // Exact command-consumer identity belongs before every write-capable CLI
+  // surface. Keeping this distinct from the broad runtime preflight lets the
+  // consumer contract remain effective even when that preflight is tested in
+  // isolation or deliberately ablated by its negative-control suite.
+  try {
+    assertCanonicalActiveIdentityCommandConsumers({ command: cmd || 'help', projectRoot: root0 });
   } catch (error: any) {
     process.stderr.write(`Error: ${error.message}\n`);
     process.exitCode = 1;

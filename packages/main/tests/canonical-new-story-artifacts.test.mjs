@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { reviewedFixtureResidueAllowed } from '../../../scripts/identity-reviewed-fixture-contexts.mjs';
+import { reviewedSourceResidueAllowed } from '../../../scripts/identity-reviewed-source-contexts.mjs';
+import { reviewedDataResidueAllowed } from '../../../scripts/identity-reviewed-json-contexts.mjs';
 /**
  * B-49df focused RED/GREEN contract.
  *
@@ -1730,6 +1733,7 @@ await check(['identity-cutover'], 'runtime tracer preserves exact observations w
 
 function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCutoverReviewedContexts(), cache = identityTextFactsCache } = {}) {
   const rows = reviewed.rows.filter(row => sourceMap.has(row.path));
+  const exactReviewedRows = ['source', 'json', 'fixture'].flatMap(kind => JSON.parse(readFileSync(join(repoRoot, `scripts/identity-reviewed-${kind}-data.json`), 'utf8')).entries);
   cache.prepare(sourceMap, rows);
   for (const requiredPath of IDENTITY_CUTOVER_REQUIRED_PATHS) {
     assert.equal(sourceMap.has(requiredPath), true, `identity inventory missing required path ${requiredPath}`);
@@ -1763,11 +1767,14 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
   assert.equal(verifierLines.length, 116, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '3682dd57ad8b01787bcf8af06734b10ce37935c6b7cd093dc8d0cf8b46181a77', 'retired protocol identity verifier data context drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '2666fd9785cc1e7e70e961f261891ec22ae048a8c4ac2f91cbc54c6c49f86122', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
       const line = cache.get(hit.path, sourceMap.get(hit.path)).lines[hit.line - 1];
+      const exactInput = { path: hit.path, token: hit.token, line, lineNumber: hit.line, text: sourceMap.get(hit.path) };
+      const reviewedTokens = exactReviewedRows.filter(row => row.path === hit.path && (row.token.includes(hit.token) || hit.token.includes(row.token)));
+      if (reviewedTokens.some(row => reviewedSourceResidueAllowed({ ...exactInput, token: row.token }) || reviewedDataResidueAllowed({ ...exactInput, token: row.token }) || reviewedFixtureResidueAllowed({ ...exactInput, token: row.token }))) return false;
       // One sentence-ending period is prose punctuation only after this exact
       // row's count/context and source witness have passed above. Keep raw hits
       // intact; this does not normalize a runtime schema or any other suffix.
@@ -1899,7 +1906,7 @@ await check(['identity-cutover'], 'CHK-007:happy:1 fresh public lifecycle emits 
     run = JSON.parse(readFileSync(join(freshFixture.storyDir, 'review-runs.json'), 'utf8')).runs.at(-1);
     assert.equal(run.agent, lane);
     assert.equal(run._hash, reviewRunHashWithSalt(run, currentReviewRunSalt));
-    assert.equal(reviewRunContracts.verifyReviewRun(run), true);
+    assert.equal(reviewRunContracts.verifyReviewRun(run, store), true);
     assert.equal(reviewRunContracts.verifyReviewRunPromptEnvelope(store, run).ok, true);
   }
   identityCutoverFixture = { ...identityCutoverFixture, run };
@@ -2042,7 +2049,7 @@ await check(['identity-cutover'], 'CHK-007:adversarial:0 proofbound injection at
   const retiredRunBoundaries = [
     ['review-run.signing-salt', (run) => { run._hash = reviewRunHashWithSalt(run, retiredReviewRunSalt); }],
     ['review-run.prompt-digest-prefix', (run) => {
-      run.promptHash = digestWithIdentityPrefix(`${retiredProtocolPrefix}digest.v1`, 'assembled-prompt.raw-utf8.v1', run.assembledPrompt);
+      run.promptHash = digestWithIdentityPrefix(`${retiredProtocolPrefix}digest.v1`, 'assembled-prompt.raw-utf8.v1', new StoryStore(fixture.root).readReviewPrompt(run));
       run._hash = reviewRunHashWithSalt(run, currentReviewRunSalt);
     }],
     ['review-run.agent', (run) => { run.agent = `${retiredProtocolStem}-review-quality`; }],
@@ -2822,7 +2829,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",13,"6955b1d8c9b8193dd6d795eafefc05a1e3836bd99761305ecbd0e561608e5adc"],
+  ["proof-or-stop.config.json","proof-or-stop.config.json",13,"4b3c8de0dda554229bf963960ef071897928c389d4046c70153f59894fccbd40"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -3108,8 +3115,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 434,
-    "contextSha256": "da1b1d6f45675f6ab6e773ab5b466f05773a4a1a43a595c9fbbc01271db1bf23"
+    "occurrences": 457,
+    "contextSha256": "7331fe8ec5711c3b5b979af8b21342c20c7a8060c2b20a2df7f3c58d56fadd37"
   }
 ];
 
@@ -3709,7 +3716,7 @@ await check(['identity-cutover'], 'CHK-007:adversarial:1 mixed and lookalike ide
     ...identityLookalikes(currentDigestPrefix).map(({ kind, value }) => [
       `ReviewRun digest domain ${kind}`,
       (run) => {
-        run.promptHash = digestWithIdentityPrefix(value, 'assembled-prompt.raw-utf8.v1', run.assembledPrompt);
+        run.promptHash = digestWithIdentityPrefix(value, 'assembled-prompt.raw-utf8.v1', new StoryStore(fixture.root).readReviewPrompt(run));
         run._hash = reviewRunHashWithSalt(run, currentReviewRunSalt);
       },
     ]),
@@ -3988,6 +3995,20 @@ function createIdentityVerifierClone(prefix = 'proof-or-stop-b49df-real-verifier
     join(repoRoot, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs'),
     join(root, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs'),
   );
+  // The scanner and every current identity source must share the same candidate
+  // bytes; immutable Story/history remains the clone's original Git content.
+  const overlay = new Set([...identityCutoverSourceMap().keys(),
+    'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+    'packages/main/tests/brand-role-migration.test.mjs',
+    ...['source', 'json', 'fixture'].flatMap(kind => [
+      `scripts/identity-reviewed-${kind}-data.json`, `scripts/identity-reviewed-${kind}-contexts.mjs`,
+    ]),
+  ]);
+  for (const path of overlay) {
+    assert.ok(!path.startsWith('.proof-or-stop/') && !path.startsWith('.lattice/'), 'identity source overlay must not rewrite Story/history');
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    cpSync(join(repoRoot, path), join(root, path));
+  }
   const verifierPath = identityVerifierFixtureEntrypoint(root);
   const verifier = spawnSync(process.execPath, [verifierPath, '--boundary-only'], { cwd: root, encoding: 'utf8' });
   assert.equal(verifier.status, 0, `${verifier.stdout}${verifier.stderr}`);

@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"c0a0c600cd1facdaa1b2760f8a7fff4757271f41ae01f5a32314082cd1f53b94"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"268f1d9dc87da8e54306dd9ccbd64e0de97522d6a6f3fad57026f67bfa79d880"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3219,11 +3219,11 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/brand-role-migration.test.mjs",
-    "sha256": "539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b"
+    "sha256": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "d5d820864ae83b6c653ed2534b653b04d8451a6a65092d97bdeadc997610e390"
+    "sha256": "32686138629a8f45be8720759ea798f3cf4f271f2d34c6d7c8b2ae0fbfe29799"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3599,11 +3599,11 @@ const BOTH_FAMILY_CONTEXT_ROWS = [
 EXACT_ALLOWLIST.push(...BOTH_FAMILY_CONTEXT_ROWS);
 
 const BOTH_FAMILY_CONTEXT_WITNESSES = [
-  [0,"539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b"],
+  [0,"6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de"],
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"d5d820864ae83b6c653ed2534b653b04d8451a6a65092d97bdeadc997610e390"],
+  [4,"32686138629a8f45be8720759ea798f3cf4f271f2d34c6d7c8b2ae0fbfe29799"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"c0a0c600cd1facdaa1b2760f8a7fff4757271f41ae01f5a32314082cd1f53b94"],
+  [52,"268f1d9dc87da8e54306dd9ccbd64e0de97522d6a6f3fad57026f67bfa79d880"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -5652,7 +5652,7 @@ const NEGATIVE_SCHEMA_WITNESSES = [
   },
   {
     "path": "packages/main/tests/brand-role-migration.test.mjs",
-    "sha256": "539d8d646a8a67c757251e63d441dd4a255d8051a968720a8b441531239ccd1b",
+    "sha256": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
     "command": "packages/main/tests/brand-role-migration.test.mjs",
     "selector": "brand-role migration test passed",
     "rejectionAssertion": "assert.equal(identity.agentRoleIdsEqual(legacy, canonical), false, `${legacy} cannot satisfy a canonical role`);"
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "b987d7891c7e84dccf5d446a0243558323c142455cf2c87e2c3c03d3a6d41f13"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "7df24ba77bae8f4383d7bb8c66d317c8271f07fe6f91c520bd723700dcbf1d39"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "545c7ce41c8b2fc45d86ef00633c6f0516721fc1eca67f4e83b8a99dc25fe9ed"
+    "sha256": "c4ebdb434ab1b55d0dfa85c14359ffd100fc64afb97b2484ff096535d1e769f2"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7564,7 +7564,7 @@ function main() {
 // hit; returning a row is not a path exemption or a runtime reader permission.
 export function identityCutoverReviewedContexts() {
   return {
-    rows: [...EXACT_ALLOWLIST, ...NEGATIVE_SCHEMA_ROWS.map(row => ({ ...row, expectedOccurrences: row.count }))].map(row => ({ ...row })),
+    rows: [...EXACT_ALLOWLIST, ...[...CURRENT_COMPATIBLE_SCHEMA_ROWS, ...NEGATIVE_SCHEMA_ROWS].map(row => ({ ...row, expectedOccurrences: row.count }))].map(row => ({ ...row })),
     witnesses: [...REVIEWED_NEGATIVE_SOURCE_INTEGRITY, ...NEGATIVE_SCHEMA_WITNESSES, ...MAINTENANCE_SCHEMA_WITNESSES,
       ...CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.sourceSha256).map(row => ({ path: row.path, sha256: row.sourceSha256 })),
     ].filter((row, index, rows) => rows.findIndex(other => other.path === row.path && other.sha256 === row.sha256) === index)

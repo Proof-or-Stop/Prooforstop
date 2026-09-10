@@ -433,6 +433,11 @@
         "timeoutMs": 180000,
         "resources": [
           {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
@@ -3245,6 +3250,11 @@
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-b49df-identity-cutover-regression",
         "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
           {
             "class": "git-common-dir",
             "key": ".",

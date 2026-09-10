@@ -236,6 +236,8 @@ export interface ActiveIdentityOperationPath {
 
 export interface ActiveIdentityOperationBoundary {
   id: string;
+  /** Exact consumer identity must be checked before any CLI write surface. */
+  preSideEffect?: boolean;
   commands: readonly string[];
   paths: readonly ActiveIdentityOperationPath[];
   identitySites: readonly ActiveIdentityOperationIdentitySite[];
@@ -379,6 +381,7 @@ const identityBoundary = (
   }
   return Object.freeze({
     id: seed.id,
+    ...(seed.preSideEffect ? { preSideEffect: true } : {}),
     commands: seed.commands,
     paths: seed.paths,
     identitySites,
@@ -396,6 +399,7 @@ const identityBoundary = (
 export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
   identityBoundary({
     id: 'canonical-journal-authority',
+    preSideEffect: true,
     commands: Object.freeze(['acceptance_amendment_propose', 'acceptance_amendment_review', 'acceptance_amendment_approve', 'acceptance_amendment_cancel', 'review_inventory_begin', 'review_inventory_finalize', 'story_advance']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/acceptance-amendment-journal.ts'),
@@ -1336,6 +1340,27 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   // then catches live rewiring and decoys that keep those values unchanged.
   for (const [sourcePath, sourceBytes] of executableSources) {
     assertIdentityExecutableSource(sourcePath, sourceBytes, boundary.id);
+  }
+}
+
+/**
+ * Run every exact business-consumer boundary owned by a command. This remains
+ * separate from the cheap retired-prefix runtime preflight: mutating commands
+ * need their exact consumer refusal before hooks, owner leases, or activity
+ * writers can observe the request.
+ */
+export function assertCanonicalActiveIdentityCommandConsumers(input: {
+  command: string;
+  projectRoot: string;
+  runtimePackageRoot?: string;
+}): void {
+  for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
+    if (!boundary.preSideEffect || !boundary.commands.includes(input.command)) continue;
+    assertCanonicalActiveIdentityBoundary({
+      boundaryId: boundary.id,
+      projectRoot: input.projectRoot,
+      ...(input.runtimePackageRoot ? { runtimePackageRoot: input.runtimePackageRoot } : {}),
+    });
   }
 }
 // B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.

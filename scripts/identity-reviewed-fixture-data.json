@@ -2900,6 +2900,17 @@
       "tokenOccurrences": 1,
       "classification": "signed_retired_authority_negative",
       "reason": "Actual formerly signed journal or nested state mutated to retired schema, freshly signed, then rejected by real canonical consumer; original canonical record restored and positive checked."
+    },
+    {
+      "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "token": ".lattice/",
+      "lineNumber": 4008,
+      "lineSha256": "834fc67783bd3de766ce8f9af3ce699c787564c94ba2083067df29ac9adaa459",
+      "sourceSha256": "32686138629a8f45be8720759ea798f3cf4f271f2d34c6d7c8b2ae0fbfe29799",
+      "tokenOccurrences": 1,
+      "classification": "historical-overlay-deny-only",
+      "reason": "Exact test assertion rejects copying any historical Story/runtime directory into the identity verifier clone. It preserves immutable historical bytes and never admits a retired reader or writer. Full source, exact line and count remain independently checked with mutation refusals.",
+      "evidence": "assert.ok(!path.startsWith('.proof-or-stop/') && !path.startsWith('.lattice/'), 'identity source overlay must not rewrite Story/history');"
     }
   ]
 }
