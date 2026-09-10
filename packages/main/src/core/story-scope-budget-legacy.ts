@@ -1,13 +1,12 @@
-import { existsSync, realpathSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { canonicalFilesystemPath } from './keyed-scheduler.js';
+import { realpathSync, lstatSync, readdirSync, type Stats } from 'node:fs';
+import { join } from 'node:path';
 /** Exact project-governance migration. This is not a signed large-Story approval. */
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryStore } from './store.js';
 import type { ScopeBudgetSubject } from './story-scope-budget.js';
 
 export const SCOPE_BUDGET_LEGACY_SCHEMA = 'story-scope-budget-legacy.v1' as const;
-export const SCOPE_BUDGET_SUBJECT_SCHEMA = 'story-scope-budget-subject.v1' as const;
+export const SCOPE_BUDGET_SUBJECT_SCHEMA = 'story-scope-budget-subject.v2' as const;
 export interface ScopeBudgetLegacyManifest {
   schemaVersion: typeof SCOPE_BUDGET_LEGACY_SCHEMA;
   activationSourceCommit: string;
@@ -49,7 +48,7 @@ function without(value: unknown, keys: string[]): unknown {
   if (!record(value)) return value;
   return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key)));
 }
-export function scopeBudgetSubjectProjection(subject: ScopeBudgetSubject, createdAt: unknown): unknown {
+export function scopeBudgetSubjectProjection(subject: ScopeBudgetSubject, createdAt: unknown, projectRoot: string) {
   // Preserve unknown/future fields by default. Only explicit execution progress
   // is excluded; withdrawals remain part of the accepted subject.
   const checklist = record(subject.checklist) ? {
@@ -59,7 +58,11 @@ export function scopeBudgetSubjectProjection(subject: ScopeBudgetSubject, create
       return { fields: projected, withdrawn: item.status === 'withdrawn' };
     }) } : {}),
   } : subject.checklist;
-  return { schemaVersion: SCOPE_BUDGET_SUBJECT_SCHEMA, value: exactValue({ storyId: subject.storyId, createdAt,
+  let pathSet: ReturnType<typeof legacyScopePathExpansion> | undefined;
+  // Unsafe/incomplete legacy inputs remain inspectable, but never receive usable
+  // expansion evidence. The matcher below independently requires a valid set.
+  try { pathSet = legacyScopePathExpansion(subject, projectRoot); } catch { /* audit-only snapshot */ }
+  return { schemaVersion: SCOPE_BUDGET_SUBJECT_SCHEMA, pathSet: pathSet ? { status: 'valid' as const, ...pathSet } : { status: 'invalid' as const }, value: exactValue({ storyId: subject.storyId, createdAt,
     scope: without(subject.scope, ['createdAt', 'updatedAt']), checklist,
     proofStory: without(subject.proofStory, ['createdAt', 'updatedAt']),
   }) };
@@ -68,42 +71,99 @@ export function readScopeBudgetLegacySnapshot(store: StoryStore, storyId: string
   const story = store.readStory(storyId);
   const subject = { storyId, scope: store.readScopeContract(storyId), checklist: store.readChecklist(storyId),
     proofStory: store.readProofStoryContract(storyId) } as ScopeBudgetSubject;
-  const projection = scopeBudgetSubjectProjection(subject, story.createdAt);
+  const projection = scopeBudgetSubjectProjection(subject, story.createdAt, store.projectRoot);
+  const pathsSafe = projection.pathSet.status === 'valid';
   return { schemaVersion: SCOPE_BUDGET_SUBJECT_SCHEMA, storyId, createdAt: story.createdAt, phase: story.phase,
-    eligibleForMigration: eligiblePhase(story.phase) && typeof story.createdAt === 'string' && Number.isFinite(Date.parse(story.createdAt)),
+    eligibleForMigration: pathsSafe && eligiblePhase(story.phase) && typeof story.createdAt === 'string' && Number.isFinite(Date.parse(story.createdAt)),
     subjectDigest: canonicalDigest(projection), projection };
 }
-/** Independent of subjectFacts: missing topology must not suppress path safety. */
-function legacySubjectPathsSafe(store: StoryStore, root: string, storyId: string): boolean {
-  try {
-    const scope = store.readScopeContract(storyId), checklist = store.readChecklist(storyId);
-    if (!scope || !Array.isArray(checklist.items)) return false;
-    const lists: unknown[] = [scope.allowedModify, scope.allowedCreate, scope.allowedTest];
-    for (const item of checklist.items) {
-      if (item.status === 'withdrawn') continue;
-      if (item.files !== undefined) {
-        if (!item.files || typeof item.files !== 'object') return false;
-        lists.push(item.files.modify, item.files.create, item.files.test);
-      }
+/** Narrow migration grammar: only a literal nonempty prefix followed by /**.
+ * This is an exact historical snapshot, never a general glob evaluator.
+ */
+export function legacyScopePathExpansion(subject: ScopeBudgetSubject, root: string) {
+  const canonicalRoot=realpathSync(root);
+  if (!lstatSync(canonicalRoot).isDirectory()) throw new Error('legacy scope project root is not a directory');
+  const scope = subject.scope, checklist = subject.checklist;
+  if (!scope || !checklist || !Array.isArray(checklist.items)) throw new Error('legacy scope subject paths unavailable');
+  const lists: unknown[] = [scope.allowedModify, scope.allowedCreate, scope.allowedTest];
+  for (const item of checklist.items) {
+    if (item.status === 'withdrawn') continue;
+    if (item.files !== undefined) {
+      if (!record(item.files)) throw new Error('invalid legacy checklist files');
+      lists.push(item.files.modify, item.files.create, item.files.test);
     }
-    const canonicalRoot = realpathSync(root);
-    for (const list of lists) {
-      if (!Array.isArray(list)) return false;
-      for (const path of list) {
-        if (typeof path !== 'string' || !path || path !== path.trim() || path.startsWith('/')
-          || /^[A-Za-z]:/.test(path) || path.includes('\\') || path.split('/').some(part => !part || part === '.' || part === '..')
-          || /[*?[\]{}\x00-\x1f]/.test(path)) return false;
-        const actual = canonicalFilesystemPath(root, path);
-        if (actual !== resolve(canonicalRoot, path) || (existsSync(actual) && statSync(actual).isDirectory())) return false;
+  }
+  const patterns = new Set<string>();
+  const directoryAnchors = new Map<string, Stats>();
+  directoryAnchors.set(canonicalRoot, lstatSync(canonicalRoot));
+  const literal = (path: string): boolean => Boolean(path) && path === path.trim() && !path.startsWith('/') && !/^[A-Za-z]:/.test(path)
+    && !path.includes(String.fromCharCode(92)) && !path.split('/').some(part => !part || part === '.' || part === '..') && ![...path].some(char => '*?[]{}'.includes(char) || char.charCodeAt(0) < 32);
+  const inspect = (path: string, requireDirectory: boolean) => {
+    const parts = path.split('/'); let current = canonicalRoot;
+    for (let index=0; index<parts.length; index++) {
+      current = join(current, parts[index]!);
+      let stat;
+      try { stat=lstatSync(current); } catch(error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT' && !requireDirectory) return;
+        throw error;
       }
+      if (stat.isSymbolicLink()) throw new Error('symlink in legacy scope: '+path);
+      if (stat.isDirectory()) directoryAnchors.set(current, stat);
+      if (index<parts.length-1 && !stat.isDirectory()) throw new Error('non-directory legacy prefix');
+      if (index===parts.length-1 && (requireDirectory ? !stat.isDirectory() : !stat.isFile())) throw new Error('invalid legacy scope leaf');
     }
-    return true;
-  } catch { return false; }
+  };
+  for (const list of lists) {
+    if (!Array.isArray(list)) throw new Error('invalid legacy path list');
+    for (const value of list) {
+      if (typeof value !== 'string') throw new Error('invalid legacy scope path');
+      if (value.endsWith('/**')) {
+        const prefix=value.slice(0,-3);
+        if (!literal(prefix)) throw new Error('unsupported or unbounded legacy scope glob');
+        inspect(prefix,true); patterns.add(value);
+      } else { if (!literal(value)) throw new Error('unsupported legacy scope path or glob'); inspect(value,false); }
+    }
+  }
+  let visited=0;
+  const expansions=[...patterns].sort().map(pattern=>{
+    const prefix=pattern.slice(0,-3),paths: Array<{path:string;kind:'directory'|'file'}>=[];
+    const walk=(path:string,depth:number)=>{
+      if(++visited>10000 || depth>32) throw new Error('legacy scope expansion exceeds bounded traversal');
+      const absolute=join(canonicalRoot,path),before=lstatSync(absolute);
+      if(before.isSymbolicLink()) throw new Error('symlink in legacy scope expansion');
+      if(before.isDirectory()){
+        paths.push({path,kind:'directory'});
+        for(const name of readdirSync(absolute).sort()){
+          if(!literal(name)) throw new Error('malformed legacy filesystem name');
+          walk(path+'/'+name,depth+1);
+        }
+        const after=lstatSync(absolute);
+        if(!after.isDirectory() || after.isSymbolicLink() || before.dev!==after.dev || before.ino!==after.ino || before.mtimeMs!==after.mtimeMs || before.ctimeMs!==after.ctimeMs) throw new Error('legacy scope directory changed during expansion');
+      }else if(before.isFile())paths.push({path,kind:'file'});
+      else throw new Error('unsupported legacy scope filesystem entry');
+    };
+    walk(prefix,0);return{pattern,paths};
+  });
+  if (realpathSync(root) !== canonicalRoot) throw new Error('legacy scope input root changed during expansion');
+  // Recheck literal ancestors too: replacing a parent after its initial lstat
+  // must not turn an outside directory into migration authority.
+  for (const [path, before] of directoryAnchors) {
+    const after = lstatSync(path);
+    if (!after.isDirectory() || after.isSymbolicLink() || before.dev !== after.dev
+      || before.ino !== after.ino || before.mtimeMs !== after.mtimeMs || before.ctimeMs !== after.ctimeMs) {
+      throw new Error('legacy scope ancestor changed during expansion');
+    }
+  }
+  return {schemaVersion:'story-scope-budget-legacy-path-set.v1',expansions};
 }
 export function matchesLegacyScopeBudgetSubject(store: StoryStore, root: string, storyId: string, manifest: ScopeBudgetLegacyManifest,
   next?: ScopeBudgetSubject, base?: ScopeBudgetSubject): boolean {
-  if (!legacySubjectPathsSafe(store, root, storyId)) return false;
+  try {
+  const canonicalRoot = realpathSync(root);
+  if (canonicalRoot !== realpathSync(store.projectRoot)) return false;
+  const rootIdentity = lstatSync(canonicalRoot);
   const snapshot = readScopeBudgetLegacySnapshot(store, storyId);
+  if (snapshot.projection.pathSet.status !== 'valid') return false;
   // Captured eligibility is pinned in trusted project policy. A later authorized
   // return to PLAN must not erase that identity; terminal/INIT states do not use it.
   if (!['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST'].includes(String(snapshot.phase))) return false;
@@ -111,5 +171,14 @@ export function matchesLegacyScopeBudgetSubject(store: StoryStore, root: string,
   if (!entry || entry.subjectDigest !== snapshot.subjectDigest) return false;
   // The journal cannot borrow a current-base exception for a different proposed
   // subject, or match an old base while the actual persisted scope has drifted.
-  return [next, base].every(subject => !subject || canonicalDigest(scopeBudgetSubjectProjection(subject, snapshot.createdAt)) === entry.subjectDigest);
+  const matches = [next, base].every(subject => {
+    if (!subject) return true;
+    const projection = scopeBudgetSubjectProjection(subject, snapshot.createdAt, root);
+    return projection.pathSet.status === 'valid' && canonicalDigest(projection) === entry.subjectDigest;
+  });
+  if (!matches || realpathSync(root) !== canonicalRoot || realpathSync(store.projectRoot) !== canonicalRoot) return false;
+  const currentRoot = lstatSync(canonicalRoot);
+  return currentRoot.isDirectory() && !currentRoot.isSymbolicLink()
+    && currentRoot.dev === rootIdentity.dev && currentRoot.ino === rootIdentity.ino;
+  } catch { return false; }
 }

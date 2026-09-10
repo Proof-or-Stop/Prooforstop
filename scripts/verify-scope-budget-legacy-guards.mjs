@@ -35,7 +35,7 @@ try{
  const scope=store.readScopeContract(SELF_ID);store.writeScopeContract(SELF_ID,{...scope,allowedModify:[...scope.allowedModify,'src/new.ts']});check('changed legacy path fails closed',readStoryScopeBudget(store,root,SELF_ID).blocking);store.writeScopeContract(SELF_ID,scope);
  const fsExtra=await import('node:fs');const external=mkdtempSync(join((await import('node:os')).tmpdir(),'u06-outside-'));try{
   fsExtra.writeFileSync(join(external,'owned.ts'),'export{}');fsExtra.symlinkSync(external,join(root,'external-link'));
-  for(const unsafe of ['external-link/owned.ts','../outside.ts','src/**']){
+  for(const unsafe of ['external-link/owned.ts','../outside.ts','src/*']){
    store.writeScopeContract(SELF_ID,{...scope,allowedModify:[unsafe]});
    const unsafeSnapshot=readScopeBudgetLegacySnapshot(store,SELF_ID);entry.subjectDigest=unsafeSnapshot.subjectDigest;save();
    check('exact captured missing-proof subject rejects unsafe path '+unsafe,readStoryScopeBudget(store,root,SELF_ID).blocking);

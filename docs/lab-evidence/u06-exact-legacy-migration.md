@@ -18,4 +18,20 @@ The first full build rejected an internal synthetic policy-probe cast. The repai
 
 ## Activation boundary
 
-Root policy activation and actual legacy-entry capture require separate current evidence. Layer-based ownership maps were rejected because they turn a normal core/handler/test/docs repair into multiple artificial responsibilities. Current repository activation uses reviewed functional boundaries. At this stage the conservative matcher rejects unresolved globs; B-1734's existing test glob therefore still needs an exact bounded expansion binding before claiming that all existing candidates can migrate.
+Root policy activation and actual legacy-entry capture require separate current evidence. Layer-based ownership maps were rejected because they turn a normal core/handler/test/docs repair into multiple artificial responsibilities. Repository activation uses reviewed functional boundaries.
+
+The subject v2 repair supports only a literal directory prefix followed by `/**`.
+It binds sorted physical path membership, with a 10,000-entry and 32-level bound.
+Adding or removing members invalidates the capture; editing member bytes does not
+change scope. Interior symlinks, unsafe paths, root retargeting and directory
+identity changes are refused. A legitimate lexical alias of the project root is
+canonicalized. This is a bounded traversal with identity rechecks, not an atomic
+filesystem snapshot. Existing v1 digests require fresh capture.
+
+Regression commit `36170dc81a` invokes the actual compiled CLI twice against an
+isolated fixture. Its fixed `U06_LEGACY_GLOB_CLI_REQUIRED` assertion failed with
+`unknown` on the old implementation. After repair, the same compiled CLI returned
+`legacy_subject_preserved`. The physical-path boundary suite and all existing
+real-guard assertions passed. Independent static review found no blocker. The
+first build exposed an overloaded fs type inference issue, corrected by using
+the actual non-optional `Stats` type; the subsequent build passed.
