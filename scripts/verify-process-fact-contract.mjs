@@ -8671,6 +8671,12 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(registrySource.includes("name: 'runtime:machine_provider_admission'"), 'machine provider admission must be a registered process fact');
   assert(registrySource.includes('packages/main/src/providers/supervised-process-worker.ts'), 'synchronous provider lifecycle must be registered');
   assert(registrySource.includes('canonical validation command IDs'), 'scope budget canonical validation identities must be registered');
+  const legacyBudget = read('packages/main/src/core/story-scope-budget-legacy.ts');
+  for (const invariant of ['SCOPE_BUDGET_SUBJECT_SCHEMA', 'capturedPhase', 'row.createdAt === snapshot.createdAt', '[next, base].every', 'subjectDigest !== snapshot.subjectDigest']) {
+    assert(legacyBudget.includes(invariant), `legacy scope migration requires ${invariant}`);
+  }
+  assert(registrySource.includes('packages/main/src/core/story-scope-budget-legacy.ts'), 'legacy migration producer must be registered');
+  assert(read('packages/main/src/handlers/story-scope-budget.ts').includes('legacySnapshot: readScopeBudgetLegacySnapshot'), 'migration subject export must use shared read-only projection');
   const budgetDecision = read('packages/main/src/core/story-scope-budget-decisions.ts');
   for (const invariant of ['assertOperator(args)', 'withReviewInventoryMutationLock', 'verifyValidationArtifact', 'report.bindingDigest !== args.bindingDigest', 'currentScopeBudgetApproval', 'expiresAt']) {
     assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);

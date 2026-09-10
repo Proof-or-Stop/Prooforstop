@@ -1,3 +1,4 @@
+import { validateScopeBudgetLegacyManifest, matchesLegacyScopeBudgetSubject, type ScopeBudgetLegacyManifest } from './story-scope-budget-legacy.js';
 import { buildValidationCommandInventory } from './validation-command-identity.js';
 import { configuredValidationCommandEntries } from './validation-command-config.js';
 /** Semantic scope accounting. No file-count proxy and no approval side effects. */
@@ -28,6 +29,7 @@ export interface StoryScopeBudgetPolicy {
   responsibilities: Array<{ id: string; paths: string[]; hostAdapters: string[]; validationGroups: string[] }>;
   /** Canonical command IDs; legacy labels must resolve uniquely. Focus is not a domain. */
   validationGroups?: Array<{ id: string; commandIds?: string[]; commandLabels?: string[] }>;
+  legacySubjects?: ScopeBudgetLegacyManifest;
 }
 export interface ScopeBudgetSubject {
   storyId: string;
@@ -39,7 +41,7 @@ export interface StoryScopeBudgetReport {
   schemaVersion: 'story-scope-budget-report.v1';
   storyId: string;
   mode: 'disabled' | 'observe' | 'enforce';
-  status: 'disabled' | 'within_budget' | 'decision_required' | 'approved_large_story' | 'unknown';
+  status: 'disabled' | 'within_budget' | 'decision_required' | 'approved_large_story' | 'legacy_subject_preserved' | 'unknown';
   blocking: boolean;
   counts: Record<ScopeBudgetDimension, number>;
   facts: Record<ScopeBudgetDimension, string[]>;
@@ -81,6 +83,7 @@ function policyFor(value: unknown): StoryScopeBudgetPolicy {
     }
     names(row.validationGroups, `${row.id}.validationGroups`);
   }
+  validateScopeBudgetLegacyManifest(policy.legacySubjects);
   return policy;
 }
 
@@ -96,19 +99,7 @@ for (const fact of PROCESS_FACT_REGISTRY) {
   }
 }
 const sourcePath = (path: string) => path.replace(/\\/g, '/').replace(/^\.\//, '');
-function subjectFacts(subject: ScopeBudgetSubject, policy: StoryScopeBudgetPolicy, config: ProofOrStopConfig) {
-  if (!subject.scope || subject.scope.storyId !== subject.storyId || !Array.isArray(subject.checklist?.items)
-    || !subject.proofStory || subject.proofStory.storyId !== subject.storyId || !Array.isArray(subject.proofStory.acceptanceBindings)) {
-    throw new Error('scope budget requires current scope, checklist and acceptance topology');
-  }
-  const facts = emptyFacts();
-  const diagnostics: string[] = [];
-  const paths = unique([
-    ...names(subject.scope.allowedModify, 'allowedModify'), ...names(subject.scope.allowedCreate, 'allowedCreate'),
-    ...names(subject.scope.allowedTest, 'allowedTest'),
-    ...subject.checklist.items.filter(item => item.status !== 'withdrawn').flatMap(item =>
-      ['modify', 'create', 'test'].flatMap(kind => names(item.files?.[kind as 'modify'] ?? [], `checklist.${kind}`))),
-  ].map(sourcePath));
+function validationGroupsFor(policy: StoryScopeBudgetPolicy, config: ProofOrStopConfig): Map<string, string[]> {
   const { commands, legacyLabels } = configuredValidationCommandEntries(config);
   const inventory = buildValidationCommandInventory({ commands });
   const groups = new Map<string, string[]>();
@@ -127,6 +118,23 @@ function subjectFacts(subject: ScopeBudgetSubject, policy: StoryScopeBudgetPolic
     });
     groups.set(group.id, ids);
   }
+  return groups;
+}
+
+function subjectFacts(subject: ScopeBudgetSubject, policy: StoryScopeBudgetPolicy, config: ProofOrStopConfig) {
+  if (!subject.scope || subject.scope.storyId !== subject.storyId || !Array.isArray(subject.checklist?.items)
+    || !subject.proofStory || subject.proofStory.storyId !== subject.storyId || !Array.isArray(subject.proofStory.acceptanceBindings)) {
+    throw new Error('scope budget requires current scope, checklist and acceptance topology');
+  }
+  const facts = emptyFacts();
+  const diagnostics: string[] = [];
+  const paths = unique([
+    ...names(subject.scope.allowedModify, 'allowedModify'), ...names(subject.scope.allowedCreate, 'allowedCreate'),
+    ...names(subject.scope.allowedTest, 'allowedTest'),
+    ...subject.checklist.items.filter(item => item.status !== 'withdrawn').flatMap(item =>
+      ['modify', 'create', 'test'].flatMap(kind => names(item.files?.[kind as 'modify'] ?? [], `checklist.${kind}`))),
+  ].map(sourcePath));
+  const groups = validationGroupsFor(policy, config);
   for (const path of paths) {
     if (!path || path.startsWith('/') || /^[A-Za-z]:/.test(path) || path.split('/').includes('..') || /[*?[\]{}\x00-\x1f]/.test(path)) {
       diagnostics.push(`unresolved scope path: ${path}`); continue;
@@ -246,12 +254,14 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
     storyId, scope: store.readScopeContract(storyId), checklist: store.readChecklist(storyId), proofStory: store.readProofStoryContract(storyId),
   }) as ScopeBudgetSubject;
   const report = evaluateStoryScopeBudget(subject, config, base);
+  const budgetDiagnostics = [...report.diagnostics];
+  let unsafeFilesystemPath = false;
   if (report.mode !== 'disabled') for (const path of report.paths) {
     try {
       const canonical = canonicalFilesystemPath(root, path);
-      if (canonical !== resolve(realpathSync(root), path)) report.diagnostics.push(`noncanonical scope alias: ${path}`);
-      if (existsSync(canonical) && statSync(canonical).isDirectory()) report.diagnostics.push(`unresolved scope directory: ${path}`);
-    } catch { report.diagnostics.push(`unresolved filesystem scope: ${path}`); }
+      if (canonical !== resolve(realpathSync(root), path)) { unsafeFilesystemPath = true; report.diagnostics.push(`noncanonical scope alias: ${path}`); }
+      if (existsSync(canonical) && statSync(canonical).isDirectory()) { unsafeFilesystemPath = true; report.diagnostics.push(`unresolved scope directory: ${path}`); }
+    } catch { unsafeFilesystemPath = true; report.diagnostics.push(`unresolved filesystem scope: ${path}`); }
   }
   if (report.diagnostics.length) {
     report.status = 'unknown';
@@ -265,6 +275,30 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
       if (report.decomposition.status !== 'ready') {
         report.diagnostics.push(...report.decomposition.diagnostics);
         report.status = 'unknown'; report.blocking = report.blocking || report.mode === 'enforce';
+      }
+    }
+  }
+  if (config.storyScopeBudget?.legacySubjects && report.mode === 'enforce' && report.blocking && !unsafeFilesystemPath
+    && (!report.decomposition || report.decomposition.status === 'ready')) {
+    // Only captured historical subject defects may migrate. Policy/schema,
+    // command registry, filesystem and decomposition failures remain blocking.
+    const subjectDiagnostic = (message: string) => [
+      'scope budget requires current scope, checklist and acceptance topology',
+      'unresolved scope path: ', 'unmapped responsibility: ', 'missing acceptance topology: ',
+    ].some(prefix => message === prefix || (prefix.endsWith(': ') && message.startsWith(prefix)));
+    if (budgetDiagnostics.every(subjectDiagnostic)) {
+      const manifest = validateScopeBudgetLegacyManifest(config.storyScopeBudget?.legacySubjects);
+      // A malformed historical subject can stop ordinary accounting before
+      // command-policy validation. Validate those inputs directly; never create
+      // a synthetic Story or treat its report as migration evidence.
+      let policyComplete = false;
+      try {
+        const policy = policyFor(config.storyScopeBudget);
+        const groups = validationGroupsFor(policy, config);
+        policyComplete = policy.responsibilities.every(row => row.validationGroups.every(group => groups.has(group)));
+      } catch { /* Invalid policy cannot receive a legacy exception. */ }
+      if (policyComplete && manifest && matchesLegacyScopeBudgetSubject(store, root, storyId, manifest, next, base)) {
+        report.status = 'legacy_subject_preserved'; report.blocking = false;
       }
     }
   }
