@@ -1,5 +1,33 @@
 # Changelog
 
+## Lab b03b7-public-foreign-canonical - v0.3.299 - 2026-09-10
+
+# B-03b7 public foreign canonical coverage
+
+## Problem
+
+Independent test-coverage review recorded B-03b7:F-031 after the 0.3.298 identity-catalog repair. The existing linked-worktree regression proved internal contributor discovery with a temporary placeholder record, but removed that record before the public history and scorecard commands ran. It therefore did not prove that a valid signed canonical identity stored only in another active Story worktree appears in public history projection and in the global catalog dependency digest.
+
+## Change
+
+The linked-worktree fixture now builds a valid reviewer-confirmed CanonicalDefect over a real signed Finding reference, signs its semantic envelope with the shared ledger trust, and atomically appends it only to the foreign active Story worktree. Before that Story is merged, a distinct target worktree calls `finding_history_query` and `finding_identity_scorecard`. The assertions require the canonical ID in the history projection, the exact canonical row in the scorecard, and a stable repeated input digest. The fixture then merges and removes the source worktree and verifies that the same signed history remains readable.
+
+A focused wrapper is retained as a standing regression. It runs the real multi-worktree smoke and requires the public-chain marker rather than accepting internal contributor coverage alone.
+
+## RED and GREEN
+
+RED used `node packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs`. The existing 30 internal multi-worktree checks passed, but the command exited non-zero with `F031_PUBLIC_FOREIGN_CANONICAL_MISSING` because the public signed-canonical chain was absent.
+
+GREEN replayed the exact command after the committed test repair. It reported `PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS`, 30/30 multi-worktree checks passed, and `F031_PUBLIC_FOREIGN_CANONICAL_GREEN PASS`.
+
+## Scope and provenance
+
+This Lab changes only B-03b7 regression coverage and adds no new product authority or lifecycle behavior. It does not import or claim Story REVIEW, TEST, or DONE metadata. The earlier 0.3.298 Lab established the product repair and passed the complete 91/91 identity delivery suite plus the process-fact contract; this Lab closes the independently identified public-boundary coverage gap with the focused affected-path test.
+
+Maintenance provenance: codex/lab-b03b7-public-foreign-canonical, repair 91c8f1f1f50d26c2651c1ab833a873da6855cc4e.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b03b7-identity-lineage-review-gaps - v0.3.298 - 2026-09-10
 
 # B-03b7 identity and historical-lineage integration
