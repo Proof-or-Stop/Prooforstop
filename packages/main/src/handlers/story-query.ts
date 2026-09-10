@@ -530,8 +530,8 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     },
 
     story_list(args?: { phase?: StoryPhase; active?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
-      // B-89c7 CHK-016: active=true is a preset for "non-terminal phases"
-      // (exclude DONE / DISCARDED / IDEA). Mutually exclusive with phase.
+      // active=true selects the active lifecycle phases and legacy test phases;
+      // DONE, DISCARDED, IDEA and META are excluded. Mutually exclusive with phase.
       if (args?.active && args?.phase) {
         throw new Error('story_list: active and phase are mutually exclusive');
       }

@@ -28,7 +28,8 @@ try{
  const linked=join(root,'linked');git('worktree','add','-b','story/B-linked',linked);
  stories.set('B-linked',{...make('B-linked','INIT_CHECK'),worktree:{path:linked,branch:'story/B-linked'}});
  const projected=new Map(stories);projected.set('B-linked',{...stories.get('B-linked'),phase:'REVIEW'});
- const access=function(id){const collection=realpathSync(this.projectRoot)===realpathSync(linked)?projected:stories;const row=collection.get(id);assert.ok(row,`unknown fixture id ${id}`);return structuredClone(row);};
+ const projectedByRoot=new Map([[realpathSync(linked),projected]]);
+ const access=function(id){const collection=projectedByRoot.get(realpathSync(this.projectRoot))||stories;const row=collection.get(id);assert.ok(row,`unknown fixture id ${id}`);return structuredClone(row);};
  const replacements={
   readStory:access,listStoryIds(){return [...stories.keys()];},
   readChecklist(id){reads.push({method:'readChecklist',id});if(id===corruptId)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKLIST_UNREADABLE','deliberate selected-record integrity failure');return {items:[{id:'CHK-1',status:'done'},{id:'CHK-2',status:'withdrawn'}]};},
@@ -42,7 +43,7 @@ try{
  const expected=[...stories.values()].filter(s=>activePhases.includes(s.phase)).map(s=>s.storyId).sort();
  reads.length=0;const active=handlers.story_list({active:true,json:true});const activeReads=structuredClone(reads);
  check('active includes REVIEW and excludes terminal phases',()=>assert.deepEqual(active.map(r=>r.storyId).sort(),expected));
- check('linked worktree phase is selected before filtering',()=>assert.equal(active.find(r=>r.storyId==='B-linked')?.phase,'REVIEW'));
+ check('linked worktree phase is selected before filtering',()=>{const row=active.find(r=>r.storyId==='B-linked');assert.equal(row?.phase,'REVIEW');assert.equal(row?.mainPhase,'INIT_CHECK');});
  check('active reads details only for selected Stories',()=>assert.deepEqual([...new Set(activeReads.map(r=>r.id))].sort(),expected));
  check('selected fields retain withdrawn count and evidence',()=>{const r=active.find(r=>r.storyId==='B-DEV');assert.equal(r.checklist,'1/2 +1w');assert.equal(r.tests,'pass');});
  reads.length=0;const review=handlers.story_list({phase:'REVIEW',json:true});const reviewReads=structuredClone(reads);
@@ -55,7 +56,23 @@ try{
  corruptId='B-REVIEW';
  check('selected amendment integrity failures propagate',()=>assert.throws(()=>handlers.story_list({phase:'REVIEW'}),/AMENDMENT_CHECKLIST_UNREADABLE/));
  corruptId=null;
- const result={scope:'query selection correctness and avoided detail calls; no Story delivery-time claim',stories:stories.size,expectedActive:expected.length,observedActive:active.length,activeDetailCalls:activeReads.length,phaseReviewDetailCalls:reviewReads.length,controls,failures};
+ const initialStoryCount=stories.size;
+ // Audit additions preserve the original 312-row RED/GREEN sample above.
+ stories.set('B-meta',make('B-meta','META'));
+ check('META remains excluded from active selection',()=>assert.ok(!handlers.story_list({active:true}).some(r=>r.storyId==='B-meta')));
+ const residual=join(root,'residual');git('worktree','add','-b','story/B-residual',residual);
+ stories.set('B-residual',{...make('B-residual','DONE'),worktree:{path:residual,branch:'story/B-residual'}});
+ projectedByRoot.set(realpathSync(residual),new Map([['B-residual',{...stories.get('B-residual'),phase:'DEV'}]]));
+ reads.length=0;
+ check('terminal root cannot be revived by residual DEV worktree',()=>{
+  assert.ok(!handlers.story_list({active:true}).some(r=>r.storyId==='B-residual'));
+  assert.ok(!reads.some(r=>r.id==='B-residual'));
+ });
+ corruptId='B-DONE';
+ check('excluded amendment error does not abort filtered query',()=>assert.deepEqual(handlers.story_list({phase:'REVIEW'}).map(r=>r.storyId).sort(),['B-REVIEW','B-linked']));
+ check('unfiltered query still reports excluded-record integrity failure',()=>assert.throws(()=>handlers.story_list({json:true}),/AMENDMENT_CHECKLIST_UNREADABLE/));
+ corruptId=null;
+ const result={scope:'query selection correctness and avoided detail calls; no Story delivery-time claim',stories:initialStoryCount,auditBoundaryAddedStories:stories.size-initialStoryCount,expectedActive:expected.length,observedActive:active.length,activeDetailCalls:activeReads.length,phaseReviewDetailCalls:reviewReads.length,controls,failures};
  console.log(JSON.stringify(result,null,2));
  if(failures.length){console.error('STORY_LIST_SELECTION_REGRESSION: active selection loses REVIEW or hydrates excluded details');process.exitCode=1;}
  else console.log('STORY_LIST_SELECTION_GREEN');

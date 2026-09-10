@@ -65,8 +65,9 @@ are unaffected. Internal stdout consumers that `JSON.parse` a bare command are
 also preserved in brief mode: `finding_list` keeps `findings[].evidenceState`
 and `attention.suspected`; `story_list` keeps `_bugSummary`.
 
-`story_list --active` includes REVIEW along with the other non-terminal lifecycle
-phases (including legacy test phases). Explicit `--active` and `--phase` filters
+`story_list --active` includes INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST and
+the legacy TEST_CASE / TEST_CASE_REVIEW phases. DONE, DISCARDED, IDEA and META
+are excluded from this active selection. Explicit `--active` and `--phase` filters
 use the resolved workspace phase before reading row details. They do not inspect
 excluded Stories' checklist, bug, test-evidence or metrics details; use the
 unfiltered listing for the complete dashboard and its full-population totals.
