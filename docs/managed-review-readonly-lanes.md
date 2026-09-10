@@ -60,3 +60,10 @@ malformed supported credential files fail before snapshot creation or worker
 startup. Providers receive the private credential copy, not write access to the
 original directory. Resuming an existing run attaches its original sealed spec;
 it does not build a new lane or retroactively certify legacy runs as isolated.
+
+Capability readiness uses the shared synchronous provider supervisor, including
+its machine/project admission and ordinary process-group cleanup. An actual
+provider auth failure or timeout remains non-ready; unproven cleanup also cannot
+produce READY. The readiness classifier retains its 256 KiB per-stream failure
+threshold, while the supervisor bounds total captured output at its shared limit.
+This lifetime repair does not yet establish batch-wide shared readiness admission.

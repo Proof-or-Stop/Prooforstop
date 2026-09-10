@@ -768,7 +768,7 @@ export const PROVIDER_EXECUTION_SURFACES: readonly ProviderExecutionSurface[] = 
   { path: 'providers/codex-cli.ts', status: 'adapter_only', admissionOwner: null, note: 'Low-level bounded adapter; callers own shared admission.' },
   { path: 'providers/claude-cli.ts', status: 'adapter_only', admissionOwner: null, note: 'Low-level bounded adapter and probe; callers own shared admission.' },
   { path: 'providers/gemini-cli.ts', status: 'adapter_only', admissionOwner: null, note: 'Low-level bounded adapter; callers own shared admission.' },
-  { path: 'core/host-execution-readiness.ts', status: 'readiness_probe', admissionOwner: null, note: 'Bounded capability probe, never a provider workload or review evidence.' },
+  { path: 'core/host-execution-readiness.ts', status: 'readiness_probe', admissionOwner: 'providers/supervised-process.ts', note: 'Bounded capability probe uses shared provider admission and supervised group cleanup; readiness is never review evidence.' },
   { path: 'index.ts', status: 'adapter_only', admissionOwner: null, note: 'Package export barrel references provider adapters but never launches a process.' },
   { path: 'init-assets.ts', status: 'adapter_only', admissionOwner: null, note: 'Generates host adapter scripts and documentation templates; template child-process text is not executed by this module.' },
 ]);

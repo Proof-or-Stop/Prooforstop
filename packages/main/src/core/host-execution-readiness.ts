@@ -1,4 +1,5 @@
-import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import type { SpawnSyncReturns } from 'node:child_process';
+import { runSupervisedProviderProcess } from '../providers/supervised-process.js';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
@@ -474,14 +475,20 @@ export function probeHostExecutionReadiness(args: {
   const execution = launcherExecutionPlan(spec);
   const started = Date.now();
   try {
-    const result = spawnSync(args.executablePath, execution.spawnArgv, {
-      cwd: args.cwd,
-      env: args.env,
-      encoding: 'utf8',
-      timeout: args.timeoutMs,
-      maxBuffer: 256 * 1024,
-      input: args.host === 'codex' ? boundedReadinessPrompt() : '',
+    const supervised = runSupervisedProviderProcess(args.executablePath, execution.spawnArgv, {
+      cwd: args.cwd ?? process.cwd(),
+      env: args.env ?? process.env,
+      timeoutMs: args.timeoutMs,
+      stdin: args.host === 'codex' ? boundedReadinessPrompt() : '',
     });
+    // Retain the readiness output ceiling/classification, while the shared
+    // supervisor owns admission and proves provider-group cleanup first.
+    const overflow = Buffer.byteLength(supervised.stdout, 'utf8') > 256 * 1024
+      || Buffer.byteLength(supervised.stderr, 'utf8') > 256 * 1024;
+    const result = { ...supervised, signal: supervised.signal ?? null,
+      ...(overflow ? { status: null,
+        error: Object.assign(new Error('readiness output exceeded bounded buffer'), { code: 'ENOBUFS' }) } : {}),
+    };
     const durationMs = Math.max(0, Date.now() - started);
     const failureKind = classifyHostExecutionFailure(result);
     const timedOut = failureKind === 'timeout';

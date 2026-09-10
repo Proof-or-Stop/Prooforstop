@@ -57,6 +57,11 @@ case " $* " in
     ;;
 esac
 has_ready=0
+stdin_prompt=''
+if [ "\${0##*/}" = 'codex' ]; then
+  stdin_prompt=$(cat)
+  case "$stdin_prompt" in *READY*) has_ready=1 ;; esac
+fi
 case "$*" in
   *READY*) has_ready=1 ;;
 esac
@@ -70,6 +75,7 @@ fi
 {
   printf 'host=%s\\n' "\${0##*/}"
   printf 'argc=%s\\n' "$#"
+  printf 'stdin=%s\\n' "$stdin_prompt"
   i=0
   for arg do
     i=$((i + 1))
@@ -88,9 +94,9 @@ exit 64
   return bin;
 }
 
-function readCapturedLaunches(path: string): { host: string; argv: string[] }[] {
+function readCapturedLaunches(path: string): { host: string; argv: string[]; input: string }[] {
   const text = existsSync(path) ? readFileSync(path, 'utf8') : '';
-  const launches: { host: string; argv: string[] }[] = [];
+  const launches: { host: string; argv: string[]; input: string }[] = [];
   let block = new Map<string, string>();
   function flush(): void {
     if (block.size === 0) return;
@@ -98,7 +104,7 @@ function readCapturedLaunches(path: string): { host: string; argv: string[] }[] 
     const argc = Number(block.get('argc') ?? 0);
     const argv: string[] = [];
     for (let i = 1; i <= argc; i++) argv.push(block.get(`arg${i}`) ?? '');
-    launches.push({ host, argv });
+    launches.push({ host, argv, input: block.get('stdin') ?? '' });
     block = new Map<string, string>();
   }
   for (const line of text.split('\n')) {
@@ -306,6 +312,9 @@ try {
         assert.equal(isAbsolute(promptPath), true);
         assert.doesNotMatch(promptPath, /Reply READY/);
         assert.equal(existsSync(promptPath), false, 'Claude readiness prompt file should be cleaned up');
+      } else if (row.host === 'codex') {
+        assert.equal(launch.argv.at(-1), '-', 'Codex readiness receives its prompt through stdin');
+        assert.equal(launch.input, SMOKE_PROMPT);
       } else {
         const prompt = row.launcherArgv[spec.launcherArgv.indexOf('<prompt>')];
         assert.match(prompt, /Reply READY and do not run tools/);
@@ -357,16 +366,16 @@ try {
 
   check('ready rows with placeholder launcher argv are rejected as non-executed evidence', () => {
     const rows = [
-      readinessRow('codex', true, {
-        launcherArgv: canonicalReviewHostLauncherSpec('codex').launcherArgv,
+      readinessRow('claude', true, {
+        launcherArgv: canonicalReviewHostLauncherSpec('claude').launcherArgv,
       }),
-      readinessRow('claude', false),
+      readinessRow('codex', false),
       readinessRow('agy', false),
     ];
     const event = readinessProbe(rows);
     const record = reviewHostAvailabilityProbeRecordFromEvent(event, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(record.valid, false);
-    assert.match(record.reasons.join('\n'), /codex.*concrete executed argv|codex.*placeholders/);
+    assert.match(record.reasons.join('\n'), /claude.*concrete executed argv|claude.*placeholders/);
   });
 
   check('v2 readiness probe may omit retired markers and still rejects forged marker values', () => {
