@@ -2199,6 +2199,8 @@ export type TestResult = 'PASS' | 'FAIL';
 export type TestFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface TestEvidenceData {
+  /** Ed25519 authentication of the entire final record, bound to its Story. Missing legacy PASS must be rerun. */
+  validationArtifactSignature?: string;
   /** command of the last test run */
   command: string;
   /** output of the last test run */

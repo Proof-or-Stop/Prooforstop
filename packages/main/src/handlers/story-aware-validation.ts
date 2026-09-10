@@ -54,6 +54,9 @@ import {
   type VerificationIntent,
   verifyCanonicalFullBaseline,
   verifyValidationCommandReceipt,
+  verifyValidationSelectionManifest,
+  verifyValidationClosureCertificate,
+  isReceiptRevoked,
   verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
@@ -376,6 +379,46 @@ export function prepareStoryAwareValidation(args: PrepareStoryAwareValidationArg
 export interface DynamicValidationArtifacts {
   receipts: ValidationCommandReceipt[];
   revocationLedger: ReceiptRevocationLedger;
+}
+
+/** Consumer-side integrity checks; never executes commands or repairs runtime evidence. */
+export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyId: string, head: string, value: unknown): string[] {
+  try {
+    const manifest = value as ValidationSelectionManifest;
+    if (!verifyValidationSelectionManifest(manifest, { storyId, head })
+      || manifest.mode !== 'enforce-low-risk' || manifest.fullEscalated) return ['dynamic_manifest_invalid'];
+    if (manifest.toolchainDigest !== stableDigest({ node: process.version, platform: process.platform, arch: process.arch }))
+      return ['dynamic_toolchain_changed'];
+    const dir = artifactDir(projectRoot, storyId);
+    // Strict reads are deliberate: the execution cache's empty-ledger recovery
+    // cannot be used to accept an existing PASS after evidence disappears.
+    const ledger = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
+    const receipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
+    if (!verifyRevocationLedger(ledger) || ledger.digest !== manifest.receiptRevocationLedgerDigest)
+      return ['dynamic_revocation_ledger_changed_or_invalid'];
+    if (!Array.isArray(receipts)) return ['dynamic_receipts_invalid'];
+    const baseline = readCanonicalFullBaseline(projectRoot);
+    if (!baseline || baseline.sourceHead !== manifest.baseHead || baseline.epochId !== manifest.canonicalBaselineEpochId
+      || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
+      || baseline.runnerDigest !== DYNAMIC_RUNNER_DIGEST || baseline.toolchainDigest !== manifest.toolchainDigest)
+      return ['dynamic_baseline_invalid'];
+    for (const row of manifest.rows) {
+      const closure = baseline.closureCertificates[row.commandId];
+      if (!closure || !verifyValidationClosureCertificate(closure)
+        || closure.signature !== row.closureCertificateDigest) return ['dynamic_closure_invalid'];
+      const candidates = receipts.filter(receipt => receipt.commandId === row.commandId
+        && (row.disposition === 'reuse' ? receipt.id === row.receiptId : receipt.sourceHead === manifest.head));
+      const accepted = candidates.some(receipt => verifyValidationCommandReceipt(receipt).ok
+        && !isReceiptRevoked(receipt, ledger) && receipt.revocationLedgerDigest === ledger.digest
+        && receipt.inputDigest === row.inputDigest && receipt.closureCertificateDigest === closure.signature
+        && receipt.catalogDigest === manifest.catalogDigest && receipt.inventoryDigest === manifest.inventoryDigest
+        && receipt.runnerDigest === DYNAMIC_RUNNER_DIGEST && receipt.toolchainDigest === manifest.toolchainDigest
+        && receipt.buildProofDigest === manifest.buildProofDigest && receipt.sourceBaseHead === manifest.baseHead
+        && receipt.canonicalBaselineEpochId === manifest.canonicalBaselineEpochId);
+      if (!accepted) return ['dynamic_receipt_missing_invalid_expired_or_revoked'];
+    }
+    return [];
+  } catch { return ['dynamic_evidence_unavailable_or_malformed']; }
 }
 
 export interface DynamicShardArtifact {

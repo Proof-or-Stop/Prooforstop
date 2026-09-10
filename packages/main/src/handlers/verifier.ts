@@ -1,3 +1,5 @@
+import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
@@ -757,9 +759,24 @@ function evaluateStoryRoutineReuse(args: {
   gitCwd: string;
   identity: RoutineValidationIdentity;
   coverage: ReturnType<typeof routineVerificationSnapshot>['coverage'];
+  /** Explicitly unavailable for TEST/DONE/full and the no-validator path. */
+  allowDynamicCoverage?: boolean;
 }): RoutineValidationReuseEvaluation {
   let evidence = null;
   try { evidence = args.ctx.store.readTestEvidence(args.storyId); } catch { /* refusal below */ }
+  let dynamicCoverageAdmitted = false;
+  let priorDynamicAuthority = false;
+  if (evidence && verifyTestValidationEvidence(args.storyId, evidence, args.gitCwd)) {
+    try {
+      const output = JSON.parse(evidence.output);
+      if (output?.dynamicValidation?.authority === 'enforce-authority'
+        || String(output?.provider || '').includes('dynamic-authoritative')) {
+        priorDynamicAuthority = true;
+        dynamicCoverageAdmitted = args.allowDynamicCoverage === true
+          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok;
+      }
+    } catch { /* Malformed/invalid evidence cannot substitute dynamic coverage. */ }
+  }
   let headBefore: string | undefined;
   let headAfter: string | undefined;
   let materialHash: string | undefined;
@@ -786,6 +803,7 @@ function evaluateStoryRoutineReuse(args: {
     gitCwd: args.gitCwd,
     evidence,
     currentIdentity: args.identity,
+    dynamicCoverageAdmitted,
     currentCoverage: args.coverage,
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
@@ -793,6 +811,32 @@ function evaluateStoryRoutineReuse(args: {
     headBefore,
     headAfter,
   });
+  if (priorDynamicAuthority && args.allowDynamicCoverage !== true) {
+    evaluation.reusable = false;
+    evaluation.refusalReasons.push('dynamic_requires_canonical_full_plan');
+  }
+  if (evaluation.reusable) {
+    if (!evidence || !verifyTestValidationEvidence(args.storyId, evidence, args.gitCwd)) {
+      evaluation.reusable = false;
+      evaluation.refusalReasons.push('validation_evidence_signature_invalid');
+    } else {
+      // Dynamic reuse must retain its execution identity and recheck the live
+      // manifest/receipts/ledger before reusing the aggregate PASS.
+      let priorOutput: any;
+      try { priorOutput = JSON.parse(evidence.output); } catch { /* refuse below */ }
+      if (!priorOutput) {
+        evaluation.reusable = false;
+        evaluation.refusalReasons.push('validation_evidence_output_invalid');
+      } else if (priorOutput.dynamicValidation?.authority === 'enforce-authority'
+        || String(priorOutput.provider || '').includes('dynamic-authoritative')) {
+        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId);
+        if (!admitted.ok) {
+          evaluation.reusable = false;
+          evaluation.refusalReasons.push(...admitted.reasonCodes);
+        }
+      }
+    }
+  }
   if (!evaluation.reusable) {
     const priorIdentityDigest = isCompleteRoutineValidationIdentity(evidence?.routineValidationIdentity)
       ? evidence.routineValidationIdentity.digest
@@ -816,8 +860,21 @@ function reusedStoryValidationResult(args: {
   focus?: string;
   warn?: boolean;
 }): any {
+  const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
+  let priorOutput: any;
+  try { priorOutput = priorEvidence ? JSON.parse(priorEvidence.output) : null; } catch { /* refuse below */ }
+  const dynamicOrigin = priorOutput?.dynamicValidation?.authority === 'enforce-authority'
+    || String(priorOutput?.provider || '').includes('dynamic-authoritative');
+  if (!priorEvidence || !verifyTestValidationEvidence(args.storyId, priorEvidence, args.gitCwd)
+    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok)) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because authenticated evidence changed before persistence',
+      details: ['canonical-pass-persistence-failed: prior evidence is missing, invalid or revoked'], warnings: [], commands: [],
+    });
+  }
   const result = externalResult({
-    provider: 'proof-or-stop-verifier-reused',
+    provider: dynamicOrigin ? 'proof-or-stop-verifier-dynamic-authoritative' : 'proof-or-stop-verifier-reused',
     status: args.warn ? 'warn' : 'pass',
     summary: `Validation PASS reused (${args.reuse.lineage}); commandExecutions=0`,
     details: [
@@ -832,6 +889,7 @@ function reusedStoryValidationResult(args: {
   });
   const reused = {
     ...result,
+    ...(dynamicOrigin ? { dynamicValidation: priorOutput.dynamicValidation } : {}),
     disposition: 'reused',
     commandExecutions: 0,
     verificationPolicy: args.snapshot.verificationPolicy,
@@ -843,7 +901,6 @@ function reusedStoryValidationResult(args: {
       identityDigest: args.identity.digest,
     },
   };
-  const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
   const priorCommandExecution = priorEvidence?.commandExecution;
   if (!priorCommandExecution) {
     return externalResult({
@@ -856,7 +913,7 @@ function reusedStoryValidationResult(args: {
       commands: [],
     });
   }
-  const headHash = currentHead(args.gitCwd);
+  const headHash = dynamicOrigin ? priorEvidence.headHash : currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyRel = normalizeRelPath(relative(
@@ -899,7 +956,7 @@ function reusedStoryValidationResult(args: {
   // is rejected with `command_mismatch`, which would silently disable reuse entirely.
   const reusedBound = boundPersistedValidationEvidence({
     result: reused,
-    buildRecord: (output): TestEvidenceData => ({
+    buildRecord: (output): TestEvidenceData => signTestValidationEvidence(args.storyId, {
       command: `proof-or-stop validate --story=${args.storyId} --json`,
       output,
       result: 'PASS',
@@ -911,7 +968,7 @@ function reusedStoryValidationResult(args: {
       commandExecution: priorCommandExecution,
       disposition: 'reused',
       routineValidationIdentity: args.identity,
-    }),
+    }, args.gitCwd),
   });
   const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
   if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
@@ -1088,9 +1145,15 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
-  } = {}) => boundPersistedValidationEvidence({
+  } = {}, authenticate = true) => boundPersistedValidationEvidence({
     result,
-    buildRecord: (output) => evidenceRecord(output, hashes),
+    buildRecord: (output) => {
+      const record = evidenceRecord(output, hashes);
+      // Git-backed FAIL also authenticates successful command coverage, so
+      // filling only a coverage gap can preserve the existing reuse contract.
+      // Only the explicit non-Git FAIL fallback omits authentication.
+      return authenticate ? signTestValidationEvidence(storyId, record, gitCwd) : record;
+    },
   });
 
   let gitCwd: string;
@@ -1135,7 +1198,7 @@ function persistStoryValidationEvidence(
     if (!allPass && /not a git repository/i.test(reason)) {
       try {
         // Same rule on the degraded path: gate and write the SAME computation.
-        const fallbackBound = boundEvidence();
+        const fallbackBound = boundEvidence({}, false);
         if (!fallbackBound.withinBound || fallbackBound.record === null) {
           return persistenceFailure(
             `${reason}; non-git FAIL evidence exceeds the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound `
@@ -1729,10 +1792,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             focus,
           }) : null;
           const reuse = built && args.story
-            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
             : null;
           const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
-          if (reuse?.reusable && built && dynamicMode === 'off') {
+          if (reuse?.reusable && built) {
             ctx.log?.('routine validation reused; commandExecutions=0');
             return reusedStoryValidationResult({
               ctx, storyId: args.story!, gitCwd: handlerGitCwd,
@@ -2200,10 +2263,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           entrypointPath: join(projectRoot, validateFile),
         }) : null;
         const reuse = built && args.story
-          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
-        if (reuse?.reusable && built && dynamicMode === 'off') {
+        if (reuse?.reusable && built) {
           ctx.log?.('routine validation reused; commandExecutions=0');
           const reused = reusedStoryValidationResult({
             ctx, storyId: args.story!, gitCwd: handlerGitCwd,

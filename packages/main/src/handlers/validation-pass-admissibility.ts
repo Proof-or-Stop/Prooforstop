@@ -1,3 +1,5 @@
+import { verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
+import { storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
 import type { HandlerContext } from './context.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -92,7 +94,11 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
     };
   }
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  return evaluateValidationEvidenceAdmissibility({
+  if (!verifyTestValidationEvidence(storyId, evidence, gitCwd)) {
+    return { ok: false, reasons: ['validation evidence signature is missing or invalid; run validate again'],
+      reasonCodes: ['validation_evidence_signature_invalid'], lineage: 'rejected', evidence };
+  }
+  const result = evaluateValidationEvidenceAdmissibility({
     evidence,
     expectedCommand: `proof-or-stop validate --story=${storyId} --json`,
     currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
@@ -101,4 +107,16 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
     gitCwd,
     metadataRoot: ctx.root,
   });
+  if (!result.ok) return result;
+  const output = JSON.parse(evidence.output);
+  if (output?.dynamicValidation?.authority === 'enforce-authority'
+    || String(output?.provider || '').includes('dynamic-authoritative')) {
+    // The canonical PASS writer may append metadata commits after execution.
+    // Generic admissibility above proves current material/story identity and
+    // trusted metadata-only ancestry; the signed manifest binds execution HEAD.
+    const failures = storedDynamicReceiptIntegrityReasons(ctx.root, storyId, evidence.headHash || '', output?.dynamicValidation?.manifest);
+    if (failures.length) return { ...result, ok: false, reasonCodes: [...result.reasonCodes, ...failures],
+      reasons: [...result.reasons, ...failures.map(reason => 'stored dynamic validation rejected: ' + reason)] };
+  }
+  return result;
 }

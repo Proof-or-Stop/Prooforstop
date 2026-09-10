@@ -9477,6 +9477,7 @@ assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunSt
 
 
 assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicValidationPreflightFallbackReasons(projectRoot, dynamic)'), 'dynamic rejection preflight must guard real validation launch');
+assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('storedDynamicReceiptIntegrityReasons'), 'TEST admissibility must recheck stored dynamic receipt integrity');
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -9544,3 +9545,6 @@ for (const file of ['packages/main/src/handlers/agent-prompt.ts', 'packages/main
 assert(read('packages/main/src/core/prompt-registry.ts').includes('export function projectPromptAsset('), 'host assets and reviewer contract bodies share one projection boundary');
 const {scanPromptProjectionConsumers} = await import('./prompt-projection-contract.mjs');
 assert(scanPromptProjectionConsumers('packages/main/src').length === 0, 'all production prompt consumers must satisfy the projection contract');
+
+assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('verifyTestValidationEvidence'), 'TEST admission must authenticate the complete PASS before selecting its verification mode');
+assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageAdmitted'), 'dynamic aggregate reuse must consume verified logical coverage without altering actual execution counts');

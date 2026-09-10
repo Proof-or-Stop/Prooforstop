@@ -437,3 +437,45 @@ not a whole-suite measurement or a population/P95 claim. The deterministic
 regression is `node scripts/verify-worktree-list-efficiency.mjs --performance-only`;
 it checks one real Git process per lookup and then runs the complete live-state
 and subdirectory cases.
+
+## Dynamic PASS consumption
+
+The REVIEW-to-TEST consumer first authenticates the complete stored PASS record
+with its Story-bound signature, before reading its execution mode. Git-backed
+FAIL records are also authenticated, preserving existing command-PASS reuse after
+a verification-coverage-only failure is repaired; non-Git failure reporting stays
+available. Both canonical
+execution and whole-result reuse sign the final size-bounded record. Dynamic whole-result
+reuse preserves the original manifest and execution HEAD and rechecks the live
+receipts, so an unchanged retry can reuse its PRE_CERT result without launching
+validation children or discarding its dynamic proof. Removing a
+dynamic marker, changing the output, or stripping the signature cannot downgrade
+verification. Older unsigned PASS records require a fresh `validate` run.
+
+The consumer then rechecks dynamic receipt integrity at consumption:
+the signed manifest, its execution HEAD, current baseline/closure bindings,
+current toolchain, each required receipt signature and expiry, and the live signed
+revocation ledger. Missing or malformed runtime records are refused rather than
+recovered as an empty ledger. The normal evidence freshness check first proves
+that automatic metadata commits preserve material and Story-input identity; the
+manifest still binds the actual execution HEAD. No validation child is started
+by this check.
+
+A real dynamic REVIEW execution that runs build and reuses one certified PASS
+can pass the TEST-entry consumer. Revoking that receipt afterward now rejects
+entry, as do missing/tampered/expired receipts and missing/malformed ledgers.
+This does not enable the root repository's observe configuration. The original
+DYN-3 plan additionally requires the complete dependency, scope, ancestry,
+environment and rollout evidence chain before expanding dynamic authority. In
+particular, root full-only policies and unknown graph dependencies remain intact.
+Direct validation invoked in TEST currently retains its canonical-full policy;
+this is distinct from consuming a valid REVIEW dynamic PASS on entry to TEST.
+
+The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. It
+covers real full and dynamic execution, zero-child repeats, TEST entry, signature
+stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
+missing/malformed ledgers, and receipt/epoch revocation. The older
+`validation-evidence-reuse-smoke` still stops before these paths because its
+terminal-hook fixture has a completed checklist item without verification intent;
+the same failure was reproduced against the pre-repair verifier. Its entire
+suite is not claimed green by this repair.

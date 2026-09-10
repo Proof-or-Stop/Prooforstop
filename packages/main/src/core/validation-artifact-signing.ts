@@ -1,3 +1,4 @@
+import type { TestEvidenceData } from './types.js';
 /**
  * Trust boundary for story-aware validation artifacts.
  *
@@ -92,4 +93,35 @@ export function verifyValidationArtifact(value: unknown, signature: unknown, git
 /** Exposed for focused diagnostics; never returns private material. */
 export function validationArtifactSigningPublicKey(gitCwd = process.cwd()): string | undefined {
   return readTrustedPublicKey(gitCwd);
+}
+
+const TEST_VALIDATION_EVIDENCE_DOMAIN = 'proof-or-stop.test-validation-evidence.v1';
+
+/** Authenticate the final persisted execution evidence before measuring its size. */
+export function signTestValidationEvidence(
+  storyId: string,
+  evidence: TestEvidenceData,
+  gitCwd = process.cwd(),
+): TestEvidenceData {
+  if (!storyId.trim() || !['PASS', 'FAIL'].includes(evidence.result)) throw new Error('validation evidence signer requires a Story execution result');
+  const { validationArtifactSignature: _priorSignature, ...record } = evidence;
+  const validationArtifactSignature = signValidationArtifact({
+    domain: TEST_VALIDATION_EVIDENCE_DOMAIN, storyId, evidence: record,
+  }, gitCwd);
+  return { ...record, validationArtifactSignature };
+}
+
+/** A missing/legacy signature fails closed; verification never creates a key. */
+export function verifyTestValidationEvidence(
+  storyId: string,
+  evidence: TestEvidenceData,
+  gitCwd = process.cwd(),
+): boolean {
+  try {
+    if (!storyId.trim() || !evidence || !['PASS', 'FAIL'].includes(evidence.result)) return false;
+    const { validationArtifactSignature, ...record } = evidence;
+    return verifyValidationArtifact({
+      domain: TEST_VALIDATION_EVIDENCE_DOMAIN, storyId, evidence: record,
+    }, validationArtifactSignature, gitCwd);
+  } catch { return false; }
 }

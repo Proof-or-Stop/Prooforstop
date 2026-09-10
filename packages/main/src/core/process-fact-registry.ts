@@ -884,6 +884,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'test-evidence.json',
     path: 'test-evidence.json',
     signed: false,
+    signature: 'Mixed legacy container: routine validate requires Story-bound Ed25519 validationArtifactSignature authenticates the complete Git-backed record before execution-mode selection; non-Git FAIL is diagnostic only',
     producerCommand: 'validate',
     consumerGate: 'story_advance TEST and DONE validation gate; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
@@ -1701,7 +1702,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/verifier',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
-    rationale: 'Validation status artifact is required before DONE; zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
+    rationale: 'Validation status artifact is authenticated before TEST/DONE consumption; dynamic reuse preserves its manifest and rechecks live receipts. Unsigned historical PASS requires fresh validate. Zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
   },
   {
     name: 'artifact:done-required-evidence.json',
