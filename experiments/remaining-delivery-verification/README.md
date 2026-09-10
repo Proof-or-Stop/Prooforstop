@@ -1,3 +1,8 @@
+本轮在已有修复与main700e1983之上继续完成了增量修复：已检测到租约失效的验证
+及时退出容量等待；已有活动日志保存入口实际核验的实现身份。原始RED/GREEN、
+Claude两轮审计及最终PASS见[incremental-attribution/REPORT.md](incremental-attribution/REPORT.md)。
+这不替代真实Story端到端对照或其他运行会话的实际采用证明。
+
 # 当前进展：查询修正与两项核心修复
 
 后续核心实验已完成：同一条完整身份命令从22分39.51秒降至16分08.32秒，
