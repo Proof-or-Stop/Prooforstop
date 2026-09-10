@@ -84,11 +84,12 @@ function readBranches(root: string, args: string[]): Set<string> {
 }
 
 export function listGitWorktrees(root: string): GitWorktreeEntry[] {
-  const repoRoot = getRepoRoot(root);
+  // Git resolves its own worktree/common directory from this cwd. Keep the
+  // inventory live without two redundant rev-parse subprocesses per read.
   let raw = '';
   try {
     raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-      cwd: repoRoot,
+      cwd: root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

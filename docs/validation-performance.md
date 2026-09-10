@@ -418,3 +418,22 @@ runs for comparison. Explicit full and final-phase requirements remain unchanged
 The repository configuration still uses observe mode. This repair removes
 redundant execution in enforce-low-risk fallback; it does not by itself activate
 incremental validation for this repository or make its full-only policies reusable.
+
+## Worktree discovery in validation
+
+`listGitWorktrees` now runs the live Git inventory command directly from the
+supplied Git cwd. It no longer resolves the root through two extra Git processes
+before asking Git for the same repository's worktrees. No cache is introduced:
+worktree addition/removal and HEAD/branch changes remain visible immediately.
+Subdirectory and relative-cwd queries are covered along with main and linked
+worktree queries, and non-Git/missing paths retain their empty-list behavior.
+
+The original expensive quorum target with all preceding checks passed in a
+same-fixture baseline-to-fixed pair: 109.790s / 10,005 Git calls became
+96.116s / 8,656 calls (12.45% elapsed reduction in this pair). Both runs retained
+all original target assertions and six verdicts. See
+`docs/lab-evidence/validation-worktree-list-pair.json`. This is one ordered pair,
+not a whole-suite measurement or a population/P95 claim. The deterministic
+regression is `node scripts/verify-worktree-list-efficiency.mjs --performance-only`;
+it checks one real Git process per lookup and then runs the complete live-state
+and subdirectory cases.
