@@ -1,0 +1,43 @@
+{
+  "storyId": "B-c533",
+  "checkedAt": "2026-09-10T22:56:40.804Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "story.riskSignals is still [] even though title/description were re-edited to add gate wording (title now ends \"...component-mapping gate foundation\"; description now reads \"...as a fail-closed gate prerequisite so process and runtime facts cannot bypass deterministic tri-class classification\"). Confirmed via proof-or-stop story_get: riskSignals=[]. This satisfies the literal INIT dimension-3 check (title/description text hits the \"gate\" riskSignals keyword), but does not fix the underlying automation gap: detectRiskSignals() only runs inside story_create (packages/main/src/handlers/story-create.ts), so riskSignals is computed once at creation and is never recomputed when title/description are edited afterward. CLAUDE.md REVIEW-phase reviewer opt-in routing mounts the behavior reviewer by reading story.riskSignals for guard/gate/state-machine tokens, not by re-scanning title/description text — so the behavior reviewer will NOT auto-mount for this story at REVIEW time despite it implementing genuine fail-closed guard/gate branches (CHK-002 rejects ambiguous/non-total mappings; CHK-001 enforces no-inference). This is not a false positive: the story is substantively gate/guard-shaped. Recommend the main agent explicitly force-mount the behavior reviewer at REVIEW time via `proof-or-stop reviewer_list --forceReviewer=behavior`, since automatic routing will not trigger from this field. Non-blocking (medium/advisory); background.md and index.json are otherwise in good shape: P0m/redRequired/characterizationRequired/docsExempt are now defined on first use, and the existing-system claims (registry files under packages/main/src/core/, verify scripts under scripts/, and the P0m reference in docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md) all check out."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "proof-or-stop-product-reviewer",
+      "checkedAt": "2026-09-10T22:56:13.416Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 declares P0M-AMBIGUOUS a must intent (\"Ambiguous mappings and generated paths lacking generatedFrom lineage are rejected without fallback inference\"), but its userSees names only two invocations: npm run test:red-p0m-component-mapping -- --case=process-missing and --case=runtime-missing. Both are missing-metadata cases. The item context itself lists four reject classes (missing, ambiguous, non-total, generated-path-without-generatedFrom), so the transcript an operator can type at acceptance witnesses one of the four and the whole ambiguity/lineage half of the reject branch has no named case flag. This is the narrowed remainder of the earlier round issue: the --case convention now exists, so PLAN only needs to pin the remaining case names (for example --case=ambiguous and --case=generated-without-lineage) and the exact typed diagnostic each renders, otherwise the must intent that gives this item its point is accepted without a user-visible transcript."
+        },
+        {
+          "severity": "low",
+          "desc": "The acceptance transcript mixes two working directories without saying so. CHK-001 userSees promises npm run test:process-fact-contract and npm run test:runtime-fact-contract; checked on the current tree, test:process-fact-contract is defined only in the root package.json (node scripts/verify-process-fact-contract.mjs) and is undefined in packages/main/package.json, so that pair is a repo-root transcript. CHK-003 lists a bare package.json under modify alongside ../../scripts/verify-process-fact-contract.mjs, i.e. paths relative to packages/main, and every existing tests/red/ script wiring lives in packages/main/package.json (the only current example is test:story-create-direct-lifecycle = node tests/red/red-story-create-direct-done-bypass.mjs; the root package.json wires zero tests/red/ scripts). So npm run test:red-p0m-component-mapping most likely has to be typed from packages/main while its sibling commands only work from the repo root. PLAN should state which package.json gains the script and the cwd for each promised command, otherwise an operator following the transcript at one prompt gets a missing-script error rather than the promised output."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-002 cannot be witnessed in listed order. Its userSees is entirely composed of npm run test:red-p0m-component-mapping invocations, but the file that command runs, tests/red/red-repro-first-p0m-component-mapping.mjs, appears in CHK-002 only under files.test with files.create empty, and is declared created by CHK-003; the package.json that would define the script is likewise modified only by CHK-003. Neither the file nor the script name exists on the current tree (root package.json has no test:red-p0m-component-mapping). At the moment CHK-002 is marked done, the promised transcript therefore renders a missing-script error. PLAN should either order CHK-003 ahead of CHK-002 via DependsOn or move the reproducer file and script registration into CHK-002 so each item is acceptable on its own transcript."
+        }
+      ]
+    },
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-10T22:56:40.804Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "story.riskSignals is still [] even though title/description were re-edited to add gate wording (title now ends \"...component-mapping gate foundation\"; description now reads \"...as a fail-closed gate prerequisite so process and runtime facts cannot bypass deterministic tri-class classification\"). Confirmed via proof-or-stop story_get: riskSignals=[]. This satisfies the literal INIT dimension-3 check (title/description text hits the \"gate\" riskSignals keyword), but does not fix the underlying automation gap: detectRiskSignals() only runs inside story_create (packages/main/src/handlers/story-create.ts), so riskSignals is computed once at creation and is never recomputed when title/description are edited afterward. CLAUDE.md REVIEW-phase reviewer opt-in routing mounts the behavior reviewer by reading story.riskSignals for guard/gate/state-machine tokens, not by re-scanning title/description text — so the behavior reviewer will NOT auto-mount for this story at REVIEW time despite it implementing genuine fail-closed guard/gate branches (CHK-002 rejects ambiguous/non-total mappings; CHK-001 enforces no-inference). This is not a false positive: the story is substantively gate/guard-shaped. Recommend the main agent explicitly force-mount the behavior reviewer at REVIEW time via `proof-or-stop reviewer_list --forceReviewer=behavior`, since automatic routing will not trigger from this field. Non-blocking (medium/advisory); background.md and index.json are otherwise in good shape: P0m/redRequired/characterizationRequired/docsExempt are now defined on first use, and the existing-system claims (registry files under packages/main/src/core/, verify scripts under scripts/, and the P0m reference in docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md) all check out."
+        }
+      ]
+    }
+  ],
+  "_hash": "e47effb3465d02a4d537c129fa49d1c077dc4c9f336f9113c9f223b11701fc17"
+}
