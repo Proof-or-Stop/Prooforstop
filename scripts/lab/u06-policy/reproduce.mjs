@@ -1,0 +1,3 @@
+import{execFileSync}from'node:child_process';import{resolve,join}from'node:path';import{fileURLToPath}from'node:url';import{mkdtempSync,mkdirSync}from'node:fs';import{tmpdir}from'node:os';
+const repo=resolve(process.argv[2]||process.cwd()),parent=resolve(process.argv[3]||tmpdir());mkdirSync(parent,{recursive:true});const output=mkdtempSync(join(parent,'u06-policy-'));
+for(const script of ['generate.mjs','apply-refinements.mjs','verify-complete-mapping.mjs','apply-approved-families.mjs'])execFileSync(process.execPath,[fileURLToPath(new URL(script,import.meta.url)),repo,output],{stdio:'inherit',maxBuffer:8*1024*1024});console.log('U06_POLICY_OUTPUT='+output);

@@ -1,0 +1,30 @@
+{
+  "status": "Approved functional grouping decisions relayed by root; not a claim of exhaustive semantic audit",
+  "domains": {
+    "command-surface": "catalog/parser/extension admission",
+    "autonomous-execution": "autopilot orchestration",
+    "usage-accounting": "usage-ledger plus provider usage accounting/estimation/alerts",
+    "runtime-observability": "observability snapshots, process events/metrics, operator dashboard",
+    "framework-audit": "advisory framework promise/CLI drift self-audit"
+  },
+  "assignments": {
+    "candidate-spec-routing": "scope-acceptance",
+    "evaluate": "validation-certification",
+    "gap": "lifecycle-ownership",
+    "bug": "review-authority",
+    "red/claim/proof-admissibility": "evidence-storage",
+    "milestone/withdrawal/frozen-claim": "scope-acceptance",
+    "init/preflight/parallel-wave": "lifecycle-ownership",
+    "scripts/lab/u17-original/** + verify-u17-original-evidence + dedicated U17 docs/raw": "evidence-storage",
+    "scripts/verify-managed-provider-state.mjs": "provider-execution",
+    "scripts/lab/u06-policy/ explicit 14-file manifest": "scope-acceptance",
+    "scripts/verify-scope-budget-legacy-glob-{cli,boundaries}.mjs": "scope-acceptance"
+  },
+  "exceptions": [
+    "Provider capability probes remain provider-execution",
+    "red-w2c real evidence/ProofStory integration retains explicit two-domain ownership",
+    "Public registries and shared monolithic gates do not propagate ownership to all consumers",
+    "Unknown current-source paths remain unknown, never fall back to a generic new domain"
+  ],
+  "familyPolicy": "Approved eight proposed capability groups, but each pattern must preserve every existing domain set or be rejected. Experimental code patterns only in recovery-runner and multi-model-ablation with archive exclusion."
+}

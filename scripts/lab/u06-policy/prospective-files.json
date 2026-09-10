@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "u06-prospective-ownership.v1",
+  "excludedUntracked": [
+    "AGENTS.override.md"
+  ],
+  "files": [
+    {
+      "path": "docs/managed-review-readonly-lanes.md",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane-build.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane-policy.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-lane.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-provider-state.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-review-readonly.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-readonly-full-runtime.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-provider-state.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u06-policy/reproduce.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/generate.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/apply-refinements.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/verify-complete-mapping.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/apply-approved-families.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/inventory.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/functional-seed.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/refinement-rules.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/refinement-more.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/final-material-rules.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/family-allowlist-proposal.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/root-decisions.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/prospective-files.json",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/lab/u06-policy/README.md",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-scope-budget-legacy-glob-cli.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-scope-budget-legacy-glob-boundaries.mjs",
+      "domain": "scope-acceptance"
+    },
+    {
+      "path": "scripts/verify-root-scope-budget-policy.mjs",
+      "domain": "scope-acceptance"
+    }
+  ],
+  "basis": "Root explicitly authorized prospective U08 readonly lane files and dedicated tests as provider-execution. AGENTS.override.md is local instruction material outside this policy activation. Pending tests must be explicitly added when their final paths exist."
+}
