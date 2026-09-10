@@ -113,7 +113,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
   // (a changed result, command, selector or captured output) remains bound.
   const evidenceSemantics = (value: unknown, item: ChecklistData['items'][number]): unknown => {
     if (!Array.isArray(value)) return value;
-    const currentIntents = collectVerificationIntents(item);
+    const currentIntents = item.verificationIntent ? collectVerificationIntents(item) : [];
     return value.filter(row => {
       if (!item.verificationIntent) return true;
       if (!row || typeof row !== 'object') return true;
