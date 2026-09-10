@@ -8,6 +8,10 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { PROOF_OR_STOP_CLI_VERSION } from '../core/proof-or-stop-brand.js';
 import {
   CAUSAL_DEPENDENCY_DOMAINS,
   DEFAULT_CAUSAL_SELECTOR_POLICY,
@@ -19,6 +23,7 @@ import {
   importCausalEvidenceReceipt,
   preflightCausalEvidence,
   renderCausalMetrics,
+  resolveCausalToolVersion,
   verifyCausalEvidenceReceipt,
 } from '../core/causal-evidence.js';
 import type { CausalEvidenceReceipt } from '../core/causal-evidence.js';
@@ -42,6 +47,39 @@ function cloneReceipt<T>(receipt: T): T {
   return structuredClone(receipt);
 }
 
+// Tool identity comes from the executing CLI, independently of both project roots.
+const versionProbeRoot = mkdtempSync(join(tmpdir(), 'causal-tool-version-'));
+const originalCwd = process.cwd();
+let externalToolVersion: string | undefined;
+try {
+  const target = join(versionProbeRoot, 'target');
+  const otherCwd = join(versionProbeRoot, 'cwd');
+  for (const root of [target, otherCwd]) mkdirSync(join(root, 'packages', 'main'), { recursive: true });
+  process.chdir(otherCwd);
+  const manifest = (root: string) => join(root, 'packages', 'main', 'package.json');
+  const cases = [
+    { name: 'missing both manifests', target: undefined, cwd: undefined },
+    { name: 'unrelated cwd fallback', target: undefined, cwd: '{"name":"business-cwd","version":"88.77.66"}' },
+    { name: 'unrelated target', target: '{"name":"business-target","version":"99.88.77"}', cwd: undefined },
+    { name: 'conflicting business versions', target: '{"name":"business-target","version":"99.88.77"}', cwd: '{"name":"business-cwd","version":"88.77.66"}' },
+    { name: 'malformed manifests', target: '{', cwd: '{' },
+    { name: 'malformed target with business cwd', target: '{', cwd: '{"name":"business-cwd","version":"88.77.66"}' },
+    { name: 'copied tool manifest is not executing tool', target: '{"name":"@proof-or-stop/core","version":"0.0.1"}', cwd: undefined },
+  ];
+  for (const scenario of cases) {
+    for (const [root, content] of [[target, scenario.target], [otherCwd, scenario.cwd]] as const) {
+      if (content === undefined) rmSync(manifest(root), { force: true });
+      else writeFileSync(manifest(root), content);
+    }
+    externalToolVersion = resolveCausalToolVersion(target);
+    assert.equal(externalToolVersion, PROOF_OR_STOP_CLI_VERSION, scenario.name);
+    assert.equal(resolveCausalToolVersion(otherCwd), PROOF_OR_STOP_CLI_VERSION, `${scenario.name}: target equals cwd`);
+  }
+} finally {
+  process.chdir(originalCwd);
+  rmSync(versionProbeRoot, { recursive: true, force: true });
+}
+
 const identity = {
   storyId: 'B-5a15-smoke',
   cwd: process.cwd(),
@@ -51,7 +89,7 @@ const identity = {
   storyFilesHash: 'story-smoke',
   effectiveEnvironment: { NODE_ENV: 'test', SECRET_TOKEN: 'secret-never-persisted' },
   runtimeVersion: process.version,
-  toolVersion: 'causal-evidence-smoke@1',
+  toolVersion: externalToolVersion,
   selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
 };
 
@@ -108,6 +146,8 @@ assert.equal(executions, 1, 'same key executes once');
 assert.equal(first.verdict.result, 'pass');
 assert.equal(second.verdict.result, 'fail', 'selectors fan out independently');
 assert.equal(first.receipt.commandReruns, 0);
+assert.equal(first.receipt.identity.toolVersion, PROOF_OR_STOP_CLI_VERSION, 'signed receipt records the executing CLI version');
+assert.equal(first.receipt.identity.complete, true, 'external project tool version leaves a complete execution identity');
 assert.equal(first.receipt.outputTail.includes('secret-never-persisted'), false, 'receipt output is redacted');
 assert.equal(verifyCausalEvidenceReceipt(first.receipt, completeKey.key), true);
 

@@ -1,3 +1,4 @@
+import { runSupervisedProviderProcess, type SupervisedProcessOptions } from './supervised-process.js';
 
 import { join } from 'path';
 import { randomUUID, createHash } from 'crypto';
@@ -46,11 +47,13 @@ export interface ClaudeCliProviderOptions {
   tmpDir?: string;
 }
 
+export const CLAUDE_CLI_DEFAULT_TIMEOUT_MS = 600_000;
+
 const DEFAULTS: Required<ClaudeCliProviderOptions> = {
   model: 'claude-sonnet-4-20250514',
   debug: false,
   retries: 5,
-  timeout: 600_000,
+  timeout: CLAUDE_CLI_DEFAULT_TIMEOUT_MS,
   heartbeatInterval: 30_000,
   tools: false,
   allowedTools: [],
@@ -287,34 +290,18 @@ export interface ProviderProcessOutcome {
   stdout: string;
   stderr: string;
   signal?: NodeJS.Signals | null;
+  replacementSafe?: boolean;
+  timedOut?: boolean;
   error?: NodeJS.ErrnoException;
 }
 
 export type ProviderProcessRunner = (
   binary: string,
   argv: string[],
-  opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number },
+  opts: SupervisedProcessOptions,
 ) => ProviderProcessOutcome;
 
-const defaultClaudeProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
-  const proc = spawnSync(binary, argv, {
-    cwd: opts.cwd,
-    env: opts.env,
-    timeout: opts.timeoutMs,
-    // Close stdin: a bounded, non-interactive action must never block waiting for
-    // a prompt. Combined with the auth preflight this keeps unattended runs hang-free.
-    input: '',
-    encoding: 'utf8',
-    maxBuffer: 8 * 1024 * 1024,
-  });
-  return {
-    status: proc.status,
-    stdout: proc.stdout ?? '',
-    stderr: proc.stderr ?? '',
-    signal: proc.signal,
-    error: proc.error as NodeJS.ErrnoException | undefined,
-  };
-};
+const defaultClaudeProcessRunner: ProviderProcessRunner = runSupervisedProviderProcess;
 
 function providerDigest(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
@@ -355,6 +342,7 @@ export function runBoundedClaudeProvider(
   let stderr = '';
   let spawnError = false;
   let timedOut = false;
+  let replacementSafe: boolean | undefined;
 
   while (attempts < maxAttempts) {
     attempts++;
@@ -362,13 +350,16 @@ export function runBoundedClaudeProvider(
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
+      admission: request.admission,
     });
     spawnError = !!out.error && out.error.code === 'ENOENT';
-    timedOut = out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
-      || (!!out.error && out.error.code === 'ETIMEDOUT');
+    replacementSafe = out.replacementSafe;
+    timedOut = out.timedOut ?? (out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
+      || (!!out.error && out.error.code === 'ETIMEDOUT'));
     status = out.status;
     stdout = out.stdout ?? '';
     stderr = out.stderr ?? '';
+    if (replacementSafe === false) break;
     if (spawnError) break; // missing binary is not retryable
     if (!timedOut) break;  // success or non-zero exit is terminal
   }
@@ -376,6 +367,7 @@ export function runBoundedClaudeProvider(
   const model = extractClaudeModel(stdout);
   return {
     provider: 'claude',
+    ...(replacementSafe !== undefined ? { replacementSafe } : {}),
     ...(model ? { model } : {}),
     argvDigest: providerDigest(request.argv),
     exitCode: spawnError ? null : status,

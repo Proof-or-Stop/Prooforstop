@@ -56,7 +56,7 @@ try {
   write(lab, 'bug.txt', 'fixed');
   cmd(repo, ['sync', 'one'], 1, /Uncommitted/);
   // A runtime change exercises the real shared version helper and both build stages.
-  write(lab, 'packages/main/src/fix.ts', 'export const repaired = true;\n');
+  write(lab, 'packages/main/src/修复.ts', 'export const repaired = true;\n');
   commit(lab, 'fix: target regression');
   cmd(repo, ['green', 'one']);
   write(repo, 'unrelated.txt', 'pending');
@@ -89,6 +89,20 @@ try {
   assert.ok(existsSync(retryLab)); assert.equal(JSON.parse(cmd(retry, ['status', 'retry'])).phase, 'integrated');
   rmSync(join(retry, '.fail-build')); cmd(retry, finish('retry'));
   assert.equal(JSON.parse(readFileSync(join(retry, 'package.json'))).version, '1.0.1');
+
+  const budgetRepo = fixture('budget'); cmd(budgetRepo, ['create', 'budget']);
+  const budgetLab = join(budgetRepo, '.worktrees/Lab-budget');
+  for (const invalid of ['0', '-1', '1.5', 'Infinity', '3600001']) {
+    cmd(budgetRepo, ['red', 'budget', '--expect', 'TARGET regression', '--timeout-ms', invalid, '--', process.execPath, 'check.cjs'], 1, /--timeout-ms must/);
+  }
+  cmd(budgetRepo, ['red', 'budget', '--expect', 'TARGET regression', '--timeout-ms', '1000', '--', process.execPath, 'check.cjs']);
+  assert.equal(JSON.parse(cmd(budgetRepo, ['status', 'budget'])).red.timeoutMs, 1000, 'RED records the explicit execution budget');
+  write(budgetLab, 'check.cjs', "setTimeout(() => console.log('pass after budget'), 2500);\n"); commit(budgetLab, 'test: over-budget repair');
+  cmd(budgetRepo, ['green', 'budget'], 1, /GREEN failed/);
+  assert.equal(JSON.parse(cmd(budgetRepo, ['status', 'budget'])).green, null, 'timed-out GREEN never becomes a passing receipt');
+  write(budgetLab, 'check.cjs', "console.log('bounded repair passed');\n"); commit(budgetLab, 'fix: bounded repair');
+  cmd(budgetRepo, ['green', 'budget']);
+  assert.equal(JSON.parse(cmd(budgetRepo, ['status', 'budget'])).green.timeoutMs, 1000, 'GREEN replays the RED budget exactly');
 
   const docs = fixture('docs'); cmd(docs, ['create', 'docs']);
   const docsLab = join(docs, '.worktrees/Lab-docs');

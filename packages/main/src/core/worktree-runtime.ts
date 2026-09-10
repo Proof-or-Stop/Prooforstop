@@ -55,13 +55,19 @@ export function isForeignAbsolutePath(path: string): boolean {
 
 export function getRepoRoot(root: string): string {
   try {
-    const topLevel = canonicalPath(git(root, ['rev-parse', '--show-toplevel']));
-    const commonDir = git(root, ['rev-parse', '--git-common-dir']);
-    const absCommonDir = canonicalPath(isAbsolute(commonDir) ? commonDir : join(topLevel, commonDir));
+    // Resolve the shared metadata directory in one live probe. Absolute output
+    // is relative to Git's actual cwd, including linked-worktree subdirectories.
+    // The boolean prefix preserves the old bare/internal-directory fallback and
+    // avoids splitting a metadata path that itself contains a newline.
+    const probe = git(root, ['rev-parse', '--is-inside-work-tree', '--path-format=absolute', '--git-common-dir']);
+    if (!probe.startsWith('true\n')) return canonicalPath(root);
+    const absCommonDir = canonicalPath(probe.slice('true\n'.length));
     if (absCommonDir.endsWith('/.git') || absCommonDir.endsWith('\\.git')) {
       return dirname(absCommonDir);
     }
-    return topLevel;
+    // Separate or nonstandard Git directories do not identify the checkout's
+    // parent. Preserve the worktree top-level fallback for those layouts.
+    return canonicalPath(git(root, ['rev-parse', '--show-toplevel']));
   } catch {
     return canonicalPath(root);
   }
@@ -84,11 +90,12 @@ function readBranches(root: string, args: string[]): Set<string> {
 }
 
 export function listGitWorktrees(root: string): GitWorktreeEntry[] {
-  const repoRoot = getRepoRoot(root);
+  // Git resolves its own worktree/common directory from this cwd. Keep the
+  // inventory live without two redundant rev-parse subprocesses per read.
   let raw = '';
   try {
     raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
-      cwd: repoRoot,
+      cwd: root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

@@ -147,7 +147,11 @@ checked again. Only after post-merge verification and reachability checks does t
 command remove the generated override, clean worktree and merged branch. It never
 uses force removal, a hard reset, a forced branch deletion or a push. Existing
 mechanical restrictions are not disabled. Long checks hold the main write lock;
-other writers must wait or retry. The command timeout is 15 minutes per process.
+other writers must wait or retry. The default command timeout is 15 minutes per process. Long regression commands
+may declare `--timeout-ms MS` between the RED marker and `--` (1–3600000 ms).
+The signed RED record binds that budget; GREEN and integration checks replay it
+unchanged. Existing records retain the 15-minute default. A timeout never counts
+as target RED or passing GREEN.
 
 Local HMAC-bound command records and captured output stay in the Git common
 `lab-maintenance/` directory after worktree cleanup. They are tool-owned local
@@ -177,3 +181,40 @@ Use `npm run lab:worktree -- status NAME` to inspect progress. Direct edits to
 records are rejected. Manual/legacy worktrees (including the original Lab-story
 bootstrap workspace) are not silently adopted. Install/merge this mechanism first;
 subsequent Labs created by the command get the complete managed cycle.
+
+### Machine provider admission
+
+Provider launches acquire both their project slot and a same-OS-user machine
+slot. The machine pool lives under the OS account home runtime locks directory,
+uses a private directory, and has an independent capacity of four. Raising a
+project concurrency environment setting cannot raise that machine capacity.
+Machine refusal releases the tentative project slot before returning.
+
+Identity-aware launchers transfer both slots to the actual provider process
+identity. A worker exit alone does not free capacity while that provider group
+is alive. `node scripts/verify-machine-provider-admission.mjs` verifies admission,
+zero launch on refusal, rollback, and a real detached provider surviving its
+worker and then exiting naturally. Tests isolate the OS-home lookup in their own
+processes; production has no alternate-pool environment switch.
+
+Synchronous planned/dispatch providers now execute through an isolated bridge.
+The bridge transfers both slots before spawning a provider into its own process
+group. Provider output cannot write the separate control pipe. Release and retry
+require a control result plus observed group exit; missing control proof retains
+capacity. A normal provider exit also triggers cleanup of ordinary same-group
+descendants. Daemon/setsid escape is outside this process-group contract.
+`node scripts/verify-planned-provider-group-lifecycle.mjs` exercises the actual
+planned executor; `node scripts/verify-supervised-provider-boundaries.mjs` covers
+output fidelity, missing binaries and timeout cleanup. These bounded checks do
+not establish full U-08 product acceptance.
+
+### Scope budget validation groups
+
+New `storyScopeBudget.validationGroups` mappings use `commandIds`, resolved by
+the same canonical inventory as validation. Declared IDs remain stable; derived
+IDs bind command, argv, cwd and shell. Legacy `commandLabels` remain accepted
+only when every label resolves to exactly one configured command. Missing or
+ambiguous references, duplicate command IDs and mixed reference forms yield an
+unknown budget and block enforce mode. Distinct commands using `node` cannot
+stand in for each other. This identity repair does not enable or calibrate the
+root repository scope budget policy.

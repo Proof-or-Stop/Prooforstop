@@ -7,9 +7,10 @@
  *   - CHK-001: codex turn.completed -> estimate(seq1) + provider-reported final
  *     (seq2 superseding) with the uncached-remainder mapping and the ORIGINAL
  *     payload digest; claude stream-json result -> provider-reported final +
- *     served model; agy -> unavailable (provider antigravity); codex turn.failed
- *     / no usage -> unavailable-with-reason; PROOF_OR_STOP_USAGE_LEDGER=0 byte-identical
- *     (zero rows, zero dirs); host non-zero exit propagates; bounded parse buffer;
+ *     served model; agy -> pre-spawn refusal while its prompt transport is argv-only; codex turn.failed
+ *     / no usage -> unavailable-with-reason; PROOF_OR_STOP_USAGE_LEDGER=0 keeps provider
+ *     argv/output byte-compatible and writes zero usage rows while provider
+ *     admission remains mandatory; host non-zero exit propagates; bounded parse buffer;
  *     prototype-pollution honesty.
  *   - CHK-002: reviewRunId->threadId, lane->subagentId, omitted -> null; phase
  *     resolves from the story index; unknown storyId + cross-story reviewRunId
@@ -29,12 +30,13 @@
  *     exits 0 (no crash), releases its slot, records the ledger final, and
  *     surfaces a non-null passthroughError instead of dying on an unhandled
  *     stdout/stderr 'error' event.
- *     F-023 / F-024: the residual EPIPE-window class is closed on BOTH the final
+ *     F-023 / F-024 / F-152: the residual EPIPE-window class is closed on BOTH the final
  *     diagnostic writes AND the live passthrough. F-024 covers the DEFAULT text-mode
  *     host STDOUT path: every passthrough + diagnostic write is settle-aware with
  *     outstanding-write accounting (write + counted callback, throughput NOT
  *     serialized), and the finally drains the pending counter (bounded by a 2s
- *     defensive cap) BEFORE removing the 'error' listeners, so a late EPIPE from the
+ *     defensive cap) while retaining the named 'error' listeners until any cap-losing
+ *     write settles, so a late EPIPE from the
  *     FINAL chunk fires while the listeners are still attached — a real subprocess
  *     bursts stdout chunks to exit while the parent destroys the driver's STDOUT
  *     read end mid/late-stream, and the driver exits 0, releases its slot, and
@@ -87,12 +89,13 @@
  *   - CHK-003: the remaining proof-or-stop-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
- *     excerpt; ledger OFF byte-identical). F-016: the repair also passes the SAME
+ *     excerpt; ledger OFF preserves provider argv but not mandatory admission I/O).
+ *     F-016: the repair also passes the SAME
  *     pre-spawn admission as host_run — an over-budget repair refuses before the
  *     runner is invoked (blocked row hard_budget_exceeded), a saturated
  *     concurrency cap refuses with a concurrency_cap_exceeded row and no spawn,
- *     the slot is HELD during a normal repair and released after, and ledger OFF
- *     applies no admission at all. Host readiness probes (per-host preflight
+ *     the slot is HELD during a normal repair and released after, including when
+ *     the ledger is OFF. Host readiness probes (per-host preflight
  *     + unavailable final agentType host-readiness-probe), the cross-host-review
  *     codex leaf (preflight + unavailable final with the documented reason, argv
  *     unchanged), and the seam-never-throws contract under a corrupt ledger.
@@ -101,7 +104,8 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import {
   existsSync,
@@ -116,8 +120,9 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join } from 'node:path';
-import { PassThrough } from 'node:stream';
+import { dirname, isAbsolute, join, relative } from 'node:path';
+import { PassThrough, Writable } from 'node:stream';
+import { fileURLToPath } from 'node:url';
 
 import {
   acquireHostRunSlot,
@@ -137,6 +142,9 @@ import {
   HOST_RUN_FAILURE_TEXT_CAP,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
+  FinalAssistantResultScanner,
+  classifyManagedReviewFinalEnvelope,
+  hasRequiredManagedReviewReadEvidence,
   UsageLineScanner,
   type HostRunArgs,
   type HostRunChunk,
@@ -185,13 +193,19 @@ import {
 } from '../core/usage-ledger/writer.js';
 import type { UsageLedgerRecord, UsageLedgerRecordInput } from '../core/usage-ledger/record.js';
 
-let passed = 0;
+let corePassed = 0;
+let extensionPassed = 0;
+let supervisorHardeningPassed = 0;
+let streamHardeningPassed = 0;
+let evidenceMappingPassed = 0;
 const failures: string[] = [];
+const canonicalCore = process.argv.includes('--canonical-core');
+const tasksDir = dirname(fileURLToPath(import.meta.url));
 
 function check(label: string, fn: () => void): void {
   try {
     fn();
-    passed += 1;
+    corePassed += 1;
     console.log(`✓ ${label}`);
   } catch (err) {
     console.error(`✗ ${label}`);
@@ -204,7 +218,76 @@ function check(label: string, fn: () => void): void {
 async function checkAsync(label: string, fn: () => Promise<void>): Promise<void> {
   try {
     await fn();
-    passed += 1;
+    corePassed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+function extensionCheck(label: string, fn: () => void): void {
+  try {
+    fn();
+    extensionPassed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+async function extensionCheckAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+    extensionPassed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+async function supervisorHardeningCheckAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+    supervisorHardeningPassed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+async function streamHardeningCheckAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+    streamHardeningPassed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+function evidenceMappingCheck(label: string, childName: string, selector: string): void {
+  try {
+    const output = execFileSync(process.execPath, [join(tasksDir, childName)], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.match(output, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    evidenceMappingPassed += 1;
     console.log(`✓ ${label}`);
   } catch (err) {
     console.error(`✗ ${label}`);
@@ -328,11 +411,13 @@ function slotMeta(agentType: string): { pid: number; startedAt: string; host: st
 
 function deterministicHostRuntime() {
   const child = new EventEmitter() as EventEmitter & {
+    pid: number;
     stdin: { end(): void };
     stdout: PassThrough;
     stderr: PassThrough;
     kill(signal?: NodeJS.Signals): boolean;
   };
+  child.pid = 4242;
   child.stdin = { end() {} };
   child.stdout = new PassThrough();
   child.stderr = new PassThrough();
@@ -466,6 +551,418 @@ function minimalValidUsageRecord(): UsageLedgerRecordInput {
 }
 
 async function main(): Promise<void> {
+  extensionCheck('B-137a bounded final-result adapters: Codex JSONL/raw and Claude terminal lanes only; tool logs ignored and ambiguity/oversize explicit', () => {
+    const envelope = JSON.stringify({
+      schemaVersion: 'lattice.managed_review_final_proposal.v1',
+      storyId: 'B-final-scanner',
+      providerAgent: 'lattice-review-quality',
+      lane: 'lattice-review-quality',
+      reviewRunId: 'B-final-scanner:RR-001',
+      conclusion: 'pass',
+      note: 'The exact managed review material has no blocking issue.',
+      readManifest: {
+        filesReadFully: ['packages/main/src/example.ts'],
+        filesTriagedByName: [],
+        scanEscalationReason: null,
+        candidateSpecSetDigest: 'a'.repeat(64),
+        corpusDigest: 'b'.repeat(64),
+      },
+      readLog: {
+        filesReadFully: ['packages/main/src/example.ts'],
+        filesTriagedByName: [],
+        summary: { readCount: 1, tokenCount: null },
+        digest: 'c'.repeat(64),
+      },
+    });
+    const coherentReadEvidence = {
+      readManifest: {
+        filesReadFully: ['docs/requirements/decisions/review.md'],
+        filesTriagedByName: [],
+        scanEscalationReason: null,
+        candidateSpecSetDigest: 'a'.repeat(64),
+        corpusDigest: 'b'.repeat(64),
+      },
+      readLog: {
+        filesReadFully: ['docs/requirements/decisions/review.md'],
+        filesTriagedByName: [],
+        summary: { readCount: 1, tokenCount: null },
+        digest: 'c'.repeat(64),
+      },
+    };
+    assert.equal(hasRequiredManagedReviewReadEvidence(coherentReadEvidence.readManifest, coherentReadEvidence.readLog), true,
+      'coherent managed manifest/log/summary remains admissible');
+    assert.equal(hasRequiredManagedReviewReadEvidence(coherentReadEvidence.readManifest, {
+      ...coherentReadEvidence.readLog,
+      filesReadFully: ['packages/main/src/unrelated.ts'],
+    }), false,
+    'managed receipt rejects a manifest paired with an unrelated read log');
+    assert.equal(hasRequiredManagedReviewReadEvidence(coherentReadEvidence.readManifest, {
+      ...coherentReadEvidence.readLog,
+      summary: { readCount: 999, tokenCount: null },
+    }), false,
+    'managed receipt rejects a contradictory readLog summary count');
+    const codex = new FinalAssistantResultScanner('codex', 2_048);
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'DISPATCH_START' } })}\n`);
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'reasoning', text: envelope } })}\n`);
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'tool_output', text: envelope } })}\n`);
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'Reviewed the first evidence group; continuing.' } })}\n`);
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: envelope } })}\n`);
+    assert.deepEqual(codex.snapshot(), { result: envelope, count: 1, truncated: false },
+      'Codex adapter ignores ordinary progress/tool/reasoning messages and selects the one strict proposal envelope');
+
+    const rawCodex = new FinalAssistantResultScanner('codex', 2_048);
+    rawCodex.push(envelope.slice(0, 83));
+    rawCodex.push(envelope.slice(83, 211));
+    rawCodex.push(envelope.slice(211));
+    rawCodex.flush();
+    assert.deepEqual(rawCodex.snapshot(), { result: envelope, count: 1, truncated: false },
+      'Codex non-JSON stdout accepts one exact raw standalone proposal across arbitrary chunks');
+
+    const rawOrdinary = new FinalAssistantResultScanner('codex', 2_048);
+    rawOrdinary.push('Reviewed the implementation; preparing the final response.');
+    rawOrdinary.flush();
+    assert.deepEqual(rawOrdinary.snapshot(), { result: null, count: 0, truncated: false },
+      'ordinary raw Codex stdout never becomes formal evidence');
+
+    const rawMalformedText = '{"schemaVersion":"lattice.managed_review_final_proposal.v1","storyId":';
+    const rawMalformed = new FinalAssistantResultScanner('codex', 2_048);
+    rawMalformed.push(rawMalformedText.slice(0, 35));
+    rawMalformed.push(rawMalformedText.slice(35));
+    rawMalformed.flush();
+    assert.deepEqual(rawMalformed.snapshot(), { result: rawMalformedText, count: 1, truncated: false },
+      'schema-naming malformed raw stdout remains an explicit fail-closed candidate');
+
+    const rawMultiple = new FinalAssistantResultScanner('codex', 2_048);
+    rawMultiple.push(`${envelope}\n${envelope}`);
+    rawMultiple.flush();
+    assert.equal(rawMultiple.snapshot().count, 1,
+      'two raw objects are retained only as one malformed standalone candidate, never selected as a valid verdict');
+    assert.equal(classifyManagedReviewFinalEnvelope(rawMultiple.snapshot().result ?? '').kind, 'malformed',
+      'multiple raw proposal objects remain fail-closed rather than creating a fallback candidate');
+
+    const wrappedThenRawOrdinary = new FinalAssistantResultScanner('codex', 2_048);
+    wrappedThenRawOrdinary.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: envelope } })}\n`);
+    wrappedThenRawOrdinary.push('ordinary raw stdout after the wrapped result');
+    wrappedThenRawOrdinary.flush();
+    assert.deepEqual(wrappedThenRawOrdinary.snapshot(), { result: null, count: 0, truncated: false },
+      'ordinary raw stdout after a wrapped candidate invalidates that non-terminal candidate');
+
+    const claudeEnvelope = '{"schemaVersion":"lattice.managed_review_final_proposal.v1"}';
+    const fencedClaudeResult = `Review complete.\n\`\`\`json\n${claudeEnvelope}\n\`\`\``;
+    const claudeProse = new FinalAssistantResultScanner('claude', 512);
+    claudeProse.push(`${JSON.stringify({ type: 'assistant', message: { content: claudeEnvelope } })}\n`);
+    claudeProse.push(`${JSON.stringify({ type: 'result', subtype: 'success', result: fencedClaudeResult })}\n`);
+    assert.deepEqual(claudeProse.snapshot(), { result: null, count: 0, truncated: false },
+      'Claude success result without structured_output is ignored rather than falling back to event.result');
+
+    assert.equal(classifyManagedReviewFinalEnvelope(envelope).kind, 'valid',
+      'the rejected error-event payload is a well-formed managed-review envelope');
+    const claudeErrorEnvelope = new FinalAssistantResultScanner('claude', 2_048);
+    claudeErrorEnvelope.push(`${JSON.stringify({
+      type: 'result',
+      subtype: 'error',
+      is_error: true,
+      result: envelope,
+    })}\n`);
+    assert.deepEqual(claudeErrorEnvelope.snapshot(), { result: null, count: 0, truncated: false },
+      'a non-success Claude result containing a well-formed managed-review envelope is not accepted');
+
+    const claudeSuccessResultOnly = new FinalAssistantResultScanner('claude', 2_048);
+    claudeSuccessResultOnly.push(`${JSON.stringify({
+      type: 'result',
+      subtype: 'success',
+      result: envelope,
+    })}\n`);
+    assert.deepEqual(claudeSuccessResultOnly.snapshot(), { result: null, count: 0, truncated: false },
+      'a success Claude result without structured_output is ignored even when event.result is a well-formed envelope');
+
+    const claudeStructured = new FinalAssistantResultScanner('claude', 512);
+    claudeStructured.push(`${JSON.stringify({
+      type: 'result',
+      subtype: 'success',
+      result: fencedClaudeResult,
+      structured_output: JSON.parse(claudeEnvelope),
+    })}\n`);
+    assert.deepEqual(claudeStructured.snapshot(), { result: claudeEnvelope, count: 1, truncated: false },
+      'a success Claude result with provider-validated structured_output is accepted');
+
+    codex.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: envelope } })}\n`);
+    assert.equal(codex.snapshot().count, 2, 'two valid proposal envelopes remain explicit for fail-closed multiple policy');
+    const nonTerminalProposal = new FinalAssistantResultScanner('codex', 2_048);
+    nonTerminalProposal.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: envelope } })}\n`);
+    nonTerminalProposal.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'Final reviewer response omitted the canonical proposal envelope.' } })}\n`);
+    assert.deepEqual(nonTerminalProposal.snapshot(), { result: null, count: 0, truncated: false },
+      'a valid-looking earlier assistant message cannot survive a later ordinary terminal assistant result');
+    const malformedText = `{"schemaVersion":"lattice.managed_review_final_proposal.v1","storyId":`;
+    const malformed = new FinalAssistantResultScanner('codex', 2_048);
+    malformed.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: malformedText } })}\n`);
+    assert.deepEqual(malformed.snapshot(), { result: malformedText, count: 1, truncated: false },
+      'an envelope-looking malformed Codex message remains an explicit fail-closed candidate');
+    const ordinaryOversize = new FinalAssistantResultScanner('codex', 128);
+    ordinaryOversize.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'progress '.repeat(256) } })}\n`);
+    assert.deepEqual(ordinaryOversize.snapshot(), { result: null, count: 0, truncated: false },
+      'an oversized ordinary Codex progress message is ignored rather than poisoning formal evidence');
+    const proposalOversize = new FinalAssistantResultScanner('codex', 512);
+    proposalOversize.push(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: JSON.stringify({ ...JSON.parse(envelope), note: 'x'.repeat(2_048) }) } })}\n`);
+    assert.deepEqual(proposalOversize.snapshot(), { result: null, count: 1, truncated: true },
+      'an oversized envelope-looking Codex proposal remains an explicit fail-closed candidate');
+    const invalidNestedFinding = JSON.stringify({
+      ...JSON.parse(envelope),
+      conclusion: 'findings',
+      note: undefined,
+      findings: [{
+        desc: 'Unknown nested values must not cross the adapter boundary.',
+        severity: 'urgent',
+        category: 'invented',
+        evidenceState: 'trusted',
+        controllerOverride: true,
+      }],
+    });
+    assert.equal(
+      classifyManagedReviewFinalEnvelope(invalidNestedFinding).kind,
+      'malformed',
+      'the final-result adapter rejects unknown nested finding values and fields before persistence',
+    );
+    const providerFinding = {
+      desc: 'The provider found a concrete managed-review defect.',
+      severity: 'high',
+      category: 'adversarial',
+      files: ['packages/main/src/example.ts'],
+      evidenceState: 'verified',
+    };
+    const findingsWithExplanation = JSON.stringify({
+      ...JSON.parse(envelope),
+      conclusion: 'findings',
+      note: 'Optional provider explanation is descriptive only and never becomes formal finding evidence.',
+      findings: [providerFinding],
+    });
+    assert.equal(classifyManagedReviewFinalEnvelope(findingsWithExplanation).kind, 'valid',
+      'structured findings may carry a non-empty explanatory note without weakening strict finding validation');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(findingsWithExplanation),
+      note: '   ',
+    })).kind, 'malformed', 'a supplied findings explanation must be a non-blank diagnostic note');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(findingsWithExplanation),
+      note: 'short one',
+    })).kind, 'malformed', 'a supplied findings explanation must meet the 10-character persistence minimum');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(envelope),
+      note: '   ',
+    })).kind, 'malformed', 'pass still requires a trimmed 10-character note');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(envelope),
+      note: 'short one',
+    })).kind, 'malformed', 'pass cannot reach persistence with a too-short diagnostic note');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(envelope),
+      findings: [],
+    })).kind, 'valid', 'pass may carry the flat provider schema empty findings array but never a real finding');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...JSON.parse(envelope),
+      findings: [providerFinding],
+    })).kind, 'malformed', 'pass rejects every non-empty findings payload');
+    const oversize = new FinalAssistantResultScanner('claude', 32);
+    oversize.push(`${JSON.stringify({ type: 'result', result: 'x'.repeat(128) })}\n`);
+    assert.deepEqual(oversize.snapshot(), { result: null, count: 1, truncated: true },
+      'an oversize trusted final result is not retained as evidence');
+  });
+
+  await extensionCheckAsync('B-137a admission transfer failure kills/reaps the spawned provider and cannot report runner success', async () => {
+    const sub = freshRoot();
+    const harness = deterministicHostRuntime();
+    (harness.child as typeof harness.child & { pid: number }).pid = 987_654;
+    const runner: HostRunRunner = plan => defaultHostRunRunner(plan, {
+      ...harness.runtime,
+      spawnChild: () => {
+        const slotPath = join(hostRunSlotsDir(sub), 'slot-0.json');
+        const slot = JSON.parse(readFileSync(slotPath, 'utf8')) as Record<string, unknown>;
+        writeFileSync(slotPath, `${JSON.stringify({ ...slot, token: 'foreign-reclaimed-token' })}\n`);
+        return harness.child as unknown as ReturnType<typeof spawn>;
+      },
+    });
+    const pending = runHostRun(baseArgs({
+      root: sub,
+      host: 'codex',
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' },
+    }), { runner });
+    assert.equal(harness.killCount(), 1, 'failed slot transfer immediately kills the exact spawned child');
+    harness.child.emit('close', 0, null);
+    const result = await pending;
+    assert.notEqual(result.exitCode, 0, 'a provider that escaped admission tracking cannot report success');
+    assert.equal(result.terminalReason, 'child_error');
+    assert.equal(result.processCleanup?.reaped, true, 'settlement waits for the child close/reap boundary');
+  });
+
+  await supervisorHardeningCheckAsync('F-054/F-070/F-072/F-079 prompt transport and unsafe residual supervision fail closed', async () => {
+    const managedClaudeRoot = freshRoot();
+    const managedClaudeArgs = baseArgs({
+      root: managedClaudeRoot,
+      host: 'claude',
+      storyId: 'B-managed-claude',
+      agentType: 'lattice-review-quality',
+      phase: 'REVIEW',
+      lane: 'lattice-review-quality',
+      reviewRunId: 'B-managed-claude:RR-001',
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' },
+      launchProfile: 'managed_reviewer',
+      managedRunId: 'managed-claude-transport-smoke',
+    });
+    let managedPromptFile: string | null = null;
+    await runHostRun(managedClaudeArgs, {
+      runner: plan => {
+        managedPromptFile = plan.promptFile ?? null;
+        assert.ok(managedPromptFile, 'managed Claude receives an authoritative prompt file');
+        const promptRelativeToCwd = relative(plan.cwd, managedPromptFile!);
+        assert.ok(
+          promptRelativeToCwd.length > 0
+            && promptRelativeToCwd !== '..'
+            && !promptRelativeToCwd.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`)
+            && !isAbsolute(promptRelativeToCwd),
+          'managed Claude prompt must be readable inside the provider working directory',
+        );
+        assert.equal(statSync(managedPromptFile!).mode & 0o777, 0o600, 'managed Claude prompt remains mode 0600');
+        assert.equal(readFileSync(managedPromptFile!, 'utf8'), managedClaudeArgs.promptText, 'managed Claude prompt file carries the exact authoritative bytes');
+        assert.equal(plan.argv.includes(managedClaudeArgs.promptText), false, 'managed Claude argv never carries plaintext prompt bytes');
+        assert.deepEqual(
+          plan.argv.slice(plan.argv.indexOf('--permission-mode'), plan.argv.indexOf('--permission-mode') + 2),
+          ['--permission-mode', 'bypassPermissions'],
+          'managed Claude uses an explicit non-interactive permission mode so required Lattice reads cannot await approval',
+        );
+        const schemaIndex = plan.argv.indexOf('--json-schema');
+        assert.ok(schemaIndex >= 0, 'managed Claude requires provider-validated structured final output');
+        const schemaText = plan.argv[schemaIndex + 1] ?? '';
+        assert.ok(Buffer.byteLength(schemaText, 'utf8') > 0 && Buffer.byteLength(schemaText, 'utf8') <= 16 * 1024,
+          'managed Claude JSON Schema is explicit and bounded');
+        assert.equal(schemaText.includes(managedClaudeArgs.promptText), false, 'JSON Schema argv contains no prompt/private bytes');
+        const schema = JSON.parse(schemaText) as {
+          required: string[];
+          properties: Record<string, { const?: string; enum?: string[]; required?: string[]; items?: { required?: string[] } }>;
+          [key: string]: unknown;
+        };
+        assert.equal(schema.properties.schemaVersion?.const, 'lattice.managed_review_final_proposal.v1');
+        assert.equal(schema.properties.storyId?.const, managedClaudeArgs.storyId);
+        assert.equal(schema.properties.providerAgent?.const, managedClaudeArgs.agentType);
+        assert.equal(schema.properties.lane?.const, managedClaudeArgs.lane);
+        assert.equal(schema.properties.reviewRunId?.const, managedClaudeArgs.reviewRunId);
+        for (const required of ['schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion', 'readManifest']) {
+          assert.ok(schema.required.includes(required), `managed Claude schema requires ${required}`);
+        }
+        for (const unsupportedTopLevelComposition of ['oneOf', 'allOf', 'anyOf']) {
+          assert.equal(Object.prototype.hasOwnProperty.call(schema, unsupportedTopLevelComposition), false,
+            `provider-facing Claude input_schema rejects top-level ${unsupportedTopLevelComposition}`);
+        }
+        assert.deepEqual(schema.properties.conclusion.enum, ['pass', 'findings'],
+          'managed Claude schema keeps the public conclusion vocabulary flat');
+        assert.ok(schema.properties.note && schema.properties.findings,
+          'flat schema still exposes pass/findings fields for the provider while the strict local parser enforces exclusivity');
+        assert.deepEqual(schema.properties.readManifest.required,
+          ['filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest'],
+          'managed Claude schema requires exact read-manifest and routing-binding evidence');
+        assert.deepEqual(schema.properties.readLog.required,
+          ['filesReadFully', 'filesTriagedByName', 'summary', 'digest'],
+          'managed Claude schema constrains a supplied read-log to the canonical shape');
+        assert.deepEqual(schema.properties.findings.items?.required, ['desc', 'severity', 'category'],
+          'managed Claude schema constrains every provider finding before local semantic validation');
+        for (const unsupportedConstraint of ['minimum', 'maximum', 'minLength', 'maxLength']) {
+          assert.equal(schemaText.includes(`"${unsupportedConstraint}"`), false,
+            `raw Claude CLI schema avoids unsupported ${unsupportedConstraint} constraints`);
+        }
+        return { stdout: CLAUDE_STDOUT, stderr: '', exitCode: 0, timedOut: false };
+      },
+    });
+    assert.ok(managedPromptFile);
+    assert.equal(existsSync(managedPromptFile!), false, 'managed Claude prompt is removed after provider settlement');
+
+    const sub = freshRoot();
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const runner: HostRunRunner = plan => defaultHostRunRunner({
+      ...plan,
+      command: process.execPath,
+      argv: ['-e', 'process.exit(0)'],
+      stdinText: 'x'.repeat(8 * 1024 * 1024),
+    });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner });
+    assert.notEqual(result.exitCode, 0, 'stdin EPIPE fails closed instead of fabricating provider success');
+    assert.equal(result.terminalReason, 'child_error');
+    assert.match(result.stderr, /stdin delivery failed: EPIPE/);
+    assert.equal(result.processCleanup?.reaped, true, 'the provider close/reap boundary remains authoritative');
+    const next = acquireHostRunSlot(hostRunSlotsDir(sub), 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-stdin-epipe'));
+    assert.ok(next, 'stdin EPIPE cleanup releases the provider admission slot exactly once');
+    if (next) releaseSlot(next.file, next.token);
+
+    const syncHarness = deterministicHostRuntime();
+    (syncHarness.child as typeof syncHarness.child & { pid: number }).pid = 987_655;
+    syncHarness.child.stdin.end = () => {
+      const error = new Error('synchronous stdin end failure') as NodeJS.ErrnoException;
+      error.code = 'EPIPE';
+      throw error;
+    };
+    const syncPending = defaultHostRunRunner({
+      command: 'fixture-provider', argv: [], env: {}, cwd: sub, host: 'codex',
+      stdinText: 'prompt', onChunk: () => {},
+    }, syncHarness.runtime);
+    assert.equal(syncHarness.killCount(), 1, 'a synchronous stdin.end failure immediately terminates the exact child');
+    syncHarness.child.emit('close', 0, null);
+    const syncResult = await syncPending;
+    assert.equal(syncResult.terminalReason, 'child_error');
+    assert.match(syncResult.stderr, /stdin delivery failed: EPIPE/);
+
+    const descriptorRoot = freshRoot();
+    const descriptorResult = await runHostRun(baseArgs({
+      root: descriptorRoot,
+      host: 'codex',
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' },
+    }), {
+      runner: plan => defaultHostRunRunner({
+        ...plan,
+        command: process.execPath,
+        argv: ['-e', 'require("node:fs").closeSync(3); setTimeout(() => {}, 100)'],
+      }),
+      reviewInvocationPayload: () => 'x'.repeat(2 * 1024 * 1024),
+    });
+    assert.equal(descriptorResult.terminalReason, 'child_error', 'async fd3 EPIPE is a normal failed result');
+    assert.match(descriptorResult.stderr, /review invocation descriptor delivery failed: EPIPE/);
+    assert.equal(descriptorResult.processCleanup?.reaped, true, 'fd3 failure waits for exact child reap');
+
+    const residualRoot = freshRoot();
+    let provider: ReturnType<typeof spawn> | null = null;
+    const unsafe = await runHostRun(baseArgs({
+      root: residualRoot,
+      host: 'codex',
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' },
+    }), {
+      runner: async plan => {
+        provider = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore', detached: true });
+        assert.ok(provider.pid);
+        plan.onSpawn?.({
+          pid: provider.pid,
+          pgid: provider.pid,
+          spawnedAt: new Date().toISOString(),
+          startFingerprint: null,
+          processGroupIsolated: true,
+        });
+        return {
+          stdout: '', stderr: '', exitCode: 1, timedOut: false, terminalReason: 'child_error',
+          replacementSafe: false, residualProcessGroup: true,
+          processCleanup: { termSent: true, killSent: true, reaped: false, residualProcessGroup: true },
+        };
+      },
+    });
+    assert.equal(unsafe.replacementSafe, false);
+    assert.equal(
+      acquireHostRunSlot(hostRunSlotsDir(residualRoot), 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('blocked-by-residual')),
+      null,
+      'unsafe live residual provider retains the canonical capacity slot',
+    );
+    const providerExit = new Promise<void>(resolveExit => provider!.once('close', () => resolveExit()));
+    provider!.kill('SIGKILL');
+    await providerExit;
+    const reclaimed = acquireHostRunSlot(hostRunSlotsDir(residualRoot), 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-residual-death'));
+    assert.ok(reclaimed, 'the retained slot becomes reclaimable only after exact provider death');
+    if (reclaimed) releaseSlot(reclaimed.file, reclaimed.token);
+  });
+
   // =========================================================================
   // CHK-001 happy: codex turn.completed -> estimate + provider-reported final
   // =========================================================================
@@ -481,7 +978,9 @@ async function main(): Promise<void> {
     assert.ok(sink.lastPlan);
     assert.equal(sink.lastPlan!.command, 'codex');
     assert.equal(sink.lastPlan!.argv.includes('<prompt>'), false);
-    assert.ok(sink.lastPlan!.argv.includes('Review the change and report findings honestly.'));
+    assert.equal(sink.lastPlan!.argv.includes('Review the change and report findings honestly.'), false);
+    assert.equal(sink.lastPlan!.argv.at(-1), '-');
+    assert.equal(sink.lastPlan!.stdinText, 'Review the change and report findings honestly.');
 
     const records = readLedger(sub);
     assert.equal(records.length, 2, 'estimate + final');
@@ -527,6 +1026,8 @@ async function main(): Promise<void> {
     assert.ok(sink.lastPlan);
     assert.equal(sink.lastPlan!.command, 'claude');
     assert.equal(sink.lastPlan!.argv.includes('<prompt-file>'), false);
+    assert.equal(sink.lastPlan!.argv.includes('--permission-mode'), false, 'ordinary Claude runs retain their configured permission policy');
+    assert.equal(sink.lastPlan!.argv.includes('--json-schema'), false, 'ordinary Claude runs do not inherit managed-review structured output policy');
     const promptArg = sink.lastPlan!.argv.find((a) => a.endsWith('prompt.txt'));
     assert.ok(promptArg && isAbsolute(promptArg), 'claude prompt file is absolute');
     // temp prompt file cleaned up after the run.
@@ -545,28 +1046,22 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
-  // CHK-001 happy: agy -> unavailable final (provider antigravity)
+  // CHK-001 safety: agy is refused until it has a protected prompt transport.
   // =========================================================================
-  await checkAsync('CHK-001 agy happy: unavailable final, provider antigravity, explicit reason', async () => {
+  await checkAsync('CHK-001 agy safety: argv-only prompt transport refuses before spawn', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = await runHostRun(baseArgs({ root: sub, host: 'agy', agyPrintTimeout: '30m' }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
-
-    assert.equal(sink.calls, 1);
-    // agy print-timeout override flows into the canonical launcher.
-    assert.ok(sink.lastPlan);
-    const argv = sink.lastPlan!.argv;
-    const tIdx = argv.indexOf('--print-timeout');
-    assert.ok(tIdx >= 0 && argv[tIdx + 1] === '30m', 'agy --print-timeout override applied');
-
+    await assert.rejects(
+      runHostRun(baseArgs({ root: sub, host: 'agy' }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) }),
+      /agy is unavailable.*prompt only in argv.*refusing pre-spawn.*stdin or protected prompt-file/i,
+    );
+    assert.equal(sink.calls, 0, 'argv-only agy prompt must be rejected before runner invocation');
+    assert.equal(sink.lastPlan, null, 'no launch plan containing the prompt may reach the runner');
     const records = readLedger(sub);
-    const final = records.find((r) => r.usage.source === 'unavailable');
-    assert.ok(final);
-    assert.equal(final!.provider?.name, 'antigravity');
-    assert.equal(final!.provider?.model, 'unknown');
-    assert.equal(final!.usage.unavailableReason, 'agy_print_mode_reports_no_usage');
-    assert.equal(result.usageSummary.recorded, 'unavailable');
-    assert.equal(result.usageSummary.provider, 'antigravity');
+    assert.equal(records.length, 1, 'local preflight estimate remains auditable without claiming a provider run');
+    assert.equal(records[0]?.usage.source, 'prompt-size-estimate');
+    assert.equal(records.some(record => record.usage.source === 'provider-reported' || record.usage.source === 'unavailable'), false,
+      'pre-spawn prompt-transport refusal must not fabricate a provider terminal row');
   });
 
   // =========================================================================
@@ -807,9 +1302,9 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
-  // CHK-001 edge: PROOF_OR_STOP_USAGE_LEDGER=0 -> byte-identical (zero rows, zero dirs)
+  // CHK-001 edge: PROOF_OR_STOP_USAGE_LEDGER=0 disables rows, never provider admission.
   // =========================================================================
-  await checkAsync('CHK-001 edge: ledger OFF -> zero rows, zero dirs, run still spawns + exit propagates', async () => {
+  await checkAsync('CHK-001 edge: ledger OFF -> zero rows but provider admission remains active; run spawns + exit propagates', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
@@ -818,8 +1313,8 @@ async function main(): Promise<void> {
     assert.equal(result.exitCode, 2, 'exit propagates when OFF');
     assert.equal(result.usageSummary.recorded, 'disabled');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file');
-    assert.equal(existsSync(join(sub, '.proof-or-stop')), false, 'no .proof-or-stop dir created');
-    assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot dir created');
+    assert.equal(existsSync(hostRunSlotsDir(sub)), true, 'provider admission registry exists independently of the ledger');
+    assert.deepEqual(readdirSync(hostRunSlotsDir(sub)), [], 'slot released after the run');
   });
 
   // =========================================================================
@@ -1017,6 +1512,25 @@ async function main(): Promise<void> {
     assert.equal(result.retentionTruncated, false, 'a normal line is not flagged truncated');
   });
 
+  await checkAsync('F-243: stdoutDigest hashes raw provider bytes before UTF-8 decoding', async () => {
+    const raw = Buffer.from([0xff, 0xfe, 0x61]);
+    const seen: string[] = [];
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', `process.stdout.write(Buffer.from([${[...raw].join(',')}]))`],
+      env: process.env,
+      cwd: process.cwd(),
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      onChunk: chunk => { if (chunk.stream === 'stdout') seen.push(chunk.text); },
+    });
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stdoutDigest, createHash('sha256').update(raw).digest('hex'),
+      'invalid UTF-8 replacement must not change the raw-byte provenance digest');
+    assert.equal(seen.join(''), '\ufffd\ufffda',
+      'text consumers still receive a deterministic UTF-8 replacement projection');
+  });
+
   await checkAsync('F-006: host output is delivered through the passthrough EXACTLY once (no double-print) with a buffered runner', async () => {
     const sub = freshRoot();
     const seen: string[] = [];
@@ -1036,6 +1550,11 @@ async function main(): Promise<void> {
   await checkAsync('F-006: an oversized single usage line is bounded (dropped + truncation flag) -> no parse target, never OOM/fabrication', async () => {
     // Build a turn.completed line whose padding pushes it past the 1 MiB cap.
     const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const expectedStdout = `${JSON.stringify({
+      type: 'turn.completed',
+      usage: { input_tokens: 1, cached_input_tokens: 0, output_tokens: 1 },
+      pad: 'a'.repeat(padLen),
+    })}\n`;
     const script =
       `var pad="a".repeat(${padLen});` +
       'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:1,cached_input_tokens:0,output_tokens:1},pad:pad})+"\\n");';
@@ -1050,6 +1569,11 @@ async function main(): Promise<void> {
     });
     assert.equal(result.retentionTruncated, true, 'the over-cap line is flagged truncated');
     assert.equal(result.stdout, '', 'the over-cap line is NOT retained as a parse target');
+    assert.equal(
+      result.stdoutDigest,
+      createHash('sha256').update(expectedStdout, 'utf8').digest('hex'),
+      'stdoutDigest covers the complete stream, not the empty retained parser lane',
+    );
     assert.equal(scanCodexTurnCompletedUsage(result.stdout), null, 'no usage can be parsed from an empty retention');
 
     // End-to-end: an empty retention (the bounded-drop outcome) records an honest
@@ -1792,6 +2316,124 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   });
 
   // =========================================================================
+  // F-152: F-024's 2s defensive drain cap must bound command completion without
+  // retaining unbounded per-run error listeners while a write remains pending. A real pipe
+  // normally settles before 2s, so drive the exact cap-losing path with an injected
+  // writable that delays its callback until after host_run returns, then emits EPIPE.
+  // =========================================================================
+  await streamHardeningCheckAsync('F-152/F-165: cap-losing live writes keep EPIPE containment with one bounded shared listener until callbacks settle', async () => {
+    class DeferredWriteStream extends EventEmitter {
+      private callbacks: Array<(error?: Error | null) => void> = [];
+
+      write(_text: string, callback: (error?: Error | null) => void): boolean {
+        this.callbacks.push(callback);
+        return false;
+      }
+
+      settle(error: Error): void {
+        const callbacks = this.callbacks.splice(0);
+        for (const callback of callbacks) callback(error);
+      }
+    }
+
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const lateStdout = new DeferredWriteStream();
+    const { createHostRunHandlers } = await import('../handlers/host-run.js');
+    const handlers = createHostRunHandlers({
+      root: sub,
+      scanRoot: sub,
+      store: { readStory() { throw new Error('no store'); } },
+    } as never, {
+      runner: async plan => {
+        plan.onChunk?.({ stream: 'stdout', text: 'pending live chunk' });
+        return { stdout: CODEX_STDOUT, stderr: '', exitCode: 0, timedOut: false };
+      },
+      outputStreams: { stdout: lateStdout },
+      streamWriteDrainCapMs: 5,
+    });
+    // drainPending deliberately unrefs its cap timer. A real backpressured pipe
+    // keeps Node alive itself; this inert fake does not, so retain the test process
+    // only through the bounded wait rather than accidentally exiting mid-assertion.
+    const keepAlive = setInterval(() => {}, 1_000);
+    try {
+      const startedAt = Date.now();
+      const result = await handlers.host_run({
+        host: 'codex', agentType: 'reviewer', prompt: 'late stream settlement', phase: 'adhoc',
+      });
+      assert.equal(result, '', 'the cap bounds command completion despite the pending live write');
+      assert.ok(Date.now() - startedAt < 1_000, 'the smoke seam proves host_run did not wait for the production 2s cap');
+      assert.equal(lateStdout.listenerCount('error'), 1,
+        'one shared stdout late-EPIPE guard remains attached after the bounded return');
+      const second = await handlers.host_run({
+        host: 'codex', agentType: 'reviewer', prompt: 'second never-settling stream write', phase: 'adhoc',
+      });
+      assert.equal(second, '', 'a second capped run also completes boundedly');
+      assert.equal(lateStdout.listenerCount('error'), 1,
+        'many never-settling writes retain one shared guard per stream, not one listener per run');
+      assert.doesNotThrow(() => lateStdout.emit('error', new Error('EPIPE: late pipe close')),
+        'a post-return EPIPE is contained instead of becoming an unhandled stream error');
+      lateStdout.settle(new Error('EPIPE: late write callback'));
+      await new Promise<void>(resolve => setImmediate(resolve));
+      assert.equal(lateStdout.listenerCount('error'), 0,
+        'the shared guard is removed after the callback/error event turn once every late pending write settles');
+
+      // Node Writable reports a failed write callback before emitting its
+      // corresponding error event on a later next-tick. This is the actual
+      // callback-then-EPIPE ordering that must remain contained after the cap.
+      class DeferredWritable extends Writable {
+        private pendingCallback: ((error?: Error | null) => void) | null = null;
+        errorEvents = 0;
+
+        _write(_chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+          this.pendingCallback = callback;
+        }
+
+        override emit(event: string | symbol, ...args: unknown[]): boolean {
+          if (event === 'error') this.errorEvents += 1;
+          return super.emit(event, ...args);
+        }
+
+        failPendingWrite(): void {
+          const callback = this.pendingCallback;
+          this.pendingCallback = null;
+          assert.ok(callback, 'the real Writable has one cap-losing pending callback');
+          const error = Object.assign(new Error('EPIPE: real Writable pipe close'), { code: 'EPIPE' });
+          callback(error);
+        }
+      }
+
+      const realWritable = new DeferredWritable();
+      const realHandlers = createHostRunHandlers({
+        root: sub,
+        scanRoot: sub,
+        store: { readStory() { throw new Error('no store'); } },
+      } as never, {
+        runner: async plan => {
+          plan.onChunk?.({ stream: 'stdout', text: 'real Writable pending live chunk' });
+          return { stdout: CODEX_STDOUT, stderr: '', exitCode: 0, timedOut: false };
+        },
+        outputStreams: { stdout: realWritable },
+        streamWriteDrainCapMs: 5,
+      });
+      const realResult = await realHandlers.host_run({
+        host: 'codex', agentType: 'reviewer', prompt: 'real Writable callback then EPIPE', phase: 'adhoc',
+      });
+      assert.equal(realResult, '', 'the real Writable cap-losing write still returns boundedly');
+      assert.equal(realWritable.listenerCount('error'), 1,
+        'the shared guard survives until the real Writable resolves its callback/event pair');
+      realWritable.failPendingWrite();
+      await new Promise<void>(resolve => setImmediate(resolve));
+      assert.equal(realWritable.errorEvents, 1,
+        'the real Writable emitted its callback-following EPIPE event');
+      assert.equal(realWritable.listenerCount('error'), 0,
+        'the shared guard releases only after the real Writable EPIPE event is contained');
+    } finally {
+      clearInterval(keepAlive);
+    }
+  });
+
+  // =========================================================================
   // F-011: the host subprocess executes in the RESOLVED PROJECT ROOT (args.cwd,
   // the same value the ledger attributes as root), never the caller's process
   // cwd. Against the old code the spawn plan carried NO cwd at all, so the host
@@ -2141,10 +2783,9 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(final!.usage.cacheReadInputTokens, 300);
   });
 
-  check('CHK-003 autopilot repair OFF: byte-identical argv (no --output-format json), zero rows, zero dirs — even with budget/cap env set (F-016: no admission when OFF)', () => {
-    // F-016 hard invariant: with the ledger OFF, the budget/cap env vars that
-    // would refuse an ON repair pre-spawn are NEVER consulted — the repair
-    // spawns byte-identically and creates no dirs (so no slot registry either).
+  check('CHK-003 autopilot repair OFF: provider argv stays byte-compatible, usage rows stay off, shared provider admission remains active', () => {
+    // Usage budget stays disabled and provider argv stays compatible, but the
+    // ledger-independent capacity registry still wraps the provider spawn.
     const OFF = {
       PROOF_OR_STOP_USAGE_LEDGER: '0',
       PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1',
@@ -2171,8 +2812,8 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(offAttempt.command, 'claude -p <repair-prompt>', 'OFF command label byte-identical to today');
     assert.equal(offAttempt.stdoutExcerpt, plainStdout, 'OFF excerpt is the raw stdout (unchanged)');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file when OFF');
-    assert.equal(existsSync(join(sub, '.proof-or-stop')), false, 'no .proof-or-stop dir when OFF');
-    assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot registry when OFF (admission never ran)');
+    assert.equal(existsSync(hostRunSlotsDir(sub)), true, 'provider admission still runs when usage accounting is OFF');
+    assert.deepEqual(readdirSync(hostRunSlotsDir(sub)), [], 'OFF-path slot released');
   });
 
   // =========================================================================
@@ -2210,7 +2851,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'budget refusal happens before any slot acquire (no slot dir)');
   });
 
-  check('F-016 repair concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row, no spawn); OFF ignores the cap; slot HELD during a normal run and RELEASED after', () => {
+  check('F-016 repair concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row, no spawn); OFF still enforces the cap; slot HELD during a normal run and RELEASED after', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
     const env = { PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
@@ -2232,17 +2873,17 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(blocked!.provider?.name, 'anthropic');
     assert.equal(blocked!.agentType, 'autopilot-repair');
 
-    // Ledger OFF against the SAME saturated registry: no admission, the repair
-    // spawns with the byte-identical OFF argv, and zero rows are added.
+    // Ledger OFF against the SAME saturated registry: admission still refuses;
+    // usage accounting remains disabled and adds zero rows.
     const sinkOff: RepairSink = { calls: 0, lastArgs: null };
     const off = runClaudeRepair(
       sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: 'plain', stderr: '' }, sinkOff),
       repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'),
       { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv,
     );
-    assert.equal(sinkOff.calls, 1, 'OFF: the repair spawns despite the saturated cap (no admission when OFF)');
-    assert.equal(off.status, 'passed');
-    assert.equal(sinkOff.lastArgs!.includes('--output-format'), false, 'OFF argv byte-identical');
+    assert.equal(sinkOff.calls, 0, 'OFF: provider admission still refuses at the saturated cap');
+    assert.equal(off.status, 'failed');
+    assert.ok(off.stderrExcerpt.includes('concurrency_cap_exceeded'));
     assert.equal(readLedger(sub).length, afterRefusal.length, 'OFF adds zero rows');
 
     // Free the seeded slot: a normal ON repair must ACQUIRE slot-0 for the
@@ -2441,24 +3082,22 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(final!.usage.inputTokens, null, 'no fabricated count from plain stdout');
   });
 
-  await checkAsync('CHK-003/F-017 cross-host-review codex leaf: absent binding AND ledger OFF both byte-identical — runner invoked, zero rows, NO admission even with budget/cap env set', async () => {
+  await checkAsync('CHK-003/F-017 cross-host-review codex leaf: absent binding AND ledger OFF keep zero usage rows while provider admission remains mandatory', async () => {
     const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
     const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
 
-    // Absent binding: ledger gating never runs, so no admission fires and no
-    // rows/dirs are created — the runner still executes.
+    // Absent binding: no usage rows, but the independent provider slot is held.
     const sub1 = freshRoot();
     let calls1 = 0;
     const runner1: CodexReviewRunner = () => { calls1 += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
     const leaf1 = await runCodexReviewLeaf({ storyId: 'B-70e9', storyWorktree: sub1, materialHash: MH, timeoutMs: 1000 }, runner1);
-    assert.equal(calls1, 1, 'no binding -> the codex runner still runs (no admission)');
+    assert.equal(calls1, 1, 'no binding -> the admitted codex runner runs');
     assert.equal(leaf1.hostBVerdict.decision, 'pass');
     assert.equal(existsSync(resolveLedgerPath(sub1)), false, 'no rows without a usageLedger binding');
-    assert.equal(existsSync(hostRunSlotsDir(sub1)), false, 'no slot registry without a binding');
+    assert.equal(existsSync(hostRunSlotsDir(sub1)), true, 'slot registry exists without a ledger binding');
+    assert.deepEqual(readdirSync(hostRunSlotsDir(sub1)), [], 'slot released');
 
-    // Ledger OFF hard invariant (F-017): the budget/cap env vars that would
-    // refuse an ON leaf pre-spawn are NEVER consulted — the leaf runs, creates
-    // no dirs (so no slot registry), and adds zero rows.
+    // Ledger OFF: budget is not evaluated, provider capacity still is.
     const sub2 = freshRoot();
     const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1', PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
     let calls2 = 0;
@@ -2467,10 +3106,11 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       { storyId: 'B-70e9', storyWorktree: sub2, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub2, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: OFF, phase: 'REVIEW' } },
       runner2,
     );
-    assert.equal(calls2, 1, 'OFF: the leaf runs despite budget/cap env (no admission when OFF)');
+    assert.equal(calls2, 1, 'OFF: the admitted leaf runs (the free cap=1 slot is acquired)');
     assert.equal(leaf2.hostBVerdict.decision, 'pass');
     assert.equal(existsSync(resolveLedgerPath(sub2)), false, 'no rows when ledger OFF');
-    assert.equal(existsSync(hostRunSlotsDir(sub2)), false, 'no slot registry when OFF (admission never ran)');
+    assert.equal(existsSync(hostRunSlotsDir(sub2)), true, 'slot registry is independent of usage ledger state');
+    assert.deepEqual(readdirSync(hostRunSlotsDir(sub2)), [], 'slot released');
   });
 
   // =========================================================================
@@ -2824,20 +3464,25 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   // B-3aec: independent first-output and total deadlines.
   // =========================================================================
   await checkAsync('B-3aec startup watchdog: silent child is killed/reaped before total timeout and reports startup_no_output_timeout', async () => {
-    const result = await defaultHostRunRunner({
-      command: process.execPath,
-      argv: ['-e', 'setTimeout(() => process.exit(0), 5000)'],
-      env: process.env,
-      cwd: process.cwd(),
-      startupTimeoutMs: 40,
-      timeoutMs: 1000,
+    const silent = deterministicHostRuntime();
+    const resultPromise = defaultHostRunRunner({
+      command: 'fake-host', argv: [], env: process.env, cwd: process.cwd(), startupTimeoutMs: 40, timeoutMs: 1000,
+    }, {
+      ...silent.runtime,
+      processGroupIsolated: true,
+      readProcessStartFingerprint: () => 'verified-silent-leader',
+      isProcessGroupAlive: () => false,
+      signalProcessGroup: () => true,
     });
+    silent.fire(40);
+    silent.child.emit('close', null, 'SIGTERM');
+    const result = await resultPromise;
     assert.equal(result.exitCode, 124);
     assert.equal(result.timedOut, true);
     assert.equal(result.timeoutKind, 'startup_no_output_timeout');
     assert.equal(result.terminalReason, 'startup_no_output_timeout');
     assert.equal(result.firstOutputMs, null);
-    assert.ok((result.durationMs ?? 1000) < 900, 'startup timeout returns without waiting for total deadline');
+    assert.equal(silent.activeTimers(), 0, 'startup timeout clears the total deadline after the verified cleanup path');
   });
 
   await checkAsync('B-3aec first byte: stderr clears startup timer; productive runtime may exceed startup budget and still finish', async () => {
@@ -2862,8 +3507,11 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       argv: ['-e', 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)'],
       env: process.env,
       cwd: process.cwd(),
-      startupTimeoutMs: 100,
-      timeoutMs: 120,
+      // Keep the real OS child while giving process launch/observer scheduling
+      // enough headroom under a loaded aggregate. The independent deadlines
+      // remain close enough to prove first-output clears only the startup timer.
+      startupTimeoutMs: 1_000,
+      timeoutMs: 1_200,
     });
     assert.equal(result.exitCode, 124);
     assert.equal(result.timeoutKind, 'total_timeout');
@@ -2993,6 +3641,30 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(outputFirst.activeTimers(), 0);
     assert.equal(outputFirst.listenerCount(), 0);
 
+    // The close event starts asynchronous process-group cleanup. It must fence
+    // the total deadline before that cleanup await, otherwise a queued deadline
+    // can flip timedOut while the already-computed exitCode remains 0.
+    const closeFirst = deterministicHostRuntime();
+    let closeFenceGroupChecks = 0;
+    const closeFirstPromise = defaultHostRunRunner({
+      command: 'fake-host', argv: [], env: process.env, cwd: process.cwd(), timeoutMs: 20,
+    }, {
+      ...closeFirst.runtime,
+      processGroupIsolated: true,
+      readProcessStartFingerprint: () => 'close-fence-leader',
+      isProcessGroupAlive: () => closeFenceGroupChecks++ === 0,
+      signalProcessGroup: () => true,
+    });
+    closeFirst.child.emit('close', 0, null);
+    assert.equal(closeFirst.activeTimers(), 0,
+      'the authoritative close fences the still-queued total deadline before async group cleanup');
+    const closeFirstResult = await closeFirstPromise;
+    assert.equal(closeFirstResult.closeObserved, true);
+    assert.equal(closeFirstResult.exitCode, 0);
+    assert.equal(closeFirstResult.timedOut, false,
+      'a deadline callback after the close fence cannot contradict the successful exit code');
+    assert.equal(closeFirstResult.terminalReason, 'completed');
+
     const timeoutFirst = deterministicHostRuntime();
     let timeoutSettles = 0;
     const timeoutPromise = defaultHostRunRunner(basePlan, timeoutFirst.runtime).then(result => { timeoutSettles += 1; return result; });
@@ -3055,6 +3727,56 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     if (reacquired) releaseSlot(reacquired.file, reacquired.token);
   });
 
+  await checkAsync('B-137a:F-160/F-232 process-group timeout/abort refuse stale leader fingerprints before signalling a reused PGID or direct child', async () => {
+    const staleTimeout = deterministicHostRuntime();
+    const signals: Array<{ pgid: number; signal: NodeJS.Signals }> = [];
+    let fingerprintReads = 0;
+    const runtime: HostRunRunnerRuntime = {
+      ...staleTimeout.runtime,
+      processGroupIsolated: true,
+      readProcessStartFingerprint: () => (fingerprintReads++ === 0 ? 'leader-original' : 'leader-reused'),
+      isProcessGroupAlive: () => true,
+      signalProcessGroup: (pgid, signal) => { signals.push({ pgid, signal }); return true; },
+    };
+    const timeout = defaultHostRunRunner({
+      command: 'fake-host', argv: [], env: process.env, cwd: process.cwd(), timeoutMs: 20,
+    }, runtime);
+    staleTimeout.fire(20);
+    assert.deepEqual(signals, [], 'total timeout must not signal a PGID after its leader start fingerprint changed');
+    assert.equal(staleTimeout.killCount(), 0,
+      'total timeout must not fall back to child.kill when the isolated leader identity is ambiguous');
+    staleTimeout.child.emit('close', null, 'SIGTERM');
+    const timedOut = await timeout;
+    assert.equal(timedOut.replacementSafe, false,
+      'an identity-ambiguous isolated child remains replacement-unsafe for reconciliation');
+    assert.equal(timedOut.processCleanup?.residualProcessGroup, true,
+      'an identity-ambiguous isolated child records residual process risk instead of signalling');
+
+    const staleAbort = deterministicHostRuntime();
+    const abortSignals: Array<{ pgid: number; signal: NodeJS.Signals }> = [];
+    let abortFingerprintReads = 0;
+    const controller = new AbortController();
+    const aborted = defaultHostRunRunner({
+      command: 'fake-host', argv: [], env: process.env, cwd: process.cwd(), signal: controller.signal,
+    }, {
+      ...staleAbort.runtime,
+      processGroupIsolated: true,
+      readProcessStartFingerprint: () => (abortFingerprintReads++ === 0 ? 'leader-original' : 'leader-reused'),
+      isProcessGroupAlive: () => true,
+      signalProcessGroup: (pgid, signal) => { abortSignals.push({ pgid, signal }); return true; },
+    });
+    controller.abort();
+    assert.deepEqual(abortSignals, [], 'abort must apply the same leader-fingerprint revalidation before PGID signalling');
+    assert.equal(staleAbort.killCount(), 0,
+      'abort must not fall back to child.kill when the isolated leader identity is ambiguous');
+    staleAbort.child.emit('close', null, 'SIGTERM');
+    const abortedResult = await aborted;
+    assert.equal(abortedResult.replacementSafe, false,
+      'abort keeps an identity-ambiguous isolated child replacement-unsafe');
+    assert.equal(abortedResult.processCleanup?.residualProcessGroup, true,
+      'abort records the unresolved process group without signalling it');
+  });
+
   await checkAsync('B-3aec timeout cleanup through runHostRun: startup and total timeout both release cap=1 for the next run', async () => {
     for (const scenario of [
       { script: 'setInterval(() => {}, 1000)', startupTimeoutMs: 40, timeoutMs: 500, expected: 'startup_no_output_timeout' },
@@ -3082,6 +3804,22 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const entries = readdirSync(root);
     assert.ok(entries.length > 0);
   });
+
+  // F057: immutable verification receipts pin this command. Execute the two
+  // focused boundaries here so its successful exit actually proves their
+  // independent candidate-overflow and CLI watchdog contracts.
+  evidenceMappingCheck(
+    'CHK-004:edge:2 pinned command executes the candidate overflow/null-first-output boundary',
+    'candidate-spec-routing-smoke.js',
+    'candidate-spec-routing smoke: PASS',
+  );
+  if (!canonicalCore) {
+    evidenceMappingCheck(
+      'CHK-007:adversarial:2 pinned command executes the CLI runtimeContinuation/watchdog boundary',
+      'managed-host-run-command-smoke.js',
+      'managed-host-run-command-smoke PASS',
+    );
+  }
 }
 
 main()
@@ -3095,5 +3833,35 @@ main()
       console.error(`\n✗ host-run usage smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
       process.exit(1);
     }
-    console.log(`\n✓ host-run usage smoke passed (${passed} checks)`);
+    assert.equal(corePassed, 85, 'immutable host-run usage receipt selector must include raw-byte stdout digest and the F-160 process-group fingerprint regression');
+    assert.equal(extensionPassed, 2, 'final-output proposal extension must retain its own two-check selector');
+    assert.equal(supervisorHardeningPassed, 1, 'stdin EPIPE supervisor hardening retains its independent selector');
+    assert.equal(streamHardeningPassed, 1, 'late stream settlement hardening retains its independent selector');
+    assert.equal(evidenceMappingPassed, canonicalCore ? 1 : 2,
+      'canonical execution retains candidate overflow; full receipts also execute the independently scheduled watchdog');
+    if (canonicalCore) {
+      console.log(`✓ host-run usage canonical core passed (${corePassed} core checks; ${extensionPassed + supervisorHardeningPassed + streamHardeningPassed} extension checks; candidate overflow boundary checked)`);
+      console.log('Managed watchdog contract is scheduled independently; no full historical receipt is emitted.');
+      return;
+    }
+    // Six immutable verification receipts select this exact historical line.
+    // Keep it as an explicitly-labelled compatibility selector, then emit the
+    // truthful current count separately so no consumer mistakes legacy proof
+    // for current coverage.
+    const legacyCoreSelector = '✓ host-run usage smoke passed (83 checks)';
+    const currentCoreSelector = `✓ host-run usage smoke passed (${corePassed} checks)`;
+    assert.equal(legacyCoreSelector, '✓ host-run usage smoke passed (83 checks)',
+      'immutable verification pins retain their exact legacy selector');
+    assert.equal(currentCoreSelector, '✓ host-run usage smoke passed (85 checks)',
+      'the current core selector remains truthful after the F-160 regression');
+    assert.notEqual(legacyCoreSelector, currentCoreSelector,
+      'legacy compatibility output and the current core count must coexist as distinct lines');
+    console.log(`\n${legacyCoreSelector}`);
+    console.log(`  legacy compatibility selector; current core count is ${corePassed} checks.`);
+    console.log(currentCoreSelector);
+    console.log(`✓ host-run usage final-output proposal extension passed (${extensionPassed} checks)`);
+    console.log(`✓ host-run usage supervisor hardening extension passed (${supervisorHardeningPassed} check)`);
+    console.log(`✓ host-run usage late-stream hardening extension passed (${streamHardeningPassed} check)`);
+    console.log(`✓ host-run usage evidence mapping extension passed (${evidenceMappingPassed} checks)`);
+    console.log(`✓ host-run usage smoke total passed (${corePassed + extensionPassed + supervisorHardeningPassed + streamHardeningPassed + evidenceMappingPassed} checks)`);
   });

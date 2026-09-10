@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-88c7",
+  "records": [
+    {
+      "id": "RED-20260908065518",
+      "trigger": "Inventory critic dispatch rejects valid express implementation without topology provenance",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "b2aef10827f40443a42ddbad485041782b69bad3",
+      "baselineMaterialHash": "c611e77b752f73d0fe38b5468018f00fcd6d59d5c0eb79efa7a1923a643e9d79",
+      "observedFailure": "On real B-0208 with signed OPEN RI-001 and all three lanes PASS, critic dispatch exited 1: implementation provenance is missing a business commit authored by proof-or-stop-implementer.",
+      "failingCommand": "proof-or-stop --root /Users/qipan/work/repo/Prooforstop/.worktrees/B-0208 dispatch --storyId=B-0208 --agentType=proof-or-stop-review-topology-critic",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "The real target project failure was observed before implementation; bounded handler regression will additionally exercise refusal controls.",
+      "createdAt": "2026-09-08T06:55:18.660Z"
+    },
+    {
+      "id": "RED-20260908075743",
+      "trigger": "Verified B-88c7:F-001 full-envelope inventory output contract conflicts with inventory-only responsibility",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "080fc66aea27cf0e92871191531cc5cae882f78f",
+      "baselineMaterialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
+      "observedFailure": "Real full-envelope handler fixture exits 1 at full-envelope inventory contract requires only inventory outputs: actual topology-critic-receipt plus review-finding-or-pass; expected review-finding-or-pass plus review-inventory-critic-receipt. Production implementation remains unchanged for this red witness.",
+      "failingCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "Actual red transcript /tmp/B-88c7-F001-red.log was produced by the independent registered implementer before production changes; native Codex and concept finding independently identified the same conflict.",
+      "createdAt": "2026-09-08T07:57:43.267Z"
+    },
+    {
+      "id": "RED-20260908083720",
+      "trigger": "Verified F-002 delayed inventory critic dispatch after cancellation",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "e0d55b376206d65e08e706a6ecc14689c02d5c22",
+      "baselineMaterialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+      "observedFailure": "Actual fixture cancels inventory A via CLI, but delayed review_run_start publishes RR-001; expected refusal before run/envelope publication.",
+      "failingCommand": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs"
+      },
+      "note": "Actual baseline execution failed before source repair; logs retained in /private/tmp/B-88c7-stale-dispatch-red.log",
+      "createdAt": "2026-09-08T08:37:20.749Z"
+    },
+    {
+      "id": "RED-20260908083721",
+      "trigger": "Verified F-003 real Story PRE_CERT classification failure",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "e0d55b376206d65e08e706a6ecc14689c02d5c22",
+      "baselineMaterialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+      "observedFailure": "Exact canonical agent template matches no certification domain, all-domain hashes are undefined, and real certification_window_begin refuses causal freshness.",
+      "failingCommand": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7"
+      },
+      "note": "Actual baseline execution failed before source repair; logs retained in /private/tmp/B-88c7-template-domain-red.log",
+      "createdAt": "2026-09-08T08:37:21.714Z"
+    },
+    {
+      "id": "RED-20260908091254",
+      "trigger": "Verified F-004 actual historical envelope fails after replacement epoch dispatch",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "a46537b1d9b89cb718876a386fd46cbdc45b7acd",
+      "baselineMaterialHash": "506ce8116a33f9a857513a491c3fbdaaea6ae75d119159616d7c10532192c255",
+      "observedFailure": "Actual CLI creates A/RR001, cancels/rebegins B and creates B/RR002. Old canonical envelope verification is false while new verification is true; expected both authentic records verify.",
+      "failingCommand": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-historical-dispatch-probe.mjs"
+      },
+      "note": "Actual baseline exit1 in /private/tmp/B-88c7-historical-dispatch-red.log, before source repair.",
+      "createdAt": "2026-09-08T09:12:54.149Z"
+    },
+    {
+      "id": "RED-20260908101150",
+      "trigger": "Verified F-005 real signed inventory prior PASS yields false role contract change",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "816ff69bba251bd003c3def882cdcb140c753bf3",
+      "baselineMaterialHash": "5debc8bcdab8add566c338b84e88521c085d0cc2e05dba09e7eeb82de7a757c1",
+      "observedFailure": "The real signed prior inventory contract matches selected semantics and material is unchanged, yet production evaluator reports FULL_ROLE_CONTRACT_CHANGED. Historical envelope verification control passes.",
+      "failingCommand": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-inventory-eligibility-probe.mjs"
+      },
+      "note": "Actual exit1 before source repair; /private/tmp/B-88c7-inventory-eligibility-red.log preserves matching semantic and material evidence.",
+      "createdAt": "2026-09-08T10:11:50.625Z"
+    },
+    {
+      "id": "RED-20260908102831",
+      "trigger": "Required canonical validation failure reproduced on main: max-watchdog descendant fixture startup race",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "4943d0bd2f268eeecd283757e0dbd38f0ab18aec",
+      "baselineMaterialHash": "f3b5e3781193e2f26af0dffdfb0b29e13179cbbd14cb1883e54d3aed21b37d93",
+      "observedFailure": "Fixture pins700ms outer max; CLI returns structured max timeout before command execution, then waits for a max-descendant.pid file that cannot exist. Both candidate and unchanged main reproduce the missing PID failure.",
+      "failingCommand": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      },
+      "note": "Pre-existing fixture failure directly blocks requiredvalidation; paired real logs/private/tmp/B88-heartbeat-repro.log and/private/tmp/B88-heartbeat-main-baseline.log. Isolated3000ms probe starts child and confirms max-timeout cleanup without changing production.",
+      "createdAt": "2026-09-08T10:28:31.408Z"
+    },
+    {
+      "id": "RED-20260908114204",
+      "trigger": "BUG-002 DONE-required full suite rejected stale prompt approval manifest",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "231094b8010b9049ff8645e427cf0d4d8eb99420",
+      "baselineMaterialHash": "51c59144e62320f5dc04631123f017c7a0fbf95a46bff139e52b4c1ab395a4b6",
+      "observedFailure": "Approved topology critic hash9bcf9f36 differs from current reviewed assembled body392271b8; fullsuite9/65 completed then remaining jobs interrupted.",
+      "failingCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "expectedGreenCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      },
+      "note": "Current Story changed critic instructions without synchronizing independent manifest and generated snapshots. Preserve exact approval and mutation guards; bounded four-file repair.",
+      "createdAt": "2026-09-08T11:42:04.713Z"
+    },
+    {
+      "id": "RED-20260908124829",
+      "trigger": "BUG-003 required fullsuite flow-stability fails stale no-inventory critic assertion",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "06c2b484d5148df9ee0fd815cc8ed909ecc91a8b",
+      "baselineMaterialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
+      "observedFailure": "agent-dispatch-registry-smoke.ts829 expects review_run_start and review_inventory_critic_set after only changingphaseREVIEW, with no inventoryepoch. Correct production output is topology-only.",
+      "failingCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      },
+      "note": "Full raw diagnostic /private/tmp/B88-done-required-full-output.log; boundedonefixturechange. Preserve OPEN-positive realhandler and complete registry alias matrix.",
+      "createdAt": "2026-09-08T12:48:29.149Z"
+    }
+  ],
+  "createdAt": "2026-09-08T06:55:18.660Z",
+  "updatedAt": "2026-09-08T12:48:29.149Z"
+}

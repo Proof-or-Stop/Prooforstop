@@ -1,7 +1,6 @@
 import { createHash, createPublicKey, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   effectiveValidationCommandEnvironment,
   isValidationTransportEnvKey,
@@ -15,6 +14,7 @@ import {
   type SignatureBase64,
 } from './authority-signing.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
+import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 
 /**
  * CausalEvidence is deliberately a small, dependency-light boundary.  The
@@ -148,6 +148,8 @@ export interface CausalEvidenceReceipt {
 }
 
 export interface CausalEvidenceReceiptStore {
+  /** Exact verified CAS outputs, never an entire metadata directory exemption. */
+  causalEvidenceOutputPaths?(storyId: string): string[];
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null;
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void;
   readCausalSelectorOutput?(storyId: string, digest: string): string;
@@ -529,22 +531,10 @@ export function effectiveCausalEnvironment(
   return effectiveValidationCommandEnvironment(processEnvironment, overlay, cwd);
 }
 
-export function resolveCausalToolVersion(_projectRoot: string): string | undefined {
-  const packagePaths = [
-    // This is the executor's version, not the version of an arbitrary target
-    // project's packages/main manifest. The loaded source/dist module owns it.
-    join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json'),
-  ];
-  for (const packagePath of packagePaths) {
-    if (!existsSync(packagePath)) continue;
-    try {
-      const pkg = JSON.parse(readFileSync(packagePath, 'utf8')) as { version?: unknown };
-      if (typeof pkg.version === 'string' && pkg.version.length > 0) return pkg.version;
-    } catch { // PROBE: an unreadable tool manifest is skipped; no version is fabricated.
-      continue;
-    }
-  }
-  return undefined;
+/** Tool version belongs to this CLI build, never to the project being verified. */
+export function resolveCausalToolVersion(_projectRoot: string): string {
+  // Keep the argument for existing callers; project layout and cwd are irrelevant.
+  return PROOF_OR_STOP_CLI_VERSION;
 }
 
 export function serializeCausalReceipt(receipt: CausalEvidenceReceipt): string {

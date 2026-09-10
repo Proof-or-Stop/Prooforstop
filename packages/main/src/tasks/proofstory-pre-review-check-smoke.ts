@@ -2,14 +2,14 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
-import { assertHistoricalImplementationSource } from './historical-implementation-fixture.js';
+import { createFixtureImplementationCommit } from './current-implementation-fixture.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
-import { resetConfigCache } from '../core/config.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
 import {
   createProofStoryHandlers,
   currentPreReviewInputForContext,
@@ -24,7 +24,10 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
-import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { adapterSessionEnv } from './adapter-session-env.js';
+import { deriveAdapterOwnerSessionId } from '../core/owner-session-adapters.js';
+import { renderPromptForHost, isActiveModularReviewerRoleId } from '../core/prompt-registry.js';
+import { resolvePromptRoleBody, promptRoleContract } from '../core/prompt-role-contract-registry.js';
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { verifyReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
@@ -48,6 +51,14 @@ import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { STATE_DIR_NAMES } from '../core/brand-paths.js';
+import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+import {
+  nativeReviewFixtureAmbientHost,
+  nativeReviewFixtureBrokers,
+  nativeReviewFixtureHostEnvironment,
+  resolveNativeReviewFixtureAmbientHost,
+  runBrokeredNativeReviewCli,
+} from './native-review-fixture.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
@@ -262,17 +273,31 @@ const rolloutPromptNames = [
   'proof-or-stop-review-docs',
   'proof-or-stop-review-delivery',
 ];
+const rolloutFullBodyMirrorNames = new Set([
+  'lattice-implementer',
+  'test-case-reviewer',
+  'lattice-review-topology-critic',
+  'lattice-review-delivery',
+]);
 const rolloutPromptTokens = [
   'acceptance_topology_check',
   'pre_review_check_read',
   'acceptance_rollout_report_read',
   'acceptance_rollout_check',
-  'full 3 rounds',
+  'blocking=true',
+  'project mode is `enforce`',
+  'explicit promotion claim',
+  '`observe` or `warn`',
+  '`legacy_missing` or `partial` is advisory only',
+  'never fabricate a topology',
+  'never upgrade it to a formal pass',
+  'current signed receipt and exact full 3 rounds × 2 hosts',
   'codex-cli',
   'claude-cli',
   '3x1',
   'rollback',
 ];
+const wave4ModeAwareGuidance = 'Always read the canonical reports `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`, and report their status honestly. Missing or non-PASS signed per-Story evidence is a blocker only when a canonical report says `blocking=true`, the project mode is `enforce`, or the work makes an explicit promotion claim. In `observe` or `warn`, `legacy_missing` or `partial` is advisory only: never fabricate a topology and never upgrade it to a formal pass. A report that claims PASS or promotion still requires a current signed receipt and exact full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`); reject degraded 3x1. Prompt prose is never gate evidence. Rollback may only change the configured mode and must preserve every report, receipt, diagnostic, and prior evidence.';
 
 // B-4043 F-014: the role guidance is sourced from the canonical package
 // templates (the REAL delivery path — review_run_start / agent_prompt resolve
@@ -290,8 +315,45 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
     const claudePath = `.claude/agents/${name}.md`;
     const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
-    return tokensPresent && lastParagraph(codex) === lastParagraph(claude);
+    const selectedClaude = renderPromptForHost(template, 'claude');
+    const selectedCodex = renderPromptForHost(template, 'codex');
+    const fullBodyMirrorsCurrent = !rolloutFullBodyMirrorNames.has(name)
+      || (lastParagraph(codex) === wave4ModeAwareGuidance && lastParagraph(claude) === wave4ModeAwareGuidance);
+    return tokensPresent
+      && lastParagraph(template) === wave4ModeAwareGuidance
+      && lastParagraph(selectedClaude) === wave4ModeAwareGuidance
+      && lastParagraph(selectedCodex) === wave4ModeAwareGuidance
+      && lastParagraph(codex) === lastParagraph(claude)
+      && fullBodyMirrorsCurrent;
   });
+}
+
+if (process.argv.includes('--prompt-guidance-only')) {
+  assert.equal(rolloutPromptGuidancePass(), true, 'canonical Wave 4 guidance is mode-aware across every active role and host mirror');
+  const templatePath = 'packages/main/templates/agents/lattice-review-concept.md';
+  const control = readFileSync(join(repositoryRoot, templatePath), 'utf8');
+  for (const [label, from, to] of [
+    ['blocking report', '`blocking=true`', '`blocking=false`'],
+    ['observe advisory', '`legacy_missing` or `partial` is advisory only', '`legacy_missing` or `partial` is blocking'],
+    ['topology forgery', 'never fabricate a topology', 'fabricate a topology'],
+    ['formal pass', 'never upgrade it to a formal pass', 'upgrade it to a formal pass'],
+    ['full 3x2', 'exact full 3 rounds × 2 hosts', 'degraded 3x1'],
+  ] as const) {
+    assert.equal(
+      rolloutPromptGuidancePass(new Map([[templatePath, control.replace(from, to)]])),
+      false,
+      `${label} mutation must violate the executable Wave 4 prompt contract`,
+    );
+  }
+  const mirrorPath = '.claude/agents/lattice-review-concept.md';
+  const mirror = readFileSync(join(repositoryRoot, mirrorPath), 'utf8');
+  assert.equal(
+    rolloutPromptGuidancePass(new Map([[mirrorPath, `${mirror}\nmirror drift\n`]])),
+    false,
+    'generated host mirror drift must violate the executable Wave 4 prompt contract',
+  );
+  console.log('ProofStory Wave 4 mode-aware prompt guidance: PASS (6 mutations)');
+  process.exit(0);
 }
 
 function selectActiveScenarioRecords(
@@ -617,19 +679,35 @@ function git(root: string, args: string[]): string {
  * keeps the fixture independent of the caller's environment: it otherwise passes from an
  * interactive shell that already exports one and fails under `proof-or-stop validate`, whose child
  * environment has none, with 'unsupported session host provider "absent"'.
+ *
+ * B-137a: `host` selects which brokered native-review host identity the nested CLI runs as.
  */
-function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'proof-or-stop-implementer', sessionTask = 'sess-pre-review-smoke'): string {
+function fixtureSessionId(root: string, task: string, agent: string, host: 'codex' | 'claude' = nativeReviewFixtureAmbientHost()): string {
+  return deriveAdapterOwnerSessionId(realpathSync(root), host === 'claude' ? 'claude-code' : 'codex', task, agent);
+}
+
+function cli(
+  root: string,
+  command: string,
+  args: Record<string, unknown>,
+  allowFail = false,
+  agent = 'proof-or-stop-implementer',
+  sessionTask = 'sess-pre-review-smoke',
+  host: 'codex' | 'claude' = nativeReviewFixtureAmbientHost(),
+): string {
   try {
     const output = execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
-        ...process.env,
+        ...sanitizedFixtureChildEnvironment(process.env),
         // The registered rollout producer marks its outer process as the
         // verifier. Nested fixture CLI calls must resolve their own adapter
         // actor from the explicit session envelope instead of inheriting that
         // non-dispatch actor marker.
         PROOF_OR_STOP_AGENT: agent,
+        ...nativeReviewFixtureHostEnvironment(agent, host, sessionTask),
         ...adapterSessionEnv(sessionTask, agent),
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: host === 'claude' ? 'claude-code' : 'codex',
       },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -643,7 +721,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
     assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
     const storyDir = new StoryStore(root).storyDirPath(storyId);
     const lease = readOwnerLease(storyDir);
-    if (lease?.sessionId === adapterSessionId(root, sessionTask, agent)) {
+    if (lease?.sessionId === fixtureSessionId(root, sessionTask, agent, host)) {
       assert.equal(releaseOwnerLease(storyDir), true, 'completed matching fixture owner releases its lease');
       assert.equal(readOwnerLease(storyDir), null);
     }
@@ -762,11 +840,21 @@ function writeRegistration(root: string): void {
   // makes acceptance_basis_generate correctly return partial.
   write(root, 'packages/main/src/core/machine.ts', 'export const reviewInventoryGate=true;\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch=true;\n');
+  // Source snapshot closure only; these modules are not executed by this fixture.
+  for (const path of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/host-run.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-host-run.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-review-lane-build.mjs", "packages/main/src/core/managed-review-lane-policy.ts", "packages/main/src/core/managed-review-lane.ts", "packages/main/src/core/managed-review-provider-state.ts", "packages/main/src/core/managed-review-readonly.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/planned-steps-executor.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/proof-or-stop-dispatch.ts", "packages/main/src/core/provider-process-admission.ts", "packages/main/src/core/provider-process-registry.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/handlers/cross-host-review.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts", "packages/main/src/providers/supervised-process-worker.ts", "packages/main/src/providers/supervised-process.ts"]) {
+    if (!existsSync(join(root, path))) write(root, path, "export const fixtureDependency = true;\n");
+  }
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  // Keep the synthetic registry workspace closed over the current shared
+  // validation dependencies.  The PLAN control asserts snapshot completeness,
+  // so declared registry source refs must exist even when this fixture does
+  // not execute their production implementations.
   for (const file of [
+    'packages/main/src/core/scope-inventory-budget.ts',
+    'packages/main/src/core/story-scope-budget-legacy.ts',
     'packages/main/src/core/evidence-freshness.ts',
     'packages/main/src/core/lifecycle-readiness.ts',
     'packages/main/src/core/material-path-policy.ts',
@@ -774,7 +862,14 @@ function writeRegistration(root: string): void {
     'packages/main/src/core/shared-validation-execution.ts',
     'packages/main/src/core/story-aware-validation.ts',
     'packages/main/src/core/story-owner-lease.ts',
-    'packages/main/src/core/validation-execution-lock.ts',
+        'packages/main/src/core/validation-execution-lock.ts',
+        'packages/main/src/core/convergence-progress-gate.ts',
+        'packages/main/src/core/convergence-progress-journal.ts',
+        'packages/main/src/core/story-scope-budget.ts',
+        'packages/main/src/core/story-scope-budget-decisions.ts',
+        'packages/main/src/core/story-scope-decomposition.ts',
+        'packages/main/src/core/acceptance-amendment-journal.ts',
+        'packages/main/src/handlers/story-review.ts',
     'packages/main/src/core/verification-execution-evidence.ts',
     'packages/main/src/core/verification.ts',
     'packages/main/src/handlers/certification-window.ts',
@@ -1035,11 +1130,7 @@ function assertTopologyCriticPhaseContract(): void {
     git(root, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
     git(root, ['add', '.']); git(root, ['commit', '-m', 'seed isolated critic phase contract']);
     git(root, ['switch', '-c', `story/${storyId}`]);
-    // Explicit archived fixture prerequisite for the existing author policy.
-    // Preserve this real object; never manufacture a new implementer-author commit.
-    const historicalImplementation = assertHistoricalImplementationSource(repositoryRoot);
-    git(root, ['fetch', '--no-tags', '--depth=1', repositoryRoot, historicalImplementation]);
-    git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historicalImplementation, '-m', 'retain unchanged historical provenance prerequisite']);
+    createFixtureImplementationCommit(root);
     process.chdir(root); resetConfigCache();
     const store = new StoryStore(root);
     const story = { storyId, name: storyId, title: 'Critic phase contract', description: 'Canonical critic dispatch phase contract', type: 'feature', priority: 'high', phase: 'DEV', createdAt: baseAt, startedAt: baseAt, endedAt: null, events: [], worktree: { path: root, branch: `story/${storyId}`, createdAt: baseAt } } as StoryInfo;
@@ -1068,7 +1159,12 @@ function assertTopologyCriticPhaseContract(): void {
     const round = '2026-09-05T00:00:00.000Z';
     store.writeStory(storyId, { ...story, phase: 'REVIEW', currentReviewRound: round });
     const review = JSON.parse(cli(root, 'dispatch', { storyId, agentType: critic }, false, critic, task));
-    assert.match(review.prompt, /proof-or-stop review_run_start/, 'REVIEW retains its reviewer run instruction');
+    assert.equal(isActiveModularReviewerRoleId(critic), false, 'critic remains a full modular role, not a five-lane bootstrap');
+    const expectedBody = renderPromptForHost(resolvePromptRoleBody(critic, loadConfig(root).promptEnvelope).body, nativeReviewFixtureAmbientHost()).trim();
+    assert.ok(expectedBody.length > 0);
+    assert.equal(review.prompt.trim().endsWith(expectedBody), true, 'REVIEW retains the complete current host-rendered critic body');
+    const renderedContract = JSON.parse(review.prompt.split('## Role Contract\n\n')[1].split('\n')[0]);
+    assert.deepEqual(renderedContract, promptRoleContract(critic), 'REVIEW binds the exact canonical critic role contract');
     const reviewEvent = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch').at(-1)!;
     assert.equal(reviewEvent.reviewRound, round);
     assert.ok(reviewEvent.dispatchBindingDigest, 'REVIEW retains trusted dispatch binding');
@@ -1078,7 +1174,7 @@ function assertTopologyCriticPhaseContract(): void {
     const run = store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === runId)!;
     assert.ok(run, 'production reviewer run was persisted');
     assert.equal(run.reviewRound, round);
-    assert.equal(verifyReviewRun(run), true, 'REVIEW run retains its valid production signature');
+    assert.equal(verifyReviewRun(run, store), true, 'REVIEW run retains its valid production signature');
     assert.equal(verifyReviewRunPromptEnvelope(store, run).ok, true, 'signed REVIEW run binds the canonical envelope');
     console.log('ProofStory topology critic phase contract: PASS');
   } finally {
@@ -1106,7 +1202,17 @@ try {
     `${dir}/activity.jsonl`,
     `${dir}/locks/`,
   ]).join('\n') + '\n');
-  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.proof-or-stop/story/actives',
+    requirementsDir: 'docs/requirements',
+    proofStory: { acceptanceTopologyGateMode: 'observe' },
+    // B-137a: brokered native-review evidence needs registered brokers.
+    nativeReviewInvocation: {
+      brokers: nativeReviewFixtureBrokers(),
+    },
+  }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
@@ -1306,22 +1412,64 @@ try {
       'proof-or-stop-review-test-coverage',
       'proof-or-stop-review-docs',
     ];
+    const ambientReviewHost = resolveNativeReviewFixtureAmbientHost();
+    if (ambientReviewHost.observed) {
+      const vetoLane = reviewLanes[0];
+      const vetoHost = ambientReviewHost.host === 'codex' ? 'claude' : 'codex';
+      const vetoSessionId = `sess-${storyId}-${vetoLane}-cross-provider-veto`;
+      cli(root, 'dispatch', { storyId, agentType: vetoLane }, false, vetoLane, vetoSessionId, vetoHost);
+      const vetoRun = cli(root, 'review_run_start', { storyId, agent: vetoLane }, false, vetoLane, vetoSessionId, vetoHost);
+      const vetoReviewRunId = vetoRun.match(/Review run (\S+) started/)?.[1];
+      assert.ok(vetoReviewRunId, `cross-provider veto review run missing for ${vetoLane}: ${vetoRun}`);
+      await assert.rejects(
+        runBrokeredNativeReviewCli({
+          root,
+          store,
+          storyId,
+          agent: vetoLane,
+          reviewRunId: vetoReviewRunId,
+          command: 'review_pass_set',
+          payload: {
+            storyId,
+            agent: vetoLane,
+            reviewRunId: vetoReviewRunId,
+            note: 'Cross-provider fixture control must be vetoed before it can persist a review pass.',
+            readManifest: {
+              filesReadFully: ['packages/main/src/producer.ts'],
+              filesTriagedByName: [],
+              scanEscalationReason: null,
+            },
+          },
+        }),
+        /cross-provider direct reviewer evidence is advisory-only/,
+        `non-ambient host=${vetoHost} must be vetoed under observed host=${ambientReviewHost.host}`,
+      );
+    }
     for (const lane of reviewLanes) {
-      cli(root, 'dispatch', { storyId, agentType: lane });
-      const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, `sess-${storyId}-${lane}-review`);
+      cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
+      const reviewSessionId = `sess-${storyId}-${lane}-review`;
+      const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, reviewSessionId);
       const reviewRunId = run.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId, `cohort review run missing for ${lane}: ${run}`);
-      cli(root, 'review_pass_set', {
+      await runBrokeredNativeReviewCli({
+        root,
+        store,
         storyId,
         agent: lane,
         reviewRunId,
-        note: `Registered rollout cohort ${cohortArm}/${cohortScenario} found no unrelated review issue.`,
-        readManifest: {
-          filesReadFully: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'],
-          filesTriagedByName: [],
-          scanEscalationReason: null,
+        command: 'review_pass_set',
+        payload: {
+          storyId,
+          agent: lane,
+          reviewRunId,
+          note: `Registered rollout cohort ${cohortArm}/${cohortScenario} found no unrelated review issue.`,
+          readManifest: {
+            filesReadFully: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'],
+            filesTriagedByName: [],
+            scanEscalationReason: null,
+          },
         },
-      }, false, lane, `sess-${storyId}-${lane}-review`);
+      });
     }
     const quorumResult = JSON.parse(cli(root, 'quorum_submit', {
       storyId,
@@ -1547,7 +1695,7 @@ try {
     assert.doesNotMatch(criticPrompt, /proof-or-stop review_run_start/, 'DEV topology critic is receipt authority, not REVIEW lane evidence');
     const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, 'proof-or-stop-review-topology-critic')).at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
-    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
+    assert.equal(criticDispatch.sessionId, fixtureSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
     assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
     assert.equal(criticDispatch.reviewRound, undefined, 'DEV topology critic dispatch must not fabricate a REVIEW round');

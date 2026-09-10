@@ -1,0 +1,1502 @@
+{
+  "kind": "Lab engineering integration RED, not Story certification",
+  "before": {
+    "head": "0be47fda5e4636780a9d1faa12d4ef20b4544a6a",
+    "configSha256": "c72f17953cbb1ea3c9b6dee49b98e2b9a51cc235badedaede58aecbe15ffffc7"
+  },
+  "after": {
+    "head": "0be47fda5e4636780a9d1faa12d4ef20b4544a6a",
+    "configSha256": "c72f17953cbb1ea3c9b6dee49b98e2b9a51cc235badedaede58aecbe15ffffc7"
+  },
+  "sourceStable": true,
+  "wallMs": 1391757.360875,
+  "commandCount": 160,
+  "passCount": 138,
+  "failCount": 22,
+  "commands": [
+    {
+      "index": 1,
+      "command": "node",
+      "args": [
+        "scripts/verify-lab-worktree.mjs"
+      ],
+      "code": 0,
+      "durationMs": 30980
+    },
+    {
+      "index": 2,
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "code": 0,
+      "durationMs": 706
+    },
+    {
+      "index": 3,
+      "command": "node",
+      "args": [
+        "scripts/run-precert-fast.mjs"
+      ],
+      "code": 1,
+      "durationMs": 2122
+    },
+    {
+      "index": 4,
+      "command": "node",
+      "args": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "code": 0,
+      "durationMs": 53687
+    },
+    {
+      "index": 5,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 61363
+    },
+    {
+      "index": 6,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/production-test-seam-guard.js"
+      ],
+      "code": 0,
+      "durationMs": 2123
+    },
+    {
+      "index": 7,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-list-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2627
+    },
+    {
+      "index": 8,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-catalog-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 7387
+    },
+    {
+      "index": 9,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-pass-discard-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 3367
+    },
+    {
+      "index": 10,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 141521
+    },
+    {
+      "index": 11,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 15248
+    },
+    {
+      "index": 12,
+      "command": "node",
+      "args": [
+        "scripts/verify-process-fact-contract.mjs",
+        "--quiet"
+      ],
+      "code": 0,
+      "durationMs": 10301
+    },
+    {
+      "index": 13,
+      "command": "node",
+      "args": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "code": 0,
+      "durationMs": 3386
+    },
+    {
+      "index": 14,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2079
+    },
+    {
+      "index": 15,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 8301
+    },
+    {
+      "index": 16,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 119400
+    },
+    {
+      "index": 17,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 1289
+    },
+    {
+      "index": 18,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 16443
+    },
+    {
+      "index": 19,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 3794
+    },
+    {
+      "index": 20,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 1745
+    },
+    {
+      "index": 21,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 467
+    },
+    {
+      "index": 22,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 3345
+    },
+    {
+      "index": 23,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 38534
+    },
+    {
+      "index": 24,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/done-required-validation-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 24590
+    },
+    {
+      "index": 25,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 9980
+    },
+    {
+      "index": 26,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 415
+    },
+    {
+      "index": 27,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-freshness-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 1563
+    },
+    {
+      "index": 28,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/done-required-head-drift-proof.js"
+      ],
+      "code": 0,
+      "durationMs": 6192
+    },
+    {
+      "index": 29,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2759
+    },
+    {
+      "index": 30,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/version-bump-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 691
+    },
+    {
+      "index": 31,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 330
+    },
+    {
+      "index": 32,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 345
+    },
+    {
+      "index": 33,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 572
+    },
+    {
+      "index": 34,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 9719
+    },
+    {
+      "index": 35,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 336
+    },
+    {
+      "index": 36,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 625
+    },
+    {
+      "index": 37,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 356
+    },
+    {
+      "index": 38,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 554
+    },
+    {
+      "index": 39,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 370
+    },
+    {
+      "index": 40,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 8141
+    },
+    {
+      "index": 41,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 18055
+    },
+    {
+      "index": 42,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-preflight-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 1911
+    },
+    {
+      "index": 43,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/english-early-check-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 12061
+    },
+    {
+      "index": 44,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/quorum-submit-smoke.js",
+        "--jobs=2"
+      ],
+      "code": 1,
+      "durationMs": 40329
+    },
+    {
+      "index": 45,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+        "--case=inventory-bijection"
+      ],
+      "code": 0,
+      "durationMs": 2635
+    },
+    {
+      "index": 46,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 689
+    },
+    {
+      "index": 47,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 709
+    },
+    {
+      "index": 48,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-registry-contract.js"
+      ],
+      "code": 0,
+      "durationMs": 691
+    },
+    {
+      "index": 49,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2688
+    },
+    {
+      "index": 50,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 631
+    },
+    {
+      "index": 51,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 4419
+    },
+    {
+      "index": 52,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 4538
+    },
+    {
+      "index": 53,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 13374
+    },
+    {
+      "index": 54,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2217
+    },
+    {
+      "index": 55,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 4361
+    },
+    {
+      "index": 56,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2424
+    },
+    {
+      "index": 57,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 21414
+    },
+    {
+      "index": 58,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 16944
+    },
+    {
+      "index": 59,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 837
+    },
+    {
+      "index": 60,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2022
+    },
+    {
+      "index": 61,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 7439
+    },
+    {
+      "index": 62,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 372
+    },
+    {
+      "index": 63,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 11548
+    },
+    {
+      "index": 64,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 5646
+    },
+    {
+      "index": 65,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 2898
+    },
+    {
+      "index": 66,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+      ],
+      "code": 0,
+      "durationMs": 14094
+    },
+    {
+      "index": 67,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+      ],
+      "code": 0,
+      "durationMs": 614
+    },
+    {
+      "index": 68,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 2112
+    },
+    {
+      "index": 69,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 1155
+    },
+    {
+      "index": 70,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 4349
+    },
+    {
+      "index": 71,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 29748
+    },
+    {
+      "index": 72,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 750
+    },
+    {
+      "index": 73,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 43108
+    },
+    {
+      "index": 74,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 368
+    },
+    {
+      "index": 75,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 577
+    },
+    {
+      "index": 76,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1026
+    },
+    {
+      "index": 77,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+      ],
+      "code": 0,
+      "durationMs": 996
+    },
+    {
+      "index": 78,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+      ],
+      "code": 0,
+      "durationMs": 5088
+    },
+    {
+      "index": 79,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-validate-registration.mjs"
+      ],
+      "code": 0,
+      "durationMs": 358
+    },
+    {
+      "index": 80,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+      ],
+      "code": 1,
+      "durationMs": 344
+    },
+    {
+      "index": 81,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "code": 0,
+      "durationMs": 2594
+    },
+    {
+      "index": 82,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 1784
+    },
+    {
+      "index": 83,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+      ],
+      "code": 0,
+      "durationMs": 613
+    },
+    {
+      "index": 84,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "code": 1,
+      "durationMs": 108932
+    },
+    {
+      "index": 85,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+      ],
+      "code": 0,
+      "durationMs": 785
+    },
+    {
+      "index": 86,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-lock-liveness.mjs"
+      ],
+      "code": 0,
+      "durationMs": 13164
+    },
+    {
+      "index": 87,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-content-binding.mjs"
+      ],
+      "code": 0,
+      "durationMs": 60281
+    },
+    {
+      "index": 88,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-reader-race.mjs"
+      ],
+      "code": 0,
+      "durationMs": 58995
+    },
+    {
+      "index": 89,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"
+      ],
+      "code": 1,
+      "durationMs": 476
+    },
+    {
+      "index": 90,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bcae-admission-coscheduling.mjs"
+      ],
+      "code": 1,
+      "durationMs": 1038
+    },
+    {
+      "index": 91,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+      ],
+      "code": 0,
+      "durationMs": 419
+    },
+    {
+      "index": 92,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "code": 0,
+      "durationMs": 983
+    },
+    {
+      "index": 93,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+      ],
+      "code": 1,
+      "durationMs": 359
+    },
+    {
+      "index": 94,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+      ],
+      "code": 0,
+      "durationMs": 5824
+    },
+    {
+      "index": 95,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-differential-probe.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1336
+    },
+    {
+      "index": 96,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "code": 0,
+      "durationMs": 545
+    },
+    {
+      "index": 97,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-canon-differential.mjs"
+      ],
+      "code": 0,
+      "durationMs": 358
+    },
+    {
+      "index": 98,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+      ],
+      "code": 0,
+      "durationMs": 362
+    },
+    {
+      "index": 99,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-binding-store.mjs"
+      ],
+      "code": 0,
+      "durationMs": 686
+    },
+    {
+      "index": 100,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 19169
+    },
+    {
+      "index": 101,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+      ],
+      "code": 0,
+      "durationMs": 776
+    },
+    {
+      "index": 102,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+      ],
+      "code": 0,
+      "durationMs": 2760
+    },
+    {
+      "index": 103,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-gate-guard.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1327
+    },
+    {
+      "index": 104,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-head-consistency.mjs"
+      ],
+      "code": 0,
+      "durationMs": 935
+    },
+    {
+      "index": 105,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1102
+    },
+    {
+      "index": 106,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+      ],
+      "code": 0,
+      "durationMs": 970
+    },
+    {
+      "index": 107,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1416
+    },
+    {
+      "index": 108,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1419
+    },
+    {
+      "index": 109,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+      ],
+      "code": 0,
+      "durationMs": 4050
+    },
+    {
+      "index": 110,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 490
+    },
+    {
+      "index": 111,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 6475
+    },
+    {
+      "index": 112,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+        "--issuer-mutations"
+      ],
+      "code": 1,
+      "durationMs": 21166
+    },
+    {
+      "index": 113,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+        "--probe-jobs=4"
+      ],
+      "code": 1,
+      "durationMs": 4529
+    },
+    {
+      "index": 114,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+      ],
+      "code": 0,
+      "durationMs": 637
+    },
+    {
+      "index": 115,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+      ],
+      "code": 0,
+      "durationMs": 655
+    },
+    {
+      "index": 116,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 15961
+    },
+    {
+      "index": 117,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+      ],
+      "code": 0,
+      "durationMs": 2390
+    },
+    {
+      "index": 118,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/tests/validate-plan-scheduling.test.mjs"
+      ],
+      "code": 0,
+      "durationMs": 3966
+    },
+    {
+      "index": 119,
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-resource-claims.test.mjs"
+      ],
+      "code": 0,
+      "durationMs": 4239
+    },
+    {
+      "index": 120,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 9552
+    },
+    {
+      "index": 121,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/tests/validate-pollution-attribution.test.mjs"
+      ],
+      "code": 0,
+      "durationMs": 16587
+    },
+    {
+      "index": 122,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+      ],
+      "code": 0,
+      "durationMs": 3350
+    },
+    {
+      "index": 123,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 11271
+    },
+    {
+      "index": 124,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+      ],
+      "code": 0,
+      "durationMs": 356
+    },
+    {
+      "index": 125,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+      ],
+      "code": 0,
+      "durationMs": 363
+    },
+    {
+      "index": 126,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+      ],
+      "code": 0,
+      "durationMs": 351
+    },
+    {
+      "index": 127,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+      ],
+      "code": 0,
+      "durationMs": 366
+    },
+    {
+      "index": 128,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/tests/red/red-w2d-command-readonly.mjs",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 2030
+    },
+    {
+      "index": 129,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ],
+      "code": 0,
+      "durationMs": 61579
+    },
+    {
+      "index": 130,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ],
+      "code": 0,
+      "durationMs": 649
+    },
+    {
+      "index": 131,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1647
+    },
+    {
+      "index": 132,
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/graph",
+        "run",
+        "check"
+      ],
+      "code": 1,
+      "durationMs": 170907
+    },
+    {
+      "index": 133,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/cli-surface-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 17025
+    },
+    {
+      "index": 134,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-ownership-contract.js"
+      ],
+      "code": 0,
+      "durationMs": 1234
+    },
+    {
+      "index": 135,
+      "command": "node",
+      "args": [
+        "scripts/verify-orphan-surface.mjs"
+      ],
+      "code": 0,
+      "durationMs": 415
+    },
+    {
+      "index": 136,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "code": 0,
+      "durationMs": 8363
+    },
+    {
+      "index": 137,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 10040
+    },
+    {
+      "index": 138,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/single-owner-extraction-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 13452
+    },
+    {
+      "index": 139,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/narrowing-repin-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 170373
+    },
+    {
+      "index": 140,
+      "command": "node",
+      "args": [
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+        "--group=identity-cutover"
+      ],
+      "code": 1,
+      "durationMs": 89857
+    },
+    {
+      "index": 141,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-inventory-epoch-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 3124
+    },
+    {
+      "index": 142,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/validation-protocol-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 65066
+    },
+    {
+      "index": 143,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/cross-host-review-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 24771
+    },
+    {
+      "index": 144,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/host-run-usage-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 1,
+      "durationMs": 9109
+    },
+    {
+      "index": 145,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/managed-host-run-command-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 11287
+    },
+    {
+      "index": 146,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/managed-host-run-e2e-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 4837
+    },
+    {
+      "index": 147,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/managed-host-run-process-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 14574
+    },
+    {
+      "index": 148,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/managed-review-evidence-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 37981
+    },
+    {
+      "index": 149,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proof-admissibility-registry-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 263061
+    },
+    {
+      "index": 150,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/provider-process-registry-smoke.js",
+        "--provider-launch-owner-admission-child"
+      ],
+      "code": 0,
+      "durationMs": 3858
+    },
+    {
+      "index": 151,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/semantic-scope-guard-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 1006
+    },
+    {
+      "index": 152,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/managed-host-run-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 17827
+    },
+    {
+      "index": 153,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/dispatch-run-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 20196
+    },
+    {
+      "index": 154,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/provider-claude-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 389
+    },
+    {
+      "index": 155,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      ],
+      "code": 1,
+      "durationMs": 4977
+    },
+    {
+      "index": 156,
+      "command": "node",
+      "args": [
+        "scripts/run-validation-fixture-suite.mjs",
+        "packages/main/dist/tasks/flow-stability-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 1,
+      "durationMs": 7426
+    },
+    {
+      "index": 157,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-check-required-agents-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 17627
+    },
+    {
+      "index": 158,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/provider-codex-smoke.js",
+        "--canonical-core"
+      ],
+      "code": 0,
+      "durationMs": 2807
+    },
+    {
+      "index": 159,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/repair-retry-loop-smoke.js"
+      ],
+      "code": 0,
+      "durationMs": 549
+    },
+    {
+      "index": 160,
+      "command": "node",
+      "args": [
+        "scripts/verify-validation-static-edges.mjs"
+      ],
+      "code": 0,
+      "durationMs": 1208
+    }
+  ]
+}

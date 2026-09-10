@@ -1,3 +1,4 @@
+import type { ProviderProcessAdmission } from '../core/provider-process-admission.js';
 
 export interface LLMCallOptions {
   /** Call label (for logging) */
@@ -43,6 +44,7 @@ export interface ILLMProvider {
 export type BoundedProviderName = 'codex' | 'claude' | 'gemini';
 
 export interface ProviderExecRequest {
+  admission?: ProviderProcessAdmission;
   provider: BoundedProviderName;
   /** Bounded argv. Shell strings are rejected by the executor before this point. */
   argv: string[];
@@ -59,6 +61,7 @@ export interface ProviderExecRequest {
 }
 
 export interface ProviderExecResult {
+  replacementSafe?: boolean;
   provider: BoundedProviderName;
   /** Provider/model metadata when the CLI reports it. */
   model?: string;

@@ -162,7 +162,7 @@ async function main() {
   const configRow = findQuorumConfigRow(config);
   assert.deepEqual(
     configRow.args,
-    ['packages/main/dist/tasks/quorum-submit-smoke.js', '--jobs=2'],
+    ['scripts/run-validation-fixture-suite.mjs', 'packages/main/dist/tasks/quorum-submit-smoke.js', '--jobs=2'],
     'validation does not request the bounded parallel mode',
   );
   assert.deepEqual(

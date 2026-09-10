@@ -1,3 +1,4 @@
+import { ACCEPTANCE_REVIEW_FINAL_SCHEMA } from '../core/acceptance-amendment-review.js';
 /**
  * agent-prompt.ts — `proof-or-stop agent_prompt --role=<name>` (B-097f CHK-002)
  *
@@ -18,7 +19,6 @@
  */
 
 import {
-  isActiveModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
   PROMPT_REGISTRY_VERSION,
@@ -104,6 +104,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
   return {
     agent_prompt(args: AgentPromptArgs = {}): string {
       assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION);
+      assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
@@ -143,9 +144,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       );
       const rolePrompt = resolvedRoleBody.body;
       if (!args.storyId || !ctx) {
-        return isActiveModularReviewerRoleId(role)
-          ? renderPromptEntryForHost(entry, 'claude')
-          : renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
+        return renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
 
       const storyId = args.storyId.trim();

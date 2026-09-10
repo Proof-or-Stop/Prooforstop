@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import {join,dirname} from 'node:path';import {execFileSync} from 'node:child_process';import {pathToFileURL,fileURLToPath} from 'node:url';import {syncBuiltinESMExports} from 'node:module';
+const repo=fs.realpathSync(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : fileURLToPath(new URL('..',import.meta.url))),base=fs.realpathSync(fs.mkdtempSync(join(os.tmpdir(),'u08-real-worker-'))),root=join(base,'project'),bin=join(base,'bin');fs.mkdirSync(root);fs.mkdirSync(bin);const fixtureCodexHome=join(base,'codex-home');fs.mkdirSync(fixtureCodexHome);fs.writeFileSync(join(fixtureCodexHome,'auth.json'),JSON.stringify({auth_mode:'apikey',OPENAI_API_KEY:'fixture-not-a-real-key'}),{mode:0o600});
+const originalUserInfo=os.userInfo;os.userInfo=(...args)=>({...originalUserInfo(...args),homedir:base});syncBuiltinESMExports();
+const load=p=>import(pathToFileURL(join(repo,'packages/main/dist',p)).href);
+const {submitManagedHostRun,runManagedHostRunWorker,managedHostRunDirectory,readManagedHostRunBinding}=await load('core/managed-host-run.js');
+const {currentMaterialHash}=await load('core/evidence-freshness.js');const {verifyCanonical}=await load('core/authority-signing.js');
+const git=args=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const preflightCase=process.argv.find(arg=>arg.startsWith('--preflight-case='))?.split('=')[1];
+const fixtureHost=preflightCase==='malformed-settings'?'claude':'codex';
+let worker;let workerStarts=0;let scratchStarts=0;const missingHost=process.argv.includes('--missing-host');
+try {
+ for(const p of ['packages/main/src/core','packages/main/src/tasks'])fs.mkdirSync(join(root,p),{recursive:true});
+ fs.writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-or-stop'}));
+ fs.writeFileSync(join(root,'packages/main/package.json'),JSON.stringify({name:'@proof-or-stop/core',type:'module'}));
+ fs.writeFileSync(join(root,'packages/main/tsconfig.json'),JSON.stringify({compilerOptions:{target:'ES2022',module:'Node16',moduleResolution:'Node16',rootDir:'src',outDir:'dist',skipLibCheck:true},include:['src/**/*.ts']}));
+ fs.writeFileSync(join(root,'packages/main/src/cli.ts'),"console.log('0.0.0'); export const actualCompilerInput = 17;\n");
+ fs.writeFileSync(join(root,'packages/main/src/index.ts'),'export const coreFixture = 1;\n');
+ fs.writeFileSync(join(root,'packages/main/src/extension-api.ts'),'export const extensionFixture = 1;\n');
+ for(const name of ['utils','graph','lab']) {fs.mkdirSync(join(root,'packages',name,'src'),{recursive:true});fs.writeFileSync(join(root,'packages',name,'package.json'),JSON.stringify({name:'@proof-or-stop/'+name,type:'module',main:'dist/index.js'}));fs.writeFileSync(join(root,'packages',name,'tsconfig.json'),JSON.stringify({compilerOptions:{target:'ES2022',module:'Node16',moduleResolution:'Node16',rootDir:'src',outDir:'dist',declaration:true,skipLibCheck:true},include:['src/**/*.ts']}));fs.writeFileSync(join(root,'packages',name,'src/index.ts'),'export const compilerFixture = 1;\n');}
+ fs.mkdirSync(join(root,'packages/graph/scripts'));fs.writeFileSync(join(root,'packages/graph/scripts/build-web.mjs'),"import fs from 'node:fs';fs.mkdirSync('assets');fs.writeFileSync('assets/app.html','<!doctype html>');\n");
+ fs.mkdirSync(join(root,'scripts'));fs.writeFileSync(join(root,'scripts/build-lock-target.mjs'),'export {};\n');
+ fs.mkdirSync(join(root,'bin'));fs.writeFileSync(join(root,'bin/proof-or-stop.js'),"import '../packages/main/dist/cli.js';\n");fs.writeFileSync(join(root,'bin/bootstrap-runner.js'),'export {};\n');
+ fs.writeFileSync(join(root,'packages/main/src/core/runtime.cjs'),'module.exports = 17;\n');
+ fs.writeFileSync(join(root,'packages/main/src/tasks/runtime.cjs'),'module.exports = 18;\n');
+ fs.writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'packages/main',rootDir:'src',outDir:'packages/main/dist',managedReviewIsolation:{mode:'readonly-build',adapter:'prooforstop-main-v1'}}));
+ const shim=join(bin,fixtureHost);fs.writeFileSync(shim,`#!${process.execPath}\nconst fs=require('node:fs'),p=require('node:path');\nlet denied=false;try{const file=p.join(process.cwd(),'packages/main/src/cli.ts'),s=fs.readFileSync(file);fs.writeFileSync(file,s);}catch(e){denied=e.code==='EPERM'||e.code==='EACCES';}\nlet siblingDenied=false,parentRenameDenied=false,linkTamperDenied=false;try{fs.writeFileSync(p.join(process.cwd(),'packages/main/src/extra.ts'),'bad');}catch(e){siblingDenied=['EPERM','EACCES'].includes(e.code);}try{fs.renameSync(process.cwd(),process.cwd()+'-moved');}catch(e){parentRenameDenied=['EPERM','EACCES'].includes(e.code);}try{fs.unlinkSync(p.join(process.cwd(),'packages/main/dist'));}catch(e){linkTamperDenied=['EPERM','EACCES'].includes(e.code);}\nlet writable=false;const out=process.env.PROOF_OR_STOP_REVIEW_BUILD_OUTPUT;if(out){const dest=p.join(out,'probe.tmp');fs.writeFileSync(dest,'ok');if(!${process.argv.includes('--output-tamper')})fs.unlinkSync(dest);writable=true;}\nlet attestation=null;try{attestation=JSON.parse(fs.readFileSync(3,'utf8'));}catch{}\nconsole.log(JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'U08_WITNESS '+JSON.stringify({denied,writable,siblingDenied,parentRenameDenied,linkTamperDenied,attestation,privateKeyInEnv:Boolean(process.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY)})}}));process.exitCode=1;\n`,{mode:0o755});if(missingHost)fs.unlinkSync(shim);
+ if(preflightCase){
+   const auth=join(fixtureCodexHome,'auth.json');
+   if(preflightCase==='missing-auth')fs.unlinkSync(auth);
+   else if(preflightCase==='malformed-auth')fs.writeFileSync(auth,'{broken-secret-fixture');
+   else if(preflightCase==='empty-auth')fs.writeFileSync(auth,'{}');
+   else if(preflightCase==='malformed-toml')fs.writeFileSync(join(fixtureCodexHome,'config.toml'),'model = [broken-secret-fixture');
+   else if(preflightCase==='nonfile-store')fs.writeFileSync(join(fixtureCodexHome,'config.toml'),'"cli_auth_credentials_store" = "keyring"');
+   else if(preflightCase==='malformed-settings'){fs.writeFileSync(join(fixtureCodexHome,'.credentials.json'),JSON.stringify({claudeAiOauth:{accessToken:'synthetic-access',refreshToken:'synthetic-refresh'}}));fs.writeFileSync(join(fixtureCodexHome,'settings.json'),'[broken-secret-fixture');}
+   else throw new Error('unknown fixture preflight case');
+ }
+ git(['init']);git(['config','user.name','U08 Test']);git(['config','user.email','u08@example.test']);git(['add','.']);git(['commit','-m','isolated actual compiler input']);
+ const headHash=git(['rev-parse','HEAD']),materialHash=currentMaterialHash(root);
+ let submitError;let submitted;try{submitted=await submitManagedHostRun({root,cwd:root,host:fixtureHost,storyId:'B-u08-readonly',phase:'REVIEW',agentType:'lattice-review-quality',reviewRunId:'B-u08-readonly:actual-worker',lane:'lattice-review-quality',promptText:'Read-only sandbox boundary witness; deliberately return nonzero, never claim review PASS.',deadlineMs:300000,timeoutMs:10000,projectRootHash:'sha256:u08-fixture',profile:'managed_reviewer',isolateManagedReview:true,reviewBinding:{headHash,materialHash,storyFilesHash:'sha256:u08-fixture-story',promptHash:'sha256:u08-fixture-prompt',managedPromptDigest:'sha256:'+'a'.repeat(64),envelopeId:null},environment:{CODEX_HOME:fixtureCodexHome,CLAUDE_CONFIG_DIR:fixtureCodexHome,PATH:missingHost?bin:bin+':'+process.env.PATH,PROOF_OR_STOP_USAGE_LEDGER:'0'}},{managedReviewScratchParentFactory:()=>{scratchStarts++;return fs.mkdtempSync(join(os.tmpdir(),'lattice-managed-review-'));},claimTimeoutMs:2000,claimPollMs:5,launchWorker:async req=>{workerStarts++;worker=runManagedHostRunWorker(req,{env:process.env});return {pid:process.pid};}});}catch(error){submitError=error;}
+ if(preflightCase){if(worker)await worker;assert.equal(scratchStarts,0,'invalid provider state must refuse before scratch/build entry');assert.equal(workerStarts,0,'invalid credentials/config must refuse before build/worker');assert.ok(submitError,'invalid provider state must fail');assert.match(String(submitError),/requires an existing file credential|syntax invalid|supported nonempty file-cache shape|non-file credential-store policy/);assert.doesNotMatch(String(submitError),/broken-secret-fixture|synthetic-access|synthetic-refresh/);console.log('PASS provider preflight '+preflightCase+' zero worker startups');}else if(missingHost){if(worker)await worker;assert.equal(scratchStarts,0,'missing host must refuse before scratch/build entry');assert.equal(workerStarts,0,'missing host must refuse before any build/worker');assert.match(String(submitError),/provider executable unavailable before lane build/);console.log('PASS missing host refused before scratch/build/worker');}else{if(submitError)throw submitError;
+ const terminal=await worker;console.log('worker-return',JSON.stringify(terminal));const dir=managedHostRunDirectory(root,submitted.runId),result=JSON.parse(fs.readFileSync(join(dir,'result.json'),'utf8'));
+ const wire=JSON.stringify(result);const live=fs.readFileSync(join(dir,'live-output.jsonl'),'utf8');
+ console.log('terminal',terminal.state,terminal.reason);console.log('result',wire);console.log('live',live);
+ const texts=live.split('\n').filter(Boolean).map(l=>JSON.parse(l).text??JSON.parse(l).chunk??'').join('');
+ const eventTexts=texts.split('\n').filter(Boolean).map(line=>{try{return JSON.parse(line).item?.text??'';}catch{return '';}});
+ const candidate=[result.finalAssistantResult,result.stdout,...eventTexts].find(s=>typeof s==='string'&&s.includes('U08_WITNESS '));
+ assert.ok(candidate,'actual default runner captured child witness');
+ const observation=JSON.parse(candidate.slice(candidate.indexOf('U08_WITNESS ')+'U08_WITNESS '.length));
+ const owner=JSON.parse(fs.readFileSync(join(dir,'owner.json'),'utf8'));const {signature,...claims}=observation.attestation;
+ assert.equal(verifyCanonical(claims,signature,owner.proposalInvocationPublicKey),true,'real fd3 attestation verifies with trusted owner key');assert.equal(observation.privateKeyInEnv,false);
+ assert.equal(observation.denied,true,'provider write/restore to source must fail at operation');
+ readManagedHostRunBinding(root,submitted.runId);assert.equal(terminal.state,'failed','fixture never claims successful review');if(process.argv.includes('--output-tamper'))assert.match(terminal.reason,/managed readonly compiled output differs from sealed build/);else assert.equal(terminal.reason,'exit_nonzero','trusted lane setup must not trigger integrity failure');
+ assert.equal(observation.siblingDenied,true);assert.equal(observation.parentRenameDenied,true);assert.equal(observation.linkTamperDenied,true);
+ assert.equal(observation.writable,true,'provider can write its independent output');
+ console.log('PASS actual submit -> worker -> default runner readonly source/build output with authentic fd3');
+}} finally {if(worker)await worker.catch(()=>{});os.userInfo=originalUserInfo;syncBuiltinESMExports();fs.rmSync(base,{recursive:true,force:true});}

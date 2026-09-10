@@ -157,6 +157,31 @@ Acknowledgement is not a silent pass. The acknowledged expansion remains warn
 and reviewer-visible as a `scope.out_of_scope:<path>` row with `blocking=false`;
 review, validation, and DONE gates still need their own evidence.
 
+### Unacknowledgeable inverse anchor allowlist
+
+For a file that is hard-protected except for a very small set of declaration
+keys, use `fileRules[].protectedExceptAnchors`. This is an inverse allowlist:
+every hunk is an unacknowledgeable `protected_anchor` violation unless **all**
+of its parsed declaration anchors appear in the listed exception array. A hunk
+with no parseable anchor fails closed, rather than being treated as an allowed
+exception. `scope_contract_acknowledge` cannot downgrade these violations in any
+mode, including `shadow`.
+
+For example, this permits only a package version-key hunk; dependency and
+unparseable manifest edits remain hard-blocked:
+
+```json
+{
+  "fileRules": [{
+    "path": "package.json",
+    "protectedExceptAnchors": ["version"]
+  }]
+}
+```
+
+The exception list must contain at least one valid declaration anchor. Use
+`protectedFiles` for absolute file protection with no permitted exception.
+
 ## Claude Code PreToolUse hook installation
 
 The `PreToolUse` hook lets Claude Code intercept a tool call *before* it writes

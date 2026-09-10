@@ -1,0 +1,345 @@
+{
+  "status": "static proposal awaiting root governance review; not applied or tested",
+  "rules": [
+    {
+      "domain": "evidence-storage",
+      "pathFamily": "packages/main/src/core/red-evidence/",
+      "testFamily": "packages/main/tests/red/red-w2[a-d]-",
+      "basis": "Read actual canon, target-binding, quarantine and specificity test contracts; dedicated red-evidence capability, no registry propagation"
+    },
+    {
+      "domain": "evidence-storage",
+      "testFamily": "packages/main/tests/red/red-b2aa7-",
+      "basis": "Read actual legacy red-evidence artifact validation contract"
+    },
+    {
+      "domains": [
+        "evidence-storage",
+        "scope-acceptance"
+      ],
+      "exactPaths": [
+        "packages/main/tests/red/red-w2c-gate-guard.mjs",
+        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+      ],
+      "basis": "Explicit integration between red-evidence records and live ProofStory enforcement, rather than arbitrary imported helper ownership"
+    },
+    {
+      "domain": "validation-certification",
+      "testFamily": "packages/main/tests/red/red-b49d4-",
+      "basis": "Actual whole-population RED harness registration contract"
+    },
+    {
+      "domain": "lab-build-maintenance",
+      "testFamily": "packages/main/tests/red/red-1734-",
+      "basis": "Existing build mutex/content-bound build and desktop asset manifest acceptance"
+    },
+    {
+      "domain": "evidence-storage",
+      "testFamily": "packages/main/tests/red/red-b3434-",
+      "basis": "Blob-buffer ceiling regression; proposed capability classification"
+    },
+    {
+      "domain": "review-authority",
+      "testFamily": "packages/main/tests/red/red-f88e-",
+      "basis": "Reviewer quorum downgrade collision/non-regression; proposed dedicated review authority"
+    },
+    {
+      "domain": "scope-acceptance",
+      "testFamily": "packages/main/tests/red/red-b45a5-",
+      "basis": "Withdrawal gates; proposed scope disposition capability"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "testFamily": "packages/main/tests/red/red-b8df9-",
+      "basis": "INIT_CHECK verdict identity/schema dedicated phase-entry evidence"
+    },
+    {
+      "domain": "managed-assets",
+      "exactPaths": [
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+        "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+        "bin/proof-or-stop-codex.js",
+        "bin/proof-or-stop.js",
+        "packages/main/bin/lattice",
+        "packages/main/bin/proof-or-stop"
+      ],
+      "basis": "Installed executable and managed alias surface, not command business logic"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "milestone-",
+        "withdrawn-",
+        "withdrawal-",
+        "frozen-claim-",
+        "narrowing-repin",
+        "acceptance-coverage",
+        "acceptance-discovery",
+        "delivery-promise",
+        "intent-",
+        "scope-"
+      ],
+      "basis": "Proposed milestone/acceptance requirements and scope amendment capability; exact files only after selection"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "nameFamilies": [
+        "init-",
+        "main-sync-",
+        "parallel-gate-",
+        "parallel-wave-",
+        "gate-repeat-",
+        "gate-strength-",
+        "delivery-check-",
+        "story-branch-",
+        "story-worktree-",
+        "guard-session-",
+        "session-",
+        "anti-stall",
+        "convergence-"
+      ],
+      "basis": "Proposed lifecycle entry/recovery/convergence capability; dedicated module and test names, not layer fallback"
+    },
+    {
+      "domain": "provider-execution",
+      "nameFamilies": [
+        "provider-",
+        "codex-heartbeat-",
+        "dispatch-run",
+        "dispatch-policy",
+        "dispatch-runner",
+        "host-independence",
+        "host-verdict",
+        "cross-host-review",
+        "codex-review-leaf",
+        "agent-liveness"
+      ],
+      "basis": "Proposed managed provider dispatch and host execution boundary"
+    },
+    {
+      "domain": "review-authority",
+      "nameFamilies": [
+        "review-budget-",
+        "retired-authority-",
+        "single-owner-extraction",
+        "decision-doc-quorum",
+        "cluster-"
+      ],
+      "basis": "Proposed review-authority and finding-cluster ownership; root review required"
+    },
+    {
+      "domain": "runtime-memory",
+      "nameFamilies": [
+        "dev-memory-",
+        "capability-candidate-",
+        "experience-",
+        "experiment-arm",
+        "playbook-",
+        "learning-",
+        "memory-"
+      ],
+      "basis": "Proposed runtime guidance/candidate learning capability; ordinary capability-list is intentionally not included"
+    },
+    {
+      "domain": "validation-certification",
+      "nameFamilies": [
+        "verification-run-",
+        "production-test-seam-",
+        "orphan-surface",
+        "background-validator",
+        "baseline-suite-",
+        "dirty-gate-",
+        "dirty-worktree-"
+      ],
+      "basis": "Proposed validation execution/admission boundary"
+    },
+    {
+      "domain": "evidence-storage",
+      "nameFamilies": [
+        "story-files-hash-",
+        "git-blob-",
+        "fact-provenance",
+        "attestation",
+        "artifact-release",
+        "authority-contracts",
+        "baseline-contracts",
+        "baseline-risk"
+      ],
+      "basis": "Proposed material identity/provenance/authority storage boundary"
+    },
+    {
+      "domain": "shared-core-utilities",
+      "exactBasenames": [
+        "digest.ts",
+        "cjk-detect.ts",
+        "guard-utils.ts"
+      ],
+      "basis": "Explicit generic utility ownership, never propagated to consumers"
+    },
+    {
+      "domain": "managed-assets",
+      "nameFamilies": [
+        "agent-asset-",
+        "agent-role-",
+        "agent-dispatch-registry",
+        "claude-md-",
+        "cli-init",
+        "cli-prompts",
+        "english-early-check"
+      ],
+      "basis": "Proposed installed host assets, role packages and authoring contract"
+    },
+    {
+      "domain": "command-surface",
+      "nameFamilies": [
+        "command-catalog",
+        "command-schemas",
+        "command-ownership",
+        "capability-list",
+        "cli-surface",
+        "cli-engine",
+        "flag-parser",
+        "help-renderer",
+        "alias-normalizer",
+        "output-verbosity",
+        "runtime-root",
+        "extension-admission",
+        "extension-runtime",
+        "main-tools"
+      ],
+      "requiresRootDecision": true,
+      "basis": "Real command discovery/parsing/extension-admission capability, not all CLI-layer code"
+    },
+    {
+      "domain": "autonomous-execution",
+      "nameFamilies": [
+        "autopilot-",
+        "autopilot."
+      ],
+      "requiresRootDecision": true,
+      "basis": "Real autonomous plan execution/reliability capability; do not infer owner from executor imports"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "exactPaths": [
+        "packages/main/tests/red/red-s3-differential-probe.mjs",
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "basis": "Actual gateFailureDigest convergence-breaker contract read"
+    },
+    {
+      "domain": "review-authority",
+      "exactPaths": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "basis": "Actual Dynamic Finding ledger/runtime integrity contract read"
+    },
+    {
+      "domain": "usage-accounting",
+      "exactPaths": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+      ],
+      "basis": "Root-approved explicit usage ledger module capability, not generic dispatch-name match"
+    },
+    {
+      "domain": "shared-core-utilities",
+      "exactPaths": [
+        "packages/main/src/core/oracle-row.ts",
+        "packages/main/src/handlers/context.ts"
+      ],
+      "basis": "Actual shared gate-renderer row and handler context contract, no consumer propagation"
+    },
+    {
+      "domain": "usage-accounting",
+      "exactPaths": [
+        "packages/main/src/core/usage-ledger/summary.ts"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "managed-assets",
+      "exactPaths": [
+        "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "provider-execution",
+      "exactPaths": [
+        "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "optimization-lab-package",
+      "exactPaths": [
+        "packages/main/src/types/proof-or-stop-lab.d.ts",
+        "packages/main/tests/fixtures/test-intent-experiment.json",
+        "scripts/run-test-intent-experiment.mjs",
+        "scripts/verify-test-intent-experiment.mjs"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "exactPaths": [
+        "packages/main/tests/fixtures/cleanup-legacy.json"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "command-surface",
+      "exactPaths": [
+        "packages/main/tests/fixtures/cli-flags.json",
+        "scripts/extract-tasks.js",
+        "scripts/migrate-annotations.cjs"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "validation-certification",
+      "exactPaths": [
+        "packages/main/tests/fixtures/cli-gap-seal.json"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "scope-acceptance",
+      "exactPaths": [
+        "packages/main/tests/fixtures/framework-upgrade-plan.json",
+        "scripts/verify-authority-prohibition.mjs"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domain": "shared-core-utilities",
+      "exactPaths": [
+        "scripts/verify-process-fact-contract.mjs",
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "basis": "Explicit resolution of ambiguous dedicated capability; actual contracts read where noted in root review"
+    },
+    {
+      "domains": [
+        "validation-certification",
+        "lifecycle-ownership"
+      ],
+      "exactPaths": [
+        "scripts/verify-performance-production.mjs"
+      ],
+      "basis": "Actual regression covers validation capacity plus Story owner lease, deliberately cross-domain"
+    }
+  ],
+  "stillNeedsContractRead": [
+    "packages/main/tests/red/red-s3-differential-probe.mjs",
+    "packages/main/tests/red/red-s3-digest-collapse.mjs",
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "claim-admissibility/pack-framework.ts and quantum.ts",
+    "audit-meta-store/audit-scan/audit-trigger versus evidence-storage and runtime-memory",
+    "generic baseline.ts versus validation execution and material provenance",
+    "executable experiments versus archived experimental output",
+    "shared capability-crossing regression scripts whose generic names do not declare ownership"
+  ]
+}

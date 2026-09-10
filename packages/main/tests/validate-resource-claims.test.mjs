@@ -274,6 +274,7 @@ async function observeOverlap(plan, jobs) {
   const outerBarrier = { class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' };
   const exactDeclaration = (entry) => entry.command === 'node'
     && JSON.stringify(entry.args) === JSON.stringify([
+      'scripts/run-validation-fixture-suite.mjs',
       'packages/main/dist/tasks/quorum-submit-smoke.js',
       '--jobs=2',
     ])
@@ -308,8 +309,10 @@ async function observeOverlap(plan, jobs) {
       'rewrites packages/main/dist, the artifact every other node command in this plan executes'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
-    ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
-      'sweepLegacyProbeDebris rmSync-es marker-gated paths under repoRoot and BLOCK D asserts whole-tree git status'],
+    ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js --jobs=2',
+      'the fixture wrapper isolates the machine registry, but does not declare repository resource isolation; retain the outer exclusive barrier'],
+    ['node scripts/run-validation-fixture-suite.mjs packages/main/tests/red/red-b49d4-registration-derivation.mjs',
+      'the fixture wrapper isolates nested scheduler leases, but the complete derivation still requires repository config cleanliness and guarded-tree stability; retain the outer exclusive barrier'],
     ['node packages/main/tests/red/red-b49d4-chk002-receipt.mjs',
       'plants probe files at join(repoRoot, RED_PROBE_REL) and join(repoRoot, DIST_PROBE_REL) inside the repository'],
     ['node packages/main/tests/red/red-1734-lock-liveness.mjs',

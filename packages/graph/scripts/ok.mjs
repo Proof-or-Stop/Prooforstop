@@ -1,6 +1,7 @@
 /**
- * Prints a success token. `tsc --noEmit` is silent when it succeeds, which gives a
- * verification selector nothing to match on, so the typecheck script chains this
- * to emit a token that proves the command actually ran and exited clean.
+ * Prints a success token. TypeScript is silent when compilation succeeds. Both the
+ * emitting build and standalone noEmit typecheck chain this after the real
+ * compiler, so the selector records a successful compilation. The check pipeline
+ * consumes its preceding build instead of compiling the same inputs twice.
  */
 console.log(process.argv[2] ?? 'OK');

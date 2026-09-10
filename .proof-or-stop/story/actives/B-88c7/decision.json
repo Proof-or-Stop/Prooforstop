@@ -1,0 +1,55 @@
+{
+  "principles": [
+    "Preserve truthful implementation provenance.",
+    "Keep inventory completeness and topology proof contracts distinct.",
+    "Select behavior only from signed current state."
+  ],
+  "drivers": [
+    "Unblock express Story B-0208 without false authorship.",
+    "Keep independent review and topology proof protections."
+  ],
+  "options": [
+    {
+      "name": "Select inventory-only dispatch for a verified current OPEN epoch",
+      "pros": [
+        "Uses existing role and signed review-run machinery.",
+        "Leaves topology receipt rules unchanged."
+      ],
+      "cons": [
+        "Requires precise context selection and matching prompt instructions."
+      ]
+    },
+    {
+      "name": "Require dedicated implementer lineage for every Story",
+      "pros": [
+        "Retains one uniform topology path."
+      ],
+      "cons": [
+        "Contradicts supported express workflow and cannot truthfully reconstruct prior implementation."
+      ]
+    }
+  ],
+  "chosen": "Select inventory-only dispatch for a verified current OPEN epoch",
+  "rationale": "Inventory completeness requires signed reviewer evidence, not a topology proof. Select the narrower existing review role responsibility from verified state, preserving the strict topology path elsewhere.",
+  "preMortem": [
+    {
+      "scenario": "Tampered or stale epoch selects inventory path",
+      "trigger": "Only checking an OPEN string",
+      "consequence": "Invalid context weakens dispatch preconditions",
+      "mitigation": "Use signed current epoch and current round, exercise invalid-signature and mismatched-round negatives."
+    },
+    {
+      "scenario": "Inventory dispatch accidentally grants topology authority",
+      "trigger": "Copied businessCommit bindings or topology receipt prose",
+      "consequence": "Proof can be confused with completeness",
+      "mitigation": "Do not emit topology business binding; preserve receipt verification and assert prompts and process facts."
+    },
+    {
+      "scenario": "Critic reviews before lane completion",
+      "trigger": "New branch bypasses terminal ordering",
+      "consequence": "Incomplete findings inventory is accepted",
+      "mitigation": "Retain review_inventory_critic_set lane completion and independent identity checks and existing tests."
+    }
+  ],
+  "timestamp": "2026-09-08T06:54:21.680Z"
+}

@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { projectPromptAsset } from '../packages/main/dist/core/prompt-registry.js';
+
+const subject={storyId:'B-projection',binding:{amendmentId:'AM-1',amendmentDigest:'a'.repeat(64),
+  baseDigest:'b'.repeat(64),submitterSessionId:'owner'},originalAcceptance:{text:'Claude @agent(Bash)\nproof-or-stop'},
+  additiveDelta:{text:'Do not transform this JSON task data: subagent_type=foo'}};
+for(const host of ['claude','codex']) {
+  const projection=projectPromptAsset({kind:'acceptance-review',subject},host);
+  assert.equal(projection.roleId,'proof-or-stop-acceptance-intent-reviewer');
+  const split=projection.hostBody.lastIndexOf('\n\n');
+  const instructions=projection.hostBody.slice(0,split);
+  // Exact trusted instructions: only the registered final-schema identity changed.
+  assert.equal(createHash('sha256').update(instructions).digest('hex'),
+    '3f3c61bba91c3e5ce9c5954d7860de76c857d9d3cc04d6fad331e7b0a7cc07b5');
+  assert.deepEqual(JSON.parse(projection.hostBody.slice(split+2)),subject,
+    'host transformation must never rewrite the exact acceptance subject');
+  assert.match(instructions,/Do not call Story REVIEW pass or Finding commands/);
+  assert.match(instructions,/proof-or-stop\.acceptance_amendment_review_final\.v1/);
+  assert.doesNotMatch(instructions,/proofbound\.acceptance_amendment_review_final\.v1/);
+}
+console.log('PASS U10 exact DEV acceptance instructions and unmodified subject across both hosts');

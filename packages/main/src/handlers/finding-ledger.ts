@@ -89,13 +89,75 @@ export interface LedgerExactCasSnapshot<T extends JsonValue = JsonValue> {
   currentChainHeadHash: string;
 }
 export interface LedgerPredicateResult { accepted: boolean; predicateDigest: string; }
+export type FindingLedgerWriteStore = Pick<StoryStore, 'readFindingLedger' | 'transactFindingLedger'>;
 export interface LedgerAppendOptions<T extends JsonValue = JsonValue> {
-  storyId: string; store: StoryStore; operation: FindingLedgerOperation; idempotencyKey: string;
+  storyId: string; store: FindingLedgerWriteStore; operation: FindingLedgerOperation; idempotencyKey: string;
   records: Array<{ recordType: string; payload: T; uniqueBindingKey?: string }>;
   writerSessionId: string; writerLeaseId: string; writerFenceToken: string; fence: LedgerFence;
   signer: LedgerSigner; casBindings?: FindingLedgerCasBinding[]; expectedPriorLedgerDigest?: string;
   verifyPredicate?: (snapshot: LedgerExactCasSnapshot<T>) => LedgerPredicateResult;
   commitOptions?: AppendLedgerOptions;
+}
+
+/**
+ * Prepare a sequence of existing signed/CAS appends against private snapshots,
+ * then publish their envelope once under the original fence. Each receipt keeps
+ * its own exact prefix, record IDs and predicate; no batch receipt substitutes
+ * for an individual lifecycle transition's authority.
+ */
+export function withAtomicFindingLedgerWrites<R>(args: {
+  store: FindingLedgerWriteStore;
+  storyId: string;
+  fence: LedgerFence;
+  commitOptions?: AppendLedgerOptions;
+}, prepare: (store: FindingLedgerWriteStore) => R): R {
+  return args.store.transactFindingLedger<JsonValue, R>(args.storyId, args.fence, current => {
+    let staged = structuredClone(current);
+    let lastReceipt: LedgerCommitReceipt | undefined;
+    let hasAppend = false;
+    let open = true;
+    const assertSubject = (storyId: string) => {
+      if (!open) throw new Error('finding ledger batch is closed');
+      if (storyId !== args.storyId) throw new Error('finding ledger batch cannot change Story subject');
+      args.fence.assertCurrent();
+    };
+    const stagedStore: FindingLedgerWriteStore = {
+      readFindingLedger<T = unknown>(storyId: string): LedgerEnvelope<T> {
+        assertSubject(storyId);
+        return structuredClone(staged) as unknown as LedgerEnvelope<T>;
+      },
+      transactFindingLedger<T = unknown, Result = unknown>(storyId: string, fence: LedgerFence,
+        stage: (ledger: LedgerEnvelope<T>) => { plan: AppendPlan<T>; result: Result },
+        options: AppendLedgerOptions = {}): Result {
+        assertSubject(storyId);
+        fence.assertCurrent();
+        if (fence.writerFenceToken !== args.fence.writerFenceToken) throw new Error('STALE_FENCE: batch fence mismatch');
+        if (Object.keys(options).length > 0) throw new Error('finding ledger batch accepts commit options only on the outer publication');
+        const prepared = stage(structuredClone(staged) as unknown as LedgerEnvelope<T>);
+        validateEnvelope(prepared.plan.envelope);
+        if (prepared.plan.action === 'append') {
+          staged = structuredClone(prepared.plan.envelope) as unknown as LedgerEnvelope<JsonValue>;
+          hasAppend = true;
+        }
+        lastReceipt = structuredClone(prepared.plan.receipt);
+        return prepared.result;
+      },
+    };
+    try {
+      const result = prepare(stagedStore);
+      if (result && typeof (result as { then?: unknown }).then === 'function') {
+        throw new Error('finding ledger batch preparation must be synchronous');
+      }
+      if (!lastReceipt) throw new Error('finding ledger batch must prepare at least one append or exact replay');
+      const plan: AppendPlan<JsonValue> = {
+        action: hasAppend ? 'append' : 'replay',
+        records: staged.records.slice(current.records.length),
+        receipt: lastReceipt,
+        envelope: staged,
+      };
+      return { plan, result };
+    } finally { open = false; }
+  }, args.commitOptions);
 }
 
 export interface AuthoritativeFindingMutationResult<T> {

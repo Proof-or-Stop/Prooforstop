@@ -382,11 +382,14 @@ try {
     const r = spawnSync(cmd, args, { cwd: repoRoot, encoding: 'utf8' });
     assert.equal(r.status, 0, `${label} must pass (exit 0); status=${r.status}\n${r.stdout}\n${r.stderr}`);
   }
-  runContract('lifecycle-registry-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'lifecycle-registry-contract.js')]);
-  runContract('command-ownership-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'command-ownership-contract.js')]);
+  const canonicalCore = process.argv.includes('--canonical-core');
+  if (!canonicalCore) {
+    runContract('lifecycle-registry-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'lifecycle-registry-contract.js')]);
+    runContract('command-ownership-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'command-ownership-contract.js')]);
+  }
   runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')]);
 
-  console.log('red-evidence-target-binding-smoke: OK — store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + case-sensitive membership, committed-tree anti-swap reader, owner-lease/foreign-lease + mutation-authority rejection, STALE-lease reject-without/recover-with --takeover then registered-handler bind, and NO gate verdict change; all three registry contracts pass.');
+  console.log('red-evidence-target-binding-smoke: OK — store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + case-sensitive membership, committed-tree anti-swap reader, owner-lease/foreign-lease + mutation-authority rejection, STALE-lease reject-without/recover-with --takeover then registered-handler bind, and NO gate verdict change; ' + (canonicalCore ? 'canonical core and process-fact contract pass; registry contracts scheduled independently.' : 'all three registry contracts pass.'));
 } finally {
   for (const r of roots) rmSync(r, { recursive: true, force: true });
 }

@@ -50,10 +50,12 @@
  *   - [CHK-002] Add command ownership classification contract
  */
 import assert from 'node:assert/strict';
-import { mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, rmSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
 import {
@@ -70,6 +72,7 @@ import {
   isReviewerReadOnlyModeEnabled,
   enforceReviewerReadOnlyCommandGate,
   ownerLeaseHelpBlock,
+  storyIdFromArgs,
 } from '../cli-engine.js';
 import {
   acquireOwnerLease,
@@ -435,6 +438,59 @@ try {
         () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: ownStoryId }, store, null, root),
         'the owning session re-running an owner-gated command refreshes the lease and is allowed',
       );
+
+      // F-041: run-only reconciliation commands resolve the immutable run
+      // subject before consulting the active Story (including from root cwd).
+      const managedRunId = 'ownership-managed-run';
+      const managedRunDir = join(root, PROOF_OR_STOP_DIR, 'runtime', 'host-runs', managedRunId);
+      mkdirSync(managedRunDir, { recursive: true });
+      const managedSpec = `${JSON.stringify({
+        schemaVersion: 'lattice.managed_host_run.v1',
+        runId: managedRunId,
+        storyId,
+      })}\n`;
+      writeFileSync(join(managedRunDir, 'spec.json'), managedSpec);
+      writeFileSync(join(managedRunDir, 'owner.json'), `${JSON.stringify({
+        schemaVersion: 'lattice.managed_host_run.v1',
+        runId: managedRunId,
+        specDigest: `sha256:${createHash('sha256').update(managedSpec).digest('hex')}`,
+      })}\n`);
+      assert.equal(
+        storyIdFromArgs({ runId: managedRunId }, { storyId: ownStoryId }, { command: 'host_run_cancel', projectRoot: root }),
+        storyId,
+        'cross-Story cancellation resolves spec.storyId instead of the unrelated active Story',
+      );
+      assert.equal(
+        storyIdFromArgs({ runId: managedRunId }, null, { command: 'host_run_status', projectRoot: root }),
+        storyId,
+        'root-cwd run reconciliation resolves the immutable managed run Story subject',
+      );
+      for (const command of ['host_run_cancel'] as const) {
+        assert.throws(
+          () => enforceStoryOwnerLeaseGate(command, { runId: managedRunId }, store, { storyId: ownStoryId }, root),
+          (err: Error) => err.message.includes(storyId) && err.message.includes('owner-gated'),
+          `${command} rejects the foreign run owner even when another active Story is locally owned`,
+        );
+        assert.throws(
+          () => enforceStoryOwnerLeaseGate(command, { runId: managedRunId }, store, null, root),
+          (err: Error) => err.message.includes(storyId) && err.message.includes('owner-gated'),
+          `${command} rejects the foreign run owner from root cwd without an active Story`,
+        );
+      }
+
+      // Status is a read-only projection; cancellation still owns the mutation gate above.
+      const foreignLeaseBeforeStatus = readFileSync(ownerLeasePath(storyDir), 'utf8');
+      const localLeaseBeforeStatus = readFileSync(ownerLeasePath(ownStoryDir), 'utf8');
+      for (const active of [{ storyId: ownStoryId }, null]) {
+        assert.doesNotThrow(
+          () => enforceStoryOwnerLeaseGate('host_run_status', { runId: managedRunId }, store, active, root),
+          'read-only status remains available across Story owners without acquiring their lease',
+        );
+      }
+      assert.equal(readFileSync(ownerLeasePath(storyDir), 'utf8'), foreignLeaseBeforeStatus,
+        'status does not renew or replace the foreign Story owner lease');
+      assert.equal(readFileSync(ownerLeasePath(ownStoryDir), 'utf8'), localLeaseBeforeStatus,
+        'status does not renew the unrelated active Story owner lease');
 
       // 5f. An unclassified command is rejected fail-closed by the gate.
       assert.throws(

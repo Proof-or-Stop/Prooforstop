@@ -69,11 +69,56 @@ async function importDist(root, relPath) {
 async function main() {
   const root = findRepoRoot(process.cwd());
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
+  const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
+  check(registrySource.includes(physicalTraceVersion) && read(root, 'packages/main/src/core/validation-runtime-tracer.cjs').includes(physicalTraceVersion), 'CJS tracer and runtime policy schema must agree');
   check(registrySource.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS'), 'Lab optional runtime requirements must be registered');
   const labLoader = read(root, 'scripts/lab-source-loader.mjs');
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
+  check(registrySource.includes('MANAGED_PROVIDER_SEED_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('seedPolicy.encodedFileMultiplier') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix'), 'private provider seed bounds and filenames must consume runtime registries');
+  check(registrySource.includes('REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.versionTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.readinessTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('artifact.seedDirectoryName'), 'batch producer probes and private storage consume registered runtime policies');
+  const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');
+  check(registrySource.includes('REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY') && batchAdmission.includes('policy.readyTtlMs') && batchAdmission.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName'), 'batch admission timing and storage must use registered runtime policy');
+  const admissionSandboxPolicy = read(root, 'packages/main/src/core/managed-review-readonly.ts');
+  check(admissionSandboxPolicy.includes('resolveCanonicalRuntimeProjectRoot(layout.originalWorktree)') && admissionSandboxPolicy.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName') && admissionSandboxPolicy.includes('(deny file-read* (subpath ${JSON.stringify(admissionRoot)}))'), 'reviewer sandbox must deny reads of the canonical controller admission subtree');
+  const admission = read(root, 'packages/main/src/core/provider-process-admission.ts');
+  check(registrySource.includes('MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY') && admission.includes('machineProviderProcessSlotsDir()') && admission.includes('admission.machineSlot'), 'provider admission must acquire, transfer and release canonical machine sidecar slots');
+  const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');
+  check(registrySource.includes("unknownResources: 'exclusive-machine-queue'") && portLock.includes("class: 'machine-validation'"), 'unknown validation resources require a shared machine admission barrier with exclusive fallback');
+  check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
+  check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
+    && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),
+    'machine port coordination must bind OS-user location, real preflight and ancestor refusal');
+  for (const path of ['packages/main/src/core/validation-executor.ts', 'packages/main/src/tasks/full-suite-runner.ts'])
+    check(read(root,path).includes('withMachineValidationResources'), `${path} must acquire machine ports at actual child execution`);
+  const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
+  const readonlyLane=read(root,'packages/main/src/core/managed-review-lane.ts');
+  const readonlyPolicy=read(root,'packages/main/src/core/managed-review-lane-policy.ts');
+  check(registrySource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY')
+    && readonlyLane.includes('MANAGED_REVIEW_LANE_ARTIFACT.directoryName')
+    && readonlyLane.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.buildTimeoutMs')
+    && readonlyPolicy.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.adapter')
+    && managedHost.includes('requestedReadonlyLane')
+    && read(root,'packages/main/src/core/host-run.ts').includes('prepareManagedReadonlyLaunch'),
+    'readonly reviewer lanes require registered explicit adapters and the actual provider boundary');
+
+  check(managedHost.includes("if (!readManagedReviewScratchCleanupDiagnostic(paths)) throw new Error"),
+    'cleanup diagnostic idempotency must not swallow non-file persistence failures');
+  check(registrySource.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY')
+    && managedHost.includes('...managedReviewTemporaryEnvironment(spec)')
+    && managedHost.includes('MANAGED_REVIEW_TEMP_ARTIFACT.directoryName')
+    && managedHost.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys'),
+    'managed reviewer temporary isolation must consume registered path and environment policy');
+  const scopeDecision = read(root, 'packages/main/src/core/story-scope-budget-decisions.ts');
+  for (const field of ['approvalLifetimeMs', 'agentEnvironmentMarkers']) {
+    check(registrySource.includes('SCOPE_BUDGET_DECISION_RUNTIME_POLICY') && scopeDecision.includes(`SCOPE_BUDGET_DECISION_RUNTIME_POLICY.${field}`), `scope decision runtime policy must consume ${field}`);
+  }
+  check(registrySource.includes('KEYED_SCHEDULER_RUNTIME_POLICY')
+    && read(root, 'packages/main/src/core/keyed-scheduler.ts').includes('KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs'),
+  'scheduler coordination scope and cancellable wait cadence must be registered and consumed');
   check(registrySource.includes("duplicateResourceClaims: 'one-per-exact-normalized-claim'"), 'exact normalized capacity claim semantics must be registered');
   const { declaredValidationCapacity } = await import(pathToFileURL(join(root, 'packages/main/dist/core/validation-execution-lock.js')).href);
   const duplicateClaim = { class: 'fixed-path', key: 'runtime-contract-probe', access: 'shared' };
@@ -82,6 +127,38 @@ async function main() {
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
+  check(registrySource.includes('PRECERT_FAST_RUNTIME_POLICY'), 'precert runtime contract must be registered');
+  const fastRunner = read(root, 'scripts/run-precert-fast.mjs');
+  check(fastRunner.includes('createFullSuiteRunState()') && fastRunner.includes('interruptFullSuiteRun(signal, state)')
+    && fastRunner.includes('validateFastResult(contract,result)') && fastRunner.includes('verifyBuildBinding(root)'),
+    'fast diagnostics must retain isolated process supervision, binding and contract result checks');
+  check(registrySource.includes('ENTRY_PREFLIGHT_RUNTIME_POLICY'), 'entry preflight runtime boundary must be registered');
+  const entryPreflight = read(root, 'scripts/entry-preflight.mjs');
+  check(entryPreflight.includes('timeout: 30_000') && entryPreflight.includes('diagnosticOnly: true')
+    && entryPreflight.includes('writesEvidence: false') && entryPreflight.includes('advancesPhase: false'),
+  'entry diagnostics need bounded probes and explicit non-authority output');
+  check([...entryPreflight.matchAll(/^import .* from ['"]([^'"]+)['"]/gm)].every(match => match[1].startsWith('node:')),
+    'entry diagnostics must bootstrap using only Node builtins');
+  check(registrySource.includes('MANAGED_SUPERVISOR_RUNTIME_POLICY'), 'autonomous managed supervisor policy must be registered');
+  check(registrySource.includes('MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY'), 'historical duration observation boundary must be registered');
+  const durationSource = read(root, 'packages/main/src/core/managed-run-duration-estimate.ts');
+  check(durationSource.includes('MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY') && durationSource.includes('historical_estimate')
+    && durationSource.includes('unavailable'), 'duration estimates must share runtime policy and retain explicit uncertainty');
+  check(registrySource.includes('MANAGED_RUN_DASHBOARD_POLICY') && read(root, 'packages/main/src/core/managed-run-dashboard.ts').includes('MANAGED_RUN_DASHBOARD_POLICY.maxScanBytes'), 'owner/UI observation must consume registered scan budgets');
+  check(registrySource.includes('MANAGED_STATUS_OBSERVATION_POLICY'), 'managed status cursor semantics must be registered');
+  const managedStatusSource = read(root, 'packages/main/src/core/managed-host-run.ts');
+  check(managedStatusSource.includes('args.afterGeneration === undefined && run.terminal !== null')
+    && managedStatusSource.includes('target.afterGeneration === undefined && status.run.terminal !== null'),
+  'single and aggregate observers must acknowledge terminal delivery through generation cursors');
+  check(registrySource.includes('diagnosticGraceMs: 5_000') && registrySource.includes('stalledStageMs: 30_000'), 'provider absence and stalled-stage diagnostics require bounded registered deadlines');
+  check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('await launchManagedSupervisor(request, logFd)'), 'provider worker requires independent supervisor readiness');
+  check(read(root, 'packages/main/src/cli/managed-host-run-supervisor.ts').includes('runManagedHostRunSupervisor'), 'detached entry must run the production recovery loop');
+  check(registrySource.includes('MANAGED_BURN_RUNTIME_POLICY'), 'managed burn limits and unknown-progress policy must be registered');
+  for (const file of ['packages/main/src/core/managed-burn-guard.ts', 'packages/main/src/core/managed-host-run.ts']) {
+    check(read(root, file).includes('MANAGED_BURN_RUNTIME_POLICY'), `${file} must consume registered managed burn policy`);
+  }
+  check(read(root, 'packages/main/src/core/managed-burn-guard.ts').includes('assessConvergenceProgressGate'), 'burn stop must consume shared verified progress authority');
+  check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('if (providerClosed || abort.signal.aborted'), 'burn cannot cancel a provider after its actual close');
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
   check(checksSource.includes('ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS') && checksSource.includes('assertIdentityExecutableSource'), 'identity decoys must not replace reviewed producer/consumer executable bindings');
   const configSource = read(root, 'packages/main/src/core/config.ts');
@@ -313,7 +390,7 @@ async function main() {
 
   const registryModule = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
-  for (const canonical of ['proof-or-stop.verifier-dependency-manifest.v1', 'proof-or-stop.verifier-dependency-manifest-binding.v1', 'proof-or-stop.inventory-verification-observation.v1', 'proof-or-stop.verification-receipt-bundle.v5']) {
+  for (const canonical of ['proof-or-stop.acceptance_amendment_review_final.v1', 'proof-or-stop.verifier-dependency-manifest.v1', 'proof-or-stop.verifier-dependency-manifest-binding.v1', 'proof-or-stop.inventory-verification-observation.v1', 'proof-or-stop.verification-receipt-bundle.v5']) {
     const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.identitySites.some(site => site.canonical === canonical));
     const site = boundary?.identitySites.find(row => row.canonical === canonical);
     check(Boolean(site && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `current schema lacks coupled runtime identity control: ${canonical}`);
@@ -332,6 +409,19 @@ async function main() {
     const site = boundary?.identitySites.find(row => row.sourcePath === sourcePath && row.canonical === canonical);
     check(Boolean(site && boundary.paths.some(row => row.sourcePath === sourcePath) && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `live schema producer/consumer must be registered with its negative control: ${sourcePath}`);
   }
+  const journalBoundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'canonical-journal-authority');
+  check(Boolean(journalBoundary), 'current signed journal authority requires a registered runtime boundary');
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendment.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && site.sourceNeedle === 'schemaVersion: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA'); }
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendments.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA' && site.sourceNeedle === 'schemaVersion: ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA'); }
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/convergence-effective-progress.ts' && row.canonical === 'proof-or-stop.effective_progress.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'EFFECTIVE_PROGRESS_SCHEMA' && site.sourceNeedle === 'schemaVersion: EFFECTIVE_PROGRESS_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: EFFECTIVE_PROGRESS_SCHEMA'); }
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/convergence-progress-journal.ts' && row.canonical === 'proof-or-stop.convergence_progress_journal.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'CONVERGENCE_PROGRESS_JOURNAL_SCHEMA' && site.sourceNeedle === 'schemaVersion: CONVERGENCE_PROGRESS_JOURNAL_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: CONVERGENCE_PROGRESS_JOURNAL_SCHEMA'); }
+  check(Boolean(journalBoundary?.identitySites.some(site => site.sourcePath === 'packages/main/src/core/store.ts' && site.canonical === 'proof-or-stop.causal-evidence-index.v1' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId))), 'canonical CAS index writer and output reader require runtime mutation guard');
+  const acceptanceBoundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'acceptance-amendment-review');
+  check(Boolean(acceptanceBoundary && acceptanceBoundary.paths.length === 1 && acceptanceBoundary.paths[0].sourcePath === 'packages/main/src/core/acceptance-amendment-review.ts'), 'acceptance transport identity boundary must stay scoped to the current core, not scan the legacy managed-host compatibility container');
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
   const configModule = await importDist(root, 'packages/main/dist/core/config.js');

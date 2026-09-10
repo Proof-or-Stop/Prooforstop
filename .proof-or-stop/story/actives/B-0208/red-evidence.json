@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-0208",
+  "records": [
+    {
+      "id": "RED-20260908061542",
+      "trigger": "External project tool version lookup uses business manifests",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "383b814256466aed9563596eeeae699e8a663b2d",
+      "baselineMaterialHash": "c611e77b752f73d0fe38b5468018f00fcd6d59d5c0eb79efa7a1923a643e9d79",
+      "observedFailure": "Built resolver returned undefined without target manifest and 99.88.77 from business-app manifest instead of CLI 0.3.278; assertion exited 1.",
+      "failingCommand": "node /private/tmp/pos-causal-version-probe.mjs /Users/qipan/work/repo/Prooforstop/packages/main/dist",
+      "expectedGreenCommand": "node /private/tmp/pos-causal-version-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-0208/packages/main/dist",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/pos-causal-version-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-0208/packages/main/dist"
+      },
+      "createdAt": "2026-09-08T06:15:42.953Z"
+    }
+  ],
+  "createdAt": "2026-09-08T06:15:42.953Z",
+  "updatedAt": "2026-09-08T06:15:42.953Z"
+}

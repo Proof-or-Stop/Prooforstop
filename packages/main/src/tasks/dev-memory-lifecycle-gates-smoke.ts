@@ -470,6 +470,7 @@ function buildDoneReadyFixture(storyId: string): { root: string; store: StorySto
 
   const store = new StoryStore(root);
   store.writeStory(storyId, syntheticStory(storyId, 'TEST'));
+    store.writeChecklist(storyId, {items: []});
   const headHash = currentGitHead(root);
   const materialHash = currentMaterialHash(root, 'HEAD', root);
   assert.ok(headHash, 'fixture must have a git HEAD');
@@ -483,7 +484,15 @@ function buildDoneReadyFixture(storyId: string): { root: string; store: StorySto
     materialHash,
   });
 
-  const deliveryHandlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  // B-137a added a native delivery-review authorization seam to
+  // delivery_check_set, which fails closed without a trusted delivery-review
+  // dispatch event. This fixture predates that seam and exercises dev-memory
+  // lifecycle gates, not delivery provenance, so it injects the same no-op
+  // authorization closeout-trust-smoke uses.
+  const deliveryHandlers = createDeliveryCheckHandlers(
+    { store, root, scanRoot: join(root, 'packages/main') },
+    { authorizeNativeInvocation: () => {} },
+  );
   deliveryHandlers.delivery_check_set({
     storyId,
     docsPromises: [],

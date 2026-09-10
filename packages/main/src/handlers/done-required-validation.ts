@@ -1,7 +1,6 @@
+import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { sharedValidationReuseAllowed } from '../core/shared-validation-execution.js';
-import { relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { realpathSync } from 'node:fs';
 import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -13,11 +12,11 @@ import {
 } from '../core/done-required-validation.js';
 import type { ValidationProgressReporter } from '../core/validation-types.js';
 import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
-import { autoCommitStoryMetadata, captureLifecycleMetadataTransaction, readLifecycleMetadataOutputHashes, commitLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import { timeoutLayerFromReason } from '../core/done-required-timeout-budget.js';
-import { refuseHeavyCertificationUnlessAdmitted } from '../core/certification-window.js';
+import { requireCurrentHeavyCertificationWindow } from '../core/certification-window.js';
 import { currentCertificationIdentity } from './certification-window.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -36,10 +35,12 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       if (!storyId) throw new Error('done_required_validate requires --storyId=<id>');
       assertCwdInWorktree(ctx.store, storyId);
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const amendment = acceptanceCompletionBlocker(ctx.store, storyId, gitCwd);
+      if (amendment) throw new Error(amendment);
       const policy = resolveDoneRequiredPolicy(ctx.root);
-      const commitsAdmissionForReuse = policy.commands.some(sharedValidationReuseAllowed);
-      if (policy.required && !commitsAdmissionForReuse) {
-        refuseHeavyCertificationUnlessAdmitted({
+      const requiresCleanWorkspaceForReuse = policy.commands.some(sharedValidationReuseAllowed);
+      if (policy.required && !requiresCleanWorkspaceForReuse) {
+        requireCurrentHeavyCertificationWindow({
           store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId),
         });
       }
@@ -58,30 +59,17 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         deadlineError: args.deadlineError,
         onWaitProgress: (message) => ctx.log?.(message),
       }, async () => {
-      // Commit only the admitted -> running bytes owned by this invocation.
-      // A private index preserves adjacent staged work; dirty source still
-      // prevents shared execution. Capture precedes the canonical writer.
-      if (policy.required && commitsAdmissionForReuse) {
-        // The opt-in path owns commits before and after execution. Do not admit
-        // pre-existing staged or working changes into either metadata writer.
+      // DONE-required has its own command policy and evidence. It checks the
+      // routine admission but never claims or commits its one heavy allocation.
+      if (policy.required && requiresCleanWorkspaceForReuse) {
+        // Preserve shared execution's clean-workspace opt-in prerequisite.
         const dirty = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
           cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
         }).trim();
         if (dirty) throw new Error('SHARED_DONE_REQUIRES_CLEAN_WORKSPACE');
-        const capture = captureLifecycleMetadataTransaction({
-          root: gitCwd, gitCwd, storyId,
-          storyRel: relative(realpathSync(gitCwd), realpathSync(ctx.store.storyDirPath(storyId))).replace(/\\/g, '/'),
-          kind: 'certification-running',
-        });
-        refuseHeavyCertificationUnlessAdmitted({
+        requireCurrentHeavyCertificationWindow({
           store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId),
         });
-        const output = readLifecycleMetadataOutputHashes({ root: gitCwd, capture });
-        if (!output.ok) throw new Error(output.reason);
-        const committed = commitLifecycleMetadataTransaction({
-          root: gitCwd, gitCwd, storyId, capture, verifiedHashes: output.hashes,
-        });
-        if (!committed.ok) throw new Error(committed.reason);
       }
 
       const currentPolicy = resolveDoneRequiredPolicy(ctx.root);

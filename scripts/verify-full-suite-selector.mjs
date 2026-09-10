@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { validateSelectorReceiptCore } from './full-suite-selector-contract.mjs';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
@@ -22,6 +23,7 @@ const artifacts = [
   '.proof-or-stop/story/actives/B-9812/done-required-evidence.json',
   'scripts/verify-full-suite-contract.mjs',
   'scripts/verify-full-suite-selector.mjs',
+  'scripts/full-suite-selector-contract.mjs',
 ];
 const digest = value => createHash('sha256').update(value).digest('hex');
 const atomicWrite = (path, value) => { const temporary = `${path}.tmp-${process.pid}`; writeFileSync(temporary, value); renameSync(temporary, path); };
@@ -42,13 +44,7 @@ export const captureHeadIsAdmissible = (receiptHead, currentHead, cwd = root) =>
   return changed.every(path => path.startsWith(METADATA_PREFIX) && METADATA_ALLOWLIST.has(path.slice(METADATA_PREFIX.length)));
 };
 export function validateSelectorReceipt(receipt, selector, current, currentFileDigests, headAdmissible = captureHeadIsAdmissible) {
-  assert.equal(receipt.schema, 'b9812.full-suite-contract-capture.v2');
-  assert.equal(headAdmissible(receipt.head, current.head), true, 'capture HEAD is not an admissible metadata-only ancestor');
-  assert.equal(receipt.material, current.material, 'capture material changed');
-  assert.deepEqual(receipt.fileDigests, currentFileDigests, 'captured artifact or verifier source digest changed');
-  assert.ok(Object.hasOwn(receipt.predicates, selector), `selector missing from capture: ${selector}`);
-  assert.equal(receipt.predicates[selector].passed, true, `selector predicate did not pass: ${selector}`);
-  assert.equal(receipt.predicates[selector].outputDigest, digest(`VERIFIED ${selector}`), `selector predicate digest changed: ${selector}`);
+  return validateSelectorReceiptCore(receipt, selector, current, currentFileDigests, headAdmissible);
 }
 
 const args = process.argv.slice(2);

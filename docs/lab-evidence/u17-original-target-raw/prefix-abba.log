@@ -1,0 +1,34 @@
+U17_PREFIX_PASS every production process-event writer honors the shared append lock
+U17_PREFIX_PASS reviewer provider mapping is explicit and unsupported providers fail closed
+U17_PREFIX_PASS explicit invalid provider wins over competing host inference while true absence still infers
+U17_PREFIX_PASS real story-owned fixture delta is host-independent and requires case-level Story intent closure
+U17_PREFIX_PASS duplicate fixture identities always force full regardless of alias or ordering
+U17_PREFIX_PASS review_run_start CLI records reviewer-requested full escalation in envelope and signed run
+U17_PREFIX_PASS unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain
+U17_PREFIX_PASS Codex and Claude CLI provider aliases complete the thin zero-asset review chain
+U17_PREFIX_PASS shared binding derivation is byte-identical to the former quorum envelopes
+U17_PREFIX_PASS shared derivation preserves optional-head and missing-evidence envelopes
+U17_PREFIX_PASS shared derivation fails closed on every required envelope field
+U17_PREFIX_PASS shared derivation binds every replay-sensitive input
+U17_PREFIX_PASS worktree-local CLI commits the exact quorum batch through the production entrypoint
+U17_PREFIX_PASS mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission
+U17_PREFIX_PASS production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt
+U17_PREFIX_PASS historical RED dirty baseline makes CLI validation refuse canonical PASS persistence
+U17_PREFIX_PASS refuses when required reviewer passes are absent and writes no verdicts
+U17_PREFIX_PASS numerically sufficient compatibility/retired-only receipts cannot authorize quorum
+U17_PREFIX_PASS refuses when reviewer passes are stale and writes no verdicts
+U17_PREFIX_PASS machine REVIEW and quorum consume the same full-envelope replay/tamper proof
+U17_PREFIX_PASS explicit full-asset mode binds Claude and Codex independently and rejects selected-host drift
+U17_TARGET_ROUND_START {"index":0,"mode":"on"}
+(node:64715) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+U17_TARGET_ROUND {"index":0,"mode":"on","baselineHead":"fcbe0147638d522cce4f37c2de50efe18e124b7c","durationMs":108311.968167,"drainageMs":12.521791000006488,"counts":{"lsTree":627,"showTopLevel":1350,"gitTotal":10005,"diff":656,"mergeBase":536,"revParse":5880,"checkAttr":415,"config":4,"nodeLaunches":9,"otherLaunches":36},"attemptSummary":{"nodeAttempts":9,"requiredJsReceipts":0,"versionOnly":0,"spawnFailures":0,"heartbeatHelpers":9,"readonlyProcessProbes":36},"childMetrics":[],"assertions":"original-target-body-passed","baselineModules":[{"path":"packages/main/src/core/evidence-freshness.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"24203b0387dcb8c37c97c41e0d5666c58f7f77ccc2e977bc8d16ea3eb5c62354"},{"path":"packages/main/src/core/story-aware-validation.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"62eef2904ccd8a94ace3f3660ff44a8f6949e28fe5788360ee3f74d44b73974b"}],"emittedCount":6,"runIds":["B-quorum-smoke-q-r1","B-quorum-smoke-q-r2","B-quorum-smoke-q-r3"],"hostVerdicts":6,"verdictFiles":6}
+U17_TARGET_ROUND_START {"index":1,"mode":"off"}
+U17_TARGET_ROUND {"index":1,"mode":"off","baselineHead":"fcbe0147638d522cce4f37c2de50efe18e124b7c","durationMs":138545.77824999997,"drainageMs":10.556875000009313,"counts":{"lsTree":1683,"showTopLevel":2717,"gitTotal":12533,"diff":1182,"mergeBase":1072,"revParse":6711,"checkAttr":0,"config":3,"nodeLaunches":9,"otherLaunches":36},"attemptSummary":{"nodeAttempts":9,"requiredJsReceipts":0,"versionOnly":0,"spawnFailures":0,"heartbeatHelpers":9,"readonlyProcessProbes":36},"childMetrics":[],"assertions":"original-target-body-passed","baselineModules":[{"path":"packages/main/src/core/evidence-freshness.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"24203b0387dcb8c37c97c41e0d5666c58f7f77ccc2e977bc8d16ea3eb5c62354"},{"path":"packages/main/src/core/story-aware-validation.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"62eef2904ccd8a94ace3f3660ff44a8f6949e28fe5788360ee3f74d44b73974b"}],"emittedCount":6,"runIds":["B-quorum-smoke-q-r1","B-quorum-smoke-q-r2","B-quorum-smoke-q-r3"],"hostVerdicts":6,"verdictFiles":6}
+U17_TARGET_ROUND_START {"index":2,"mode":"off"}
+U17_TARGET_ROUND {"index":2,"mode":"off","baselineHead":"fcbe0147638d522cce4f37c2de50efe18e124b7c","durationMs":138265.79804200004,"drainageMs":9.48250000004191,"counts":{"lsTree":1683,"showTopLevel":2717,"gitTotal":12533,"diff":1182,"mergeBase":1072,"revParse":6711,"checkAttr":0,"config":3,"nodeLaunches":9,"otherLaunches":36},"attemptSummary":{"nodeAttempts":9,"requiredJsReceipts":0,"versionOnly":0,"spawnFailures":0,"heartbeatHelpers":9,"readonlyProcessProbes":36},"childMetrics":[],"assertions":"original-target-body-passed","baselineModules":[{"path":"packages/main/src/core/evidence-freshness.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"24203b0387dcb8c37c97c41e0d5666c58f7f77ccc2e977bc8d16ea3eb5c62354"},{"path":"packages/main/src/core/story-aware-validation.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"62eef2904ccd8a94ace3f3660ff44a8f6949e28fe5788360ee3f74d44b73974b"}],"emittedCount":6,"runIds":["B-quorum-smoke-q-r1","B-quorum-smoke-q-r2","B-quorum-smoke-q-r3"],"hostVerdicts":6,"verdictFiles":6}
+U17_TARGET_ROUND_START {"index":3,"mode":"on"}
+U17_TARGET_ROUND {"index":3,"mode":"on","baselineHead":"fcbe0147638d522cce4f37c2de50efe18e124b7c","durationMs":109042.64900000003,"drainageMs":11.199249999946915,"counts":{"lsTree":627,"showTopLevel":1350,"gitTotal":10004,"diff":656,"mergeBase":536,"revParse":5880,"checkAttr":415,"config":4,"nodeLaunches":9,"otherLaunches":36},"attemptSummary":{"nodeAttempts":9,"requiredJsReceipts":0,"versionOnly":0,"spawnFailures":0,"heartbeatHelpers":9,"readonlyProcessProbes":36},"childMetrics":[],"assertions":"original-target-body-passed","baselineModules":[{"path":"packages/main/src/core/evidence-freshness.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"24203b0387dcb8c37c97c41e0d5666c58f7f77ccc2e977bc8d16ea3eb5c62354"},{"path":"packages/main/src/core/story-aware-validation.ts","baseline":"3f010a95b24c73d68fa6df0fc715df102f9ea4f0","sha256":"62eef2904ccd8a94ace3f3660ff44a8f6949e28fe5788360ee3f74d44b73974b"}],"emittedCount":6,"runIds":["B-quorum-smoke-q-r1","B-quorum-smoke-q-r2","B-quorum-smoke-q-r3"],"hostVerdicts":6,"verdictFiles":6}
+U17_ORIGINAL_TARGET_ABBA_PASS
+
+✓ quorum_submit smoke passed (22 checks)

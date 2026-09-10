@@ -65,6 +65,46 @@ import {
 } from '../core/owner-session-token-store.js';
 import { resolveRedEvidenceDoctorLine } from '../core/red-evidence/policy.js';
 import { STATE_DIR_NAMES } from '../core/brand-paths.js';
+import {
+  pruneExpiredManagedHostRuns,
+  scanManagedHostRunRuntime,
+  type ManagedHostRunGcResult,
+  type ManagedHostRunRuntimeScan,
+} from '../core/managed-host-run.js';
+
+/** Public rendering seam: diagnostics and pinned docs evidence consume the same operator projection. */
+export function renderManagedHostRunDoctorSection(
+  managedHostRuns: ManagedHostRunRuntimeScan,
+  managedHostRunGc: ManagedHostRunGcResult | null = null,
+  brief = false,
+): string[] {
+  const lines = ['Managed host runs:'];
+  lines.push(
+    `  active=${managedHostRuns.active} terminal=${managedHostRuns.terminal} corrupt=${managedHostRuns.corrupt} `
+    + `gcEligible=${managedHostRuns.eligibleForGc} retentionMs=${managedHostRuns.retentionMs}`,
+  );
+  if (!brief) {
+    for (const run of managedHostRuns.runs) {
+      lines.push(
+        `  - ${run.runId} state=${run.state} worker=${run.workerLiveness} `
+        + `heartbeatAt=${run.workerHeartbeatAt ?? 'none'} providerProgress=${run.providerProgressMode}:${run.lastProviderProgressAt ?? 'none'} `
+        + `deadlineAt=${run.deadlineAt ?? 'unknown'} cancelAt=${run.cancelRequestedAt ?? 'none'} `
+        + `residual=${run.residualProcessGroup ?? 'unknown'} replacementSafe=${run.replacementSafe ?? 'unknown'} `
+        + `terminalReason=${run.terminalReason ?? 'none'} retentionExpired=${run.retentionExpired} oneShotInputs=${run.hasUnconsumedOneShotInputs}`,
+      );
+      if (run.error) lines.push(`    error: ${run.error}`);
+    }
+  }
+  if (managedHostRunGc) {
+    for (const runId of managedHostRunGc.removed) lines.push(`  ✓ removed expired terminal run ${runId}`);
+    for (const runId of managedHostRunGc.archivedReceipts) lines.push(`  ✓ preserved sealed receipt archive ${runId}`);
+    for (const failed of managedHostRunGc.failed) lines.push(`  ✗ failed to remove ${failed.runId}: ${failed.error}`);
+  } else if (managedHostRuns.eligibleForGc > 0) {
+    lines.push('  → Run proof-or-stop doctor --repair to remove only terminal runs beyond retention; active/corrupt/one-shot-input runs stay protected.');
+  }
+  lines.push('');
+  return lines;
+}
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -104,6 +144,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // when no gitRoot resolves → byte-identical for plain repos.
       const gitProbeCwd = resolveDoctorGitCwd(root);
       let trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
+      let managedHostRuns = scanManagedHostRunRuntime(root);
+      let managedHostRunGc: ManagedHostRunGcResult | null = null;
       const runtimeArtifactsRepaired: string[] = [];
       const runtimeArtifactsRepairFailed: Array<{ path: string; error: string }> = [];
 
@@ -248,6 +290,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         }
         trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
       }
+      if (args?.repair) {
+        managedHostRunGc = pruneExpiredManagedHostRuns(root);
+        managedHostRuns = scanManagedHostRunRuntime(root);
+      }
 
       // B-854c CHK-003: --repair installs the managed ignore-volatile/track-metadata
       // allowlist (reusing managed-assets mergeRuntimeGitignore — idempotent), then
@@ -353,6 +399,11 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairFailed: runtimeArtifactsRepairFailed,
             repairRequested: !!args?.repair,
           },
+          managedHostRuns: {
+            ...managedHostRuns,
+            gc: managedHostRunGc,
+            repairRequested: !!args?.repair,
+          },
           agentAssets,
         };
       }
@@ -448,6 +499,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         }
       }
       lines.push('');
+
+      lines.push(...renderManagedHostRunDoctorSection(managedHostRuns, managedHostRunGc, brief));
 
       // Worktree orphan section
       lines.push('Worktree scan:');

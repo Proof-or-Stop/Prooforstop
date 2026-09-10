@@ -20,6 +20,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { isBuiltin } from 'node:module';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import ts from 'typescript';
@@ -31,6 +32,7 @@ import {
   checkEvidenceFreshnessForGit,
   classifyEvidenceFreshness,
   currentGitHead,
+  gitCommitAtRef,
   currentMaterialHash,
   currentStoryFilesHash,
   isMaterialExcludedPath,
@@ -63,9 +65,10 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
-import { promptRoleContract } from './prompt-role-contract-registry.js';
+import { promptRoleContract, promptRoleContractForSemanticDigest } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
 import {
+  currentOpenReviewInventory,
   reviewInventoryDigest,
   reviewInventoryAcceptanceSubjectDigestForStore,
   verifyReviewInventoryEpoch,
@@ -73,7 +76,7 @@ import {
 } from './review-inventory-epoch.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
-export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v1' as const;
+export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v2' as const;
 
 export type PostRemediationSelectionReason =
   | 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE'
@@ -160,7 +163,7 @@ function hasOpaqueDynamicLoad(source: ts.SourceFile): boolean {
  * Build a deterministic, bidirectional source dependency component from the
  * tracked TypeScript/JavaScript inventory. Walking both directions covers
  * transitive dependencies and all dependants that share a changed module.
- * Any unresolved relative import, opaque dynamic load, symlink, alias escape,
+ * Any unresolved non-builtin import, opaque dynamic load, symlink, alias escape,
  * or missing changed source makes the proof incomplete rather than narrow.
  */
 export function computeCanonicalDependencyClosure(
@@ -198,8 +201,10 @@ export function computeCanonicalDependencyClosure(
       for (const specifier of imports) {
         const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys).resolvedModule;
         if (!resolved) {
-          if (specifier.startsWith('.')) return { complete: false, files: changedFiles, reason: `unresolved relative dependency: ${path} -> ${specifier}` };
-          continue;
+          // A bare specifier may be a runtime/bundler alias into this repo.
+          // Only a proven builtin can be ignored without a resolved target.
+          if (isBuiltin(specifier)) continue;
+          return { complete: false, files: changedFiles, reason: `unresolved ${specifier.startsWith('.') ? 'relative' : 'bare'} dependency: ${path} -> ${specifier}` };
         }
         const target = canonicalRepoPath(gitCwd, relative(gitCwd, resolved.resolvedFileName));
         if (!target || !sourceSet.has(target)) {
@@ -597,8 +602,9 @@ function latestTrustedPriorPass(
     if (!agentRoleIdsEqual(pass.agent, role) || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
-    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run)) continue;
-    if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
+    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run, store)) continue;
+    if (!run.envelopeId || pass.envelopeId !== run.envelopeId) continue;
+    try { if (!store.readReviewPrompt(run)) continue; } catch { continue; }
     const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(
       envelope => envelope.envelopeId === run.envelopeId,
     );
@@ -689,9 +695,16 @@ export function fixtureCaseClosure(
   storyId: string,
   path: string,
   currentStoryIntentRefs: ReadonlySet<string>,
+  /**
+   * B-137a: ref treated as "current". Defaults to HEAD so read-only callers are
+   * byte-identical; the REVIEW-evidence verifier passes the signed
+   * ReviewRun.headHash so a later metadata-only commit cannot rewrite a
+   * receipt-bound envelope's eligibility digest.
+   */
+  asOfRef: string = 'HEAD',
 ): boolean {
   const before = fixtureCases(gitFileAt(gitCwd, baseRef, path));
-  const after = fixtureCases(gitFileAt(gitCwd, 'HEAD', path));
+  const after = fixtureCases(gitFileAt(gitCwd, asOfRef, path));
   if (!before || !after) return false;
   // Reject duplicate/ambiguous identities in both snapshots before any Map or
   // digest comparison. This makes overwrite order irrelevant and prevents an
@@ -733,6 +746,8 @@ export function reviewIncrementalContext(
   storyId: string,
   role: string,
   options: {
+    /** Registered current contract; historical callers always provide their authenticated selection. */
+    roleSemanticDigest?: string;
     excludedReviewRunId?: string;
     findingsCutoffAt?: string;
     passesCutoffAt?: string;
@@ -740,9 +755,18 @@ export function reviewIncrementalContext(
     promptEnvelopes?: readonly PromptEnvelope[];
     /** Signed run-start projection; prevents later finding disposition rewrites. */
     findingProjection?: PromptFindingProjection[];
+    /**
+     * B-137a: git ref treated as "current" for eligibility, freshness and diffs.
+     * Defaults to HEAD so the read-only `review_incremental_context` command stays
+     * byte-identical. The REVIEW-evidence verifier passes the signed
+     * ReviewRun.headHash so later metadata-only commits cannot rewrite a
+     * receipt-bound envelope's eligibilityDigest / reviewBasisDigest.
+     */
+    asOfRef?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const asOfRef = options.asOfRef?.trim() || 'HEAD';
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -756,9 +780,9 @@ export function reviewIncrementalContext(
     options.passesCutoffAt,
     options.promptEnvelopes,
   );
-  const currentHead = currentGitHead(gitCwd) ?? null;
-  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
-  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? null;
+  const currentHead = (asOfRef === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOfRef)) ?? null;
+  const currentMaterial = currentMaterialHash(gitCwd, asOfRef, projectRoot) ?? null;
+  const currentStoryFiles = currentStoryFilesHash(gitCwd, asOfRef, projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
@@ -971,7 +995,7 @@ export function reviewIncrementalContext(
     reasonCodes: string[],
     resolvedPriorForAudit: TrustedPriorPass | null = null,
   ): ReviewIncrementalContext => {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', asOfRef), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -979,9 +1003,9 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs),
+          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs, asOfRef),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', asOfRef),
     });
     return finalize({
       prior: resolvedPriorForAudit,
@@ -1002,22 +1026,30 @@ export function reviewIncrementalContext(
   }
 
   const changedFiles = materialOnly(
-    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
+    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, asOfRef),
     projectRoot,
   );
   if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
     return fullStoryDiffContext([FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS], prior);
   }
-  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, asOfRef);
   const freshness = checkEvidenceFreshnessForGit(
     gitCwd,
     prior.run.headHash,
     prior.run.materialHash,
     projectRoot,
     prior.run.storyFilesHash,
+    asOfRef,
   );
   const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
-  const currentRole = promptRoleContract(role);
+  const storyForRole = store.readStory(storyId);
+  const inventoryForRole = options.roleSemanticDigest === undefined
+    && canonicalAgentRoleId(role) === 'proof-or-stop-review-topology-critic'
+    && storyForRole.phase === 'REVIEW' ? currentOpenReviewInventory(store, storyId) : null;
+  const currentRole = options.roleSemanticDigest !== undefined
+    ? promptRoleContractForSemanticDigest(role, options.roleSemanticDigest)
+    : promptRoleContract(role, inventoryForRole?.reviewRound === storyForRole.currentReviewRound
+      && inventoryForRole?.storyId === storyId ? 'inventory-completeness' : undefined);
   const environmentDigest = domainSeparatedDigest('known-execution-environment.v1', captureKnownExecutionEnvironment());
   const promptEnvelopes = options.promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes;
   const priorEnvelope = promptEnvelopes.find(
@@ -1041,7 +1073,7 @@ export function reviewIncrementalContext(
     fixtureCaseClosureByFile: Object.fromEntries(changedFiles.map(path => [
       path,
       declaredTestFiles.includes(path)
-        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs),
+        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs, asOfRef),
     ])),
     changedFileStatus: statuses,
   });

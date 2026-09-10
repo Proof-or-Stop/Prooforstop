@@ -16,16 +16,12 @@ import {
   MODULAR_COMPLEX_ROLE_IDS,
   assertPromptRegistrySnapshotIdentity,
   isModularReviewerRoleId,
-  isModularRoleId,
   readPromptRegistry,
-  readPromptTemplate,
-  renderPromptEntryForHost,
-  renderPromptForHost,
-  resolvePromptTemplateBody,
+  projectPromptAsset,
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
@@ -34,11 +30,6 @@ export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proof-or-stop.prompt-envelope-ro
 export type PromptEnvelopeRolloutMode = 'full-envelope';
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
-/** Live composition only: the frozen historical template/reconstruction stays byte-identical. */
-function purposeSelectedCriticBody(roleId: string, body: string): string {
-  if (canonicalAgentRoleId(roleId) !== 'proof-or-stop-review-topology-critic') return body;
-  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
-}
 
 export interface ResolvedPromptRoleBody {
   roleId: string;
@@ -168,16 +159,25 @@ export function reviewerHostRenderIdentity(
   const registry = readPromptRegistry();
   const entry = registry.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
-  if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)) {
+  // B-137a: the delivery reviewer is not a REVIEW-evidence lane, but it does
+  // render a host identity for its TEST-phase dispatch binding, which
+  // delivery_check_set consumes. Resolving this conflict to main's version
+  // dropped that exemption, so every delivery-review dispatch failed to build an
+  // authorityBinding -- silently, because the caller swallows the throw -- and
+  // the TEST->DONE delivery gate then reported a missing host render identity.
+  // Compared canonically so both the retired and current spellings are exempt.
+  if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)
+    && !agentRoleIdsEqual(canonicalRoleId, 'proof-or-stop-review-delivery')) {
     throw new PromptRoleContractRegistryError(`role "${canonicalRoleId}" is not eligible for reviewer host rendering`);
   }
-  const packageTemplate = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, rolloutMode));
+  const projection = projectPromptAsset(entry, host, {roleMode:rolloutMode});
+  const packageTemplate = projection.roleBody;
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   // B-cc10 F-018: derive the adapter dir; this file already uses read-both
   // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
   // deprecated spelling here made the fallback branch miss canonical-only projects.
   const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
-  const bootstrap = renderPromptEntryForHost(entry, host);
+  const bootstrap = projection.materialized;
   const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {
     assertExactHostAsset(
@@ -186,7 +186,7 @@ export function reviewerHostRenderIdentity(
       host,
     );
   }
-  const selectedRoleBody = renderPromptForHost(packageTemplate, host);
+  const selectedRoleBody = projection.hostRoleBody;
   const semantic = {
     schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' as const,
     roleId: canonicalRoleId,
@@ -282,7 +282,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review user-visible behavior and edge conditions.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-channel': {
@@ -299,7 +299,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review concept deletion and residual references.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-delivery': {
@@ -316,7 +316,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review documentation and code consistency.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-quality': {
@@ -325,7 +325,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review implementation quality, safety, and maintainability.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-review-scope-plan': {
@@ -358,7 +358,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review verification intent and evidence coverage.',
-    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
   'proof-or-stop-product-reviewer': {
@@ -448,9 +448,7 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
       semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(entry.agentId, policy)),
       renderDigest: domainSeparatedDigest(
         'role-contract.render.v1',
-        purposeSelectedCriticBody(entry.agentId, isModularReviewerRoleId(entry.agentId)
-          ? resolvePromptTemplateBody(entry, 'full-envelope')
-          : readPromptTemplate(entry)),
+        projectPromptAsset(entry, 'claude').contractBody,
       ),
     };
     validateRoleContract(contract);
@@ -573,11 +571,49 @@ export const PROMPT_ROLE_CONTRACTS = Object.freeze(
 
 const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
 
-export function promptRoleContract(roleId: string): Readonly<RoleContract> {
+export type PromptRoleResponsibility = 'inventory-completeness';
+
+const INVENTORY_CRITIC_CONTRACT = (() => {
+  const roleId = 'proof-or-stop-review-topology-critic';
+  const base = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId)!;
+  const policy: RolePolicy = {
+    ...ROLE_POLICIES[roleId]!,
+    responsibility: 'Independently verify current review inventory completeness and finding dispositions.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
+    requiredOutputIds: ['review-finding-or-pass', 'review-inventory-critic-receipt'],
+  };
+  const contract: RoleContract = {
+    ...base,
+    responsibility: policy.responsibility,
+    allowedCommandIds: [...policy.allowedCommandIds],
+    requiredOutputIds: [...policy.requiredOutputIds],
+    semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(roleId, policy)),
+  };
+  validateRoleContract(contract);
+  return deepFreezeRoleContract(contract);
+})();
+
+export function promptRoleContract(roleId: string, responsibility?: PromptRoleResponsibility): Readonly<RoleContract> {
   const canonicalRoleId = canonicalAgentRoleId(roleId);
   const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(canonicalRoleId);
   if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  if (responsibility === 'inventory-completeness') {
+    if (canonicalRoleId !== INVENTORY_CRITIC_CONTRACT.roleId) {
+      throw new PromptRoleContractRegistryError(`inventory completeness is unsupported for ${canonicalRoleId}`);
+    }
+    return INVENTORY_CRITIC_CONTRACT;
+  }
   return contract;
+}
+
+/** Reconstruct only registered semantics after the envelope and signed run have authenticated them. */
+export function promptRoleContractForSemanticDigest(roleId: string, semanticDigest: string): Readonly<RoleContract> {
+  const base = promptRoleContract(roleId);
+  if (base.semanticDigest === semanticDigest) return base;
+  if (base.roleId === INVENTORY_CRITIC_CONTRACT.roleId && INVENTORY_CRITIC_CONTRACT.semanticDigest === semanticDigest) {
+    return INVENTORY_CRITIC_CONTRACT;
+  }
+  throw new PromptRoleContractRegistryError(`unregistered Role Contract semantics for ${base.roleId}`);
 }
 
 /** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */
@@ -637,7 +673,8 @@ export function resolvePromptRoleBody(
   const mode = resolvePromptEnvelopeRolloutMode(canonicalRoleId, config);
   const entry = snapshot.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
-  const body = purposeSelectedCriticBody(canonicalRoleId, resolvePromptTemplateBody(entry, mode));
+  const projection = projectPromptAsset(entry, 'claude', {roleMode:mode});
+  const body = projection.roleBody;
   return Object.freeze({
     roleId: canonicalRoleId,
     mode,

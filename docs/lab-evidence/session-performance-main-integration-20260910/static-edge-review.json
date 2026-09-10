@@ -1,0 +1,2410 @@
+[
+  {
+    "id": "EX-0001",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:300:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:300:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0002",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:301:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:301:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0003",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:312:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:312:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0004",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:322:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:322:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0005",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:434:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:434:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0006",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:435:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:435:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0007",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:597:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:597:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite."
+  },
+  {
+    "id": "EX-0008",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs:97:spawnSync",
+    "key": "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs:97:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Three artifact executions establish same-seed determinism and changed-seed sensitivity; removing repeated runs erases the property under test."
+  },
+  {
+    "id": "EX-0009",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0010",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0011",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0012",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0013",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0014",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0015",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0016",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0017",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0018",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0019",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0020",
+    "action": "update",
+    "oldKey": "packages/graph/scripts/verify-engines-floor.mjs:101:execFileSync",
+    "key": "packages/graph/scripts/verify-engines-floor.mjs:101:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason"
+    ],
+    "reason": "Installed old Node is selected only from .nvm versions <22.5; --version is runtime identity only. Merge review: Graph package child closure now includes source-bound graph-process and missing-client refusal helper. GRAPH_VERIFY_PORT=0 selects owned ephemeral port, not a script. Other parent deltas preserve API driver/imported handler-only execution; dependency pins cover all traversed scripts."
+  },
+  {
+    "id": "EX-0021",
+    "action": "update",
+    "oldKey": "packages/graph/scripts/verify-engines-floor.mjs:95:execFileSync",
+    "key": "packages/graph/scripts/verify-engines-floor.mjs:95:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason"
+    ],
+    "reason": "run(bin,script) callers supply finite inline import of graph search fn or graph handler; exercise missing node:sqlite floor or pure diagnostic. No registered suite entry is loaded. Merge review: Graph package child closure now includes source-bound graph-process and missing-client refusal helper. GRAPH_VERIFY_PORT=0 selects owned ephemeral port, not a script. Other parent deltas preserve API driver/imported handler-only execution; dependency pins cover all traversed scripts."
+  },
+  {
+    "id": "EX-0022",
+    "action": "update",
+    "oldKey": "packages/graph/scripts/verify-json-no-listener.mjs:27:execFileSync",
+    "key": "packages/graph/scripts/graph-process.mjs:5:spawn",
+    "fields": [
+      "configIndexes",
+      "callDigest",
+      "dependencyDigests",
+      "reason",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Shared launchGraph helper has literal production bin/proof-or-stop.js graph prefix. Exact callers in verify-json-no-listener (--json --port) and verify-serves/startGraph (--no-open --port) only vary operation options/environment. It never dispatches a registered validation target. Both parent imports and helper bytes are mandatory dependency pins."
+  },
+  {
+    "id": "EX-0024",
+    "action": "update",
+    "oldKey": "packages/graph/scripts/verify-missing-assets-fail.mjs:51:spawn",
+    "key": "packages/graph/scripts/verify-missing-assets-fail.mjs:30:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "startOwnedServer invokes literal bin/proof-or-stop.js graph --no-open through process.execPath. The helper runs twice: recovery observation and missing-asset HTTP recovery. Only the port varies; neither invocation loads a registered validation suite. Automatic client recovery invokes the reviewed package build (tsc, success marker, build-web), never check or validate. Merge review: Graph package child closure now includes source-bound graph-process and missing-client refusal helper. GRAPH_VERIFY_PORT=0 selects owned ephemeral port, not a script. Other parent deltas preserve API driver/imported handler-only execution; dependency pins cover all traversed scripts."
+  },
+  {
+    "id": "EX-0025",
+    "action": "update",
+    "oldKey": "packages/graph/scripts/verify-no-project-writes.mjs:121:execFileSync",
+    "key": "packages/graph/scripts/verify-no-project-writes.mjs:150:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "driverPath is written from local driver literal, imports packages/graph/dist/index.js createApp, invokes graph/status/search APIs and closes instances. It does not load a registered smoke suite. Merge review: Graph package child closure now includes source-bound graph-process and missing-client refusal helper. GRAPH_VERIFY_PORT=0 selects owned ephemeral port, not a script. Other parent deltas preserve API driver/imported handler-only execution; dependency pins cover all traversed scripts."
+  },
+  {
+    "id": "EX-0026",
+    "action": "delete",
+    "oldKey": "packages/graph/scripts/verify-serves.mjs:30:spawn",
+    "reason": "Removed direct verify-serves spawn; shared Graph helper now has EX-0022 with both importing parents bound."
+  },
+  {
+    "id": "EX-0027",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:202:execFileSync",
+    "key": "packages/main/src/tasks/capability-list-smoke.ts:202:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0028",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:210:execFileSync",
+    "key": "packages/main/src/tasks/capability-list-smoke.ts:210:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0029",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:219:execFileSync",
+    "key": "packages/main/src/tasks/capability-list-smoke.ts:219:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0030",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:150:spawnSync",
+    "key": "packages/main/src/tasks/cli-surface-smoke.ts:161:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0031",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:202:spawnSync",
+    "key": "packages/main/src/tasks/cli-surface-smoke.ts:213:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0032",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:254:spawnSync",
+    "key": "packages/main/src/tasks/cli-surface-smoke.ts:265:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0033",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:28:execFileSync",
+    "key": "packages/main/src/tasks/cli-surface-smoke.ts:28:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0034",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:46:execFileSync",
+    "key": "packages/main/src/tasks/command-catalog-smoke.ts:46:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0035",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:59:execFileSync",
+    "key": "packages/main/src/tasks/command-catalog-smoke.ts:59:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0036",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:72:spawnSync",
+    "key": "packages/main/src/tasks/command-catalog-smoke.ts:72:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0037",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:294:spawn",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:294:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "SELF is import.meta.url; exact --xhr-worker / --xhr-submitter enters mutually exclusive worker/submission branch, not parent smoke main."
+  },
+  {
+    "id": "EX-0038",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:388:execFileSync",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:388:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0039",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:399:execFileSync",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:399:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0040",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:539:execFileSync",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:539:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0041",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:568:execFileSync",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:568:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0042",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:810:spawn",
+    "key": "packages/main/src/tasks/cross-host-review-smoke.ts:810:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "SELF is import.meta.url; exact --xhr-worker / --xhr-submitter enters mutually exclusive worker/submission branch, not parent smoke main."
+  },
+  {
+    "id": "EX-0043",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/dispatch-run-smoke.ts:1381:execFileSync",
+    "key": "packages/main/src/tasks/dispatch-run-smoke.ts:1381:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0044",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/english-early-check-smoke.ts:87:spawnSync",
+    "key": "packages/main/src/tasks/english-early-check-smoke.ts:87:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0045",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts:157:spawnSync",
+    "key": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts:157:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0046",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/flow-stability-smoke.ts:2915:execFileSync",
+    "key": "packages/main/src/tasks/flow-stability-smoke.ts:3001:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "localCliPath resolves ../cli.js. This validate call runs a generated fixture-only validate-smoke.js with one JSON result; it does not consume repository validate.commands."
+  },
+  {
+    "id": "EX-0047",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/flow-stability-smoke.ts:984:execFileSync",
+    "key": "packages/main/src/tasks/flow-stability-smoke.ts:1037:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "localCliPath resolves ../cli.js; runBlockedCli callers invoke phase-gated commands on isolated Story fixtures, assertions require rejection."
+  },
+  {
+    "id": "EX-0048",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts:47:spawnSync",
+    "key": "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts:47:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0049",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/init-check-required-agents-smoke.ts:26:execFileSync",
+    "key": "packages/main/src/tasks/init-check-required-agents-smoke.ts:26:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0050",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/init-window-data-loss-smoke.ts:138:spawnSync",
+    "key": "packages/main/src/tasks/init-window-data-loss-smoke.ts:138:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0051",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:626:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-command-smoke.ts:626:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fixed ../cli.js host_run_worker runs the managed worker for owned request root/runId. It is the production lifecycle worker, not a recursive validation suite."
+  },
+  {
+    "id": "EX-0052",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:649:spawnSync",
+    "key": "packages/main/src/tasks/managed-host-run-command-smoke.ts:649:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0053",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:726:spawnSync",
+    "key": "packages/main/src/tasks/managed-host-run-command-smoke.ts:726:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0054",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:747:spawnSync",
+    "key": "packages/main/src/tasks/managed-host-run-command-smoke.ts:747:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0055",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:139:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:139:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF is import.meta.url; --worker, --submitter or --foreground-caller selects mutually exclusive branch; only fallback branch invokes main smoke. Arguments govern isolated lifecycle witness."
+  },
+  {
+    "id": "EX-0056",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:169:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:169:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF is import.meta.url; --worker, --submitter or --foreground-caller selects mutually exclusive branch; only fallback branch invokes main smoke. Arguments govern isolated lifecycle witness."
+  },
+  {
+    "id": "EX-0057",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:202:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:202:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF is import.meta.url; --worker, --submitter or --foreground-caller selects mutually exclusive branch; only fallback branch invokes main smoke. Arguments govern isolated lifecycle witness."
+  },
+  {
+    "id": "EX-0058",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:221:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:221:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF is import.meta.url; --worker, --submitter or --foreground-caller selects mutually exclusive branch; only fallback branch invokes main smoke. Arguments govern isolated lifecycle witness."
+  },
+  {
+    "id": "EX-0059",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:240:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:240:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF is import.meta.url; --worker, --submitter or --foreground-caller selects mutually exclusive branch; only fallback branch invokes main smoke. Arguments govern isolated lifecycle witness."
+  },
+  {
+    "id": "EX-0060",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/material-hash-large-tree-smoke.ts:38:execSync",
+    "key": "packages/main/src/tasks/material-hash-large-tree-smoke.ts:38:execSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Shell wrapper prefixes git; local callsites only init/config/add/commit/rev-parse on generated tree. No node suite entry or shell caller input."
+  },
+  {
+    "id": "EX-0061",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "dependencyDigests"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch."
+  },
+  {
+    "id": "EX-0062",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch."
+  },
+  {
+    "id": "EX-0063",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch. Current exact quorum --jobs=2 closure is split; each worker selects exact shard/cases with jobs1, worker-mode prohibits recursive coordinator."
+  },
+  {
+    "id": "EX-0064",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch."
+  },
+  {
+    "id": "EX-0065",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch."
+  },
+  {
+    "id": "EX-0066",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:68:execFileSync",
+    "key": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:117:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call."
+  },
+  {
+    "id": "EX-0067",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-codex-smoke.ts:398:spawnSync",
+    "key": "packages/main/src/tasks/provider-codex-smoke.ts:398:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "argv is --import generated assertion-only environment probe followed by fixed ../cli.js story_update. Paired unsanitized/sanitized calls prove actual CLI mutation authority; neither runs liveness suite."
+  },
+  {
+    "id": "EX-0068",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-codex-smoke.ts:402:spawnSync",
+    "key": "packages/main/src/tasks/provider-codex-smoke.ts:402:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "argv is --import generated assertion-only environment probe followed by fixed ../cli.js story_update. Paired unsanitized/sanitized calls prove actual CLI mutation authority; neither runs liveness suite."
+  },
+  {
+    "id": "EX-0069",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:362:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:362:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Inline Node program is finite fs marker + timer/exit; line362 additionally creates one inline descendant and keeps leader until exit. No file/module suite execution."
+  },
+  {
+    "id": "EX-0070",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:465:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:465:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Inline Node program is finite fs marker + timer/exit; line362 additionally creates one inline descendant and keeps leader until exit. No file/module suite execution."
+  },
+  {
+    "id": "EX-0071",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:92:spawn",
+    "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:92:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Inline Node program is finite fs marker + timer/exit; line362 additionally creates one inline descendant and keeps leader until exit. No file/module suite execution."
+  },
+  {
+    "id": "EX-0072",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "key": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "Actual function would run seven registered child smokes, but configured provider-codex --canonical-core chooses its real CLI isolation check instead of invoking pinned suite; do not exempt direct standalone suite invocation."
+  },
+  {
+    "id": "EX-0073",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:382:spawnSync",
+    "key": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:382:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "--canonical-core omits lifecycle/ownership contract child calls; remaining concrete child is scripts/verify-process-fact-contract.mjs, absent from current configured command inventory. Legacy direct mode is NOT exempt."
+  },
+  {
+    "id": "EX-0074",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs:540:spawnSync",
+    "key": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs:540:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Loop keys are exactly red-b2aa7-chk001-receipt.mjs and chk010; source asserts neither is registered, then requires both silent exit0 on repaired tree. Registered filenames elsewhere in file are inventory strings, not argv."
+  },
+  {
+    "id": "EX-0075",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:128:spawnSync",
+    "key": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:128:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Sandbox helper executes exactly two guard scripts against config copies: complete/newcomer/restored, deregistered member, own-registration removal. Same callsite contains healthy controls and negative mutations; preserve all."
+  },
+  {
+    "id": "EX-0076",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:132:spawnSync",
+    "key": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:132:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Real helper executes GUARD1 before and after a planted dist newcomer; result counts and failure are the actual detection property, not an unrelated repeated full suite. Real config is hashed and unchanged."
+  },
+  {
+    "id": "EX-0077",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:109:spawnSync",
+    "key": "packages/main/tests/red/red-w2b-wiring-contract.mjs:109:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "--canonical-core omits lifecycle/ownership contract child calls; remaining concrete child is scripts/verify-process-fact-contract.mjs, absent from current configured command inventory. Legacy direct mode is NOT exempt."
+  },
+  {
+    "id": "EX-0078",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:189:spawnSync",
+    "key": "packages/main/tests/red/red-w2b-wiring-contract.mjs:189:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact --import register-loader child redirects command policy to stripped binding entry; both actual contracts must fail and name the missing red_evidence_binding_set. Loader source and same full-file digest bind exception."
+  },
+  {
+    "id": "EX-0079",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:51:spawnSync",
+    "key": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:51:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Healthy command-ownership/lifecycle pair is the non-vacuous positive baseline for same-source remove-entry mutation executions at line100. Keep baseline: removing it could accept an already-broken detector."
+  },
+  {
+    "id": "EX-0080",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:100:spawnSync",
+    "key": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:100:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Actual --import loader overrides compiled policy with exactly one quarantine/recover command removed; nonzero exit must name that command and its missing registration."
+  },
+  {
+    "id": "EX-0081",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:618:spawnSync",
+    "key": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:618:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "--canonical-core omits lifecycle/ownership contract child calls; remaining concrete child is scripts/verify-process-fact-contract.mjs, absent from current configured command inventory. Legacy direct mode is NOT exempt."
+  },
+  {
+    "id": "EX-0082",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:953:execFileSync",
+    "key": "packages/main/src/tasks/narrowing-repin-smoke.ts:1279:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data."
+  },
+  {
+    "id": "EX-0083",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:973:execFileSync",
+    "key": "packages/main/src/tasks/narrowing-repin-smoke.ts:1299:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data."
+  },
+  {
+    "id": "EX-0084",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1182:spawnSync",
+    "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Fixed package cli.js checklist_update with intentionally invalid verificationIntent schema; no test target execution."
+  },
+  {
+    "id": "EX-0085",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1514:spawnSync",
+    "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Generated temporary bin/proof-or-stop.js help checks CommonJS wrapper syntax."
+  },
+  {
+    "id": "EX-0086",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1518:spawnSync",
+    "key": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Generated temporary bin/proof-or-stop-codex.js help checks ESM-compatible wrapper syntax."
+  },
+  {
+    "id": "EX-0087",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2406:spawnSync",
+    "key": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Copied replay wrapper runs with BUN_BINARY pinned to generated fakeBun; argv verifies threshold/admission/producer modes and failure statuses, not canonical replay workload."
+  },
+  {
+    "id": "EX-0088",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:285:execFileSync",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:285:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Canonical mode calls candidate-spec-routing-smoke (not separately configured); managed-host-run-command registered child is under !canonicalCore. Preserve pinned evidence direct-mode behavior."
+  },
+  {
+    "id": "EX-0089",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:936:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:936:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact node -e setInterval process provides real isolated PID for admission cleanup fixture."
+  },
+  {
+    "id": "EX-0090",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2106:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:2106:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fresh f020/f023/f024 driver executes createHostRunHandlers with injected streaming runner; parent closes stderr/stdout to test actual EPIPE containment and slot release. No registered suite argv, production modules imported directly."
+  },
+  {
+    "id": "EX-0091",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2204:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:2204:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fresh f020/f023/f024 driver executes createHostRunHandlers with injected streaming runner; parent closes stderr/stdout to test actual EPIPE containment and slot release. No registered suite argv, production modules imported directly."
+  },
+  {
+    "id": "EX-0092",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2297:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:2297:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fresh f020/f023/f024 driver executes createHostRunHandlers with injected streaming runner; parent closes stderr/stdout to test actual EPIPE containment and slot release. No registered suite argv, production modules imported directly."
+  },
+  {
+    "id": "EX-0093",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:3280:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:3280:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact generated node -e imports core usage-ledger writer/ids and appends 5 rows per 6 real children; URLs pinned in childEnv, not registered suite entry."
+  },
+  {
+    "id": "EX-0094",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:3368:spawn",
+    "key": "packages/main/src/tasks/host-run-usage-smoke.ts:3368:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact node -e process.exit(0) supplies genuinely dead PID for stale lock recovery."
+  },
+  {
+    "id": "EX-0095",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:143:execFileSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:145:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Exact node -e JSON projection of reviewer env keys, not a suite invocation."
+  },
+  {
+    "id": "EX-0096",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:424:spawnSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:458:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0097",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:454:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:488:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0098",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:511:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:545:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0099",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:536:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:570:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0100",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:586:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:620:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0101",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1270:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1274:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0102",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1317:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1321:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0103",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1978:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1982:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0104",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2100:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2104:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0105",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2330:spawnSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2334:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0106",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2340:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2344:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0107",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3051:spawnSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3056:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0108",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3208:spawnSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3213:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0109",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3244:spawnSync",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3249:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "CLI fixed ../cli.js; exact command is managed_review_proposal_set, host_run_worker, review_pass_set, finding_add or helper command argument. These test descriptor/native mutation authority against isolated Story; registered test filename strings elsewhere are not executable argv."
+  },
+  {
+    "id": "EX-0110",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3377:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3382:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0111",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3489:spawn",
+    "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3494:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "SELF is import.meta.url; fixed argv[2] selects exclusive brokered-binding/proposal/import/sanitized-tool worker branch at file footer. That branch does not execute main smoke suite. Distinct barriers test process concurrency/provenance."
+  },
+  {
+    "id": "EX-0112",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:81:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:81:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Copied isolated dist mutates shared verifier valid=true; managed-review child must fail specific intake/gate assertion, signal/timeout rejected."
+  },
+  {
+    "id": "EX-0113",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:126:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:126:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Copied isolated dist executes named production-source mutation with expected boundary diagnostic and nonzero real exit; target bytes restored between mutations."
+  },
+  {
+    "id": "EX-0114",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:147:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:147:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Healthy copied-dist --descriptor-proposal-transport control precedes importer admission mutant, proving copied transport identity works before detector failure."
+  },
+  {
+    "id": "EX-0115",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:237:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:237:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Isolated self child sees duplicate registry object mutation; exact child env selects bounded contract and diagnostic must identify parallel registry."
+  },
+  {
+    "id": "EX-0116",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:266:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:266:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Copied isolated dispatch module admission if is disabled; dispatch-run child must fail actual saturated reviewer launch assertion."
+  },
+  {
+    "id": "EX-0117",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:300:spawnSync",
+    "key": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:300:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Copied isolated managed-host module platform preflight removed; managed-host child must fail actual unsupported-platform pre-spawn assertion."
+  },
+  {
+    "id": "EX-0118",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:28:execFileSync",
+    "key": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:28:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact node -e prints two environment keys to prove reviewer authority removal."
+  },
+  {
+    "id": "EX-0119",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:52:execFileSync",
+    "key": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:52:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Configured provider-process-registry invocation includes --provider-launch-owner-admission-child; its line723 condition suppresses runProviderLaunchOwnerAdmissionSuite. Direct suite would invoke five registered children and is not exempt."
+  },
+  {
+    "id": "EX-0120",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:151:execFileSync",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:151:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fixed ../cli.js help --full checks private worker omission, not suite execution."
+  },
+  {
+    "id": "EX-0121",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:322:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:322:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact node -e timer exits naturally after250ms for post-spawn ambiguity test."
+  },
+  {
+    "id": "EX-0122",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:859:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:859:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0123",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1149:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:1149:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0124",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1181:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:1181:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0125",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1182:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:1182:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0126",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1226:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:1226:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0127",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1260:spawn",
+    "key": "packages/main/src/tasks/managed-host-run-smoke.ts:1260:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "SELF argv[2] is fixed terminal-lock/timer/FIFO/intake/granted worker mode; exclusive footer branch invokes worker operation rather than main smoke suite."
+  },
+  {
+    "id": "EX-0128",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/red-evidence-chain-smoke.ts:615:spawnSync",
+    "key": "packages/main/src/tasks/red-evidence-chain-smoke.ts:615:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "race-launcher.mjs written in temp root calls only two generated race-worker.mjs processes; generated worker imports Store/registry and invokes red_evidence_quarantine, not a suite. Arguments reason-alpha/reason-beta are data."
+  },
+  {
+    "id": "EX-0129",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5898:execFileSync",
+    "key": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5968:execFileSync",
+    "fields": [
+      "callDigest",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "cliPath is pkgRoot/dist/cli.js; only runCli caller maps explicit help/help-flag list; no validation execution requested."
+  },
+  {
+    "id": "EX-0130",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts:474:execFileSync",
+    "key": "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts:474:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Fixed dist/cli.js. Two caller shapes are delivery_check_set (phase-denied positive control) and stall_resolution_set authorize_continuation; neither requests validation suite execution."
+  },
+  {
+    "id": "EX-0131",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:138:spawn",
+    "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:140:spawn",
+    "fields": [
+      "callDigest",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Fixed compiled cli.js from packageRoot. Callers exercise dispatch, review_run_start, checklist_update, story_discard and doctor; no registered suite entry selected. This is a direct-call classification, not blanket permission for CLI descendants."
+  },
+  {
+    "id": "EX-0132",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:171:spawn",
+    "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:178:spawn",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "runProofOrStopFromCwd only caller story_discard at500; fixed cliPath, fixture worktree cwd, JSON cleanup data. No registered suite."
+  },
+  {
+    "id": "EX-0133",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/story-files-hash-batch-smoke.ts:138:execFileSync",
+    "key": "packages/main/src/tasks/story-files-hash-batch-smoke.ts:138:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact child scripts/verify-hash-accuracy.mjs; not independently in validate.commands (present elsewhere in config is not registration). Independent exact-digest companion intentionally remains beneath this sole inventory parent."
+  },
+  {
+    "id": "EX-0134",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+    "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Literal node -e uses fs/timers only, known mode union and temp marker arguments; no process launch/import/test entry."
+  },
+  {
+    "id": "EX-0135",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:508:spawnSync",
+    "key": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:680:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Only two hookPath callers: .claude/.codex hooks/proof-or-stop-evidence-pretool.cjs; JSON stdin represents shell/edit request and is checked, not executed as shell. Fixture thin CLI shim points to real dist/cli.js; no suite argv."
+  },
+  {
+    "id": "EX-0136",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:146:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:146:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "runJsonCommand fixed CLI; all callers are planner_draft/planner_create_story/plan_skeleton (605-674), operating explicit fixture input, not validate."
+  },
+  {
+    "id": "EX-0137",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:157:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:157:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "runTextCommand fixed CLI; only callers story_create (545,562) with explicit fixture payloads; no validation target."
+  },
+  {
+    "id": "EX-0138",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:2261:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:2261:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0139",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3043:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3043:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0140",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3058:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3058:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0141",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3071:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3071:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0142",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3096:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3096:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0143",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3109:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3109:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0144",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3122:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3122:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0145",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3136:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3136:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0146",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3173:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3173:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0147",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:318:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:318:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0148",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3186:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3186:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0149",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3219:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3219:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Loop restricts command to milestone_status/milestone_closeout and rejected sideeffect flags; asserts parser rejection before dispatch."
+  },
+  {
+    "id": "EX-0150",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3369:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3369:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0151",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3385:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3385:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0152",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3401:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3401:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0153",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3411:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3411:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0154",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3422:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3422:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0155",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:3432:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:3432:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0156",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:343:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:343:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0157",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:369:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:369:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0158",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:404:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:404:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0159",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:444:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:444:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0160",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:472:execFileSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:472:execFileSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0161",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:579:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:579:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable."
+  },
+  {
+    "id": "EX-0162",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-1734-bootstrap-depfree.mjs:45:spawn",
+    "key": "packages/main/tests/red/red-1734-bootstrap-depfree.mjs:153:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Only spawnCapture call runs temp bin/driver.mjs containing import runLocalBootstrap and invocation. Fixture copies dep-free bootstrap graph, deliberately lacks node_modules/dist; asserts exit1 recovery hint, not suite execution."
+  },
+  {
+    "id": "EX-0163",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-1734-lock-liveness.mjs:217:spawn",
+    "key": "packages/main/tests/red/red-1734-lock-liveness.mjs:217:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact generated SIGTERM holder imports withBuildLock and holds via timer; no arbitrary argv or suite child."
+  },
+  {
+    "id": "EX-0164",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs:476:execFileSync",
+    "key": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs:476:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "hookPath is newly written temp no-hooks/pre-commit, literal shell body exits7 with no output or nested command."
+  },
+  {
+    "id": "EX-0165",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:166:execFileSync",
+    "key": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:166:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "CLI argument precedes command/payload; wrapper used for scope/init-check evidence and phase-gate fixture operations, not a suite entry. Direct-call resolution only; no generic approval of arbitrary CLI commands. TARGET_PHASE is literal INIT_CHECK at149, so the story_advance call is not REVIEW/TEST/DONE validation."
+  },
+  {
+    "id": "EX-0166",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:64:spawnSync",
+    "key": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:65:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "run callers: Git operations; actual CLI red_evidence_get/repro_probe_get/red_green_relation_evaluate; and anchored Node -e import(process.argv[1]) fixed ./packages/main/dist/core/finding-ledger.js in baseline/current roots. Actual imported target is production core module, not test entry. Payload commandSpec also fixes this import."
+  },
+  {
+    "id": "EX-0167",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs:42:spawnSync",
+    "key": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs:42:spawnSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "REMOVED_ALIASES derives exactly bin/lattice.js and bin/lattice-codex.js. Existence asserted false before node --version, then MODULE_NOT_FOUND asserted. No executable suite target."
+  },
+  {
+    "id": "EX-0168",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-global-cli-exec-bit.mjs:95:execFileSync",
+    "key": "packages/main/tests/red/red-global-cli-exec-bit.mjs:95:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Exact node_modules/typescript/bin/tsc -p temp/tsconfig.json. Config files contains only freshly written entry.ts; not production npm build nor registered script."
+  },
+  {
+    "id": "EX-0169",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:143:spawn",
+    "key": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:143:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Generated temp holder writes ledger under mkdir lock; second call runs only bind.mjs/rec.mjs emitted by mkWorker, invoking red_evidence_binding_set and red_evidence_recover. Promise.all explicit two filenames."
+  },
+  {
+    "id": "EX-0170",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:211:spawn",
+    "key": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:211:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Generated temp holder writes ledger under mkdir lock; second call runs only bind.mjs/rec.mjs emitted by mkWorker, invoking red_evidence_binding_set and red_evidence_recover. Promise.all explicit two filenames."
+  },
+  {
+    "id": "EX-0171",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2c-quarantine-race.mjs:93:spawn",
+    "key": "packages/main/tests/red/red-w2c-quarantine-race.mjs:93:spawn",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Generated worker imports Store/registry, calls red_evidence_quarantine. Only reason-alpha/reason-beta passed as data. No test entry dispatch."
+  },
+  {
+    "id": "EX-0172",
+    "action": "update",
+    "oldKey": "scripts/verify-lab-worktree.mjs:16:spawnSync",
+    "key": "scripts/verify-lab-worktree.mjs:16:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact scripts/lab-worktree.mjs with create/red/green/sync/finish/status/reopen. Fixture package build points to private build.cjs, fixture ensure-dist calls that package; check.cjs is literal fs assertion. Does not execute actual registered production build despite npm shape."
+  },
+  {
+    "id": "EX-0173",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/quorum-submit-smoke.ts:278:spawnSync",
+    "key": "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:379:spawnSync",
+    "fields": [
+      "configIndexes",
+      "callDigest",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "All runFixtureCli calls share makeFixture/writeConfig: validate.commands is exactly Node [probe.mjs], timeout10000. probe.mjs only appends optional fixture counter and prints bounded quorum PASS. Config mutation at1283 changes promptEnvelope.roles only; no doneRequiredCommands. Thus even the actual validate caller at1405 cannot select root registered suites. Its historical-red gate additionally requires fail/empty commandExecutions. Other callers dispatch/review_run_start/quorum/prune/plan_set are production behavior under test."
+  },
+  {
+    "id": "EX-0174",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:442:spawn",
+    "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "The real CLI validates private fixture config and pinned refresh commands, never root suite: setupFixture has Node silent-active-validate.mjs (fs marker writes + await timer); setupTimeoutFixture has Node -e setInterval. configureRoutineValidate changes duration only; failed-story-advance replaces list with Node -e process.exit(1). doneRequired is either Node -e setTimeout(exit0) or descendantTreeCommand literal Node -e spawning only another Node -e timer, pid-file and bounded cleanup checks. Refresh pins decode literal scripts: fs output/counters and timers, or ps identity + Node -e timer descendant. Refresh fixture legacy config name is not proof of production PASS; it cannot redirect to root configured suites because cwd is fresh temporary Git root. This static classification does not certify those historical assertions currently pass."
+  },
+  {
+    "id": "EX-0175",
+    "action": "update",
+    "oldKey": "packages/main/tests/milestone-status.test.mjs:2969:spawnSync",
+    "key": "packages/main/tests/milestone-status.test.mjs:2969:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Actual story_advance DONE operates temp main/worktree with explicit config having no validate/doneRequired commands. Main baseline commits config/.gitignore before worktree. Subsequent writes are only dev-memory and Story/checklist/ledger/test/delivery metadata. satisfyDevMemoryFinishDecisionAndCommit writes only .proof-or-stop/dev-memory. Production done-effects uses exact changedPaths plus shouldBuildDoneMainPackageForChangedPaths; runtime-version-policy accepts only package/source/test/package-lock/CLI-doc inputs, none changed here. Therefore postmerge package build skips; no inherited repo build commands. Settlement/candidate ingest disabled in this fixture and restored after. Assertion requires actual worktree removal and milestone suffix, so cannot replace CLI call with a mock."
+  },
+  {
+    "id": "EX-0176",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-1734-reader-race.mjs:67:spawn",
+    "key": "packages/main/tests/red/red-1734-reader-race.mjs:74:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "True source-bound race proof: verify initial main/utils binding, remove only ignored BUILD_MANIFEST to force real rebuild, start actual build-main-with-binding asynchronously and concurrently run >=40 real bootstrap readers with max24 inflight throughout build window. Assert build succeeds and zero missing/partial-dist readers. Independent build entry run earlier/later cannot establish overlap; removing this nested build deletes the unique F003 atomic-publication property. Allow exact Node [scripts/build-main-with-binding.mjs] and bootstrap --help shapes only for this call/source/config digest, not arbitrary spawnCapture args. This is an allowed documented property/race exception, not ordinary repeated suite."
+  },
+  {
+    "id": "EX-0177",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:488:spawnSync",
+    "key": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:583:spawnSync",
+    "fields": [
+      "configIndexes",
+      "callDigest",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "Real guard is the subject/oracle: clean GUARD_ABS execution establishes unchanged-tree positive baseline and reported population count before a private unregistered-member mirror must fail/name new member. Private config mirror must pass unchanged, then fail with empty commands and deregistered victim; these paired executions rule out broken mirror or fake registration checker. DECIDER_ABS execution establishes live exit0/counts over same disk population before deriving exclusions from its source; prose/static exclusion names alone cannot supply that fact. Preserve exact current guard targets75/79 and private mirror mutation subjects. Original U18 forbids registration nesting full receipt; exact chk007 mirror already uses --registration-only, never complete receipt proof. Do not allow full chk007 dispatch or wildcard guards."
+  },
+  {
+    "id": "EX-0178",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/full-suite-runner.ts:637:spawn",
+    "key": "packages/main/src/tasks/full-suite-runner.ts:668:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources."
+  },
+  {
+    "id": "EX-0179",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/full-suite-runner.ts:637:spawn",
+    "key": "packages/main/src/tasks/full-suite-runner.ts:668:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources."
+  },
+  {
+    "id": "EX-0180",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/full-suite-runner.ts:637:spawn",
+    "key": "packages/main/src/tasks/full-suite-runner.ts:668:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest",
+      "key"
+    ],
+    "reason": "The three configured callers import only FULL_SUITE_ENTRIES, entriesFromSerialReference and parseSerialReference. None calls the executor; full-suite main is guarded by invokedDirectly. This imported implementation is not reachable from these exact caller sources."
+  },
+  {
+    "id": "EX-0181",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:57:execFileSync",
+    "key": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:57:execFileSync",
+    "fields": [
+      "configIndexes"
+    ],
+    "reason": "Configured --issuer-mutations selects runIssuerMutationSmoke in the direct-entry footer. runCohort belongs to runProofStoryAcceptanceRolloutSmoke, which is in the mutually exclusive else branch."
+  },
+  {
+    "id": "EX-0182",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:107:execFileSync",
+    "key": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:107:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "The exact --rollout-cohort-case child produces omission mutation/restoration evidence. Parent compares real replay with substituted report, missing/reordered restoration, and malicious-hook negatives. The child is a production case, not an ordinary duplicate suite; preserve this causal positive control."
+  },
+  {
+    "id": "EX-0183",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "key": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "fields": [
+      "dependencyDigests"
+    ],
+    "reason": "review-pass-discard retains an unused import but does not call the liveness dispatcher."
+  },
+  {
+    "id": "EX-0184",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "key": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently."
+  },
+  {
+    "id": "EX-0185",
+    "action": "update",
+    "oldKey": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+    "key": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "This CJS recorder wrapper is called only by the local git helper at line 210 with literal git executable; its fixed source has no other spawnSync callers. It retains real Git fixture and readonly observation without launching a registered validation suite."
+  },
+  {
+    "id": "EX-0186",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0187",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0188",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0189",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "reason",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption. Current exact quorum --jobs=2 closure is split; each worker selects exact shard/cases with jobs1, worker-mode prohibits recursive coordinator."
+  },
+  {
+    "id": "EX-0190",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0191",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0192",
+    "action": "update",
+    "oldKey": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests"
+    ],
+    "reason": "CLI is fixed ../cli.js; args.command and payload go through production CLI with signed native reviewer descriptor on fd3. Command value is CLI data, not a Node script path; fixture review writes are not suite dispatch."
+  },
+  {
+    "id": "EX-0193",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0194",
+    "action": "update",
+    "oldKey": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+    "fields": [
+      "configIndexes",
+      "dependencyDigests",
+      "sourceDigest"
+    ],
+    "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption."
+  },
+  {
+    "id": "EX-0197",
+    "action": "add",
+    "key": "packages/graph/scripts/verify-missing-client-no-listener.mjs:21:spawnSync",
+    "reason": "Missing-client refusal uses literal production Graph CLI against temporary copied Graph package; fixture changes ONLY build script to node -e process.exit(0), deletes client asset, asserts nonzero normal exit/required output/zero listen calls. It does not run registered validation suites. Temporary git init is a literal compiler-known operation."
+  },
+  {
+    "id": "EX-0200",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:1020:spawn",
+    "reason": "canonical inventory-bijection -> listedExecutableCases -> runNoCallbackCli -> smoke -> runNodeSubprocess uses --list-cases=json. Requires zero callback trace rows, no case success output, clean process reaping. Other helper callers are noncanonical selectors."
+  },
+  {
+    "id": "EX-0201",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:4646:spawnSync",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0202",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:6453:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0203",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:7608:execFileSync",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0204",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:7690:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0205",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:8902:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0206",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:9084:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0207",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:9153:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0208",
+    "action": "add",
+    "key": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:10552:spawn",
+    "reason": "Canonical config selects inventory-bijection only. This call belongs to fixture/performance/process-tree/exact-HEAD isolation witnesses; inventoryBijection does not call them and inventory-bijection is absent from EXACT_HEAD_ISOLATION_SELECTORS. Preserve offline witness, do not allow generic harness recursion."
+  },
+  {
+    "id": "EX-0209",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:115:spawnSync",
+    "reason": "Shared runCli executes product commands against isolated fixture roots; identity-cutover callers test real public identity acceptance/refusal. No registered suite argv is passed; runtime-only validate admission probes are excluded by the canonical group."
+  },
+  {
+    "id": "EX-0210",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:914:spawnSync",
+    "reason": "check(runtime) excluded by selectedGroup identity-cutover; offline reference retains healthy process/runtime verifier controls."
+  },
+  {
+    "id": "EX-0211",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:948:spawnSync",
+    "reason": "check(runtime) excluded; offline npm pack builds installed-package fixture, not validate."
+  },
+  {
+    "id": "EX-0212",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:954:spawnSync",
+    "reason": "check(runtime) excluded; offline npm install --ignore-scripts --offline constructs consumer, no lifecycle scripts."
+  },
+  {
+    "id": "EX-0213",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2146:spawnSync",
+    "reason": "identity-cutover mutates three prompt-baseline identity fields in disposable measurement clone, invokes real npm prompt baseline, asserts nonzero identity diagnostic and unchanged state; restores bytes each iteration."
+  },
+  {
+    "id": "EX-0214",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2245:spawnSync",
+    "reason": "Disposable identity verifier clone receives retired ledger schema. Real scanner must fail with identity diagnostic and zero writer side effects; paired healthy control at3928 is necessary."
+  },
+  {
+    "id": "EX-0215",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3798:spawnSync",
+    "reason": "runtime group only; offline synthetic-story-writer-partial-runtime-admission mutation must reject."
+  },
+  {
+    "id": "EX-0216",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3809:spawnSync",
+    "reason": "runtime group only; offline omitted writer inventory mutation must name every missing writer."
+  },
+  {
+    "id": "EX-0217",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3822:spawnSync",
+    "reason": "runtime group only; offline omit-direct-story-writer-effects mutation must identify agent_prompt/evaluate."
+  },
+  {
+    "id": "EX-0218",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3834:spawnSync",
+    "reason": "runtime group only; offline dispatch omission mutation must identify transitive writer."
+  },
+  {
+    "id": "EX-0219",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3892:spawnSync",
+    "reason": "release/identity-entrypoint only; healthy --print-schema-baseline is paired with symlink entrypoint equality at3897."
+  },
+  {
+    "id": "EX-0220",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3897:spawnSync",
+    "reason": "release/identity-entrypoint only; actual realpath scanner alias equality control, not canonical."
+  },
+  {
+    "id": "EX-0221",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3928:spawnSync",
+    "reason": "createIdentityVerifierClone runs actual scanner against disposable materialized checkout, asserts PASS before callers inject retired ledger identities at2245; pack checker stub is explicitly separate, no package-pack coverage claim."
+  },
+  {
+    "id": "EX-0222",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3941:spawnSync",
+    "reason": "createIdentityRedVerifierClone called from release-only case; duplicates pinned retired record and asserts exact count rejection, not canonical."
+  },
+  {
+    "id": "EX-0223",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4029:spawnSync",
+    "reason": "release-only check excluded by canonical identity-cutover selector; no source change needed."
+  },
+  {
+    "id": "EX-0224",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4248:spawnSync",
+    "reason": "inventory-only check excluded; read-only red_evidence_get product CLI, no registered suite."
+  },
+  {
+    "id": "EX-0225",
+    "action": "add",
+    "key": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1369:spawn",
+    "reason": "Canonical quorum --jobs=2 coordinator uses process.argv[1] (same coordinator entry), partitions selected registrations by shard, and runShard1643-1663 supplies exactly --worker-shard=<registered shard> or --worker-case=<registered id>, --jobs=1, timeout, report=json. Entrypoint resolves worker selection; worker1953 only forks when mode!=worker, so child executes selected callbacks in-process. consume report1479-1517 requires matching runId, worker PID, registered id/title/domain/shard, one attempt, unique exact count, markers, nonce, no retry and reaped tree. This partitions 73 registered callbacks; it does not re-run aggregate default. Exported helper test callers do not inherit this exception for arbitrary executable/argv."
+  },
+  {
+    "id": "EX-0230",
+    "action": "add",
+    "key": "scripts/verify-lab-worktree.mjs:159:execFileSync",
+    "reason": "Child verify-lab-story-carry-forward.mjs exercises actual lab-worktree against private temporary fixtures. All fixture build/evidence scripts are local fixed scripts; no canonical validation child. Bind actual child script as dependency."
+  },
+  {
+    "id": "EX-0231",
+    "action": "add",
+    "key": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:67:spawn",
+    "reason": "Sixteen fixed inline publisher children import only core/evidence/artifact-store.js. A start barrier and false-exists observation test same-content CAS publication race; no test suite loads."
+  },
+  {
+    "id": "EX-0232",
+    "action": "add",
+    "key": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:2634:spawn",
+    "reason": "Fixed workerCode imports core/verification-execution-evidence.js; modes exercise choosing/lock interleaving and a literal Node timer child. Events bind parent pid/child pid, no registered script entry."
+  },
+  {
+    "id": "EX-0233",
+    "action": "add",
+    "key": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:3055:spawn",
+    "reason": "Four exact --baa5f-*-shard arguments select disjoint foundation/fanout/integrity/Story branches. Each branch returns before parent coordinator; parent requires code0 and exact JSON receipt marker. No whole suite recursion."
+  },
+  {
+    "id": "EX-0234",
+    "action": "add",
+    "key": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:590:spawn",
+    "reason": "All launch callers are private generated bootstrap reader/observer/builder/holder files or private scripts/build-lock.mjs --proof-or-stop-check. Fixed probe templates exercise read/import/build boundaries and process ownership, never a registered suite."
+  },
+  {
+    "id": "EX-0235",
+    "action": "add",
+    "key": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:1262:spawn",
+    "reason": "runChild executes real red-b49d4-harness-registration guard once and same-byte private control/removed-registration mirrors; exact target must be named on removal. Other callers are generated policy-acceptance/schedule-acceptance scripts importing real core predicates, no execution of their listed validation rows. These are actual source-oracle/mutation pairs."
+  },
+  {
+    "id": "EX-0236",
+    "action": "add",
+    "key": "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs:437:spawnSync",
+    "reason": "Generated packaged-startup-witness.mjs imports packaged bin/bootstrap-runner.js and calls runLocalBootstrap with --version. It asserts packaged executable startup, no validation target or suite invocation."
+  },
+  {
+    "id": "EX-0237",
+    "action": "add",
+    "key": "packages/main/tests/red/red-w2b-wiring-contract.mjs:240:spawnSync",
+    "reason": "Exact process-fact checker runs in symlink overlay whose command-policy.ts has red_evidence_binding_set removed; requires nonzero and specific missing lifecycle policy diagnosis. This mutation cannot be replaced by independent unmutated checker."
+  },
+  {
+    "id": "EX-0238",
+    "action": "add",
+    "key": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:1922:execFileSync",
+    "reason": "Four exact acceptance-basis prompt/handler/registry/contract omission mutation env values execute real process-fact checker; each must report specific affected acceptance basis contract. Not ordinary registered checker replay."
+  },
+  {
+    "id": "EX-0239",
+    "action": "add",
+    "key": "packages/main/src/tasks/full-suite-runner.ts:668:spawn",
+    "reason": "Only index140 review-inventory-epoch caller imports entriesFromSerialReference and validateInventory for pure membership assertions. It never calls runEntry/main; full-suite main is guarded by current process argv matching its own filename. Therefore this spawn is unreachable for this exact entry."
+  },
+  {
+    "id": "EX-0240",
+    "action": "add",
+    "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4450:spawnSync",
+    "reason": "Exact configured --group=identity-cutover never executes this check: callback groups now contain only memory-identity, and check returns before fn when selectedGroup is absent from groups. The full registered dev-memory suite independently runs assertFinishDecisionCanonicalSchema unconditionally before its finish-schema-only early exit. Unfiltered and focused reference entrypoints retain original child proof. This is an unreachable canonical branch, not permission for an ordinary nested replay."
+  }
+]

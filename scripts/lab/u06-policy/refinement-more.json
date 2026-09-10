@@ -1,0 +1,674 @@
+{
+  "status": "Static exact-file expansion instructions; not executed during ABBA quiet window",
+  "rootAcceptedDecisions": {
+    "command-surface": "catalog/parser/extension admission",
+    "autonomous-execution": "autopilot orchestration",
+    "evidence-storage": "red/claim/proof admissibility",
+    "scope-acceptance": "milestone/withdrawal/frozen claim",
+    "lifecycle-ownership": "init/preflight/parallel wave; provider probe remains provider"
+  },
+  "additionalFamilies": [
+    {
+      "domain": "evidence-storage",
+      "directoryFamilies": [
+        "packages/main/src/core/claim-admissibility/",
+        "packages/main/src/core/evidence/",
+        "packages/main/src/core/red-evidence/"
+      ],
+      "nameFamilies": [
+        "pinn-claim-admissibility",
+        "quantum-claim-admissibility",
+        "local-assurance-story-projection",
+        "signature-backfill",
+        "signature-candidate",
+        "signature-registry",
+        "source-lineage-audit",
+        "material-code-policy",
+        "material-path-policy",
+        "story-change-resolver",
+        "story-files-hash",
+        "stale-detector",
+        "baseline.",
+        "proof-or-stop-baseline",
+        "red-green-commit-guard",
+        "repro-intake"
+      ],
+      "basis": "Admissible evidence chain and material identity; root accepted capability grouping"
+    },
+    {
+      "domain": "provider-execution",
+      "nameFamilies": [
+        "managed-burn-guard",
+        "managed-markers",
+        "managed-run-duration-estimate",
+        "managed-run-progress",
+        "proof-or-stop-dispatch",
+        "proof-or-stop-hosts",
+        "proof-or-stop-handoff",
+        "runtime-environment-checks",
+        "host-",
+        "dispatch-"
+      ],
+      "basis": "Provider dispatch/managed run lifecycle; explicit functional family, not generic process imports"
+    },
+    {
+      "domain": "review-authority",
+      "nameFamilies": [
+        "review-",
+        "reviewer-",
+        "verdicts",
+        "quorum-",
+        "stall-adjudication"
+      ],
+      "basis": "Remaining explicitly reviewer-specific modules and dedicated tests; existing narrower seeds retain precedence"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "directoryFamilies": [
+        "packages/main/src/core/lifecycle-control/"
+      ],
+      "nameFamilies": [
+        "owner-session",
+        "main-write-lock",
+        "safe-init-commit",
+        "story-dedup",
+        "story-metadata-protection",
+        "story-signed-workspace-resolution",
+        "story-transition-lock",
+        "story-workspace",
+        "workflow-policy",
+        "worktree-policy",
+        "worktree-runtime",
+        "auxiliary-worktree-cleanup",
+        "proof-or-stop-parallel-wave",
+        "parallel-policy",
+        "phase-gates",
+        "identity-state-migrate"
+      ],
+      "basis": "Session/project lifecycle ownership and phase-safe worktree control"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "parent-roadmap",
+        "plan-touchpoint",
+        "touchpoints-fallback",
+        "plan-skeleton",
+        "planner.",
+        "plan.",
+        "decision.",
+        "draft-check",
+        "frozen-claim",
+        "legacy-delivery-claims",
+        "checklist.",
+        "checklist-status",
+        "prewrite-guard"
+      ],
+      "basis": "Requirement/planning/scoped-edit boundary; dedicated core/handler/test/doc family"
+    },
+    {
+      "domain": "autonomous-execution",
+      "nameFamilies": [
+        "proof-or-stop-autopilot",
+        "autopilot.",
+        "repair-retry-loop"
+      ],
+      "basis": "Root accepted autonomous orchestration domain"
+    },
+    {
+      "domain": "command-surface",
+      "nameFamilies": [
+        "capabilities.",
+        "capability-list",
+        "cli.",
+        "proof-or-stop-cli",
+        "extension-api",
+        "activity-policy",
+        "ownership-gate",
+        "main-tools"
+      ],
+      "basis": "Root accepted command dispatch/discovery/public extension domain"
+    },
+    {
+      "domain": "managed-assets",
+      "nameFamilies": [
+        "prompt-body-",
+        "prompt-budget",
+        "prompt-contracts",
+        "prompt-measurement",
+        "legacy-role-alias",
+        "proof-or-stop-paths",
+        "aux-doc",
+        "check."
+      ],
+      "basis": "Host agent instruction assets and managed installation surface"
+    },
+    {
+      "domain": "validation-certification",
+      "nameFamilies": [
+        "verification.",
+        "fixture.",
+        "fixture-executors",
+        "baseline-suite",
+        "live-smoke-transcript",
+        "background.",
+        "rollout-check"
+      ],
+      "basis": "Execution and evidence collection of validation contracts"
+    },
+    {
+      "domain": "dependency-graph-package",
+      "nameFamilies": [
+        "graph.",
+        "dual-revision-impact-graph"
+      ],
+      "basis": "Dependency graph capability, requires root decision for graph consumer versus implementation boundary"
+    },
+    {
+      "domain": "shared-core-utilities",
+      "nameFamilies": [
+        "mkdir-lock",
+        "hooks.",
+        "process-fact-levels",
+        "activity-log",
+        "activity-role",
+        "actor-trust",
+        "advisory.",
+        "hint-mode",
+        "health.",
+        "budget-meter"
+      ],
+      "basis": "Proposed explicit shared primitives; do not recursively propagate to callers"
+    },
+    {
+      "domain": "runtime-observability",
+      "nameFamilies": [
+        "story-capsule",
+        "capsule."
+      ],
+      "basis": "Actual resumable capsule projection contract, explicitly not gate evidence"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "nameFamilies": [
+        "canonical-story",
+        "flow-fact-policy",
+        "gate-strength.",
+        "guard-session.",
+        "story-create",
+        "story-draft",
+        "story-export",
+        "story-query",
+        "story-resolve",
+        "story.",
+        "summary.",
+        "transition-effects",
+        "workflow.",
+        "worktree.",
+        "stray-file-cleanup"
+      ],
+      "basis": "Explicit Story lifecycle admission/ownership/transition families"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "story-review.",
+        "decision-doc-promotion",
+        "delivery-check.",
+        "grill.",
+        "understanding.",
+        "testintent-handoff"
+      ],
+      "basis": "Explicit planning requirement and scope acceptance families"
+    },
+    {
+      "domain": "provider-execution",
+      "nameFamilies": [
+        "story-dispatch"
+      ],
+      "basis": "Explicit Story dispatch command capability"
+    },
+    {
+      "domain": "review-authority",
+      "nameFamilies": [
+        "cluster.",
+        "verdict."
+      ],
+      "basis": "Explicit finding cluster and reviewer verdict families"
+    },
+    {
+      "domain": "validation-certification",
+      "nameFamilies": [
+        "dirty-worktree.",
+        "done-prepare-validation-reuse",
+        "test-auto",
+        "test-fixture",
+        "test-runner",
+        "test-story",
+        "test.",
+        "task."
+      ],
+      "basis": "Explicit test execution and validation reuse families"
+    },
+    {
+      "domain": "dependency-graph-package",
+      "nameFamilies": [
+        "impact-classification-policy"
+      ],
+      "basis": "Explicit dependency impact classification capability"
+    },
+    {
+      "domain": "command-surface",
+      "nameFamilies": [
+        "hints."
+      ],
+      "basis": "Operator command guidance surface"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "truth.",
+        "truth-analyze",
+        "truth-extract"
+      ],
+      "basis": "Truth requirements extraction/intake handler actual contract read"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "acceptance-basis-",
+        "concept-gate-scope",
+        "outcome-semantics",
+        "pretool-scope",
+        "verification-intent-",
+        "topology-signing-",
+        "story-review-",
+        "plan-init-",
+        "checklist-reload"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "provider-execution",
+      "nameFamilies": [
+        "adapter-session-",
+        "managed-burn-",
+        "process-group-signal-",
+        "story6-",
+        "unattended-dispatch",
+        "codex-registry-"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "command-surface",
+      "nameFamilies": [
+        "brief-output",
+        "cli-argument-",
+        "cli-e2e",
+        "cli-json-",
+        "field-regression-cli",
+        "language-compatibility"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "evidence-storage",
+      "nameFamilies": [
+        "bare-gate-gitroot",
+        "gitroot-cwd",
+        "gitroot-init",
+        "graceful-sites-gitroot",
+        "project-gitroot",
+        "storydir-inside-gitroot",
+        "claim-admissibility",
+        "quantum-claim",
+        "porcelain-first-row",
+        "refresh-stale-",
+        "signing-guard-",
+        "verification-freshness",
+        "repro-first-"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "validation-certification",
+      "nameFamilies": [
+        "browser-",
+        "coverage.",
+        "fixture-environment",
+        "fixture-machine-environment",
+        "run-all-smokes",
+        "story-aware-validation",
+        "test-flow-",
+        "trace-diff",
+        "trace-store",
+        "cli-executor"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "nameFamilies": [
+        "flow-stability",
+        "gap-coverage",
+        "meta-story-next",
+        "metadata-cross-check",
+        "metadata-store",
+        "proof-or-stop-only-absence",
+        "retired-root-guard",
+        "runtime-entrypoint-authority",
+        "story-authority-resolve",
+        "transition-integrity",
+        "worktree-authority",
+        "worktree-node-modules",
+        "worktree-portability",
+        "worktree-repair"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "runtime-memory",
+      "nameFamilies": [
+        "done-merge-experience-refresh"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "managed-assets",
+      "nameFamilies": [
+        "deprecated-gc",
+        "docs-drift-",
+        "drift-check",
+        "english-only",
+        "english-open-source",
+        "language-neutral",
+        "prompt-",
+        "runtime-owned-agent-assets",
+        "thin-init-assets"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "lab-build-maintenance",
+      "nameFamilies": [
+        "config-filename-migration",
+        "remote-push-approval",
+        "source-structure-convergence"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "autonomous-execution",
+      "nameFamilies": [
+        "repair-retry-"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "dependency-graph-package",
+      "nameFamilies": [
+        "graph-story-"
+      ],
+      "basis": "Dedicated functional regression name family proposal; exact current files, no import/registry propagation"
+    },
+    {
+      "domain": "managed-assets",
+      "directoryFamilies": [
+        "packages/main/templates/"
+      ],
+      "basis": "Actual managed template distribution package, current exact files only"
+    },
+    {
+      "domain": "lab-build-maintenance",
+      "exactBasenames": [
+        "package.json",
+        "package-lock.json",
+        "smoke-manifest.json"
+      ],
+      "basis": "Package/build and canonical smoke inventory governance"
+    },
+    {
+      "domain": "scope-acceptance",
+      "nameFamilies": [
+        "checklist-",
+        "story-checklist",
+        "tools-checklist",
+        "related-docs",
+        "test-intent",
+        "testintent-",
+        "acceptance-prompt",
+        "current-acceptance",
+        "current-rollout",
+        "rollout-current",
+        "understanding-"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "review-authority",
+      "nameFamilies": [
+        "auto-bug",
+        "b6246-bug",
+        "bug-",
+        "tools-bug",
+        "implementation-review",
+        "role-telemetry",
+        "reconcile-b6246",
+        "red-b-new-retired"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "lifecycle-ownership",
+      "nameFamilies": [
+        "story-get",
+        "story-list",
+        "story-machine",
+        "story-storage",
+        "story-sync",
+        "tools-story",
+        "phase-",
+        "flow-",
+        "gap-",
+        "derived-truth-gap",
+        "truth-cli",
+        "main-branch-runtime",
+        "runtime-worktree",
+        "project-state-runtime",
+        "risk-elevation",
+        "workflow-phase",
+        "zombie-linked",
+        "linked-worktree",
+        "parallel-execution",
+        "git-mutation",
+        "dangerous-command",
+        "skip.",
+        "worktree-baseline",
+        "retired-authority"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "validation-certification",
+      "nameFamilies": [
+        "fixture-",
+        "tools-test",
+        "cli-test",
+        "task-coverage",
+        "profiler.",
+        "configured-fixture",
+        "registration-guard",
+        "crosscommit-joint",
+        "routine-watchdog",
+        "watchdog-activity",
+        "machine-heavy",
+        "machine-unknown",
+        "fail-fast-health",
+        "run-test-intent",
+        "remove-file-level-test",
+        "convert-fixtures",
+        "migrate-fixture",
+        "full-suite-build",
+        "verify-full-suite-build",
+        "red-fb7b-guard",
+        "test-data"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "managed-assets",
+      "nameFamilies": [
+        "codex-onboarding",
+        "codex-assets",
+        "docs-update",
+        "entrypoints",
+        "entry-preflight",
+        "extract-cli-engine",
+        "proof-or-stop-identity",
+        "proof-or-stop-pack",
+        "proof-or-stop-prompt",
+        "proof-or-stop-residue",
+        "legacy-prompt",
+        "migration-contract",
+        "core-package-rename",
+        "salt-rename",
+        "state-dir-migration",
+        "package-identity",
+        "bin-alias",
+        "managed-marker-migration",
+        "lab-brand-migration",
+        "f081-f085-canonical-role",
+        "b90d6-init-dispatch",
+        "runtime-entrypoint"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "lab-build-maintenance",
+      "nameFamilies": [
+        "ensure-dist",
+        "promote-dist",
+        "package-desktop",
+        "desktop-package",
+        "shared-output-boundary",
+        "red-fb7b-pretest",
+        "real-story-replay",
+        "lab-reviewer",
+        "verify-lab-reviewer",
+        "run-story-review",
+        "run-test-intent",
+        "test-intent-experiment",
+        "framework-upgrade"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "provider-execution",
+      "nameFamilies": [
+        "managed-",
+        "supervised-provider",
+        "machine-provider",
+        "process-group-"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "evidence-storage",
+      "nameFamilies": [
+        "hash-accuracy",
+        "red-b-74b9",
+        "global-core-realpath"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "framework-audit",
+      "nameFamilies": [
+        "framework-wave",
+        "framework-upgrade",
+        "koala-readonly",
+        "residue-inject",
+        "high-gap-annotation",
+        "stack-layering-backfill"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "runtime-observability",
+      "nameFamilies": [
+        "arch-trace",
+        "diagnose.",
+        "runtime-trace"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "runtime-memory",
+      "nameFamilies": [
+        "control-arm-retrieval"
+      ],
+      "basis": "Explicit dedicated fixture/script functional family proposal; exact current paths only"
+    },
+    {
+      "domain": "shared-core-utilities",
+      "exactBasenames": [
+        "registry.ts",
+        "types.ts"
+      ],
+      "basis": "Shared type and registry definitions only, no ownership propagated"
+    },
+    {
+      "domain": "command-surface",
+      "exactPaths": [
+        "packages/main/src/index.ts",
+        "packages/main/src/tasks/extract.ts",
+        "packages/main/src/tasks/locate.ts"
+      ],
+      "basis": "Code annotation extraction and user command entry surface; actual extract/locate implementation read"
+    },
+    {
+      "domain": "validation-certification",
+      "directoryFamilies": [
+        "packages/main/src/verifier/"
+      ],
+      "basis": "Actual browser/dev execution host module package"
+    },
+    {
+      "domain": "optimization-lab-package",
+      "directoryFamilies": [
+        "scripts/lab/"
+      ],
+      "basis": "Dedicated optimization experimental probes, actual declared Lab directory"
+    },
+    {
+      "domain": "lab-build-maintenance",
+      "exactBasenames": [
+        "tsconfig.json"
+      ],
+      "basis": "Package TypeScript build configuration"
+    }
+  ],
+  "needsRootBoundaryDecision": [
+    {
+      "family": "core/usage-ledger/** + usage-burn-alert/usage-sweep + dedicated tests/docs",
+      "proposal": "usage-accounting independent domain",
+      "reason": "Persistent multi-provider accounting/estimation is a real capability, distinct from provider run lifecycle"
+    },
+    {
+      "family": "observability-snapshot/process-events/process-metrics/dashboard",
+      "proposal": "runtime-observability independent domain",
+      "reason": "Read model and operator visibility; avoid assigning dashboard to a generic source layer"
+    },
+    {
+      "family": "audit-* / handlers/audit / gap-log / gap / bug / evaluate",
+      "proposal": "inspect contracts before grouping as audit-diagnostics",
+      "reason": "Names encompass product findings, retrospective accounting and real evidence validation; cannot assert one capability from names"
+    },
+    {
+      "family": "candidate-spec-routing / handler matching family",
+      "proposal": "scope-acceptance versus runtime-memory",
+      "reason": "Routing requested requirements may differ from learned capability candidate promotion"
+    }
+  ]
+}

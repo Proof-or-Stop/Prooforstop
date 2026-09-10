@@ -12,6 +12,13 @@
  *   Severity routing:
  *     - protectedAnchors (global or file-level) → hard blocking violation that
  *       even an acknowledgement cannot downgrade (blocks in shadow + enforce).
+ *     - protectedExceptAnchors (file-level, B-137a) → the INVERSE allowlist form
+ *       of the same hard block: every hunk is an unacknowledgeable
+ *       protected_anchor violation unless all its declaration anchors are in the
+ *       permitted list. Fails closed on a hunk with no parseable anchor. Exists
+ *       because dependency manifests need unacknowledgeable path protection with
+ *       a single permitted key (`version`), which protectedFiles (absolute) and
+ *       allowedAnchors (self-acknowledgeable) cannot express.
  *     - deniedAnchors / unmatched allowedAnchors / disallowed changeKind →
  *       blocking violation in enforce, downgraded to a warning when the hunk is
  *       acknowledged by hunkDigest or anchor.
@@ -226,6 +233,21 @@ export function checkSemanticScope(
     if (fileProtectedAnchor) {
       violations.push(makeViolation(hunk, 'protected_anchor', false, fileProtectedAnchor));
       continue;
+    }
+
+    // 2b. B-137a: protectedExceptAnchors — the file is protected
+    //     UNACKNOWLEDGEABLY, except for hunks whose anchors all fall inside the
+    //     permitted allowlist. Fails CLOSED: a hunk with no parseable
+    //     declaration anchor cannot prove it stayed inside the exception, so it
+    //     blocks. That is the whole point -- an unparseable dependency edit must
+    //     not slip through a version-only waiver.
+    if (rule.protectedExceptAnchors && rule.protectedExceptAnchors.length > 0) {
+      const permitted = rule.protectedExceptAnchors;
+      const outside = declarationAnchors.find((candidate) => !permitted.includes(candidate));
+      if (declarationAnchors.length === 0 || outside !== undefined) {
+        violations.push(makeViolation(hunk, 'protected_anchor', false, outside));
+        continue;
+      }
     }
 
     // 3. Denied anchor — blocking unless acknowledged.

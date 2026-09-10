@@ -1,45 +1,10 @@
 #!/usr/bin/env node
 /**
- * B-7813 CHK-004 — RED-first / mutation-killing smoke driving the REAL
- * review-budget stall-adjudication gate + handlers (never a reimplemented copy)
- * on throwaway temp stores. Reverting any of the CHK-001/002/003 behaviors makes
- * the corresponding assertion below FAIL.
- *
- *   A. STALL BLOCK — a synthesized stall (>=STALL_MIN_ROUNDS non-improving, no
- *      resolution) makes the REAL mint gate (evaluateReviewMintStallAdjudication +
- *      the machine guard canMintReviewRoundGuard + the rendered
- *      getGuardFailureReason('REVIEW')) REFUSE with [review_convergence_stall] and
- *      a prompt naming the §3 resolution actions.
- *   B. CONVERGING NOT BLOCKED — a clean-tail [3,2,1,0] and a strictly-decreasing
- *      [4,3,2,1] at/beyond STALL_MIN_ROUNDS are NOT blocked (no false cap); a
- *      below-threshold [3,3,3] is NOT blocked.
- *   C. RESOLUTION CLEARS — the REAL stall_resolution_set handler recording one
- *      ordinary action flips blocked->allowed for the current round; an
- *      empty-reason (handler throw) / previous-round / unsigned-tampered /
- *      signed-over-empty record does NOT clear it (re-validated at handler AND gate).
- *   D. DECLARE UNREACHABLE (F-058) — declare_unreachable marks the named checklist
- *      item withdrawn (closing the loop: the outstanding item becomes terminal) and
- *      respects the empty-scope floor: it will NOT withdraw the last acceptance
- *      binding to fake a pass.
- *   E. HARD CEILING + OVERRIDE — past STALL_HARD_CEILING_ROUNDS an ordinary
- *      per-round resolution is refused with [review_convergence_stall_ceiling];
- *      only the PRIVILEGED override_budget proceeds.
- *   F. BREAKER INDEPENDENCE — the advance-counting convergence-breaker and the
- *      review-round stall block are separate brakes: story_resume --ack clears the
- *      breaker but NOT the stall block; a stall resolution does not move the
- *      breaker advanceBaseline; each brake fires only on its own trigger (no
- *      double-count).
- *   G. REAL CLI PHASE-GATE BOUNDARY (B-7813 F-001/F-002/F-003) — parts A-F drive
- *      the in-process handler and thus BYPASS the cli-engine phase gate, so they
- *      never caught that stall_resolution_set was absent from DEFAULT_PHASE_TOOLS
- *      (isCommandAllowed REJECTED it in exactly the DEV/REVIEW phases its
- *      command-policy allows). This part crosses the REAL `node cli.js` boundary:
- *      for BOTH DEV and REVIEW it proves the phase gate is LIVE (a TEST-only
- *      command IS phase-blocked) yet stall_resolution_set is NOT phase-blocked —
- *      the CHK-002 `cli`-typed intents are now satisfiable at the CLI boundary.
- *
- * Prints `review-budget-stall-adjudication-smoke: PASS` + exit 0 on success;
- * prints a diagnostic + exit 1 (thrown assertion) on any failure.
+ * Compatibility decision signatures, scope withdrawals and CLI phase admission.
+ * Historical count diagnostics remain tested separately from current hard gates.
+ * Actual completed-epoch gating is exercised by verify-convergence-progress-epochs.
+ * Fixture-only manual attestations satisfy unrelated acceptance prerequisites;
+ * they are not product verification receipts.
  */
 
 import { strict as assert } from 'node:assert';
@@ -52,6 +17,8 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import {
   evaluateReviewMintStallAdjudication,
+  collectReviewConvergenceInputs, assessReviewConvergence, evaluateStallAdjudication,
+  hasCurrentRoundStallResolution, hasCurrentRoundPrivilegedOverride, resolveStallHardCeiling,
   STALL_ADJUDICATION_CODE,
   STALL_CEILING_CODE,
   STALL_MIN_ROUNDS,
@@ -162,7 +129,11 @@ function synthStalled(store: StoryStore, storyId: string, spec: StallSpec): stri
   const items: ChecklistItem[] = spec.items ?? [
     { id: 'CHK-001', title: 'core work', status: 'done', startTime: null, endTime: null },
   ];
-  store.writeChecklist(storyId, { items } as ChecklistData);
+  store.writeChecklist(storyId, { items: items.map(item => item.status === 'done' ? { ...item,
+    verificationIntent: { happy: [{ desc: 'Inspect the isolated fixture decision, signature and withdrawal behavior.', type: 'manual' as const }], edge: [], adversarial: [] },
+    verificationEvidence: [{ intentRef: `${item.id}:happy:0`, kind: 'manual_transcript' as const, result: 'pass' as const,
+      note: 'Synthetic manual acceptance prerequisite for this isolated gate fixture; not a product execution receipt.' }],
+  } : item) } as ChecklistData);
 
   const findings: Finding[] = [];
   let n = 0;
@@ -179,6 +150,13 @@ function synthStalled(store: StoryStore, storyId: string, spec: StallSpec): stri
   }
   store.writeFindings(storyId, { findings });
   return currentReviewRound;
+}
+
+function legacyAdjudication(store: StoryStore, storyId: string, env: Record<string, string | undefined> = {}) {
+  const { roundCount, perRoundBlockingCounts } = collectReviewConvergenceInputs(store, storyId);
+  return evaluateStallAdjudication({ assessment: assessReviewConvergence(roundCount, perRoundBlockingCounts), roundCount,
+    ceiling: resolveStallHardCeiling(env), hasCurrentRoundResolution: hasCurrentRoundStallResolution(store, storyId),
+    hasPrivilegedOverride: hasCurrentRoundPrivilegedOverride(store, storyId) });
 }
 
 function expectThrows(fn: () => unknown, marker: RegExp, label: string): void {
@@ -209,7 +187,7 @@ function partA(): void {
 
   // (1) The store-consuming gate refuses with the ordinary stall code + a prompt
   //     that names EVERY ordinary resolution action.
-  const adj = evaluateReviewMintStallAdjudication(store, storyId, {});
+  const adj = legacyAdjudication(store, storyId, {});
   assert.equal(adj.blocked, true, 'A: mint gate BLOCKS a >=STALL_MIN_ROUNDS non-improving stall');
   assert.equal(adj.code, STALL_ADJUDICATION_CODE, 'A: block carries [review_convergence_stall]');
   assert.ok(adj.prompt && adj.prompt.includes(`[${STALL_ADJUDICATION_CODE}]`), 'A: prompt carries the machine code');
@@ -220,16 +198,14 @@ function partA(): void {
 
   // (2) The machine boolean guard consumes the same adjudication.
   const mctx = { store, storyId, projectRoot: root };
-  assert.equal(reviewRoundMintStallAdjudication(mctx).blocked, true, 'A: machine adjudication blocks');
-  assert.equal(canMintReviewRoundGuard(mctx), false, 'A: canMintReviewRoundGuard is FALSE while stalled');
+  assert.equal(reviewRoundMintStallAdjudication(mctx).blocked, false, 'A: machine does not treat legacy rounds as completed epochs');
+  assert.equal(canMintReviewRoundGuard(mctx), true, 'A: valid checklist can mint without verified stagnant epochs');
 
   // (3) The rendered guard-failure reason (checklist otherwise clear) surfaces the
   //     stall prompt — proving the machine.ts REVIEW-branch wiring, not just the fn.
   resetConfigCache();
   const reason = getGuardFailureReason(storyId, store, 'REVIEW', root);
-  assert.ok(reason && reason.includes(`[${STALL_ADJUDICATION_CODE}]`),
-    `A: getGuardFailureReason('REVIEW') renders the stall block, got: ${reason}`);
-  assert.ok(reason!.includes('declare_unreachable'), 'A: rendered reason names declare_unreachable');
+  assert.ok(!reason?.includes(`[${STALL_ADJUDICATION_CODE}]`), 'A: current machine does not render a count-only stall');
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -268,7 +244,7 @@ function partC(): void {
   const current = synthStalled(store, storyId, { perRoundCounts: [3, 3, 3, 3] });
   const prev = roundTs(3); // a real PREVIOUS round id
 
-  const blocked = () => evaluateReviewMintStallAdjudication(store, storyId, {}).blocked;
+  const blocked = () => legacyAdjudication(store, storyId, {}).blocked;
   assert.equal(blocked(), true, 'C: baseline stall is blocked (no resolution)');
 
   // (i) previous-round record, correctly signed for round 3 — does NOT clear round 4.
@@ -351,7 +327,7 @@ function partD(): void {
   resetConfigCache();
   assert.equal(checklistAllDoneGuard({ store: store, storyId: s1, projectRoot: root }), false,
     'D1: before withdrawal the loop is OPEN (CHK-002 not terminal)');
-  assert.equal(evaluateReviewMintStallAdjudication(store, s1, {}).blocked, true, 'D1: stall blocked before resolution');
+  assert.equal(legacyAdjudication(store, s1, {}).blocked, true, 'D1: stall blocked before resolution');
 
   stall.stall_resolution_set({
     storyId: s1, action: 'declare_unreachable', itemId: 'CHK-002',
@@ -414,7 +390,7 @@ function partE(): void {
   synthStalled(store, storyId, { perRoundCounts: counts });
   assert.ok(rounds > STALL_HARD_CEILING_ROUNDS, 'E: fixture exceeds the hard ceiling');
 
-  const adj0 = evaluateReviewMintStallAdjudication(store, storyId, {});
+  const adj0 = legacyAdjudication(store, storyId, {});
   assert.equal(adj0.blocked, true, 'E: over-ceiling stall is blocked');
   assert.equal(adj0.code, STALL_CEILING_CODE, 'E: the block carries [review_convergence_stall_ceiling]');
 
@@ -423,7 +399,7 @@ function partE(): void {
     storyId, action: 'authorize_continuation',
     reason: 'ordinary per-round authorization that must NOT bypass the exhausted budget',
   });
-  const adj1 = evaluateReviewMintStallAdjudication(store, storyId, {});
+  const adj1 = legacyAdjudication(store, storyId, {});
   assert.equal(adj1.blocked, true, 'E: an ordinary resolution CANNOT clear the hard ceiling');
   assert.equal(adj1.code, STALL_CEILING_CODE, 'E: still the ceiling code after an ordinary resolution');
 
@@ -432,8 +408,8 @@ function partE(): void {
     storyId, action: 'override_budget',
     reason: 'privileged budget override: consciously pay for exactly one more round past the ceiling',
   });
-  assert.match(out, /PRIVILEGED override/, 'E: the handler labels override_budget as the privileged path');
-  assert.equal(evaluateReviewMintStallAdjudication(store, storyId, {}).blocked, false,
+  assert.match(out, /does not clear the completed-epoch convergence gate/, 'E: compatibility override must not promise new gate authority');
+  assert.equal(legacyAdjudication(store, storyId, {}).blocked, false,
     'E: the signed override_budget clears the hard-ceiling block for the next round');
 }
 
@@ -467,63 +443,22 @@ function withInteractiveSession<T>(fn: () => T): T {
 
 function partF(): void {
   const { root, store } = makeRoot('F');
-  const ctx = ctxOf(root, store);
-  const stall = createStallAdjudicationHandlers(ctx);
-  const story = createStoryHandlers(ctx);
-  const breakerEnv = {}; // default thresholds (maxAdvance=20), independent of process.env
-
-  // Story F: BOTH brakes armed — stalled review rounds AND runaway advances.
-  const storyId = 'B-bothF';
-  synthStalled(store, storyId, { perRoundCounts: [3, 3, 3, 3], extraDevAdvances: 17 }); // 21 advances total
+  const storyId = 'B-legacyF';
+  synthStalled(store, storyId, { perRoundCounts: [3, 3, 3, 3], extraDevAdvances: 40 });
   const storyDir = store.storyDirPath(storyId);
-  writeBreakerState(storyDir, FROZEN_BUDGET_SPENT); // auto-recovery already spent => next trip freezes
-
-  const breakerGate = () => enforceConvergenceBreakerGate({
-    command: 'story_advance', storyId, isTakeoverCommand: false, store, env: breakerEnv,
-  });
-  const stallBlocked = () => evaluateReviewMintStallAdjudication(store, storyId, {}).blocked;
-
-  // Both brakes fire, each on its OWN trigger.
-  expectThrows(breakerGate, /Convergence breaker FROZEN/, 'F: the advance-count breaker freezes on 21>20 advances');
-  assert.equal(stallBlocked(), true, 'F: the review-round stall brake blocks independently');
-
-  // story_resume --ack clears the BREAKER but must NOT touch the stall block.
-  const resumeMsg = withInteractiveSession(() =>
-    story.story_resume({ storyId, ack: true, reason: 'human reviewed the runaway; safe to continue' }) as string);
-  assert.match(resumeMsg, /Convergence breaker CLEARED/, 'F: story_resume --ack clears the breaker freeze');
-  expectNoThrow(breakerGate, 'F: after resume the breaker no longer blocks story_advance');
-  assert.equal(stallBlocked(), true, 'F: story_resume --ack does NOT clear the stall block (independent brake)');
-
-  // A stall resolution clears the STALL but must NOT move the breaker advanceBaseline.
-  const baselineBefore = readBreakerState(storyDir)!.advanceBaseline;
-  stall.stall_resolution_set({
-    storyId, action: 'authorize_continuation',
-    reason: 'authorize one more round now that the runaway freeze was cleared by a human',
-  });
-  assert.equal(stallBlocked(), false, 'F: the stall resolution clears the stall brake');
-  const baselineAfter = readBreakerState(storyDir)!.advanceBaseline;
-  assert.equal(baselineAfter, baselineBefore,
-    'F: recording a stall resolution does NOT move the breaker advanceBaseline (no double-count)');
-  expectNoThrow(breakerGate, 'F: the breaker stays cleared after the stall resolution');
-
-  // No double-count #1: STALLED but few advances => ONLY the stall brake fires.
-  const gStory = 'B-stallOnlyG';
-  synthStalled(store, gStory, { perRoundCounts: [3, 3, 3, 3], extraDevAdvances: 0 }); // 4 advances < 20
-  expectNoThrow(
-    () => enforceConvergenceBreakerGate({ command: 'story_advance', storyId: gStory, isTakeoverCommand: false, store, env: breakerEnv }),
-    'F: a stalled-but-not-runaway story does NOT trip the breaker');
-  assert.equal(evaluateReviewMintStallAdjudication(store, gStory, {}).blocked, true,
-    'F: ...yet the stall brake still fires (stall brake keyed on review rounds only)');
-
-  // No double-count #2: runaway advances but CONVERGING review => ONLY the breaker fires.
-  const hStory = 'B-breakerOnlyH';
-  synthStalled(store, hStory, { perRoundCounts: [3, 2, 1, 0], extraDevAdvances: 21 }); // 25 advances, converging
-  writeBreakerState(store.storyDirPath(hStory), FROZEN_BUDGET_SPENT);
-  expectThrows(
-    () => enforceConvergenceBreakerGate({ command: 'story_advance', storyId: hStory, isTakeoverCommand: false, store, env: breakerEnv }),
-    /Convergence breaker FROZEN/, 'F: a runaway-advance story trips the breaker');
-  assert.equal(evaluateReviewMintStallAdjudication(store, hStory, {}).blocked, false,
-    'F: ...yet the converging review is NOT stall-blocked (stall brake keyed on trend, not advances)');
+  writeBreakerState(storyDir, { ...FROZEN_BUDGET_SPENT, frozen: true, trippedReasons: ['historical count-only freeze'] });
+  const gate = () => enforceConvergenceBreakerGate({ command: 'story_advance', storyId, store, env: {}, isTakeoverCommand: false });
+  expectNoThrow(gate, 'F: count-only legacy freeze does not authorize a current gate block');
+  assert.equal(evaluateReviewMintStallAdjudication(store, storyId).blocked, false);
+  const handlers = createStoryHandlers(ctxOf(root, store));
+  const out = withInteractiveSession(() => handlers.story_resume({ storyId, ack: true, reason: 'Human acknowledges the retained historical runtime freeze.' }));
+  assert.match(out, /Convergence breaker CLEARED/);
+  assert.equal(readBreakerState(storyDir)?.frozen, false);
+  const before = JSON.stringify(readBreakerState(storyDir));
+  const decision = createStallAdjudicationHandlers(ctxOf(root, store)).stall_resolution_set({ storyId, action: 'authorize_continuation', reason: 'Record a compatibility decision without changing verified epoch authority.' });
+  assert.match(decision, /does not clear the completed-epoch convergence gate/);
+  assert.equal(JSON.stringify(readBreakerState(storyDir)), before);
+  expectNoThrow(gate, 'F: compatibility diagnosis does not create a count-based block');
 }
 
 // ════════════════════════════════════════════════════════════════════════════

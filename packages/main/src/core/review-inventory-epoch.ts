@@ -262,6 +262,7 @@ export function reviewInventoryLaneCoverageDigest(evaluation: ReviewInventoryEva
 }
 
 export function validateReviewInventoryCriticReceipt(args: {
+  promptStore?: Pick<StoryStore, 'storyDirPath'>;
   receipt: ReviewInventoryCriticReceipt | undefined;
   epoch: ReviewInventoryEpoch;
   evaluation: ReviewInventoryEvaluation;
@@ -272,7 +273,7 @@ export function validateReviewInventoryCriticReceipt(args: {
   const { receipt, epoch } = args;
   if (!receipt) return { ok: false, reason: 'critic receipt missing' };
   if (!verifyReviewInventoryCriticReceipt(receipt)) return { ok: false, reason: 'critic receipt signature invalid' };
-  const dispositionEvaluation = evaluateReviewInventoryWave({
+  const dispositionEvaluation = evaluateReviewInventoryWave({ promptStore: args.promptStore,
     epoch,
     runs: args.runs,
     passes: args.passes,
@@ -302,13 +303,13 @@ export function validateReviewInventoryCriticReceipt(args: {
     || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
     return { ok: false, reason: 'critic inventory purpose/subject binding missing or mismatched' };
   }
-  if (!run || !verifyReviewRun(run) || run.lane !== receipt.criticLane
+  if (!run || !verifyReviewRun(run, args.promptStore) || run.lane !== receipt.criticLane
     || run.reviewRound !== epoch.reviewRound || run.materialHash !== epoch.cutoff.materialHash
     || (run.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '')) {
     return { ok: false, reason: 'critic ReviewRun missing, stale, or invalid' };
   }
   const latestCriticRun = args.runs
-    .filter(row => verifyReviewRun(row) && row.lane === receipt.criticLane
+    .filter(row => verifyReviewRun(row, args.promptStore) && row.lane === receipt.criticLane
       && row.reviewRound === epoch.reviewRound && row.materialHash === epoch.cutoff.materialHash
       && (row.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''))
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
@@ -348,11 +349,11 @@ export function findingFamily(finding: Finding): string {
   });
 }
 
-function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[]): {
+function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[], promptStore?: Pick<StoryStore, 'storyDirPath'>): {
   terminal: ReviewInventoryLaneTerminal | null;
   findings: Finding[];
 } {
-  if (!verifyReviewRun(run)) return { terminal: null, findings: [] };
+  if (!verifyReviewRun(run, promptStore)) return { terminal: null, findings: [] };
   const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId
     && verifyReviewPass(run.storyId, pass) && Boolean(pass.readManifest) && Boolean(pass.readLog));
   const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId
@@ -396,12 +397,12 @@ export interface ReviewInventoryEvaluation {
   criticDigest: string;
 }
 
-function isEligibleBaselineFinding(epoch: ReviewInventoryEpoch, finding: Finding, runs: ReviewRun[]): boolean {
+function isEligibleBaselineFinding(epoch: ReviewInventoryEpoch, finding: Finding, runs: ReviewRun[], promptStore?: Pick<StoryStore, 'storyDirPath'>): boolean {
   if (finding.status !== 'open' || (finding.evidenceState !== 'verified' && finding.evidenceState !== undefined)) return false;
   if (!verifyFinding(epoch.storyId, finding) || !finding.readManifest || !finding.readLog) return false;
   const run = runs.find(row => row.reviewRunId === finding.reviewRunId);
   const sequence = run ? reviewRunSequence(run) : null;
-  return Boolean(run && verifyReviewRun(run)
+  return Boolean(run && verifyReviewRun(run, promptStore)
     && run.storyId === epoch.storyId
     && run.reviewRound === epoch.reviewRound
     && run.materialHash === epoch.cutoff.materialHash
@@ -412,17 +413,19 @@ function isEligibleBaselineFinding(epoch: ReviewInventoryEpoch, finding: Finding
 }
 
 export function captureReviewInventoryBaselineFindingIds(args: {
+  promptStore?: Pick<StoryStore, 'storyDirPath'>;
   epoch: ReviewInventoryEpoch;
   runs: ReviewRun[];
   findings: Finding[];
 }): string[] {
   return args.findings
-    .filter(finding => isEligibleBaselineFinding(args.epoch, finding, args.runs))
+    .filter(finding => isEligibleBaselineFinding(args.epoch, finding, args.runs, args.promptStore))
     .map(finding => finding.id)
     .sort();
 }
 
 export function evaluateReviewInventoryWave(args: {
+  promptStore?: Pick<StoryStore, 'storyDirPath'>;
   epoch: ReviewInventoryEpoch;
   runs: ReviewRun[];
   passes: ReviewPass[];
@@ -445,7 +448,7 @@ export function evaluateReviewInventoryWave(args: {
   const rawFindings = new Map<string, Finding>();
   for (const lane of args.epoch.requiredLanes) {
     const laneRuns = candidates.filter(run => run.lane === lane).sort((a, b) => b.startedAt.localeCompare(a.startedAt));
-    const runEvidence = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings));
+    const runEvidence = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings, args.promptStore));
     const selected = runEvidence.find(row => row.terminal);
     if (!selected?.terminal) continue;
     lanes.push(selected.terminal);
@@ -461,11 +464,11 @@ export function evaluateReviewInventoryWave(args: {
     && run.reviewPurpose === 'inventory-completeness'
     && inventoryPurposeMatchesEpoch(run.inventoryBinding, args.epoch));
   for (const run of inventoryCriticRuns) {
-    evidenceForRun(run, args.passes, args.findings).findings
+    evidenceForRun(run, args.passes, args.findings, args.promptStore).findings
       .forEach(finding => rawFindings.set(finding.id, finding));
   }
   const signedBaselineIds = [...(args.epoch.baselineFindingIds ?? [])].sort();
-  const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ epoch: args.epoch, runs: args.runs, findings: args.findings });
+  const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ promptStore: args.promptStore, epoch: args.epoch, runs: args.runs, findings: args.findings });
   const baselineMismatchIds = [...new Set([
     ...signedBaselineIds.filter(id => !liveBaselineIds.includes(id)),
     ...liveBaselineIds.filter(id => !signedBaselineIds.includes(id)),
@@ -475,7 +478,7 @@ export function evaluateReviewInventoryWave(args: {
   if (args.epoch.waves.length === 0) {
     for (const id of signedBaselineIds) {
       const finding = args.findings.find(row => row.id === id);
-      if (finding && isEligibleBaselineFinding(args.epoch, finding, args.runs)) rawFindings.set(id, finding);
+      if (finding && isEligibleBaselineFinding(args.epoch, finding, args.runs, args.promptStore)) rawFindings.set(id, finding);
     }
   }
   const identities = new Map<string, string[]>();
@@ -627,7 +630,7 @@ export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId
   }
 }
 
-function finalizedLiveAggregateError(store: StoryStore, pair: {
+export function finalizedLiveAggregateError(store: StoryStore, pair: {
   epoch: ReviewInventoryEpoch;
   receipt: ReviewInventoryReceipt;
 }): string | undefined {
@@ -644,7 +647,7 @@ function finalizedLiveAggregateError(store: StoryStore, pair: {
     waves: epoch.waves.slice(0, -1),
   };
   const data = store.readReviewInventoryEpochs(epoch.storyId);
-  const evaluation = evaluateReviewInventoryWave({
+  const evaluation = evaluateReviewInventoryWave({ promptStore: store,
     epoch: replayEpoch,
     runs: store.readReviewRuns(epoch.storyId).runs,
     passes: store.readReviewPasses(epoch.storyId).passes,
@@ -658,7 +661,7 @@ function finalizedLiveAggregateError(store: StoryStore, pair: {
     || evaluation.baselineMismatchIds.length > 0) {
     return 'live terminal lanes or finding dispositions differ from the finalized wave';
   }
-  const critic = validateReviewInventoryCriticReceipt({
+  const critic = validateReviewInventoryCriticReceipt({ promptStore: store,
     receipt: data.criticReceipts.find(row =>
       row.epochId === epoch.epochId && row.wave === epoch.waves.length,
     ),

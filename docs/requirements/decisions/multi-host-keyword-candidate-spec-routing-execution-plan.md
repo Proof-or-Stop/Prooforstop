@@ -6,13 +6,19 @@ Origin: B-f97c removed unconditional requirements-corpus embedding from `story_r
 
 Implementation record (2026-07-12): B-8038 implemented M6A-M6F and the M6G configuration schema, caller-supplied-window promotion evaluator, process contracts, fail-closed evidence checks, and safe rollback boundary on its Story branch. The implementation is evidenced by commits `8d318a6791`, `504564cbc1`, `58a9e9b199`, `2a34d5aa1e`, `ec8d248d66`, `802d8088a3`, and `0fa154b2d4`, plus `packages/main/src/tasks/candidate-spec-routing-smoke.ts` and `scripts/verify-process-fact-contract.mjs`. Runtime collection of precision, candidate/full-read bytes, latency, and qualifying evaluation windows is not implemented by B-8038; `candidate_spec_rollout_check` evaluates values supplied by its caller and is not window-production evidence. This records implementation mechanics, not production release or rollout promotion: `lattice.config.json` still selects `candidateSpecRouting.mode = "shadow"`, no two-window promotion evidence is claimed, and the historical thresholds below remain authoritative.
 
+Execution correction (B-137a): managed proposal execution supports Codex and
+Claude only. The historical conditional Antigravity/agy proposal design below
+is retired because the available CLI transports prompt text in argv. Agy may be
+probed on diagnostic runtime surfaces, but `host_run` and
+`candidate_spec_route` do not advertise or attempt it.
+
 ## 1. Decision
 
 Proof-or-Stop will replace default broad specification reads with a hybrid retrieval pipeline:
 
 1. the CLI derives deterministic search terms from structured Story facts;
 2. Codex CLI and Claude Code CLI independently propose semantic expansions;
-3. Antigravity CLI (`agy`) is a supplemental or fallback proposer, not a mandatory third call;
+3. no third proposer is attempted unless a future provider gains a protected managed transport;
 4. the CLI performs bounded local filename, heading, and content search;
 5. a deterministic ranker produces an auditable `candidateSpecSet`;
 6. reviewers read candidate documents in full and title-triage the rest;
@@ -47,7 +53,7 @@ The next problem is recall under a bounded read budget:
 - Restoring requirements bodies to `_reviewPrompt`.
 - Treating model-proposed keywords, memory hits, or search scores as proof.
 - Replacing `scope_check_save`, signed reviewer runs, findings, or delivery checks.
-- Making `agy` mandatory when Codex CLI and Claude Code CLI are available.
+- Advertising a provider proposal path that lacks protected managed prompt transport.
 - Using embeddings or a remote vector database in the first rollout.
 - Allowing a hard top-N cutoff to suppress ambiguity escalation.
 - Changing B-3928 baseline artifacts in this workstream.
@@ -88,7 +94,7 @@ Story + checklist + understanding + scope + diff
           |                   |
           +---------+---------+
                     |
-          optional agy proposal
+          (agy: retired; diagnostic-only, never launched -- see 8.1/8.2/20/22)
                     |
                     v
        normalized keyword/query union
@@ -145,7 +151,8 @@ Normalization MUST preserve exact identifiers alongside lowercase lexical forms.
 ### 8.1 Default host policy
 
 - Primary proposers: Codex CLI and Claude Code CLI.
-- Supplemental proposer: Antigravity CLI (`agy`) when the two primary hosts disagree materially, candidate ambiguity remains, either primary host is unavailable/quota-limited, or the reviewer explicitly requests a third semantic perspective.
+- No supplemental proposer is currently supported. Primary failure or disagreement
+  is recorded and deterministic local routing continues without an unlaunchable host.
 - No host proposal can expand lifecycle authority or satisfy a gate.
 
 ### 8.2 Fresh-context input
@@ -176,7 +183,7 @@ The host does not receive the entire requirements corpus, the owner's full conve
 interface HostKeywordProposal {
   schemaVersion: 'proofbound.keyword-proposal.v1';
   storyId: string;
-  host: 'codex-cli' | 'claude-cli' | 'agy-cli';
+  host: 'codex-cli' | 'claude-cli';
   proposalId: string;
   promptDigest: string;
   deterministicSeedDigest: string;
@@ -192,6 +199,10 @@ interface HostKeywordProposal {
   ambiguitySignals: string[];
 }
 ```
+
+`HostKeywordProposal.host` is the implemented two-host union `codex-cli | claude-cli`.
+`collectHostKeywordProposals` accepts only those hosts. `agy-cli` is not in this
+artifact union and is not retained for backward-compatible reading.
 
 Limits per host:
 
@@ -474,7 +485,8 @@ Exit: identical inputs produce byte-identical seed and corpus-index artifacts.
 Implementation: B-8038, commit `504564cbc1`; deterministic host ordering and sanitizer regressions were hardened by `ec8d248d66`.
 
 - define fresh-context prompts for Codex and Claude;
-- add conditional `agy` path;
+- keep `HostKeywordProposal.host` as `codex-cli | claude-cli` only; do not retain
+  `agy-cli` for backward-compatible reading of historical artifacts;
 - implement one shared pre-egress sanitizer used by every host adapter, with local-only sensitive-provenance mapping;
 - validate output size/schema/provenance;
 - record timeout/unavailable results without blocking deterministic fallback.
@@ -546,7 +558,7 @@ Exit: two consecutive evaluation windows meet all quality and cost thresholds.
 | Legacy synonym proposed by one host | local hit enters candidates with host provenance |
 | Both hosts miss exact config key | deterministic seed still retrieves document |
 | Codex/Claude disagree at cutoff | ambiguity escalation |
-| `agy` unavailable | primary pair continues; availability recorded |
+| `agy` (never attempted; diagnostic-only) | primary pair continues; agy availability is recorded for diagnostics but agy is never launched — see §1/§8.1/§8.2/§22 |
 | Both primary hosts unavailable | deterministic path continues; no automatic full scan |
 | Memory no-hit | bounded search continues |
 | High-risk gate change | recorded broad-scan escalation |
@@ -586,7 +598,8 @@ Configuration disables candidate enforcement and returns reviewers to explicit t
 
 - Default review prompts contain no requirements corpus bodies.
 - Deterministic seeds, host proposals, queries, candidates, rankings, and read evidence use versioned schemas.
-- Codex and Claude are independent default semantic proposers; `agy` policy is explicit.
+- Codex and Claude are the only current managed semantic proposers; agy is
+  diagnostic-only until a protected transport exists.
 - Candidate and read artifacts are hash-bound and freshness-checked.
 - Full scan requires a structured escalation reason and remains tool-driven.
 - Critical/high-risk golden recall is 100%.

@@ -641,7 +641,8 @@ const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
 // its required arguments. Multiple registered variants all remain observable.
 function registeredNodeArgs(rel, configuration = config) {
   const invocations = (configuration.validate?.commands ?? []).map(entryArgv)
-    .filter(argv => argv[0] === 'node' && argv[1] === rel).map(argv => argv.slice(2));
+    .filter(argv => argv[0] === 'node' && (argv[1] === rel || (argv[1] === 'scripts/run-validation-fixture-suite.mjs' && argv[2] === rel)))
+    .map(argv => argv.slice(argv[1] === rel ? 2 : 3));
   return invocations.length ? invocations : [[]];
 }
 assert.deepEqual(registeredNodeArgs('fixture.mjs', {validate:{commands:[
@@ -650,7 +651,7 @@ assert.deepEqual(registeredNodeArgs('fixture.mjs', {validate:{commands:[
 ]}}), [['--case=one'],['--case=two']], 'every configured selector variant must run');
 assert.deepEqual(registeredNodeArgs('unregistered.mjs',{validate:{commands:[]}}),[[]]);
 const runInMirror = (mirrorRoot, rel) => {
-  const runs = registeredNodeArgs(rel).map(args => ({args,...runNode(['--preserve-symlinks-main', join(mirrorRoot, rel), ...args], mirrorRoot)}));
+  const runs = registeredNodeArgs(rel).map(configuredArgs => { const args = rel === `${RED_DIR_REL}/red-b2aa7-chk007-receipt.mjs` ? [...configuredArgs, '--registration-only'] : configuredArgs; return ({args,...runNode(['--preserve-symlinks-main', join(mirrorRoot, rel), ...args], mirrorRoot)}); });
   const failed = runs.find(r=>r.status!==0);
   // Preserve every command and result; any failed variant keeps the aggregate red.
   return {status:failed ? failed.status : 0,variants:runs,

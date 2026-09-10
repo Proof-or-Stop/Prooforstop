@@ -263,7 +263,10 @@ function realMachineTests(): RealMachineTest[] {
 }
 
 function deliveryCheckSet(root: string, store: StoryStore, docsPromises: DocsPromise[] = []): DeliveryCheckData {
-  const handlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  const handlers = createDeliveryCheckHandlers(
+    { store, root, scanRoot: join(root, 'packages/main') },
+    { authorizeNativeInvocation: () => {} },
+  );
   const output = handlers.delivery_check_set({
     storyId: STORY_ID,
     docsPromises,
@@ -394,7 +397,10 @@ check('generated cross-product covers single-field and pairwise delivery-promise
   const base = { storyId: STORY_ID, realMachineTests: realMachineTests(), closingSelfCheck: closingSelfCheck() };
   const { root, store } = createFixture();
   try {
-    const handlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const handlers = createDeliveryCheckHandlers(
+      { store, root, scanRoot: join(root, 'packages/main') },
+      { authorizeNativeInvocation: () => {} },
+    );
     const beforeStatus = git(root, ['status', '--porcelain']);
     assert.equal(store.readDeliveryCheck(STORY_ID), null);
     for (const row of matrix) {
@@ -753,6 +759,8 @@ check('process-fact registry keeps delivery-check as L4 signed gate evidence pro
   const command = getProcessFactRegistryEntry('delivery_check_set');
   assert.equal(command?.level, 'L4');
   assert.equal(command?.producer, 'handlers/delivery-check');
+  assert.match(command?.rationale ?? '', /broker one-shot invocation attestation/,
+    'delivery gate evidence records the native broker authority boundary');
   assert.equal(command?.artifact?.path, 'delivery-check.json');
   assert.equal(command?.artifact?.signed, true);
   assert.equal(command?.artifact?.producerCommand, 'delivery_check_set');

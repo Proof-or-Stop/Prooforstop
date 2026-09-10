@@ -1,33 +1,10 @@
+import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
 /**
- * B-bbaf: no-convergence + takeover circuit breaker — pure core + cheap per-story I/O.
- *
- * Background (evidence B-f458): a story burned ~14 hours in a non-converging
- * death loop — 89 story_advance events (healthy is 6-10), a 131:31 review
- * run_start/pass ratio (~23.7% overall, collapsing to ~9.5% in the post-16:00
- * window), and 65 lease takeovers — because the framework has only SOFT
- * convergence advisories (core/review-convergence.ts, core/anti-stall.ts,
- * core/usage-burn-alert.ts) and no hard brake. This module is the hard brake:
- * it derives FOUR read-only per-story signals and, on a pathological signature,
- * hard-stops story_advance. It auto-recovers ONCE so healthy autonomous work is
- * unaffected, and only escalates to a human-ack freeze on re-trip.
- *
- * DESIGN CONTRACT (mirrors the usage-burn-alert.ts / review-convergence.ts
- * pure-core discipline):
- *   - assessBreaker is PURE: no process.env, no Date.now(), no I/O. The clock is
- *     irrelevant (all signals are cumulative counts) and thresholds are injected.
- *   - resolveConvergenceThresholds is a pure function of a caller-supplied env
- *     record (handlers pass process.env at the boundary), mirroring
- *     resolveBurnAlertThresholds: typo-safe fallback, per-variable sanity
- *     ceilings, no NaN/Infinity.
- *   - FAIL-OPEN: a malformed/missing breaker-state, ledger, or counter must never
- *     wedge a healthy story. assessBreaker never throws; every I/O helper swallows
- *     errors and returns a safe default.
- *   - CHEAP READS (no hot-path activity-log scan): all four signals come from
- *     small per-story files or the already-loaded story index. The two counters
- *     that would otherwise require scanning the growing shared activity.jsonl —
- *     takeover frequency and repeated-identical-gate-failure — are instead bumped
- *     at the writes that ALREADY happen (the lease takeover audit write and the
- *     cli-engine failure catch), so the breaker only ever does an O(1) read.
+ * Legacy activity diagnostics plus the current shared convergence gate.
+ * Raw advance, takeover, run/pass and repeated-gate counters remain available
+ * for historical analysis. They no longer authorize hard freezes. The CLI
+ * enforcement seam consumes signed completed-epoch progress, shared with the
+ * machine REVIEW mint gate. Human acknowledgement lives in story_resume.
  */
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
@@ -821,26 +798,16 @@ export function collectBreakerCounters(
 // ── Enforcement seam (CHK-003) ───────────────────────────────────────────────
 
 /**
- * The story_advance choke-point breaker gate, mirroring enforceStoryOwnerLeaseGate:
- * a thin function cli-engine.ts calls at its single command choke point so the
- * enforcement logic (and its throw) lives in ONE testable place, not scattered.
- *
- * CHK-003 covers TWO gated entries (per the checklist title "story_advance and
- * takeover-command entry"): while a story is FROZEN, both `story_advance` AND any
- * takeover-carrying command (--takeover / --forceTakeover) are hard-blocked, so a
- * frozen runaway cannot keep seizing leases to extend the storm. Only a human ack
- * (story_resume) clears it. ASSESSMENT for a new trip happens only on
- * story_advance (the progress action); a takeover command is gated by an existing
- * freeze but never itself triggers a new assessment. Healthy stories are
- * byte-identical to today — no state written, nothing thrown. Fail-open: any
- * resolution error returns silently so the breaker never wedges a healthy command.
+ * CLI advance/takeover entry: shared verified progress can block with a stall or
+ * integrity diagnostic. Reads never rewrite legacy counters or signed history.
+ * story_resume reaches its existing human-only acknowledgement checks.
  */
 export function enforceConvergenceBreakerGate(opts: {
   command: string;
   storyId: string | null | undefined;
   /** True when the command carries --takeover / --forceTakeover. */
   isTakeoverCommand: boolean;
-  store: BreakerStore;
+  store: StoryStore;
   env: Record<string, string | undefined>;
 }): void {
   // `story_resume` is the human-only recovery path for a frozen breaker. It may
@@ -866,29 +833,7 @@ export function enforceConvergenceBreakerGate(opts: {
   }
   if (!existsSync(storyDir)) return;
 
-  const prior = readBreakerState(storyDir);
-
-  // Already frozen: block every gated entry (advance OR takeover) until a human
-  // ack, without re-assessing.
-  if (prior?.frozen) {
-    throw new Error(renderBreakerFreeze(storyId, prior.trippedReasons ?? []));
-  }
-
-  // A takeover command on a non-frozen story is allowed through untouched; only
-  // story_advance runs the signal assessment below.
-  if (!isAdvance) return;
-
-  const counters = collectBreakerCounters(opts.store, storyId, storyDir);
-  const thresholds = resolveConvergenceThresholds(opts.env);
-  const assessment = assessBreaker(counters, thresholds, prior);
-
-  if (assessment.action === 'freeze') {
-    writeBreakerState(storyDir, assessment.nextState);
-    throw new Error(renderBreakerFreeze(storyId, assessment.reasons));
-  }
-  if (assessment.action === 'auto-recover') {
-    // Persist the re-baseline + spent recovery; the advance PROCEEDS this once.
-    writeBreakerState(storyDir, assessment.nextState);
-  }
-  // 'proceed': healthy — write nothing (byte-identical to today).
+  const progress = assessConvergenceProgressGate(opts.store, storyId);
+  if (progress.blocked) throw new Error(progress.prompt);
+  // Preserve legacy counter state for diagnostics. It does not authorize a freeze.
 }

@@ -3,20 +3,21 @@
  * validate. Admission control is declaration-driven: an entry may only run
  * concurrently with entries whose canonical resource keys do not conflict.
  *
- * Every mutable run fact lives in a per-call closure. Two schedulers running in
- * the same process therefore never observe each other's cancellation.
+ * Resource ownership is shared across scheduler calls in this process. Results
+ * and cancellation remain per-call; this is not a cross-process lock.
  */
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { KEYED_SCHEDULER_RUNTIME_POLICY, MACHINE_HEAVY_RESOURCE_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 
-export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
+export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock' | 'machine-cpu' | 'machine-process' | 'machine-validation';
 export type ResourceAccess = 'shared' | 'exclusive';
 export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string; ownership?: 'runner-cleanable' }
 
-export const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
+export const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock', 'machine-cpu', 'machine-process', 'machine-validation'];
 export const RESOURCE_ACCESSES: ResourceAccess[] = ['shared', 'exclusive'];
 export const OWNED_RESOURCE_CLASSES: ResourceClass[] = ['fixed-path', 'runtime-lock', 'main-write-lock'];
 export const MAX_JOBS = 64;
@@ -66,6 +67,11 @@ export function validateResourceClaims(claims: ResourceClaim[], owner: string): 
   for (const claim of claims) {
     if (!RESOURCE_CLASSES.includes(claim.class)) throw new Error(`unknown resource class for ${owner}: ${claim.class}`);
     if (!RESOURCE_ACCESSES.includes(claim.access)) throw new Error(`unknown resource access for ${owner}: ${claim.access}`);
+    if (claim.class === 'machine-validation' && (claim.key !== MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey || claim.access !== 'shared')) throw new Error(`invalid machine validation barrier for ${owner}`);
+    if (claim.class === 'machine-cpu' || claim.class === 'machine-process') {
+      const key = claim.class === 'machine-cpu' ? MACHINE_HEAVY_RESOURCE_POLICY.cpuKey : MACHINE_HEAVY_RESOURCE_POLICY.processKey;
+      if (claim.key !== key || claim.access !== MACHINE_HEAVY_RESOURCE_POLICY.access) throw new Error(`invalid exclusive machine resource for ${owner}: ${claim.class}`);
+    }
     if (!claim.key.trim()) throw new Error(`empty resource key for ${owner}`);
     if (claim.ownership && claim.ownership !== 'runner-cleanable') throw new Error(`unknown resource ownership for ${owner}: ${claim.ownership}`);
     if (claim.ownership && (claim.access !== 'exclusive' || !OWNED_RESOURCE_CLASSES.includes(claim.class))) throw new Error(`runner-cleanable resource must be an exclusive owned path for ${owner}`);
@@ -124,6 +130,8 @@ export function canonicalizeEntries<TEntry extends SchedulableEntry>(entries: TE
       if (claim.class === 'fixed-port') {
         const port = parsePositiveInteger(claim.key, `${entry.name} fixed port`, 65_535);
         value = String(port);
+      } else if (claim.class === 'machine-cpu' || claim.class === 'machine-process' || claim.class === 'machine-validation') {
+        value = claim.key;
       } else if (claim.class === 'git-common-dir') {
         const repository = canonicalFilesystemPath(cwd, claim.key);
         const common = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repository, encoding: 'utf8' }).trim();
@@ -142,6 +150,23 @@ export function claimsConflict(left: SchedulableEntry, right: SchedulableEntry):
     if (a.canonicalKey === b.canonicalKey && (a.access === 'exclusive' || b.access === 'exclusive')) return true;
   }
   return false;
+}
+
+// Reserve before invoking user code, and release even if it throws synchronously.
+// Waiters observe only availability, never another batch's result or rejection.
+const processResourceOwners = new Set<SchedulableEntry>();
+const resourceWaiters = new Set<() => void>();
+function waitForProcessResources(pollCancellation: boolean): Promise<void> {
+  return new Promise(resolveWait => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const wake = () => {
+      if (timer) clearTimeout(timer);
+      resourceWaiters.delete(wake);
+      resolveWait();
+    };
+    resourceWaiters.add(wake);
+    if (pollCancellation) timer = setTimeout(wake, KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs);
+  });
 }
 
 export async function runScheduled<TEntry extends SchedulableEntry, TResult extends SchedulableResult>(
@@ -188,13 +213,15 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
 
   const cancelCompleted = options.cancelCompletedResult ?? ((result: TResult, reason: string) => ({ ...result, status: 'INTERRUPTED' as const, reason }) as TResult);
   const predecessorsComplete = (entry: TEntry) => (entry.after ?? []).every(name => completed.has(name));
-  const resourcesCompatible = (entry: TEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
+  const resourcesCompatible = (entry: TEntry) => [...processResourceOwners].every((other) => !claimsConflict(entry, other));
   const compatible = (entry: TEntry) => predecessorsComplete(entry) && resourcesCompatible(entry);
   const launch = (entry: TEntry) => {
     const blockedAt = resourceBlockedAt.get(entry.name);
     const lockWaitMs = blockedAt === undefined ? 0 : performance.now() - blockedAt;
+    const reservation = { name: entry.name, resources: entry.resources.map(claim => ({ ...claim })) };
+    processResourceOwners.add(reservation);
     let task!: Promise<void>;
-    task = execute(entry).then((result) => {
+    task = Promise.resolve().then(() => execute(entry)).then((result) => {
       if (!result || result.name !== entry.name || !SCHEDULED_STATUSES.includes(result.status)) throw new Error(`missing or invalid terminal result for ${entry.name}`);
       const effective = terminalFailureName && result.status === 'PASS'
         ? cancelCompleted(result, `cancelled after terminal failure ${terminalFailureName}`)
@@ -206,7 +233,11 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
         cancellationReason = `cancelled after terminal failure ${result.name}`;
         options.onCancellation?.(cancellationReason, result);
       }
-    }).finally(() => { running.delete(task); });
+    }).finally(() => {
+      running.delete(task);
+      processResourceOwners.delete(reservation);
+      for (const wake of [...resourceWaiters]) wake();
+    });
     running.set(task, entry);
   };
   while (pending.length || running.size) {
@@ -221,7 +252,7 @@ export async function runScheduled<TEntry extends SchedulableEntry, TResult exte
       launch(pending.splice(index, 1)[0]!); launched = true;
     }
     if (running.size) await Promise.race(running.keys());
-    else if (!launched && pending.length) throw new Error(`resource scheduler deadlock at ${pending[0]!.name}`);
+    else if (!launched && pending.length) await waitForProcessResources(Boolean(options.externalCancellation));
   }
   const byName = new Map(results.map((result) => [result.name, result]));
   return entries.map((entry) => byName.get(entry.name)!).filter(Boolean);

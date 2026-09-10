@@ -1,3 +1,4 @@
+import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
@@ -10,7 +11,14 @@ import {
   currentStoryFilesHash,
 } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
+import {
+  classifyReviewerExecutionAuthority,
+  managedReviewerPromptDigest,
+  verifyManagedReviewEvidence,
+  verifyManagedReviewLiveBinding,
+} from './managed-review-evidence.js';
+import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
+import { isReviewRetentionProtocolMetadataPath } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
 import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
@@ -38,6 +46,8 @@ import {
   CURRENT_PROMPT_IDENTITIES,
   domainSeparatedDigest,
   reviewerDispatchBindingDigest,
+  parseReviewerDispatchResponsibility,
+  type ReviewerDispatchResponsibility,
   reviewerDispatchPromptDigest,
   type PromptEnvelope,
 } from './prompt-contracts.js';
@@ -47,8 +57,8 @@ import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.j
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
-  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
+  promptRoleContractForSemanticDigest,
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
   resolvePromptRoleBody,
@@ -104,7 +114,9 @@ export type ReviewRunIssueCode =
   | 'scope_binding_tampered'
   | 'missing_prompt_envelope'
   | 'prompt_envelope_tampered'
-  | 'prompt_envelope_mismatch';
+  | 'prompt_envelope_mismatch'
+  | 'review_execution_authority_missing'
+  | 'managed_receipt_invalid';
 
 export interface ReviewRunIssue {
   code: ReviewRunIssueCode;
@@ -585,7 +597,7 @@ function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
   if (!hasOnlyKeys(run, [
     'reviewRunId', 'storyId', 'agent', 'lane', 'reviewRound', 'startedAt',
     'headHash', 'materialHash', 'storyFilesHash', 'promptHash', 'envelopeId',
-    'assembledPrompt', 'reviewerEscalationReason', 'scopeBinding',
+    'assembledPrompt', 'assembledPromptRef', 'reviewerEscalationReason', 'scopeBinding',
     'workspaceBinding', 'reviewPurpose', 'inventoryBinding', '_hash',
   ])) return false;
   if (run.scopeBinding && (
@@ -630,6 +642,10 @@ function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run))
+    && (run.assembledPromptRef === undefined || (
+      Boolean(run.envelopeId) && run.assembledPrompt === undefined
+      && /^[a-f0-9]{64}$/.test(run.assembledPromptRef) && run.assembledPromptRef === run.promptHash
+    ))
     && (
       run.assembledPrompt === undefined
       || (
@@ -639,9 +655,9 @@ function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
     );
 }
 
-function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun): boolean {
-  if (!run.assembledPrompt || !run.envelopeId) return false;
-  const versions = [...run.assembledPrompt.matchAll(/"schemaVersion":"([^"]+)"/g)].map(match => match[1]);
+function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun, body: string | undefined): boolean {
+  if (!body || !run.envelopeId) return false;
+  const versions = [...body.matchAll(/"schemaVersion":"([^"]+)"/g)].map(match => match[1]);
   const allowedValues = new Set<string>([
     CURRENT_PROMPT_IDENTITIES.roleContract,
     CURRENT_PROMPT_IDENTITIES.fullTaskContext,
@@ -657,13 +673,18 @@ function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun): boolean {
 }
 
 /** Current consumer: full-envelope ReviewRuns must carry only current prompt identities. */
-export function verifyReviewRun(run: ReviewRun): boolean {
+export function verifyReviewRun(run: ReviewRun, promptStore?: { storyDirPath(storyId: string): string }): boolean {
   if (!isReviewerAgent(run.agent) || run.agent !== run.lane) return false;
   if (!verifyReviewRunSignatureIntegrity(run)) return false;
-  return reviewRunPromptUsesCurrentIdentityFamily(run);
+  try {
+    const body = run.assembledPromptRef === undefined ? run.assembledPrompt
+      : promptStore ? readReviewPromptBody(promptStore.storyDirPath(run.storyId), run) : undefined;
+    return reviewRunPromptUsesCurrentIdentityFamily(run, body);
+  } catch { return false; }
 }
 
 export interface VerifiedReviewerDispatchBinding {
+  reviewerResponsibility?: ReviewerDispatchResponsibility;
   dispatchPrompt: string;
   dispatchPromptDigest: string;
   hostRenderHost: PromptHost;
@@ -678,6 +699,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   reviewRound: string;
   projectRoot: string;
   rolloutMode?: 'full-envelope';
+  expectedDispatchBindingDigest?: string;
   reviewPurpose?: ReviewRun['reviewPurpose'];
   inventoryBinding?: ReviewInventoryPurposeBinding;
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
@@ -687,7 +709,8 @@ export function verifyCurrentReviewerDispatchBinding(args: {
     && candidate.targetKind === (args.reviewPurpose === 'inventory-completeness' ? 'inventory-critic-review' : canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
     && typeof candidate.agentType === 'string'
     && agentRoleIdsEqual(candidate.agentType, canonicalLane)
-    && candidate.reviewRound === args.reviewRound);
+    && candidate.reviewRound === args.reviewRound
+    && (args.expectedDispatchBindingDigest === undefined || candidate.dispatchBindingDigest === args.expectedDispatchBindingDigest));
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
   }
@@ -725,7 +748,13 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   if (hostRenderIdentityDigest !== hostIdentity.identityDigest) {
     return { ok: false, reason: 'reviewer host render identity is stale or does not match current host assets' };
   }
+  let reviewerResponsibility: ReviewerDispatchResponsibility | undefined;
+  if (event.reviewerResponsibility !== undefined) {
+    try { reviewerResponsibility = parseReviewerDispatchResponsibility(event.reviewerResponsibility); }
+    catch { return { ok: false, reason: 'reviewer dispatch responsibility is malformed' }; }
+  }
   const expectedBindingDigest = reviewerDispatchBindingDigest({
+    ...(reviewerResponsibility ? { reviewerResponsibility } : {}),
     storyId: args.storyId,
     lane: args.lane,
     reviewRound: args.reviewRound,
@@ -738,6 +767,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   return {
     ok: true,
     binding: {
+      ...(reviewerResponsibility ? { reviewerResponsibility } : {}),
       dispatchPrompt,
       dispatchPromptDigest,
       hostRenderHost,
@@ -745,6 +775,36 @@ export function verifyCurrentReviewerDispatchBinding(args: {
       dispatchBindingDigest,
     },
   };
+}
+
+/** Historical selection is content-bound, never a latest-dispatch or prompt-only lookup. */
+export function verifyHistoricalReviewerDispatchBinding(args: {
+  store: StoryStore; storyId: string; lane: string; reviewRound: string; projectRoot: string;
+  envelope: PromptEnvelope; reviewedIntentRefs: readonly string[];
+  reviewPurpose?: ReviewRun['reviewPurpose']; inventoryBinding?: ReviewInventoryPurposeBinding;
+}): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
+  let expected = args.envelope.reviewerDispatchBindingDigest;
+  if (expected === undefined) {
+    const matches = args.store.readProcessEvents(args.storyId).filter(event =>
+      event.type === 'dispatch' && event.reviewRound === args.reviewRound
+      && typeof event.agentType === 'string' && agentRoleIdsEqual(event.agentType, args.lane)
+      && typeof event.dispatchBindingDigest === 'string'
+      && domainSeparatedDigest('prompt-launcher-spec.v1', {
+        reviewedIntentRefs: args.reviewedIntentRefs,
+        dispatchBindingDigest: event.dispatchBindingDigest,
+        hostRenderHost: event.hostRenderHost,
+      }) === args.envelope.launcherSpecDigest);
+    const identities = [...new Set(matches.map(event => event.dispatchBindingDigest as string))];
+    if (identities.length !== 1) {
+      return { ok: false, reason: 'historical dispatch launcher identity is missing or cannot be reconstructed exactly' };
+    }
+    expected = identities[0];
+  }
+  return verifyCurrentReviewerDispatchBinding({
+    store: args.store, storyId: args.storyId, lane: args.lane, reviewRound: args.reviewRound,
+    projectRoot: args.projectRoot, expectedDispatchBindingDigest: expected,
+    reviewPurpose: args.reviewPurpose, inventoryBinding: args.inventoryBinding,
+  });
 }
 
 export function verifyReviewRunPromptEnvelope(
@@ -767,7 +827,10 @@ export function verifyReviewRunPromptEnvelope(
   if (!agentRoleIdsEqual(envelope.roleId, run.lane)) {
     return { ok: false, reason: 'Prompt Envelope roleId does not match the signed ReviewRun lane' };
   }
-  if (!run.assembledPrompt) {
+  let assembledPrompt: string | undefined;
+  try { assembledPrompt = store.readReviewPrompt(run); }
+  catch (error) { return { ok: false, reason: `signed ReviewRun prompt unavailable: ${error instanceof Error ? error.message : String(error)}` }; }
+  if (!assembledPrompt) {
     return { ok: false, reason: 'signed ReviewRun is missing the exact assembled prompt bytes' };
   }
   if (run.promptHash !== envelope.assembledPromptDigest) {
@@ -782,7 +845,7 @@ export function verifyReviewRunPromptEnvelope(
   let roleContract;
   let resolvedRoleBody;
   try {
-    roleContract = promptRoleContract(canonicalLane);
+    roleContract = promptRoleContractForSemanticDigest(canonicalLane, envelope.roleSemanticDigest);
     resolvedRoleBody = resolvePromptRoleBody(
       canonicalLane,
       loadConfig(metadataRoot).promptEnvelope,
@@ -793,32 +856,38 @@ export function verifyReviewRunPromptEnvelope(
   if (resolvedRoleBody.mode !== 'full-envelope') {
     return { ok: false, reason: `Prompt Envelope cannot be consumed while ${canonicalLane} is ${resolvedRoleBody.mode}` };
   }
-  const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+  const dispatchBinding = verifyHistoricalReviewerDispatchBinding({
     store,
     storyId: run.storyId,
     lane: run.lane,
     reviewRound: run.reviewRound,
     projectRoot: metadataRoot,
+    envelope,
+    reviewedIntentRefs: run.scopeBinding?.reviewedIntentRefs ?? [],
     reviewPurpose: run.reviewPurpose,
     inventoryBinding: run.inventoryBinding,
   });
   if (!dispatchBinding.ok) return dispatchBinding;
   const assemblyValid = envelope.contextMode === 'incremental'
     ? verifyIncrementalPromptAssemblyIntegrity({
-      prompt: run.assembledPrompt,
+      prompt: assembledPrompt,
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
+      eligibilityRoleSemanticDigest: envelope.eligibilityRoleSemanticDigest,
       rolePrompt: resolvedRoleBody.body,
+      reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     })
     : verifyFullPromptAssemblyIntegrity({
-      prompt: run.assembledPrompt,
+      prompt: assembledPrompt,
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
+      eligibilityRoleSemanticDigest: envelope.eligibilityRoleSemanticDigest,
       rolePrompt: resolvedRoleBody.body,
+      reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     });
@@ -834,13 +903,19 @@ export function verifyReviewRunPromptEnvelope(
         run.storyId,
         run.lane,
         {
+          roleSemanticDigest: envelope.eligibilityRoleSemanticDigest ?? promptRoleContract(run.lane).semanticDigest,
           excludedReviewRunId: run.reviewRunId,
           findingsCutoffAt: run.startedAt,
           // Recompute the baseline as-of this signed run. Later metadata-only
           // reviewer passes must not rewrite the priorPassRef of an older run;
           // doing so made every valid pass stale at DONE after review_pass_set
-          // appended its own metadata commit.
+          // appended its own metadata commit. Pin git probes to run.headHash so
+          // a later metadata-only import commit cannot rewrite eligibilityDigest
+          // / reviewBasisDigest either. Historical selection is replayed at H1;
+          // current admission checks live freshness separately below and in
+          // assertCurrentReviewRunForEvidence / collectReviewerEvidenceState.
           passesCutoffAt: run.startedAt,
+          asOfRef: run.headHash,
           findingProjection: envelope.findingProjection,
           promptEnvelopes: envelopes,
         },
@@ -862,6 +937,23 @@ export function verifyReviewRunPromptEnvelope(
     // semantic facts below remain authoritatively recomputed and fail closed.
     const reviewerRequestedFull = envelope.contextMode === 'full'
       && envelope.selectionReason === 'REVIEWER_REQUESTED_FULL';
+    if (reviewerRequestedFull) {
+      // This full-context verifier has an existing live-material contract. Do
+      // not implement it by accidentally mixing HEAD into historical eligibility.
+      const workspaceRoot = run.workspaceBinding?.signedWorkspaceRoot
+        || run.workspaceBinding?.metadataRoot || process.cwd();
+      const liveFreshness = checkEvidenceFreshnessForGit(
+        workspaceRoot, run.headHash, run.materialHash,
+        run.workspaceBinding?.metadataRoot ?? workspaceRoot,
+        run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+      );
+      if (!liveFreshness.currentMaterialHash) {
+        return { ok: false, reason: 'Prompt Envelope current material hash unavailable; retry after the Git material probe is healthy' };
+      }
+      if (!liveFreshness.fresh || !liveFreshness.currentHead) {
+        return { ok: false, reason: `Prompt Envelope freshnessClassification is not current: ${liveFreshness.reason}` };
+      }
+    }
     const eligibilityMismatches = [
       ['impactPolicyVersion', envelope.impactPolicyVersion, incremental.impactPolicyVersion],
       ...(!reviewerRequestedFull ? [
@@ -928,9 +1020,9 @@ function compareRunRecency(a: ReviewRun, b: ReviewRun): number {
   return aTime - bTime;
 }
 
-function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
+function currentRunForLane(store: StoryStore, runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
   const current = runs
-    .filter(run => verifyReviewRun(run) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
+    .filter(run => verifyReviewRun(run, store) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
     .sort(compareRunRecency);
   return current.length > 0 ? current[current.length - 1] : null;
 }
@@ -1250,7 +1342,7 @@ export function evaluateReviewRunMetadataRetention(
   const metadataPaths = [...new Set(changedFiles
     .filter((path) => path.startsWith(storyPrefix))
     .map((path) => path.slice(storyPrefix.length))
-    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path)))];
+    .filter((path) => !isReviewRetentionProtocolMetadataPath(path)))];
   const indexTransition = metadataPaths.includes('index.json')
     ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
     : null;
@@ -1316,7 +1408,7 @@ export function assertCurrentReviewRunForEvidence(
       `${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, agent)}`,
     );
   }
-  if (!verifyReviewRun(run)) {
+  if (!verifyReviewRun(run, store)) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid signature. ${startRunHint(story.storyId, agent)}`);
   }
   if (run.reviewPurpose === 'inventory-completeness') {
@@ -1460,7 +1552,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has invalid workspace binding: ${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, evidence.agent)}`,
     };
   }
-  if (!verifyReviewRun(run)) {
+  if (!verifyReviewRun(run, store)) {
     return {
       code: 'invalid_run_signature',
       kind: evidence.kind,
@@ -1545,7 +1637,7 @@ function validateEvidenceRunBinding(
   // surfaced and is NOT hidden by a newer pass on the same lane; the supersede filter
   // in collectReviewerEvidenceState already drops a stale_run finding once it is
   // resolved/dismissed (terminal), so resolved findings stay superseded as before.
-  const currentRun = currentRunForLane(runs, evidence.agent, story.currentReviewRound);
+  const currentRun = currentRunForLane(store, runs, evidence.agent, story.currentReviewRound);
   if (currentRun && currentRun.reviewRunId !== run.reviewRunId && evidence.kind !== 'pass') {
     return {
       code: 'stale_run',
@@ -1557,6 +1649,8 @@ function validateEvidenceRunBinding(
     };
   }
   const signedProjectRoot = workspaceValidation.projectRoot;
+  const managedBinding = evidence.pass?.managedEvidenceBinding ?? evidence.finding?.managedEvidenceBinding;
+  const nativeBinding = evidence.pass?.nativeEvidenceBinding ?? evidence.finding?.nativeEvidenceBinding;
   // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
   // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
   // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
@@ -1564,32 +1658,55 @@ function validateEvidenceRunBinding(
   // material/story hashes → false-stale. Legacy runs without workspaceBinding
   // fall back to projectRoot (unchanged behavior). gitCwd (arg1) stays
   // signedProjectRoot.
-  const freshness = checkEvidenceFreshnessForGit(
-    signedProjectRoot,
-    run.headHash,
-    run.materialHash,
-    run.workspaceBinding?.metadataRoot ?? projectRoot,
-    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
-  );
-  if (!freshness.fresh) {
-    return {
-      code: 'stale_run_hash',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
-    };
-  }
-  if (freshness.warnings?.length) {
-    advisories?.push({
-      code: 'stale_run_hash',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has whole-tree materialHash drift but matching storyFilesHash: ${freshness.warnings.join('; ')}`,
+  if (managedBinding) {
+    const live = verifyManagedReviewLiveBinding({
+      gitCwd: signedProjectRoot,
+      metadataRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+      storyId: story.storyId,
+      expected: {
+        headHash: run.headHash,
+        materialHash: run.materialHash,
+        storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
+      },
     });
+    if (!live.valid) {
+      return {
+        code: 'managed_receipt_invalid',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}`,
+      };
+    }
+  } else {
+    const freshness = checkEvidenceFreshnessForGit(
+      signedProjectRoot,
+      run.headHash,
+      run.materialHash,
+      run.workspaceBinding?.metadataRoot ?? projectRoot,
+      run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+    );
+    if (!freshness.fresh) {
+      return {
+        code: 'stale_run_hash',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
+      };
+    }
+    if (freshness.warnings?.length) {
+      advisories?.push({
+        code: 'stale_run_hash',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has whole-tree materialHash drift but matching storyFilesHash: ${freshness.warnings.join('; ')}`,
+      });
+    }
   }
   // B-6bfd CHK-005: scope-protected stories require the run's scope binding to
   // match the live scope contract + diff. Checked last so it only applies to the
@@ -1626,6 +1743,101 @@ function validateEvidenceRunBinding(
       reviewRunId: evidence.reviewRunId,
       message: `${evidence.kind} ${evidence.id} failed closeout metadata retention: ${retention.reasons.join('; ')}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
     };
+  }
+  if (!managedBinding && !nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has neither a managed receipt nor a registered-broker native invocation attestation`,
+    };
+  }
+  if (managedBinding && nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has conflicting managed and native execution authority bindings`,
+    };
+  }
+  const authority = classifyReviewerExecutionAuthority({
+    executionMode: managedBinding ? 'cross-provider-cli' : 'native-host',
+    assuranceLevel: 'ordinary-review',
+    hasManagedEvidenceBinding: managedBinding !== undefined,
+  });
+  if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
+    const managed = verifyManagedReviewEvidence({
+      root: projectRoot,
+      storyId: story.storyId,
+      agent: evidence.agent,
+      lane: run.lane,
+      reviewRunId: run.reviewRunId,
+      binding: managedBinding,
+      expected: {
+        providerHost: managedBinding.providerHost,
+        headHash: run.headHash,
+        materialHash: run.materialHash,
+        storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
+        promptHash: run.promptHash,
+        envelopeId: run.envelopeId ?? null,
+        managedPromptDigest: managedReviewerPromptDigest(run.workspaceBinding?.metadataRoot ?? projectRoot, run),
+      },
+      ...(evidence.kind === 'pass' && evidence.pass
+        ? { evidence: { kind: 'pass' as const, pass: evidence.pass } }
+        : evidence.kind === 'finding' && evidence.finding
+          ? { evidence: { kind: 'finding' as const, finding: evidence.finding } }
+          : {}),
+    });
+    if (!managed.valid) {
+      return {
+        code: 'managed_receipt_invalid',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review Proof Admissibility: ${managed.reason}`,
+      };
+    }
+  }
+  if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding) {
+    const dispatch = verifyCurrentReviewerDispatchBinding({
+      store,
+      storyId: story.storyId,
+      lane: run.lane,
+      reviewRound: run.reviewRound,
+      projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+    });
+    const writerSessionId = evidence.pass?.writerSessionId ?? nativeBinding.writerSessionId;
+    const sessionSource = evidence.pass?.sessionSource ?? nativeBinding.sessionSource;
+    if (!dispatch.ok || !verifyNativeReviewEvidenceBinding({
+      binding: nativeBinding,
+      projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+      storyId: story.storyId,
+      agent: run.agent,
+      lane: run.lane,
+      reviewRunId: run.reviewRunId,
+      dispatch: dispatch.ok ? dispatch.binding : {
+        hostRenderHost: nativeBinding.host,
+        dispatchPromptDigest: '',
+        hostRenderIdentityDigest: '',
+        dispatchBindingDigest: '',
+      },
+      writerSessionId,
+      sessionSource,
+    })) {
+      return {
+        code: 'review_execution_authority_missing',
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} native invocation attestation is missing, stale, replayed, or does not match its signed dispatch`,
+      };
+    }
   }
   return null;
 }
@@ -1687,19 +1899,47 @@ export function collectReviewerEvidenceState(
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
   const advisories: ReviewRunIssue[] = [];
+  const nativeInvocationNonceCounts = new Map<string, number>();
+  for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
+    const binding = evidence.kind === 'pass'
+      ? evidence.pass.nativeEvidenceBinding
+      : evidence.finding.nativeEvidenceBinding;
+    if (!binding) continue;
+    nativeInvocationNonceCounts.set(
+      binding.invocationNonce,
+      (nativeInvocationNonceCounts.get(binding.invocationNonce) ?? 0) + 1,
+    );
+  }
 
   for (const evidence of reviewerEvidence) {
-    const issue = validateEvidenceRunBinding(
-      store,
-      story,
-      projectRoot,
-      runs,
-      evidence,
-      scopeContext,
-      promptEnvelopes,
-      advisories,
-      verifyPromptEnvelope,
-    );
+    // B-137a: broker attestations are one-shot. A reused invocation nonce is a
+    // replay, so refuse it BEFORE the ordinary run-binding validation (which
+    // would otherwise accept the duplicate as a well-formed binding).
+    const nativeBinding = evidence.kind === 'pass'
+      ? evidence.pass.nativeEvidenceBinding
+      : evidence.finding.nativeEvidenceBinding;
+    const duplicateNativeInvocation = nativeBinding
+      && (nativeInvocationNonceCounts.get(nativeBinding.invocationNonce) ?? 0) > 1;
+    const issue = duplicateNativeInvocation
+      ? {
+        code: 'review_execution_authority_missing' as const,
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} reuses native invocation nonce ${nativeBinding.invocationNonce}; broker attestations are one-shot`,
+      }
+      : validateEvidenceRunBinding(
+        store,
+        story,
+        projectRoot,
+        runs,
+        evidence,
+        scopeContext,
+        promptEnvelopes,
+        advisories,
+        verifyPromptEnvelope,
+      );
     if (issue) {
       rawInvalid.push(issue);
     } else {

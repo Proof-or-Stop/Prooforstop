@@ -55,6 +55,7 @@ const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['
 // would print fewer markers and STILL exit 0. Every marker below is therefore
 // REQUIRED. `emit` records what was actually printed and the epilogue exits
 // non-zero naming any marker that was withheld, and why that is a regression.
+const canonicalCore = process.argv.includes('--canonical-core');
 const REQUIRED_MARKERS = new Map([
   ['WELL_FORMED_VERDICTS_UNCHANGED',
     'a well-formed fixture changed verdict under direct injection, or the protected invariance harness no longer exits 0 at '
@@ -69,6 +70,11 @@ const REQUIRED_MARKERS = new Map([
     + 'before the dereference it protects — so the fix is no longer minimal and some other check moved, was reordered or was '
     + 'silently relaxed alongside it'],
 ]);
+
+if (canonicalCore) {
+  REQUIRED_MARKERS.delete('WELL_FORMED_VERDICTS_UNCHANGED');
+  REQUIRED_MARKERS.set('CANONICAL_WELL_FORMED_VERDICTS', 'direct-injection fixtures and legacy blank classification must hold');
+}
 
 const emitted = new Set();
 /**
@@ -176,10 +182,10 @@ const foreignTarget = {
 // (b) The same well-formed fixtures are re-driven through the DIRECT-injection path
 // used by check 2, so the new guard is proven to pass well-formed records rather
 // than merely to be absent from the harness's code path.
-const harnessRun = spawnSync(process.execPath, [join(here, 'red-w2c-v1-verdict-invariance.mjs')], { encoding: 'utf8' });
+const harnessRun = canonicalCore ? null : spawnSync(process.execPath, [join(here, 'red-w2c-v1-verdict-invariance.mjs')], { encoding: 'utf8' });
 const pinnedDigest = /V1_VERDICT_DIGEST\s*=\s*'([0-9a-f]{64})'/.exec(readFileSync(HARNESS, 'utf8'))?.[1] ?? null;
-const printedDigest = /five-scenario FULL-diagnostic sha256 = ([0-9a-f]{64})/.exec(harnessRun.stdout ?? '')?.[1] ?? null;
-const digestHeld = pinnedDigest !== null && printedDigest === pinnedDigest && harnessRun.status === 0;
+const printedDigest = /five-scenario FULL-diagnostic sha256 = ([0-9a-f]{64})/.exec(harnessRun?.stdout ?? '')?.[1] ?? null;
+const digestHeld = pinnedDigest !== null && printedDigest === pinnedDigest && harnessRun?.status === 0;
 
 const WELL_FORMED = [
   ['satisfying', [satisfying], true],
@@ -202,7 +208,10 @@ const blankStaysOrdinary = [blankObservedFailure, emptyObservedFailure].every((r
   && unguardedDereferenceThrows(record) === false
   && verdictFor([record]).satisfied === false);
 
-if (digestHeld && wellFormedHeld && blankStaysOrdinary) {
+if (canonicalCore && wellFormedHeld && blankStaysOrdinary) {
+  emit('CANONICAL_WELL_FORMED_VERDICTS (five direct-injection fixtures preserve verdicts; blank/empty remains an ordinary non-satisfier; invariance scheduled independently)');
+}
+if (!canonicalCore && digestHeld && wellFormedHeld && blankStaysOrdinary) {
   emit(
     `WELL_FORMED_VERDICTS_UNCHANGED (${WELL_FORMED.length} well-formed fixtures re-driven through direct injection; `
     + `protected harness re-run exits 0 at its own pinned digest ${printedDigest}; `

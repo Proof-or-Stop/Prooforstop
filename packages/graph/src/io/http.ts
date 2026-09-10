@@ -7,6 +7,8 @@ import type { App } from '../core/app.js';
 export interface ServeOptions {
   readonly app: App;
   readonly port: number;
+  /** Bind locally by default because the graph exposes repository and Story data. */
+  readonly host?: string;
   readonly assetDir: string;
   readonly vendorDir?: string;
 }
@@ -117,6 +119,6 @@ export function startServer(o: ServeOptions): Promise<http.Server> {
   });
   return new Promise((resolve, reject) => {
     server.once('error', reject);
-    server.listen(o.port, () => resolve(server));
+    server.listen(o.port, o.host ?? '127.0.0.1', () => resolve(server));
   });
 }

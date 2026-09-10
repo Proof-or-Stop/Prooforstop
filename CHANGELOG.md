@@ -1,5 +1,15 @@
 # Changelog
 
+## Integrated Finding lineage and session-performance maintenance - v0.3.300 - 2026-09-10
+
+This release reconciles the independently integrated Finding identity/historical-lineage maintenance and session-performance maintenance on their complete shared ancestry. The normal merge preserves both histories; no remote work is overwritten and neither branch's validation, resource, identity, or lifecycle registrations are discarded.
+
+The merged candidate retains retired-evidence review-inventory correctness, the signed non-gate Finding candidate/identity/history/route/progress command set, foreign active-worktree canonical discovery, story-aware validation selection and exact reuse, material and implementation identity binding, watchdog and cancellation propagation, provider and fixture isolation, static execution-edge audits, Graph no-browser behavior, managed-run notification controls, and the complete reviewed validation inventory.
+
+The two independent lines both used patch number 0.3.297 before reconciliation. Version 0.3.300 is the first unambiguous combined version and is the only release tag created for this merged candidate.
+
+Verification and exact merged pins are recorded by the integration commit and the corresponding GitHub Release. This engineering integration does not mint Story REVIEW, TEST, DONE, or product-certification evidence.
+
 ## Lab b03b7-public-foreign-canonical - v0.3.299 - 2026-09-10
 
 # B-03b7 public foreign canonical coverage
@@ -76,6 +86,24 @@ Performance: this is a correctness repair, not a performance optimization; no pe
 
 Maintenance provenance: codex/lab-review-inventory-retired-evidence-0296, repair f6df7239a227d21a5f6064c11fe9e7a6198e2f42.
 Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/review-inventory-epoch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab session-performance-plan - v0.3.297 - 2026-09-10
+
+Integrate the session-performance Lab maintenance work and the validation repairs into local main.
+
+The maintenance includes story-aware validation selection and reuse, scoped cache and material identity work, bounded execution/watchdog handling, provider and fixture isolation, static edge audits, and the reviewed U-01 through U-18 implementation work recorded in the Lab history. Evidence writers propagate heartbeat/cancellation/deadline controls. Invocation-local execution sharing is bound to the actual material snapshot and preserves independent selector checks, V5 execution receipts, publication recovery, and atomic writes. Stable command-policy timeouts are checked separately from watchdog-shortened actual budgets; persisted reuse remains exact. The material-drift counterexample prevents failed-batch output from acquiring authority for new material.
+
+Graph startup honors no-open requests, and automated checks use HTTP or independent headless browsers. Historical managed-run snapshots no longer flood the UI with completion toasts; only new actionable transitions are displayed with bounded notification presentation. Complete fixture scenarios remain enabled, including the quorum and proof-admissibility suites. Timeout execution wiring and exact wrapped resource-barrier identities have positive and negative regression controls.
+
+Before remote integration, the earlier frozen Lab repair db70ba655e passed all 153 then-configured commands through the production executor with jobs=4 in 1402.906 seconds, with unchanged HEAD/config. After merging the newer main history, a frozen 160-command diagnostic run exposed 11 integration failures; the next frozen whole-plan run passed 158 of 160 commands in 2421.389 seconds with unchanged HEAD/config. The two remaining failures were the receipt fixture timing out while competing with other heavy work and identity-cutover observing concurrent repository mutation. Both now share one exact exclusive validation barrier. On the final committed source, the receipt fixture passed through the production executor in 124.146 seconds under its unchanged 180-second command limit.
+
+The formerly serial 36-case narrowing command changed from a 181.289-second timeout to a 67.738-second pass under the same 180-second outer limit. The complete 73-case quorum suite, Graph HTTP/no-browser check, managed-host recovery case, DONE parity, post-DONE snapshot, acceptance-basis suite, verification guard, and tool-executed evidence command all passed focused replay. Graph now binds to loopback by default, and the provider-neutral fixture tolerates only the bounded macOS process-group identity publication window before authenticating the exact process. The complete identity-cutover replay passed every public-operation, zero-write, mixed-identity, omission, and inventory mutation control before finding one stale brand-role fixture that bypassed the now-required native-review broker. That fixture now uses the real broker; its complete focused suite, boundary scan, and exact reviewed-context mutation controls pass. Static execution closure reports zero needs-review, nested, or unexpanded boundaries across 272 observations, and rollout, mode, and selector controls pass. This final evidence is the frozen 158/160 whole-plan run plus exact impact-set replays of both remaining failures; it does not claim a later redundant 160-command replay.
+
+The remote main history is preserved through a normal merge, including its canonical prompt/active-identity and evidence-currentness changes. The external-project CLI-version fix remains sourced from the executing CLI brand constant. This is local maintenance evidence, not formal Story TEST/DONE or signed product-release certification.
+
+Maintenance provenance: codex/lab-session-performance-plan, repair fc33a89782e60d1bb4eaf530e1b7cf606ef6d21d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-boundary-contracts.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab five-item-reuse-closure-20260909 - v0.3.296 - 2026-09-10

@@ -22,6 +22,10 @@ import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
 import { PROCESS_FACT_LEVEL_BY_NAME } from '../core/process-fact-levels.js';
 import { canonicalReviewHostLauncherSpec } from '../core/host-execution-readiness.js';
+import {
+  acquireProviderProcessAdmission,
+  releaseProviderProcessAdmission,
+} from '../core/provider-process-admission.js';
 import { StoryStore } from '../core/store.js';
 import type {
   ChecklistData,
@@ -394,7 +398,7 @@ try {
   const codexProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
   assert.ok(codexProbe.invocationTemplate?.includes('exec'), 'codex template must use codex exec');
   assert.ok(codexProbe.invocationTemplate?.includes('--json'), 'codex template must use --json for observable events');
-  assert.ok(codexProbe.invocationTemplate?.includes('<prompt>'), 'codex template must carry canonical prompt placeholder');
+  assert.equal(codexProbe.invocationTemplate?.at(-1), '-', 'codex template must carry the canonical stdin prompt marker');
   assert.equal(codexProbe.invocationTemplate?.includes('--prompt-file'), false, 'codex template must not use --prompt-file');
 
   // If claude is installed, additional shape assertions apply
@@ -1176,6 +1180,68 @@ try {
       const spawnedStdin = readFileSync(fakeCodexStdinFile, 'utf8');
       assert.equal(spawnedStdin, codexPromptText, 'spawned codex stdin must receive the prompt file contents');
       assert.match(spawnedStdin, /REAL_PROMPT_SENTINEL_123/, 'spawned codex stdin must include the story prompt content');
+
+      const previousCap = process.env.PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT;
+      const previousLedger = process.env.PROOF_OR_STOP_USAGE_LEDGER;
+      process.env.PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT = '1';
+      process.env.PROOF_OR_STOP_USAGE_LEDGER = '0';
+      const holder = acquireProviderProcessAdmission({
+        root,
+        env: process.env,
+        host: 'codex',
+        storyId: 'B-dispatch',
+        agentType: 'dispatch-admission-holder',
+      });
+      assert.equal(holder.admitted, true, 'reviewer dispatch admission fixture must hold the sole provider slot');
+      try {
+        const admissionReady = run<DispatchRecord>('dispatch_prepare', {
+          storyId: 'B-dispatch',
+          dispatchId: 'D-real-host-codex-admission',
+          host: 'codex',
+          objective: 'Reviewer dispatch must refuse before its bounded runner when the shared cap is saturated.',
+          allowedPaths: ['packages/main/src/generated/real-host-codex-admission.txt'],
+        });
+        let providerRunnerCalls = 0;
+        const admissionBlocked = runDispatch(store, root, {
+          storyId: admissionReady.storyId,
+          dispatchId: admissionReady.dispatchId,
+          allowRealHostSubprocess: true,
+          executionPolicy: {
+            envAllowlist: [],
+            envDenylist: [],
+            commandAllowlist: [],
+            maxRuntimeMs: 5000,
+          },
+          providerRunner: request => {
+            providerRunnerCalls += 1;
+            return {
+              provider: request.provider,
+              argvDigest: 'not-reached',
+              exitCode: 0,
+              stdoutDigest: 'not-reached',
+              stderrDigest: 'not-reached',
+              stdoutBytes: 0,
+              stderrBytes: 0,
+              durationMs: 0,
+              attempts: 1,
+              timedOut: false,
+              spawnError: false,
+            };
+          },
+        });
+        assert.equal(admissionBlocked.status, 'failed', 'saturated reviewer dispatch must fail closed');
+        assert.equal(providerRunnerCalls, 0, 'lattice-dispatch admission must run before the injected reviewer provider runner');
+        assert.ok(
+          admissionBlocked.warnings.some(warning => /concurrency_cap_exceeded/.test(warning)),
+          'reviewer dispatch must preserve the mechanical shared-cap refusal',
+        );
+      } finally {
+        releaseProviderProcessAdmission(holder);
+        if (previousCap === undefined) delete process.env.PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT;
+        else process.env.PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT = previousCap;
+        if (previousLedger === undefined) delete process.env.PROOF_OR_STOP_USAGE_LEDGER;
+        else process.env.PROOF_OR_STOP_USAGE_LEDGER = previousLedger;
+      }
     } finally {
       if (savedPath === undefined) delete process.env.PATH;
       else process.env.PATH = savedPath;
@@ -1640,8 +1706,18 @@ try {
   // CHK-004: unavailable host degrades visibly (PATH-restricted test)
   {
     const savedPath = process.env.PATH;
+    const savedLatticeActivitySource = process.env.PROOF_OR_STOP_ACTIVITY_SOURCE;
+    const savedCodexSessionId = process.env.CODEX_SESSION_ID;
+    const savedCodexHome = process.env.CODEX_HOME;
     try {
       process.env.PATH = '/usr/bin:/bin';
+      // This block exercises PATH-only CLI availability. Active Codex adapter
+      // markers otherwise make the in-process adapter available despite PATH.
+      delete process.env.PROOF_OR_STOP_ACTIVITY_SOURCE;
+      delete process.env.CODEX_SESSION_ID;
+      delete process.env.CODEX_HOME;
+      assert.equal(process.env.PROOF_OR_STOP_ACTIVITY_SOURCE, undefined,
+        'PATH-only unavailable-host probe must not inherit active Codex adapter availability');
       const antigravityUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
       assert.equal(antigravityUnavailable.status, 'unavailable');
       assert.equal(antigravityUnavailable.runtimeKind, 'missing-cli');
@@ -1672,6 +1748,8 @@ try {
       assertAuthorityFalse(legacyGeminiUnavailable, 'legacyGeminiUnavailable4');
 
       const codexUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+      assert.equal(codexUnavailable.status, 'unavailable',
+        'without active adapter markers, PATH-restricted codex must be unavailable');
       assert.equal(codexUnavailable.receiptSupport, 'unverified',
         'unavailable codex (PATH-restricted) must have receiptSupport=unverified');
       assert.equal(codexUnavailable.unattendedSafe, false,
@@ -1679,6 +1757,12 @@ try {
       assertAuthorityFalse(codexUnavailable, 'codexUnavailable4');
     } finally {
       process.env.PATH = savedPath;
+      if (savedLatticeActivitySource === undefined) delete process.env.PROOF_OR_STOP_ACTIVITY_SOURCE;
+      else process.env.PROOF_OR_STOP_ACTIVITY_SOURCE = savedLatticeActivitySource;
+      if (savedCodexSessionId === undefined) delete process.env.CODEX_SESSION_ID;
+      else process.env.CODEX_SESSION_ID = savedCodexSessionId;
+      if (savedCodexHome === undefined) delete process.env.CODEX_HOME;
+      else process.env.CODEX_HOME = savedCodexHome;
     }
   }
 
@@ -1820,9 +1904,11 @@ try {
       assert.ok(scaffoldedStatus.runner!.invocation.length > 0, 'scaffolded runner must have resolved invocation');
       assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt>'), false, 'scaffolded invocation must not leave a literal <prompt>');
       assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt-file>'), false, 'scaffolded invocation must not leave a literal <prompt-file>');
-      assert.ok(
-        scaffoldedStatus.runner!.invocation.some(part => part.includes(resolve(root, scaffoldedStatus.dispatch.promptFile))),
-        'scaffolded invocation must point to the prompt file instead of dumping prompt contents',
+      assert.equal(scaffoldedStatus.runner!.invocation.at(-1), '-', 'scaffolded Codex invocation must preserve the stdin prompt marker');
+      assert.match(
+        scaffoldedStatus.dispatch.nextAction,
+        new RegExp(`pipe the contents of ${resolve(root, scaffoldedStatus.dispatch.promptFile).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} to the command stdin`, 'i'),
+        'scaffolded Codex next action must identify the exact prompt file and stdin delivery contract',
       );
       assertAuthorityFalse(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
       // Text rendering
@@ -1917,7 +2003,7 @@ try {
 
     // Text rendering
     const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
-    assert.match(watchText, /proofOrStop\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+    assert.match(watchText, /proof-or-stop\.dispatch_watch\.v1/, 'dispatch_watch text must include the same canonical schema as JSON');
     assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
   }
 

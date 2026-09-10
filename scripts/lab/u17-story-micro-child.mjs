@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import cp from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+const original = cp.execFileSync;
+let active = false;
+const counts = {};
+cp.execFileSync = function(command, args, ...rest) {
+  if (active && command === 'git') counts[args[0]] = (counts[args[0]] ?? 0) + 1;
+  return original.call(this, command, args, ...rest);
+};
+syncBuiltinESMExports();
+const { currentStoryFilesHash } = await import(pathToFileURL(join(process.env.U17_REPO, 'packages/main/dist/core/evidence-freshness.js')));
+const baselineModules = globalThis.__u17BaselineModules ?? [];
+assert.equal(baselineModules.length, process.env.U17_MODE === 'old' ? 2 : 0);
+active = true;
+const start = performance.now();
+const hashes = Array.from({ length: 20 }, () => currentStoryFilesHash(process.env.U17_FIXTURE));
+const wallMs = performance.now() - start;
+active = false;
+console.log(JSON.stringify({ mode: process.env.U17_MODE, wallMs, counts, gitTotal: Object.values(counts).reduce((a, b) => a + b, 0), hashes, baselineModules }));

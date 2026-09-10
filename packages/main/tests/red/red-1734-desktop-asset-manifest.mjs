@@ -631,6 +631,12 @@ async function main() {
     {
       const controls = [
         {
+          label: 'packages/main/node_modules/smol-toml',
+          rel: 'packages/main/node_modules/smol-toml',
+          why: 'the CLI imports managed-review-provider-state which parses TOML provider state',
+          failureMustMatch: /Cannot find package 'smol-toml'/,
+        },
+        {
           label: 'scripts/build-lock.mjs',
           rel: 'scripts/build-lock.mjs',
           why: "bootstrap dynamically imports it for reader admission on every packaged startup",

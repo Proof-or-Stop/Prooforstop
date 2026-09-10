@@ -14,6 +14,7 @@ export type {
 } from './validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
+import type { SignedNativeReviewInvocationAttestation } from './native-review-attestation.js';
 // W2c (B-506e): the RED-evidence subsystem's v2 record union (chain / control
 // records). RedEvidenceData.records is a mixed v1+v2 array, schemaVersion-
 // discriminated — the on-disk layout is unchanged (still one append-only
@@ -86,7 +87,13 @@ export type AgentDispatchMutationCommand =
   | 'finding_add'
   | 'review_pass_set'
   | 'review_inventory_critic_set'
+  | 'managed_review_proposal_set'
   | 'delivery_check_set'
+  | 'acceptance_amendment_propose'
+  | 'acceptance_amendment_review'
+  | 'acceptance_amendment_approve'
+  | 'acceptance_amendment_cancel'
+  | 'review_remediation_close'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
   // implementer registers the per-story target binding before a RED run.
@@ -121,6 +128,7 @@ export type AgentDispatchEvidenceOwnership =
   | 'review-run'
   | 'finding'
   | 'review-pass'
+  | 'managed-review-proposal'
   | 'delivery-check'
   | 'finding-resolution'
   | 'cluster-resolution';
@@ -1815,6 +1823,10 @@ export interface Finding {
   reviewRound?: string;
   /** Signed reviewer-run binding for current REVIEW evidence. */
   reviewRunId?: string;
+  /** Terminal-sealed managed provider proposal imported by exact receipt. */
+  managedEvidenceBinding?: ManagedReviewEvidenceBinding;
+  /** Registered-broker invocation attestation for direct native reviewer evidence. */
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding;
   /** Signed self-reported reviewer read coverage when supplied by reviewer evidence. */
   readManifest?: ReviewerReadManifest;
   /** Signed mechanical reviewer read-log summary when read events/log input was supplied. */
@@ -1923,6 +1935,7 @@ export interface FindingLedgerCommitRef {
 export type FindingLedgerOperation =
   | 'append_finding'
   | 'append_finding_projection'
+  | 'append_review_remediation'
   | 'append_finding_lifecycle_transition'
   | 'append_legacy_identity_binding'
   | 'append_detector_signal'
@@ -2105,6 +2118,10 @@ export interface ReviewPass {
   reviewRound?: string;
   /** Signed reviewer-run binding for current REVIEW evidence. */
   reviewRunId?: string;
+  /** Terminal-sealed managed provider proposal imported by exact receipt. */
+  managedEvidenceBinding?: ManagedReviewEvidenceBinding;
+  /** Registered-broker invocation attestation for direct native reviewer evidence. */
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding;
   /** New-format pass must equal the envelopeId signed by its ReviewRun. */
   envelopeId?: string;
   /** Signed self-reported reviewer read coverage. Missing only on legacy passes. */
@@ -2139,6 +2156,49 @@ export interface ReviewPass {
   _hash?: string;
 }
 
+export interface ManagedReviewEvidenceBinding {
+  schemaVersion: 'lattice.managed_review_evidence_binding.v1';
+  runId: string;
+  receiptId: string;
+  proposalDigest: string;
+  terminalDigest: string;
+  importedAt: string;
+  providerAgent: string;
+  providerHost: 'codex' | 'claude' | 'agy';
+  lane: string;
+  reviewRunId: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  promptHash: string;
+  envelopeId: string | null;
+  managedPromptDigest: string;
+  /** Exact zero-based provider finding index; absent for pass proposals. */
+  proposalFindingIndex?: number;
+}
+
+export interface NativeReviewEvidenceBinding {
+  schemaVersion: 'lattice.native_review_evidence_binding.v2';
+  host: 'codex' | 'claude';
+  storyId: string;
+  agent: string;
+  lane: string;
+  reviewRunId: string;
+  dispatchPromptDigest: string;
+  dispatchBindingDigest: string;
+  hostRenderIdentityDigest: string;
+  writerSessionId: string;
+  sessionSource: string;
+  brokerId: string;
+  adapterId: string;
+  invocationNonce: string;
+  attestationDigest: string;
+  attestation: SignedNativeReviewInvocationAttestation;
+  /** Optional corroboration. Unobservable ancestry does not negate a valid broker attestation. */
+  processLineageDigest?: string;
+  nativeSessionRef?: string;
+}
+
 export interface ReviewPassData {
   passes: ReviewPass[];
 }
@@ -2162,6 +2222,8 @@ export interface ReviewRun {
    * domain-separated digest is promptHash and is also bound by envelopeId.
    */
   assembledPrompt?: string;
+  /** Exact promptHash-addressed body; new envelope runs omit the inline legacy bytes. */
+  assembledPromptRef?: string;
   /** Reviewer-authored reason that forced this otherwise eligible run to full context. */
   reviewerEscalationReason?: string;
   /** Explicit critic purpose; absent retains historical/default topology semantics. */
@@ -2352,6 +2414,8 @@ export type TestResult = 'PASS' | 'FAIL';
 export type TestFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface TestEvidenceData {
+  /** Ed25519 authentication of the entire final record, bound to its Story. Missing legacy PASS must be rerun. */
+  validationArtifactSignature?: string;
   /** command of the last test run */
   command: string;
   /** output of the last test run */
@@ -2689,6 +2753,7 @@ export type ProcessEventType =
   | 'review_escalation_policy'
   | 'review_escalation_fallback'
   | 'legacy_authority_receipt'
+  | 'cross_host_review_managed_submitted'
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
@@ -3191,6 +3256,13 @@ export interface DeliveryCheckData {
    * a forged storyFilesHash breaks the signature (delivery_check_tampered).
    */
   storyFilesHash?: string;
+  /**
+   * Registered delivery-review broker attestation consumed at persistence time.
+   * It is signature-bound with the rest of this artifact so DONE readers can
+   * inspect the exact native authority provenance rather than trusting a
+   * transient pre-write authorization side effect.
+   */
+  nativeEvidenceBinding?: NativeReviewEvidenceBinding;
   /** Snapshot of story.currentReviewRound at write time */
   reviewRound: string;
   /** Reviewer self-reported agent id, for audit traceability only (not part of signature) */
@@ -3200,7 +3272,7 @@ export interface DeliveryCheckData {
   closingSelfCheck: ClosingSelfCheck;
   /**
    * Signature for new writes:
-   * sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:materialHash:storyFilesHash:salt)
+   * sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:materialHash:storyFilesHash:JSON(nativeEvidenceBinding):salt)
    * materialHash and storyFilesHash are appended only when present, so legacy
    * records without them recompute byte-identically; DONE gates reject a missing
    * materialHash as stale.
@@ -3299,6 +3371,30 @@ export interface FileRule {
   deniedAnchors?: string[];
   /** These anchors must not change and violations block even in shadow mode */
   protectedAnchors?: string[];
+  /**
+   * B-137a: UNACKNOWLEDGEABLE protection with a narrow key-scoped exception.
+   *
+   * Every hunk in this file is a hard `protected_anchor` violation -- which
+   * `scope_contract_acknowledge` cannot downgrade -- UNLESS all of that hunk's
+   * anchors appear in this list.
+   *
+   * This exists because neither pre-existing primitive covers dependency
+   * manifests (package.json / package-lock.json):
+   *   - `protectedFiles` is unacknowledgeable but absolute, so it also blocks
+   *     the CLAUDE.md-mandated version bump, deadlocking the story that must
+   *     perform it.
+   *   - `allowedAnchors` permits the version-only edit but is self-service
+   *     acknowledgeable (semantic-scope-gate routes unmatched_anchor through
+   *     `acknowledged ? warnings : violations`), so an agent can downgrade its
+   *     own dependency edit.
+   *   - `protectedAnchors` naming package names is impossible: ANCHOR_RE
+   *     requires a JS identifier and rejects names like `@types/node`.
+   *
+   * Listing the PERMITTED key (`version`) instead of the forbidden package
+   * names inverts the problem so the allowlist is expressible, while the
+   * default for everything else stays hard-blocked.
+   */
+  protectedExceptAnchors?: string[];
   /** Restrict which change kinds are permitted for this file */
   allowedChangeKinds?: ChangeKind[];
   /** Optional verification intent refs this semantic rule exists to protect. */

@@ -4,6 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+
 const tasksDir = dirname(fileURLToPath(import.meta.url));
 const suitePath = fileURLToPath(import.meta.url);
 const childMarker = 'PROOF_OR_STOP_AGENT_LIVENESS_SUITE_CHILD';
@@ -17,12 +19,16 @@ const childSmokes = [
   'repair-retry-loop-smoke.js',
 ] as const;
 
-export function runAgentLivenessSuite(): void {
+export function agentLivenessSuiteChildEnvironment(environment: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return { ...sanitizedFixtureChildEnvironment(environment), [childMarker]: '1' };
+}
+
+export function runAgentLivenessSuite(environment: NodeJS.ProcessEnv = process.env): void {
   for (const childName of childSmokes) {
     const childPath = join(tasksDir, childName);
     try {
       execFileSync(process.execPath, [childPath], {
-        env: { ...process.env, [childMarker]: '1' },
+        env: agentLivenessSuiteChildEnvironment(environment),
         stdio: 'inherit',
       });
     } catch (error) {
@@ -34,9 +40,9 @@ export function runAgentLivenessSuite(): void {
   }
 }
 
-export function runAgentLivenessSuiteForPinnedEvidence(): void {
+export function runAgentLivenessSuiteForPinnedEvidence(environment: NodeJS.ProcessEnv = process.env): void {
   if (process.env[childMarker] === '1') return;
-  runAgentLivenessSuite();
+  runAgentLivenessSuite(environment);
   console.log('agent-liveness-suite-smoke PASS');
 }
 

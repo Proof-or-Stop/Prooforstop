@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 /**
  * B-f675 CHK-003 — proves the read-only incremental review context
  * (core/review-incremental-context.ts, CHK-001) reports the right shape for a
@@ -59,7 +60,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +98,7 @@ import {
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
+  assertCurrentReviewRunForEvidence,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -195,6 +197,7 @@ function buildFixtureStore(input: FixtureStoreInput): StoryStore {
     readStory: (storyId: string) => { guard(storyId); return input.story; },
     readFindings: (storyId: string) => { guard(storyId); return { findings }; },
     readReviewPasses: (storyId: string) => { guard(storyId); return { passes }; },
+    readReviewPrompt: (row: ReviewRun) => row.assembledPrompt,
     readReviewRuns: (storyId: string) => { guard(storyId); return { runs }; },
     readScopeContract: (storyId: string) => { guard(storyId); return (input.scopeContract ?? null) as never; },
     readReviewLoopRecords: (storyId: string) => { guard(storyId); return (input.reviewLoopRecords ?? []) as never; },
@@ -436,7 +439,7 @@ function runTemporalCutoffRegression(root: string): void {
   console.log(`${MARKER} TEMPORAL CUTOFF: A-before-B selected; C-after-B and equal-timestamp passes excluded; mutation bite confirmed`);
 }
 
-function runProductionVerifierTemporalCutoffRegression(): void {
+async function runProductionVerifierTemporalCutoffRegression(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
   const role = 'proof-or-stop-review-quality';
@@ -461,9 +464,18 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
   };
+  const recordPass = async (payload: Record<string, unknown>, actor: string): Promise<void> => {
+    readFileSync(join(root, 'src/cutoff.ts'), 'utf8');
+    await runBrokeredNativeReviewCli({ root, store: new StoryStore(root), storyId, agent: actor,
+      reviewRunId: String(payload.reviewRunId), command: 'review_pass_set', payload: { ...payload,
+        readManifest: { filesReadFully: ['src/cutoff.ts'], filesTriagedByName: [], scanEscalationReason: null },
+        readEvents: [{ path: 'src/cutoff.ts', mode: 'full', action: 'Read', tokenCount: null }],
+      } });
+  };
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'proof-or-stop.config.json', JSON.stringify({
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
@@ -526,7 +538,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     runCli('dispatch', { storyId, agentType: role }, 'main');
     runCli('review_run_start', { storyId, agent: role }, role);
     const runA = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runA.reviewRunId,
@@ -567,7 +579,20 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       { ok: true },
       'production verifier accepts B before a later pass is appended',
     );
-    runCli('review_pass_set', {
+    const failingGitDirectory = mkdtempSync(join(tmpdir(), 'review-material-probe-'));
+    try {
+      const actualGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+      const fakeGit = join(failingGitDirectory, 'git');
+      writeFileSync(fakeGit, `#!${process.execPath}\nconst {spawnSync}=require('node:child_process');const args=process.argv.slice(2);if(args[0]==='ls-tree')process.exit(1);const result=spawnSync(${JSON.stringify(actualGit)},args,{stdio:'inherit'});process.exit(result.status??1);\n`);
+      chmodSync(fakeGit, 0o755);
+      const probe = `import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};import {verifyReviewRunPromptEnvelope} from ${JSON.stringify(new URL('../core/review-run.js', import.meta.url).href)};const store=new StoryStore(process.argv[1]);const run=store.readReviewRuns(process.argv[2]).runs.find(row=>row.reviewRunId===process.argv[3]);process.stdout.write(JSON.stringify(verifyReviewRunPromptEnvelope(store,run)));`;
+      const unavailable = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', probe, root, storyId, runB.reviewRunId], {
+        cwd: root, env: { ...process.env, PATH: `${failingGitDirectory}:${process.env.PATH ?? ''}` }, encoding: 'utf8',
+      }));
+      assert.equal(unavailable.ok, false, 'HEAD alone cannot establish current material freshness');
+      assert.match(unavailable.reason ?? '', /current material hash unavailable/, 'unknown current material gets an actionable fail-closed diagnostic');
+    } finally { rmSync(failingGitDirectory, { recursive: true, force: true }); }
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runB.reviewRunId,
@@ -583,7 +608,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       reviewerEscalationReason: fullContextReason,
     }, laterLane);
     const laterLaneRun = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: laterLane,
       reviewRunId: laterLaneRun.reviewRunId,
@@ -699,7 +724,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
 
     runCli('review_run_start', { storyId, agent: role }, role);
     const runC = store.readReviewRuns(storyId).runs.at(-1)!;
-    runCli('review_pass_set', {
+    await recordPass({
       storyId,
       agent: role,
       reviewRunId: runC.reviewRunId,
@@ -859,6 +884,205 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
     console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees`);
     console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function runAsOfRunEligibilityRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-asof-run-'));
+  const storyId = 'B-asof-run';
+  const role = 'proof-or-stop-review-quality';
+  const round = '2026-07-21T00:00:00.000Z';
+  const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
+    execFileSync(process.execPath, [
+      DIST_CLI_PATH,
+      '--root',
+      root,
+      command,
+      JSON.stringify(payload),
+    ], {
+      cwd: root,
+      env: {
+        ...process.env,
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_AGENT: actor,
+        PROOF_OR_STOP_SESSION_ID: `asof-${actor}`,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  };
+  const verifierOptions = (run: ReviewRun) => ({
+    roleSemanticDigest: promptRoleContract(role).semanticDigest,
+    findingProjection: new StoryStore(root).readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === run.envelopeId)?.findingProjection,
+    excludedReviewRunId: run.reviewRunId,
+    findingsCutoffAt: run.startedAt,
+    passesCutoffAt: run.startedAt,
+  });
+  try {
+    write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
+      scanRoot: '.',
+      rootDir: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+      promptEnvelope: {
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
+        roles: { [role]: 'full-envelope' },
+      },
+    }, null, 2) + '\n');
+    write(root, 'src/feature.ts', 'export const feature = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      ...reviewStory(storyId, 1, round),
+      title: 'As-of-run eligibility regression',
+      description: 'Pin verifier eligibility to the signed ReviewRun headHash.',
+      priority: 'high',
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Pin eligibility to the signed run',
+        context: 'Later metadata-only commits must not rewrite a receipt-bound envelope.',
+        status: 'done',
+        startTime: null,
+        endTime: round,
+        files: { modify: ['src/feature.ts'], create: [], test: [] },
+        verificationIntent: {
+          happy: [{ id: 'CHK-001:happy:0', desc: 'As-of-run eligibility survives metadata-only commits.', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    git(root, ['add', '.proof-or-stop/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run review metadata']);
+
+    runCli('dispatch', { storyId, agentType: role }, 'main');
+    runCli('review_run_start', { storyId, agent: role }, role);
+    const runA = store.readReviewRuns(storyId).runs.at(-1)!;
+    const passA = signedPass(storyId, `${runA.reviewRunId}:PASS`, role, ts(6), round);
+    passA.reviewRunId = runA.reviewRunId;
+    passA.envelopeId = runA.envelopeId;
+    passA.writerSessionId = `${runA.reviewRunId}-session`;
+    passA.sessionSource = 'smoke';
+    passA._hash = signReviewPass(
+      storyId,
+      passA.id,
+      passA.agent,
+      passA.note,
+      passA.createdAt,
+      passA.reviewRound || '',
+      runA.reviewRunId,
+      undefined,
+      undefined,
+      undefined,
+      { writerSessionId: passA.writerSessionId, sessionSource: passA.sessionSource },
+      runA.envelopeId,
+    );
+    store.writeReviewPasses(storyId, { passes: [passA] });
+    git(root, ['add', `.proof-or-stop/story/actives/${storyId}`]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'trusted prior pass A']);
+
+    runCli('review_run_start', { storyId, agent: role }, role);
+    const runB = store.readReviewRuns(storyId).runs.at(-1)!;
+    const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
+      envelope => envelope.envelopeId === runB.envelopeId,
+    )!;
+    const headH1 = runB.headHash;
+    assert.equal(typeof headH1, 'string');
+    assert.ok(headH1.length >= 7, 'signed run must bind a real headHash');
+    assert.equal(envelopeB.contextMode, 'incremental', 'production B must use the incremental envelope path');
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'production verifier accepts B at H1 before later commits',
+    );
+
+    write(
+      root,
+      `.proof-or-stop/story/actives/${storyId}/process-metrics.json`,
+      `${JSON.stringify({ kind: 'metadata-only-import-commit', padding: 'm'.repeat(64) }, null, 2)}\n`,
+    );
+    git(root, ['add', `.proof-or-stop/story/actives/${storyId}/process-metrics.json`]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata-only import padding']);
+    assert.notEqual(currentGitHead(root), headH1, 'metadata-only commit must move HEAD');
+
+    const asOfH1AfterMeta = reviewIncrementalContext(store, root, storyId, role, {
+      ...verifierOptions(runB),
+      asOfRef: headH1,
+    });
+    assert.equal(
+      asOfH1AfterMeta.eligibilityDigest,
+      envelopeB.eligibilityDigest,
+      'as-of H1 eligibilityDigest must survive a later metadata-only commit',
+    );
+    assert.equal(
+      asOfH1AfterMeta.reviewBasisDigest ?? undefined,
+      envelopeB.reviewBasisDigest,
+      'as-of H1 reviewBasisDigest must survive a later metadata-only commit',
+    );
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'production verifier must still accept B after a metadata-only import-style commit',
+    );
+    assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runB.reviewRunId), 'current admission accepts metadata-only history');
+    const liveHeadAfterMeta = reviewIncrementalContext(store, root, storyId, role, verifierOptions(runB));
+    assert.equal(
+      liveHeadAfterMeta.currentHeadHash,
+      currentGitHead(root),
+      'omitting asOfRef keeps the live HEAD probe (the old bug path)',
+    );
+
+    write(root, 'src/feature.ts', 'export const feature = false;\n');
+    git(root, ['add', 'src/feature.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'material source change after H1']);
+
+    const asOfH1AfterMaterial = reviewIncrementalContext(store, root, storyId, role, {
+      ...verifierOptions(runB),
+      asOfRef: headH1,
+    });
+    const liveHeadAfterMaterial = reviewIncrementalContext(store, root, storyId, role, verifierOptions(runB));
+    assert.equal(
+      asOfH1AfterMaterial.eligibilityDigest,
+      envelopeB.eligibilityDigest,
+      'as-of H1 eligibilityDigest must remain the signed envelope after a later material commit',
+    );
+    assert.equal(
+      asOfH1AfterMaterial.reviewBasisDigest ?? undefined,
+      envelopeB.reviewBasisDigest,
+      'as-of H1 reviewBasisDigest must remain the signed envelope after a later material commit',
+    );
+    assert.notEqual(
+      liveHeadAfterMaterial.eligibilityDigest,
+      asOfH1AfterMaterial.eligibilityDigest,
+      'current-HEAD eligibility must detect related material drift after H1',
+    );
+    assert.notEqual(
+      liveHeadAfterMaterial.reviewBasisDigest,
+      asOfH1AfterMaterial.reviewBasisDigest,
+      'current-HEAD reviewBasis must detect related material drift after H1',
+    );
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'receipt-bound verifier stays pinned to H1 and does not consume later material drift as envelope invalidity',
+    );
+    assert.throws(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runB.reviewRunId), /stale|material/i, 'historical replay never grants current admission after related material drift');
+    console.log(`${MARKER} AS-OF-RUN ELIGIBILITY: metadata-only commit preserves H1 envelope; live HEAD probe remains the old path; later material commit mismatches HEAD-based context`);
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
@@ -1759,7 +1983,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
       'persisted envelopes identify both actual producer paths',
     );
     assert.equal(runs.length, 1, 'actual review_run_start durably persists exactly one ReviewRun');
-    assert.equal(verifyReviewRun(runs[0]), true, 'actual mixed-writer ReviewRun remains signed');
+    assert.equal(verifyReviewRun(runs[0], store), true, 'actual mixed-writer ReviewRun remains signed');
     assert.deepEqual(
       verifyReviewRunPromptEnvelope(store, runs[0]),
       { ok: true },
@@ -1900,9 +2124,9 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
-      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
-      if (!mutation) assert.equal(Boolean(run.envelopeId), full, `concurrency mask ${mask} iteration ${iteration} ${run.lane} binds the current representation`);
-      if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `concurrency mask ${mask} iteration ${iteration} ${run.lane} stores the current assembled prompt`);
+      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPromptRef) === full;
+      if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
+      if (!mutation) assert.equal(Boolean(run.assembledPromptRef), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores exact prompt reference only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
@@ -2119,6 +2343,7 @@ async function run(): Promise<void> {
   // with the other independent incremental checks instead of paying its ~75s
   // as a serial full-suite tail.
   const cutoffProbe = startIsolatedMode('--cutoff-verifier-only', /PRODUCTION VERIFIER CUTOFF/u);
+  runAsOfRunEligibilityRegression();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   const abaStarted = performance.now();
@@ -2212,7 +2437,9 @@ if (isDirectRun) {
   } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
-    runProductionVerifierTemporalCutoffRegression();
+    await runProductionVerifierTemporalCutoffRegression();
+  } else if (process.argv.includes('--asof-run-only')) {
+    runAsOfRunEligibilityRegression();
   } else if (process.argv.includes('--bounded-paths-only')) {
     runBoundedPathsDegradationCase();
   } else if (process.argv.includes('--guard-map-only')) {

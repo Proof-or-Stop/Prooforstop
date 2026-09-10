@@ -1,10 +1,11 @@
-import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS } from './runtime-fact-registry.js';
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -15,7 +16,9 @@ import {
   utimesSync,
   writeFileSync,
 } from 'node:fs';
-import { hostname } from 'node:os';
+import { hostname, networkInterfaces, userInfo } from 'node:os';
+import { createServer } from 'node:net';
+import { MACHINE_FIXED_PORT_ARTIFACT } from './runtime-artifact-registry.js';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import {
   acquireMkdirLock,
@@ -395,6 +398,7 @@ export interface ValidationCapacityLockOptions {
   deadlineAt?: number;
   deadlineError?: () => Error;
   onWaitProgress?: (message: string) => void;
+  externalCancellation?: () => string | undefined;
 }
 
 export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {
@@ -408,6 +412,8 @@ function capacityDeadlineError(options: ValidationCapacityLockOptions): Error {
 }
 
 function assertCapacityWaitActive(options: ValidationCapacityLockOptions): void {
+  const external = options.externalCancellation?.();
+  if (external) throw new Error(external);
   if (options.abortSignal?.aborted) {
     throw options.abortSignal.reason instanceof Error
       ? options.abortSignal.reason
@@ -641,9 +647,83 @@ export async function withWorkspaceValidationCapacity<T>(
   options: ValidationCapacityLockOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
+  return withValidationCapacityQueue(options, fn, validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true));
+}
+
+/** Same-user machine resources are acquired only by actual command executors. */
+export async function withMachineFixedPorts<T>(options: ValidationCapacityLockOptions, fn: () => Promise<T> | T): Promise<T> {
+  return withMachineValidationResources(options, fn);
+}
+
+export async function withMachineValidationResources<T>(options: ValidationCapacityLockOptions, fn: () => Promise<T> | T): Promise<T> {
+  const declared = options.resources !== undefined;
+  if (declared && !Array.isArray(options.resources)) throw new Error('machine resources must be an array');
+  const normalized = declared ? canonicalizeEntries([{ name: options.command, resources: options.resources! }], options.workspaceRoot)[0]!.resources : [];
+  const machineResources = normalized.filter(claim => claim.class === 'fixed-port' || claim.class === 'machine-cpu' || claim.class === 'machine-process');
+  const home = userInfo().homedir;
+  const lockKey = join(home, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
+  mkdirSync(lockKey, { recursive: true, mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode });
+  const metadata = lstatSync(lockKey);
+  if (!metadata.isDirectory() || metadata.isSymbolicLink() || (process.platform !== 'win32' && (metadata.uid !== userInfo().uid || (metadata.mode & 0o077) !== 0))) throw new Error('machine resource lock root must be a private owned directory');
+  // Every classified executor participates in the same queue, even when its
+  // explicit machine footprint is empty. A null declaration is globally
+  // exclusive, including against tickets written by earlier runtimes.
+  const claims = declared ? canonicalizeEntries([{ name: options.command, resources: [
+    { class: 'machine-validation', key: MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey, access: 'shared' }, ...machineResources,
+  ] }], options.workspaceRoot)[0]!.resources : undefined;
+  const nested = currentContextOwns(lockKey);
+  const held = nested ? activeCapacityDeclarations.get(validationLockOwnerStore.getStore()!.get(lockKey)!) : undefined;
+  return withValidationCapacityQueue({ ...options, resources: claims, maxConcurrent: MAX_JOBS,
+    deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs }, async () => {
+    // A dead queue owner cannot prove its detached child released a socket.
+    // Probe exclusive ports before any new heavy child; busy external listeners
+    // fail closed too. Shared claims may intentionally consume an existing service.
+    for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) {
+      if (nested && held?.resources.some(prior => prior.canonicalKey === claim.canonicalKey && prior.access === 'exclusive')) continue;
+      await probeMachineFixedPort(Number(claim.key));
+      assertCapacityWaitActive(options);
+    }
+    return await fn();
+  }, lockKey, true);
+}
+
+function machinePortAncestorPids(): Set<number> {
+  const text = execFileSync('ps', ['-axo', 'pid=,ppid='], { encoding: 'utf8', timeout: 1000, maxBuffer: 8 * 1024 * 1024 });
+  const parents = new Map<number, number>();
+  for (const line of text.trim().split('\n')) {
+    const [pid, parent] = line.trim().split(/\s+/).map(Number);
+    if (Number.isSafeInteger(pid) && Number.isSafeInteger(parent)) parents.set(pid!, parent!);
+  }
+  const ancestors = new Set<number>();
+  let parent = parents.get(process.pid);
+  while (parent && !ancestors.has(parent)) { ancestors.add(parent); parent = parents.get(parent); }
+  return ancestors;
+}
+
+async function probeMachineFixedPort(port: number): Promise<void> {
+  // On macOS a wildcard socket may coexist with a specific-address listener.
+  // Probe concrete local addresses too; a wildcard bind alone proves too little.
+  const addresses = new Set(['127.0.0.1', '::1', '0.0.0.0', '::']);
+  for (const [name, entries] of Object.entries(networkInterfaces())) for (const entry of entries ?? []) {
+    addresses.add(entry.family === 'IPv6' && entry.scopeid ? `${entry.address}%${name}` : entry.address);
+  }
+  for (const address of addresses) await probeMachineFixedPortAddress(port, address);
+}
+
+async function probeMachineFixedPortAddress(port: number, host: string): Promise<void> {
+  await new Promise<void>((resolveProbe, rejectProbe) => {
+    const server = createServer();
+    const timer = setTimeout(() => { server.close(); rejectProbe(new Error(`machine fixed-port ${port} preflight timed out`)); }, MACHINE_FIXED_PORT_RUNTIME_POLICY.probeTimeoutMs);
+    server.once('error', error => { clearTimeout(timer); rejectProbe(new Error(`machine fixed-port ${port} unavailable before child launch: ${error.message}`)); });
+    server.listen({ port, host, exclusive: true }, () => server.close(error => {
+      clearTimeout(timer); if (error) rejectProbe(error); else resolveProbe();
+    }));
+  });
+}
+
+async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOptions, fn: () => Promise<T> | T, lockKey: string, rejectAncestorConflict = false): Promise<T> {
   const command = String(options.command ?? '').trim() || 'validate';
   const storyId = String(options.storyId ?? '').trim();
-  const lockKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
   const declaration = capacityDeclaration(options);
   if (currentContextOwns(lockKey)) {
     const token = validationLockOwnerStore.getStore()!.get(lockKey)!;
@@ -670,6 +750,7 @@ export async function withWorkspaceValidationCapacity<T>(
   mkdirSync(lockKey, { recursive: true });
   const choosingPath = join(lockKey, `${holderInfo.lockId}.choosing`);
   let ticketPath = '';
+  let ancestors: Set<number> | undefined;
   createValidationCapacityCandidate(choosingPath, holderInfo, declaration);
   try {
     const existingNumbers = capacityCandidates(lockKey, '.ticket')
@@ -685,6 +766,16 @@ export async function withWorkspaceValidationCapacity<T>(
       const tickets = activeCapacityCandidates(lockKey, '.ticket', staleMs)
         .sort((a, b) => a.name.localeCompare(b.name));
       if (choosing.length === 0 && capacityTicketAdmitted(tickets, ticketPath)) break;
+      if (rejectAncestorConflict) {
+        for (const candidate of tickets.filter(candidate => candidate.path !== ticketPath && candidate.holder?.hostname === hostname())) {
+          const prior = readCapacityDeclaration(candidate.path);
+          if (prior && declaration && !claimsConflict({ name: command, resources: declaration.resources }, { name: 'prior', resources: prior.resources })) continue;
+          if (candidate.holder && candidate.holder.pid !== process.pid) {
+            ancestors ??= machinePortAncestorPids();
+            if (ancestors.has(candidate.holder.pid)) throw new Error('nested machine resource acquisition conflicts with an ancestor; declare machine resources on their actual leaf command only');
+          }
+        }
+      }
       const now = Date.now();
       if (now - lastProgressAt >= progressIntervalMs) {
         lastProgressAt = now;

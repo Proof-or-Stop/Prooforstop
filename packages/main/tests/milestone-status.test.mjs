@@ -307,7 +307,8 @@ function storyDirs(root) {
     const storyDir = join(root, '.proof-or-stop', 'story', 'actives', cliMarkerStoryId);
     mkdirSync(storyDir, { recursive: true });
     writeTestConfig(root);
-    writeJson(join(storyDir, 'index.json'), story(cliMarkerStoryId));
+    // This CLI presentation fixture adds checklist scope, so keep it in PLAN.
+    writeJson(join(storyDir, 'index.json'), { ...story(cliMarkerStoryId), phase: 'PLAN' });
     writeJson(join(storyDir, 'checklist.json'), markerChecklist);
     const milestoneLedgerPath = join(storyDir, 'milestone-ledger.json');
     writeJson(milestoneLedgerPath, ledger(markerLedger.milestones, cliMarkerStoryId));
@@ -374,6 +375,8 @@ function storyDirs(root) {
       cliMarkerStoryId,
       '--title',
       'Exercise ledger-backed checklist add UX',
+      '--reason',
+      'Exercise the PLAN-time ledger advisory without changing milestone coverage.',
       '--context',
       'Adding a checklist row to a ledger-backed story should show status and advisory text without changing milestone-ledger.json.',
     ], { cwd: root, encoding: 'utf8' });

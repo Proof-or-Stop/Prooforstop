@@ -364,6 +364,8 @@ try {
   );
   assert.equal(JSON.stringify(legacyContract), legacyBytes, 'versioned readers never rewrite signed legacy bytes in place');
 
+  // Configure fixture acceptance in PLAN; later DEV writes exercise the freeze.
+  store.writeStory(storyId, { ...story, phase: 'PLAN' });
   const set = run(root, 'scope_contract_set', {
     storyId,
     mode: 'enforce',
@@ -385,6 +387,8 @@ try {
   assert.match(partialUpdate, /allowedCreate: \[src\/new.ts\]/, 'partial update should preserve omitted allowedCreate');
   assert.match(partialUpdate, /allowedTest: \[tests, specs\]/, 'partial update should replace provided allowedTest');
 
+  run(root, 'scope_contract_set', { storyId, mode: 'enforce', allowedModify: ['src/allowed.ts', 'retired-root.md'], allowedCreate: ['src/new.ts', 'packages/main/src/core/future.ts'] });
+  store.writeStory(storyId, story);
   git(root, ['mv', 'retired-root.md', 'canonical-root.md']);
   const retiredAck = run(root, 'scope_contract_acknowledge', {
     storyId,
@@ -427,16 +431,22 @@ try {
     source: 'src/other.ts',
     status: 'fail',
     blocking: true,
-    action: /scope_contract_acknowledge|Declare the path/i,
+    action: /acceptance_amendment_propose|Declare the path/i,
   });
 
+  const beforeRejectedAck = JSON.stringify(store.readScopeContract(storyId));
   const ack = run(root, 'scope_contract_acknowledge', {
     storyId,
     paths: ['src/other.ts'],
     actor: 'scope-contract-smoke',
     reason: 'Required for smoke coverage of explicit scope expansion.',
-  });
-  assert.match(ack, /Scope change acknowledged/, 'acknowledgement should render user-visible transcript');
+  }, true);
+  assert.match(ack, /acceptance_amendment_propose/, 'DEV expansion requires independent amendment approval');
+  assert.equal(JSON.stringify(store.readScopeContract(storyId)), beforeRejectedAck, 'refusal preserves contract bytes');
+  // Historical read fixture: retain legacy acknowledgement diagnostics without granting new expansion authority.
+  const historical = store.readScopeContract(storyId)!;
+  historical.acknowledgements.push({ actor: 'legacy-fixture', reason: 'Historical explicit scope expansion acknowledgement.', timestamp: story.createdAt, paths: ['src/other.ts'] });
+  store.writeScopeContract(storyId, historical);
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
   assert.equal(checked.status, 'warn', 'acknowledged out-of-scope file should warn, not pass silently');
   assert.ok(checked.acknowledgedPaths.includes('src/other.ts'), 'acknowledged path remains visible');
@@ -580,7 +590,7 @@ try {
     source: '.proof-or-stop/story/actives/B-scope/cluster.json',
     status: 'fail',
     blocking: true,
-    action: /scope_contract_acknowledge|Declare the path/i,
+    action: /acceptance_amendment_propose|Declare the path/i,
   });
 
   const failClosedNegative = checkScopeContract(waveContract, [
@@ -605,7 +615,7 @@ try {
       source,
       status: 'fail',
       blocking: true,
-      action: /scope_contract_acknowledge|Declare the path|fixture/i,
+      action: /acceptance_amendment_propose|Declare the path|fixture/i,
     });
   }
 
@@ -614,11 +624,13 @@ try {
   assert.equal(checked.status, 'fail', 'protected files fail even when other paths are acknowledged');
   assert.ok(checked.violations.some((v: any) => v.path === 'src/protected.ts' && v.rule === 'protected'), 'protected rule should be visible');
 
+  store.writeStory(storyId, { ...story, phase: 'PLAN' });
   run(root, 'scope_contract_set', {
     storyId,
     mode: 'shadow',
     allowedModify: ['src/allowed.ts'],
   });
+  store.writeStory(storyId, story);
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
   assert.equal(checked.status, 'warn', 'shadow mode warns instead of blocking out-of-scope paths');
   assert.match(run(root, 'scope_contract_check', { storyId }), /Scope gate: warn/, 'text output should include warning transcript');
@@ -628,7 +640,7 @@ try {
   // while a multi-digest acknowledgement persists only the plural `hunkDigests`.
   run(root, 'scope_contract_acknowledge', {
     storyId,
-    paths: ['src/other.ts'],
+    paths: ['src/allowed.ts'],
     actor: 'scope-contract-smoke',
     reason: 'Single hunk digest acknowledgement for F-003 regression coverage.',
     hunkDigest: 'abc12345',
@@ -641,7 +653,7 @@ try {
 
   run(root, 'scope_contract_acknowledge', {
     storyId,
-    paths: ['src/other.ts'],
+    paths: ['src/allowed.ts'],
     actor: 'scope-contract-smoke',
     reason: 'Multiple hunk digests acknowledgement for F-003 regression coverage.',
     hunkDigests: ['abc12345', 'def67890'],
@@ -669,7 +681,9 @@ try {
   // CHK-004 B-a30e: runScopeTransitionGate advisory copy for warn status.
   // Shadow mode with an out-of-scope file is warn (not fail); the transition gate
   // must render advisory/not blocking text and name the recovery path.
+  store.writeStory(storyId, { ...story, phase: 'PLAN' });
   run(root, 'scope_contract_set', { storyId, mode: 'shadow', allowedModify: ['src/allowed.ts'] });
+  store.writeStory(storyId, story);
   // src/other.ts (out-of-scope) and src/protected.ts are both modified in the worktree;
   // shadow mode renders them as warn, not fail.
   const minimalCtx = { store, root } as HandlerContext;
@@ -677,7 +691,7 @@ try {
   // DEV phase warn: advisory, acknowledge, then proceed.
   const warnOutputDev = runScopeTransitionGate(minimalCtx, storyId, 'DEV');
   assert.match(warnOutputDev, /advisory, not blocking/, 'CHK-004: DEV phase warn output must say advisory, not blocking');
-  assert.match(warnOutputDev, /scope_contract_acknowledge/, 'CHK-004: DEV phase warn output must name scope_contract_acknowledge recovery');
+  assert.match(warnOutputDev, /acceptance_amendment_propose/, 'CHK-004: DEV phase warn output must name acceptance_amendment_propose recovery');
 
   // TEST phase warn: advisory, roll back to DEV recovery.
   const warnOutputTest = runScopeTransitionGate(minimalCtx, storyId, 'TEST');
@@ -685,17 +699,19 @@ try {
   assert.match(warnOutputTest, /roll back to DEV/, 'CHK-004: TEST phase warn output must name roll back to DEV recovery');
 
   // CHK-004: blocking scope failures still throw and name the hard recovery.
+  store.writeStory(storyId, { ...story, phase: 'PLAN' });
   run(root, 'scope_contract_set', { storyId, mode: 'enforce', allowedModify: ['src/allowed.ts'] });
+  store.writeStory(storyId, story);
   assert.throws(
     () => runScopeTransitionGate(minimalCtx, storyId, 'DEV'),
-    /scope_contract_acknowledge|Cannot enter DEV/,
-    'CHK-004: enforce mode out-of-scope diff must throw and name scope_contract_acknowledge',
+    /acceptance_amendment_propose|Cannot enter DEV/,
+    'CHK-004: enforce mode out-of-scope diff must throw and name acceptance_amendment_propose',
   );
 
-  // CHK-004: scope_contract_set phase limits unchanged — scope contract can be updated in any phase.
-  run(root, 'scope_contract_set', { storyId, mode: 'shadow', allowedModify: ['src/allowed.ts'] });
-  const resetShow = run(root, 'scope_contract_show', { storyId });
-  assert.match(resetShow, /Mode: shadow/, 'CHK-004: scope_contract_set always updates the contract regardless of phase');
+  // DEV cannot downgrade the configured enforcement mode.
+  const beforeDowngrade = JSON.stringify(store.readScopeContract(storyId));
+  assert.match(run(root, 'scope_contract_set', { storyId, mode: 'shadow', allowedModify: ['src/allowed.ts'] }, true), /acceptance_amendment|mode/);
+  assert.equal(JSON.stringify(store.readScopeContract(storyId)), beforeDowngrade);
 
   // B-08be CHK-001 regression: direct and lifecycle scope gates must read git
   // diffs from the authoritative story worktree, not unrelated metadataRoot
@@ -932,7 +948,7 @@ try {
 
   // B-adc3: accepted scope must remain representable by the downstream reviewer.
   const budgetId = 'B-scope-budget';
-  store.writeStory(budgetId, { ...story, storyId: budgetId });
+  store.writeStory(budgetId, { ...story, storyId: budgetId, phase: 'PLAN' });
   store.writeChecklist(budgetId, checklist);
   const budgetHandlers = createScopeContractHandlers({ root, scanRoot: root, store } as HandlerContext);
   const paths = (count: number) => Array.from({ length: count }, (_, i) => `packages/main/src/inventory/f${String(i).padStart(5, '0')}.ts`);

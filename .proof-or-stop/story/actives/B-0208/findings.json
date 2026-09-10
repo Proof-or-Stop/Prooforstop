@@ -1,0 +1,91 @@
+{
+  "findings": [
+    {
+      "id": "B-0208:F-001",
+      "desc": "Historical low observation from native Claude R2 session8d939998-e357-4029-aa5c-2da701f01dcc at89bcc552: process-fact-registry.ts:463 omitted executing-CLI toolVersion semantics from verification_evidence_refresh_stale while three peer producers documented it. Independent checklist.ts3118 and shared stamping1164 source trace confirms refresh consumes the resolver. Source log /private/tmp/b0208-final-claude-r2.events.jsonl. The observation was verified before repair but registration in DEV was refused REVIEW_EVIDENCE_PHASE_REQUIRED. It is already repaired at current24950bfd: exact git diff adds only the missing semantic clause and preserves every existing freshness, selector, timeout and failed-row rule. Record original low documentation omission honestly for owner closure; no current runtime defect or gate bypass claimed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-08T14:55:08.345Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-011",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "48d3f67d29cdd19c6c9603a69f0b13ae41186586fb38323557129b1512800214",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|historical-observation-native",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtssjwai_1bro_724f1b8c462c48069e12c3ad82b999cf",
+      "ledgerCommitReceiptId": "lrc_mtssjwai_1bro_e534cbefa258424a9053c61fe7c244a0",
+      "resolvedAt": "2026-09-08T14:55:37.653Z",
+      "resolvedReason": "Fixed by commit 24950bfd5c3dc49cfead5063be79ccd67c8c32e2: verification_evidence_refresh_stale now documents executing-CLI causal toolVersion identity, matching the other three producers. The prior stamping, identity, signed timestamp and failed/pinless semantics remain verbatim. Independent quality review confirmed the one-clause delta; process-fact contract passed in /private/tmp/B0208-refresh-registry-contract.log and main build passed. Historical Claude R2 FINDINGS remains preserved; the original report is not relabeled PASS.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0208:F-002",
+      "desc": "packages/main/src/core/process-fact-registry.ts:847 validate.consumerGate omits executing-CLI causal toolVersion semantics although verifier.ts:736 binds resolveCausalToolVersion through createValidationCausalPreflightGate, called by validate at1948 and2339. Native Claude R3 session b3c2f6ca-99b0-43fc-a1e1-0872a75cbd0f reported terminal PASS plus this low advisory against24950bfd in /private/tmp/b0208-refresh-claude-r3.events.jsonl. Independent exhaustive production-callsite audit identifies exactly five producer commands: verification_evidence_add, verification_evidence_batch_add, verification_run, verification_evidence_refresh_stale and validate. The first four already document these semantics; validate alone remains omitted. scripts/verify-process-fact-contract.mjs:4632 checks only global includes and cannot detect missing producer entries. This current-Story incomplete process-fact documentation belongs to current-scope repair; runtime identity is correct, no bypass claimed. Add the validate clause and per-producer contract assertions in existing scoped files. Preserve low severity and original native observation.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-08T15:22:12.483Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-016",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "70a34e3bd367e85d216be4fc36cde8788ed04547640f4307830887826f675653",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtstiphg_v2v_67108c707afe4f4cbda659c5a34a4f73",
+      "ledgerCommitReceiptId": "lrc_mtstiphg_v2v_302771615d4f493f9fa626edaaa464ef",
+      "resolvedAt": "2026-09-08T15:41:03.249Z",
+      "resolvedReason": "Fixed by commit 6c1bfc6bf2: validate now registers the executing-CLI causal toolVersion semantic, and the process-fact contract parses and requires that semantic for each of the five resolver-consuming producer commands. Main build, causal-evidence smoke, and process-fact contract pass on the repaired source; the native Claude R3 observation remains preserved.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

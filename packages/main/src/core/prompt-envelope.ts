@@ -44,6 +44,8 @@ export interface FullPromptAssemblyInput {
   lane?: string;
   createdAt: string;
   launcherSpec?: unknown;
+  reviewerDispatchBindingDigest?: string;
+  eligibilityRoleSemanticDigest?: string;
   commandPolicy?: unknown;
   toolPolicy?: unknown;
   systemInstruction?: string;
@@ -988,6 +990,7 @@ function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
 function hasDynamicFindingAuthorityAmendmentAssertion(
   segment: string,
   wholeSourceIsInvariantAssertion: boolean,
+  isWholeSourceProhibition: boolean,
 ): boolean {
   const referenceOnly = new RegExp(
     `^(?:(?:use|consult|follow)\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+as\\s+(?:the\\s+)?(?:governing\\s+reference|source\\s+of\\s+truth)\\s+for\\s+this\\s+story|read\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+before\\s+(?:implementing|reviewing)\\s+this\\s+story|this\\s+story\\s+depends\\s+on\\s+(?:the\\s+)?${DYNAMIC_FINDING_AUTHORITY.source}\\s+and\\s+does\\s+not\\s+amend\\s+it)$`,
@@ -1020,8 +1023,13 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
     if (subordinateBefore && subordinateAfter) continue;
 
     const negativeAction = '(?:amend|change|modify|rewrite|override|replace|extend|update)';
-    const actorNegativeLead = new RegExp(`^(?:(?:(?:it\\s+is\\s+never|retired\\s+verdict\\s+vocabulary\\s+is\\s+never)\\s+(?:retained|used|accepted)\\s+as\\s+an\\s+active\\s+alias\\s+and\\s+)?(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${negativeAction}(?:\\s+the)?)$`, 'u').test(beforeAuthority);
-    const imperativeNegativeLead = new RegExp(`^do\\s+not\\s+${negativeAction}(?:\\s+runtime\\s+finding\\s+schemas\\s+handlers\\s+predicates\\s+process\\s+fact\\s+registries\\s+lifecycle\\s+gates\\s+or)?(?:\\s+the)?$`, 'u').test(beforeAuthority);
+    // Admit the whole-object form only as a complete source assertion. A
+    // following clause can refer back with `it`/`its` and reverse the ban.
+    const prohibitionObjectLead = isWholeSourceProhibition
+      ? '(?:\\s+any\\s+part\\s+of)?(?:\\s+the)?'
+      : '(?:\\s+the)?';
+    const actorNegativeLead = new RegExp(`^(?:(?:(?:it\\s+is\\s+never|retired\\s+verdict\\s+vocabulary\\s+is\\s+never)\\s+(?:retained|used|accepted)\\s+as\\s+an\\s+active\\s+alias\\s+and\\s+)?(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${negativeAction}${prohibitionObjectLead})$`, 'u').test(beforeAuthority);
+    const imperativeNegativeLead = new RegExp(`^do\\s+not\\s+${negativeAction}(?:\\s+runtime\\s+finding\\s+schemas\\s+handlers\\s+predicates\\s+process\\s+fact\\s+registries\\s+lifecycle\\s+gates\\s+or)?${prohibitionObjectLead}$`, 'u').test(beforeAuthority);
     const closedProhibitionObject = /^(?:document(?:\s+in\s+this\s+story)?|or\s+(?:its\s+runtime|lifecycle\s+gate\s+predicates))?$/u.test(afterAuthority);
     if ((actorNegativeLead || imperativeNegativeLead) && closedProhibitionObject) continue;
 
@@ -1207,10 +1215,10 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
     classifyControlledTriageRelations(source.text, segments),
   );
   if (controlledViolation) return controlledViolation;
-  // Only the complete bounded reference is projected away. Other sentences,
-  // conjunction tails and fields retain the same fail-closed authority checks.
-  for (const segment of triageAuthoritySegments(maskBoundedPlanImplementationReferences(source.text))) {
-    if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion)) {
+  // Mask only the bounded implementation reference; retain whole-source prohibition safety.
+  const authoritySegments = triageAuthoritySegments(maskBoundedPlanImplementationReferences(source.text));
+  for (const segment of authoritySegments) {
+    if (hasDynamicFindingAuthorityAmendmentAssertion(segment, wholeSourceIsInvariantAssertion, segments.length === 1)) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }
     if (RETIRED_APPLICABILITY_ALIAS.test(segment)) {
@@ -1602,6 +1610,8 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     assemblerVersion: PROMPT_ENVELOPE_ASSEMBLER_VERSION,
     dispatchProtocolVersion: PROMPT_DISPATCH_PROTOCOL_VERSION,
     launcherSpecDigest: domainSeparatedDigest('prompt-launcher-spec.v1', input.launcherSpec ?? { kind: input.dispatchKind }),
+    ...(input.eligibilityRoleSemanticDigest !== undefined ? { eligibilityRoleSemanticDigest: input.eligibilityRoleSemanticDigest } : {}),
+    ...(input.reviewerDispatchBindingDigest !== undefined ? { reviewerDispatchBindingDigest: input.reviewerDispatchBindingDigest } : {}),
     commandPolicyDigest: domainSeparatedDigest('prompt-command-policy.v1', input.commandPolicy ?? input.roleContract.allowedCommandIds),
     ...(input.toolPolicy !== undefined ? { toolPolicyDigest: domainSeparatedDigest('prompt-tool-policy.v1', input.toolPolicy) } : {}),
     ...(input.systemInstruction !== undefined ? { systemInstructionDigest: domainSeparatedDigest('prompt-system-instruction.v1', input.systemInstruction) } : {}),
@@ -1736,6 +1746,8 @@ export function verifyFullPromptAssemblyIntegrity(input: {
   roleContract: RoleContract;
   rolePrompt: string;
   dispatchPrompt?: string;
+  reviewerDispatchBindingDigest?: string;
+  eligibilityRoleSemanticDigest?: string;
   hostRenderIdentityDigest?: string;
 }): boolean {
   try {
@@ -1783,6 +1795,9 @@ export function verifyFullPromptAssemblyIntegrity(input: {
       && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
       && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
       && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.eligibilityRoleSemanticDigest === input.eligibilityRoleSemanticDigest
+      && (envelope.eligibilityRoleSemanticDigest === undefined || envelope.eligibilityRoleSemanticDigest === input.roleContract.semanticDigest)
+      && envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest
       && envelope.roleSemanticDigest === input.roleContract.semanticDigest
       && envelope.roleRenderDigest === input.roleContract.renderDigest
       && envelope.dispatchPromptDigest === (
@@ -1812,6 +1827,8 @@ export function verifyIncrementalPromptAssemblyIntegrity(input: {
   roleContract: RoleContract;
   rolePrompt: string;
   dispatchPrompt: string;
+  reviewerDispatchBindingDigest?: string;
+  eligibilityRoleSemanticDigest?: string;
   hostRenderIdentityDigest: string;
 }): boolean {
   try {
@@ -1851,6 +1868,9 @@ export function verifyIncrementalPromptAssemblyIntegrity(input: {
       && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
       && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
       && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.eligibilityRoleSemanticDigest === input.eligibilityRoleSemanticDigest
+      && (envelope.eligibilityRoleSemanticDigest === undefined || envelope.eligibilityRoleSemanticDigest === input.roleContract.semanticDigest)
+      && envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest
       && envelope.roleSemanticDigest === input.roleContract.semanticDigest
       && envelope.roleRenderDigest === input.roleContract.renderDigest
       && envelope.dispatchPromptDigest === reviewerDispatchPromptDigest(input.dispatchPrompt)
