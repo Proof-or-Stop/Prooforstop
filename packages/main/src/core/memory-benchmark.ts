@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-export const MEMORY_BENCHMARK_SCHEMA_VERSION = 'lattice.memory_benchmark.v1';
+export const MEMORY_BENCHMARK_SCHEMA_VERSION = 'proof-or-stop.memory_benchmark.v1';
 export const MEMORY_BENCHMARK_TEXT_NOTE = 'Benchmark PASS is not Proof-or-Stop lifecycle gate authority, review pass, validation evidence, or delivery check.';
 
 export const SCOREABLE_MEMORY_LAYERS = [

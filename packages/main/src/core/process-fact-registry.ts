@@ -9,6 +9,8 @@ import {
 import { FLOW_FACT_POLICIES } from './flow-fact-policy.js';
 import { PROCESS_FACT_LEVELS, type ProcessFactLevel, type ProcessFactLevelEntry } from './process-fact-levels.js';
 
+export const CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION = 'proof-or-stop.candidate-spec-set.v1' as const;
+
 export type ProcessFactKind =
   | 'command'
   | 'runtime-behavior'
@@ -191,11 +193,13 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
-  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_pin_narrow: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_intent_recover: ['signed-artifact','verification-policy','gate-evidence'],
+  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
@@ -297,7 +301,9 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:review_inventory_temporal_integrity_gate': ['runtime-behavior', 'atomic-persistence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'finding-state', 'gate-evidence'],
-  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  // B-7abb: bounded plan-reference classification precedes decimal sentence
+  // splitting; it grants neither dependency approval nor source-wide authority.
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence'],
   'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
@@ -309,11 +315,13 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  'runtime:verification_execution_key_producer_lock': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:closeout_artifact_trust_boundary': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
-  'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
+  'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'validation-result', 'verification-policy', 'gate-evidence'],
   'runtime:story_aware_dynamic_selection_manifest': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
   'runtime:story_aware_dynamic_closure_receipt': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'verification-policy', 'gate-evidence'],
   'runtime:story_aware_dynamic_shard_aggregate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'workspace-binding', 'execution-evidence', 'verification-policy', 'gate-evidence'],
@@ -341,7 +349,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'certification-window.json',
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow',
-    producerCommand: 'certification_window_status',
+    producerCommand: 'certification_window_status --refresh=true (default status is read-only)',
     consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
   },
   certification_window_cancel: {
@@ -395,7 +403,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'prompt-envelopes.json',
     signed: false,
     producerCommand: 'agent_prompt/review_run_start',
-    consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates',
+    consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates. Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
   },
   closeout_write_receipt: {
     name: 'closeout-write-receipts.jsonl',
@@ -422,7 +430,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review.json',
     path: 'review.json',
     signed: true,
-    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:lattice-review-integrity-v1)',
+    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:proof-or-stop-review-integrity-v1)',
     producerCommand: 'story_review',
     consumerGate: 'storyMachine.canStartDev PLAN to DEV gate',
   },
@@ -430,7 +438,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'candidate-spec-set.json',
     path: 'candidate-spec-set.json',
     signed: true,
-    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings',
+    signature: `artifactDigest over ${CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION} canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings`,
     producerCommand: 'candidate_spec_route',
     consumerGate: 'scope_check_save, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate',
   },
@@ -441,12 +449,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'checklist_update',
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate',
   },
+  verification_intent_recover: {name:'checklist.json',path:'checklist.json',signed:false,signature:'exact repository-signed Git-metadata checkpoint is verified before projection recovery',producerCommand:'verification_intent_recover',consumerGate:'StoryStore canonical readers reject missing, stripped or mismatched checkpoint projections'},
+  verification_intent_append: {name:'checklist.json',path:'checklist.json',signed:false,signature:'repository-local Ed25519 amendment chain binding owner, scope, before and after intent semantics',producerCommand:'verification_intent_append',consumerGate:'StoryStore.readChecklist and writeChecklist validate signatures before coverage and review consumers'},
   verification_evidence_add: {
     name: 'checklist.json',
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_add',
-    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
+    consumerGate: 'validate verification coverage and freshness gates; signed V5 currentness binds the actual invocation environment and child-cwd executable bytes separately from the absolute host runtime, and unprovable executable resolution fails closed; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_batch_add: {
     name: 'checklist.json',
@@ -460,7 +470,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; selector-free physical execution keys bind signed causal identity and receipt-keyed import checks, while assertion keys independently bind selector/type/kind/timeout provenance; actual child launch occurs inside the causal runner after its last-moment preflight, never before a post-run readiness check; an observation-only identifier prevents a real ordinary rerun from borrowing an older CAS observation and never enters physical grouping; V3 execution time projects the actual signed causal source, and V5 fan-out preserves its immutable bytes/time; failed or pinless rows never regain mechanical authority; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_run: {
     name: 'checklist.json',
@@ -640,7 +650,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures. Explicit critic reviewPurpose and inventoryBinding use a versioned signature suffix; absent legacy fields retain their old signature domain but never authorize a new inventory receipt. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. In full-envelope mode promptHash equals the exact assembledPrompt domain digest and envelopeId signs the immutable run-start finding projection.',
+    signature: 'signReviewRun/verifyReviewRun; Explicit critic reviewPurpose and inventoryBinding use a versioned signature suffix; absent fields never authorize a new inventory receipt. Inventory precheck, monotonic RR allocation, Prompt Envelope and ReviewRun durable publication share one outer inventory critical section. ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and Prompt Envelope envelopeId are folded into new review-run signatures. Active ReviewRun, scopeBinding, and workspaceBinding objects use exact-field allowlists before signature verification, so an unknown or mixed nested identity cannot hide outside the signed domain. promptHash equals the exact assembledPrompt domain digest, so the delivered bytes are mechanically bound and compared to canonical proof-or-stop.* runtime/role/task assembly by REVIEW consumers. Rows from the retired identity family are inert historical bytes and current REVIEW admission rejects them without a compatibility fallback.',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -726,7 +736,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'execution-boundary.json',
     path: 'execution-boundary.json',
     signed: true,
-    signature: 'stable execution boundary _hash over schemaVersion/storyId/allowedCommands/allowedTools/excludedCommands/excludedTools',
+    signature: 'stable execution boundary _hash over schemaVersion/storyId/allowedCommands/allowedTools/excludedCommands/excludedTools; canonical new-write schema proof-or-stop.execution_boundary.v1.1 with exact signed historical lattice.execution_boundary.v1 read compatibility',
     producerCommand: 'execution_boundary_set',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
@@ -734,7 +744,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'scope-freeze-check.json',
     path: 'scope-freeze-check.json',
     signed: true,
-    signature: 'stable scope freeze _hash plus freshnessHash over bounded story/checklist projection and boundary hashes',
+    signature: 'stable scope freeze _hash plus freshnessHash over bounded story/checklist projection and boundary hashes; canonical new-write schema proof-or-stop.scope_freeze_check.v1.1 with exact signed historical lattice.scope_freeze_check.v1 read compatibility',
     producerCommand: 'scope_freeze_check',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
   },
@@ -1077,10 +1087,56 @@ function commandPolicy(name: string): CommandPolicy | undefined {
   return COMMAND_POLICIES[name as KnownCommandName] as CommandPolicy | undefined;
 }
 
+const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
+  producerSourceRefs: readonly string[];
+  consumerSourceRefs: readonly string[];
+}> = {
+  'verification_pin_narrow': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/verification.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:verification_execution_assertion_reuse_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/core/evidence-freshness.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/machine.ts',
+      'packages/main/src/core/lifecycle-readiness.ts',
+      'packages/main/src/handlers/phase-gates.ts',
+      'packages/main/src/handlers/verifier.ts',
+      'packages/main/src/handlers/done-prepare.ts',
+      'packages/main/src/handlers/certification-window.ts',
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/review-inventory-epoch.ts',
+    ],
+  },
+  'runtime:verification_execution_key_producer_lock': {
+    producerSourceRefs: [
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/core/proof-admissibility.ts',
+      'packages/main/src/core/verification.ts',
+    ],
+  },
+};
+
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
   .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
   .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
+  const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
@@ -1095,17 +1151,17 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
-    producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    producerSourceRefs: sourceRefs?.producerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
-      : undefined,
+      : undefined),
     consumerGate: entry.gateConsumer,
-    consumerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+    consumerSourceRefs: sourceRefs?.consumerSourceRefs ?? (['pre_review_check', 'pre_review_check_read'].includes(entry.name)
       ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
-      : undefined,
+      : undefined),
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -1133,6 +1189,17 @@ export const PROCESS_FACT_REVIEWER_LANES = PROCESS_FACT_REVIEWER_LANE_DEFINITION
 })) as readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_ARTIFACTS = [
+  {
+    name: 'artifact:.proof-or-stop/capability-releases.jsonl',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'normalization-policy'],
+    level: 'L1',
+    gateEvidence: false,
+    producer: 'core/capability-release buildCapabilityReleaseRecord and appendCapabilityReleaseRecord',
+    consumerGate: 'Post-DONE identity audit and read-only capability lineage inspection; never gate evidence',
+    artifact: { name: 'capability-releases.jsonl', path: '.proof-or-stop/capability-releases.jsonl', signed: false },
+    rationale: 'Current writes require changedPathsScope=capability-material, an actual classifier subset, and recomputed capabilityDigest before idempotency. Unmarked canonical v1 remains historical read-only data; retired schemas remain rejected.',
+  },
   {
     name: 'artifact:index.json',
     kind: 'artifact',
@@ -1273,7 +1340,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
     consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
-    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. Exact static topology projection requires a discovery-owned path and either identical existing refs or the uniquely resolved planned producer endpoint identity, role, file, and symbol; mismatched relationships and command-ref shortcuts remain outside the basis. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
   },
   {
     name: 'artifact:pre-review-check.json',
@@ -1321,7 +1388,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'topology_critic_receipt_check CLI verification only',
     consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
-    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Partial or unsupported discovery remains non-pass.',
+    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
   },
   {
     name: 'artifact:milestone-ledger.json',
@@ -1450,7 +1517,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1460,7 +1527,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical assembledPrompt bytes delivered by review_run_start.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and the exact canonical proof-or-stop.* assembledPrompt bytes delivered by review_run_start. Exact-field allowlists and nested scope/workspace binding verification reject mixed or unsigned identity-bearing extensions. Runs from the retired identity family remain inert historical bytes; verifyReviewRun and current REVIEW gates reject them without a compatibility fallback.',
   },
   {
     name: 'artifact:review-inventory-epochs.json',
@@ -1528,7 +1595,7 @@ export const PROCESS_FACT_ARTIFACTS = [
       path: 'finding-ledger.json',
       signed: true,
       signature: 'FindingLedgerReceipt covers each immutable finding_projection record and its exact source-record/current-chain CAS binding',
-      producerCommand: 'audit/gap_log/finding_cluster/finding_list/validate/signature_backfill',
+      producerCommand: 'audit/gap_log/finding_cluster/validate/signature_backfill',
       consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     },
     rationale: 'Legacy live mutation surfaces gain durable exactly-once current-state authority only through a current-key exact-signed source-bound projection; unsigned findings.json changes remain non-authoritative.',
@@ -1670,9 +1737,9 @@ export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
     kind: 'runtime-behavior',
     semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
     level: 'L4',
-    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory readDevMemoryFinishDecision',
+    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory inspectDevMemoryFinishDecision',
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
-    rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate. A missing or malformed record yields missing_dev_memory_finish_decision; the projection reads but never creates or repairs the record.',
+    rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate from one inspection. Only the byte-exact proof-or-stop.dev-memory-finish-decision.v1 schema is admitted; a parsed unsupported schema yields unsupported_identity with its artifact site and bounded JSON-safe value, never a missing-record claim. A missing or malformed record yields missing_dev_memory_finish_decision; the record-only reader retains null compatibility and the projection never creates or repairs the record.',
   },
   {
     name: 'runtime:done_phase_agnostic_reviewer_verdict',
@@ -1718,6 +1785,11 @@ export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
   },
   {
     blockerCode: 'missing_dev_memory_finish_decision',
+    processFactName: 'runtime:done_finish_decision_presence',
+    oracleRowId: 'dev-memory-finish-decision',
+  },
+  {
+    blockerCode: 'unsupported_identity',
     processFactName: 'runtime:done_finish_decision_presence',
     oracleRowId: 'dev-memory-finish-decision',
   },
@@ -1789,19 +1861,37 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
   level: 'L4',
   producer: 'scripts/lab-worktree.mjs',
   consumerGate: 'Lab finish only; never Story REVIEW/TEST/DONE',
-  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
+  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The optional one-Story carry-forward rule accepts only a clean registered REVIEW/TEST worktree with every checklist item done, no open Finding, recomputed material and Story-files hashes, strict authoritative receipt admission for every required intent, a fully executed validation result, and at most five failed commands whose exact executable and argv initially fail with the same exit code on built current main. A supplemental witness may add an exact source-PASS command that newly fails on built main with an explicit marker; invented, duplicate, main-mutating, or source-failing commands are refused. It stores source/evidence/material/Story-files/patch hashes, pass-command trace profiles, and failure-output digests. Finish rebuilds latest main, reruns baseline commands, then requires the built candidate and post-merge main to preserve each latest-main exit code and normalized failure identity. PASS commands whose repository trace intersects latest-main changes are replayed on candidate and post-merge main; incomplete or unknown trace closure fails closed by replaying that command. No .proof-or-stop Story state is imported. Ordinary Lab finish requires clean main; carry-forward alone may preserve non-overlapping pre-existing dirty paths under a content/index fingerprint checked before and after main-side operations, without stash, restore, commit, or copy. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_VALIDATION_EXECUTION = [{
+  name: 'runtime:quorum_assertion_inventory', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'gate-evidence', 'verification-policy'], level: 'L4',
+  producer: 'tasks/quorum-submit-smoke',
+  producerSourceRefs: ['packages/main/src/tasks/quorum-submit-smoke.ts', 'packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts','packages/main/src/tasks/quorum-submit-smoke-worker.ts','packages/main/src/tasks/quorum-submit-smoke-fixture.ts','packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts','packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts','packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts'],
+  consumerGate: 'configured full quorum smoke exit status and complete-suite marker',
+  rationale: 'The current main modular coordinator requires the complete 73-case executable inventory and canonical partitions, rejects unresolved or duplicate registrations, and isolates worker fixtures outside the repository. Root configuration retains exactly jobs=2 and a shared Git/common-directory declaration; the executor adds the local plan barrier shared against all explicit writers. Worker receipts and terminal status determine complete success; diagnostic selectors cannot claim complete-suite success. The pre-existing B-e40f inventory, isolation, scheduling and negative controls remain authoritative; historical monolithic Lab measurements do not certify this implementation.',
+}, {
+  name:'runtime:acceptance_history_checkpoint',kind:'runtime-behavior',semantics:['runtime-behavior','signed-artifact','gate-evidence','verification-policy'],level:'L4',producer:'core/verification-intent-checkpoint',producerSourceRefs:['packages/main/src/core/verification-intent-checkpoint.ts','packages/main/src/core/verification-intent-amendment.ts','packages/main/src/core/store.ts','packages/main/src/handlers/checklist.ts'],consumerGate:'canonical checklist reads, all gate callers and owner-only checkpoint recovery',rationale:'Authorized INIT/PLAN revisions append signed lineage without rewriting history or bypassing field authority. Revisions reopen planning; old gate evidence retains normal freshness checks. A signed write-ahead full checklist checkpoint is anchored to a retained single-parent Git ref using compare-and-swap without moving any branch. Backend-neutral Git reads detect combined projection-history and checkpoint-mirror deletion, including reftable and in-place ref migration. Every authorized canonical write migrates the complete legacy chain and reconciles missing mirrors; contradictory newer mirrors refuse recovery. Owner recovery can rebuild the prior parentless-tip format only from a complete valid signed mirror containing the identical signed anchor record at its generation index. Corrupt mirrors are quarantined with original bytes retained, while any valid newer or conflicting signed mirror still blocks recovery. Inspection is read-only and digest, owner, phase and reason checks precede all repair writes. Every retained checkpoint and amendment signature is verified in a synchronous batch with fresh repository-key reads before and after; no validation cache or caller key is accepted. CAS errors remain typed. It survives packing and normal GC, and restores interrupted projection without rerunning commands. Typed integrity errors propagate instead of becoming empty checklists. The Git signing key and checkpoint metadata remain a local trust boundary, not hostile-host protection.',
+}, {
+  name: 'runtime:execution_implementation_pin', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'workspace-binding', 'verification-policy'],
+  level: 'L4', producer: 'core/execution-implementation',
+  producerSourceRefs: ['packages/main/src/core/execution-implementation.ts', 'packages/main/src/cli-engine.ts', 'bin/bootstrap-runner.js', 'scripts/build-lock-target.mjs'],
+  consumerGate: 'CLI dispatch when an explicit implementation transport pin is required; automatic checklist execution and canonical import implementation binding',
+  rationale: 'An opt-in host transport pin compares actual implementation, bin bootstrap helpers, the build-lock helper and dependency bytes plus Node before dispatch; package version equality is not an implementation proof. Missing required pins and mismatches refuse. Unpinned invocations retain compatibility and are not claimed pinned. Checklist receipts automatically bind actual implementation bytes; same-version drift executes anew, mutation during a command cannot publish a receipt, and canonical import rechecks the current implementation.',
+}, {
   name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
   level: 'L4', producer: 'core/shared-validation-execution',
-  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts'],
+  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/handlers/verifier.ts', 'packages/main/src/core/causal-evidence.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts', 'packages/main/src/handlers/checklist.ts', 'packages/main/src/handlers/done-required-validation.ts', 'packages/main/src/core/auto-commit-metadata.ts'],
   consumerGate: 'validate and done_required_validate retain their independent acceptance and build-proof predicates',
-  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
+  rationale: 'DONE admission commits only the canonical certification-running delta through the existing immutable-index transaction before execution; dirty source and adjacent staged changes remain untrusted. Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable, loaded implementation digest and policy identity. The actual loaded tool package supplies the tool version; target-project package versions cannot substitute for it. The explicit validate.sharedExecution option enables execution sharing independently of dynamic selection mode, while per-command exclusions still apply. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. Single and batch checklist evidence commands renew the existing owner generation through actual command execution and canonical publication, preserving zero-command receipt import recovery. Only a signed pending-publication capability binds the exact pre-write checklist, owner generation, request and current physical execution identity to an unpublished V5 bundle and causal receipt. Canonical publication retires that capability; a later ordinary request still executes a new observation. Signature, subject, output and current implementation checks precede recovery; recovery never relaxes selector or freshness checks.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
+  name:'runtime:causal_complete_selector_output',kind:'runtime-behavior',semantics:['runtime-behavior','signed-artifact','gate-evidence','verification-policy'],level:'L4',producer:'core/causal-evidence',producerSourceRefs:['packages/main/src/core/causal-evidence.ts','packages/main/src/core/store.ts','packages/main/src/handlers/checklist.ts'],consumerGate:'Fresh and reused verification execution selector verdicts',rationale:'Complete redacted output is content-addressed and bound by the signed receipt, separately from bounded display probes. Independent processes verify its digest and length before selecting; missing or changed bytes refuse without rerunning or rewriting evidence. Legacy complete plain probes remain compatible; legacy truncated or redacted display text refuses selector authority. Existing secret redaction is preserved; NUL matching boundaries cannot synthesize selector text. Complete objects are bounded to 1 MiB, with a non-reusable signed selector witness for larger output or legacy stores. Exit-only checks do not read selector objects and retain reuse when durable output fits the bound. Completed output and receipt publication each retry at most twice without rerunning the command; permanent storage faults refuse. Late batch subscribers join the active retry; single-selector fallback witnesses never decide another selector.',
+}, {
   name: 'runtime:evidence_hash_input_boundary', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   level: 'L4', producer: 'core/material-path-policy and core/story-aware-validation',

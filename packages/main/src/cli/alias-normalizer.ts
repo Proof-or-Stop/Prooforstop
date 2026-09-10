@@ -1,41 +1,17 @@
 import {
   PROOF_OR_STOP_BIN_NAMES,
-  PROOF_OR_STOP_DEPRECATED_BIN,
-  PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
 } from '../core/proof-or-stop-brand.js';
 
-/**
- * Bin tokens this PARSER will strip when pasted redundantly as argv[0].
- *
- * Deliberately WIDER than `PROOF_OR_STOP_BIN_NAMES`. That list answers
- * "which bin names does usage text advertise?", and B-5a88 CHK-007 correctly
- * narrowed it to the canonical pair so no retired `lattice` name is ever
- * emitted. Parse tolerance is a DIFFERENT question: an operator (or an older
- * script, git hook, or copied docs line) may still paste a retired token, and
- * silently failing to strip it turns `lattice host runtime list` into an
- * unmatched alias rather than the command the reader intended.
- *
- * Accepting a token here does NOT advertise it: usage rendering still goes
- * through `resolveUsageBin`, which maps anything outside
- * `PROOF_OR_STOP_BIN_NAMES` back to the canonical `proof-or-stop` form.
- * `core/audit-scan.ts` already unions these same two sets for exactly this
- * read-tolerance reason (BIN_TOKEN_ALTERNATION).
- */
-export const STRIPPABLE_BIN_TOKENS: readonly string[] = [
-  ...new Set([
-    ...PROOF_OR_STOP_BIN_NAMES,
-    PROOF_OR_STOP_DEPRECATED_BIN,
-    PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
-  ]),
-];
+/** Only current bin tokens may be stripped from a redundantly pasted command. */
+export const STRIPPABLE_BIN_TOKENS: readonly string[] = [...PROOF_OR_STOP_BIN_NAMES];
 
 export const NESTED_SPACE_ALIASES: Record<string, string> = {
+  'lab help': 'lab_help',
   'lab create': 'lab_create',
   'lab run': 'lab_run',
   'lab eval': 'lab_eval',
   'lab compare': 'lab_compare',
   'lab promote': 'lab_promote',
-  'lab help': 'lab_help',
   'host list': 'host_list',
   'host probe': 'host_probe',
   'host status': 'host_status',
@@ -131,7 +107,7 @@ export interface AliasNormalizationResult {
 export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationResult {
   // B-cdf6 CHK-002: tolerate a pasted redundant bin token under EITHER name, so
   // `proof-or-stop proof-or-stop host list` is forgiven exactly like the
-  // `lattice lattice host list` form the deprecated alias already accepted.
+  // repeated canonical wrapper form, `proof-or-stop proof-or-stop host list`.
   const aliasStart = STRIPPABLE_BIN_TOKENS.includes(argv[0]) ? 1 : 0;
   const candidates: Array<{ text: string; consumed: 2 | 3 | 4 }> = [
     { text: argv.slice(aliasStart, aliasStart + 4).join(' '), consumed: 4 },

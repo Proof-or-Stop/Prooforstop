@@ -1,10 +1,9 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import {
-  CODEX_ADAPTER_MANIFEST_OWNER,
-  LEGACY_CODEX_ADAPTER_MANIFEST_OWNER,
   PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   isCodexAdapterManifestOwner,
@@ -19,7 +18,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
-import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   canonicalPromptRegistrySchemaVersion,
@@ -362,9 +361,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 interface CodexManifestSelection {
   relPath: string;
-  brand: 'proof-or-stop' | 'proof-or-stop';
-  /** True when a DEPRECATED spelling of dir or filename is what resolved. */
-  legacy: boolean;
 }
 
 const isGlobalThinProject = isManagedGlobalThinRoot;
@@ -374,19 +370,11 @@ const CANONICAL_CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_ST
 /** B-cc10 F-019: canonical state-dir manifest path for user-facing check messages. */
 const CANONICAL_STATE_MANIFEST_REL = `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 
-/**
- * Resolve the Codex adapter manifest read-both (B-cc10 CHK-002).
- *
- * Probes every accepted dir x filename spelling, canonical FIRST, so a
- * partially-migrated checkout still verifies while a fully migrated one prefers
- * the canonical pair. The candidate list comes from `core/brand-paths.ts`, so
- * this decision function cannot recognize only one spelling.
- */
+/** Resolve the canonical Codex adapter manifest. */
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
   for (const relPath of adapterManifestCandidates()) {
     if (!existsSync(join(root, relPath))) continue;
-    const legacy = relPath !== CANONICAL_CODEX_MANIFEST_REL;
-    return { relPath, brand: legacy ? 'proof-or-stop' : 'proof-or-stop', legacy };
+    return { relPath };
   }
   return null;
 }
@@ -400,10 +388,7 @@ function checkAgentAssetResolution(resolution: AgentAssetResolution, checks: Cod
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: AgentAssetResolution): CodexPromptMode | null {
-  // B-cc10 F-019: user-facing messages must name the CANONICAL paths. Resolver
-  // priority is canonical first with the deprecated spelling still read-only
-  // compatible; these strings previously advertised the deprecated names, which
-  // told users to look for files a migrated project no longer has.
+  // User-facing messages name the same canonical paths the resolver accepts.
   if (isGlobalThinProject(root)) {
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (${CANONICAL_STATE_MANIFEST_REL} present)`);
     return 'registry';
@@ -447,10 +432,9 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has invalid adapter identity`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
-  const parsedForComparison = normalizeLegacyCodexAdapterManifest(parsed);
   if (parsed.promptMode === 'registry') {
     const expectedRegistry = promptRegistryManifest();
-    const actualRegistry = parsedForComparison.promptRegistry;
+    const actualRegistry = parsed.promptRegistry;
     if (!isRecord(actualRegistry)) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} registry mode is missing promptRegistry metadata`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
@@ -473,7 +457,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     }
     const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
     const normalizedManifest = {
-      ...parsedForComparison,
+      ...parsed,
       promptRegistry: normalizedActualRegistry,
     };
     if (`${JSON.stringify(normalizedManifest, null, 2)}\n` !== expectedRegistryManifest) {
@@ -487,30 +471,12 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has unsupported promptMode=${String(parsed.promptMode)}`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
-  if (`${JSON.stringify(parsedForComparison, null, 2)}\n` !== expected) {
+  if (`${JSON.stringify(parsed, null, 2)}\n` !== expected) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
   push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proof-or-Stop template`);
   return 'legacy-mirror';
-}
-
-function normalizeLegacyCodexAdapterManifest(parsed: Record<string, unknown>): Record<string, unknown> {
-  if (parsed.adapterOwner !== LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return parsed;
-  const normalize = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(normalize);
-    if (!value || typeof value !== 'object') {
-      if (typeof value !== 'string') return value;
-      if (value === LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return CODEX_ADAPTER_MANIFEST_OWNER;
-      return value
-        .replace(/\bLATTICE_ACTIVITY_/g, 'PROOF_OR_STOP_ACTIVITY_')
-        .replace(/\bLATTICE_OWNER_SESSION_ADAPTER_/g, 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_')
-        .replace(/\bLATTICE_CODEX_ENTRYPOINT\b/g, 'PROOF_OR_STOP_CODEX_ENTRYPOINT')
-        .replace(/\bglobal lattice CLI\b/g, 'global proof-or-stop CLI');
-    }
-    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, normalize(entry)]));
-  };
-  return normalize(parsed) as Record<string, unknown>;
 }
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
@@ -838,22 +804,21 @@ function pathContains(parent: string, child: string): boolean {
  * Locate the canonical globally installed CLI on PATH.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
-    const command = process.platform === 'win32' ? 'where' : 'sh';
-    const args = process.platform === 'win32' ? [bin] : ['-c', `command -v ${bin}`];
-    try {
-      const out = execFileSync(command, args, {
-        cwd: root,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 2_000,
-        env: process.env,
-      }).trim();
-      const found = out.split(/\r?\n/).find(Boolean);
-      if (found) return found;
-    } catch {
-      // probe: this bin name is not on PATH; try the next alias.
-    }
+  const command = process.platform === 'win32' ? 'where' : 'sh';
+  const args = process.platform === 'win32'
+    ? [PROOF_OR_STOP_PRIMARY_BIN]
+    : ['-c', `command -v ${PROOF_OR_STOP_PRIMARY_BIN}`];
+  try {
+    const out = execFileSync(command, args, {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 2_000,
+      env: process.env,
+    }).trim();
+    return out.split(/\r?\n/).find(Boolean) ?? null;
+  } catch {
+    // Probe: the canonical global CLI is not on PATH.
   }
   // No canonical global CLI on PATH; heartbeat execution reports the real failure.
   return null;
@@ -1169,7 +1134,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
     return codexTouchpointPattern().test(haystack);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return false;
   }
 }

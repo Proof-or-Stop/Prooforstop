@@ -87,7 +87,7 @@ export interface ReviewAssuranceFloorFallbackRecord {
 }
 
 export interface ReviewAssuranceFloorReport {
-  schemaVersion: 'lattice.review_assurance_floor.v1';
+  schemaVersion: 'proof-or-stop.review_assurance_floor.v1';
   storyId?: string;
   ok: boolean;
   required: boolean;
@@ -161,7 +161,7 @@ export interface ReviewAssuranceCommandRecipe {
 }
 
 export interface ReviewAssuranceGuidance {
-  schemaVersion: 'lattice.review_assurance_guidance.v1';
+  schemaVersion: 'proof-or-stop.review_assurance_guidance.v1';
   source: ReviewAssuranceGuidanceSource;
   storyId?: string;
   required: boolean;
@@ -349,7 +349,7 @@ export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidance
     : [];
 
   return {
-    schemaVersion: 'lattice.review_assurance_guidance.v1',
+    schemaVersion: 'proof-or-stop.review_assurance_guidance.v1',
     source: input.source,
     ...(input.storyId ? { storyId: input.storyId } : {}),
     required: input.required,
@@ -727,7 +727,7 @@ function reportBase(
   overrides: Partial<ReviewAssuranceFloorReport>,
 ): ReviewAssuranceFloorReport {
   return {
-    schemaVersion: 'lattice.review_assurance_floor.v1',
+    schemaVersion: 'proof-or-stop.review_assurance_floor.v1',
     ok: true,
     required: false,
     requiredAssurance: 'none',
@@ -748,7 +748,7 @@ function reportBase(
       consumer: 'REVIEW',
       claim: 'review-pass',
       checks: {
-        schemaVersion: 'lattice.host_verdict.v1',
+        schemaVersion: 'proof-or-stop.host_verdict.v1',
         strictShapeValid: true,
         semanticDigestValid: false,
         signatureOrReceiptBindingValid: false,
@@ -952,7 +952,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     claim: 'review-pass',
     policy: proofPolicy,
     checks: {
-      schemaVersion: 'lattice.host_verdict.v1',
+      schemaVersion: 'proof-or-stop.host_verdict.v1',
       strictShapeValid: true,
       semanticDigestValid: ok,
       signatureOrReceiptBindingValid: fullOk || degradedOk,
@@ -968,7 +968,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   const effectiveOk = ok && !proofBlockReason;
 
   return {
-    schemaVersion: 'lattice.review_assurance_floor.v1',
+    schemaVersion: 'proof-or-stop.review_assurance_floor.v1',
     ...(storyId ? { storyId } : {}),
     ok: effectiveOk,
     required: true,

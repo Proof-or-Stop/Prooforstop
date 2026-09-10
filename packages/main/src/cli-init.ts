@@ -919,8 +919,7 @@ if (isGlobalThin) {
 }
 
 // 4. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
-// Claude Code 从磁盘解析 canonical proof-or-stop-* subagent_type；legacy
-// lattice-* values remain read-only compatibility aliases. 用户级全局
+// Claude Code 从磁盘解析 canonical proof-or-stop-* subagent_type。用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
@@ -1009,25 +1008,10 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
-    // B-META-framework-audit:F-005 — a MODULAR COMPLEX role must be materialized as
-    // its digest-pinned legacy-full-context reconstruction, not as the raw modular
-    // template. `verify_codex`'s agents-mirror check compares each file against
-    // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
-    // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
-    // straight off disk emitted the modular body instead (marker
-    // proof-or-stop:modular-role-body:v1 — for proof-or-stop-evaluator the modular template is
-    // 3945 bytes / 3939 UTF-16 units against the expected 9008 bytes / 8998 UTF-16
-    // units; both units are given because the template contains 3 non-ASCII
-    // characters, so byte and string lengths differ and quoting one as the other
-    // silently compares different measures), so a freshly `init`-ed project failed its
-    // own verify_codex for exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Reproduced on the
-    // pristine main checkout, so this predates the proof-or-stop rename.
-    //
-    // restoreLegacyPromptTemplate validates its output against the pinned
-    // LEGACY_COMPLEX_TEMPLATE_SHA256 digest, so this cannot silently drift: a
-    // template edit that changes the reconstruction throws instead of writing a
-    // mismatched mirror.
+    const roleId = file.replace(/\.md$/, '');
+    // Active mirrors are always rendered from the canonical package template.
+    // renderPromptEntryForHost applies only the host-specific transformation and
+    // reviewer bootstrap; no retired prompt mode is accepted at this writer.
     const registryEntry = readPromptRegistry(agentTemplateDir).agents
       .find(entry => entry.agentId === roleId);
     const content = registryEntry
@@ -1180,7 +1164,7 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
+${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Proof-or-Stop.md
   2. Use the global proof-or-stop CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read PROOF_OR_STOP.md, then use the entrypoints generated for profile ${selectedProfile}

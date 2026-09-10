@@ -11,9 +11,11 @@ import {
   buildMemoryFreshnessPack,
   evaluateRuntimeMemoryConsumerPolicy,
   finishDecisionPath,
+  MEMORY_PACK_SCHEMA_VERSION,
   renderMemoryFreshnessPackSummary,
   type FinishDecision,
 } from '../core/playbook-runtime-memory.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
@@ -141,7 +143,7 @@ function buildRuntimeHealth(ctx: HandlerContext) {
     },
   ];
   return {
-    schemaVersion: 'proofbound.playbook-runtime-health.v1',
+    schemaVersion: 'proof-or-stop.playbook-runtime-health.v1',
     status: checks.every((check) => check.status === 'pass') ? 'pass' as const : 'fail' as const,
     requiredClasses,
     checks,
@@ -215,6 +217,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
     },
 
     playbook_runtime_health(args: FormatArgs = {}) {
+      assertActiveIdentityConsumerContract('playbook-runtime-memory', MEMORY_PACK_SCHEMA_VERSION);
       const report = buildRuntimeHealth(ctx);
       return wantsJson(args) ? report : renderHealth(report);
     },
@@ -237,7 +240,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
           ? args.capturedEntryIds.split(',').map((value) => value.trim()).filter(Boolean)
           : [];
       const record = {
-        schemaVersion: 'proofbound.dev-memory-finish-decision.v1',
+        schemaVersion: 'proof-or-stop.dev-memory-finish-decision.v1',
         storyId: safeStory.recordStoryId,
         decision,
         reason,
@@ -290,7 +293,7 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
       });
       const pack = surfaced.pack;
       const result = {
-        schemaVersion: 'proofbound.final-response-check.v1',
+        schemaVersion: 'proof-or-stop.final-response-check.v1',
         storyId: args.storyId,
         completionClaimSource: 'ParentRollupResult/current-structured-facts' as const,
         memoryFreshnessPack: redactMemoryPackForControlArm(pack),

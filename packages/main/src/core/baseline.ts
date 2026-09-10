@@ -65,7 +65,7 @@ export interface BaselineLocalResult {
 }
 
 export interface BaselineFinalReport {
-  schemaVersion: 'lattice.baseline.final-report.v1';
+  schemaVersion: 'proof-or-stop.baseline.final-report.v1';
   baselineId: BaselineId;
   runId: string;
   track: BaselineTrack;
@@ -140,7 +140,7 @@ export interface BaselineRunArgs {
 }
 
 export interface BaselineSuiteReport {
-  schemaVersion: 'lattice.baseline.suite-report.v1';
+  schemaVersion: 'proof-or-stop.baseline.suite-report.v1';
   suiteStatus: 'PASS' | 'FAIL';
   validRunCount: number;
   invalidRunCount: number;
@@ -236,7 +236,7 @@ function writeBaselineEvidenceIndex(runDir: string, report: BaselineFinalReport)
     .filter((item): item is BaselineEvidenceArtifact => item !== null);
   const evidenceRefs = artifacts.map(item => item.ref).sort();
   writeJson(join(runDir, 'evidence-index.json'), {
-    schemaVersion: 'lattice.baseline.evidence-index.v1',
+    schemaVersion: 'proof-or-stop.baseline.evidence-index.v1',
     baselineId: report.baselineId,
     runId: report.runId,
     evidenceCount: evidenceRefs.length,
@@ -391,7 +391,7 @@ function localReviewPass(local: BaselineLocalResult | null): boolean {
 }
 
 interface BaselineScenarioEvidence {
-  schemaVersion: 'lattice.baseline.scenario-evidence.v1';
+  schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1';
   baselineId: BaselineId;
   runId: string;
   track: BaselineTrack;
@@ -419,7 +419,7 @@ function buildScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo, r
   if (scenario.track !== 'natural-language') return null;
   if (scenario.defaultExpectedOutcome === 'EXPECTED_BLOCK') {
     return {
-      schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+      schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
       baselineId: scenario.baselineId,
       runId,
       track: scenario.track,
@@ -432,7 +432,7 @@ function buildScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo, r
   if (scenario.baselineId === 'NL-API-1') return buildApiScenarioEvidence(runDir, scenario, runId);
   if (scenario.baselineId === 'NL-REPAIR-1') return buildRepairScenarioEvidence(runDir, scenario, runId);
   return {
-    schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+    schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
     baselineId: scenario.baselineId,
     runId,
     track: scenario.track,
@@ -458,7 +458,7 @@ function buildCliScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo
     cliRunPassed: greet.exitCode === 0 && greet.stdout.trim() === 'hello proofOrStop',
   };
   return {
-    schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+    schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
     baselineId: scenario.baselineId,
     runId,
     track: scenario.track,
@@ -492,7 +492,7 @@ function buildApiScenarioEvidence(runDir: string, scenario: BaselineScenarioInfo
     apiCreatePassed: parsed.validCreate?.status === 201 && parsed.validCreate.body?.name === 'proof-or-stop',
   };
   return {
-    schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+    schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
     baselineId: scenario.baselineId,
     runId,
     track: scenario.track,
@@ -522,7 +522,7 @@ function buildRepairScenarioEvidence(runDir: string, scenario: BaselineScenarioI
     retryPassed: retry.exitCode === 0 && retry.stdout.includes('repair marker accepted'),
   };
   return {
-    schemaVersion: 'lattice.baseline.scenario-evidence.v1',
+    schemaVersion: 'proof-or-stop.baseline.scenario-evidence.v1',
     baselineId: scenario.baselineId,
     runId,
     track: scenario.track,
@@ -682,19 +682,19 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
   const input = args.requestText ?? baselineDefaultInput(scenario.baselineId);
   writeFileSync(join(runDir, 'input.md'), `${input}\n`);
   writeJson(join(runDir, 'story.json'), {
-    schemaVersion: 'lattice.baseline.story.v1',
+    schemaVersion: 'proof-or-stop.baseline.story.v1',
     storyId: `baseline-${scenario.baselineId}`,
     title: scenario.baselineId,
     track: scenario.track,
   });
   writeJson(join(runDir, 'checklist.json'), {
-    schemaVersion: 'lattice.baseline.checklist.v1',
+    schemaVersion: 'proof-or-stop.baseline.checklist.v1',
     items: [
       { id: 'CHK-001', title: 'Execute baseline scenario', verificationIntent: `prove ${scenario.baselineId} terminal semantics` },
     ],
   });
   writeJson(join(runDir, 'job-plan.json'), {
-    schemaVersion: 'lattice.baseline.job-plan.v1',
+    schemaVersion: 'proof-or-stop.baseline.job-plan.v1',
     baselineId: scenario.baselineId,
     mode,
     plannedSteps: baselinePlannedOperations(scenario.baselineId).map((operation, index) => ({
@@ -755,20 +755,20 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
 
   if (mode === 'authority') {
     writeJson(join(runDir, 'gate-receipt.json'), authorityEvidence.gateReceipt ?? {
-      schemaVersion: 'lattice.baseline.gate-receipt.v1',
+      schemaVersion: 'proof-or-stop.baseline.gate-receipt.v1',
       receiptVerified: authority.receiptVerified,
       missingNativeReceipt: true,
     });
     writeJson(join(runDir, 'host-verdicts.json'), authorityEvidence.hostVerdicts ?? {
-      schemaVersion: 'lattice.baseline.host-verdicts.v1',
+      schemaVersion: 'proof-or-stop.baseline.host-verdicts.v1',
       satisfiedReviewWaves: authority.satisfiedReviewWaves ?? 0,
       requiredReviewWaves: authority.requiredReviewWaves ?? 3,
       serverBackedVerdictsAccepted: authority.serverBackedVerdictsAccepted === true,
       missingNativeVerdicts: true,
     });
-    writeJson(join(runDir, 'authority-status.json'), { schemaVersion: 'lattice.baseline.authority-status.v1', ...authority });
+    writeJson(join(runDir, 'authority-status.json'), { schemaVersion: 'proof-or-stop.baseline.authority-status.v1', ...authority });
   } else {
-    writeJson(join(runDir, 'local-review-status.json'), { schemaVersion: 'lattice.baseline.local-review-status.v1', ...local });
+    writeJson(join(runDir, 'local-review-status.json'), { schemaVersion: 'proof-or-stop.baseline.local-review-status.v1', ...local });
   }
 
   const extraArtifacts: Partial<BaselineFinalReport['artifacts']> = {};
@@ -793,7 +793,7 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
 
   const outcome = computeOutcome(expectedOutcome, authority, local);
   const report: BaselineFinalReport = {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.final-report.v1',
     baselineId: scenario.baselineId,
     runId,
     track: scenario.track,
@@ -888,7 +888,7 @@ function baselineExecutionEvents(id: BaselineId, expected: BaselineExpectedOutco
 
 function baselineSourceManifest(id: BaselineId): Record<string, unknown> {
   return {
-    schemaVersion: 'lattice.baseline.source-manifest.v1',
+    schemaVersion: 'proof-or-stop.baseline.source-manifest.v1',
     baselineId: id,
     commands: id.includes('CLI') ? ['source --help', 'source run <fixture>'] : ['source test'],
     publicApis: id.includes('API') ? ['GET /health', 'POST /items'] : ['main'],
@@ -898,7 +898,7 @@ function baselineSourceManifest(id: BaselineId): Record<string, unknown> {
 
 function baselineSemanticMap(id: BaselineId): Record<string, unknown> {
   return {
-    schemaVersion: 'lattice.baseline.semantic-map.v1',
+    schemaVersion: 'proof-or-stop.baseline.semantic-map.v1',
     baselineId: id,
     mappings: [{ source: 'source.main', target: 'target.main', kind: id === 'RED-GAP-BLOCK-1' ? 'mapped_to_gap' : '1:1' }],
   };
@@ -906,7 +906,7 @@ function baselineSemanticMap(id: BaselineId): Record<string, unknown> {
 
 function baselineParityFixtures(id: BaselineId): Record<string, unknown> {
   return {
-    schemaVersion: 'lattice.baseline.parity-fixtures.v1',
+    schemaVersion: 'proof-or-stop.baseline.parity-fixtures.v1',
     baselineId: id,
     cases: id === 'RED-GAP-BLOCK-1'
       ? [{ id: 'gap-1', expected: 'block', reason: 'non-portable behavior' }]
@@ -981,7 +981,7 @@ export function aggregateBaselineReports(reports: BaselineFinalReport[]): Baseli
   });
   const suiteStatus = falseDoneCount === 0 && blockingFailures.length === 0 ? 'PASS' : 'FAIL';
   return {
-    schemaVersion: 'lattice.baseline.suite-report.v1',
+    schemaVersion: 'proof-or-stop.baseline.suite-report.v1',
     suiteStatus,
     validRunCount: valid.length,
     invalidRunCount,

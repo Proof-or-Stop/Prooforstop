@@ -1,0 +1,43 @@
+{
+  "storyId": "B-0aa0",
+  "name": "document-dynamic-validation-three-tier-red-green",
+  "title": "Promote and reconcile the canonical RED/GREEN plan for Story-aware validation tiers",
+  "description": "Recover the existing B-ccf4 tier-specific execution plan into main, reconcile it against the production Story-aware validation program, add executable fast/intermediate/full RED/GREEN closure without hard-coded inventory facts, and record digest-bound Claude CLI and Agy CLI audit dispositions. This documentation Story does not change runtime gate authority.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "dynamic-validation",
+    "validation-tier",
+    "red-green",
+    "cross-cli-audit"
+  ],
+  "createdAt": "2026-09-09T22:13:58.986Z",
+  "startedAt": "2026-09-09T22:13:58.986Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-09T22:14:00.185Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-e34a7a2d74d79d92d45d57ac4c8f1523",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-09T22:35:20.745Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-e34a7a2d74d79d92d45d57ac4c8f1523",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0aa0",
+    "branch": "story/B-0aa0",
+    "createdAt": "2026-09-09T22:35:09.618Z"
+  }
+}

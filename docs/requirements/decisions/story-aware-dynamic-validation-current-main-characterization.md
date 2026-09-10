@@ -8,8 +8,8 @@ revocation ledger all bind to the same HEAD.
 
 ## Inventory and policy
 
-The inventory is discovered from canonical `proof-or-stop.config.json`, with
-legacy `lattice.config.json` as a fallback, and receives a stable command ID
+The inventory is discovered only from canonical `proof-or-stop.config.json`,
+without a retired-name fallback, and receives a stable command ID
 from command plus arguments. The root configuration now records the DYN-1
 policy tuple on every command, and the verifier materializes effective
 scheduler fields for legacy rows: 58 `full-only` /
@@ -36,8 +36,35 @@ Missing policy is recorded as `policySource=default` and cannot satisfy the
 enforcement ownership prerequisite. This makes an unregistered command fail
 closed instead of silently entering the reusable set. The two gate rows also
 declare `caseRegistryPath`, `runnerSourcePath`, and
-`LATTICE_VALIDATION_SHARD_ADAPTER` in both canonical and legacy config files;
+`PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER` in the canonical config file;
 the runner path is part of each gate row's source closure.
+
+### Quorum-submit command boundary (B-e40f)
+
+The quorum-submit validation entry is still a single catalog command for
+selection, receipts, and scheduler accounting. Internally, its canonical
+73-case registry is an exact manifest-to-callback bijection split across
+`pure`, `integration-a`, `integration-b`, and `prune`. The configured command
+passes `--jobs=2` and declares exactly one shared `git-common-dir` read claim.
+The declaration is admissible because every shard gets a distinct
+parent-owned temporary root and runs serially within that root; repository
+writes, overlapping roots, unknown roots, and non-canonical paths are rejected
+by the runtime trace validator.
+
+The terminal JSON report preserves the outer command boundary while exposing
+the requested job bound, per-shard worker PID and exact case identities,
+callback timing, retry count, process-tree status, fixture totals, and residue.
+An injected FAIL or TIMEOUT stops new shard dequeueing, is attempted once, and
+cannot produce a successful aggregate. The accompanying resource trace is a
+bounded execution witness tied to callback events; it does not replace source
+closure, Git before/after checks, or the scheduler's normal fail-closed resource
+policy. Process-tree cancellation uses owned POSIX process groups on Unix-like
+hosts and the canonical `taskkill /PID <pid> /T /F` tree operation on Windows;
+unknown termination outcomes remain a failed cleanup witness on either branch.
+All callback, fixture, and resource trace sinks must be pinned external files
+disjoint from both the canonical worktree and resolved Git common directory;
+an ambient validation environment cannot redirect those writes into protected
+repository state.
 
 ## Baseline run
 

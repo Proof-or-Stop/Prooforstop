@@ -1,5 +1,302 @@
 # Changelog
 
+## Lab five-item-reuse-closure-20260909 - v0.3.296 - 2026-09-10
+
+# Five-item Lab maintenance closure
+
+Problem: inconsistent runtime identity bindings, redundant review and validation work, stale long-task publication authority, blocked acceptance-history repair, and conservative scheduling prevented bounded completion. This Lab carries the earlier isolated repairs and completes the remaining finite maintenance acceptance without creating or advancing a real Story.
+
+The candidate is c0e576036111aa8ae5973e583a9ac93bb06958eb at package0.3.295, compared with local-main base e7ec7f831ea32bc5d560d428c440ba74778db24e. It binds enrolled owner/reviewer entrypoints to the complete implementation, retains final certification after first-wave remediation entry, enables valid complete-routine-PASS reuse in observe, renews/fences publication authority and recovers a pending publication without another test child, supports signed PLAN/acceptance-history recovery, and declares all141routine plus2DONE resource claims. Conflicting writers remain exclusive. The measured scheduler setting is jobs2, not the unmeasured default4.
+
+Native RED/GREEN uses exactly: node experiments/five-item-closure/complete-closure-entry.mjs. The current native GREEN is bound to the accepted committed HEAD. The final targeted campaign passed25/25; current hash oracles passed27/27. The historical19/27->27/27 hash repair already shipped at0.3.284 and is not new performance credit. Native diagnostic controls prove the actual observed invalid value is reported while the refusal predicate remains unchanged; all10 controls pass. The full identity-cutover command retains245registered cases plus5origin-only mutations and passed in both complete runs.
+
+Measured outcomes: identical141-command full workloads both passed141/141 with unchanged argv/timeouts. Total serial 3378.644923s versus parallel 2716.129657s, a 19.608905% observed reduction. Common runtime and scheduler preparation are charged to both arms; execution and postchecks are measured per arm. Three heavy complete-PASS reuse pairs had median 175.207205s -> 81.423298s,2->1actual command executions, both consumers passing. Seven pinned direct-dist identity-output pairs had median 0.540010s -> 0.447956s; RED reconstructs the old duplicate-scan policy inside a private current runtime. The finite real-repository Claude review corpus retains first and final review,7registered defects and2clean controls: wave walltime 1947.473251s -> 1361.127268s,18real processes with12shared between policy arms. Shared subsequent implementation/audit work is outside that wave clock. Historical unscaled51-minute publication changes failure to success; no speed percentage is inferred for a failed endpoint. Current restart/fencing/history controls are separately retained.
+
+Independent Claude CLI final verdict: PASS-FOR-BOUNDED-FIVE-ITEM-LAB-ACCEPTANCE, fivePASS rows and no remaining finite acceptance. Source and complete2122-file identity match before/after the audit. Its O-1/O-2 wording observations are resolved without changing measurements or source. The transient build-owned binding removal correctly refused the old pin; quiescent identity checks match once per arm, with no hidden retries.
+
+Evidence and reproducibility: /Users/jek/.codex/artifacts/proof-or-stop-five-item-missing-closure-20260909/report.md, acceptance-results.json, claude-final-data-audit/audit.json, final-c0e5/full-workload-comparison.json, current-full-pair-c0e5/results.json, native-value-diagnostic-red.log, native-value-diagnostic-green.log, and REPRODUCE.md. The evidence package contains the patch, incremental Git bundle, candidate source archive, raw current and historical logs, original failed campaigns and independent audit reports, plus SHA256/extraction checks. Lab proof is local maintenance provenance, not formal Story DONE or product-release evidence.
+
+Applicability: enrolled Lab participants and the specified finite corpus/workload/fault model. Do not add percentages, infer Story-wide lead time or arbitrary Story-splitting benefit, extend reuse to different excluded commands, or claim hostile-host attestation. One full shared-workstation pair is an observed result, not a population estimate. No remote push or global installation update is authorized by these notes. Preserve foreign uncommitted main files and the original experimental Labs. Native integration must enforce its ordinary prerequisites; the Lab remains on failure.
+
+Maintenance provenance: codex/lab-five-item-reuse-closure-20260909, repair c0e576036111aa8ae5973e583a9ac93bb06958eb.
+Verification command (replayed before integration and on main): `["node","experiments/five-item-closure/complete-closure-entry.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-review-context-trigger-intent - v0.3.295 - 2026-09-09
+
+# B-03b7 historical-recall verification-intent repair
+
+## Problem
+
+After the first nominal trigger-list repair, B-03b7 REVIEW advanced to its frozen CHK-004 happy verification intent and stopped before creating any reviewer run. The intent asks tests to exercise severity escalation and owner invalidation as separate historical-recall triggers. The prompt safety scanner treated their co-occurrence as a claim that severity alone decides Story ownership.
+
+## Behavior change
+
+The scanner now recognizes the exact two-sentence B-03b7 historical-recall verification intent as test metadata. The allowance requires verificationIntent provenance, exactly two normalized segments, the complete closed trigger inventory, and the complete non-authoritative once-only recall outcome. Any added sentence, altered authority relation, or use on a Story/checklist surface falls back to the normal fail-closed scanner.
+
+## Verification
+
+RED reproduced the exact frozen intent and failed with `B03B7_TRIGGER_INTENT_SAFE` plus `severity used as sole ownership or scope authority`. GREEN replays the identical `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js` command. The regression includes a mutation control that appends `Severity alone decides Story scope`; that variant remains rejected. The full prompt-envelope attack matrix must also retain `B7ABB_SETUP_CONTROLS PASS`, `B7ABB_REFERENCE_ASSEMBLY PASS`, `B7ABB_SIGNED_LAUNCH PASS`, and `prompt full-context envelope smoke PASS`.
+
+Maintenance provenance: codex/lab-b03b7-review-context-trigger-intent, repair 5477de778872fa628580e7db96d5cf41fb13aad9.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-review-context-trigger-list - v0.3.294 - 2026-09-09
+
+# B-03b7 reviewer-context trigger-list repair
+
+## Problem
+
+The REVIEW prompt safety guard rejected B-03b7 before any reviewer run could be created. Its frozen checklist title lists historical-recall triggers including scope match, severity, owner, closure, expiry, and hash/runtime changes. The guard treated the co-occurrence of `severity` and `owner` as an assertion that severity alone decides Story ownership, even though the text contains no deciding or authorizing relation.
+
+## Behavior change
+
+The guard now recognizes one closed grammar for nominal historical recall, lookup, or query trigger inventories. The allowlist is limited to named trigger nouns and cannot contain a deciding or authority verb. Existing severity-only authority statements continue to fail closed.
+
+## Verification
+
+The RED fixture reproduces the exact B-03b7 checklist title and expects the `B03B7_TRIGGER_LIST_SAFE` assertion marker. Before the repair, the complete prompt-envelope smoke rejected that title with `severity used as sole ownership or scope authority`. GREEN replayed the identical command and passed the complete prompt-envelope attack matrix, including the adjacent control that `Severity alone decides Story scope` remains rejected.
+
+Command: `node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js`
+
+GREEN result: `B7ABB_SETUP_CONTROLS PASS`, `B7ABB_REFERENCE_ASSEMBLY PASS`, `B7ABB_SIGNED_LAUNCH PASS`, and `prompt full-context envelope smoke PASS`.
+
+Maintenance provenance: codex/lab-b03b7-review-context-trigger-list, repair aec7aae5dc5dead3c8c8c1c5bef161e65d64ee8d.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab story-carry-evidence-hardening - v0.3.293 - 2026-09-09
+
+# Lab maintenance log: Story evidence carry-forward hardening
+
+## Objective
+
+Harden the existing Lab Story evidence carry-forward path so it can reuse valid historical evidence without trusting caller-authored JSON, while preserving fail-closed behavior for stale, unauthenticated, or incompletely traced inputs.
+
+## Audit basis
+
+The change implements the bounded findings from an independent Claude CLI audit and a local source review:
+
+1. Recompute Story material and Story-file hashes from the source commit instead of trusting reported values.
+2. Re-evaluate verification coverage with the official receipt/admissibility evaluator and reject legacy, unsigned, tampered, stale, or incomplete required evidence.
+3. Build current main before collecting baseline witnesses so ignored distribution output cannot silently lag source.
+4. Compare normalized failure identity as well as exit status for historical non-zero witnesses.
+5. Replay passed commands selected by repository runtime traces when latest main changed relevant inputs; conservatively replay commands with incomplete traces.
+6. Expand rejection fixtures for tampered hashes, unauthenticated receipts, open findings, excessive failure carry, post-evidence product edits, and dirty-main overlap.
+
+## RED
+
+Command: `node scripts/verify-lab-story-carry-forward.mjs`
+
+Expected marker: `STORY_CARRY_ADMISSION_HARDENING_MISSING`
+
+The RED commit demonstrated that the previous implementation did not invoke the official evidence evaluator, did not recompute authoritative hashes, did not record integration witnesses, did not compare failure identities, and lacked the required authenticity rejection contract.
+
+## GREEN implementation
+
+- `scripts/lab-worktree.mjs` now authenticates and revalidates carried Story evidence, records trace profiles, builds main before witness capture, normalizes failure identities, selects impacted or trace-incomplete PASS commands, replays those commands on the candidate and post-merge main, and extends dirty-main overlap protection to shared version files.
+- `scripts/verify-lab-story-carry-forward.mjs` now proves the positive flow and the bounded negative/adversarial cases.
+- `docs/lab-maintenance.md` documents exact admission, replay, failure-parity, and fail-closed behavior without claiming that every historical command is always rerun.
+- The process-fact registry and its verifier pin the new mechanical contract.
+
+## Verification
+
+- Focused GREEN: `node scripts/verify-lab-story-carry-forward.mjs` — PASS (`STORY_CARRY_FORWARD PASS`).
+- Lab GREEN wrapper — PASS.
+- Full Lab regression: `node scripts/verify-lab-worktree.mjs` — PASS (53 command checks plus state, version, and cleanup assertions).
+- Process-fact contract: `node scripts/verify-process-fact-contract.mjs --quiet` — PASS.
+- Build order: `npm --prefix packages/main run build`, then `npm --prefix packages/utils run build` — PASS.
+- Diff hygiene: `git diff --check 1300d7ad83..HEAD` — PASS.
+
+## Scope and safety
+
+No Story lifecycle state, unrelated draft, remote ref, or GitHub release is changed by this Lab. The Lab finish is authorized only for local-main integration and must preserve the main dirty-state guard, HMAC record, fast-forward-only merge, post-merge GREEN, and cleanup semantics.
+
+## Independent review note
+
+The first Claude CLI audit produced the six bounded concerns listed above, all addressed here. A later redundant read-only recheck was stopped by Claude's configured USD budget before producing a verdict; it made no filesystem changes and is not represented as review evidence.
+
+Maintenance provenance: codex/lab-story-carry-evidence-hardening, repair 5ae49f4b669cbe212af0102a56d0f07e1da5587a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-story-carry-forward.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-config-identity-count-20260909 - v0.3.292 - 2026-09-09
+
+The active-identity boundary pinned the exact number of canonical
+proof-or-stop.config.json references. Legitimate validation registrations added
+more canonical references, causing agent_prompt to fail even though no retired
+proofbound.config.json token was present.
+
+The boundary now enforces the intended semantic invariant: at least one exact
+canonical proof-or-stop.config.json reference must exist and every retired
+proofbound.config.json reference remains forbidden. The identity-canonical
+public-operation group moved from the recorded RED to GREEN, including a
+successful agent_prompt preflight.
+
+Maintenance provenance: codex/lab-b49df-config-identity-count-20260909, repair 5200c635f931207b417a6543ec5ad43adedf09a5.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=identity-canonical"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-runtime-topology-fixture-20260909 - v0.3.291 - 2026-09-09
+
+The focused B-49df regression test incorrectly reused the current checkout as
+the target of its foreign-runtime assertion. That happened to work from a Lab
+worktree but did not model a foreign runtime when the test ran on main.
+
+The test now creates an isolated Git main checkout plus a real linked worktree,
+then verifies every registry-derived Story writer against that stable topology.
+The prior source invariant recorded RED, and both the corrected invariant and
+the complete canonical-identity regression now pass without relying on the host
+repository's directory depth or current checkout role.
+
+Maintenance provenance: codex/lab-b49df-runtime-topology-fixture-20260909, repair 90d88bfb8b24d1a77e5035b80a53fe66d1e9aa08.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"packages/main/tests/lab-b49df-canonical-identity.mjs\",\"utf8\");if(s.includes(\"projectRoot: mainRoot\")){console.error(\"focused test reuses checkout as foreign target\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab story-evidence-carry-forward-log-correction - v0.3.290 - 2026-09-09
+
+Correct the final baseline-result sentence in the Story evidence carry-forward release log.
+
+The original entry accurately recorded that B-7abb supplied three historical failing baseline witnesses. During final integration, however, concurrent main maintenance repaired all three commands. The signed Lab audit record shows exit code 0 for each latest-main witness, candidate replay, and post-merge replay. This maintenance replaces the stale intermediate statement that two failures remained with that final observed result.
+
+The correction is documentation-only. A focused RED command detects the obsolete sentence and the same command passes after the edit. No Story state, product implementation, validation result, or lifecycle credential is changed.
+
+Maintenance provenance: codex/lab-story-evidence-carry-forward-log-correction, repair 9d0e9f40c99caf8f6ea2b4dceb402a637a1b10c5.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"CHANGELOG.md\",\"utf8\");const n=[\"the two remaining validation-planner\",\"protocol failures stayed isolated as baseline evidence\"].join(\"/\");if(s.includes(n)){console.error(\"STALE_CARRY_FORWARD_BASELINE_SUMMARY\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab bcae-dist-promotion-integration-20260909 - v0.3.290 - 2026-09-09
+
+# B-bcae dist-promotion integration
+
+Problem: B-bcae demonstrated that a local CLI reader could begin resolving the mutable `dist` graph while a build promoted a replacement tree, producing transient mixed-generation or missing-module failures. The original Story accumulated valid focused evidence but its lifecycle metadata could not honestly converge to DONE; this Lab carries the implementation and evidence onto the latest local main without copying or rewriting Story JSON.
+
+Fix: the bootstrap reader now enters repository-scoped dist-import admission before resolving all main, utils, Lab, brand, and Zod modules. Builders coordinate the canonical build target with the distinct reader-admission target, recheck dist inside admission, preserve dependency-free fresh-checkout diagnostics, and release both lock layers on success and failure. Desktop packaging includes the helper closure. Validation policy registers the B-bcae race and admission co-scheduling guards. Latest-main compatibility was preserved: existing main smoke coverage was retained, the B-e40f Lab-only harness received an explicit non-registration reason, three newly introduced main validation rows received evidence-backed admission classifications, and an already-mismatched process-contract mirror was synchronized to the guard's current reviewed fingerprint.
+
+Lab evidence: the pinned command is `node packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs`. RED was recorded at the pre-fix Lab head with the expected marker `B-bcae protected import:start`. GREEN was recorded after commits `dc4670ba7c` and `343554c4ca`, then replayed successfully after syncing local main through `64e7140f7a`. The harness earned 26 mechanical selectors and intentionally reported `CHK-004 happy-1` as deferred because only a canonical full validation run can observe that claim. Its completion matrix was baseline RED 3/3, final GREEN 0/3 failures, protection-removed mutant RED 3/3, controls 3/3 for each variant, and zero builder failures. Writer-wins-after-readiness completed with reader and builder exit 0, no overlap, and one NEW:NEW generation.
+
+Focused compatibility evidence: `node packages/main/tests/red/red-bcae-admission-coscheduling.mjs` passed with 23 candidates derived from 141 registered commands, 8 real-root admission takers and 15 static references, with no co-schedulable member pair. `node packages/main/dist/tasks/validation-tier-planner-smoke.js` passed after pinning the retained 141-command inventory. `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` passed. `node scripts/verify-process-fact-contract.mjs --quiet` passed. `npm --prefix packages/main run build` and `npm --prefix packages/utils run build` passed.
+
+Carried Story evidence, stated without upgrading it: the prior DONE-required run at Story commit `d8886383ab` passed the packages/main build and the root 65/65 suite. A later standalone `npm --prefix packages/graph run check` passed after an earlier canonical 136-command attempt had reported 135 passes plus the graph failure. Therefore this Lab does not claim that historical canonical validation attempt was PASS, and it does not claim 27/27 intent coverage. The Story's honest evidence state is 26 mechanically witnessed selectors plus the intentionally deferred canonical-full-validation selector.
+
+Bounded-scope observation: `npm ci` completed without changing dependency manifests or lockfiles and reported four existing dependency advisories (three moderate, one high). No B-bcae source or dependency change introduced them, the install command exited successfully, and they did not block the focused behavior, build, security guard, process-contract check, RED, or GREEN. They are recorded here for traceability and are not remediated by this Lab.
+
+No remote push is authorized or performed. This Lab integration is local maintenance evidence and must not be represented as formal Story DONE.
+
+Maintenance provenance: codex/lab-bcae-dist-promotion-integration-20260909, repair 245b054bd6538d23bd57257312c2f6a32e74f968.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab story-evidence-carry-forward - v0.3.289 - 2026-09-09
+
+Add an open, bounded Story evidence carry-forward rule to Temporary Lab maintenance.
+
+The rule addresses a lifecycle convergence case where a Story has completed its scoped implementation, checklist, mechanical verification intents, and a full configured validation run, but cannot advance because a small set of repository-baseline commands also fail on current main. Previously, the only options were to expand the Story into unrelated repairs, repeat the full suite without a state change, or leave the completed patch stranded.
+
+`lab-worktree carry` now accepts one explicitly identified, clean `story/B-xxxx` worktree in REVIEW or TEST. It verifies that every checklist item is done, no Finding remains open, required verification coverage is complete and mechanical, all receipts bind the same Story-files hash, the validation plan ran every recorded command, and no product change followed the evidence head. It permits at most five failed commands and reruns each exact executable and argv on current main. The command records source and main output digests and bounded tails without asserting that different output has the same root cause.
+
+The carried patch excludes all `.proof-or-stop/` Story state. Its source head, evidence head, material hash, Story-files hash, patch hash, command counts, baseline witnesses, and imported paths are retained in the HMAC-bound local Lab record. Finish reruns the baseline witnesses against the latest main before integration and treats those fresh results as the release oracle. If main has already repaired a former failure, the candidate and post-merge main must preserve that PASS; if a failure remains, both must reproduce its latest-main exit code. This prevents stale historical failures from blocking a safe improvement while still rejecting a regression caused by the carried patch.
+
+For carry-forward only, unrelated dirty main files may remain when they do not overlap the candidate. Their path set, content, and index state are fingerprinted and checked around every main-side action. The Lab never stashes, restores, commits, copies, or removes that unrelated work. Ordinary Lab maintenance continues to require clean main.
+
+The rule was developed with a committed RED fixture and a GREEN fixture covering explicit confirmation, registered Story identity, evidence admission, baseline reproduction, Story-metadata exclusion, patch import, provenance retention, latest-main recheck, dirty-main byte preservation, fast-forward integration, and cleanup. The existing Lab worktree regression suite also passes. B-7abb was captured with 11 mechanical intents, 134 executed validation commands, three failures reproduced on the then-current main, and eight non-Story paths imported. By final finish, subsequent main changes had repaired all three former failures; the latest-main oracle, candidate replay, and post-merge replay each recorded exit code 0 for all three commands. Its focused signed reviewer-launch, process-fact, and Graph write-boundary checks pass on the combined Lab candidate.
+
+This release integrates the B-7abb product patch through the disclosed Lab exception. It does not mark B-7abb DONE, convert its failed repository-wide validation into PASS, or copy formal Story credentials into Lab.
+
+Maintenance provenance: codex/lab-story-evidence-carry-forward, repair e5becc330833bed937eaa4224914af29717885da.
+Story carry-forward provenance (not Story DONE): B-7abb at 3ba5cbc15ae022508f2f3bffe4515ad65066c731; storyFilesHash 0629e60fb56b0d329f14fdee47eacb26a56c108c0a0ae3b7dd2ab6981a8841eb; 11 mechanical intents; 134 validation commands; 3 failures reproduced on main.
+
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-story-carry-forward.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-main-topology-green-20260909 - v0.3.288 - 2026-09-09
+
+The B-49df canonical-identity regression test derived the main repository root by
+walking up a fixed number of directories. That worked inside a nested Lab
+worktree but failed after the candidate was integrated into the main checkout.
+
+The test now resolves Git's absolute common directory and derives the canonical
+main checkout from it. The focused source invariant changed from RED to GREEN,
+and the complete canonical-identity test passes from the Lab topology. This is a
+test-fixture portability repair only; it does not change product behavior or
+historical Story data.
+
+Maintenance provenance: codex/lab-b49df-main-topology-green-20260909, repair e3f56d74f3b9b3ba9447700383c0e5644c98dbfc.
+Verification command (replayed before integration and on main): `["node","-e","const fs=require(\"node:fs\");const s=fs.readFileSync(\"scripts/lab-worktree.mjs\",\"utf8\");if(s.includes(\"...(s.bump ? versions.VERSION_SYNC_PATHS : [])\")){console.error(\"dynamic version files are not staged\");process.exit(1)}"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b49df-canonical-identity-20260909 - v0.3.287 - 2026-09-09
+
+# Canonical active Proof-or-Stop identity
+
+Problem: newly generated Story scope boundaries on local main still used the retired `lattice.scope_boundary.v1` schema, and active INIT/runtime surfaces retained legacy identity paths.
+
+Behavior change: active Story writers emit `proof-or-stop.scope_boundary.v1.1`; required INIT reviewer identities contain no lattice name; Story-scoped writers fail closed when invoked through a foreign self-host worktree runtime; the active validation shard adapter accepts only the canonical Proof-or-Stop environment name. Historical Story JSON and `.lattice` runtime records were deliberately excluded from this Lab integration.
+
+Verification: the Lab pinned `node packages/main/tests/lab-b49df-canonical-identity.mjs`. It recorded RED on main with actual `lattice.scope_boundary.v1`, then GREEN on the committed repair while also checking INIT identities, every registered Story writer's foreign-runtime rejection, and removal of the active legacy shard-adapter key.
+
+Maintenance provenance: codex/lab-b49df-canonical-identity-20260909, repair 73f03c5802ff216c846ed521b534bb36d0a2c2fd.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-b49df-canonical-identity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab baa5f-receipt-fanout - v0.3.286 - 2026-09-09
+
+Integrate the bounded verification-receipt repair developed and reviewed on local branch `story/B-aa5f` without importing formal Story state into the Lab release.
+
+Problem and measured impact:
+
+- Verification freshness was historically coupled to broad Story material, while selector-specific evidence and raw command execution were not represented as separate authenticated facts.
+- The original B-fe8f reproduction contained 71 verification intents backed by two executable command identities. Current main already shared the raw executions and produced the measured 2 subprocesses for 71 selectors, so the Lab correctly refused to record that already-green condition as a RED.
+- The remaining Lab RED reproduced the missing input-scoped path: latest main could not execute the policy-defined closed verifier capsule and therefore could not issue an auditable zero-execution reuse publication after unrelated Story drift.
+
+Repair:
+
+- Add authenticated, versioned ExecutionReceipt, AssertionReceipt, ReuseReceipt, and signed publication bindings while retaining read-only legacy compatibility.
+- Store complete verifier output as immutable content-addressed artifacts; selectors are evaluated independently against that complete output.
+- Scope reusable freshness to a policy-enforced dependency manifest and evidence input digest. Incomplete closures, dynamic or undeclared inputs, environment uncertainty, unsupported sandboxing, or integrity failures remain non-reusable and fail closed.
+- Bind live command, cwd, timeout, environment, Node/toolchain, input closure, output artifact, selector, intent, and publication context to the appropriate signed layer.
+- Serialize producers by raw execution identity, preserving one execution with independent assertion outcomes and preventing concurrent duplicate launches or receipt races.
+- Preserve broad material and Story hashes as audit/fallback bindings; old receipts are never silently rewritten.
+- Integrate the related lifecycle, admissibility, inventory-subject, narrowing, process-fact, runtime-fact, documentation, and validation updates required to consume the new receipt graph consistently.
+
+Fresh Lab evidence on the committed candidate:
+
+- Pinned Lab GREEN command: `npm run test:verification-run-and-guard-smoke`.
+- Fan-out: 71 intents, two command identities, exactly two subprocess executions, two ExecutionReceipts, 71 independent AssertionReceipts, and two immutable output artifacts.
+- Input-scoped freshness: unrelated drift produced zero subprocess executions and two authenticated ReuseReceipts; changing one verifier input produced one execution and one reuse publication.
+- Selector and failure isolation: selector verdicts remained independent; nonzero exit and timeout fan out failure to dependent assertions without manufacturing a passing receipt.
+- F-057 live environment and toolchain identity drift: PASS.
+- F-058 signed publication binding, legacy non-promotion, and tamper rejection: PASS.
+- F-062 authenticated command/selector narrowing witness and complete-output evaluation: PASS through `npm run test:narrowing-repin`.
+- F-063 authenticated review-inventory observation identity and same-output reexecution semantics: PASS through `npm run test:review-inventory-epoch`.
+- Process fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+- Runtime fact contract: PASS, including `execution_assertion_reuse_contract=PASS`.
+
+Preserved source-branch audit context (not promoted as Lab or formal DONE credentials): branch `story/B-aa5f` at `15cf023860c8418e5681ac3b954e819de4448390` had 8/8 checklist items done, 29/29 required intents fresh, four current review lanes passing with zero findings, a 137/137 formal validation pass, and a 67/67 full-suite pass in approximately 1005 seconds. The signed Story artifacts remain on that branch; this Lab carries their implementation and human-readable provenance only.
+
+No remote push is performed by this Lab integration.
+
+Maintenance provenance: codex/lab-baa5f-receipt-fanout, repair a67e8fd6815d90ec5a636b3067b746011c40eace.
+Verification command (replayed before integration and on main): `["npm","run","test:verification-run-and-guard-smoke"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b-e40f-convergence-20260909 - v0.3.285 - 2026-09-09
+
+# B-e40f quorum smoke convergence
+
+The quorum-submit smoke suite previously used substring selection that could succeed after executing zero cases, kept no mechanically complete inventory of its 73 callbacks, mixed pure and integration work in one monolith, rebuilt compatible Git fixtures, and remained an undeclared validation barrier without bounded shard concurrency.
+
+This Lab integrates the bounded non-Story implementation from B-e40f. It adds exact fail-closed case selection, a 73-case executable-to-manifest bijection, four validated partitions with real sentinels, immutable fixture-template cloning with isolation and cleanup, and a bounded coordinator selected by the validation configuration with a shared Git read claim.
+
+The pinned Lab command changed from the target-specific RED `B_E40F_LAB_RED_SAFE_PARALLEL_CONVERGENCE_MISSING` to `B_E40F_LAB_GREEN cases=73 selector=fail-closed partitions=4 fixture=isolated-reuse jobs=2 gain=50.0% residue=0`. The measured gain is a controlled same-process coordinator comparison over the same six deterministic delayed callbacks; it demonstrates bounded scheduling overlap, not a claim that the complete 73-case suite is 50 percent faster. Additional checks passed: the persistent 73/73 inventory mutation contract, 38 resource-claim assertions, a real exact `qsm-002` CLI case with zero residue, and fail-closed rejection of unknown `qsm-999`.
+
+An unrelated evidence-watchdog process-tree repair that had accumulated on the Story branch was intentionally excluded from this Lab to preserve the requested scope.
+
+Maintenance provenance: codex/lab-b-e40f-convergence-20260909, repair e96b6284bd5172851e218063e2e7c067268209e6.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-B-e40f-lab-convergence.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab hash-accuracy-production - v0.3.284 - 2026-09-08
 
 Correct shared evidence hash inputs and literal Git path handling. Evidence-store objects/sha256, refs/by-id and ledger/observed.jsonl are excluded as process outputs rather than disposable runtime artifacts; unknown evidence paths and policy remain material. Story diffs use NUL framing and literal target blob lookup, preserving Unicode and control characters, with missing target objects failing closed. Existing evidence is neither rewritten nor automatically re-attested.

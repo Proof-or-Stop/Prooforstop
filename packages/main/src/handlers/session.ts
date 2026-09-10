@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * proof-or-stop session_brief — cross-session opening brief
  *
@@ -37,6 +38,8 @@ import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION } from '../core/process-fact-registry.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
   getSessionId,
   getSessionIdentity,
@@ -600,7 +603,7 @@ function buildStoryMemoryQuery(story: StoryInfo, checklist: ChecklistSummary | n
     story.phase,
     ...(checklist?.inProgress.map((item) => item.title) ?? []),
     ...(checklist?.pending.slice(0, 3).map((item) => item.title) ?? []),
-    'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+    'session_brief proof-or-stop host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
   ];
   return parts.filter((part) => part && part.trim().length > 0).join(' ');
 }
@@ -741,6 +744,7 @@ function extractNextStep(brief: string): string {
 export function createSessionHandlers(ctx: HandlerContext) {
   const handlers = {
     session_brief(args: SessionBriefArgs = {}): string {
+      assertActiveIdentityConsumerContract('process-fact-registry', CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION);
       const concise = args.concise === true;
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
@@ -929,7 +933,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (!concise) {
           const query = [
             ...activeStories.slice(0, 5).flatMap((s) => [s.storyId, s.phase, s.title]),
-            'session_brief proofbound host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
+            'session_brief proof-or-stop host-policy stale-doc truth-first repro-first intent-totality delivery review deprecated-term',
           ].filter((part) => part && part.trim().length > 0).join(' ');
           const memoryPreflightLines = renderMemoryRuntimePreflight(ctx.root, {
             query,
@@ -1064,7 +1068,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       try {
         const cl = ctx.store.readChecklist(storyId);
         checklistSummary = summarizeChecklist(cl);
-      } catch { /* no checklist */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* no checklist */ }
 
       if (checklistSummary) {
         lines.push('');
@@ -1110,7 +1114,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           for (const l of renderCapsuleBrief(capsule, issues)) lines.push(l);
         }
-      } catch { /* probe — capsule must never block session_brief */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* probe — capsule must never block session_brief */ }
 
       // B-c55d CHK-004: story owner lease ownership block. B-META containers
       // are shown as shared audit state (no per-story lease, no story_advance);

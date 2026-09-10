@@ -140,7 +140,7 @@ store.writeChecklist(storyId, {
 // regression, just an earlier gate shadowing a later one this fixture never
 // satisfied.
 store.writeDevMemoryPreflightAck(storyId, {
-  schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+  schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
   storyId,
   packDigest: 'red-b2aa7-chk006-receipt-synthetic-digest',
   topHitIds: [],

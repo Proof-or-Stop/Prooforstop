@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -113,7 +114,7 @@ function assertHostIndependence(hostA: QuorumHostInput, hostB: QuorumHostInput):
 function safeReadChecklist(ctx: HandlerContext, storyId: string) {
   try {
     return ctx.store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return { items: [] };
   }
 }
@@ -192,7 +193,7 @@ function formatResult(result: QuorumSubmitResult): string {
 }
 
 interface QuorumSubmitResult {
-  schemaVersion: 'lattice.quorum_submit.v1';
+  schemaVersion: 'proof-or-stop.quorum_submit.v1';
   storyId: string;
   rounds: number;
   emittedCount: number;
@@ -671,7 +672,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         if (!committed.ok) throw new Error(committed.reason || 'immutable quorum metadata commit failed');
         if (!committed.commitSha) throw new Error('immutable quorum metadata commit produced no commit SHA');
         const result: QuorumSubmitResult = {
-          schemaVersion: 'lattice.quorum_submit.v1',
+          schemaVersion: 'proof-or-stop.quorum_submit.v1',
           storyId,
           rounds,
           emittedCount: emitted.length,

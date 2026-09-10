@@ -64,9 +64,8 @@ try {
   assert(
     JSON.stringify(config.target.editableFiles) === JSON.stringify([
       '.proof-or-stop-codex/agents/proof-or-stop-test-case-reviewer.md',
-      '.lattice-codex/agents/test-case-reviewer.md',
     ]),
-    'test-case-reviewer should retain only its exact pre-migration .lattice-codex fallback',
+    'test-case-reviewer editable assets use only the canonical adapter path',
   );
   assert(config.candidatePolicy.allowStoryMutation === false, 'lab config should keep allowStoryMutation=false');
   assert(config.candidatePolicy.allowFixtureMutation === false, 'lab config should keep allowFixtureMutation=false');
@@ -80,9 +79,8 @@ try {
   assert(
     JSON.stringify(intentConfig.target.editableFiles) === JSON.stringify([
       '.proof-or-stop-codex/agents/proof-or-stop-test-intent.md',
-      '.lattice-codex/agents/test-intent.md',
     ]),
-    'test-intent should retain only its exact pre-migration .lattice-codex fallback',
+    'test-intent editable assets use only the canonical adapter path',
   );
 
   const dryRunOut = lab.lab_run({

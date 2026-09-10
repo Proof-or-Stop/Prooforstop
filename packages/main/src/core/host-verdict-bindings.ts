@@ -1,8 +1,8 @@
 import { canonicalDigest } from './authority-signing.js';
 import { isCanonicalStoryId } from './lifecycle-registry.js';
 
-export const HOST_VERDICT_VALIDATION_DIGEST_SCHEMA = 'lattice.quorum_submit.validation_digest.v1';
-export const HOST_VERDICT_PROMPT_DIGEST_SCHEMA = 'lattice.quorum_submit.prompt_digest.v1';
+export const HOST_VERDICT_VALIDATION_DIGEST_SCHEMA = 'proof-or-stop.quorum_submit.validation_digest.v1';
+export const HOST_VERDICT_PROMPT_DIGEST_SCHEMA = 'proof-or-stop.quorum_submit.prompt_digest.v1';
 export const HOST_VERDICT_PROMPT_PURPOSE = 'local voluntary 3x2 review quorum after signed reviewer passes';
 
 export interface HostVerdictBindingInput {

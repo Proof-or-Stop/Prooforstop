@@ -19,19 +19,12 @@ const created = approval.createReleasePushApproval({
 assert.equal(created.schema, 'proof-or-stop.remote-push-approval.v1');
 assert.equal(created.branch, 'refs/heads/main');
 assert.equal(created.expiresAt, '2026-01-01T00:00:30.000Z');
-assert.equal(approval.LEGACY_RELEASE_PUSH_APPROVAL_SCHEMA, 'lattice.remote-push-approval.v1');
+assert.equal(approval.LEGACY_RELEASE_PUSH_APPROVAL_SCHEMA, undefined);
 assert.equal(approval.releasePushApprovalPath(repoRoot), join(repoRoot, '.proof-or-stop/tmp/remote-push-approval.json'));
 
-const source = readFileSync(join(repoRoot, 'packages/main/src/core/release-push-approval.ts'), 'utf8');
-const hook = readFileSync(join(repoRoot, '.githooks/pre-push'), 'utf8');
-for (const schema of [approval.RELEASE_PUSH_APPROVAL_SCHEMA, approval.LEGACY_RELEASE_PUSH_APPROVAL_SCHEMA]) {
-  assert.ok(source.includes(schema) || hook.includes(schema), `${schema} remains readable`);
-}
-assert.match(hook, /acceptedApprovalSchemas/);
-
-function runHook(root, input) {
+function runHook(root, input, remote = 'origin') {
   try {
-    return { code: 0, output: execFileSync('bash', [join(root, '.githooks/pre-push')], {
+    return { code: 0, output: execFileSync('bash', [join(root, '.githooks/pre-push'), remote], {
       cwd: root,
       input,
       encoding: 'utf8',
@@ -52,8 +45,8 @@ try {
   mkdirSync(join(hookRoot, '.githooks'), { recursive: true });
   writeFileSync(join(hookRoot, '.githooks/pre-push'), hookSource);
   const approvalDir = join(hookRoot, '.proof-or-stop/tmp');
-  const pushLine = '0000000000000000000000000000000000000000 abc123 refs/heads/main 0000000000000000000000000000000000000000\n';
-  for (const schema of [approval.RELEASE_PUSH_APPROVAL_SCHEMA, approval.LEGACY_RELEASE_PUSH_APPROVAL_SCHEMA]) {
+  const pushLine = 'refs/heads/main abc123 refs/heads/main 0000000000000000000000000000000000000000\n';
+  for (const schema of [approval.RELEASE_PUSH_APPROVAL_SCHEMA]) {
     const valid = approval.createReleasePushApproval({
       root: hookRoot,
       sha: 'abc123',
@@ -74,13 +67,27 @@ try {
     assert.match(secondConsume.output, /missing one-shot approval file/);
   }
 
-  const invalid = approval.createReleasePushApproval({ root: hookRoot, sha: 'abc123', now: new Date(Date.now() - 1000) });
-  invalid.schema = 'unknown.remote-push-approval.v1';
-  mkdirSync(approvalDir, { recursive: true });
-  writeFileSync(join(approvalDir, 'remote-push-approval.json'), `${JSON.stringify(invalid)}\n`);
-  const invalidResult = runHook(hookRoot, pushLine);
-  assert.notEqual(invalidResult.code, 0, 'invalid schema must be rejected');
-  assert.match(invalidResult.output, /approval schema is missing or invalid/);
+  const approvalPath = join(approvalDir, 'remote-push-approval.json');
+  function assertRejectedWithoutMutation(change, message, input = pushLine, remote = 'origin') {
+    const candidate = { ...approval.createReleasePushApproval({
+      root: hookRoot, sha: 'abc123', remote: 'origin', ttlSeconds: 60,
+      now: new Date(Date.now() - 1000),
+    }), ...change };
+    const bytes = `${JSON.stringify(candidate)}\n`;
+    writeFileSync(approvalPath, bytes);
+    const result = runHook(hookRoot, input, remote);
+    assert.notEqual(result.code, 0, `approval must reject: ${JSON.stringify(change)}`);
+    assert.match(result.output, message);
+    assert.equal(readFileSync(approvalPath, 'utf8'), bytes, 'rejection preserves approval bytes and does not consume authority');
+  }
+  for (const schema of ['lattice.remote-push-approval.v1', 'proofbound.remote-push-approval.v1', 'unknown.remote-push-approval.v1']) {
+    assertRejectedWithoutMutation({ schema }, /approval schema is missing or invalid/);
+  }
+  assertRejectedWithoutMutation({ sha: 'def456' }, /approval sha mismatch/);
+  assertRejectedWithoutMutation({}, /approval remote mismatch/, pushLine, 'other');
+  assertRejectedWithoutMutation({ branch: 'refs/heads/story' }, /only valid for refs\/heads\/main/);
+  assertRejectedWithoutMutation({}, /refusing to push remote branch/, pushLine.replace('refs/heads/main 0000', 'refs/heads/story 0000'));
+  assertRejectedWithoutMutation({ expiresAt: 'invalid' }, /expiresAt is missing or invalid/);
 
   const stale = approval.createReleasePushApproval({
     root: hookRoot,
@@ -93,6 +100,7 @@ try {
   const staleResult = runHook(hookRoot, pushLine);
   assert.notEqual(staleResult.code, 0, 'expired approval must be rejected');
   assert.match(staleResult.output, /approval expired/);
+  assert.equal(readFileSync(approvalPath, 'utf8'), `${JSON.stringify(stale)}\n`, 'expired approval bytes remain unchanged');
 } finally {
   rmSync(hookRoot, { recursive: true, force: true });
 }

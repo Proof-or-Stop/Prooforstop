@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
@@ -117,7 +118,7 @@ function assertBoundary(args: EvidenceRefreshArgs): void {
 function readChecklist(ctx: HandlerContext, storyId: string): ChecklistData {
   try {
     return ctx.store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return { items: [] };
   }
 }

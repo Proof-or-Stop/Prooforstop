@@ -30,7 +30,7 @@ import {
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry } from '../core/prompt-registry.js';
-import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleConditionalReviewPromptEnvelope,
@@ -48,9 +48,9 @@ function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: stri
 
 function holdInventoryLockForDeterministicRunPublicationStress(): void {
   if (process.env.NODE_ENV !== 'test') return;
-  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS ?? 0);
+  const holdMs = Number(process.env.PROOF_OR_STOP_INTERNAL_REVIEW_RUN_HOLD_MS ?? 0);
   if (!Number.isFinite(holdMs) || holdMs <= 0) return;
-  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_RUN_READY_FILE;
+  const readyFile = process.env.PROOF_OR_STOP_INTERNAL_REVIEW_RUN_READY_FILE;
   if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
@@ -98,8 +98,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.storyId) throw new Error('review_run_list: storyId is required');
       store.readStory(args.storyId);
-      const lane = args.lane?.trim();
-      if (args.lane !== undefined && !lane) throw new Error('review_run_list: lane must be nonblank when provided');
+      const laneInput = args.lane?.trim();
+      if (args.lane !== undefined && !laneInput) throw new Error('review_run_list: lane must be nonblank when provided');
+      const lane = laneInput ? canonicalAgentRoleId(laneInput) : undefined;
 
       // Recovery reader for a run that was durably published before a host timed
       // out while consuming the intentionally large assembled review prompt.
@@ -121,7 +122,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           signatureValid: verifyReviewRun(run),
         }));
       const report = {
-        schemaVersion: 'proofbound.review_run_list.v1',
+        schemaVersion: 'proof-or-stop.review_run_list.v1',
         storyId: args.storyId,
         lane: lane ?? null,
         latest: args.latest === true,
@@ -297,7 +298,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         let promptHash = hashReviewPrompt(canonicalRolePrompt);
         let envelopeId: string | undefined;
         let assembledPrompt: string | undefined;
-        let promptContextNote = 'legacy-full-context';
+        let promptContextNote = 'full-envelope';
         let promptBudgetNote = '';
         if (resolvedRoleBody.mode === 'full-envelope') {
           const dispatchBinding = criticDispatch ?? verifyCurrentReviewerDispatchBinding({
@@ -310,7 +311,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             inventoryBinding,
           });
           if (!dispatchBinding.ok) {
-            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun proof-or-stop dispatch for ${lane}`);
+            throw new Error(`review_run_start: ${dispatchBinding.reason}; ask the Story owner to rerun proof-or-stop dispatch for ${lane} and pass you the returned prompt`);
           }
           const findingProjection = store.readFindings(args.storyId).findings
             .filter(finding => (finding.createdAt ?? '') <= startedAt)
@@ -452,7 +453,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
         const envelopeNote = envelopeId
           ? `, rollout ${resolvedRoleBody.mode}, roleBody ${resolvedRoleBody.bodyDigest.slice(0, 7)}, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}${promptBudgetNote}`
-          : `, rollout legacy-full-context, legacyBytesRestored=${resolvedRoleBody.legacyBytesRestored}`;
+          : `, rollout ${resolvedRoleBody.mode}`;
         const escalationNote = reviewerEscalationReason
           ? `, reviewer escalation: ${reviewerEscalationReason}`
           : '';
@@ -460,7 +461,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})${purposeNote}`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
-          : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED LEGACY ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED LEGACY ROLE BODY ---`;
+          : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED ROLE BODY ---`;
       });
       });
     },

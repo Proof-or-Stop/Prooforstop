@@ -67,7 +67,7 @@ function assertMetricContractFail(overrides: MemoryBenchmarkOverride, label: str
 const singleRun = runMemoryBenchmark({ tier: 'T1' });
 const singleRunRepeat = runMemoryBenchmark({ tier: 'T1' });
 
-assert.equal(MEMORY_BENCHMARK_CONSTANTS.schemaVersion, 'lattice.memory_benchmark.v1');
+assert.equal(MEMORY_BENCHMARK_CONSTANTS.schemaVersion, 'proof-or-stop.memory_benchmark.v1');
 assert.deepEqual(
   MEMORY_BENCHMARK_CONSTANTS.scoreableLayers,
   ['raw_event_memory', 'lifecycle_state_memory', 'checklist_evidence_memory', 'summary_memory'],

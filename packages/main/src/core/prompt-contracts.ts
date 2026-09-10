@@ -9,25 +9,14 @@ import {
   bytesCharsEstimator,
 } from './usage-ledger/estimate.js';
 
-/** Current prompt protocol identities. The legacy values are reader-only. */
+/** Current prompt protocol identities. Readers and writers use this exact family. */
 export const RUNTIME_CONTRACT_SCHEMA = 'proof-or-stop.agent-runtime.v1' as const;
-export const RUNTIME_CONTRACT_SCHEMA_LEGACY = 'proofbound.agent-runtime.v1' as const;
 export const ROLE_CONTRACT_SCHEMA = 'proof-or-stop.role-contract.v1' as const;
-export const ROLE_CONTRACT_SCHEMA_LEGACY = 'proofbound.role-contract.v1' as const;
 export const PROMPT_MEASUREMENT_SCHEMA = 'proof-or-stop.prompt-measurement.v1' as const;
-export const PROMPT_MEASUREMENT_SCHEMA_LEGACY = 'proofbound.prompt-measurement.v1' as const;
 export const KNOWN_EXECUTION_ENVIRONMENT_SCHEMA = 'proof-or-stop.known-execution-environment.v1' as const;
-export const KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY = 'proofbound.known-execution-environment.v1' as const;
 export const FULL_TASK_CONTEXT_SCHEMA = 'proof-or-stop.full-task-context.v1' as const;
-export const FULL_TASK_CONTEXT_SCHEMA_LEGACY = 'proofbound.full-task-context.v1' as const;
 export const INCREMENTAL_REVIEW_BASIS_SCHEMA = 'proof-or-stop.incremental-review-basis.v1' as const;
-export const INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY = 'proofbound.incremental-review-basis.v1' as const;
 export const PROMPT_ENVELOPE_SCHEMA = 'proof-or-stop.prompt-envelope.v1' as const;
-export const PROMPT_ENVELOPE_SCHEMA_LEGACY = 'proofbound.prompt-envelope.v1' as const;
-
-function isCurrentOrLegacy(value: unknown, current: string, legacy: string): boolean {
-  return value === current || value === legacy;
-}
 
 export const PROMPT_CONTRACT_ALGORITHMS = Object.freeze({
   canonicalSerialization: 'proof-or-stop.canonical-json.code-point-keys.v1',
@@ -37,6 +26,39 @@ export const PROMPT_CONTRACT_ALGORITHMS = Object.freeze({
   tokenEstimator: `${BYTES_CHARS_ESTIMATOR_NAME}.v${BYTES_CHARS_ESTIMATOR_VERSION}.${BYTES_CHARS_ESTIMATOR_UNIT}`,
   repetition: 'normalized-five-token-shingles.v1',
 });
+
+export const CURRENT_PROMPT_IDENTITIES = Object.freeze({
+  runtimeContract: 'proof-or-stop.agent-runtime.v1',
+  roleContract: 'proof-or-stop.role-contract.v1',
+  measurement: 'proof-or-stop.prompt-measurement.v1',
+  knownExecutionEnvironment: 'proof-or-stop.known-execution-environment.v1',
+  fullTaskContext: 'proof-or-stop.full-task-context.v1',
+  incrementalReviewBasis: 'proof-or-stop.incremental-review-basis.v1',
+  promptEnvelope: 'proof-or-stop.prompt-envelope.v1',
+  assembler: 'proof-or-stop.full-context-assembler.v1',
+  dispatchProtocol: 'proof-or-stop.prompt-dispatch.v1',
+});
+
+export const PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS = Object.freeze([
+  'schemaVersion',
+  'runtimeContractVersion',
+  'roleContractVersion',
+  'assemblerVersion',
+  'dispatchProtocolVersion',
+] as const);
+
+export function assertPromptEnvelopeIdentityRegistryTotal(paths: readonly string[]): void {
+  const actual = new Set(paths);
+  for (const path of PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS) {
+    if (!actual.has(path)) throw new PromptContractValidationError(`prompt identity registry missing ${path}`);
+  }
+  for (const path of actual) {
+    if (!PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS.includes(path as typeof PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS[number])) {
+      throw new PromptContractValidationError(`prompt identity registry has unexpected ${path}`);
+    }
+  }
+  if (actual.size !== paths.length) throw new PromptContractValidationError('prompt identity registry contains duplicate paths');
+}
 
 export type CanonicalJson =
   | null
@@ -51,7 +73,7 @@ export type PromptInputLayerAvailability =
   | { availability: 'unavailable'; reason: string };
 
 export interface RuntimeContract {
-  schemaVersion: typeof RUNTIME_CONTRACT_SCHEMA | typeof RUNTIME_CONTRACT_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.runtimeContract;
   lifecycleVersion: string;
   ownershipVersion: string;
   evidenceVersion: string;
@@ -63,7 +85,7 @@ export interface RuntimeContract {
 export type RoleLifecycleStatus = 'active' | 'compatibility' | 'retired';
 
 export interface RoleContract {
-  schemaVersion: typeof ROLE_CONTRACT_SCHEMA | typeof ROLE_CONTRACT_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.roleContract;
   roleId: string;
   status: RoleLifecycleStatus;
   replacementAgentType?: string;
@@ -90,7 +112,7 @@ export interface PromptRepetitionMeasurement {
 }
 
 export interface PromptMeasurementRecord {
-  schemaVersion: typeof PROMPT_MEASUREMENT_SCHEMA | typeof PROMPT_MEASUREMENT_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.measurement;
   roleId: string;
   runtimeContractVersion: string;
   runtimeSemanticDigest: string;
@@ -110,7 +132,7 @@ export interface PromptMeasurementRecord {
 }
 
 export interface KnownExecutionEnvironment {
-  schemaVersion: typeof KNOWN_EXECUTION_ENVIRONMENT_SCHEMA | typeof KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment;
   nodeVersion: string;
   platform: string;
   architecture: string;
@@ -158,7 +180,7 @@ export interface FullTaskScopeContext {
 }
 
 export interface FullTaskContext {
-  schemaVersion: typeof FULL_TASK_CONTEXT_SCHEMA | typeof FULL_TASK_CONTEXT_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.fullTaskContext;
   storyId: string;
   title: string;
   description: string;
@@ -190,7 +212,7 @@ export interface FullTaskContext {
 }
 
 export interface IncrementalReviewBasis {
-  schemaVersion: typeof INCREMENTAL_REVIEW_BASIS_SCHEMA | typeof INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis;
   storyId: string;
   lane: string;
   priorPassRef: string;
@@ -220,7 +242,7 @@ export interface PromptFindingProjection {
 }
 
 export interface PromptEnvelope {
-  schemaVersion: typeof PROMPT_ENVELOPE_SCHEMA | typeof PROMPT_ENVELOPE_SCHEMA_LEGACY;
+  schemaVersion: typeof CURRENT_PROMPT_IDENTITIES.promptEnvelope;
   envelopeId: string;
   roleId: string;
   storyId: string;
@@ -406,7 +428,7 @@ export function domainSeparatedDigest(domain: string, value: unknown): string {
   requireNonblank(domain, 'digest domain');
   const bytes = canonicalJsonStringify(value);
   return createHash('sha256')
-    .update(`proofbound.digest.v1\0${domain}\0`, 'utf8')
+    .update(`proof-or-stop.digest.v1\0${domain}\0`, 'utf8')
     .update(bytes, 'utf8')
     .digest('hex');
 }
@@ -457,7 +479,7 @@ export function promptLogicalLines(text: string): number {
 
 export function estimatePromptTokens(text: string): number {
   requireString(text, 'prompt text');
-  return bytesCharsEstimator('proofbound-observational-baseline', text).estimatedInputTokens;
+  return bytesCharsEstimator('proof-or-stop-observational-baseline', text).estimatedInputTokens;
 }
 
 export function measurePromptRepetition(text: string): PromptRepetitionMeasurement {
@@ -549,7 +571,7 @@ function asRecord(value: unknown, label: string): Record<string, unknown> {
 export function validateRuntimeContract(value: unknown): asserts value is RuntimeContract {
   const record = asRecord(value, 'RuntimeContract');
   requireExactKeys(record, ['schemaVersion', 'lifecycleVersion', 'ownershipVersion', 'evidenceVersion', 'compactText', 'semanticDigest', 'renderDigest'], [], 'RuntimeContract');
-  if (!isCurrentOrLegacy(record.schemaVersion, RUNTIME_CONTRACT_SCHEMA, RUNTIME_CONTRACT_SCHEMA_LEGACY)) throw new PromptContractValidationError('RuntimeContract.schemaVersion is unsupported');
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.runtimeContract) throw new PromptContractValidationError('RuntimeContract.schemaVersion is unsupported');
   for (const key of ['lifecycleVersion', 'ownershipVersion', 'evidenceVersion', 'compactText']) requireNonblank(record[key], `RuntimeContract.${key}`);
   requireDigest(record.semanticDigest, 'RuntimeContract.semanticDigest');
   requireDigest(record.renderDigest, 'RuntimeContract.renderDigest');
@@ -563,7 +585,7 @@ export function validateRoleContract(value: unknown): asserts value is RoleContr
     ['replacementAgentType', 'migrationHint'],
     'RoleContract',
   );
-  if (!isCurrentOrLegacy(record.schemaVersion, ROLE_CONTRACT_SCHEMA, ROLE_CONTRACT_SCHEMA_LEGACY)) throw new PromptContractValidationError('RoleContract.schemaVersion is unsupported');
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.roleContract) throw new PromptContractValidationError('RoleContract.schemaVersion is unsupported');
   requireNonblank(record.roleId, 'RoleContract.roleId');
   if (!['active', 'compatibility', 'retired'].includes(record.status as string)) throw new PromptContractValidationError('RoleContract.status is invalid');
   if (typeof record.defaultDispatch !== 'boolean') throw new PromptContractValidationError('RoleContract.defaultDispatch must be boolean');
@@ -622,7 +644,7 @@ export function validatePromptMeasurementRecord(value: unknown): asserts value i
     'bytes', 'lines', 'estimatedTokens', 'tokenEstimatorVersion', 'repetition',
     'assembledPromptTokens', 'knownDispatchInputTokens', 'providerProcessedInputTokens',
   ], [], 'PromptMeasurementRecord');
-  if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_MEASUREMENT_SCHEMA, PROMPT_MEASUREMENT_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptMeasurementRecord.schemaVersion is unsupported');
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.measurement) throw new PromptContractValidationError('PromptMeasurementRecord.schemaVersion is unsupported');
   for (const key of ['roleId', 'runtimeContractVersion', 'roleContractVersion', 'tokenEstimatorVersion']) requireNonblank(record[key], `PromptMeasurementRecord.${key}`);
   for (const key of ['runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptMeasurementRecord.${key}`);
   for (const key of ['bytes', 'lines', 'estimatedTokens']) requireNonnegativeInteger(record[key], `PromptMeasurementRecord.${key}`);
@@ -636,7 +658,9 @@ export function validatePromptMeasurementRecord(value: unknown): asserts value i
   }
 }
 
-export function validatePromptEnvelope(value: unknown): asserts value is PromptEnvelope {
+function validatePromptEnvelopeAgainst(
+  value: unknown,
+): void {
   const record = asRecord(value, 'PromptEnvelope');
   const required = [
     'schemaVersion', 'envelopeId', 'roleId', 'storyId', 'dispatchKind', 'createdAt', 'headHash',
@@ -658,7 +682,18 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   requireExactKeys(record, required, optional, 'PromptEnvelope');
   if (record.eligibilityRoleSemanticDigest !== undefined) requireDigest(record.eligibilityRoleSemanticDigest, 'PromptEnvelope.eligibilityRoleSemanticDigest');
   if (record.reviewerDispatchBindingDigest !== undefined) requireDigest(record.reviewerDispatchBindingDigest, 'PromptEnvelope.reviewerDispatchBindingDigest');
-  if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_ENVELOPE_SCHEMA, PROMPT_ENVELOPE_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
+  const expectedIdentities = {
+    schemaVersion: CURRENT_PROMPT_IDENTITIES.promptEnvelope,
+    runtimeContractVersion: CURRENT_PROMPT_IDENTITIES.runtimeContract,
+    roleContractVersion: CURRENT_PROMPT_IDENTITIES.roleContract,
+    assemblerVersion: CURRENT_PROMPT_IDENTITIES.assembler,
+    dispatchProtocolVersion: CURRENT_PROMPT_IDENTITIES.dispatchProtocol,
+  };
+  for (const path of PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS) {
+    if (record[path] !== expectedIdentities[path]) {
+      throw new PromptContractValidationError(`PromptEnvelope.${path} is unsupported`);
+    }
+  }
   for (const key of ['envelopeId', 'runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptEnvelope.${key}`);
   for (const key of ['roleId', 'storyId', 'createdAt', 'headHash', 'runtimeContractVersion', 'roleContractVersion', 'assemblerVersion', 'dispatchProtocolVersion', 'tokenEstimatorVersion']) requireNonblank(record[key], `PromptEnvelope.${key}`);
   for (const key of ['bytes', 'lines', 'estimatedTokens']) requireNonnegativeInteger(record[key], `PromptEnvelope.${key}`);
@@ -744,6 +779,11 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   }
 }
 
+/** Current writers/readers admit only exact proof-or-stop Prompt Envelope identities. */
+export function validatePromptEnvelope(value: unknown): asserts value is PromptEnvelope {
+  validatePromptEnvelopeAgainst(value);
+}
+
 export function validateKnownExecutionEnvironment(value: unknown): asserts value is KnownExecutionEnvironment {
   const record = asRecord(value, 'KnownExecutionEnvironment');
   requireExactKeys(
@@ -752,7 +792,7 @@ export function validateKnownExecutionEnvironment(value: unknown): asserts value
     [],
     'KnownExecutionEnvironment',
   );
-  if (!isCurrentOrLegacy(record.schemaVersion, KNOWN_EXECUTION_ENVIRONMENT_SCHEMA, KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY)) {
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment) {
     throw new PromptContractValidationError('KnownExecutionEnvironment.schemaVersion is unsupported');
   }
   for (const key of ['nodeVersion', 'platform', 'architecture', 'cliVersion']) {
@@ -770,7 +810,7 @@ export function validateIncrementalReviewBasis(value: unknown): asserts value is
     'reReviewReasonCodes', 'changedFiles', 'impactedFiles', 'impactedIntentRefs', 'currentClaims',
     'invariants', 'findingDeltas', 'unresolvedFindings', 'affectedContracts', 'authoritativeReferences',
   ], ['scopeAcknowledgementDigest'], 'IncrementalReviewBasis');
-  if (!isCurrentOrLegacy(record.schemaVersion, INCREMENTAL_REVIEW_BASIS_SCHEMA, INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY)) {
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis) {
     throw new PromptContractValidationError('IncrementalReviewBasis.schemaVersion is unsupported');
   }
   for (const key of ['storyId', 'lane', 'priorPassRef', 'priorReviewRunId', 'priorEnvelopeId']) {
@@ -808,7 +848,7 @@ export function validateFullTaskContext(value: unknown): asserts value is FullTa
     ['materialHash', 'storyFilesHash', 'scopeContractDigest', 'scope'],
     'FullTaskContext',
   );
-  if (!isCurrentOrLegacy(record.schemaVersion, FULL_TASK_CONTEXT_SCHEMA, FULL_TASK_CONTEXT_SCHEMA_LEGACY)) {
+  if (record.schemaVersion !== CURRENT_PROMPT_IDENTITIES.fullTaskContext) {
     throw new PromptContractValidationError('FullTaskContext.schemaVersion is unsupported');
   }
   for (const key of ['storyId', 'title', 'description', 'phase', 'priority', 'headHash']) {

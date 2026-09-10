@@ -18,13 +18,13 @@ import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
 import type { ScopeContractData, StoryInfo, StoryPhase } from './types.js';
 
-export const PARALLEL_WAVE_SCHEMA_VERSION = 'lattice.parallel_wave.v1' as const;
-export const PARALLEL_WAVE_INSPECT_SCHEMA_VERSION = 'lattice.parallel_wave_inspect.v1' as const;
-export const PARALLEL_PLAN_SCHEMA_VERSION = 'lattice.parallel_plan.v1' as const;
-export const PARALLEL_DISPATCH_SCHEMA_VERSION = 'lattice.parallel_dispatch.v1' as const;
-export const PARALLEL_STATUS_SCHEMA_VERSION = 'lattice.parallel_status.v1' as const;
-export const PARALLEL_MERGE_QUEUE_SCHEMA_VERSION = 'lattice.parallel_merge_queue.v1' as const;
-export const PARALLEL_REPORT_SCHEMA_VERSION = 'lattice.parallel_report.v1' as const;
+export const PARALLEL_WAVE_SCHEMA_VERSION = 'proof-or-stop.parallel_wave.v1' as const;
+export const PARALLEL_WAVE_INSPECT_SCHEMA_VERSION = 'proof-or-stop.parallel_wave_inspect.v1' as const;
+export const PARALLEL_PLAN_SCHEMA_VERSION = 'proof-or-stop.parallel_plan.v1' as const;
+export const PARALLEL_DISPATCH_SCHEMA_VERSION = 'proof-or-stop.parallel_dispatch.v1' as const;
+export const PARALLEL_STATUS_SCHEMA_VERSION = 'proof-or-stop.parallel_status.v1' as const;
+export const PARALLEL_MERGE_QUEUE_SCHEMA_VERSION = 'proof-or-stop.parallel_merge_queue.v1' as const;
+export const PARALLEL_REPORT_SCHEMA_VERSION = 'proof-or-stop.parallel_report.v1' as const;
 
 export type ParallelWaveSafety = 'yes' | 'plan_only' | 'no';
 export type ParallelWaveRecommendation = 'parallel_dev' | 'plan_only' | 'blocked';

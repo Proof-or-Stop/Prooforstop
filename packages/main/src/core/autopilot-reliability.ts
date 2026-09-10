@@ -17,7 +17,7 @@
  *   - [CHK-001] paused_requires_resume maps to a safe-boundary pause that requires autopilot_resume or autopilot_watch.
  *   - [CHK-001] health_recovered and resumed map to provider recovery followed by checkpoint-safe continuation.
  */
-export const AUTOPILOT_RELIABILITY_SCHEMA_VERSION = 'lattice.autopilot_reliability.v1' as const;
+export const AUTOPILOT_RELIABILITY_SCHEMA_VERSION = 'proof-or-stop.autopilot_reliability.v1' as const;
 
 export const CURRENT_AUTOPILOT_HOST_BASELINE = ['codex', 'claude-code', 'antigravity'] as const;
 export const LEGACY_AUTOPILOT_HOSTS = ['gemini'] as const;

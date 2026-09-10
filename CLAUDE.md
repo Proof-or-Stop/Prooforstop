@@ -351,7 +351,7 @@ checkout 只留 INIT_CHECK 快照。只读主 checkout 会把所有在飞 story 
 
 **不脏工作树**：Proof-or-Stop 的 DONE 门禁要求干净工作树，所以索引缓存放在用户 cache 目录
 （按仓库根路径的 sha256 分目录），不写任何文件进被检查的仓库——因此它**不需要**
-`runtime-artifact-registry` 条目（`serve` 需要，因为它往项目里写 `.lattice-serve.json`）。
+`runtime-artifact-registry` 条目（`serve` 需要，因为它往项目里写 `.proof-or-stop-serve.json`）。
 
 **代码位置**：`packages/graph`（子包），`packages/main` 只有一个 thin handler 调它的
 library surface（`createApp` / `startServer`）。`packages/graph/assets/` 是 gitignored 的
@@ -582,12 +582,12 @@ English-artifact gates scan all recursively scanned string leaves of story metad
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `.proof-or-stop/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
 **签名域**（真相源是 [init-check-gate.ts](packages/main/src/core/init-check-gate.ts) 的 `INIT_CHECK_SIGNATURE_DOMAIN`；`describeInitCheckSignatureDomain()` 渲染当前列表，别照抄下面这行）：
 
 ```
-sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:${verdictHash}:lattice-init-check-integrity-v1`)
+sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:${verdictHash}:proof-or-stop-init-check-integrity-v1`)
 ```
 
 `verdictHash`（B-8df9 CHK-002 加入）= `computeInitCheckVerdictHash` 对 gate 实际判定的两个字段的摘要：`agentResults`（`missingRequiredInitCheckAgents` 读）和 `issues`（`blockingInitCheckIssues` 读）。**加入前 reviewer 结论本身不在签名域内**——手改 `agentResults` 注入一个从没跑过的 reviewer、或删掉一条 critical issue，签名照样有效、gate 照样放行。
@@ -605,13 +605,14 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 **存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
 
-**反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
+**反自豁免设计**：EXP-001 的实验记录证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot）。当前 `init_check_set` 会在写入前对 `agentId` 做 byte-exact canonical admission：只接受已注册的 `proof-or-stop-review-story-init` 与 `proof-or-stop-product-reviewer`，拒绝空白变体、退役角色和未注册角色；独立性仍由签名机制、reviewer 模板 fresh-context fence 与宿主编排共同保证。
 
 **调用模板**：
 
 ```bash
-# reviewer 调
-proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
+# 两个独立 reviewer 分别调用；agentId 必须是下面两个 byte-exact canonical identity
+proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"proof-or-stop-review-story-init","issues":[{"severity":"medium","desc":"..."}]}'
+proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"proof-or-stop-product-reviewer","issues":[]}'
 
 # 失配后强制重跑：reviewer 没有 itemId/findingId/clusterId，主 agent 直接 spawn
 # Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
@@ -636,8 +637,8 @@ proof-or-stop init_check_repair '{
 
 - **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符 → 拒绝、不产出文件、不改 phase。
 - **不绕过签名**：复用同一 `signInitCheck`，跟普通 `init_check_set` 用**同一个**签名域，fallback 不因此签得更弱。B-8df9 CHK-002 后该域已包含 reviewer verdict（`agentResults` + `issues`），事后改任一签名内容仍触发 `[init_check_tampered]`；域的当前列表以 `describeInitCheckSignatureDomain()` 为准。
-- **不放宽 gate**：必需 reviewer 覆盖靠把 agentResults 记成 `<required>@fallback`（`initCheckAgentMatches` 认 `<required>@` 前缀），既满足校验又与独立 reviewer **机械可区分**；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
-- **不引入 agentId 校验**：EXP-001 已证伪调用方机械可区分性。
+- **No gate relaxation**: `initCheckAgentMatches` accepts only byte-exact `<required>` or `<required>@fallback`, rejects `<required>@operator` and `<required>@fallback-extra`; recording fallback agentResults as `<required>@fallback` satisfies required reviewer coverage while remaining mechanically distinguishable from independent reviewers. Human-attested high/critical issues still block through `blockingInitCheckIssues`.
+- **严格校验 agentId，但不把它误当调用方身份证明**：writer 只接受已注册的 byte-exact canonical INIT reviewer identity；EXP-001 仍说明 shell 调用方身份本身不能仅靠 `agentId` 机械证明。
 - **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`proof-or-stop story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
 
 `[missing_init_check]` / `[missing_init_check_agent]` 诊断信息会同时列出缺失的必需 reviewer、fallback 是否可用、以及 `init_check_repair` 的精确命令形态。
@@ -757,7 +758,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
 }
 ```
 
-**签名算法**: `SHA256(storyId + JSON(docsPromises) + JSON(realMachineTests) + JSON(closingSelfCheck) + reviewRound + salt)`，salt = `lattice-delivery-check-integrity-v1`。
+**签名算法**: `SHA256(storyId + JSON(docsPromises) + JSON(realMachineTests) + JSON(closingSelfCheck) + reviewRound + salt)`，salt = `proof-or-stop-delivery-check-integrity-v1`。
 
 **回炉流程**: gate fail → `story_advance DEV` 回炉 → 补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
 
@@ -918,15 +919,21 @@ It exists for the B-a745 class: a selector pinned to a string the command prints
 every branch matches runs that genuinely failed, so the receipt records a
 passing-shaped match for a failing run.
 
-**The proof reads tool-recorded receipts only.** There is no transcript, output or
+**The proof reads current signed V5 receipts only.** Legacy combined and Bundle V2/V3/V4
+receipts remain readable for audit but cannot authorize narrowing, even when they
+carry a plausible selector. There is no transcript, output or
 receipt parameter; a request carrying one is refused before any proof is attempted
 (`narrowing_caller_output_not_admissible`), so an offered rendering can never be
 considered and then ignored. The caller supplies only the story, item, intentRef,
 candidate selector and a reason of at least 30 characters — the reason is retained
 for attribution and is never itself the proof. A narrowing is accepted only when
-recorded receipts show the candidate ABSENT from the retained (bounded) `outputTail`
+recorded receipts show the candidate ABSENT from the complete authenticated output
 of at least one recorded FAILING render the current selector matched, PRESENT in
-EVERY recorded passing receipt, and recorded on the same story material.
+EVERY recorded passing receipt, and recorded on the same story material. Every
+direction, presence, and absence check uses the complete authenticated output artifact,
+including selectors before its retained-tail boundary. `outputTail` is a bounded
+display-only projection and must equal the canonical tail derived from that artifact;
+a mismatched projection is refused with `narrowing_recorded_receipt_invalid`.
 
 **Bound: a recorded-receipt set admits at most one narrowing.** The set's digest is
 retained on the accepted record and re-checked FIRST, before the proof — so a second
@@ -944,10 +951,11 @@ Refusal codes: `narrowing_caller_output_not_admissible`,
 `narrowing_selector_absent_from_passing_receipt`,
 `narrowing_receipt_selector_unknown`, `narrowing_receipt_material_mismatch`,
 `narrowing_selector_unchanged`, `narrowing_no_recorded_receipts`,
-`narrowing_receipt_not_predating_request`.
+`narrowing_receipt_not_predating_request`, `narrowing_recorded_receipt_invalid`,
+`narrowing_recorded_receipt_not_authoritative`.
 
-**What is and is not bounded.** Mechanically enforced: the witness must be a genuine
-tool-recorded receipt of the same pinned command, judged and matched by the current
+**What is and is not bounded.** Mechanically enforced: the witness must be a current
+signed, authoritative V5 receipt of the same pinned command, judged and matched by the current
 pin, recorded on the same story material as the compared passing receipts, and
 predating the request; the candidate must also match every recorded passing receipt;
 and the set is spent afterwards. Not bounded: an operator who can drive that command
@@ -1262,7 +1270,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
-- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非由 `proof-or-stop release_approve_push --confirm` 创建的 `.proof-or-stop/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Hook 仅为已创建且未过期的审批保留 `.lattice/tmp/remote-push-approval.json` 的 legacy read compatibility。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
+- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非由 `proof-or-stop release_approve_push --confirm` 创建的 `.proof-or-stop/tmp/remote-push-approval.json` 的 canonical schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。旧路径和旧 schema 不授予审批。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
 - **Proof-or-Stop 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Proof-or-Stop 仓，立即 `exit 0`（对非 Proof-or-Stop 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Proof-or-Stop 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）

@@ -137,7 +137,7 @@ function hostAvailabilityProbe(
     };
   });
   return {
-    schemaVersion: 'lattice.review_host_availability_probe.v2',
+    schemaVersion: 'proof-or-stop.review_host_availability_probe.v2',
     type: 'review_host_availability_probe',
     command: 'review_host_availability_probe',
     timestamp: '2026-06-19T11:20:00.000Z',

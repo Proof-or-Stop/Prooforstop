@@ -288,7 +288,9 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/proof-admissibility-smoke.ts',
   'packages/main/src/tasks/provider-claude-smoke.ts',
   'packages/main/src/tasks/provider-codex-smoke.ts',
-  'packages/main/src/tasks/quorum-submit-smoke.ts',
+  // B-e40f moved the existing negative compatibility assertions into this module.
+  // Transfer the exact structural quarantine; the coordinator wrapper is no longer exempt.
+  'packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts',
   'packages/main/src/tasks/repair-retry-integration-smoke.ts',
   'packages/main/src/tasks/repair-retry-loop-smoke.ts',
   'packages/main/src/tasks/review-assurance-floor-smoke.ts',
@@ -363,10 +365,11 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the one canonical stale-evidence refresh writer. Compatibility symbols and
   // their approved call shapes remain independently checked above. Repinned
   // again when main's proof-or-stop rename merged into that same file.
-  ['packages/main/src/core/closeout-trust.ts', '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5'],
+  ['packages/main/src/core/closeout-trust.ts', 'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
-  ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
+  // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
+  ['packages/main/src/handlers/delivery-context-pack.ts', '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9'],
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.
@@ -397,7 +400,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776'],
+  // B-aa5f RI-020: repinned after moving the existing owner-lease seed before
+  // both direct verifier handlers. The approved legacy delivery calls and
+  // occurrence counts above remain unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'bcf68b8796e04d0e0416864b171e8609ed4b04575459e12d85d43eaca8ba2946'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -472,13 +478,18 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271'],
+  ['packages/main/src/cli-engine.ts', '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
+  // B-49df: this test executes the fixed repository-local tracer's asserted private
+  // kernel, never an environment/CLI/network payload. This is a WHOLE exact test-file
+  // exemption via the existing early return, not a call-site-only exemption. The
+  // per-entry executable-drift negative below must invalidate this approval.
+  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', 'b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4'],
   // B-022e re-attestation: only verifier runtime identity tokens changed;
   // the exact-file exemption remains narrow and mutation-sensitive.
   ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
@@ -499,7 +510,29 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // same post-refactor source plus exactly three brand-text lines (two console.error
   // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
   // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
+  //
+  // B-bcae CHK-003 REPIN, and unlike every re-approval above this one DID add a dynamic
+  // import, so the basis is restated rather than carried forward. The two-target lock
+  // protocol (CL-004/006/007/008) moved this structural digest off main's
+  // d1542f5222...b927e26. Basis checked BEFORE repinning, by diffing the dynamic-code
+  // surface of `main` against this file: exactly one construct is NEW —
+  // `await import(pathToFileURL(join(repoRoot, 'scripts', 'build-lock.mjs')).href)` at the
+  // top of importDistModules() — and one is REWRITTEN in place, the LAB_DIST import moving
+  // into a returned object literal with the same specifier and the same producer. Nothing
+  // else moved, and the file still contains NO eval, no Function/new Function, no vm, no
+  // runInNewContext and no require().
+  //
+  // The new import is in the same benign class as the five already approved here: a
+  // first-party repository-local sibling whose specifier is `pathToFileURL(join(...)).href`
+  // over `repoRoot` — itself `dirname(dirname(fileURLToPath(import.meta.url)))` — plus two
+  // string literals, so no argv, env or user value can reach it. It is dynamic for a stated
+  // reason, not for convenience: build-lock.mjs imports proper-lockfile, which is absent in
+  // a fresh checkout without node_modules, so a static import would throw
+  // ERR_MODULE_NOT_FOUND at module init before the actionable recovery hint can print —
+  // which is why its dependency-free half (build-lock-target.mjs) IS statically imported
+  // above. The exemption stays exactly as narrow: one file, one exact digest, and any
+  // further drift re-triggers the full dynamic-code scan.
+  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
   // B-3e16 CHK-003: the graph handler invokes five members on the module object returned by
   // its approved runtime import — lib.findRoot, lib.createApp (x2), lib.startServer,
   // lib.openBrowser. Because that module object comes from a non-literal import(), the
@@ -534,7 +567,12 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -782,9 +820,12 @@ const typeProgramInstrumentation = {
 // AST candidate, so that previously prefilter-skipped file now reaches full
 // dynamic analysis too. Every other file B-1482 touches under the scanned
 // directories was already counted, so the ceiling moved by exactly two.
+// B-aa5f CHK-002 added core/verification-execution-evidence.ts, whose tool-owned
+// signing-key helpers call execFileSync; it adds one repo-source build. The
+// prior split was synthetic=419 plus repo=393, total 812.
 // B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
-// Evidence Integrity sources, so the merged inventory moves from 811 to 816.
-const DYNAMIC_BINDING_BUILD_CEILING = 816;
+// Evidence Integrity sources. Retaining both source sets gives a ceiling of 817.
+const DYNAMIC_BINDING_BUILD_CEILING = 817;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
@@ -1627,9 +1668,22 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       // new build-aware importDistModules() wait loop; the argument expressions are unchanged.
       { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
       { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
+      // B-bcae F-034: the LAB_DIST and BRAND_ENV_DIST imports moved out of runLocalBootstrap
+      // into the new importLabModule() helper so they resolve INSIDE reader admission. Only the
+      // enclosing anchor changed — both argument expressions, and both producers (module-scope
+      // consts joined from repoRoot), are byte-identical to the approved versions.
+      { anchor: 'importLabModule', argument: 'pathToFileURL(LAB_DIST).href' },
+      { anchor: 'importLabModule', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
+      // B-bcae CHK-003: NEW approved call site, the only one this Story added. build-lock.mjs is
+      // a first-party repository-local sibling; the specifier is join(repoRoot, <literal>,
+      // <literal>) through pathToFileURL, and repoRoot is dirname(dirname(fileURLToPath(
+      // import.meta.url))), so no argv, env or user value reaches it. It must be dynamic:
+      // build-lock.mjs imports proper-lockfile, absent in a fresh checkout without node_modules,
+      // and a static import would throw ERR_MODULE_NOT_FOUND at module init before the recovery
+      // hint can print — which is why its dependency-free half, build-lock-target.mjs, is the one
+      // imported statically at the top of the file.
+      { anchor: 'importDistModules', argument: "pathToFileURL(join(repoRoot, 'scripts', 'build-lock.mjs')).href" },
     ],
   }],
   ['packages/main/src/cli.ts', {
@@ -1690,7 +1744,10 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-8a40 current-Story admission: this is a single test-only call site, not a
   // general loader exemption. Executable drift revokes it; the provenance
   // controls below also reject rebinding/widening even under a refreshed hash.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '895187c6121e3be076bc1528950ad147452dd89da922ca43cd02be2923d5cb50'],
+  // B-7abb's bounded reference witnesses and B-49df's active-identity mutation
+  // controls are both present. The fixed producer, loader relation, anchor,
+  // argument and node:url provenance remain protected.
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '03a0f5091afb52ae230d43227b93d8b87b1a0fcef836f7589aa32b817525f0a2'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -1714,7 +1771,17 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
   // runLocalBootstrap, plus the BRAND_ENV_DIST fallback) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', 'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26'],
+  //
+  // B-bcae CHK-003 REPIN: the two-target lock protocol moved this digest, and here the
+  // approved call-site allowlist this fingerprint gates really did change — a SIXTH
+  // non-literal loader call site now exists, `await import(pathToFileURL(join(repoRoot,
+  // 'scripts', 'build-lock.mjs')).href)` in importDistModules(), and the LAB_DIST site was
+  // rewritten in place (same specifier, same producer, now inside a returned object
+  // literal). Both are recorded on the DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS entry
+  // for this file, including why the new one must be dynamic and why its argument cannot be
+  // influenced by argv, env or user input; read that before re-approving here. The
+  // MAIN_DIST/UTILS_DIST, BRAND_ENV_DIST and zod sites are unchanged in shape.
+  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
   // origin/main merge: repinned for the TOOLCHAIN, not the code. origin's lockfile
   // brings typescript 5.9.3 and canonicalAstFingerprint prints via ts.createPrinter,
   // so every AST-keyed digest here shifts. Basis checked BEFORE repinning:
@@ -1755,7 +1822,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -4707,7 +4779,7 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    12,
+    13,
     // origin/main merge: was 9. BOTH exemption maps had a slot whose occupant differed
     // between the two parents -- origin pinned packages/main/src/cli.ts, our main pinned
     // packages/main/src/handlers/graph.ts -- and the merged tree carries both features,
@@ -4719,7 +4791,7 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     // report as unresolved-nested-member. B-8a40 adds one test-only benign-loader
     // pin, with separate producer provenance controls: twelve exact source entries,
     // still zero patterns and no dynamic-code exemption for the mutation smoke.
-    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
@@ -5354,8 +5426,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
  * refreshed the digest to make the guard green. That is the whole point: if these controls
  * relied on fingerprint drift they would prove nothing about the provenance check.
  */
-function assertLoaderArgumentProvenance(): void {
+function assertLoaderArgumentProvenance(onlyFile?: string): { filesChecked: number; mutantsChecked: number } {
+  if (onlyFile !== undefined) assert.ok(APPROVED_LOADER_ARGUMENT_PROVENANCE.has(onlyFile), 'selected loader proof must exist');
+  let filesChecked = 0;
+  let mutantsChecked = 0;
   for (const [file, pin] of APPROVED_LOADER_ARGUMENT_PROVENANCE) {
+    if (onlyFile !== undefined && file !== onlyFile) continue;
+    filesChecked += 1;
     const original = readRel(file);
     assert.ok(original.includes(pin.argument), `provenance pin argument must exist verbatim in ${file}`);
     assert.deepEqual(
@@ -5525,6 +5602,7 @@ function assertLoaderArgumentProvenance(): void {
     ];
 
     for (const [label, mutated] of mutants) {
+      mutantsChecked += 1;
       assert.notEqual(mutated, original, `${label} control must actually mutate ${file}`);
       assert.ok(mutated.includes(pin.argument), `${label} control must keep the pinned argument text byte-identical`);
       const mutantFingerprint = canonicalAstFingerprint(file, mutated);
@@ -5536,6 +5614,7 @@ function assertLoaderArgumentProvenance(): void {
       );
     }
   }
+  return { filesChecked, mutantsChecked };
 }
 
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
@@ -5858,36 +5937,61 @@ function assertCommandCatalog(): Violation[] {
   return violations;
 }
 
-function runCli(args: string[]): string {
+function runCli(root: string, args: string[]): string {
   const cliPath = join(pkgRoot, 'dist', 'cli.js');
-  return execFileSync(process.execPath, [cliPath, ...args], {
-    cwd: repoRoot,
+  return execFileSync(process.execPath, [cliPath, '--root', root, ...args], {
+    cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
       PROOF_OR_STOP_NO_HOOKS: '1',
+      PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '0',
     },
   });
 }
 
 function assertGeneratedHelp(): Violation[] {
-  const outputs = [
-    ['help'],
-    ['done_closure', '--help'],
-    ['dispatch_policy_create', '--help'],
-    ['observability_snapshot', '--help'],
-    ['evidence_plan', '--help'],
-    ['lifecycle_orchestrate', '--help'],
-    ['live_smoke_transcript', '--help'],
-    ['delivery_context_pack', '--help'],
-    ['reviewer_batch', '--help'],
-    ['init_preflight', '--help'],
-    ['host_probe', '--help'],
-    ['conduit_status', '--help'],
-    ['story_export', '--help'],
-  ];
-  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-retired-help-'));
+  try {
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2));
+    const outputs = [
+      ['help'],
+      ['done_closure', '--help'],
+      ['dispatch_policy_create', '--help'],
+      ['observability_snapshot', '--help'],
+      ['evidence_plan', '--help'],
+      ['lifecycle_orchestrate', '--help'],
+      ['live_smoke_transcript', '--help'],
+      ['delivery_context_pack', '--help'],
+      ['reviewer_batch', '--help'],
+      ['init_preflight', '--help'],
+      ['host_probe', '--help'],
+      ['conduit_status', '--help'],
+      ['story_export', '--help'],
+    ];
+    return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(root, args)));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Explicit Lab proof scope. The configured no-argument entry below still runs
+// every original guard, including unrelated baseline failures. Its PASS marker
+// is never emitted by this focused maintenance proof.
+if (process.argv.includes('--lab-graph-loader-proof')) {
+  assert.deepEqual(process.argv.slice(2), ['--lab-graph-loader-proof'], 'Lab proof does not accept combined or ambiguous selection');
+  assertDynamicCodeGenerationPositiveControls();
+  const coverage = assertLoaderArgumentProvenance('packages/main/src/handlers/graph.ts');
+  assert.deepEqual(coverage, { filesChecked: 1, mutantsChecked: 14 }, 'Graph proof retains every current provenance mutant');
+  process.stdout.write(`LAB_GRAPH_LOADER_PROOF_GREEN ${JSON.stringify(coverage)}\n`);
+  process.exit(0);
 }
 
 const violations: Violation[] = [];

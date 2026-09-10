@@ -20,7 +20,7 @@ import { loadConfig } from '../core/config.js';
 import { CONFIG_FILENAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
-export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
+export const SCOPE_CHECK_SALT = 'proof-or-stop-scope-check-integrity-v1';
 
 export interface ScopeCheckSignatureMaterial {
   features: ScopeCheckFeature[];

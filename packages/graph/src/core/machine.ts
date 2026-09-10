@@ -2,7 +2,6 @@
 
 export const STORY_ROOTS = [
   '.proof-or-stop/story/actives',
-  '.lattice/story/actives',
 ] as const;
 
 /**

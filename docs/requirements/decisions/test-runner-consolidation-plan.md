@@ -43,6 +43,41 @@ fixed-port keys as the resource sentinel. This keeps the real fixture writer and
 port probe mutually exclusive with the sentinel at all worker counts; the smoke
 is not treated as a read-only member.
 
+### Quorum-submit bounded shard execution (B-e40f)
+
+The quorum-submit smoke remains one configured black-box command and one
+canonical 73-case inventory. Its thin parent groups that inventory into the
+four declared shards and runs at most `--jobs=<n>` shard processes at once;
+each shard process executes its cases serially. `jobs=1` therefore remains the
+serial compatibility oracle, while the configured validation row explicitly
+uses `--jobs=2`. Empty work, duplicate executable identities, missing shard
+identity, and out-of-range job counts fail closed before worker allocation.
+
+The parent creates one identity-recorded worker root per shard beneath a single
+owned temporary base and overrides `TMPDIR`, `TMP`, `TEMP`, and the quorum
+fixture base for that child. A worker root is removed only after its captured
+process tree is gone and its path/device/inode identity still matches; failure
+or timeout is never retried. Cancellation stops dequeueing; POSIX hosts signal
+the owned process group with bounded TERM then KILL, while Windows uses the
+repository-standard `taskkill /PID <pid> /T /F` tree operation. Either branch
+reports process and temporary residue rather than converting an unknown signal
+or cleanup result into PASS.
+
+The configured resource claim is consequently one shared read of the Git
+common directory. Runtime resource records are nonce/run/callback-bound,
+no-follow append-only witnesses for canonical repository reads and isolated
+fixture writes. Callback, fixture, and resource trace sinks are accepted only
+as distinct, canonical, single-link files strictly outside both the worktree
+and the Git common directory resolved from canonical `cwd` with ambient
+`GIT_*` redirection removed; each append rechecks the pinned device and inode
+with no-follow open semantics. These traces are deliberately bounded
+witnesses, not a claim to be a complete operating-system syscall audit. The
+long-running contract separately checks callback timelines, worker PIDs, exact
+result identities, parent-owned root cleanup, and forged repository-write or
+overlapping-root rejection. No speed gain is inferred from this design alone;
+the B-e40f performance contract must measure the fixed baseline, `jobs=1`, and
+`jobs=2` on an idle frozen host before any performance acceptance claim is made.
+
 This decision document records the chosen architecture for consolidating the
 project's test runner and decomposes the implementation into follow-up Proof-or-Stop
 stories. The deliberation history is captured under Proof-or-Stop story **B-35aa**.

@@ -38,14 +38,13 @@ if (!existsSync(BUILT_ROLE_IDENTITY_PATH)) {
     'Built agent-role identity helpers not found. Run `npm --prefix packages/main run build` before this verifier.',
   );
 }
-const { canonicalAgentRoleId, legacyizeAgentRoleText } = await import(
+const { canonicalAgentRoleId } = await import(
   `${pathToFileURL(BUILT_ROLE_IDENTITY_PATH).href}?v=${Date.now()}`,
 );
 const EXPECTED_ROLE_COUNT = 18;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
 const PROMPT_REGISTRY_SCHEMA_ALIASES = new Set([
   'proof-or-stop.prompt-registry.v1',
-  'lattice.prompt-registry.v1',
 ]);
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
@@ -55,176 +54,102 @@ const PROBE_PROMPT_POLICY_MANIFEST = process.argv.includes('--probe-prompt-polic
 const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
 /**
- * Independent approval manifest binding every role ID to the exact hash of its approved prompt
- * body. EXPECTED_ROLE_COUNT (18) is unchanged and still asserted.
- *
- * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
- * `proof-or-stop` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
- * templates. This is a repin to new correct content addresses, not a relaxation: the manifest
- * still binds each role to one exact body hash, so any unapproved prompt edit still fails. Audit
- * performed before repinning: `git diff main...HEAD -- packages/main/templates/agents/` contains
- * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
- * and the two roles whose hashes did NOT move (implementation-reviewer, proof-or-stop-review-topology-critic)
- * are exactly the templates the rename did not touch.
- *
- * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
- * proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery,
- * proof-or-stop-review-scope-plan, proof-or-stop-review-story-init). CHK-005 repinned only what the
- * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
- * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
- * `core/prompt-registry.ts` (`LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE` and
- * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `proofOrStop <cmd>` to every spawned
- * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
- * EXPECTED_ROLE_COUNT stays 18 and every role stays bound to one exact hash — a repin to
- * verified new content addresses, never a relaxation. Audited before repinning: normalizing
- * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
- * one, i.e. the drift is brand-only with no semantic edit.
- *
- * B-9a49: re-approved the proof-or-stop-implementer body after adding its bounded
- * out-of-item Finding handoff rule, and the five active modular REVIEW bodies
- * after appending the canonical Finding triage contract in both rollout modes.
- * The reviewer source templates and their frozen legacy reconstruction hashes
- * did not move; only selected assembled bodies and their derived identities do.
- * REVIEW follow-up: re-approved the same five active reviewer assembled
- * bodies after the reviewed contract gained its explicit current/future
- * compatibility boundary and verdict-specific minimum proof requirements.
- * Focused semantic validation, including contradictory-permission mutation
- * probes, passed before these content addresses were updated.
- * F-010/F-011/F-012 follow-up: re-approved the same five reviewer bodies
- * after making history correction explicitly compatibility-aware and expanding
- * the fail-closed semantic mutation inventory. The source templates and frozen
- * legacy reconstruction inputs remain unchanged; only the appended canonical
- * contract and its derived body/host-render identities move.
- * F-022/F-023/F-024 follow-up: re-approved the five assembled reviewer bodies
- * after the canonical contract adopted the current-witness verdict and the
- * future signed defer-with-proof disposition boundary. The source templates and
- * frozen legacy reconstructions remain unchanged. Focused RED/GREEN mutations
- * reject obsolete and inverse semantics even after deliberate digest repinning.
- * F-040/F-041 follow-up: the five reviewer bodies preserve the independent
- * claimed-lineage floor, the downstream closure-only mandatory-repair floor,
- * and the exact lineage-release verdict allowlist after the identity cutover.
- * F-042/F-046/F-047 follow-up: re-approved the same five assembled reviewer
- * bodies after the Agent projection restored complete repair closure as the
- * other claimed-lineage release, kept downstream mandatory repair closure-only,
- * and documented the current Owner-only dismissal effect without changing the
- * protected Dynamic Finding runtime.
- * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
- * its live direct StoryStore reads/writes with background_get, story_get,
- * checklist_get, and init_check_set. The CLI-only surface invariant below binds
- * the source template, both generated mirrors, and the assembled registry body.
- * B-29bc: independently re-approved only the selected critic body after auditing
- * its exact trusted-purpose appendix. The historical template and reconstruction
- * remain unchanged; inventory-only duties do not supply topology authority.
+ * Independent approval of current canonical role bodies (18 exact roles).
+ * B-49df preserves the reviewed Finding-triage behavior and approves the
+ * canonical-only bodies, prefixes, Role Contracts, and host identities.
+ * Retired-mode approvals with unreproducible preimages were removed from this
+ * active boundary; original commits remain Git history, not current evidence.
+ * B-29bc adds exact trusted-purpose critic duties; inventory-only credentials
+ * do not supply topology authority. Canonical current bodies remain the baseline.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'proof-or-stop-implementation-reviewer',
-    templateHash: 'fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd',
+    templateHash: '8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2',
   },
   {
     role: 'proof-or-stop-evaluator-cli',
-    templateHash: 'bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc',
+    templateHash: '6e53041db7c75c5ca9d977f1fd1b6492f9a08b0ce1e8d3e38981dc069f3bdf73',
   },
   {
     role: 'proof-or-stop-evaluator',
-    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
+    templateHash: '7fe2019950da7ab4a40c93dccf1e9fcb6776427d7a4b1b0d1ecebed3ac555d9b',
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
+    templateHash: '178aa01367cb5e8a68d68527e28d320387d82fb8e5a967ea4d6cb806d20a876c',
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: 'a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54',
+    templateHash: 'cd13a77bcf6e86584693ceacdfd85e3f4f4fe3745d9b29f576ecbf6f548c8b1b',
   },
   {
     role: 'proof-or-stop-review-channel',
-    // B-5a88: canonical managed-block marker migration; legacy-projected
-    // content remains digest-checked without weakening the approval gate.
-    templateHash: 'dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f',
+    templateHash: 'cd448e83cf5fb71c3d484b33d7100d8338bee3c613078281ee36042533c9719a',
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '642296478639ba90557b65df65782f4a81f6c3bea6219b9c1d7289dd6d62d5a1',
+    templateHash: '2f90c6b6b549285fd9afd2cc3ec8e5f9699d5bfe566bc77fde00d7b015021c00',
   },
   {
     role: 'proof-or-stop-review-delivery',
-    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
+    templateHash: '6faa7a0faa049b25dfd1bb40e3432dc42c333def8ab2b4c1fe0804e9d570d24e',
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: '86c4c91c613a89da9a46b751d0fe3911500a81746527d9384ed95fcbb56fd7cf',
+    templateHash: '793883a369fc150f23c3183ef737f0baffed397a47b20665fa246a2b2c62d779',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'e2cafec3242837c489faf74b808ea0474f082dd93f4ae8b01d20f225c3d4751f',
+    templateHash: 'a53f38b7fa652fce9a9654dd295f91d5f67e9599c45086cb351042487dd50e47',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
-    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
+    templateHash: '3200879c4a43463bc21ed40d32b733a4d096c772b56503bcc74aebea1bebe841',
   },
   {
     role: 'proof-or-stop-review-story-init',
-    // origin/main merge: repinned in the same pass that adopted origin's story-init body.
-    // Our pre-merge body told the reviewer to read docs/story/actives/<storyId>/
-    // background.md, index.json and checklist.json DIRECTLY -- forbidden by CLAUDE.md and
-    // rejected by this script's own story-init CLI-only policy. origin had already
-    // replaced those three steps with proof-or-stop background_get / story_get /
-    // checklist_get, so origin's body is adopted verbatim except for the managed-marker
-    // spelling, which stays ours because other digests depend on it.
-    // NOTE this field is the RECONSTRUCTION digest (it is compared against
-    // LEGACY_COMPLEX_TEMPLATE_SHA256 in core/prompt-registry.ts), not the raw sha256 of
-    // the template file -- pinning the file hash here fails with 'approved prompt policy
-    // manifest hash mismatch'.
-    templateHash: 'a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c',
+    templateHash: '8727ff1840c9572ccdebcc0af2f258045cc921bfd20cff4bafeef39406b2403e',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '35f9ae8dc5c1182b79630d4b1391b28c4a8617bf6339daeaab08a272876749f9',
+    templateHash: '65ab0d1061781d376fa58a1e963573a9af3ec2b0cb301a1c90e7169d6ebb6f70',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: 'c9aff511b9b67d6640860adc87363c08bc2f418ccdf3d5d0e269134919a5fabb',
+    templateHash: '4ee4e84cfdd085ad3ca3f3480c42b3ea2cd8be73c0ffc46c3c16fc62941954ea',
   },
   {
     role: 'proof-or-stop-product-reviewer',
-    templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
+    templateHash: '0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda',
   },
   {
     role: 'proof-or-stop-test-case-reviewer',
-    templateHash: '5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57',
+    templateHash: '501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc',
   },
   {
     role: 'proof-or-stop-test-intent',
     // B-5a88: retained as a read-side compatibility prompt only. It has no
     // active PLAN mutation or evidence ownership.
-    templateHash: 'ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d',
+    templateHash: 'd1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27',
   },
   {
     role: 'proof-or-stop-verification-intent',
     // B-5a88/F-445: active PLAN role; writes only verificationIntent.
-    templateHash: '45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4',
+    templateHash: 'a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['proof-or-stop-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
-  ['proof-or-stop-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
-  ['proof-or-stop-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5'],
-  ['proof-or-stop-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
-  ['proof-or-stop-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
-].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
-  role,
-  legacyBodySha256,
-  modularBodySha256,
-  roleSemanticDigest,
-  roleRenderDigest,
-  legacyClaudeRenderDigest,
-  legacyCodexRenderDigest,
-  modularClaudeRenderDigest,
-  modularCodexRenderDigest,
+  ["proof-or-stop-review-behavior", "a906011378e1e275833abf0832ff20fa2c91713106fc35eabf82be204963b0ce", "221a66855d6840507a07358a711c6cd87a01750d49cb5498b77df9c3513f0bca", "5df25a5724090c665c061366581187dd47c7fff1cf6406b10f05a81a2e9da3ff", "89c388cac36f89bd98ef3d7a84034d8673f27fbf800d6964600704c56f478907", "3035799f19f464c6211315e4b59da2500acdd97aeec62372e538116486902b6a"],
+  ["proof-or-stop-review-concept", "566d82a4224d52d655f833da48e7dd780ac29af3cfdb8306c638598772dd5eb6", "129ee6a7e183f44fff7bda999ff22f6a6828a0a881ef627f53c187d16c7a853c", "454358f2ef19147662bced7059b22ccca319a03be865891280d751b1644e0568", "339d1338082e98e69201524ddcdd5b7e3bb9e3938ebe67f8bc69334e96b7a8f8", "a5b304902b60fd05f5840cc05451ea09c9a3e184e2c917338bcf3458418d0191"],
+  ["proof-or-stop-review-docs", "e1e9631a604661183babb356610eab2e6f531071eb1e7752358c0b3b337c8ad3", "b909414a8ebd85635541c06c8a5cd6c76a9d0d03f6a7fe9ce164b7306a1511d8", "6a8f394a24b157eaaf46d42661bcfa1adf8524d9cad31d51d19915e7e7786aca", "cfaffa07f0abf7b475c1db4f55075f437d2ab2248796a0a32f8fcdae703ea39c", "381a8d5321fe788057a668b0ead64ada567449378c1ffe4ef0fe3e8a741cbbe4"],
+  ["proof-or-stop-review-quality", "8b89de8daa7ff44b07aa59ba8ce5f84a5084c09266a740eb3326c8ef720e46c0", "24b806dc14f6f47a7edb6fbe32307bf935e2fa1dcfbc50230882504621659ff3", "f79a97c366eea184392275838f1530c1ee50b536cdae9e7735c3d0093137e7c4", "000fa247cf4afbc1b01c147d93a6d8bb117f2cd4571343d393c2f52acc2a6533", "0f4739acc4173dc7c3ac56bbc4214cfa32bd4107502f6e7e0a7593fac94b6fd4"],
+  ["proof-or-stop-review-test-coverage", "6c0892d56a8758cbd3e46cadf8d8e45d4db854b3d95228c3735463ddf96eb17a", "bb054485897343ba3a388020620a167041072257f70e5a7760b7d132ed631946", "7c52378e1d2287480f71e89cd461697900d399bca0767772ee9af534c2f3c0ce", "21ca5ee93e12ece07fd56935a98704b750b392a4df311276112747b44e5c9613", "584e542b95d4c3101954dcb380c01a3f247530326ee3a48caf409ad006b2b546"],
+].map(([role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
+  role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest,
 })));
 const PROMPT_POLICY_PRIMARY_BOUNDARY =
-  'The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
+  'The independent code-reviewed approval manifest binds every exact canonical role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally verifies current body, Role Contract, and Claude/Codex host identity digests against actual resolver outputs. Retired-mode expectations are not current evidence and remain only in Git history. Diagnostic occurrence scanners do not authorize prompt changes.';
 const ROLE_MATRIX_FIELDS = [
   'status',
   'phase',
@@ -241,7 +166,7 @@ const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
   'Lock the exact 18 role snapshots and role IDs.',
   'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
-  'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
+  'For five modular reviewer roles, verify actual canonical body, Role Contract, and Claude/Codex host identities against independent pins.',
   'Lock agent_prompt output hashes.',
   'Require every role-matrix field to be a non-empty string.',
   'Require JSON/Markdown parity and reject snapshot drift.',
@@ -424,7 +349,7 @@ const LEGACY_VOCABULARY_BLOCK_REJECTION =
   'enforced legacy-vocabulary occurrence is neither a safe negative nor a registered context';
 
 const ROLE_MATRIX_DEFAULTS = {
-  'implementation-reviewer': {
+  'proof-or-stop-implementation-reviewer': {
     status: 'fold-candidate',
     phase: 'REVIEW advisory',
     purpose: 'Legacy implementation risk reviewer for code risks and maintainability.',
@@ -604,7 +529,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'PLAN verification-intent owner',
     notes: 'Active replacement for legacy test-intent authoring; does not write status or verificationEvidence.',
   },
-  'product-reviewer': {
+  'proof-or-stop-product-reviewer': {
     status: 'compatibility',
     phase: 'INIT/DONE advisory',
     purpose: 'Reviews user-facing transcript and product closure.',
@@ -616,7 +541,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps delivery and evaluator',
     notes: 'INIT compatibility remains until product reviewer routing is migrated.',
   },
-  'test-case-reviewer': {
+  'proof-or-stop-test-case-reviewer': {
     status: 'legacy',
     phase: 'TEST_CASE_REVIEW legacy',
     purpose: 'Legacy reviewer for fixture coverage of testIntent.',
@@ -628,7 +553,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'replaced by current proof-or-stop-review-test-coverage; target proof-or-stop-review-test-coverage',
     notes: 'Legacy-only prompt tied to old TEST_CASE_REVIEW phase.',
   },
-  'test-intent': {
+  'proof-or-stop-test-intent': {
     status: 'legacy',
     phase: 'PLAN legacy',
     purpose: 'Legacy checklist split reviewer and testIntent writer.',
@@ -643,17 +568,7 @@ const ROLE_MATRIX_DEFAULTS = {
 };
 
 function roleMatrixDefaultsFor(role) {
-  const canonicalRole = canonicalPromptRoleId(role);
-  const canonicalDefaults = ROLE_MATRIX_DEFAULTS[canonicalRole];
-  if (canonicalDefaults) return canonicalDefaults;
-
-  const directLegacyDefaults = ROLE_MATRIX_DEFAULTS[role];
-  if (directLegacyDefaults) return directLegacyDefaults;
-
-  const legacyRole = Object.keys(ROLE_MATRIX_DEFAULTS).find(
-    candidate => canonicalPromptRoleId(candidate) === canonicalRole,
-  );
-  return legacyRole ? ROLE_MATRIX_DEFAULTS[legacyRole] : undefined;
+  return ROLE_MATRIX_DEFAULTS[role];
 }
 
 const DIRECT_STORY_CLASSIFIER_PROBES = [
@@ -1456,10 +1371,6 @@ function sha256(value) {
 }
 
 function canonicalPromptRoleId(role) {
-  // Prompt assets have a distinct legacy test-case-reviewer template identity;
-  // the dispatch compatibility map also accepts that spelling for test-intent.
-  // The frozen prompt baseline must resolve the template spelling first.
-  if (role === 'test-case-reviewer') return 'proof-or-stop-test-case-reviewer';
   return typeof role === 'string' ? canonicalAgentRoleId(role) : role;
 }
 
@@ -1540,10 +1451,9 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
         `prompt policy collector content hash mismatch for ${role}: content=${contentHash} entry=${entry.templateHash}`,
       );
     }
-    // Approved hashes are historical body digests. Compare canonical prompt
-    // output through the helper's read-only legacy projection; keep the
-    // collector's own canonical content hash check above unchanged.
-    const approvedContentHash = sha256(legacyizeAgentRoleText(entry.content));
+    // Independent approval binds the current canonical selected body, including
+    // its terminal triage contract. Retired-mode pins are not current evidence.
+    const approvedContentHash = sha256(entry.content);
     if (approvedContentHash !== approved.templateHash) {
       errors.push(
         `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${approvedContentHash}`,
@@ -1565,6 +1475,26 @@ function assertApprovedPromptPolicyManifest(roleEntries) {
   throw new Error(
     `Refusing to collect or refresh the baseline because the approved prompt policy manifest failed:\n- ${errors.join('\n- ')}`,
   );
+}
+
+function assertApprovedCanonicalRollout(actualRows) {
+  if (!Array.isArray(actualRows) || actualRows.length !== APPROVED_ROLE_BODY_ROLLOUT_MANIFEST.length) {
+    throw new Error('approved canonical rollout row count mismatch');
+  }
+  const seen = new Set();
+  for (const actual of actualRows) {
+    const approved = APPROVED_ROLE_BODY_ROLLOUT_MANIFEST.find(entry => entry.role === actual.role);
+    if (!approved || seen.has(actual.role)) throw new Error('approved canonical rollout role set mismatch');
+    seen.add(actual.role);
+    if (Object.keys(actual).sort().join(',') !== Object.keys(approved).sort().join(',')) {
+      throw new Error(`approved canonical rollout field set mismatch for ${actual.role}`);
+    }
+    for (const [field, digest] of Object.entries(approved)) {
+      if (actual[field] !== digest) {
+        throw new Error(`approved canonical rollout mismatch for ${actual.role}.${field}: expected ${digest}, got ${actual[field]}`);
+      }
+    }
+  }
 }
 
 function buildPromptPolicyManifestAudit() {
@@ -2243,7 +2173,9 @@ async function collectPromptStateFromSource({
   const { readPromptRegistry, renderPromptEntryForHost } = await loadBuiltRegistry();
   const {
     PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    PROMPT_ROLE_CONTRACTS,
     resolvePromptRoleBody,
+    reviewerHostRenderIdentity,
   } = await loadBuiltRoleContractRegistry();
   const snapshot = readPromptRegistry(templateDir);
   const rolloutConfig = {
@@ -2252,10 +2184,29 @@ async function collectPromptStateFromSource({
   };
   const roleEntries = [];
   const agentPromptOutputs = [];
+  const actualRollout = [];
+
+  // Independent pins must be compared with actual current resolver outputs,
+  // not merely copied into a generated approval audit.
+  for (const approved of APPROVED_ROLE_BODY_ROLLOUT_MANIFEST) {
+    const selected = resolvePromptRoleBody(approved.role, rolloutConfig, snapshot);
+    const contract = PROMPT_ROLE_CONTRACTS.find(entry => entry.roleId === approved.role);
+    const actual = {
+      role: approved.role,
+      modularBodySha256: selected.bodyDigest,
+      roleSemanticDigest: contract?.semanticDigest,
+      roleRenderDigest: contract?.renderDigest,
+      modularClaudeRenderDigest: reviewerHostRenderIdentity(ROOT, approved.role, 'claude', 'full-envelope').identityDigest,
+      modularCodexRenderDigest: reviewerHostRenderIdentity(ROOT, approved.role, 'codex', 'full-envelope').identityDigest,
+    };
+    actualRollout.push(actual);
+  }
+  assertApprovedCanonicalRollout(actualRollout);
 
   for (const entry of snapshot.agents) {
-    const content = resolvePromptRoleBody(entry.agentId, rolloutConfig, snapshot).body;
-    const expectedAgentPrompt = renderPromptEntryForHost(entry, 'claude');
+    const selected = resolvePromptRoleBody(entry.agentId, rolloutConfig, snapshot);
+    const content = selected.body;
+    const expectedAgentPrompt = renderPromptEntryForHost(entry, 'claude', selected.mode);
     const stdout = promptOutputCollector
       ? promptOutputCollector(entry, expectedAgentPrompt)
       : runAgentPrompt(entry.agentId);
@@ -2283,7 +2234,7 @@ async function collectPromptStateFromSource({
     });
   }
 
-  return { snapshot, roleEntries, agentPromptOutputs };
+  return { snapshot, roleEntries, agentPromptOutputs, actualRollout };
 }
 
 async function collectCurrentPromptState() {
@@ -2778,7 +2729,7 @@ function buildMechanicalSnapshotFromCollected(reference, promptState) {
  */
 async function verifyRealPromptCollectionBoundaryProbe(current, failures) {
   const sourceTemplateDir = join(ROOT, 'packages/main/templates/agents');
-  const probeRoot = mkdtempSync(join(tmpdir(), 'proofbound-prompt-baseline-probe-'));
+  const probeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-prompt-baseline-probe-'));
   const probeTemplateDir = join(probeRoot, 'agents');
   const collectProbeState = () => collectPromptStateFromSource({
     templateDir: probeTemplateDir,
@@ -3267,6 +3218,21 @@ function requirePromptPolicyRejection(name, callback, expected, failures) {
 }
 
 async function verifyPromptPolicyManifestProbes(promptState, failures) {
+  for (let index = 0; index < promptState.actualRollout.length; index += 1) {
+    for (const field of Object.keys(promptState.actualRollout[index]).filter(key => key !== 'role')) {
+      const mutated = structuredClone(promptState.actualRollout);
+      mutated[index][field] = '0'.repeat(64);
+      requirePromptPolicyRejection(`actual canonical rollout ${index}.${field}`,
+        () => assertApprovedCanonicalRollout(mutated), 'approved canonical rollout mismatch', failures);
+    }
+  }
+  for (const mutate of [rows => rows.pop(), rows => { rows[0].retiredModeDigest = '0'.repeat(64); },
+    rows => { rows[0].role = rows[1].role; }]) {
+    const mutated = structuredClone(promptState.actualRollout);
+    mutate(mutated);
+    requirePromptPolicyRejection('actual canonical rollout structure',
+      () => assertApprovedCanonicalRollout(mutated), 'approved canonical rollout', failures);
+  }
   const roleEntries = promptState.roleEntries;
   const approvedErrors = approvedPromptPolicyManifestErrors(roleEntries);
   if (approvedErrors.length > 0) {

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -16,16 +16,10 @@ import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/p
 import { resolvePromptEnvelopeRolloutMode } from '../core/prompt-role-contract-registry.js';
 import { StoryStore } from '../core/store.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
-// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
-// read a path that no longer exists (ENOENT) or scan zero files.
-function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
-}
 
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
-  restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
 
 const registry = readPromptRegistry();
@@ -41,8 +35,8 @@ const handlers = createAgentPromptHandlers({
 for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   assert.equal(
     projectConfig.promptEnvelope?.roles?.[roleId],
-    'legacy-full-context',
-    `${roleId} must remain on the exact legacy default after the tracked adverse A/B result`,
+    'full-envelope',
+    `${roleId} must use the current full-envelope mode`,
   );
 }
 
@@ -69,39 +63,29 @@ const taskContext = buildFullTaskContext({
 for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
   assert.equal(resolvePromptEnvelopeRolloutMode(roleId, {
-    version: 'proofbound.prompt-envelope-rollout.v1',
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
     roles: { [roleId]: 'full-envelope' },
   }), 'full-envelope');
   const role = promptRoleContract(roleId);
   const body = resolvePromptRoleBody(roleId, {
-    version: 'proofbound.prompt-envelope-rollout.v1',
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
     roles: { [roleId]: 'full-envelope' },
   }).body;
-  const legacy = resolvePromptRoleBody(roleId, {
-    version: 'proofbound.prompt-envelope-rollout.v1',
-    roles: { [roleId]: 'legacy-full-context' },
-  });
-  assert.equal(legacy.legacyBytesRestored, true);
-  assert.equal(legacy.body, restoreLegacyPromptTemplate(entry), `${roleId} exact rollback is content-addressed`);
-  const defaultClaude = renderPromptEntryForHost(entry, 'claude');
-  const defaultCodex = renderPromptEntryForHost(entry, 'codex');
-  const modularClaude = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
-  const modularCodex = renderPromptEntryForHost(entry, 'codex', 'full-envelope');
-  assert.equal(defaultClaude, legacy.body, `${roleId} rejected baseline selects legacy in the actual Claude host render`);
-  assert.equal(defaultCodex, legacy.body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.proof-or-stop-codex/agents/'), `${roleId} rejected baseline selects legacy in the actual Codex host render`);
-  assert.equal(handlers.agent_prompt({ role: roleId }), defaultClaude, `${roleId} agent_prompt matches the chosen Claude host render`);
-  assert.equal(modularClaude, body, `${roleId} modular Claude render remains explicitly audit-selectable`);
-  assert.equal(modularCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.proof-or-stop-codex/agents/'), `${roleId} modular Codex render remains explicitly audit-selectable`);
-  assert.notEqual(defaultClaude, modularClaude, `${roleId} rejected baseline cannot yield the modular host render`);
+  assert.throws(() => resolvePromptRoleBody(roleId, {
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
+    roles: { [roleId]: 'legacy-full-context' as never },
+  }), /unsupported mode/);
+  const currentClaude = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
+  const currentCodex = renderPromptEntryForHost(entry, 'codex', 'full-envelope');
+  assert.equal(handlers.agent_prompt({ role: roleId }), currentClaude, `${roleId} role-only agent_prompt uses the current Claude render`);
+  assert.equal(currentClaude, body, `${roleId} current Claude render matches the Role Contract body`);
+  assert.equal(currentCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.proof-or-stop-codex/agents/'), `${roleId} current Codex render matches the host transform`);
   // B-4043: the implementer prompt now carries the acceptance-rollout boundary
   // guidance (moved from the host shim into the canonical template), like its
   // sibling complex roles, so every complex role shares the same 12_000-byte
   // role-body budget.
   const roleLimit = 12_000;
   assert.ok(Buffer.byteLength(body, 'utf8') <= roleLimit, `${roleId} modular role body meets ${roleLimit} byte target`);
-  assert.ok(Buffer.byteLength(body, 'utf8') < Buffer.byteLength(legacy.body, 'utf8'));
-  assert.equal(readFileSync(join(process.cwd(), '.claude/agents', entry.file), 'utf8'), renderPromptEntryForHost(entry, 'claude'));
-  assert.equal(readFileSync(join(process.cwd(), `${adapterDirName(process.cwd())}/agents`, entry.file), 'utf8'), renderPromptEntryForHost(entry, 'codex'));
   const assembly = assembleFullPromptEnvelope({
     roleContract: role,
     runtimeContract: BASELINE_RUNTIME_CONTRACT,

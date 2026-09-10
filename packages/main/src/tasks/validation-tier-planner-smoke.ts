@@ -458,10 +458,12 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // (the item that registered single-owner-extraction-smoke in validate.commands)
 // added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
 // (the item that registered validation-protocol-smoke in validate.commands)
-// added that entry, moving it to 056e47fd.... B-fe8f CHK-001 registered the
-// Finding ledger/runtime integrity RED guard, while B-1482 CHK-003 registered
-// test:narrowing-repin. The combined inventory retains both entries and moves
-// the digest to 5da99a65.... Name the story and item here,
+// added that entry, moving it to 056e47fd.... B-1482 CHK-003 (the item that
+// registered test:narrowing-repin in validate.commands) added that entry,
+// moving it to d98a2288.... B-aa5f CHK-004 registered the process-fact and
+// runtime-fact contract verifiers in validate.commands, moving it to
+// 30913585.... B-fe8f CHK-001 also registers the Finding Ledger/runtime
+// integrity guard; retain its entry in the union. Name the story and item here,
 // never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning', () => {
@@ -471,13 +473,20 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
+  // main merge 4 (B-aa5f): main's 128-command policy-annotated inventory and
+  // B-aa5f's two receipt-contract verifiers were both retained, producing the
+  // 130-command union. A normalized command+argv comparison confirmed zero
+  // commands from either parent were dropped before this digest was repinned.
+  // B-fe8f + current main merge: the Finding ledger/runtime integrity command
+  // joins main's 128 commands without dropping either side, producing the
+  // 129-entry union and moving the digest to 6dfd3360....
   // Absent cwd posix-normalizes to "." (see the spellings case above), so declaring "." explicitly on
   // every entry must reach the same digest: the real inventory is not bound to any checkout location.
   const explicitDot = buildValidationCommandInventory({ commands: commands.map((entry) => ({ ...entry, cwd: '.' })) });
   assert.equal(real.commandSetDigest, explicitDot.commandSetDigest, 'the real commandSetDigest must equal the digest of the same commands with an explicit "." cwd');
   // B-e256 CHK-002/F-044 contributes the stable-id global CLI executable-bit
   // regression row. The merge also retains current main's B-fe8f Finding-ledger
-  // guard and B-1482 narrowing-repin command: the complete union is 133 entries.
+  // guard and B-1482 narrowing-repin command: that upstream inventory has 133 entries.
   // origin/main merge 3 (B-1482): moved again to 511e1906... because origin added one
   // more validate.commands entry; the union is now 128. Verified before repinning that
   // NO origin-only entry was dropped. Earlier notes retained below.
@@ -497,11 +506,30 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // both, giving the 126-entry union, and repinned to what that union produces through
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
   // B-212f CHK-001/CHK-003 register original parity, shared predicate proof and
-  // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
-  // 129-entry inventory form a 132-entry union without losing either side;
-  // B-e256 then adds its global launcher row, and the lab-worktree guard brings
-  // the merged inventory to 134 entries.
-  assert.equal(real.commandSetDigest, 'b5e05c15917f461d8ba72b3369fe3637968ac26c542469281d419ee9b2a46a03', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // post-DONE snapshot smoke: the complete inventory grows from 128 to 131.
+  // B-aa5f CHK-008 retains those three upstream entries AND the two receipt
+  // contracts plus inventory-epoch smoke. B-fe8f adds its ledger/runtime guard:
+  // the earlier merged union had 135. The current local-main merge adds B-e256's
+  // global CLI executable-bit guard and Lab maintenance coverage. Latest main
+  // carries 139 commands; B-bcae adds its bootstrap-race and admission
+  // co-scheduling rows without dropping any predecessor, yielding 141.
+  // Derived through configuredValidationCommands -> buildValidationCommandInventory.
+  // B-aa5f timeout remediation keeps that inventory intact while raising only
+  // verification-run-and-guard-smoke from 600000ms to its audited 1200000ms budget.
+  for (const required of [
+    'packages/main/tests/red/red-done-prepare-done-parity.mjs',
+    'packages/main/tests/red/red-done-shared-predicates.mjs',
+    'packages/main/dist/tasks/post-done-closure-snapshot-smoke.js',
+    'packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs',
+    'packages/main/tests/red/red-global-cli-exec-bit.mjs',
+    'scripts/verify-process-fact-contract.mjs',
+    'scripts/verify-runtime-fact-contract.mjs',
+     'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
+     'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+   ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
+   // Lab integration preserves the complete current main inventory and its timeouts;
+   // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
+   assert.equal(real.commandSetDigest, 'a01e632023f3a066c76cc92c32ed0796fc2c538b2ea19152418be3b04e08020e', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
@@ -1174,7 +1202,7 @@ testCase('a malformed commandId is rejected at the resolver entry, not silently 
 // ---------------------------------------------------------------------------
 
 const FIXTURE_HEAD_SNAPSHOT: EvidenceHashSnapshot = {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+  schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v1',
   headHash: 'head0000000000000000000000000000000000000',
   materialHash: 'material00000000000000000000000000000000',
   storyFilesHash: 'storyfiles000000000000000000000000000000',

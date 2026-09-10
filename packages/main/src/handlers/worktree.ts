@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 
 import { execFileSync, execSync } from 'child_process';
 import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, realpathSync, rmSync, symlinkSync, unlinkSync } from 'fs';
@@ -829,7 +830,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         terms.push(item.title);
         if (item.context) terms.push(item.context);
       }
-    } catch {
+    } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
       /* checklist is optional for discarded IDEA stories */
     }
 

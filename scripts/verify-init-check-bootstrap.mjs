@@ -122,7 +122,7 @@ function recordInitCheck(projectRoot, storyId) {
   run(projectRoot, 'init_check_set', {
     storyId,
     issues: [],
-    agentId: 'product-reviewer',
+    agentId: 'proof-or-stop-product-reviewer',
   });
   setupInitCheckGates(projectRoot, storyId);
 }
@@ -389,7 +389,7 @@ function verifyInvalidGitRootFailsClosed() {
       checklist: [{ title: 'bootstrap worktree', context: 'invalid gitRoot regression case' }],
     }));
     run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
+    run(wrapper, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
     setupInitCheckGates(wrapper, storyId);
 
     const output = runAllowWarning(wrapper, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });

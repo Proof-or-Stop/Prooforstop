@@ -135,7 +135,7 @@ This matters here because of a trap worth naming. `validate.commands` runs
 exercise it; the subpackage needs its own explicit entries. A migration that only edited the
 root chain would leave the new package silently uncovered while appearing wired up.
 
-The same applies to `scripts/verify-lattice-residue.mjs`, whose `SRC_SCAN_ROOTS` is an
+The same applies to `scripts/verify-proof-or-stop-residue.mjs`, whose `SRC_SCAN_ROOTS` is an
 explicit list of package source roots rather than a glob, so a new package is unscanned
 until it is named there.
 

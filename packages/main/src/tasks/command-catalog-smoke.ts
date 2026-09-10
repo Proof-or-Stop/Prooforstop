@@ -225,6 +225,9 @@ assert.equal(schemaAccepts('quantum_claim_benchmark', 'runCommands', true), fals
 assert.equal(schemaAccepts('quantum_claim_report', 'format', 'text'), true, 'quantum report schema accepts text format');
 assert.equal(schemaAccepts('quantum_claim_report', 'authorityClaim', true), false, 'quantum report schema keeps authorityClaim unsupported');
 assert.equal(schemaAccepts('quantum_claim_report', 'writeEvidence', true), false, 'quantum report schema rejects writeEvidence side-effect flag');
+assert.equal(schemaAccepts('validate', 'reuseFreshRoutinePass', true), true);
+assert.equal(schemaAccepts('validate', 'reuseFreshRoutinePass', false), true);
+assert.equal(schemaAccepts('validate', 'reuseFreshRoutinePass', 'true'), false);
 assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', true), true, 'done_prepare accepts explicit DONE-required reuse opt-in');
 assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', false), true, 'done_prepare accepts independent DONE-required reuse disable');
 

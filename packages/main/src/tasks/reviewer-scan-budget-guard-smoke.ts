@@ -17,7 +17,6 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ReviewerReadLogEvent, ReviewerReadManifest, StoryInfo } from '../core/types.js';
 import {
@@ -28,16 +27,13 @@ import {
   normalizeReviewerReadManifest,
 } from '../core/reviewer-read-evidence.js';
 import { signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
-import { hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import {
-  PROMPT_ENVELOPE_ROLLOUT_VERSION,
-  resolvePromptRoleBody,
-} from '../core/prompt-role-contract-registry.js';
 import {
   createScopeCheckHandlers,
   verifyScopeCheckSignature,
 } from '../handlers/scope-check.js';
 import { createFindingHandlers } from '../handlers/finding.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
+import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 
@@ -253,7 +249,6 @@ function initReviewEvidenceStore() {
   const storyId = 'B-readhandler';
   const agent = 'proof-or-stop-review-behavior';
   const reviewRound = '2026-07-10T11:01:00.000Z';
-  const reviewRunId = `${storyId}:RR-001`;
   const now = '2026-07-10T11:00:00.000Z';
   const story: StoryInfo = {
     storyId,
@@ -269,30 +264,22 @@ function initReviewEvidenceStore() {
     currentReviewRound: reviewRound,
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
   };
-  const headHash = currentGitHead(root);
-  const materialHash = currentMaterialHash(root, 'HEAD', root);
-  assert.ok(headHash, 'review handler fixture has git HEAD');
-  assert.ok(materialHash, 'review handler fixture has materialHash');
-  const startedAt = '2026-07-10T11:02:00.000Z';
   store.writeStory(storyId, story);
-  const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [agent]: 'legacy-full-context' },
-  }).body);
-  store.writeReviewRuns(storyId, {
-    runs: [{
-      reviewRunId,
-      storyId,
-      agent,
-      lane: agent,
-      reviewRound,
-      startedAt,
-      headHash,
-      materialHash,
-      promptHash,
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, promptHash),
+  store.writeChecklist(storyId, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Persist bounded reviewer read evidence',
+      context: 'Synthetic checklist context for the production review-run path.',
+      status: 'done',
+      startTime: now,
+      endTime: now,
     }],
   });
+  const handlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  createStoryDispatchHandlers(handlerContext).dispatch({ storyId, agentType: agent });
+  const reviewRunOutput = createReviewRunHandlers(handlerContext).review_run_start({ storyId, agent });
+  const reviewRunId = reviewRunOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
+  assert.ok(reviewRunId, `review_run_start should return a current signed run id: ${reviewRunOutput}`);
   return { root, store, storyId, agent, reviewRunId };
 }
 
@@ -546,19 +533,10 @@ function assertRealHandlerReadLogEvidencePath(): void {
   // is a distinct terminal rather than an idempotent retry of RP-001. Give it
   // its own current-round signed ReviewRun; reusing RR-001 must correctly fail
   // under the production conflict guard.
-  const firstRun = store.readReviewRuns(storyId).runs[0];
-  const conversionReviewRunId = `${storyId}:RR-002`;
-  const conversionStartedAt = new Date(Date.parse(firstRun.startedAt) + 1_000).toISOString();
-  const conversionRun = {
-    ...firstRun,
-    reviewRunId: conversionReviewRunId,
-    startedAt: conversionStartedAt,
-    _hash: signReviewRun(
-      storyId, conversionReviewRunId, agent, agent, firstRun.reviewRound,
-      conversionStartedAt, firstRun.headHash, firstRun.materialHash, firstRun.promptHash,
-    ),
-  };
-  store.writeReviewRuns(storyId, { runs: [firstRun, conversionRun] });
+  const conversionRunOutput = createReviewRunHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .review_run_start({ storyId, agent });
+  const conversionReviewRunId = conversionRunOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
+  assert.ok(conversionReviewRunId, `second review_run_start should return a current signed run id: ${conversionRunOutput}`);
 
   handlers.finding_add({
     storyId,
@@ -686,6 +664,10 @@ function assertPositiveControls(): void {
     'positive control (F-005): loose only-with proximity phrasing must not exempt banned unconditional wording',
   );
 }
+
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-reviewer-scan-budget';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
 
 function main(): void {
   assertPositiveControls();

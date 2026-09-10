@@ -28,10 +28,8 @@ import {
 } from '../handlers/candidate-spec-routing.js';
 import { resetConfigCache } from '../core/config.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
-import { signReviewPass } from '../core/finding-verify.js';
-import { buildReviewRunWorkspaceBinding, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import { normalizeReviewerReadLog } from '../core/reviewer-read-evidence.js';
-import { resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { createMainRegistry } from '../registry.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -44,7 +42,7 @@ function fixtureRoot(): string {
 
 function proposal(storyId: string, digest: string): HostKeywordProposal {
   return {
-    schemaVersion: 'proofbound.keyword-proposal.v1',
+    schemaVersion: 'proof-or-stop.keyword-proposal.v1',
     storyId,
     host: 'codex-cli',
     proposalId: 'p1',
@@ -68,7 +66,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const first = buildCorpusIndex(root);
     const second = buildCorpusIndex(root);
     assert.deepEqual(second, first, 'corpus index must be byte-deterministic for identical inputs');
-    assert.equal(first.schemaVersion, 'proofbound.corpus-index.v1');
+    assert.equal(first.schemaVersion, 'proof-or-stop.corpus-index.v1');
     assert.deepEqual(first.entries.map(entry => entry.path), [...first.entries.map(entry => entry.path)].sort());
 
     const reorderedRoot = join(tmpdir(), `candidate-routing-order-${process.pid}-${Date.now()}`);
@@ -134,13 +132,19 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       files: { modify: ['packages/main/src/auth/session.ts'], create: [], test: [] },
     }] });
     store.writeCandidateSpecSet(story.storyId, artifact);
+    const snapshotGit = (args: string[]): void => { execFileSync('git', args, { cwd: root, stdio: 'pipe' }); };
+    snapshotGit(['init', '-b', 'main']);
+    snapshotGit(['config', 'user.name', 'Harmonynet']);
+    snapshotGit(['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
+    snapshotGit(['add', 'docs/requirements/decisions']);
+    snapshotGit(['commit', '-m', 'Seed canonical routing dispatch snapshot']);
     const dispatch = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
     const planPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-scope-plan' }).prompt;
     assert.match(planPrompt, new RegExp(artifact.artifactDigest));
     assert.match(planPrompt, new RegExp(artifact.corpusDigest));
     assert.match(planPrompt, /candidateSpecSetDigest/);
     assert.equal(planPrompt.includes('Rotating credentials safely'), false, 'PLAN dispatch must not embed corpus bodies');
-    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW', currentReviewRound: '2026-07-12T00:01:00.000Z' });
     const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'proof-or-stop-review-quality' }).prompt;
     assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
     assert.match(reviewPrompt, /review_run_start/);
@@ -176,7 +180,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     git(['init']);
     git(['checkout', '-B', 'main']);
     git(['add', '.']);
-    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proofbound.local', 'commit', '-m', 'collector base']);
+    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proof-or-stop.local', 'commit', '-m', 'collector base']);
     const collectorStore = new StoryStore(collectorRoot);
     const collectorRound = '2026-07-12T00:02:00.000Z';
     collectorStore.writeStory(story.storyId, {
@@ -185,51 +189,23 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       currentReviewRound: collectorRound, events: [],
     });
     collectorStore.writeChecklist(story.storyId, { items: [] });
-    const collectorSnapshot = captureReviewRunSnapshot(collectorRoot);
-    const reviewRunId = `${story.storyId}:RR-001`;
     const reviewAgent = 'proof-or-stop-review-quality';
-    const reviewStartedAt = '2026-07-12T00:03:00.000Z';
-    const reviewPromptHash = hashReviewPrompt(resolvePromptRoleBody(reviewAgent, {
-      version: 'proofbound.prompt-envelope-rollout.v1',
-      roles: { 'lattice-review-quality': 'legacy-full-context' },
-    }).body);
-    const workspaceBinding = buildReviewRunWorkspaceBinding({
-      metadataRoot: collectorRoot,
-      invocationCwd: collectorRoot,
-      repoRoot: collectorRoot,
-      signedWorkspaceRoot: collectorRoot,
-      workspaceMode: 'metadata-git-root',
-      ...collectorSnapshot,
-    });
-    const reviewRun = {
-      reviewRunId, storyId: story.storyId, agent: reviewAgent, lane: reviewAgent, reviewRound: collectorRound,
-      startedAt: reviewStartedAt, ...collectorSnapshot, promptHash: reviewPromptHash, workspaceBinding,
-    };
-    collectorStore.writeReviewRuns(story.storyId, { runs: [{
-      ...reviewRun,
-      _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, reviewPromptHash, undefined, workspaceBinding.bindingHash, collectorSnapshot.storyFilesHash),
-    }] });
-    const reviewPass = {
-      id: `${story.storyId}:RP-001`,
+    const collectorRegistry = createMainRegistry({ root: collectorRoot, store: collectorStore, scanRoot: join(collectorRoot, 'packages/main') });
+    collectorRegistry.get('dispatch')!({ storyId: story.storyId, agentType: reviewAgent });
+    const startedRun = String(collectorRegistry.get('review_run_start')!({ storyId: story.storyId, agent: reviewAgent }));
+    const reviewRunId = startedRun.match(/Review run (\S+) started/)?.[1];
+    assert.ok(reviewRunId, 'the production reviewer-run producer emits canonical bound evidence');
+    collectorRegistry.get('review_pass_set')!({
+      storyId: story.storyId,
       agent: reviewAgent,
       note: 'collector integration pass',
-      createdAt: '2026-07-12T00:04:00.000Z',
-      reviewRound: collectorRound,
       reviewRunId,
       readManifest: {
         filesReadFully: ['packages/main/src/reviewer-full.ts'],
         filesTriagedByName: ['docs/requirements/decisions/noise.md'],
         scanEscalationReason: null,
       },
-      readLog: normalizeReviewerReadLog([
-        { path: 'packages/main/src/reviewer-full.ts', mode: 'full', tokenCount: 5 },
-        { path: 'docs/requirements/decisions/noise.md', mode: 'triage', tokenCount: null },
-      ]),
-    };
-    collectorStore.writeReviewPasses(story.storyId, { passes: [{
-      ...reviewPass,
-      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest, reviewPass.readLog),
-    }] });
+    });
     resetConfigCache();
     const collectorEvidence = collectReviewerEvidenceState(collectorStore, story.storyId, collectorRoot);
     assert.equal(collectorEvidence.invalid.length, 0, JSON.stringify(collectorEvidence.invalid, null, 2));
@@ -238,7 +214,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
     writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = false;\n');
     git(['add', '.']);
-    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proofbound.local', 'commit', '-m', 'make reviewer evidence stale']);
+    git(['-c', 'user.name=proof-or-stop-test', '-c', 'user.email=proof-or-stop-test@proof-or-stop.local', 'commit', '-m', 'make reviewer evidence stale']);
     const collectorStaleInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
     assert.equal(collectorStaleInput.protectedSources?.some(source => source.kind === 'reviewer-evidence'), false, 'stale/unbound collector evidence is rejected by ordinary handler input');
     rmSync(collectorRoot, { recursive: true, force: true });
@@ -468,7 +444,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const protectedSources = Array.from({ length: 10 }, (_, index) => {
       const kind = protectedKinds[index % protectedKinds.length];
       const path = `docs/requirements/decisions/protected-${index}.md`;
-      writeFileSync(join(root, path), `# Protected ${index}\n\nproofOrStop core handlers proofbound\n`);
+      writeFileSync(join(root, path), `# Protected ${index}\n\nproofOrStop core handlers proof-or-stop\n`);
       return { kind, path, sourceRef: `typed.${kind}` };
     });
     const protectedCorpus = buildCorpusIndex(root);

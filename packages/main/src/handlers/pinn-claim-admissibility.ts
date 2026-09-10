@@ -17,6 +17,8 @@ import {
   type PinnClaimId,
   type PinnInjectionSpec,
 } from '../core/pinn-claim-admissibility.js';
+import { CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION } from '../core/claim-admissibility/pack-framework.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 interface FormatArgs {
   format?: 'text' | 'json';
@@ -82,7 +84,7 @@ const RETIRED_REPORT_CLAIM_FIELDS = [
 const REPORT_CLAIM_FIELDS = ['deploymentReadyClaim', 'productionReadyClaim', 'externalCompletionClaim', 'terminalCompletionClaim', 'pdeCorrectnessClaim'] as const;
 const REPORT_OVERCLAIM_FIELDS = [...REPORT_CLAIM_FIELDS, ...RETIRED_REPORT_CLAIM_FIELDS] as const;
 const REPORT_FIELD_OVERCLAIM_PATTERN = new RegExp(String.raw`(?:^|[^A-Za-z0-9_])["']?(?:${REPORT_OVERCLAIM_FIELDS.join('|')})["']?\s*[:=]\s*(?:true|1|yes|y|on)\b`, 'i');
-const BENCHMARK_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility_benchmark.v1' as const;
+const BENCHMARK_SCHEMA_VERSION = 'proof-or-stop.pinn_claim_admissibility_benchmark.v1' as const;
 const REPORT_INJECTION_CLASSES = ['missing', 'stale', 'unsafe', 'overclaim'] as const;
 const REPORT_ARM_IDS = ['A1', 'A2', 'A3', 'A4'] as const;
 
@@ -293,6 +295,7 @@ function benchmarkFromArgs(args: PinnReportArgs): PinnBenchmarkReport {
 export function createPinnClaimAdmissibilityHandlers(_ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     pinn_claim_check(args: PinnClaimCheckArgs = {}) {
+      assertActiveIdentityConsumerContract('claim-admissibility-pack', CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION);
       assertReadOnlyBoundary('pinn_claim_check', args as Record<string, unknown>);
       const result = evaluatePinnClaim(evidenceFromArgs(args));
       return wantsJson(args) ? result : renderPinnClaimCheckText(result);

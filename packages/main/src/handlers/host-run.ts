@@ -69,7 +69,7 @@ export interface CreateHostRunHandlersOptions {
 }
 
 export interface HostRunCommandResult {
-  schemaVersion: 'lattice.host_run.v1';
+  schemaVersion: 'proof-or-stop.host_run.v1';
   host: HostRunHost;
   storyId: string | null;
   phase: string;
@@ -402,7 +402,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           // while our stderr listener is still attached (finally removes it).
           await emitStderr(`${usageLine}\n`);
           return {
-            schemaVersion: 'lattice.host_run.v1',
+            schemaVersion: 'proof-or-stop.host_run.v1',
             host: result.host,
             storyId: result.storyId,
             phase: result.phase,

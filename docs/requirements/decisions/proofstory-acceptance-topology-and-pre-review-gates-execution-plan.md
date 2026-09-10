@@ -518,7 +518,7 @@ relevant consumer forces `partial`, never optimistic completeness.
     ],
     "evidenceAuthority": {
       "requiredClass": "local_gate_evidence",
-      "acceptedIssuerKinds": ["lattice_handler", "signed_review_run"],
+      "acceptedIssuerKinds": ["proof-or-stop-handler", "signed_review_run"],
       "prohibitedPromotions": ["diagnostic_to_authority", "self_report_to_receipt"]
     },
     "freshness": {
@@ -1530,8 +1530,8 @@ is not mechanically verified, or critic/exclusion approval can override
 discovery incompleteness.
 
 Implementation contract: the registered critic role is
-`lattice-review-topology-critic`; the independently registered exclusion
-approver is `lattice-review-scope-plan`. The production writer commands are
+`proof-or-stop-review-topology-critic`; the independently registered exclusion
+approver is `proof-or-stop-review-scope-plan`. The production writer commands are
 `topology_critic_receipt_set` and `topology_exclusion_approval_set`, while
 `topology_critic_receipt_check` is read-only. Their signed artifacts bind the
 current basis/topology/scope/workspace hashes and exact actor, session,

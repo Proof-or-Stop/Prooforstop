@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * Init Check handler — proof-or-stop init_check_set command shell + metadata lock.
  *
@@ -81,7 +82,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * init_check_set handler factory.
  *
  * Called by the proof-or-stop-review-story-init subagent (CHK-002 template); writes init-check.json.
- * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) is the
+ * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT is the
  * authoritative dispatched identity, so payload agent/agentId attribution
  * cannot impersonate a trusted host or a different reviewer lane.
  *
@@ -133,7 +134,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       try {
         const checklist = store.readChecklist(args.storyId);
         items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
       const checklistHash = computeChecklistHash(items);
@@ -334,7 +335,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         try {
           const checklist = store.readChecklist(args.storyId);
           items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-        } catch {
+        } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
           // checklist absent → empty array hash (matches recomputeInitCheckHash).
         }
         const checklistHash = computeChecklistHash(items);

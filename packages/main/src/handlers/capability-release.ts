@@ -1,9 +1,11 @@
 import type { HandlerContext } from './context.js';
 import {
+  CAPABILITY_RELEASE_SCHEMA_VERSION,
   type ProductCapabilityReleaseRecord,
   readCapabilityReleaseLedger,
   resolveCapabilityReleaseLedgerRoot,
 } from '../core/capability-release.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 interface CapabilityReleaseListArgs {
   format?: 'text' | 'json';
@@ -54,6 +56,7 @@ export function createCapabilityReleaseHandlers(ctx: HandlerContext): Record<str
 
   return {
     capability_release_list(args: CapabilityReleaseListArgs = {}) {
+      assertActiveIdentityConsumerContract('capability-release-ledger', CAPABILITY_RELEASE_SCHEMA_VERSION);
       const records = latestRecords(readCapabilityReleaseLedger(ledgerRoot), normalizeLimit(args.limit));
       if (normalizeFormat(args.format) === 'json') return records;
       if (records.length === 0) return 'No product capability release records found';

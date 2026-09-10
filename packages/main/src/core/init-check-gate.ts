@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * Init Check gate/hash primitives — core signature + gate helpers for init-check.json.
  *
@@ -56,14 +57,14 @@ import { StoryStore } from './store.js';
 import type { InitCheckData, InitCheckIssue } from './types.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 
-export const INIT_CHECK_SALT = 'lattice-init-check-integrity-v1';
+export const INIT_CHECK_SALT = 'proof-or-stop-init-check-integrity-v1';
 export const REQUIRED_INIT_CHECK_AGENTS = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'] as const;
 
 /**
  * B-95d8 CHK-001: suffix appended to required-agent ids when init-check.json is
  * produced by the manual `init_check_repair` fallback rather than an independent
- * reviewer run. `<required>@fallback` still satisfies missingRequiredInitCheckAgents
- * (initCheckAgentMatches matches the `<required>@` prefix), so the fallback passes
+ * reviewer run. Only the byte-exact bare id or byte-exact `<required>@fallback`
+ * form satisfies missingRequiredInitCheckAgents, so the fallback passes
  * the gate WITHOUT weakening it, while remaining mechanically distinguishable from
  * a real reviewer record (which is the bare `<required>` id).
  */
@@ -92,9 +93,8 @@ export function normalizeAgentId(agentId: string | undefined): string {
 }
 
 export function initCheckAgentMatches(agentId: string | undefined, required: string): boolean {
-  const normalized = normalizeAgentId(agentId);
-  const canonicalRequired = canonicalAgentRoleId(required);
-  return normalized === canonicalRequired || normalized.startsWith(`${canonicalRequired}@`);
+  if (typeof agentId !== 'string') return false;
+  return agentId === required || agentId === `${required}@${INIT_CHECK_FALLBACK_AGENT_SUFFIX}`;
 }
 
 /**
@@ -380,7 +380,7 @@ export function recomputeInitCheckHash(
   try {
     const checklist = store.readChecklist(storyId);
     items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     // checklist.json does not exist → compute hash with empty array; semantically equivalent to "uninitialized checklist" on the gate side.
   }
   const checklistHash = computeChecklistHash(items);

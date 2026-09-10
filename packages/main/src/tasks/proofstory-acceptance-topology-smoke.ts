@@ -170,10 +170,10 @@ assert.deepEqual(
 );
 for (const command of [
   `proof-or-stop acceptance_matrix --storyId=${storyId}`,
-  `/usr/local/bin/proof-or-stop --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
+  `/usr/local/bin/proof-or-stop --root /tmp/proof-or-stop acceptance_matrix --storyId=${storyId}`,
   `node bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
-  `/usr/bin/node ./bin/proof-or-stop.js --root=/tmp/proofbound acceptance_matrix --json`,
-  `node /Users/example/proofbound/bin/proof-or-stop.js --root /tmp/proofbound acceptance_matrix`,
+  `/usr/bin/node ./bin/proof-or-stop.js --root=/tmp/proof-or-stop acceptance_matrix --json`,
+  `node /Users/example/proof-or-stop/bin/proof-or-stop.js --root /tmp/proof-or-stop acceptance_matrix`,
   `./bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
 ]) {
   assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `canonical Proof-or-Stop invocation is derived: ${command}`);

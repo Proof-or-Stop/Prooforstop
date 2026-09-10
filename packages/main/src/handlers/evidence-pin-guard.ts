@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * evidence-pin-guard handler — Proof-or-Stop verification_pin_guard_check
  *
@@ -98,7 +99,7 @@ export function createEvidencePinGuardHandlers(ctx: HandlerContext): Record<stri
             const checklist: ChecklistData = store.readChecklist(parsed.storyId);
             pin = resolvePinFromChecklist(checklist, parsed.intentRef);
             ownerItemId = resolveIntentOwnerItemId(checklist, parsed.intentRef);
-          } catch {
+          } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // PROBE: cannot resolve the pin → fail-open, let the handler floor decide.
             return computeEvidencePinVerdict(parsed, null);
           }

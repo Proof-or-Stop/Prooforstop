@@ -26,18 +26,21 @@ import { runDoneRequiredValidation } from '../core/done-required-validation.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
-import { signReviewRun, buildReviewRunWorkspaceBinding, hashReviewPrompt, collectReviewerEvidenceState } from '../core/review-run.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
-import { signReviewPass } from '../core/finding-verify.js';
-import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
-import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { signReviewRun, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState } from '../core/review-run.js';
 import { evaluateReviewVerdict } from '../core/machine.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import type { ClosingSelfCheck, DocsPromise, ProcessEvent, RealMachineTest, ReviewRun, StoryInfo } from '../core/types.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
+import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
+import { createFindingHandlers } from '../handlers/finding.js';
 import type { HandlerContext } from '../handlers/context.js';
+
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-post-done-closure';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
 
 const STORY_ID = 'B-postdone';
 const NOW = '2026-06-29T19:30:00.000Z';
@@ -160,23 +163,37 @@ async function createDoneReadyFixture(): Promise<{
     protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: NOW, updatedAt: NOW,
   };
   store.writeScopeContract(STORY_ID, scopeContract);
-  const scopeBinding = computeReviewScopeBinding({ contract: scopeContract, diffPack: buildScopeDiffPack(root), projectRoot: root });
-  assert.ok(scopeBinding);
   const lanes = ['quality', 'concept', 'test-coverage', 'behavior', 'docs'].map(lane => `proof-or-stop-review-${lane}`);
-  store.writeReviewRuns(STORY_ID, { runs: lanes.map(lane => {
-    const reviewRunId = `${STORY_ID}:${lane}`;
-    const promptHash = hashReviewPrompt(resolvePromptRoleBody(lane, {
-      version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [lane]: 'legacy-full-context' },
-    }).body);
-    return { reviewRunId, storyId: STORY_ID, agent: lane, lane, reviewRound: 'round-1', startedAt: NOW,
-      headHash, materialHash, storyFilesHash: storyFilesHash ?? undefined, promptHash, scopeBinding,
-      _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, 'round-1', NOW, headHash, materialHash, promptHash, scopeBinding.bindingHash, undefined, storyFilesHash ?? undefined) };
-  }) });
-  store.writeReviewPasses(STORY_ID, { passes: lanes.map((lane, index) => {
-    const id = `RP-${index}`; const reviewRunId = `${STORY_ID}:${lane}`; const note = 'Signed historical snapshot regression fixture';
-    return { id, agent: lane, reviewRound: 'round-1', createdAt: NOW, reviewRunId, note,
-      _hash: signReviewPass(STORY_ID, id, lane, note, NOW, 'round-1', reviewRunId) };
-  }) });
+  store.writeStory(STORY_ID, { ...store.readStory(STORY_ID), phase: 'REVIEW' });
+  const handlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  const priorCwd = process.cwd();
+  try {
+    process.chdir(root);
+    for (const lane of lanes) {
+      createStoryDispatchHandlers(handlerContext).dispatch({ storyId: STORY_ID, agentType: lane });
+      const runOutput = createReviewRunHandlers(handlerContext).review_run_start({ storyId: STORY_ID, agent: lane });
+      const reviewRunId = runOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
+      assert.ok(reviewRunId, `review_run_start should return a current signed run id: ${runOutput}`);
+      createFindingHandlers(handlerContext).review_pass_set({
+        storyId: STORY_ID,
+        agent: lane,
+        reviewRunId,
+        note: 'Signed current snapshot regression fixture',
+        readManifest: {
+          filesReadFully: ['packages/main/src/index.ts'],
+          filesTriagedByName: ['README.md'],
+          scanEscalationReason: null,
+        },
+        readEvents: [
+          { path: 'packages/main/src/index.ts', action: 'Read' },
+          { path: 'README.md', mode: 'triage' },
+        ],
+      });
+    }
+  } finally {
+    process.chdir(priorCwd);
+  }
+  store.writeStory(STORY_ID, { ...store.readStory(STORY_ID), phase: 'TEST' });
 
   const docsPromises: DocsPromise[] = [];
   const realMachineTests: RealMachineTest[] = [{

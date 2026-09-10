@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-09-09, the owner ran `proof-or-stop validation_plan --storyId=B-dcf9 --tier=fast --json`; the command requested Story-fast but reported repository-full with the complete current inventory. The behavior is deliberate in the compatibility planner, but the tier-specific design source has not reached main: `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md` exists on local branch `story/B-ccf4` and is retrievable with `git show story/B-ccf4:docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`.
+
+## Key Insights
+The B-ccf4 document is the existing owner of Story-fast, Story-intermediate, Repository-full, their subset invariant, and fail-closed widening. The main-branch `story-aware-dynamic-validation-execution-plan.md` owns the broader production catalog, closure, receipt, replay, and authority program. This Story will promote and reconcile the tier-specific document against current main rather than create a competing source, then add the concrete RED/GREEN closure needed to prove that the three tier names become observable selector behavior.
+
+## Solution Tradeoffs
+The work remains documentation-only and does not enable a gate or modify runtime code. It will preserve normative tier ownership in the recovered B-ccf4 path, derive inventory facts at execution time, and specify future implementation fixtures without pretending those fixtures already exist. Claude CLI means Anthropic's local non-interactive command-line reviewer; Agy CLI means the local Agy command-line reviewer. Both will receive identical frozen document and rubric bytes, with tool versions, exact invocations, payload and response SHA-256 digests, and explicit blocked/failure outcomes recorded.
+
+## Conversational Texture
+The user wants an operational answer to how fast, intermediate, and full can be proven rather than merely named. The promoted plan must therefore show copy-pasteable RED commands, expected failing output shape, GREEN commands, expected passing output shape, and cases where all tiers legitimately collapse to Repository-full. Independent audit comments remain advisory review input and never become lifecycle authority or implementation proof.

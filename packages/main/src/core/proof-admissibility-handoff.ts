@@ -9,7 +9,7 @@ import {
 } from './proof-admissibility-gates.js';
 
 export interface HandoffAdmissibilitySummary {
-  schemaVersion: 'lattice.handoff_admissibility_summary.v1';
+  schemaVersion: 'proof-or-stop.handoff_admissibility_summary.v1';
   hostIdentity: {
     fromHost: string;
     toHost: string;
@@ -55,7 +55,7 @@ export function buildHandoffAdmissibilitySummary(args: {
       claim: 'diagnostic-status',
       policy,
       checks: {
-        schemaVersion: 'lattice.handoff.v1',
+        schemaVersion: 'proof-or-stop.handoff.v1',
         strictShapeValid: true,
         semanticDigestValid: true,
         subjectMatches: true,
@@ -69,7 +69,7 @@ export function buildHandoffAdmissibilitySummary(args: {
       claim: 'production-completion',
       policy,
       checks: {
-        schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
+        schemaVersion: 'proof-or-stop.legacy_authority_receipt_refs.v1',
         strictShapeValid: true,
         semanticDigestValid: true,
         signatureOrReceiptBindingValid: false,
@@ -83,7 +83,7 @@ export function buildHandoffAdmissibilitySummary(args: {
     .map(proofAdmissibilityBlockingReason)
     .filter((reason): reason is string => Boolean(reason));
   return {
-    schemaVersion: 'lattice.handoff_admissibility_summary.v1',
+    schemaVersion: 'proof-or-stop.handoff_admissibility_summary.v1',
     hostIdentity: {
       fromHost: args.fromHost,
       toHost: args.toHost,

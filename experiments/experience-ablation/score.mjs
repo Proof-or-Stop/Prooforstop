@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // score.mjs — M4 deterministic per-arm-run scoring oracle (experience-ablation).
 //
-// Assembles ONE `proofbound.experience-ablation-score.v1` record (plan S10)
+// Assembles ONE `proof-or-stop.experience-ablation-score.v1` record (plan S10)
 // from on-disk artifacts only: a FIXTURE directory (fixture-generator.mjs
 // output: task.json + hidden oracle.mjs) and a RUN directory (the M6 campaign
 // runner's per-arm-run record — the BINDING layout is RUN-RECORD.md, next to
@@ -54,7 +54,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const SCORE_SCHEMA_VERSION = 'proofbound.experience-ablation-score.v1';
+export const SCORE_SCHEMA_VERSION = 'proof-or-stop.experience-ablation-score.v1';
 
 /** Fixed top-level key order of the emitted record (plan S10 order + the
  * voiding/provenance extensions). renderScoreRecord enforces it. */

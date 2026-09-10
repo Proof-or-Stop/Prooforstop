@@ -186,7 +186,10 @@ function runInventoryAndSweep(): void {
 
   // Case 3: sweep every packages/main/src/tasks/*.ts file.
   const tasksDir = join(repoRoot, 'packages', 'main', 'src', 'tasks');
-  const bases = readdirSync(tasksDir).filter((f) => f.endsWith('.ts')).map((f) => f.slice(0, -3)).sort();
+  const bases = readdirSync(tasksDir)
+    .filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+    .map((f) => f.slice(0, -3))
+    .sort();
   const sources = listSourceFiles(join(repoRoot, 'packages', 'main', 'src')).map((file) => ({ file, text: readFileSync(file, 'utf8') }));
   const counts: Record<string, number> = {};
   const lines: string[] = [];
@@ -1393,8 +1396,8 @@ try {
   try {
     // B-dc2e CHK-001 root cause: the fixture used to write 'proofOrStop.md',
     // which is NOT a case-only variant of PROOF_OR_STOP.md (it lacks the
-    // underscores; it is the mechanical rewrite of the pre-rename 'lattice.md'
-    // by the B-022e identity migration). detectManagedAssetMode() only selects
+    // underscores; it is the mechanical rewrite of the pre-rename lowercase
+    // managed-doc name by the B-022e identity migration). detectManagedAssetMode() only selects
     // 'full' mode when the lowercased directory listing contains
     // 'proof_or_stop.md', so the root was classified global-thin, no
     // PROOF_OR_STOP.md definition was listed at all, and `find` returned
@@ -1593,7 +1596,7 @@ try {
     // store (the same artifact the ack handler writes) so the case keeps
     // exercising the review-record reason it was written for.
     store.writeDevMemoryPreflightAck(storyId, {
-      schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+      schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
       storyId,
       packDigest: null,
       topHitIds: [],

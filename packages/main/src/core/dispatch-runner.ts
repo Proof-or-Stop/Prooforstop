@@ -25,7 +25,7 @@ export interface DispatchRunnerEnvSummary {
 export type RunnerKind = 'fake' | 'scaffolded' | 'refused' | 'claude-code-real';
 
 export interface DispatchRunnerRecord {
-  schemaVersion: 'lattice.dispatch_runner.v1';
+  schemaVersion: 'proof-or-stop.dispatch_runner.v1';
   dispatchId: string;
   host: string;
   runnerKind: RunnerKind;
@@ -82,7 +82,7 @@ export function buildFakeRunnerRecord(opts: {
   env?: Record<string, string | undefined>;
 }): DispatchRunnerRecord {
   return {
-    schemaVersion: 'lattice.dispatch_runner.v1',
+    schemaVersion: 'proof-or-stop.dispatch_runner.v1',
     dispatchId: opts.dispatchId,
     host: opts.host,
     runnerKind: 'fake',
@@ -111,7 +111,7 @@ export function buildScaffoldedRunnerRecord(opts: {
   endedAt: string;
 }): DispatchRunnerRecord {
   return {
-    schemaVersion: 'lattice.dispatch_runner.v1',
+    schemaVersion: 'proof-or-stop.dispatch_runner.v1',
     dispatchId: opts.dispatchId,
     host: opts.host,
     runnerKind: 'scaffolded',
@@ -144,7 +144,7 @@ export function buildClaudeCodeRealRunnerRecord(opts: {
   env: Record<string, string | undefined>;
 }): DispatchRunnerRecord {
   return {
-    schemaVersion: 'lattice.dispatch_runner.v1',
+    schemaVersion: 'proof-or-stop.dispatch_runner.v1',
     dispatchId: opts.dispatchId,
     host: opts.host,
     runnerKind: 'claude-code-real',
@@ -172,7 +172,7 @@ export function buildRefusedRunnerRecord(opts: {
 }): DispatchRunnerRecord {
   const now = new Date().toISOString();
   return {
-    schemaVersion: 'lattice.dispatch_runner.v1',
+    schemaVersion: 'proof-or-stop.dispatch_runner.v1',
     dispatchId: opts.dispatchId,
     host: opts.host,
     runnerKind: 'refused',

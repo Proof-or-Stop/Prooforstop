@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import type { StoryStore } from './store.js';
 import type {
   ChecklistData,
+  VerificationEvidence,
   Finding,
   ReviewInventoryEpoch,
   ReviewInventoryPurposeBinding,
@@ -18,17 +19,19 @@ import { verifyReviewRun } from './review-run.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { withMkdirLock } from './mkdir-lock.js';
+import { collectVerificationIntents } from './verification.js';
+import { isSplitVerificationReceipt, validateVerificationReceipt } from './verification-execution-evidence.js';
 
 export const REVIEW_INVENTORY_EPOCHS_FILE = 'review-inventory-epochs.json';
-export const REVIEW_INVENTORY_EPOCHS_SCHEMA = 'proofbound.review_inventory_epochs.v1';
-export const REVIEW_INVENTORY_EPOCH_SCHEMA = 'proofbound.review_inventory_epoch.v1';
-export const REVIEW_INVENTORY_RECEIPT_SCHEMA = 'proofbound.review_inventory_receipt.v1';
+export const REVIEW_INVENTORY_EPOCHS_SCHEMA = 'proof-or-stop.review_inventory_epochs.v1';
+export const REVIEW_INVENTORY_EPOCH_SCHEMA = 'proof-or-stop.review_inventory_epoch.v1';
+export const REVIEW_INVENTORY_RECEIPT_SCHEMA = 'proof-or-stop.review_inventory_receipt.v1';
 export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only' as const;
 export type { ReviewInventoryEpochData } from './types.js';
 
-const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
-const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
-const CRITIC_RECEIPT_DOMAIN = 'proofbound.review-inventory-critic-receipt.v1';
+const EPOCH_DOMAIN = 'proof-or-stop.review-inventory-epoch.v1';
+const RECEIPT_DOMAIN = 'proof-or-stop.review-inventory-receipt.v1';
+const CRITIC_RECEIPT_DOMAIN = 'proof-or-stop.review-inventory-critic-receipt.v1';
 
 /**
  * One serialization boundary for inventory snapshots and reviewer terminal
@@ -84,6 +87,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
   checklist: ChecklistData,
   proofStoryContract: Record<string, unknown> | null = null,
   scopeShrinkageDecision: Record<string, unknown> | null = null,
+  authentication?: { projectRoot: string; storyId: string },
 ): string {
   // One rule, three shapes: this helper, evidenceSemantics below, and the candidate
   // projection in handlers/review-inventory.ts captureReviewInventoryScope all bind
@@ -102,12 +106,12 @@ export function reviewInventoryAcceptanceSubjectDigest(
   // storyFilesHash/timestamp (and receipt.executedAt) while result/command/note/
   // outputDigest stay identical. Hashing those freshness pins made an evidence
   // re-pin flip this digest and trip OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, even
-  // though currentMaterialHash already excludes the whole .lattice/story/ tree —
+  // though currentMaterialHash already excludes the whole .proof-or-stop/story/ tree —
   // so a metadata-only refresh invalidated an OPEN epoch and discarded other
   // lanes' completed verdicts. Same principle as withoutVolatileTimestamps above:
   // semantic content in, bookkeeping out. Anything that should still invalidate
   // (a changed result, command, selector or captured output) remains bound.
-  const evidenceSemantics = (value: unknown): unknown => {
+  const evidenceSemantics = (value: unknown, item: ChecklistData['items'][number]): unknown => {
     if (!Array.isArray(value)) return value;
     return value.map(row => {
       if (!row || typeof row !== 'object') return row;
@@ -116,6 +120,40 @@ export function reviewInventoryAcceptanceSubjectDigest(
         timestamp: _timestamp, receipt, ...semantic
       } = row as Record<string, unknown>;
       if (!receipt || typeof receipt !== 'object') return semantic;
+      const evidence = row as VerificationEvidence;
+      if (authentication && isSplitVerificationReceipt(evidence.receipt)) {
+        const pin = collectVerificationIntents(item).find(intent => intent.ref === evidence.intentRef)?.intent.verification;
+        if (!pin || evidence.command !== pin.command) throw new Error('inventory authenticated command binding mismatch');
+        const validation = validateVerificationReceipt(authentication.projectRoot, evidence.receipt, {
+          storyId: authentication.storyId, intentRef: evidence.intentRef,
+          command: pin.command, selector: pin.selector,
+          freshness: { headHash: evidence.headHash!, materialHash: evidence.materialHash!, storyFilesHash: evidence.storyFilesHash! },
+        });
+        if (!validation.ok || typeof validation.output !== 'string') {
+          throw new Error(`inventory receipt authentication failed: ${validation.errors.join('; ')}`);
+        }
+        if (evidence.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5') {
+          const execution = evidence.receipt.executionReceipt;
+          const assertion = evidence.receipt.assertionReceipt;
+          // Versioned whitelist, AFTER complete graph/artifact authentication.
+          // Input identity includes environment, toolchain, command, cwd, timeout,
+          // capture and capsule semantics. Publication and execution instance IDs
+          // are not observations; the epoch's material/scope cutoffs stay separate.
+          return { ...semantic, receipt: {
+            schemaVersion: 'proof-or-stop.inventory-verification-observation.v1',
+            executionIdentityDigest: execution.executionIdentityDigest,
+            outputDigest: execution.outputArtifact.outputDigest,
+            exitCode: execution.exitCode,
+            timedOut: execution.timedOut,
+            intentRef: assertion.intentRef,
+            selectorDigest: assertion.selectorDigest,
+            matcherVersion: assertion.matcherVersion,
+            matched: assertion.matched,
+          } };
+        }
+      } else if (authentication && ('executionReceipt' in receipt || 'publicationBinding' in receipt)) {
+        throw new Error('inventory receipt authentication failed: unrecognized split receipt schema');
+      }
       const { executedAt: _executedAt, ...receiptSemantic } = receipt as Record<string, unknown>;
       return { ...semantic, receipt: receiptSemantic };
     });
@@ -132,7 +170,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
       excludes: row.excludes,
       files: row.files,
       verificationIntent: row.verificationIntent,
-      verificationEvidence: evidenceSemantics(row.verificationEvidence),
+      verificationEvidence: evidenceSemantics(row.verificationEvidence, row),
       userSeesSnapshot: row.userSeesSnapshot,
     })),
     // ProofStory is a second acceptance-authority surface beside checklist.
@@ -150,6 +188,7 @@ export function reviewInventoryAcceptanceSubjectDigestForStore(store: StoryStore
     store.readChecklist(storyId),
     store.readProofStoryContract(storyId) as unknown as Record<string, unknown> | null,
     store.readScopeShrinkageDecision(storyId) as unknown as Record<string, unknown> | null,
+    { projectRoot: store.projectRoot, storyId },
   );
 }
 
@@ -169,7 +208,7 @@ export function signReviewInventoryEpoch(epoch: Omit<ReviewInventoryEpoch, '_has
 }
 
 export function verifyReviewInventoryEpoch(epoch: ReviewInventoryEpoch): boolean {
-  if (!epoch._hash || epoch.schemaVersion !== 'proofbound.review_inventory_epoch.v1') return false;
+  if (!epoch._hash || epoch.schemaVersion !== 'proof-or-stop.review_inventory_epoch.v1') return false;
   const { _hash, ...unsigned } = epoch;
   return _hash === signReviewInventoryEpoch(unsigned);
 }
@@ -179,7 +218,7 @@ export function signReviewInventoryReceipt(receipt: Omit<ReviewInventoryReceipt,
 }
 
 export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): boolean {
-  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_receipt.v1') return false;
+  if (!receipt._hash || receipt.schemaVersion !== 'proof-or-stop.review_inventory_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryReceipt(unsigned)
     && receipt.authorizesTest === false
@@ -194,7 +233,7 @@ export function signReviewInventoryCriticReceipt(receipt: Omit<ReviewInventoryCr
 }
 
 export function verifyReviewInventoryCriticReceipt(receipt: ReviewInventoryCriticReceipt): boolean {
-  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_critic_receipt.v1') return false;
+  if (!receipt._hash || receipt.schemaVersion !== 'proof-or-stop.review_inventory_critic_receipt.v1') return false;
   const { _hash, ...unsigned } = receipt;
   return _hash === signReviewInventoryCriticReceipt(unsigned)
     && canonicalAgentRoleId(receipt.criticLane) === 'proof-or-stop-review-topology-critic'

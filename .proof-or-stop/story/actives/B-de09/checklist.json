@@ -1,0 +1,213 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reconcile the trusted RED-to-GREEN enforcement execution plan",
+      "context": "Update the existing v7 program plan against current 0.3.294 code and the trusted RED-evidence decision spec. Define RED, GREEN, v1, v2, docsExempt, characterizationRequired, and redRequired; current-vs-target truth; mechanical tri-class classification; trusted RED and exact-target GREEN contracts; lifecycle doors; legacy adoption; concurrency; adversarial evidence; rollout order; acceptance tests; and explicit non-goals. The document remains a program plan and must not claim runtime enforcement already exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/lab-maintenance.md",
+        "AGENTS.md#two-layer-process-fact-contract"
+      ],
+      "userSees": "The plan opens with a status header stating that it supersedes v7, that 0.3.294 does not yet enforce the target policy, and which prerequisite workstream comes next; it then provides a definitions table and ordered workstream sections covering classification, trusted RED, same-target GREEN, migration, gate wiring, concurrency, rollout, and acceptance.",
+      "excludes": [
+        "Changing runtime code or configuration",
+        "Enabling reproFirstPreflight enforce mode",
+        "Creating RED or GREEN runtime evidence commands",
+        "Treating the plan as implemented authority"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "PLAN-SEQUENCE",
+            "desc": "The plan defines a complete ordered program from trusted RED production through same-target GREEN consumption and enforcement rollout.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-CURRENT-TRUTH",
+            "desc": "Every statement about current behavior is linked to a current code or configuration source and is distinct from target behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "PLAN-REFACTOR",
+            "desc": "Pure refactors use pre-change characterization and post-change equivalence rather than a synthetic failing RED.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-DOCS-EXEMPT",
+            "desc": "Only mechanically proven non-executable documentation, research, and audit scope can use docsExempt, while retaining the complete lifecycle.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "PLAN-DECLARATION-BYPASS",
+            "desc": "The plan prevents author-declared paths, Story type, labels, or prose from granting docsExempt.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-POSTHOC-RED",
+            "desc": "The plan prevents RED captured after implementation or against a non-ancestor baseline from satisfying the gate.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-LEGACY-V1",
+            "desc": "The plan prevents caller-authored legacy v1 fields from satisfying post-adoption trusted RED requirements.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-LIFECYCLE-BYPASS",
+            "desc": "The plan covers rollback, compatibility, direct-terminal, and pre-write transition doors without equivalent-credential bypass.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-CONCURRENCY",
+            "desc": "The plan defines serialization and fork rejection for concurrent evidence writers and transitions.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "PLAN-STALE-EVIDENCE",
+            "desc": "The plan rejects stale, mismatched, quarantined, incomplete, or unsupported evidence chains.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Freeze and independently audit the candidate plan with Claude CLI",
+      "context": "After CHK-001 and CHK-003 agree on the stable named section, freeze candidate plan bytes and launch a fresh read-only Claude CLI session that receives only those bytes and the audit rubric, with no authoring conversation and no repository edit permission. Record tool version, timestamp, plan SHA-256, exact rubric, raw response SHA-256, findings, truth-source adjudication, accepted changes, rejected suggestions, and final verdict in the audit Markdown file. CHK-002 owns any audit-driven plan revision; a section-name change reopens CHK-003 before the next freeze. Run at most three frozen-candidate rounds. APPROVE permits lifecycle review and no plan bytes may change afterward; any later revision voids the digest and blocks acceptance unless a remaining round audits it. A third non-APPROVE records the blocker, leaves this Story incomplete, and names a follow-up design revision.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/lab-maintenance.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A reproducible Claude CLI audit record whose final plan SHA-256 is recomputed immediately before lifecycle review; it ends with either APPROVE and the next implementation workstream, or a named blocking finding and the need for a follow-up design revision.",
+      "excludes": [
+        "Allowing Claude CLI to modify repository files",
+        "Treating an APPROVE response as implementation evidence",
+        "Auditing mutable or unhashed plan bytes"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "create": [
+          "docs/audits/repro-first-gate-enforce-plan-claude-audit.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "AUDIT-HAPPY",
+            "desc": "The final audit records Claude CLI version, exact final-plan SHA-256, exact rubric, response SHA-256, and an APPROVE verdict for those bytes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "AUDIT-BOUND",
+            "desc": "No more than three frozen-candidate audit rounds are run; unavailable, timed-out, or non-APPROVE outcomes remain explicitly blocked.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "AUDIT-DIGEST-RECHECK",
+            "desc": "The recorded final-plan SHA-256 is recomputed after all audit-driven revisions and matches the bytes accepted by the final Claude response.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "AUDIT-AUTHORITY",
+            "desc": "The audit record distinguishes external reviewer opinion from signed Proof-or-Stop lifecycle evidence and current runtime truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Replace the trusted RED-evidence specification's fragile plan line reference",
+      "context": "After CHK-001 establishes the stable Workstream 2 section name and before CHK-002 freezes a candidate, replace the trusted RED-evidence subsystem specification's mutable line-number citation with that named section. If an audit-driven revision changes the section name, reopen this item and repair the backlink before freezing the next candidate. Do not change the subsystem's normative semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+      ],
+      "userSees": "The trusted RED-evidence specification links to the named program workstream and remains correct when the execution plan gains or loses lines.",
+      "excludes": [
+        "Changing RED-evidence runtime semantics",
+        "Rewriting the trusted RED-evidence subsystem specification"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "BACKLINK-HAPPY",
+            "desc": "The specification references the revised plan by document path and stable section name rather than mutable line numbers.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "BACKLINK-EDGE",
+            "desc": "The backlink repair does not change the specification's normative RED-evidence semantics.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "BACKLINK-ADV",
+            "desc": "No stale Workstream 2 line-range citation remains in the specification.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

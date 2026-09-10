@@ -33,7 +33,7 @@ import { PROOF_OR_STOP_CONFIG_FILENAME, PROOF_OR_STOP_STATE_DIR } from './brand-
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
 export interface PlaybookRuntimeBaselineManifest {
-  schemaVersion: 'proofbound.memory-playbook-baseline.v1';
+  schemaVersion: 'proof-or-stop.memory-playbook-baseline.v1';
   profile: PlaybookRuntimeBaselineProfile;
   seed: number;
   recordCount: number;
@@ -208,7 +208,7 @@ export interface PlaybookRuntimeSemanticGuard {
 }
 
 export interface PlaybookRuntimeOptimizedParityReport {
-  schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1';
+  schemaVersion: 'proof-or-stop.memory-playbook-optimized-parity.v1';
   profile: PlaybookRuntimeBaselineProfile;
   recordCount: number;
   queryCount: number;
@@ -347,7 +347,7 @@ const GOLD_QUERIES: readonly BaselineGoldQuery[] = [
   },
   {
     id: 'deprecated-brand-residue',
-    query: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner current proofbound guidance`,
+    query: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner current proof-or-stop guidance`,
     expectedIds: ['mem-deprecated-brand-current'],
     mustNotSurfaceIds: ['mem-deprecated-brand-residue', 'pb-deprecated-brand-residue-candidate'],
     expectedSuppressedIds: ['mem-deprecated-brand-residue'],
@@ -501,7 +501,7 @@ const GOLD_RECORDS: readonly BaselineGoldRecord[] = [
     status: 'current',
     partition: 'stale-doc',
     recordClass: 'deprecated-brand-residue',
-    text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner says use current proofbound guidance not legacy brand defaults`,
+    text: `deprecated brand residue ${BASELINE_DEPRECATED_BRAND_MARKER} scanner says use current proof-or-stop guidance not legacy brand defaults`,
     supersedes: ['mem-deprecated-brand-residue'],
   },
   {
@@ -530,12 +530,12 @@ const BASELINE_SIGNATURE_REGISTRY: SignatureRegistryData = {
       tag: BASELINE_DEPRECATED_BRAND_MARKER,
       status: 'deprecated',
       aliases: [BASELINE_DEPRECATED_BRAND_ALIAS],
-      mergedInto: 'proofbound',
+      mergedInto: 'proof-or-stop',
       createdBy: 'playbook-runtime-baseline',
       approvedBy: null,
     },
     {
-      tag: 'proofbound',
+      tag: 'proof-or-stop',
       status: 'active',
       aliases: [],
       mergedInto: null,
@@ -547,7 +547,7 @@ const BASELINE_SIGNATURE_REGISTRY: SignatureRegistryData = {
 
 function outputDirFor(profile: PlaybookRuntimeBaselineProfile, outputDir?: string): string {
   if (outputDir) return outputDir;
-  return mkdtempSync(join(tmpdir(), `proofbound-memory-playbook-${profile}-`));
+  return mkdtempSync(join(tmpdir(), `proof-or-stop-memory-playbook-${profile}-`));
 }
 
 function ensureBaselineOutputWritable(outputDir: string, targetPaths: string[], force?: boolean): void {
@@ -867,7 +867,7 @@ function playbookFromBaseline(record: BaselineRecord): Playbook {
 
 function withIsolatedGlobalMemory<T>(fn: () => T): T {
   const previous = readBrandEnv('GLOBAL_MEMORY_DIR');
-  const dir = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-global-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-baseline-global-'));
   setBrandEnv(process.env, 'GLOBAL_MEMORY_DIR', dir);
   try {
     return fn();
@@ -887,7 +887,7 @@ function runRuntimeGoldQuery(
   allStatusById: Map<string, string>,
   allClassById: Map<string, BaselineRecordClass>,
 ): RuntimeGoldQueryResult {
-  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-baseline-runtime-'));
   try {
     const memoryEntries = shortlist
       .filter((record) => record.kind === 'memory')
@@ -998,7 +998,7 @@ function runMatrixScenario(mutator: (root: string, fixture: {
   freshnessClass: MemoryFreshnessClass;
   initialSurfacePass: boolean;
 } {
-  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-matrix-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-baseline-matrix-'));
   try {
     return withIsolatedGlobalMemory(() => {
       const projectEntry = matrixMemoryEntry(
@@ -1116,7 +1116,7 @@ function runSourceDigestMutationMatrix(): SourceDigestMutationMatrixResult {
           tag: 'unrelated-retired-term',
           status: 'deprecated',
           aliases: [],
-          mergedInto: 'proofbound',
+          mergedInto: 'proof-or-stop',
           createdBy: 'playbook-runtime-baseline',
           approvedBy: null,
         },
@@ -1235,7 +1235,7 @@ function writeRuntimeCorpusMemoryLine(fd: number, record: BaselineRecord, buffer
 }
 
 function materializeRuntimeCorpus(recordsRaw: string): RuntimeCorpusMaterialization {
-  const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-corpus-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-baseline-runtime-corpus-'));
   // B-cc10 CHK-004: writes use the CANONICAL name only. Writing the deprecated
   // spelling here would make this synthetic corpus exercise the migration
   // fallback instead of the shape a real project now has.
@@ -1482,7 +1482,7 @@ export function runPlaybookRuntimeOptimizedParityReport(args: {
         const cacheHitRate = warmCacheStats.hits / Math.max(1, warmCacheStats.hits + warmCacheStats.misses);
         const warmLatencies = indexedWarm.queryElapsedMs;
         return {
-          schemaVersion: 'proofbound.memory-playbook-optimized-parity.v1',
+          schemaVersion: 'proof-or-stop.memory-playbook-optimized-parity.v1',
           profile: manifest.profile,
           recordCount: manifest.recordCount,
           queryCount: gold.queries.length,
@@ -1587,14 +1587,14 @@ export function generatePlaybookRuntimeBaseline(args: {
 
   const recordsDigest = digestText(baseline.rows.join('\n') + '\n');
   const gold = {
-    schemaVersion: 'proofbound.memory-playbook-baseline.gold.v1',
+    schemaVersion: 'proof-or-stop.memory-playbook-baseline.gold.v1',
     queries: GOLD_QUERIES,
   };
   const goldText = `${JSON.stringify(gold, null, 2)}\n`;
   writeFileSync(goldPath, goldText, 'utf8');
   const goldDigest = digestText(goldText);
   const manifestDomain = {
-    schemaVersion: 'proofbound.memory-playbook-baseline.v1' as const,
+    schemaVersion: 'proof-or-stop.memory-playbook-baseline.v1' as const,
     profile,
     seed: args.seed ?? 42,
     recordCount,

@@ -13,7 +13,7 @@ const utilsPackage = JSON.parse(readFileSync(join(repoRoot, 'packages/utils/pack
 const utilsLock = JSON.parse(readFileSync(join(repoRoot, 'packages/utils/package-lock.json'), 'utf8'));
 const labPackage = JSON.parse(readFileSync(join(repoRoot, 'packages/lab/package.json'), 'utf8'));
 const labLock = JSON.parse(readFileSync(join(repoRoot, 'packages/lab/package-lock.json'), 'utf8'));
-const brandSource = readFileSync(join(repoRoot, 'packages/main/src/core/lattice-brand.ts'), 'utf8');
+const brandSource = readFileSync(join(repoRoot, 'packages/main/src/core/proof-or-stop-brand.ts'), 'utf8');
 const runtimeSource = readFileSync(join(repoRoot, 'packages/main/src/core/runtime-environment-checks.ts'), 'utf8');
 
 assert.equal(rootPackage.name, 'proof-or-stop');
@@ -40,9 +40,9 @@ assert.equal(labLock.name, '@proof-or-stop/lab');
 assert.equal(labLock.packages[''].name, '@proof-or-stop/lab');
 assert.equal(labLock.packages['../main'].dependencies['@proof-or-stop/lab'], '0.3.65');
 assert.match(brandSource, /PROOF_OR_STOP_ROOT_PACKAGE_NAME\s*=\s*'proof-or-stop'/);
-assert.match(brandSource, /PROOF_OR_STOP_CLI_VERSION\s*=\s*LATTICE_CLI_VERSION/);
+assert.match(brandSource, /PROOF_OR_STOP_CLI_VERSION\s*=\s*'\d+\.\d+\.\d+'/);
 assert.match(runtimeSource, /SELF_ROOT_PACKAGE_NAMES/);
-assert.match(runtimeSource, /PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME/);
+assert.doesNotMatch(runtimeSource, /PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME/, 'runtime root detection does not admit retired package names');
 
 const npmName = execFileSync('npm', ['pkg', 'get', 'name'], { cwd: repoRoot, encoding: 'utf8' }).trim();
 assert.equal(JSON.parse(npmName), 'proof-or-stop');

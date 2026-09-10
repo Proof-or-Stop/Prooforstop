@@ -1,0 +1,536 @@
+{
+  "schemaVersion": "proof-or-stop.quorum-submit-smoke-cases.v1",
+  "cases": [
+    {
+      "id": "qsm-001",
+      "title": "every production process-event writer honors the shared append lock",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": [
+        "lock"
+      ]
+    },
+    {
+      "id": "qsm-002",
+      "title": "reviewer provider mapping is explicit and unsupported providers fail closed",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-003",
+      "title": "explicit invalid provider wins over competing host inference while true absence still infers",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-004",
+      "title": "real story-owned fixture delta is host-independent and requires case-level Story intent closure",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-005",
+      "title": "duplicate fixture identities always force full regardless of alias or ordering",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-006",
+      "title": "review_run_start CLI records reviewer-requested full escalation in envelope and signed run",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": [
+        "cli"
+      ]
+    },
+    {
+      "id": "qsm-007",
+      "title": "unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-008",
+      "title": "Codex and Claude CLI provider aliases complete the thin zero-asset review chain",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": [
+        "environment"
+      ]
+    },
+    {
+      "id": "qsm-009",
+      "title": "shared binding derivation is byte-identical to the former quorum envelopes",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": [],
+      "sentinel": "real"
+    },
+    {
+      "id": "qsm-010",
+      "title": "shared derivation preserves optional-head and missing-evidence envelopes",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-011",
+      "title": "shared derivation fails closed on every required envelope field",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-012",
+      "title": "shared derivation binds every replay-sensitive input",
+      "domain": "pure",
+      "shard": "pure",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-013",
+      "title": "worktree-local CLI commits the exact quorum batch through the production entrypoint",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": [
+        "git"
+      ],
+      "sentinel": "real"
+    },
+    {
+      "id": "qsm-014",
+      "title": "explicit full-envelope reviewer evidence crosses collector, REVIEW gate, and quorum admission",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": [
+        "signature"
+      ]
+    },
+    {
+      "id": "qsm-015",
+      "title": "production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-016",
+      "title": "historical RED dirty baseline makes CLI validation refuse canonical PASS persistence",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-017",
+      "title": "refuses when required reviewer passes are absent and writes no verdicts",
+      "domain": "integration",
+      "shard": "integration-a",
+      "fixtureConsumer": true,
+      "capabilities": []
+    },
+    {
+      "id": "qsm-018",
+      "title": "numerically sufficient compatibility/retired-only receipts cannot authorize quorum",
+      "domain": "integration",
+      "shard": "integration-a",
+      "fixtureConsumer": true,
+      "capabilities": []
+    },
+    {
+      "id": "qsm-019",
+      "title": "refuses when reviewer passes are stale and writes no verdicts",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-020",
+      "title": "machine REVIEW and quorum consume the same full-envelope replay/tamper proof",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-021",
+      "title": "explicit full-asset mode binds Claude and Codex independently and rejects selected-host drift",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-022",
+      "title": "emits exactly rounds x 2 verdicts after current reviewer passes",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-023",
+      "title": "review_escalation_status and review assurance floor report complete voluntary 3x2 rounds",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-024",
+      "title": "auto-computed materialDigest and storyFilesHash match current helpers",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-025",
+      "title": "hosts are independent by hostId, sessionId, and keyId",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-026",
+      "title": "never sets authorityDone, fullAuthorityDone, or productionDone",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-027",
+      "title": "refuses a same-material re-submit and writes no new verdicts",
+      "domain": "integration",
+      "shard": "integration-a",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-028",
+      "title": "same-material duplicate refusal survives deletion of the ignored verdict cache",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-029",
+      "title": "allows a fresh quorum after a material change",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-030",
+      "title": "--rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-031",
+      "title": "refuses a redundant re-submit when the standing quorum drift-accepts",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-032",
+      "title": "blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-033",
+      "title": "EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-034",
+      "title": "a second main drift does not circumvent the drift-accept refusal",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-035",
+      "title": "a story-owned file change after main drift makes the re-quorum genuine again",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-036",
+      "title": "refuses pre-existing user dirt before writing any verdict",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-037",
+      "title": "foreign append fails exact verification and rolls back only the six owned verdicts",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-038",
+      "title": "capture-time failure rolls back the just-written event and verdict JSON",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-039",
+      "title": "between-row foreign append preserves foreign bytes and rolls back row two",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": [
+        "concurrency"
+      ]
+    },
+    {
+      "id": "qsm-040",
+      "title": "writer-owned append identity never claims a foreign row inserted before host_verdict",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-041",
+      "title": "rollback never deletes an owned-row byte sequence embedded inside foreign binary",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-042",
+      "title": "same-verdictId mutation of a gate-consumed field is refused and rolled back",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-043",
+      "title": "rollback preserves a concurrently changed verdict JSON with the same verdictId",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-044",
+      "title": "rollback preserves non-UTF8 blank and unterminated foreign suffix bytes exactly",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-045",
+      "title": "commit-hook rejection rolls back all rows and a clean retry succeeds once",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-046",
+      "title": "atomic quorum commit hashes process-events larger than one MiB",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": [
+        "large-file"
+      ],
+      "sentinel": "real"
+    },
+    {
+      "id": "qsm-047",
+      "title": "large atomic quorum commit still rejects a post-manifest mutation",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-048",
+      "title": "HEAD movement loses the CAS without reverting the competing HEAD",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-049",
+      "title": "rollback conflict preserves competing prefix bytes and removes every countable verdict",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-050",
+      "title": "rejects non-independent host identity before writing additional verdicts",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-051",
+      "title": "quorum_prune dry-run lists the poisoned duplicates without mutating",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-052",
+      "title": "quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-053",
+      "title": "quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-054",
+      "title": "quorum_prune refuses when there is nothing to prune",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-055",
+      "title": "quorum_prune apply refuses on a dirty tree before any mutation",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-056",
+      "title": "quorum_prune keeps exactly one event per group for a triple-duplicate",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-057",
+      "title": "quorum_prune runIds filter prunes only the specified runIds",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-058",
+      "title": "quorum_prune preserves interleaved non-host_verdict lines byte-identically",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-059",
+      "title": "quorum_prune keep:oldest-material inverts which duplicate survives",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-060",
+      "title": "quorum_prune refuses an uncommitted process-events file",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-061",
+      "title": "quorum_prune never overwrites a previous run backup",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-062",
+      "title": "quorum_prune apply leaves a clean worktree and a second apply needs no manual git",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-063",
+      "title": "quorum_prune apply through the production CLI under codex leaves no process-event dirt",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": [],
+      "sentinel": "real"
+    },
+    {
+      "id": "qsm-064",
+      "title": "quorum_prune --dryRun is a real declared flag, is honored, and refuses when combined with --apply",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-065",
+      "title": "quorum_prune dryRun:false executes instead of being a silent no-op",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-066",
+      "title": "quorum_prune refuses the symmetric apply:false + dryRun:false conflict",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-067",
+      "title": "every quorum_prune apply/dryRun description states both executors",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-068",
+      "title": "quorum_prune refuses a non-pass duplicate group instead of laundering the round (F-024)",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-069",
+      "title": "quorum_prune never deletes a verdict cache path outside the story verdict dir (F-025)",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-070",
+      "title": "quorum_prune holds the shared append lock across read and rewrite (F-026)",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-071",
+      "title": "quorum_prune installs the pruned log by atomic rename, never an in-place overwrite (F-027)",
+      "domain": "prune",
+      "shard": "prune",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-072",
+      "title": "quorum_submit re-checks the duplicate guard against the captured HEAD (F-028)",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    },
+    {
+      "id": "qsm-073",
+      "title": "quorum_submit compares the same-material guard on the normalized digest (F-029)",
+      "domain": "integration",
+      "shard": "integration-b",
+      "capabilities": []
+    }
+  ]
+}

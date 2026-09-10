@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
@@ -34,6 +35,7 @@ import {
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import {
   classifyDonePrepareWorktree,
@@ -44,7 +46,9 @@ import {
   nonRuntimeDirtyEntries,
 } from '../core/done-prepare-validation-reuse.js';
 import {
+  CERTIFICATION_WINDOW_SCHEMA,
   evaluateCertificationWindowAdmit,
+  inspectCertificationWindowLineage,
   loadReviewInventoryAdmitApis,
   loadVerifiedCertificationWindow,
   persistAdmittedCertificationWindow,
@@ -56,6 +60,7 @@ import {
   PRECERT_TEST_IDENTITY,
   PRECERT_VERIFIER_IDENTITY,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_WINDOW_INVALIDATED,
   type CertificationWindowAdmitFacts,
   type CertificationWindowCurrentIdentity,
   type CertificationWindowFrozenIdentity,
@@ -63,6 +68,8 @@ import {
   type CertificationWindowStatusProjection,
   type ReviewInventoryAdmitPair,
 } from '../core/certification-window.js';
+import { REVIEW_INVENTORY_EPOCHS_SCHEMA } from '../core/review-inventory-epoch.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 function persistHint(root: string, storyId: string, command: string): string {
   try {
@@ -307,8 +314,9 @@ function collectAdmitFacts(
         const recorded = evidence?.storyFilesHash;
         return Boolean(storyFilesHash && recorded && recorded === storyFilesHash);
       },
+      { receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId) },
     ).missingRequired;
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     missingRequiredIntents = Number.MAX_SAFE_INTEGER;
   }
   let openBlockingFindingIds: string[] = [];
@@ -484,15 +492,29 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
       return render(projectCertificationWindowStatus(storyId, admitted.window, admitted.receipt), hint);
     },
 
-    certification_window_status(args: { storyId: string }): string {
+    certification_window_status(args: { storyId: string; refresh?: boolean }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_status: storyId is required');
-      const refreshed = refreshCertificationWindowLineage({
+      const current = currentCertificationIdentity(ctx, storyId);
+      const inspected = inspectCertificationWindowLineage({
         store: ctx.store,
         storyId,
-        current: currentCertificationIdentity(ctx, storyId),
+        current,
       });
-      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
+      if (args.refresh === true && inspected.drift.drifted) {
+        const refreshed = refreshCertificationWindowLineage({ store: ctx.store, storyId, current });
+        return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
+      }
+      const projection = projectCertificationWindowStatus(storyId, inspected.window, inspected.receipt, inspected.drift.advisory);
+      if (!inspected.drift.drifted) return render(projection);
+      return render({
+        ...projection,
+        blockerCode: PRE_CERT_WINDOW_INVALIDATED,
+        observedDriftReason: inspected.drift.reason ?? 'certification subject changed',
+        nextCommand: `proof-or-stop certification_window_status --storyId=${storyId} --refresh=true`,
+      });
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {

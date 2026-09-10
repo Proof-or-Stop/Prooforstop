@@ -67,7 +67,7 @@ export interface ProofOrStopEvidenceFreshnessSummary {
 }
 
 export interface EvidenceManifest {
-  schemaVersion: 'lattice.evidence_manifest.v1';
+  schemaVersion: 'proof-or-stop.evidence_manifest.v1';
   storyId: string;
   sourceHost: string;
   generatedAt: string;
@@ -83,7 +83,7 @@ export interface EvidenceManifest {
 }
 
 export interface EvidenceInspection {
-  schemaVersion: 'lattice.evidence_inspect.v1';
+  schemaVersion: 'proof-or-stop.evidence_inspect.v1';
   manifestSchemaVersion: EvidenceManifest['schemaVersion'];
   storyId: string;
   sourceHost: string;
@@ -305,7 +305,7 @@ export function buildEvidenceManifest(
     ...refs.flatMap(ref => ref.receiptRefs),
   ]);
   return {
-    schemaVersion: 'lattice.evidence_manifest.v1',
+    schemaVersion: 'proof-or-stop.evidence_manifest.v1',
     storyId: args.storyId,
     sourceHost,
     generatedAt: new Date().toISOString(),
@@ -323,8 +323,8 @@ export function buildEvidenceManifest(
 
 export function readEvidenceManifest(file: string): EvidenceManifest {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as EvidenceManifest;
-  if (parsed.schemaVersion !== 'lattice.evidence_manifest.v1') {
-    throw new Error(`evidence_inspect expected schemaVersion lattice.evidence_manifest.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
+  if (parsed.schemaVersion !== 'proof-or-stop.evidence_manifest.v1') {
+    throw new Error(`evidence_inspect expected schemaVersion proof-or-stop.evidence_manifest.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
   const refs = (parsed.evidenceRefs ?? []).map(ref => normalizeEvidenceRef(ref));
   const redaction = redactionForRecord(parsed as unknown as Record<string, unknown>);
@@ -353,7 +353,7 @@ export function inspectEvidenceManifest(manifest: EvidenceManifest, root: string
     ...refs.flatMap(ref => ref.receiptRefs),
   ]);
   return {
-    schemaVersion: 'lattice.evidence_inspect.v1',
+    schemaVersion: 'proof-or-stop.evidence_inspect.v1',
     manifestSchemaVersion: manifest.schemaVersion,
     storyId: manifest.storyId,
     sourceHost: manifest.sourceHost,

@@ -15,8 +15,8 @@
  * so the agent is never unexpectedly stuck by a hook bug. The real enforcement
  * floor is enforceAndStampEvidence in the CLI handler, not this hook.
  *
- * Managed by the Proofbound framework: this token is kept verbatim so downstream
- * managed-asset ownership recognizes this generated hook.
+ * Proof-or-Stop evidence-pin seatbelt. Hook registration uses the canonical
+ * filename; the product spelling in this comment is not an ownership token.
  */
 'use strict';
 

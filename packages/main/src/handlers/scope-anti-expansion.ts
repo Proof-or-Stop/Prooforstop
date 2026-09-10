@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
   buildExecutionBoundary,
@@ -113,7 +114,7 @@ function projectChecklist(ctx: HandlerContext, storyId: string) {
       ...(item.context ? { context: item.context } : {}),
       ...(item.excludes ? { excludes: [...item.excludes] } : {}),
     }));
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return [];
   }
 }

@@ -1,9 +1,11 @@
 import type { HandlerContext } from './context.js';
 import {
+  ARTIFACT_RELEASE_SCHEMA_VERSION,
   type ArtifactReleaseRecordV1,
   readArtifactReleaseLedger,
   resolveArtifactReleaseLedgerRoot,
 } from '../core/artifact-release.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 interface ArtifactReleaseListArgs {
   format?: 'text' | 'json';
@@ -50,6 +52,7 @@ export function createArtifactReleaseHandlers(ctx: HandlerContext): Record<strin
 
   return {
     artifact_release_list(args: ArtifactReleaseListArgs = {}) {
+      assertActiveIdentityConsumerContract('artifact-release-ledger', ARTIFACT_RELEASE_SCHEMA_VERSION);
       const records = latestRecords(readArtifactReleaseLedger(ledgerRoot), normalizeLimit(args.limit));
       if (normalizeFormat(args.format) === 'json') return records;
       if (records.length === 0) return 'No artifact release records found';

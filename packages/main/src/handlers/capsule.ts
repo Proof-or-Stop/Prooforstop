@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * @task B-42c0
  * @checklist CHK-004
@@ -53,7 +54,7 @@ function readInputs(ctx: HandlerContext, storyId: string): {
 
 function refIssues(ctx: HandlerContext, storyId: string, capsule: StoryCapsuleData) {
   let checklist = null;
-  try { checklist = ctx.store.readChecklist(storyId); } catch { /* probe */ }
+  try { checklist = ctx.store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* probe */ }
   let events: ProcessEvent[] = [];
   try { events = ctx.store.readProcessEvents(storyId); } catch { /* probe */ }
   return validateCapsuleRefs({

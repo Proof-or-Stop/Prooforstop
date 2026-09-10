@@ -1,0 +1,110 @@
+{
+  "artifact": "claude-final-disposition",
+  "auditor": "independent Claude CLI auditor",
+  "date": "2026-09-09",
+  "repo": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-frozen-acceptance-current-tywm1695/repo",
+  "head": "3da2f2f4ba29aab8e724a5ea94b6d76965e26752",
+  "priorSource": "f1fbe7b603",
+  "priorAudit": "../claude-integration-closure-audit/report.md",
+  "workingTreeClean": true,
+  "verdict": "resolved",
+  "verdictSummary": "F-A is resolved: the f1fbe7b603..HEAD one-file change is exactly the second remedy F-A allowed, the parallelism intent survives in the bytes, and the guard exits 0 at current bytes. F-B, which was dependent on F-A, is resolved via the implementer's completed full26 log (0 RED / 26 GREEN of 26) bound by SHA256 rather than re-executed here. Scope-bound; not global merge approval.",
+  "diff": {
+    "range": "f1fbe7b603..HEAD",
+    "filesChanged": 1,
+    "file": "packages/main/tests/red/red-B-e40f-lab-convergence.mjs",
+    "insertions": 5,
+    "deletions": 2,
+    "hunks": 1,
+    "change": "assert.deepEqual on configRow.resources now expects both the shared git-common-dir claim and the exclusive .proof-or-stop/runtime/validate-plan-barrier claim; assertion message rewritten to distinguish internal shard parallelism from outer protected-root isolation",
+    "divergenceFromMain": "git diff 1300d7ad HEAD on the same file is also 5 insertions / 2 deletions, i.e. this hunk is the entire deliberate divergence from private main; no other drift carried in"
+  },
+  "unchangedInvariants": [
+    { "element": "--jobs=2 invocation of quorum-submit-smoke.js", "line": 165, "state": "unchanged" },
+    { "element": "73 registrations and 73 unique case IDs", "line": "86-87", "state": "unchanged" },
+    { "element": "inventory mutation detector (missing manifest case qsm-073)", "line": "95-96", "state": "unchanged" },
+    { "element": "partition mutation detector", "line": 111, "state": "unchanged" },
+    { "element": "worker parallel-capability / final B_E40F_LAB_GREEN assertion", "line": 218, "state": "unchanged" }
+  ],
+  "execution": {
+    "command": "node packages/main/tests/red/red-B-e40f-lab-convergence.mjs",
+    "modified": false,
+    "exit": 0,
+    "stdout": "B_E40F_LAB_GREEN cases=73 selector=fail-closed partitions=4 fixture=isolated-reuse jobs=2 gain=49.9% residue=0",
+    "stderrEmpty": true,
+    "postRunStatusClean": true,
+    "sourceSha256": "f9acbaebd17a9c730b40d499b1948c9c69b475fb938523a4ff0764bcc7d8063b",
+    "note": "gain=49.9% is the guard's own internal figure and is not offered as a repo-level speedup proof"
+  },
+  "findings": [
+    {
+      "id": "F-A",
+      "priorSeverity": "blocking",
+      "status": "resolved",
+      "basis": "Remedy matches the allowed action verbatim: the assert.deepEqual pin was amended to admit the barrier claim, the mutation detector was not weakened, and the amendment records why --jobs=2 parallelism survives an exclusive global barrier. The design conflict is resolved at the right level: the exclusive claim guards the outer validate-plan-barrier against other validation writers, while internal shard parallelism across 4 partitions at jobs=2 is untouched and measured in the run. Independently executed at HEAD: exit 0."
+    },
+    {
+      "id": "F-B",
+      "priorSeverity": "blocking",
+      "dependsOn": "F-A",
+      "status": "resolved",
+      "evidenceProvenance": "implementer execution, bound by hash, not re-run by this auditor",
+      "basis": "Both former RED rows are GREEN in the completed full26 derivation in this same frozen source. NEWCOMER_MIRROR_IS_FAITHFUL lists all 12 pre-plant targets at exit 0 including red-B-e40f-lab-convergence.mjs; EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE reports no targets failing without naming the newcomer. Consistent with this auditor's independent run of the sole causal target.",
+      "log": {
+        "path": "../final-registration-derivation-green.log",
+        "bytes": 12455,
+        "sha256": "bd643a97cb097c2231e2c8f456eb15eced968f649968222ea4e03cc77f5d577b",
+        "finalLine": "0 RED / 26 GREEN of 26 rows (143198ms in child processes)",
+        "complete": true
+      }
+    },
+    {
+      "id": "F-C",
+      "severity": "informational",
+      "status": "retained",
+      "note": "red-b49d4 closing prose for a failed mirror is a fixed narrative rather than a derived attribution. Neither repaired nor a new blocker."
+    },
+    {
+      "id": "F-D",
+      "severity": "informational",
+      "status": "retained",
+      "note": "reviewer-scan-budget-guard-smoke registered row carries no explicit timeoutMs and runs under the 300000ms executor default while peers pin 180000ms. Neither repaired nor a new blocker."
+    }
+  ],
+  "reusedPriorBounds": [
+    "F2 / read-only closure",
+    "resource co-scheduling plus mutation detectors",
+    "audit supersession",
+    "capacity configuration",
+    "three sanitized-host fixture checks"
+  ],
+  "reuseJustification": "Source for these is byte-unchanged between f1fbe7b603 and HEAD; the sole diff hunk touches none of those surfaces. Prior bounds carry unmodified; not re-run.",
+  "outOfScope": [
+    "failed identity-cutover baseline, excluded from this repair",
+    "no single current141 all-green run exists and none is claimed",
+    "no new speedup proof exists and none is claimed",
+    "global merge approval is not asserted"
+  ],
+  "verdictBounds": "Confined to whether the f1fbe7b603..HEAD one-file change is the allowed F-A remedy with parallelism intent intact, and whether F-A and its dependent F-B are thereby closed. Both yes.",
+  "scopeDiscipline": {
+    "sourceModified": false,
+    "lifecycleRun": false,
+    "mainTouched": false,
+    "commitsOrKeys": false,
+    "pushed": false,
+    "agentsSpawned": false,
+    "full141": false,
+    "full73": false,
+    "all25": false,
+    "full26ReRun": false,
+    "guardsExecuted": ["packages/main/tests/red/red-B-e40f-lab-convergence.mjs"],
+    "writesConfinedTo": "/Users/jek/.codex/artifacts/proof-or-stop-five-item-integration-20260909/claude-final-disposition"
+  },
+  "evidence": {
+    "evidence/red-B-e40f-lab-convergence.stdout.txt": "77bd157cda7477323ac546a77a202b316aa5dbe15470d1bd89e1af335bcb178b",
+    "evidence/red-B-e40f-lab-convergence.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/red-B-e40f-lab-convergence.exit": "0",
+    "evidence/red-B-e40f-source.sha256": "f9acbaebd17a9c730b40d499b1948c9c69b475fb938523a4ff0764bcc7d8063b",
+    "evidence/full26-derivation-log.sha256": "bd643a97cb097c2231e2c8f456eb15eced968f649968222ea4e03cc77f5d577b"
+  }
+}

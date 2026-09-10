@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
-const brand = await import(join(repoRoot, 'packages/main/dist/core/lattice-brand.js'));
+const brand = await import(join(repoRoot, 'packages/main/dist/core/proof-or-stop-brand.js'));
 
 assert.equal(existsSync(join(repoRoot, 'bin/proof-or-stop.js')), true);
 assert.equal(existsSync(join(repoRoot, 'bin/proof-or-stop-codex.js')), true);
@@ -23,10 +23,10 @@ for (const path of ['bin/lattice.js', 'bin/lattice-codex.js', 'bin/proof-or-stop
   assert.ok(changelog.includes(path), `CHANGELOG.md announces ${path}`);
 }
 
-const residueSelfTest = execFileSync(process.execPath, ['scripts/verify-lattice-residue.mjs', '--self-test'], {
+const residueSelfTest = execFileSync(process.execPath, ['scripts/verify-proof-or-stop-residue.mjs', '--self-test'], {
   cwd: repoRoot,
   encoding: 'utf8',
 });
-assert.match(residueSelfTest, /PASS lattice-residue self-test:/, 'residue scanner executes its frozen/compatibility detector checks');
+assert.match(residueSelfTest, /PASS proof-or-stop-residue self-test:/, 'residue scanner executes its frozen/compatibility detector checks');
 
 console.log('bin-alias migration test passed');

@@ -20,7 +20,7 @@ export const REVIEW_LOOP_FILENAME = 'review-loops.jsonl';
 
 // Conservative default policy matching spec section 9.
 export const DEFAULT_REVIEW_LOOP_POLICY: ReviewLoopPolicy = {
-  schemaVersion: 'lattice.review_loop_policy.v1',
+  schemaVersion: 'proof-or-stop.review_loop_policy.v1',
   maxIterations: 5,
   maxNoProgressIterations: 2,
   maxRuntimeMinutes: 30,

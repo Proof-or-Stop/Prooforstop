@@ -19,7 +19,7 @@ import type {
 } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
-const PROPOSAL_SCHEMA_VERSION = 'lattice.decision_doc_proposals.v1' as const;
+const PROPOSAL_SCHEMA_VERSION = 'proof-or-stop.decision_doc_proposals.v1' as const;
 const DECISION_DOC_DIR = 'docs/requirements/decisions';
 const PROPOSAL_ID_RE = /^DDP-(\d{3})$/;
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * B-37e9 DONE Oracle Extraction: buildDoneChecklist + DONE row assembly.
  *
@@ -20,7 +21,7 @@ import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { evaluateDonePredicates, donePredicateValue, type DonePredicateResult, type evaluateReviewVerdict } from './machine.js';
-import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
+import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { evaluateDeclaredArtifactReferences } from './declared-artifact-gate.js';
 import {
   evaluateDeclaredArtifactCommitState,
@@ -484,14 +485,16 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // Keep done_prepare/session preflight aligned with the real TEST→DONE guard.
   // This record's contents remain non-authoritative; its existence is the
   // lifecycle completeness predicate enforced by machine.ts.
-  const finishDecision = donePredicates ? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision') : null;
+  const finishDecisionRead = donePredicates ? donePredicateValue<ReturnType<typeof inspectDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision') : null;
+  const finishDecision = finishDecisionRead?.record;
+  const unsupportedFinishDecision = finishDecisionRead?.unsupportedIdentity;
   const finishDecisionRow = {
     id: 'dev-memory-finish-decision',
     status: finishDecision ? 'pass' : 'fail',
     label: 'Dev-memory finish decision',
     detail: finishDecision
       ? `recorded: ${finishDecision.decision}`
-      : 'not recorded [missing_dev_memory_finish_decision]',
+      : unsupportedFinishDecision ? `Cannot enter DONE: ${unsupportedFinishDecision}. [unsupported_identity]` : 'not recorded [missing_dev_memory_finish_decision]',
     hint: finishDecision
       ? 'finish decision recorded'
       : `proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason`,
@@ -499,6 +502,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   } satisfies Omit<DoneCheckRow, 'blocking'>;
   if (donePredicates) rows.push(finishDecision
     ? doneCheckRow(finishDecisionRow)
+    : unsupportedFinishDecision ? doneBlockerRow('unsupported_identity', 'dev-memory-finish-decision', finishDecisionRow)
     : doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow));
 
   // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
@@ -681,7 +685,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         }));
       }
     }
-  } catch { /* ignore */ }
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* ignore */ }
 
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
   const deliveryCheckFreshness = donePredicates ? donePredicateValue<ReturnType<typeof evaluateDeliveryCheckFreshness>>(donePredicates, 'delivery-presence') : evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
@@ -786,7 +790,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       }));
     } else {
       let checklistData: ChecklistData | null = null;
-      try { checklistData = store.readChecklist(storyId); } catch { /* no checklist */ }
+      try { checklistData = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* no checklist */ }
       const refResult = evaluateDeclaredArtifactReferences(declared, checklistData, deliveryCheck);
       const referenced = refResult.total - refResult.unreferenced.length;
       if (refResult.unreferenced.length > 0) {

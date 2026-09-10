@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
   buildStoryReadinessReport,
@@ -178,7 +179,7 @@ function asReport<T>(v: unknown): T {
 function readChecklist(ctx: HandlerContext, storyId: string): ChecklistData {
   try {
     return ctx.store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return { items: [] };
   }
 }

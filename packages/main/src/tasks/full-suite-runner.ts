@@ -112,7 +112,6 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
 const heavySmokeClaim = (): ResourceClaim => ({ class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-heavy'), access: 'exclusive' });
 const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
   ({ ...isolated(name, options), resources: [heavySmokeClaim()] });
-
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
 // fails closed before execution.
@@ -132,7 +131,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference
   // name without a policy entry fails closed (unknownPolicy) before execution.
-  repoRead('test:residue-inject-repro'), repoRead('test:retired-authority-vocabulary-guard'),
+  repoRead('test:residue-inject-repro'),
+  // This guard runs 836 bounded TypeScript binding builds and invokes the real
+  // CLI against repoRoot, which appends repository activity. A jobs=3 witness
+  // timed out at the former 180s concurrent default while the same assertions
+  // passed standalone in 114s. Its generated-help probes use a disposable root,
+  // so it remains a shared repo reader with a finite standalone budget (360s
+  // after normal headroom) instead of creating a suite-wide writer barrier.
+  repoRead('test:retired-authority-vocabulary-guard', { timeoutMs: 240_000 }),
   repoRead('test:brand-path-resolver-smoke'), repoRead('test:config-filename-migration-smoke'),
   repoRead('test:core-package-rename'), repoRead('test:state-dir-migration'),
   repoRead('test:identity-state-migrate-atomicity'),
@@ -151,7 +157,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
   // B-9f2c: added to test:serial-reference by this story. RESOURCE_POLICY is a THIRD
   // membership authority beyond root package.json's test:serial-reference and
-  // lattice.config.json's validate.commands -- entriesFromSerialReference fails closed
+  // proof-or-stop.config.json's validate.commands -- entriesFromSerialReference fails closed
   // on any serial-reference member with no policy entry, aborting the whole suite rather
   // than skipping the member, so this entry is mandatory rather than optional. The task
   // only reads the repo and spawns the CLI against temporary directories; it binds no
@@ -171,7 +177,10 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // scheduler and lose child receipts to resource exhaustion.
   isolatedHeavy('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
-  isolatedHeavy('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
+  // Milestone coverage is bounded and temp-root isolated. Launch it only after
+  // ordinary work has drained, instead of adding its ~79s to the exclusive
+  // heavy chain or competing with the initial fan-out cohort.
+  isolated('test:milestone-status', { priority: -100 }), repoRead('test:global-core-realpath'),
   // Incremental-context coverage also creates multiple validation/review
   // subprocesses and temporary Story state.  Serialize it with the other
   // heavy fan-out members to keep child receipts deterministic under the
@@ -203,7 +212,10 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // letting the default 120s cap turn it into a scheduler false negative.
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
-  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  // The current 58-assertion rollout completes in 445s standalone on the
+  // reference host. Keep a finite 600s standalone budget; normal concurrency
+  // headroom raises it to 900s, still below the 1200s whole-suite ceiling.
+  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 600_000, priority: 1000 }),
   // B-a745 CHK-006: the Story 1 fixture suite. Membership authority is the root
   // test:serial-reference chain; this policy row is the SEPARATE mandatory mapping and
   // its absence fails the whole suite closed as unknownPolicy rather than skipping the
@@ -236,7 +248,25 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // CLAUDE.md, the decision document) and otherwise works inside its own runner-owned temp
   // git repos, spawning the CLI only against those temp roots; it holds no exclusive path,
   // port or lock, so repoRead is correct.
-  repoRead('test:narrowing-repin'),
+  // The authenticated receipt/narrowing matrix completes in 193s standalone
+  // and fans out real CLI fixtures. Preserve its repo-read claim and a finite
+  // 300s budget without extending the whole suite's serialized heavy path.
+  repoRead('test:narrowing-repin', { timeoutMs: 300_000 }),
+  // B-aa5f CHK-007: reads repository registration/source; real execution,
+  // artifact and inventory fixtures write only runner-owned temporary roots.
+  repoRead('test:review-inventory-epoch', { timeoutMs: 180_000 }),
+  // The full CHK-007 live identity/publication matrix exceeded the former 180s
+  // validation ceiling; use its audited bounded evidence budget. Existing
+  // concurrency headroom yields 900s at jobs>1, never an unlimited timeout.
+  // This Story-owned matrix now runs two environment-isolated shards. Start it
+  // after rollout so its internal fan-out does not starve ordinary protocol
+  // members during the saturated opening, while still overlapping the rest of
+  // the exclusive-heavy chain rather than waiting at inventory tail.
+  repoRead('test:verification-run-and-guard-smoke', {
+    timeoutMs: 600_000,
+    priority: 950,
+    after: ['test:proofstory-acceptance-rollout'],
+  }),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);
@@ -655,7 +685,7 @@ async function main(): Promise<void> {
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (jsonOutput) writeResultArtifact(jsonOutput, {
-    schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
+    schemaVersion: 'proof-or-stop.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
     performanceBudgetMs: FULL_SUITE_BUDGET_MS, performanceBudgetApplied, budgetBreached,
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
     maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs),

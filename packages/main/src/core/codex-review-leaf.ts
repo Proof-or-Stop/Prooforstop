@@ -49,9 +49,9 @@ import {
   type AcquiredHostRunSlot,
 } from './host-run.js';
 
-// ── Verdict schema `lattice.codex_review_verdict.v1` ──────────────────────────
+// ── Verdict schema `proof-or-stop.codex_review_verdict.v1` ──────────────────────────
 
-export const CODEX_REVIEW_VERDICT_SCHEMA = 'lattice.codex_review_verdict.v1' as const;
+export const CODEX_REVIEW_VERDICT_SCHEMA = 'proof-or-stop.codex_review_verdict.v1' as const;
 export type CodexReviewDecision = 'pass' | 'fail' | 'blocked';
 
 /**

@@ -1008,12 +1008,17 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         const authorityBinding = topologyAuthorityDispatchBinding(story, true);
-        const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
-        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
-          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
-        }
         const reviewerResponsibility: ReviewerDispatchResponsibility = { kind: 'topology-proof' };
-        const reviewerBinding = story.currentReviewRound ? (() => {
+        // PLAN/DEV dispatch signs the independent topology receipt provenance,
+        // but it is not REVIEW lane evidence and must not invent or inherit a
+        // reviewer-round binding. In REVIEW, a real current round and signed dispatch
+        // binding remain mandatory. Inventory responsibility is selected only
+        // by the explicit OPEN-inventory branch above.
+        const reviewerBinding = story.phase === 'REVIEW' ? (() => {
+          if (!story.currentReviewRound) {
+            throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+          }
+          const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
           const hostRenderHost = currentReviewerPromptHost();
           const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
@@ -1027,7 +1032,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
               reviewerResponsibility,
               storyId: args.storyId,
               lane: canonicalType,
-              reviewRound: story.currentReviewRound!,
+              reviewRound: story.currentReviewRound,
               dispatchPromptDigest,
               hostRenderIdentityDigest: hostIdentity.identityDigest,
             }),

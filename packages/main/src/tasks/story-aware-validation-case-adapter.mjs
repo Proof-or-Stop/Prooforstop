@@ -10,15 +10,12 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { validationChildEnvironment } from './validation-child-environment.mjs';
 
 const env = process.env;
-// B-45a0 F-447: read BOTH spellings, preferring the canonical PROOF_OR_STOP_*
-// name, per brand-rename-mapping.md's rule for LATTICE_* env vars ("Read both
-// names, preferring the new one. Never require the new name."). The producer in
-// handlers/story-aware-validation.ts now emits the canonical names; the
-// deprecated spelling stays readable so an already-exported env keeps working.
-const readShardEnv = (suffix) =>
-  env[`PROOF_OR_STOP_VALIDATION_${suffix}`] ?? env[`LATTICE_VALIDATION_${suffix}`];
+// Current shard authority requires the canonical environment contract. An
+// obsolete caller must fail before a directory or evidence file is created.
+const readShardEnv = (suffix) => env[`PROOF_OR_STOP_VALIDATION_${suffix}`];
 const registryPath = readShardEnv('SHARD_CASE_REGISTRY');
 const shardDir = readShardEnv('SHARD_DIR');
 const domain = readShardEnv('SHARD_DOMAIN');
@@ -61,7 +58,11 @@ for (const caseId of requestedIds) {
     throw new Error(`DYN-5 case ${caseId} has no executable runner`);
   }
   const runnerCwd = runner.cwd ? resolve(projectRoot, runner.cwd) : projectRoot;
-  const runnerEnv = { ...process.env, ...(runner.env || {}) };
+  const runnerEnv = validationChildEnvironment({
+    ...(runner.env || {}),
+    // PWD is causal only after it is rebound to the exact cwd used by spawn.
+    PWD: runnerCwd,
+  });
   const execution = spawnSync(runner.command, runner.args, {
     cwd: runnerCwd,
     env: runnerEnv,

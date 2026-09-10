@@ -225,8 +225,8 @@ try {
     );
     assert.equal(
       resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'lattice-review-delivery' }, 'B-c55d'),
-      'reviewerWrite',
-      'delivery_check_set by the delivery reviewer is reviewerWrite (owner-lease exempt)',
+      'storyScopedMutating',
+      'retired delivery identity cannot acquire the reviewer owner-lease exemption',
     );
     assert.equal(
       resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'main' }, 'B-c55d'),

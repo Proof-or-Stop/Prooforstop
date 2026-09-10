@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+
+export const QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION = 'proof-or-stop.queue_governance_status.v1' as const;
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -41,8 +43,8 @@ type QueueExceptionSource = QueueExceptionRecord['source'];
 type QueueExceptionInputSource = QueueExceptionSource | 'tier-c-prefix';
 
 interface QueueExceptionRegistry {
-  schemaVersion: 'lattice.queue_exception_registry.v1';
-  policyVersion: 'proofbound.queue_exception.v1';
+  schemaVersion: 'proof-or-stop.queue_exception_registry.v1';
+  policyVersion: 'proof-or-stop.queue_exception.v1';
   exceptions: QueueExceptionRecord[];
 }
 
@@ -71,8 +73,8 @@ function auditPath(root: string): string {
 
 function emptyRegistry(): QueueExceptionRegistry {
   return {
-    schemaVersion: 'lattice.queue_exception_registry.v1',
-    policyVersion: 'proofbound.queue_exception.v1',
+    schemaVersion: 'proof-or-stop.queue_exception_registry.v1',
+    policyVersion: 'proof-or-stop.queue_exception.v1',
     exceptions: [],
   };
 }
@@ -88,8 +90,8 @@ export function readQueueExceptionRegistry(root: string): QueueExceptionRegistry
         .filter((record): record is QueueExceptionRecord => record !== null)
       : [];
     return {
-      schemaVersion: 'lattice.queue_exception_registry.v1',
-      policyVersion: 'proofbound.queue_exception.v1',
+      schemaVersion: 'proof-or-stop.queue_exception_registry.v1',
+      policyVersion: 'proof-or-stop.queue_exception.v1',
       exceptions,
     };
   } catch {
@@ -118,7 +120,7 @@ function writeQueueExceptionRegistry(root: string, registry: QueueExceptionRegis
 function isQueueExceptionRecord(value: unknown): value is QueueExceptionRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
-  return record.policyVersion === 'proofbound.queue_exception.v1' &&
+  return record.policyVersion === 'proof-or-stop.queue_exception.v1' &&
     record.class === 'experiment-batch-exception' &&
     typeof record.exceptionId === 'string' &&
     typeof record.experimentBatchId === 'string' &&
@@ -165,7 +167,7 @@ export function setQueueException(root: string, input: QueueExceptionSetInput): 
   const storyIds = [...new Set(input.storyIds.map((id) => id.trim()))].sort();
   const record: QueueExceptionRecord = {
     exceptionId: exceptionId({ ...input, storyIds }),
-    policyVersion: 'proofbound.queue_exception.v1',
+    policyVersion: 'proof-or-stop.queue_exception.v1',
     class: 'experiment-batch-exception',
     experimentBatchId: input.experimentBatchId,
     storyIds,
@@ -194,7 +196,7 @@ export function setQueueException(root: string, input: QueueExceptionSetInput): 
   mkdirSync(dirname(auditPath(root)), { recursive: true });
   appendFileSync(auditPath(root), JSON.stringify({ ...auditEvent, exceptionId: record.exceptionId, actor: record.actor }) + '\n', 'utf-8');
   return {
-    schemaVersion: 'lattice.queue_exception_set.v1',
+    schemaVersion: 'proof-or-stop.queue_exception_set.v1',
     ...record,
     written: true,
     auditEvent,
@@ -246,7 +248,7 @@ function durableExperimentException(story: StoryInfo, root: string, now: string)
       source: 'explicit',
       dashboardMode: queue?.dashboardMode === 'expanded' ? 'expanded' : 'collapsed',
     }),
-    policyVersion: 'proofbound.queue_exception.v1',
+    policyVersion: 'proof-or-stop.queue_exception.v1',
     class: 'experiment-batch-exception',
     experimentBatchId,
     storyIds,
@@ -276,7 +278,7 @@ function migrationTitlePrefixException(story: StoryInfo, root: string, now: stri
       reason: 'Tier-C migration title-prefix discovery.',
       source: 'migration-title-prefix',
     }),
-    policyVersion: 'proofbound.queue_exception.v1',
+    policyVersion: 'proof-or-stop.queue_exception.v1',
     class: 'experiment-batch-exception',
     experimentBatchId: TIER_C_EXPERIMENT_BATCH_ID,
     storyIds,
@@ -480,7 +482,7 @@ export function projectQueueGovernance(
   };
 
   return {
-    schemaVersion: 'lattice.queue_governance_status.v1',
+    schemaVersion: QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION,
     readOnly: true,
     generatedAt: now,
     projectRoot: root,

@@ -9,7 +9,7 @@ import { basename } from 'path';
  * fail loudly — the bump silently stops finding the constant. It is kept
  * verbatim and aliased forward instead; see PROOF_OR_STOP_CLI_VERSION below.
  */
-export const PROOF_OR_STOP_CLI_VERSION = '0.3.284' as const;
+export const PROOF_OR_STOP_CLI_VERSION = '0.3.296' as const;
 
 /**
  * Brand-forward READ alias for {@link PROOF_OR_STOP_CLI_VERSION}. New code should read
@@ -21,24 +21,9 @@ export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;
 export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
 /** Canonical root package identity used by self-host/runtime checks. */
 export const PROOF_OR_STOP_ROOT_PACKAGE_NAME = 'proof-or-stop' as const;
-/** Deprecated root package identity accepted while older checkouts are upgraded. */
-export const PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME = 'lattice' as const;
-
-/**
- * Deprecated bin token retained for migration diagnostics. B-cc10 CHK-006
- * removed bin/lattice.js, so this token is not an active package or runtime
- * bin and must not be emitted in usage text.
- */
-export const PROOF_OR_STOP_DEPRECATED_BIN = 'lattice' as const;
 
 /** Canonical local Codex entrypoint basename (`bin/proof-or-stop-codex.js`). */
 export const PROOF_OR_STOP_PRIMARY_CODEX_BIN = 'proof-or-stop-codex' as const;
-
-/**
- * Deprecated local Codex entrypoint basename (`bin/lattice-codex.js`), retained
- * for migration diagnostics only. The retired name is not an active usage bin.
- */
-export const PROOF_OR_STOP_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
 
 /**
  * Every canonical bin token the CLI answers to.
@@ -47,8 +32,8 @@ export const PROOF_OR_STOP_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
  * reader can actually paste back: without them, `resolveUsageBin` would treat
  * `proof-or-stop-codex` as an unrecognized script and print the plain
  * `proof-or-stop` usage, losing the `source=codex` entrypoint the operator used.
- * Retired lattice names are intentionally excluded and fall back to the
- * canonical `proof-or-stop` usage form.
+ * Unrecognized invocation names are excluded and fall back to the canonical
+ * `proof-or-stop` usage form.
  */
 export const PROOF_OR_STOP_BIN_NAMES: readonly string[] = [
   PROOF_OR_STOP_PRIMARY_BIN,

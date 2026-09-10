@@ -149,6 +149,44 @@ const cleanup: string[] = [];
 
 console.log('running product-capability-release-smoke...');
 
+check('B-49df new capability provenance persists only a truthful capability-material subset', () => {
+  const root = mkdtemp('capability-release-canonical-scope-');
+  cleanup.push(root);
+  const retired = ['lat', 'tice'].join('');
+  const fullPaths = [...B785E_OPTS.changedPaths, `.${retired}/runtime/host-runs/old.json`,
+    `packages/main/bin/${retired}`, 'packages/main/src/core/example.ts'];
+  const result = recordCapabilityReleaseForDoneMerge({ root, storyId: 'B-scope', changedPaths: fullPaths,
+    runtimeSemverChanged: false, mainCommit: 'a'.repeat(40) });
+  const record = result.record! as ProductCapabilityReleaseRecord & { changedPathsScope?: string };
+  assert.equal(record.changedPathsScope, 'capability-material');
+  assert.deepEqual(record.changedPaths, classifyCapabilityRelease(fullPaths)!.capabilityPaths);
+  assert.ok(!JSON.stringify(record).includes(retired));
+  assert.equal(record.capabilityDigest, computeCapabilityDigest(record.capabilityId,
+    record.capabilityKind, record.changedPaths, record.artifactSetDigest));
+  assert.equal(readCapabilityReleaseLedger(root).length, 1);
+  const canonicalOld = { ...record };
+  delete canonicalOld.changedPathsScope;
+  writeCapabilityReleaseLedgerForTest(root, [canonicalOld]);
+  assert.equal(readCapabilityReleaseLedger(root).length, 1, 'unmarked canonical v1 remains read-only compatible');
+  const bytes = readFileSync(capabilityReleaseLedgerPath(root), 'utf8');
+  assert.throws(() => appendCapabilityReleaseRecord(root, canonicalOld), /changedPathsScope/,
+    'unmarked input is refused before even an idempotent append lookup');
+  assert.equal(readFileSync(capabilityReleaseLedgerPath(root), 'utf8'), bytes);
+  for (const patch of [
+    { changedPathsScope: 'full-done-diff' },
+    { changedPaths: [...record.changedPaths, `.${retired}/runtime/old.json`].sort() },
+    { changedPaths: ['docs/changed-input.md'] },
+    { artifactSetDigest: `sha256:${'0'.repeat(64)}` },
+  ]) {
+    const tampered = { ...record, ...patch } as ProductCapabilityReleaseRecord;
+    writeCapabilityReleaseLedgerForTest(root, [tampered]);
+    assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+    const before = readFileSync(capabilityReleaseLedgerPath(root), 'utf8');
+    assert.throws(() => appendCapabilityReleaseRecord(root, tampered), CapabilityReleaseLedgerError);
+    assert.equal(readFileSync(capabilityReleaseLedgerPath(root), 'utf8'), before);
+  }
+});
+
 check('capabilityDigest is deterministic and merge-stable (no mainCommit)', () => {
   const a = computeCapabilityDigest(B785E_OPTS.capabilityId, B785E_OPTS.capabilityKind, B785E_OPTS.capabilityPaths, B785E_OPTS.artifactSetDigest);
   const b = computeCapabilityDigest(B785E_OPTS.capabilityId, B785E_OPTS.capabilityKind, [...B785E_OPTS.capabilityPaths].reverse(), B785E_OPTS.artifactSetDigest);
@@ -210,14 +248,15 @@ check('append dedups on idempotencyKey (recorded -> already_recorded, even with 
   assert.equal(readCapabilityReleaseLedger(root).length, 1);
 });
 
-check('reader filters by schemaVersion and returns valid rows', () => {
+check('reader rejects an unsupported identity schema instead of silently filtering it', () => {
   const root = mkdtemp('capability-release-read-');
   const record = createCapabilityReleaseRecordForTest({ ...B785E_OPTS, root });
   writeCapabilityReleaseLedgerForTest(root, [record]);
   appendFileSync(capabilityReleaseLedgerPath(root), `${JSON.stringify({ schemaVersion: 'other.v9' })}\n`, 'utf-8');
-  const rows = readCapabilityReleaseLedger(root);
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].schemaVersion, CAPABILITY_RELEASE_SCHEMA_VERSION);
+  assert.throws(
+    () => readCapabilityReleaseLedger(root),
+    /unsupported identity schema.*proof-or-stop\.product-capability-release\.v1/i,
+  );
 });
 
 check('reader FAILS CLOSED on authority !== non_authoritative', () => {

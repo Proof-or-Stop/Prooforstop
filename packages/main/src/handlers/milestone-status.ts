@@ -7,6 +7,7 @@ import {
   currentMilestoneStatusEvidenceBinding,
   MILESTONE_CLOSEOUT_FILENAME,
   MILESTONE_CLOSEOUT_SCHEMA_VERSION,
+  MILESTONE_STATUS_SCHEMA_VERSION,
   renderMilestoneCloseoutMissingReport,
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusBrief,
@@ -15,6 +16,7 @@ import {
   type MilestoneCloseoutSnapshot,
   type MilestoneStatusReport,
 } from '../core/milestone-status.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { wantsFullOutput } from '../cli/output-verbosity.js';
 
@@ -148,6 +150,7 @@ export function captureMilestoneCloseoutSnapshotFromStore(
 
 export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   function milestoneStatus(args: MilestoneStatusArgs): MilestoneStatusReport | string {
+    assertActiveIdentityConsumerContract('milestone-status', MILESTONE_STATUS_SCHEMA_VERSION);
     assertMilestoneStatusReadOnlyBoundary(args);
     const story = ctx.store.readStory(args.storyId);
     if (story.phase === 'DONE') {

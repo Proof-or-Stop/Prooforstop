@@ -1,6 +1,6 @@
 import { domainSeparatedDigest } from './prompt-contracts.js';
 
-export const IMPACT_CLASSIFICATION_POLICY_VERSION = 'proofbound.impact-classification.v1';
+export const IMPACT_CLASSIFICATION_POLICY_VERSION = 'proof-or-stop.impact-classification.v1';
 
 export type ImpactCategory =
   | 'no-material-change'

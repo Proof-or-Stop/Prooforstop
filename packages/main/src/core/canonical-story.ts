@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * @task B-3b99
  * @checklist CHK-002
@@ -78,7 +79,8 @@ function canonicalPhase(phase: StoryPhase): CanonicalStory['lifecycle']['phase']
 function safeRead<T>(label: string, fn: () => T, warnings: string[], fallback: T): T {
   try {
     return fn();
-  } catch {
+  } catch (error) {
+    rethrowIntentAmendmentIntegrityError(error);
     warnings.push(`missing optional story artifact: ${label}`);
     return fallback;
   }

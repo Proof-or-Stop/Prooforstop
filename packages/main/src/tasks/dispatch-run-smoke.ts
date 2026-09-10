@@ -313,7 +313,7 @@ try {
   assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.category, 'proof-or-stop-dispatch', 'dispatch_reassign must be proof-or-stop-dispatch category');
 
   const runtimeList = run<HostRuntimeList>('host_runtime_list');
-  assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.equal(runtimeList.schemaVersion, 'proof-or-stop.host_runtime_list.v1');
   assert.deepEqual(runtimeList.runtimes.map(runtime => runtime.host), ['fake', 'codex', 'claude-code', 'antigravity']);
   assert.equal(runtimeList.runtimes.find(runtime => runtime.host === 'fake')?.status, 'ready');
   assertAuthorityFalse(runtimeList, 'runtimeList');
@@ -338,7 +338,7 @@ try {
   // Must work whether claude is installed or not
   const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
   assert.equal(claudeProbe.host, 'claude-code');
-  assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.equal(claudeProbe.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
   assert.deepEqual(
     claudeProbe.invocationTemplate,
     canonicalReviewHostLauncherSpec('claude').launcherArgv,
@@ -370,7 +370,7 @@ try {
   const antigravityProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
   assert.equal(antigravityProbe.host, 'antigravity');
   assert.equal(antigravityProbe.requestedHost, 'antigravity');
-  assert.equal(antigravityProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.equal(antigravityProbe.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
   assert.equal(antigravityProbe.cliCommand, 'agy');
   assert.ok(antigravityProbe.invocationTemplate?.includes('--print'), 'antigravity template must use agy --print');
   assert.ok(antigravityProbe.invocationTemplate?.includes('--print-timeout'), 'antigravity template must include --print-timeout');
@@ -468,9 +468,9 @@ try {
   const legalRuntimeOutput = 'reports/runtime-list.json';
   const legalRuntimeOutputPath = join(root, legalRuntimeOutput);
   const legalRuntimeList = run<HostRuntimeList>('host_runtime_list', { output: legalRuntimeOutput });
-  assert.equal(legalRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.equal(legalRuntimeList.schemaVersion, 'proof-or-stop.host_runtime_list.v1');
   assert.equal(existsSync(legalRuntimeOutputPath), true, 'repo-local output should be created');
-  assert.equal(JSON.parse(readFileSync(legalRuntimeOutputPath, 'utf8')).schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.equal(JSON.parse(readFileSync(legalRuntimeOutputPath, 'utf8')).schemaVersion, 'proof-or-stop.host_runtime_list.v1');
   assert.throws(
     () => run<HostRuntimeList>('host_runtime_list', { output: legalRuntimeOutput }),
     /refusing to overwrite existing file/,
@@ -497,7 +497,7 @@ try {
     successCriteria: ['Plan only'],
     parallel: 2,
   });
-  assert.equal(plan.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(plan.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.equal(plan.status, 'planned');
   assert.equal(plan.selectedHost, 'fake');
   assert.equal(plan.parallel, 2);
@@ -618,7 +618,7 @@ try {
     parallel: 2,
   });
   const parallelRun = run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-parallel' });
-  assert.equal(parallelRun.schemaVersion, 'lattice.dispatch_run.v1');
+  assert.equal(parallelRun.schemaVersion, 'proof-or-stop.dispatch_run.v1');
   assert.equal(parallelRun.status, 'accepted_local');
   assert.equal(parallelRun.parallel, 2);
   assert.equal(parallelRun.workers.length, 2);
@@ -809,7 +809,7 @@ try {
     role: explicitWorkerRole,
     objective: 'Continue the completed worker output with explicit fresh-context instructions.',
   });
-  assert.equal(reassigned.schemaVersion, 'lattice.dispatch_reassign.v1');
+  assert.equal(reassigned.schemaVersion, 'proof-or-stop.dispatch_reassign.v1');
   assert.equal(reassigned.mode, 'fresh-context');
   assert.equal(reassigned.previousDispatchId, cancelRecord.dispatchId);
   assert.notEqual(reassigned.dispatchId, cancelRecord.dispatchId);
@@ -935,7 +935,7 @@ try {
     storyId: 'B-dispatch',
     objective: 'Default auto suggestion should not require an explicit fake host.',
   });
-  assert.equal(autoSuggested.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(autoSuggested.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.equal(autoSuggested.requestedHost, 'auto');
   assert.ok(autoSuggested.warnings.some(warning => /suggest-only/i.test(warning)));
   assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto default host=auto must not materialize dispatch records');
@@ -944,7 +944,7 @@ try {
     host: 'fake',
     objective: 'Suggest only.',
   });
-  assert.equal(suggested.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(suggested.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.ok(suggested.warnings.some(warning => /suggest-only/i.test(warning)));
   assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto default must not materialize dispatch records');
   const startOnly = run<DispatchPlanResult>('overflow_auto', {
@@ -953,7 +953,7 @@ try {
     objective: 'Start-only must stay suggest-only.',
     start: true,
   });
-  assert.equal(startOnly.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(startOnly.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.ok(startOnly.warnings.some(warning => /start=true without approve=true/i.test(warning)));
   assert.match(startOnly.nextAction, /approve=true --start=true/);
   assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto start=true alone must stay suggest-only');
@@ -963,7 +963,7 @@ try {
     objective: 'Approve-only must stay suggest-only.',
     approve: true,
   });
-  assert.equal(approveOnly.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(approveOnly.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.ok(approveOnly.warnings.some(warning => /approve=true without start=true/i.test(warning)));
   assert.match(approveOnly.nextAction, /approve=true --start=true/);
   assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto approve=true alone must stay suggest-only');
@@ -1047,7 +1047,7 @@ try {
     host: 'fake',
     allowedPaths: ['packages/main/src/generated/malicious-overflow-suggest.txt'],
   });
-  assert.equal(maliciousOverflowSuggest.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(maliciousOverflowSuggest.schemaVersion, 'proof-or-stop.dispatch_plan.v1');
   assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .proof-or-stop/dispatches');
   for (const [command, args] of [
     ['dispatch_prepare', {
@@ -1346,7 +1346,7 @@ try {
     allowAutoMerge: false,
     allowProductionDone: false,
   });
-  assert.equal(policyCreateResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyCreateResult.schemaVersion, 'proof-or-stop.dispatch_policy.v1');
   assert.equal(policyCreateResult.policy, 'nightly-safe');
   assert.deepEqual(policyCreateResult.allowedHosts, ['fake']);
   assert.equal(policyCreateResult.allowAutoMerge, false);
@@ -1355,12 +1355,12 @@ try {
   assert.equal(policyCreateResult.requireReview, true);
 
   const policyGetResult = run<DispatchPolicy>('dispatch_policy_get', { policy: 'nightly-safe' });
-  assert.equal(policyGetResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyGetResult.schemaVersion, 'proof-or-stop.dispatch_policy.v1');
   assert.equal(policyGetResult.policy, 'nightly-safe');
   assert.deepEqual(policyGetResult.allowedHosts, ['fake']);
 
   const policyCheckAuthorized = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'nightly-safe' });
-  assert.equal(policyCheckAuthorized.schemaVersion, 'lattice.dispatch_policy_check.v1');
+  assert.equal(policyCheckAuthorized.schemaVersion, 'proof-or-stop.dispatch_policy_check.v1');
   assert.equal(policyCheckAuthorized.policy, 'nightly-safe');
   assert.equal(policyCheckAuthorized.authorized, true);
   assert.equal(policyCheckAuthorized.status, 'authorized');
@@ -1513,7 +1513,7 @@ try {
     const antigravityProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'antigravity' });
     assert.equal(antigravityProbe4.host, 'antigravity');
     assert.equal(antigravityProbe4.requestedHost, 'antigravity');
-    assert.equal(antigravityProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.equal(antigravityProbe4.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
     assert.equal(antigravityProbe4.cliCommand, 'agy');
     assert.ok(VALID_VERSION_STATUS.includes(antigravityProbe4.versionStatus),
       `antigravity versionStatus must be valid, got ${antigravityProbe4.versionStatus}`);
@@ -1562,7 +1562,7 @@ try {
     // legacy gemini probe: compatibility only, not part of the current runtime list
     const geminiProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
     assert.equal(geminiProbe4.host, 'gemini');
-    assert.equal(geminiProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.equal(geminiProbe4.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
     assert.ok(geminiProbe4.warnings.some(warning => /deprecated legacy compatibility/i.test(warning)));
     assert.ok(VALID_VERSION_STATUS.includes(geminiProbe4.versionStatus),
       `gemini versionStatus must be valid, got ${geminiProbe4.versionStatus}`);
@@ -1604,7 +1604,7 @@ try {
     // codex probe: must expose structured fields regardless of session/CLI availability
     const codexProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
     assert.equal(codexProbe4.host, 'codex');
-    assert.equal(codexProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.equal(codexProbe4.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
     assert.ok(VALID_VERSION_STATUS.includes(codexProbe4.versionStatus),
       `codex versionStatus must be valid, got ${codexProbe4.versionStatus}`);
     assert.ok(VALID_LOGIN_READINESS.includes(codexProbe4.loginReadiness),
@@ -1713,7 +1713,7 @@ try {
   function assertRunnerShape(runner: unknown, label: string): void {
     assert.ok(runner && typeof runner === 'object', `${label} must be an object`);
     const r = runner as DispatchRunnerRecord;
-    assert.equal(r.schemaVersion, 'lattice.dispatch_runner.v1', `${label}.schemaVersion`);
+    assert.equal(r.schemaVersion, 'proof-or-stop.dispatch_runner.v1', `${label}.schemaVersion`);
     assert.ok(typeof r.dispatchId === 'string' && r.dispatchId.length > 0, `${label}.dispatchId must be non-empty`);
     assert.ok(typeof r.host === 'string', `${label}.host must be a string`);
     assert.ok(['fake', 'scaffolded', 'refused'].includes(r.runnerKind), `${label}.runnerKind must be fake|scaffolded|refused, got ${r.runnerKind}`);
@@ -1898,14 +1898,14 @@ try {
       allowedPaths: ['packages/main/src/generated/chk006-auto.txt'],
       objective: 'CHK-006 authorized fake dispatch_auto',
     });
-    assert.equal(autoResult.schemaVersion, 'lattice.dispatch_auto.v1', 'dispatch_auto must return lattice.dispatch_auto.v1 schema');
+    assert.equal(autoResult.schemaVersion, 'proof-or-stop.dispatch_auto.v1', 'dispatch_auto must return proof-or-stop.dispatch_auto.v1 schema');
     assert.equal(autoResult.status, 'accepted_local', 'authorized fake dispatch_auto must reach accepted_local');
     assert.equal(autoResult.policy, 'fake', 'dispatch_auto result must echo policy name');
     assert.equal(autoResult.host, 'fake', 'dispatch_auto with fake policy must use fake host');
     assertAuthorityFalse(autoResult, 'autoResult');
 
     const watchAccepted = run<DispatchWatchResult>('dispatch_watch', { dispatchId: autoResult.dispatchId });
-    assert.equal(watchAccepted.schemaVersion, 'lattice.dispatch_watch.v1', 'dispatch_watch must return lattice.dispatch_watch.v1 schema');
+    assert.equal(watchAccepted.schemaVersion, 'proof-or-stop.dispatch_watch.v1', 'dispatch_watch must return proof-or-stop.dispatch_watch.v1 schema');
     assert.equal(watchAccepted.dispatchId, autoResult.dispatchId, 'dispatch_watch dispatchId must match');
     assert.equal(watchAccepted.storyId, 'B-chk006-auto', 'dispatch_watch storyId must match');
     assert.equal(watchAccepted.status, 'accepted_local', 'dispatch_watch must report accepted_local after dispatch_auto');
