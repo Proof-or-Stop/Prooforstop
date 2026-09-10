@@ -8290,6 +8290,10 @@ function assertParentRoadmapTotalityRuntime() {
 // weakening its registry semantics cannot make dynamic validation appear
 // authoritative while the production registry silently loses its evidence.
 function assertStoryAwareDynamicValidationRuntime() {
+  assert(read('packages/main/src/core/validation-authority-graph.ts').includes('PROCESS_FACT_REGISTRY'), 'authority source closure must use registered process facts');
+  assert(read('packages/main/src/core/story-aware-validation.ts').includes('authorityReasons(change)'), 'dynamic plan must consume authority closure reasons');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:full_task_scope_authority'), 'scope inventory gate must be explicitly registered');
+  assert(read('scripts/verify-validation-authority-graph.mjs').includes('base dependency must survive head edge removal'), 'authority graph requires dual-revision regression');
   const levelText = read('packages/main/src/core/process-fact-levels.ts');
   const registryText = read('packages/main/src/core/process-fact-registry.ts');
   const facts = [

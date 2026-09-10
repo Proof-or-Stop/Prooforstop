@@ -324,3 +324,22 @@ registered-suite launches. The exact cross-host `--xhr-worker` and
 `--xhr-submitter` self-dispatch modes are fixture roles and remain allowed;
 plain self-invocation is rejected. The inventory check alone proves no runtime flattening;
 the seven-member trace is bounded coverage, not a whole-registry trace.
+
+## Authority changes in dynamic validation
+
+Dynamic runner v6 upgrades changes to registered gate/schema/verification
+authority sources to full validation, including the full task scope inventory
+validator. It also follows their source dependencies in both Git revisions, so
+removing a dependency in HEAD does not erase the baseline authority relationship.
+The graph identity binds authority roots, members, uncertainty and policy version.
+Missing graphs, unavailable source, parse failures and opaque or unresolved
+authority imports force full rather than establish an unaffected result.
+
+This conservative resolver currently treats non-builtin package/alias imports
+in an authority closure as unresolved. Projects with such imports can lose
+incremental eligibility until those resolutions are proven; this change does not
+claim improved speed for those projects. External projects without these
+registered tool-source identities do not have to recreate them. Existing final
+full-validation requirements remain unchanged. The six paired fault witnesses
+under `scripts/lab/u09-paired-fault` measure bounded functional detection and
+command selection, not population noninferiority or external LLM review quality.

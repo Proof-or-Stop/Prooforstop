@@ -34,7 +34,7 @@ try{
  assert.equal(baseline.allPass,true,JSON.stringify(baseline.commands));assert.ok(persistCanonicalFullBaseline({projectRoot:root,sourceHead:head,result:baseline,commands:configured}));
  const warm=await runStoryAwareDynamicValidation({projectRoot:root,gitCwd:root,storyId,baseHead:head,head,mode:'enforce-low-risk',commands:configured});
  if(!warm.authority.authoritative)console.error(readFileSync(join(root,".proof-or-stop/runtime/dynamic-validation/canonical-baseline.json"),"utf8"));assert.equal(warm.authority.authoritative,true,JSON.stringify(warm.authority));assert.equal(warm.dynamicAllPass,true);
- let mutant=caseId==='POLICY-01'?healthy.replace('return COMMAND_POLICIES[command];','return undefined as never;'):caseId==='GATE-01'?healthy.replace('pathsPerList: 4096','pathsPerList: 1'):healthy.replace('value=1','value=2');
+ let mutant=caseId==='POLICY-01'?healthy.replace('return COMMAND_POLICIES[command as KnownCommandName];','return undefined;'):caseId==='GATE-01'?healthy.replace('pathsPerList: 4096','pathsPerList: 1'):healthy.replace('value=1','value=2');
  assert.notEqual(mutant,healthy);write(targetPath,mutant);
  if(caseId==='UNKNOWN-01')write('unknown-area/unmapped.txt','unknown fault-associated path');
  git('add','.');git('commit','-qm',caseId+' mutation');const currentHead=git('rev-parse','HEAD');
@@ -45,6 +45,8 @@ try{
  const f=whole.commands.find(c=>c.label==='unaffected'),d=scoped.selectedResult.commands.find(c=>c.label==='unaffected');
  for(const r of [f,d]){assert.ok(r);assert.notEqual(r.code,0);assert.match(r.output,/paired (policy|gate|dependency) defect/);}
  console.log(JSON.stringify({observedCase:caseId,fullEscalated:scoped.manifest.fullEscalated,reasons:scoped.manifest.escalationReasons,full:whole.commands.map(c=>({label:c.label,code:c.code,output:c.output})),scoped:[...scoped.buildResult.commands,...scoped.selectedResult.commands].map(c=>({label:c.label,code:c.code,output:c.output}))}));
+ if(caseId==='DEP-01'){assert.equal(scoped.manifest.fullEscalated,false,'unrelated authority-free dependency remains selective');assert.ok(!scoped.selectedResult.commands.some(c=>c.label==='sentinel'),'unaffected sentinel is omitted');}
+ if(caseId==='GATE-01')assert.ok(scoped.manifest.escalationReasons.includes('authority-source-changed:'+targetPath),'direct registered gate authority is identified');
  if(['POLICY-01','GATE-01','UNKNOWN-01'].includes(caseId)){assert.equal(scoped.manifest.fullEscalated,true,'U09_GATE_AUTOMATIC_FULL_REQUIRED '+JSON.stringify(scoped.manifest));assert.deepEqual([...scoped.buildResult.commands,...scoped.selectedResult.commands].map(c=>c.label),configured.map(c=>c.label));}
  console.log(JSON.stringify({caseId,productionModule:production,mutation:{healthySha256:createHash('sha256').update(healthy).digest('hex'),mutantSha256:createHash('sha256').update(mutant).digest('hex'),before:healthy.length,after:mutant.length},fullEscalated:scoped.manifest.fullEscalated,reasons:scoped.manifest.escalationReasons,full:whole.commands.map(c=>({label:c.label,code:c.code,output:c.output})),scoped:[...scoped.buildResult.commands,...scoped.selectedResult.commands].map(c=>({label:c.label,code:c.code,output:c.output}))}));
 }finally{if(oldValue===undefined)delete process.env[KEY];else process.env[KEY]=oldValue;process.chdir(old);rmSync(root,{recursive:true,force:true});}

@@ -21,3 +21,31 @@ Declared environment values use the executor's effective environment normalizati
 - Build, process/runtime fact contracts, core dynamic smoke and final full-plan regression passed. Source/dist build binding: `0717ba288bd4:da5ef439c602` (source changes tested before the repair commit).
 
 At the end of this cross-commit cycle, the standalone production shard smoke was separately unresolved: after repairing its retired fixture configuration filename, it reaches the original seven-receipt assertion but produces zero receipts because adapter registration rejects the current bytes. Its failure is preserved, not counted as a pass. The subsequent [shard adapter identity repair](u09-shard-adapter-identity.md) closes this failure with the original assertions retained. No formal Story DONE, full-suite/P95 claim or release is asserted here.
+
+## Registered authority fault follow-up
+
+The fixed follow-up RED at `adc894bddd` uses
+`node scripts/lab/u09-paired-fault/module-pair.mjs`. It copies the actual scope
+inventory validator at its canonical TypeScript source path, first proves the
+healthy baseline, then changes the 4096-path limit to 1. Both full and scoped
+children detected the same assertion failure, but the old scoped planner failed
+to escalate and omitted the sentinel command. No protected-file override is used.
+
+Runner v6 now classifies registered authority sources and the union of their
+base/head dependencies. Independent review also reproduced aliased
+`createRequire` and import-type omissions; both now have regression protection.
+Opaque loader capabilities, unparsed sources and unresolved imports force full.
+Graph identity includes the authority closure and policy.
+
+All six predefined paired cases passed: dependency, actual policy, actual gate,
+unmapped changed path, declared environment, and selector changes. The real Git
+graph controls passed for helper changes, removed baseline edges, opaque imports,
+type dependencies and an unrelated local source. The existing joint regression
+still observes 29,944 versus 25,529 prompt bytes and retains command reuse while
+catching the same injected defect; final full-plan regression also passed.
+
+These are bounded fixtures. The registered closure in this actual repository has
+unresolved external/dynamic imports and therefore falls back to full for ordinary
+changes. No repository-wide incremental speedup or statistical miss-rate claim is
+made. Restoring selective eligibility for those paths requires proof of dependency
+resolution, not treating an unknown edge as absent.

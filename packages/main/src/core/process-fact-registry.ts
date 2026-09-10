@@ -1935,6 +1935,15 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
 
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   {
+    name: 'runtime:full_task_scope_authority', kind: 'runtime-behavior', level: 'L4',
+    semantics: ['schema-contract', 'gate-evidence'], gateEvidence: true,
+    producer: 'core/prompt-contracts',
+    producerSourceRefs: ['packages/main/src/core/prompt-contracts.ts', 'packages/main/src/core/scope-inventory-budget.ts'],
+    consumerSourceRefs: ['packages/main/src/core/prompt-envelope.ts', 'packages/main/src/core/review-run.ts'],
+    consumerGate: 'Full task scope validation before signed reviewer context consumption',
+    rationale: 'Exact authority inventory shape and capacity are mechanically validated; changes to this validator or its source dependencies force full validation.',
+  },
+  {
     name: 'runtime:managed_review_readonly_build', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'workspace-binding', 'freshness-policy', 'gate-evidence'],
     producer: 'core/managed-review-lane + core/managed-host-run',
