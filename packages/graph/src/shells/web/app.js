@@ -9,6 +9,7 @@ function fTime(v){ const d=D(v); return d?`${P2(d.getHours())}:${P2(d.getMinutes
 
 /* Managed runtime changes are independent of the Story graph's content hashes. */
 const managedNotificationMemory=new Set();
+const managedNotificationBaselines=new Map();
 let latestManagedStatus=null;
 function renderManagedRunStatus(status){
   latestManagedStatus=status;
@@ -30,21 +31,52 @@ function renderManagedRunStatus(status){
     fragment.append(row);
   }
   list.replaceChildren(fragment);
-  // Background tabs have not shown the owner a notification. Replay on visibility.
-  if(document.hidden)return;
   const storageKey='proof-or-stop:managed-terminals:'+status.root;
+  let baseline=managedNotificationBaselines.get(storageKey);
+  if(!baseline){
+    // First observation is history, including when a tab starts in the background.
+    baseline={startedAt:Date.now(),active:new Set()};
+    managedNotificationBaselines.set(storageKey,baseline);
+    for(const run of view.runs){
+      if(run.terminal)managedNotificationMemory.add(storageKey+JSON.stringify([run.runId,run.terminal.digest]));
+      else baseline.active.add(run.runId);
+    }
+    return;
+  }
+  for(const run of view.runs)if(!run.terminal)baseline.active.add(run.runId);
+  // Defer new completions in background tabs until they can actually be shown.
+  if(document.hidden)return;
   let stored=[];try{const value=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(value))stored=value.filter(x=>typeof x==='string');}catch{}
+  const pending=[];
   for(const run of view.runs){
     if(!run.terminal)continue;
     const token=JSON.stringify([run.runId,run.terminal.digest]),memoryKey=storageKey+token;
     if(stored.includes(token)||managedNotificationMemory.has(memoryKey))continue;
-    const notice=document.createElement('div');notice.className='managed-run-toast';notice.dataset.runId=run.runId;
-    const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Dismiss run notification');close.onclick=()=>notice.remove();
-    const text=document.createElement('span');text.textContent=`${run.storyId||'Owner task'} · ${run.host}: ${run.terminal.state} at ${fSec(run.terminal.terminalAt)}`;notice.append(close,text);notices.append(notice);
-    // Acknowledge only after the real DOM notification has been attached.
-    managedNotificationMemory.add(memoryKey);stored.push(token);
-    try{localStorage.setItem(storageKey,JSON.stringify(stored));}catch{}
+    const endedAt=Date.parse(run.terminal.terminalAt);
+    // Late-arriving historical records from a partial scan are not live events.
+    if(!baseline.active.has(run.runId)&&!(Number.isFinite(endedAt)&&endedAt>=baseline.startedAt)){
+      managedNotificationMemory.add(memoryKey);continue;
+    }
+    pending.push({run,token,memoryKey});
   }
+  if(!pending.length)return;
+  const notice=document.createElement('div');notice.className='managed-run-toast';
+  const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Dismiss run notification');close.onclick=()=>notice.remove();
+  const text=document.createElement('span');
+  if(pending.length===1){
+    const {run}=pending[0];notice.dataset.runId=run.runId;
+    text.textContent=`${run.storyId||'Owner task'} · ${run.host}: ${run.terminal.state} at ${fSec(run.terminal.terminalAt)}`;
+  }else{
+    const counts=new Map();for(const {run} of pending)counts.set(run.terminal.state,(counts.get(run.terminal.state)||0)+1);
+    text.textContent=`${pending.length} managed runs finished · ${[...counts].map(([state,count])=>`${count} ${state}`).join(' · ')}. Details in the run list.`;
+  }
+  notice.append(close,text);notices.append(notice);
+  while(notices.children.length>3)notices.firstElementChild.remove();
+  setTimeout(()=>notice.remove(),8000);
+  // Persist acknowledgment only after the real notification has been attached.
+  for(const {run,token,memoryKey} of pending){managedNotificationMemory.add(memoryKey);stored.push(token);baseline.active.delete(run.runId);}
+  try{localStorage.setItem(storageKey,JSON.stringify(stored));}catch{}
+
 }
 function managedRunConnectionFailed(){const element=document.getElementById('managedRunsConnection');if(element)element.textContent='Managed run connection lost; retrying…';}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&latestManagedStatus)renderManagedRunStatus(latestManagedStatus);});
