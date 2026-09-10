@@ -2904,9 +2904,9 @@
     {
       "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
       "token": ".lattice/",
-      "lineNumber": 4008,
+      "lineNumber": 4015,
       "lineSha256": "834fc67783bd3de766ce8f9af3ce699c787564c94ba2083067df29ac9adaa459",
-      "sourceSha256": "269247864e79a7d84864e8dea669eeb3c54dc49bbdc830edf906f8f4bb9f2e28",
+      "sourceSha256": "9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79",
       "tokenOccurrences": 1,
       "classification": "historical-overlay-deny-only",
       "reason": "Exact test assertion rejects copying any historical Story/runtime directory into the identity verifier clone. It preserves immutable historical bytes and never admits a retired reader or writer. Full source, exact line and count remain independently checked with mutation refusals.",
@@ -2915,9 +2915,9 @@
     {
       "path": "packages/main/src/tasks/finding-identity-lineage-smoke.ts",
       "token": "proofbound.prompt-envelope-rollout.v1",
-      "lineNumber": 140,
+      "lineNumber": 133,
       "lineSha256": "fbe151f434c186b56d02b8782025bc42c8145cdd8e66021bb14df03913a638ce",
-      "sourceSha256": "7298b51e6722f9518312129523248f3cbd8906874342ac8cf92cd9f111376138",
+      "sourceSha256": "5f71d7d6b29f76e5a6f667f5982d41eb60a06b2c7ffc18ad3b9321546ffe9ae2",
       "tokenOccurrences": 1,
       "classification": "unrelated-invalid-project-fixture",
       "reason": "Disposable unrelated worktree has a rejected retired rollout version; actual source/target CLI queries prove unrelated invalid configuration does not contaminate signed history. This does not accept the retired rollout.",

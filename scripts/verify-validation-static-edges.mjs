@@ -67,6 +67,8 @@ if(ts.isFunctionDeclaration(n)&&n.name)mutable.add(n.name.text);if(ts.isVariable
   for(const dependency of ['scripts/identity-child-closure.mjs','scripts/identity-child-contract.json','scripts/extra-modes.mjs'])coverage.push({index,file:dependency,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(here,path.basename(dependency))))});
   for(const child of identityPlan.edges)scan(source(child.file),index,child.file,child.argv,seen,0);
  }// Exact broker fixture imported by the byte-bound brand-role witness; no generic dynamic-import expansion.
+ // Exact imported offline-cache API, only in the selected runtime callback; direct main is guarded.
+ if(file==='packages/main/tests/canonical-new-story-artifacts.test.mjs' && (argv.length===0 || JSON.stringify(argv)===JSON.stringify(['--group=runtime'])))scan('scripts/verify-proof-or-stop-pack-boundary.mjs',index,entry,argv,seen,0);
  if(file==='packages/main/tests/brand-role-migration.test.mjs')helpers.push('packages/main/src/tasks/native-review-fixture.ts');
  for(const h of helpers)scan(h,index,entry,argv,seen,depth+1);const identityData={'scripts/identity-reviewed-json-contexts.mjs':'scripts/identity-reviewed-json-data.json','scripts/identity-reviewed-fixture-contexts.mjs':'scripts/identity-reviewed-fixture-data.json','scripts/identity-reviewed-source-contexts.mjs':'scripts/identity-reviewed-source-data.json'}[file];if(identityData)coverage.push({index,file:identityData,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,identityData)))});
  // Exact data inputs consumed by PACKAGE_ROWS/verifyLocks/offlineCacheInput; never executable traversal.
@@ -78,8 +80,9 @@ if(ts.isFunctionDeclaration(n)&&n.name)mutable.add(n.name.text);if(ts.isVariable
   else scan('packages/main/tests/red/red-b03b7-identity-lineage.mjs',index,'packages/main/tests/red/red-b03b7-identity-lineage.mjs',[],seen,depth+1);
  }
  if(file==='packages/main/tests/red/red-b03b7-identity-lineage.mjs'){
-  const input='packages/main/tests/data/finding-identity-gold-set.mjs';
-  coverage.push({index,file:input,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,input)))});
+  // Portable baseline now reads these exact independently source/runtime-pinned modules.
+  for(const input of ['packages/main/tests/data/finding-identity-gold-set.mjs','packages/main/src/core/advisory.ts','packages/main/src/core/cluster-compute.ts','packages/main/src/core/story-recall.ts'])
+    coverage.push({index,file:input,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,input)))});
  }
  if(file==='packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts'){
   const reviewedChild=rows.find(row=>row.index===index&&row.file===file&&row.callDigest==='a050f567ab789cdef1fc3c225620903d57e7aa9fc2f28f9a8daedf8f9de6b7e6');

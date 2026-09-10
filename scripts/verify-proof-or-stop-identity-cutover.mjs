@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"268f1d9dc87da8e54306dd9ccbd64e0de97522d6a6f3fad57026f67bfa79d880"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"07c3acfd865416aa27c05bcb05612f291e63027e79656bc3ab8181dcb360db21"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "269247864e79a7d84864e8dea669eeb3c54dc49bbdc830edf906f8f4bb9f2e28"
+    "sha256": "9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"269247864e79a7d84864e8dea669eeb3c54dc49bbdc830edf906f8f4bb9f2e28"],
+  [4,"9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"268f1d9dc87da8e54306dd9ccbd64e0de97522d6a6f3fad57026f67bfa79d880"],
+  [52,"07c3acfd865416aa27c05bcb05612f291e63027e79656bc3ab8181dcb360db21"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "472232485d0f3b325d902e94026d9c0697ec1134fe3ec678351b7370749d09a2"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "a05371788c081935057e6969d3e166fa0f6f662acff337cdf0401db06171d31c"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "4ddfc05accabef74bc682d2ff2d9902afca95329240dc27acb369399705df93a"
+    "sha256": "97ae0a83832ea32650ea7248d181c4f96e6587a69cf7ec403d3748298e33400b"
   }
 ];
 function verifyReviewedContextReaders(root) {

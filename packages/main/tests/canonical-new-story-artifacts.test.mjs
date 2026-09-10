@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { identityCutoverReviewedContexts } from '../../../scripts/verify-proof-or-stop-identity-cutover.mjs';
+import { prepareOfflineDependencyOverrides, sourceManifests } from '../../../scripts/verify-proof-or-stop-pack-boundary.mjs';
 import ts from 'typescript';
 import { assertActiveIdentityOperationOwnership } from './support/active-identity-operation-ownership.mjs';
 import { createFixtureImplementationCommit } from '../dist/tasks/current-implementation-fixture.js';
@@ -944,15 +945,21 @@ await check(['runtime'], 'CHK-003:edge:0 external consumer public CLI permits no
   fixtureRoots.push(consumerRoot);
   initRepo(consumerRoot, false);
   const tarballs = [];
+  const npmCache = join(consumerRoot, '.npm-cache');
   for (const productRoot of [packageRoot, join(repoRoot, 'packages', 'lab'), join(repoRoot, 'packages', 'utils')]) {
     const pack = spawnSync('npm', ['pack', '--silent', productRoot, '--pack-destination', consumerRoot], {
-      cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' },
+      cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false', npm_config_cache: npmCache },
     });
     assert.equal(pack.status, 0, `${productRoot}: ${pack.stdout}${pack.stderr}`);
     tarballs.push(join(consumerRoot, pack.stdout.trim().split(/\r?\n/u).at(-1)));
   }
-  const installed = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--offline', ...tarballs], {
-    cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' },
+  const offlineDependencies = prepareOfflineDependencyOverrides(sourceManifests());
+  writeFileSync(join(consumerRoot, 'package.json'), `${JSON.stringify({
+    name: 'proof-or-stop-identity-packed-consumer', version: '1.0.0', private: true,
+    overrides: offlineDependencies.overrides,
+  }, null, 2)}\n`);
+  const installed = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--offline', '--omit=optional', '--package-lock=false', '--install-strategy=nested', ...tarballs], {
+    cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false', npm_config_cache: npmCache },
   });
   assert.equal(installed.status, 0, `${installed.stdout}${installed.stderr}`);
   const installedCli = join(consumerRoot, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js');
