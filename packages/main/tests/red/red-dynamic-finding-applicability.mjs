@@ -30,7 +30,7 @@ const fresh = {
   state: 'fresh', storyId: 'B-CURRENT', scopeDigest: 'scope-current', baseHash: 'base-current',
   headHash: 'head-current', acceptanceDigest: 'acceptance-current', runtimeReceiptDigest: 'runtime-current',
 };
-const route = { state: 'accepted', ownerStoryId: 'B-NEXT', receiptState: 'fresh', expiresAt: '2030-01-01T00:00:00.000Z' };
+const route = { state: 'accepted', ownerStoryId: 'B-NEXT', receiptState: 'fresh', receiptId: 'route-1', expiresAt: '2030-01-01T00:00:00.000Z' };
 const cases = [
   {
     id: 'DF-RED-001', expected: false, finding: finding('F-UNRELATED'), round: 1,
@@ -55,8 +55,8 @@ const cases = [
   },
   {
     id: 'DF-RED-005', expected: false, finding: finding('F-DEFERRED', 'low'), round: 1,
-    assessment: { verdict: 'applicable', integrity: fresh, proofStrength: 'strong', dispositionPlan: 'defer_with_proof', acceptedRoute: route },
-    deferral: { state: 'valid', lineageState: 'current', expiresAt: '2030-01-01T00:00:00.000Z' },
+    assessment: { verdict: 'applicable', integrity: fresh, proofStrength: 'strong', dispositionPlan: 'defer_with_proof', acceptedRoute: route, gateImpact: 'does_not_block' },
+    deferral: { state: 'valid', lineageState: 'current', ownerStoryId: 'B-NEXT', routeReceiptId: 'route-1', expiresAt: '2030-01-01T00:00:00.000Z' },
     reason: 'a fresh low deferral with proof and owner is advisory',
   },
 ];

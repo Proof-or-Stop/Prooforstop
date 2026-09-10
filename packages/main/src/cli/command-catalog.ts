@@ -2280,6 +2280,41 @@ Behavior:
     keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
+  { name: 'finding_applicability_assess', description: 'Append a signed current applicability assessment and exact batch manifest for one verified open Finding', schema: {
+    storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1),
+    verdict: z.enum(['introduced', 'worsened', 'applicable', 'pre_existing_unaffected', 'out_of_scope', 'duplicate', 'disproven', 'not_reproduced_under_current_witness', 'unknown']),
+    proofStrength: z.enum(['strong', 'weak', 'unknown']),
+    dispositionPlan: z.enum(['repair_current', 'defer_with_proof']).optional(),
+    gateImpact: z.enum(['blocks', 'does_not_block', 'unknown']).optional(),
+    evidenceRefs: z.array(z.string().min(1)).optional(), recheckTriggers: z.array(z.string().min(1)).optional(),
+    expiresAt: z.string().datetime().optional(),
+    route: z.object({ storyId: z.string().min(1), receipt: z.object({ storyId: z.string().min(1), recordId: z.string().min(1), recordHash: z.string().regex(/^[a-f0-9]{64}$/) }).strict() }).strict().optional(),
+  }},
+  { name: 'finding_applicability_batch', description: 'Atomically apply a digest-bound batch of signed applicability assessments, eligible deferrals and mandatory-repair classifications', schema: {
+    storyId: z.string().min(1), idempotencyKey: z.string().min(1),
+    items: z.array(z.object({
+      findingId: z.string().min(1),
+      verdict: z.enum(['introduced', 'worsened', 'applicable', 'pre_existing_unaffected', 'out_of_scope', 'duplicate', 'disproven', 'not_reproduced_under_current_witness', 'unknown']),
+      proofStrength: z.enum(['strong', 'weak', 'unknown']), dispositionPlan: z.enum(['repair_current', 'defer_with_proof']).optional(),
+      gateImpact: z.enum(['blocks', 'does_not_block', 'unknown']).optional(), expiresAt: z.string().datetime().optional(),
+      evidenceRefs: z.array(z.string().min(1)).optional(), recheckTriggers: z.array(z.string().min(1)).optional(),
+      route: z.object({ storyId: z.string().min(1), receipt: z.object({ storyId: z.string().min(1), recordId: z.string().min(1), recordHash: z.string().regex(/^[a-f0-9]{64}$/) }).strict() }).strict().optional(),
+    }).strict()).min(1),
+  }},
+  { name: 'finding_deferral_record', description: 'Append an expiry-bounded low/medium defer-with-proof disposition bound to a signed assessment and accepted owner route', schema: {
+    storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1), assessmentId: z.string().min(1),
+    renewalCount: z.number().int().min(0).max(1).optional(),
+  }},
+  { name: 'finding_mandatory_repair_close', description: 'Append signed complete-repair closure for an exact mandatory-repair classification', schema: {
+    storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1), classificationId: z.string().min(1),
+    closureEvidenceRefs: z.array(z.string().min(1)).min(1),
+  }},
+  { name: 'finding_triage', description: 'Read the shared Dynamic Finding blocker projection and batch manifest digest used by lifecycle gates', schema: {
+    storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
+  }},
+  { name: 'finding_rollout_scorecard', description: 'Compare legacy and dynamic blocker decisions and report bounded operation-reduction metrics', schema: {
+    storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
+  }},
   { name: 'scope_budget_check', description: 'Read semantic scope budget dimensions, unknown mappings and required decomposition before DEV. No approval or state mutation.', schema: {
     storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), json: z.boolean().optional(),
   }},

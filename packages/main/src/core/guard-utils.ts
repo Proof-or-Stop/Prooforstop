@@ -14,7 +14,7 @@ import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amen
 
 import { verifyFinding } from './finding-verify.js';
 import { isReviewerAgent } from './review-run.js';
-import { isFindingBlocking } from './advisory.js';
+import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
@@ -234,11 +234,12 @@ export function getGuardFailureReason(
 
         // B-e8c8 CHK-007: advisory findings do not count as blockers (same source as canPassReview).
         // B-3fad CHK-001: add evidenceState dimension from the same source — only verified (or legacy missing field) blocks.
-        const blocking = findings.findings.filter(
-          f => isFindingBlocking(f, effectiveBlockingSeverities, roundCount),
-        );
+        const blocking = findings.findings.map(finding => ({ finding, decision: readDynamicFindingDecision({
+          store, projectRoot: projectRoot ?? process.cwd(), storyId, finding,
+          effectiveBlockingSeverities, round: roundCount,
+        }) })).filter(row => row.decision.blocking);
         if (blocking.length > 0) {
-          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing run finding_resolve, or to confirm not fixing run finding_dismiss (reason must be ≥10 characters)`;
+          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(row => `  - ${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('\n')}\n→ Repair the applicable Finding, or record a signed current applicability assessment and any eligible defer-with-proof disposition`;
         }
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see proof-or-stop reviewer_list)`;

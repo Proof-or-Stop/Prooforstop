@@ -170,6 +170,17 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
   { recordClass: 'ledger-receipt', recordTypes: ['finding_ledger_receipt'], level: 'L2', producer: 'handlers/finding-ledger.appendFindingLedger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'The signed commit receipt proves persistence integrity only and never the truth of committed content.' },
 ] as const satisfies readonly Story3PersistenceOnlyRecordPolicy[];
 
+export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
+  recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
+  producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
+  semanticVerifier: 'core/finding-applicability.verifyDynamicFindingRecord + exact ledger/CAS carrier and route verification',
+  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'storyMachine.canFinish'],
+  gateEvidence: true,
+  lifecycleAuthority: 'dynamic-blocker-projection-only',
+  rollout: ['observe', 'warn', 'enforce'],
+  killSwitch: 'legacy predicate fallback',
+} as const;
+
 export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
   recordType: 'runtime_evidence_receipt',
   level: 'L3',
@@ -282,6 +293,12 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
+  finding_applicability_assess: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
+  finding_applicability_batch: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
+  finding_deferral_record: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
+  finding_mandatory_repair_close: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
+  finding_triage: ['schema-contract', 'signed-artifact', 'freshness-policy', 'blocker-state', 'gate-evidence'],
+  finding_rollout_scorecard: ['schema-contract', 'freshness-policy'],
   host_run: ['execution-evidence', 'schema-contract'],
   // Aggregate cursors affect observation only; terminal signatures and the
   // immutable Story ownership subject retain their existing consumer rules.
