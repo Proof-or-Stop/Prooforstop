@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab b03b7-scope-budget-legacy-migration - v0.3.303 - 2026-09-10
+
+# B-03b7 scope-budget legacy migration
+
+## Problem
+
+B-03b7 was created and reached REVIEW before the enforced Story scope-budget policy was activated. Its Story metadata lives on its worktree branch, so it was absent when main captured the initial legacy-subject manifest. After the current command-provenance repair, the budget evaluator correctly exposed the omission and blocked REVIEW-to-DEV as unknown scope.
+
+## Fix
+
+The project policy now includes one exact B-03b7 legacy-subject entry bound to the Story's immutable creation timestamp, captured REVIEW phase, and current canonical subject digest. This preserves the historical Story without inventing topology, relaxing global policy, or changing Story implementation scope.
+
+## Verification
+
+The Lab RED demonstrated that the eligible B-03b7 snapshot had no exact manifest binding. GREEN verifies the manifest entry matches the live Story's tool-derived timestamp and subject digest. After local integration, the Story worktree will rerun `scope_budget_check` to prove the production gate returns nonblocking legacy preservation.
+
+## Performance
+
+No performance claim is made. The change is a bounded migration record for one pre-policy Story.
+
+Maintenance provenance: codex/lab-b03b7-scope-budget-legacy-migration, repair 474895bc257e3395d833e6bf20789e49cf72b85a.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-scope-budget-legacy-migration.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab scope-budget-provenance-repair - v0.3.302 - 2026-09-10
 
 # Scope-budget validation provenance repair
