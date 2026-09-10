@@ -1,9 +1,21 @@
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
-import {withOfficialValidationExecution} from '../dist/core/validation-execution-lock.js';
+import {withOfficialValidationExecution,withWorkspaceValidationCapacity} from '../dist/core/validation-execution-lock.js';
 import {acquireOwnerLease} from '../dist/core/story-owner-lease.js';
 const original=AbortSignal.any;let failures=0;
 try {
+ {
+  const root=mkdtempSync(join(tmpdir(),'pos-nested-abort-'));
+  try {
+   const owner=join(root,'.proof-or-stop/story/actives/B-nested');acquireOwnerLease(owner,{command:'validate',cwd:root});
+   const abort=new AbortController();abort.abort(new Error('nested original reason'));let callback=0;
+   await withWorkspaceValidationCapacity({root,workspaceRoot:root,command:'outer'},async()=>{
+    await assert.rejects(()=>withOfficialValidationExecution({root,workspaceRoot:root,command:'validate',storyId:'B-nested',ownerLeaseDir:owner,abortSignal:abort.signal},()=>{callback++;}),/nested original reason/);
+   });
+   assert.equal(callback,0);console.log('PASS nested capacity reuse refuses aborted caller');
+  } catch(e){failures++;console.error('ABORT_COMPOSITION_COMPAT_RED nested: '+e.message);}
+  finally{rmSync(root,{recursive:true,force:true});}
+ }
  AbortSignal.any=undefined;
  for(const kind of ['no-caller','healthy-caller','already-aborted','callback-failure']) {
   const root=mkdtempSync(join(tmpdir(),'pos-abort-compat-'));let added=0,removed=0,callback=0;
