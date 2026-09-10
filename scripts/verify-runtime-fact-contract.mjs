@@ -120,6 +120,11 @@ async function main() {
   const pinSource=readFileSync(join(root,'packages/main/src/core/execution-implementation.ts'),'utf8');
   check(pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.schema') && pinSource.includes('IMPLEMENTATION_PIN_MISMATCH'), 'implementation pin must consume registry and refuse mismatch');
   check(pinSource.includes('PROOF_OR_STOP_IMPLEMENTATION_MANIFEST') && pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.sessionSchema') && pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.witnessSchema'), 'session transport must enforce its manifest and report actual admitted runtime');
+  const sessionLauncher = read(root, 'scripts/implementation-session.mjs');
+  const sessionPreload = read(root, 'bin/implementation-session-preload.cjs');
+  check(sessionLauncher.includes('env.NODE_OPTIONS=transportOptions') && sessionLauncher.includes('nodeOptionsDigest') && sessionPreload.includes('IMPLEMENTATION_SESSION_ENTRY_REFUSED'), 'inherited Node session transport must reject unaware old CLI entries');
+  const hostRunner = read(root, 'packages/main/src/core/host-run.ts');
+  check(hostRunner.includes('detached: isolatedGroup') && hostRunner.includes('liveHostStartFingerprint') && hostRunner.includes("process.kill(-pid, 'SIGKILL')"), 'host timeout cleanup must bind its owned process group');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');

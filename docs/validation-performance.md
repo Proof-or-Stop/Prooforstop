@@ -101,6 +101,26 @@ node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- pr
 node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- claude
 ```
 
+The session transport also supplies a content-bound Node preload. It refuses an
+unapproved recognized CLI entry before an older implementation can ignore the
+pin variables. The recognized scope is the canonical Node wrapper filenames and
+`dist/cli.js` inside a Proof-or-Stop core package. A new capture is required after
+this transport change; an existing epoch is never silently repinned. Both
+canonical CLI entries and ordinary Node tools remain available. The guard's own
+directory fixes the entry allowlist, so editing a manifest cannot enroll an old
+unaware CLI. This is cooperative inherited-environment protection, not an OS
+sandbox against environment removal, alternate runtimes, or disguised imports.
+Existing foreign desktop sessions are not migrated by starting a Lab session.
+
+The Lab host runner backports the isolated-process-group principle already on
+main: timeout/cancellation signals the fresh owned POSIX group when its live
+leader fingerprint matches. This prevents ordinary descendants from retaining
+stdout and extending recovery past the provider timeout. Missing group identity,
+injected runner seams, and Windows retain direct-child fallback; that fallback
+does not prove descendant cleanup. A process that deliberately creates another
+group is outside this bounded cleanup guarantee. Failure stays failure; recovery
+latency is measured separately from successful Story delivery time.
+
 Capture records both ordinary and canonical Codex entrypoints with their own
 exact pins and requires identical implementation file inventories. Their entry
 wrapper bytes differ, so their complete entry-specific digests need not be equal.

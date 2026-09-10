@@ -6,9 +6,16 @@ import {spawnSync,spawn} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 
 const entry=realpathSync(join(dirname(fileURLToPath(import.meta.url)),'../bin/proof-or-stop.js'));
 const codexEntry=realpathSync(join(dirname(entry),'proof-or-stop-codex.js'));
+const preload=realpathSync(join(dirname(entry),'implementation-session-preload.cjs'));
+const sha=text=>createHash('sha256').update(text).digest('hex');
+const transportOptions=options=>{
+  const token='--require '+JSON.stringify(preload);
+  return (options??'').includes(token) ? options : [options,token].filter(Boolean).join(' ');
+};
 const [action,target,...rest]=process.argv.slice(2);
 const fail=message=>{throw new Error(message);};
 if(!target || !['capture','exec'].includes(action)) fail('Usage: implementation-session.mjs capture NEW_MANIFEST | exec MANIFEST -- HOST [ARGS...]');
@@ -18,6 +25,7 @@ if(action==='capture') {
   // Capture is a deliberate new epoch. Never replace a rejected pin on retry.
   const env={...process.env};
   for(const key of ['PROOF_OR_STOP_IMPLEMENTATION_MANIFEST','PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN','PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST']) delete env[key];
+  env.NODE_OPTIONS=transportOptions(env.NODE_OPTIONS);
   const result=spawnSync(process.execPath,[entry,'--implementation-identity'],{env,encoding:'utf8',maxBuffer:8*1024*1024});
   if(result.status!==0) fail(result.stderr || 'implementation capture failed');
   const identity=JSON.parse(result.stdout);
@@ -31,28 +39,32 @@ if(action==='capture') {
   const again=spawnSync(process.execPath,[entry,'--implementation-identity'],{env,encoding:'utf8',maxBuffer:8*1024*1024});
   if(again.status!==0 || JSON.parse(again.stdout).digest!==identity.digest) fail('runtime changed during capture');
   const entrypoints=[{entrypoint:entry,digest:identity.digest},{entrypoint:codexEntry,digest:codexIdentity.digest}];
-  writeFileSync(manifestPath,JSON.stringify({schema:'execution-session.v1',entrypoint:entry,digest:identity.digest,entrypoints},null,2)+'\n',{flag:'wx',mode:0o600});
+  const transport={schema:'inherited-node-entry.v1',preload,nodeOptionsDigest:sha(env.NODE_OPTIONS)};
+  writeFileSync(manifestPath,JSON.stringify({schema:'execution-session.v1',entrypoint:entry,digest:identity.digest,entrypoints,transport},null,2)+'\n',{flag:'wx',mode:0o600});
   console.log(JSON.stringify({manifest:manifestPath,entrypoints,fileCount:identity.fileCount}));
 } else {
   if(rest[0]!=='--'||rest.length<2) fail('exec requires -- HOST [ARGS...]');
   const manifest=JSON.parse(readFileSync(manifestPath,'utf8'));
   if(manifest.schema!=='execution-session.v1'||manifest.entrypoint!==entry||!/^[a-f0-9]{64}$/.test(manifest.digest)) fail('invalid or foreign implementation manifest');
-  if(!Array.isArray(manifest.entrypoints) ||
+  if(!Array.isArray(manifest.entrypoints) || manifest.entrypoints.length!==2 ||
      !manifest.entrypoints.some(row=>row?.entrypoint===entry && row.digest===manifest.digest) ||
      !manifest.entrypoints.some(row=>row?.entrypoint===codexEntry && /^[a-f0-9]{64}$/.test(row.digest)))
     fail('session must enroll both canonical entrypoints; capture a new epoch');
   if(process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST!==undefined && process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST!==manifest.digest) fail('conflicting inherited implementation pin');
   const env={...process.env,PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifestPath,
     PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN:'1'};
-  // Manifest selection is per actual entrypoint. A stale/older core that ignores
-  // manifests still refuses because REQUIRE is set and no standalone pin exists.
+  env.NODE_OPTIONS=transportOptions(env.NODE_OPTIONS);
+  if(manifest.transport?.schema!=='inherited-node-entry.v1' || manifest.transport.preload!==preload ||
+     manifest.transport.nodeOptionsDigest!==sha(env.NODE_OPTIONS)) fail('session transport changed; capture a deliberate new epoch');
+  // Manifest selection is per actual entrypoint. The inherited preload rejects
+  // recognized old CLI entries before an unaware core can ignore these pins.
   delete env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST;
   const admission=spawnSync(process.execPath,[entry,'--implementation-identity'],{env,encoding:'utf8',maxBuffer:8*1024*1024});
   if(admission.status!==0) fail(admission.stderr || 'session admission refused');
   if(JSON.parse(admission.stdout).digest!==manifest.digest) fail('session admission mismatch');
   // A private PATH entry transports the selected absolute runtime into ordinary
-  // owner/reviewer shell commands. Direct alternate entries still inherit the
-  // required pin and are refused by the shared dispatcher.
+  // owner/reviewer shell commands. Recognized direct alternate entries inherit
+  // the preload; admitted entries still verify their full implementation pin.
   const shims=mkdtempSync(join(tmpdir(),'proof-or-stop-implementation-session-'));
   for(const [name,targetEntry] of [['proof-or-stop',entry],['proof-or-stop-codex',codexEntry]]) writeFileSync(join(shims,name), '#!/usr/bin/env node\n'+
     "const {spawnSync}=require('node:child_process');\n"+

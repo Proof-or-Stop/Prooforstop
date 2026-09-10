@@ -42,7 +42,7 @@
  *     (the single thin import surface); it never reaches into other ledger modules.
  */
 
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import {
   existsSync,
@@ -1099,9 +1099,24 @@ export interface HostRunRunnerRuntime {
     cwd: string;
     env: NodeJS.ProcessEnv;
     stdio: ['pipe', 'pipe', 'pipe'];
+    detached?: boolean;
   }) => ReturnType<typeof spawn>;
   schedule?: (callback: () => void, delayMs: number) => NodeJS.Timeout;
   cancel?: (timer: NodeJS.Timeout) => void;
+}
+
+// Minimal backport of main's isolated-group principle, without the separate
+// managed-review supervisor. Only a fresh, matching live group leader authorizes
+// signalling its group; persisted or injected process identities are never used.
+function liveHostStartFingerprint(pid: number): string | null {
+  if (process.platform === 'win32' || !Number.isSafeInteger(pid) || pid <= 1) return null;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      if (value) return value;
+    } catch { /* A just-spawned child may not be visible yet. */ }
+  }
+  return null;
 }
 
 export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRunnerRuntime = {}): Promise<HostRunSpawnResult> {
@@ -1132,6 +1147,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let failureKind: HostExecutionFailureKind = 'none';
     let asyncSpawnError = false;
     let child: ReturnType<typeof spawn> | null = null;
+    const isolatedGroup = process.platform !== 'win32' && runtime.spawnChild === undefined;
+    let groupFingerprint: string | null = null;
     let stdoutHandler: ((text: string) => void) | null = null;
     let stderrHandler: ((text: string) => void) | null = null;
     let errorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
@@ -1204,7 +1221,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         cwd: plan.cwd,
         env: plan.env,
         stdio: ['pipe', 'pipe', 'pipe'],
+        detached: isolatedGroup,
       });
+      if (isolatedGroup && child.pid) groupFingerprint = liveHostStartFingerprint(child.pid);
     } catch {
       terminalReason = 'spawn_error';
       failureKind = 'unknown';
@@ -1224,9 +1243,20 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       }
       clearTimersAndListener();
       try {
-        child?.kill('SIGKILL');
+        const pid = child?.pid;
+        let signalledGroup = false;
+        if (isolatedGroup && pid && pid > 1 && child?.exitCode === null && child.signalCode === null) {
+          const current = liveHostStartFingerprint(pid);
+          // Late capture is safe only for this still-open ChildProcess handle.
+          if (!groupFingerprint && current) groupFingerprint = current;
+          if (groupFingerprint && current === groupFingerprint) {
+            try { process.kill(-pid, 'SIGKILL'); signalledGroup = true; } catch { /* fall back to the direct child */ }
+          }
+        }
+        if (!signalledGroup) child?.kill('SIGKILL');
       } catch {
-        // best-effort; settlement still waits for error/close
+        // Failed group attestation keeps the old direct-child fallback. It does
+        // not establish descendant cleanup or permit a fabricated completion.
       }
     };
     const markFirstOutput = (): void => {
