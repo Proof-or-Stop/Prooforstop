@@ -58,6 +58,8 @@ try {
   git(custom, 'init', '--separate-git-dir', metadata);
   fs.mkdirSync(path.join(custom, 'sub'));
   check('separate Git directory', path.join(custom, 'sub'), custom, 2);
+  const multiline = path.join(base, 'line\nrepo'); fs.mkdirSync(multiline); git(multiline, 'init');
+  check('embedded newline in repository path', multiline, multiline);
   const moved = path.join(base, 'moved'); git(main, 'worktree', 'move', linked, moved);
   check('moved linked worktree remains live', moved, main);
   const missing = path.join(base, 'missing');

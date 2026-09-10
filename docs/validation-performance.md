@@ -479,3 +479,21 @@ missing/malformed ledgers, and receipt/epoch revocation. The older
 terminal-hook fixture has a completed checklist item without verification intent;
 the same failure was reproduced against the pre-repair verifier. Its entire
 suite is not claimed green by this repair.
+
+## Repository-root query overhead
+
+The next measured hotspot was 674 `getRepoRoot` calls from signed workspace
+resolution. Each previously spawned two Git queries. The ordinary main/linked
+layout now reads worktree status and the absolute shared Git directory in one
+live query. Nonstandard metadata directories retain the top-level fallback;
+bare/non-Git/internal-directory fallbacks remain intact. Absolute Git output
+also fixes relative common-directory resolution from repository subdirectories.
+No cache is introduced.
+
+With the earlier worktree-list repair active in both rounds, the unchanged quorum
+target and all 21 preceding checks passed: 98.417s / 8,657 Git calls became
+92.451s / 7,982 calls, a 5.966s (6.06%) reduction in this ordered pair. All six
+verdicts and original target assertions remain. Evidence is in
+`docs/lab-evidence/validation-repo-root-pair.json`; this is not a full-suite or
+P95 claim. `node scripts/verify-repo-root-efficiency.mjs` checks the live query
+budget and 15 layout/fallback boundaries, including embedded newlines in paths.
