@@ -305,3 +305,22 @@ removes the registered scratch without changing terminal bytes; the mutation
 leaves it behind. The watchdog CLI regression uses a real live provider and its
 actual deadline, so cancellation ordering is never inferred from a future
 injected timestamp compared against a real child-close timestamp.
+
+## Independent liveness coverage
+
+Routine validation registers each of the seven former liveness members exactly
+once. The flow-stability and provider-codex entries use `--canonical-core`,
+which retains their own assertions and emits a distinct marker while omitting
+the combined seven-suite dispatch. Their default entries retain the original
+complete compatibility behavior. Provider F-181 remains a real child CLI
+positive/negative environment-isolation test on a disposable Story. Flow uses
+the existing explicitly allowlisted test fixture namespace for its own nested
+validation; production capacity admission is unchanged.
+
+`node scripts/verify-liveness-validation-union.mjs` checks the fixed historical
+seven-member inventory against configured entries. Add `--trace` to execute
+those actual entries through the production command executor and reject nested
+registered-suite launches. The exact cross-host `--xhr-worker` and
+`--xhr-submitter` self-dispatch modes are fixture roles and remain allowed;
+plain self-invocation is rejected. The inventory check alone proves no runtime flattening;
+the seven-member trace is bounded coverage, not a whole-registry trace.

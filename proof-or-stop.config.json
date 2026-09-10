@@ -2537,6 +2537,84 @@
           "packages/main/dist/tasks/provider-claude-smoke.js"
         ],
         "timeoutMs": 600000
+      },
+      {
+        "label": "agent-dispatch-registry-smoke",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+        ],
+        "timeoutMs": 270000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "flow-stability-smoke",
+        "command": "node",
+        "args": [
+          "scripts/run-validation-fixture-suite.mjs",
+          "packages/main/dist/tasks/flow-stability-smoke.js",
+          "--canonical-core"
+        ],
+        "timeoutMs": 450000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "init-check-required-agents-smoke",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-check-required-agents-smoke.js"
+        ],
+        "timeoutMs": 270000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "provider-codex-smoke",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/provider-codex-smoke.js",
+          "--canonical-core"
+        ],
+        "timeoutMs": 270000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "repair-retry-loop-smoke",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repair-retry-loop-smoke.js"
+        ],
+        "timeoutMs": 270000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [
@@ -2620,7 +2698,9 @@
           "packages/main/src/tasks/repair-retry-loop-smoke.ts"
         ],
         "hostAdapters": [],
-        "validationGroups": []
+        "validationGroups": [
+          "autonomous-execution-checks"
+        ]
       },
       {
         "id": "command-surface",
@@ -6657,6 +6737,7 @@
           "scripts/verify-full-suite-build-binding.mjs",
           "scripts/verify-full-suite-contract.mjs",
           "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-liveness-validation-union.mjs",
           "scripts/verify-machine-heavy-boundaries.mjs",
           "scripts/verify-machine-heavy-coordination.mjs",
           "scripts/verify-machine-port-boundaries.mjs",
@@ -6729,6 +6810,7 @@
           "prov-0f563e3c4f01da5fb601b32c7bc87e4767f15446702fb003ce6440aa0562440d",
           "prov-149fe639fab6566657675dd50b5d35e2e3662ba2e8c6294cb9a644841eca0fe0",
           "prov-1859ff2858389670080a857221e25bffa7ea0a1e390fc3292e7acef638e8e4e5",
+          "prov-22c3782f4c05e893f7af9f0eacaa7c6ab2b6cc2acc149f114709dc391b2d2b05",
           "prov-3716e1b364431d6bd9f4330e2b263ac42a8f3774f2c8e22d61f68b215c62482a",
           "prov-4b201e2bd0e1e3a2ee6530d0171277cd614731764188104d93b777cc8b8a1dd9",
           "prov-5b7276ec72e5f61c9d5facdae55d57a00299d4d2067dc9abc9bf0c7b31479943",
@@ -6771,6 +6853,7 @@
       {
         "id": "managed-assets-checks",
         "commandIds": [
+          "prov-4df85a1672e6a08bf5da64b6fe13a33d113e30aaa2ec40f3f00adc24f1dd6d35",
           "prov-60ec70e7765e70a941d01ad01575c7353f5da3d6455b49dd0cc2e7f5c7a2cc1c",
           "prov-74cf4792c774c83ceecc76a82186a10d35374cebac4bef8beabef55beff5df4a",
           "prov-8880ca5affedc6a15ef3ae74167349f7c02267f468c27fc51b8251016c9fceed",
@@ -6859,7 +6942,9 @@
       {
         "id": "lifecycle-ownership-checks",
         "commandIds": [
+          "prov-22c3782f4c05e893f7af9f0eacaa7c6ab2b6cc2acc149f114709dc391b2d2b05",
           "prov-4e761b6efd09357367c2bf35bd052b6cf865332a9220baa514cf0ea34d3dd2a8",
+          "prov-65eba2bccab76d5e6eb30009d0407daeb18d992b4dad880e13e78fbf5068b781",
           "prov-66ea346c75118ac7ae4ab7f4bcfbffd12a49cedf3b8def43a681053aa2bd640e",
           "prov-690d24f0d46d385f2f6018b186cda237183d3cf6e4c40baefe2f680df6735b0a",
           "prov-69dd99d168bab1e104560279fb891e5204d6665962ffe673480b3f866e9b6348",
@@ -6887,6 +6972,7 @@
           "prov-599b5040795870815fc3bcd3e3692311bb9095794342cdc94b40c71ce8243954",
           "prov-900422e5d7e8386db06d9d1281e5b66433f4b5f0f7ed738249b1f58173633543",
           "prov-9e955d1d1a6b79b64221d757bbaab16396013c51272f69d44f7a7a35abe770d3",
+          "prov-b131af0cefbdb3f12f02b3e67d37ed46c3d353547d0ba890583c7cc57af05b6f",
           "prov-b453fd5e007351d0693a5e180b5982b2d3450831fbc9908d1293d06f3b3b7923",
           "prov-cddbcf427a8e79e3f8e9b988bbc86f65c79b1f0e19d4a2fa0cf2ae1ee37a80be",
           "prov-dd316c8ab9f6b3edabb9336a3e316763be8a1896aa6cd73fc7b4230acd3fc9f3",
@@ -6909,6 +6995,12 @@
         "id": "dependency-graph-package-checks",
         "commandIds": [
           "prov-d0898b37e5b3779cdac439fcaf070f0cd7f220b770de990117b37e5eb1710f32"
+        ]
+      },
+      {
+        "id": "autonomous-execution-checks",
+        "commandIds": [
+          "prov-6106e302dee8d8135f0997f7d4e90becea65366f3aa1c62ef81b6cd2e2b6bd9e"
         ]
       }
     ],

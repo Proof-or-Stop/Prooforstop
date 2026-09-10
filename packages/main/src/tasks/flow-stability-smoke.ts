@@ -123,12 +123,15 @@ function writeAcceptanceBasisDiscoveryFixture(root: string): void {
     'shared-validation-execution', 'story-aware-validation', 'story-owner-lease', 'validation-execution-lock',
     'acceptance-amendment-journal', 'convergence-progress-gate', 'convergence-progress-journal',
     'host-run', 'planned-steps-executor', 'proof-or-stop-dispatch', 'provider-process-admission',
-    'provider-process-registry', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-decomposition']) {
+    'provider-process-registry', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-decomposition',
+    'managed-host-run', 'managed-review-lane-policy', 'managed-review-lane',
+    'managed-review-provider-state', 'managed-review-readonly', 'story-scope-budget-legacy']) {
     write(root, `packages/main/src/core/${name}.ts`, 'export const fixtureDependency = true;\n');
   }
-  for (const path of ['handlers/story-review', 'providers/supervised-process', 'providers/supervised-process-worker']) {
+  for (const path of ['handlers/story-review', 'handlers/cross-host-review', 'providers/supervised-process', 'providers/supervised-process-worker']) {
     write(root, `packages/main/src/${path}.ts`, 'export const fixtureDependency = true;\n');
   }
+  write(root, 'packages/main/src/core/managed-review-lane-build.mjs', 'export const fixtureDependency = true;\n');
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
@@ -5362,7 +5365,7 @@ await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 
-runAgentLivenessSuiteForPinnedEvidence();
+if (!process.argv.includes('--canonical-core')) runAgentLivenessSuiteForPinnedEvidence();
 // ── B-cdf6:F-052 — the read-both branch must be PROVEN, not just present ────────
 // The quality lane observed that every smoke exercising purgeSafeInitCommit only ever
 // hand-writes the CANONICAL subject, so the tests proved the writer emits the new form
@@ -5394,4 +5397,4 @@ runAgentLivenessSuiteForPinnedEvidence();
   assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
   assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'proofOrStop:', 'deprecated prefix is retained verbatim for compatibility');
 }
-console.log('✓ flow stability smoke passed');
+console.log(process.argv.includes('--canonical-core') ? 'flow-stability-smoke: CANONICAL CORE PASS' : '✓ flow stability smoke passed');
