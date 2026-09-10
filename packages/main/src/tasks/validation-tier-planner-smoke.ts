@@ -504,9 +504,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // 129-entry inventory form a 132-entry union without losing either side;
   // B-e256 then adds its global launcher row, and the lab-worktree guard brings
   // the merged inventory to 134 entries.
-  // Current union: 153 entries; seven synthetic suites now enter through the
+  // Current union: 153 entries; eight synthetic suites now enter through the
   // fixture wrapper. Every original leaf remains present; only their argv changed.
-  assert.equal(real.commandSetDigest, '89f94becdafacd5136e82651d28e604e711169a24d9a3003fa429eeab9ed0924', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  assert.equal(real.commandSetDigest, '68666575b4815a761a397791c7b654791528125eb61a4f6f8a199d1cb3716b3c', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

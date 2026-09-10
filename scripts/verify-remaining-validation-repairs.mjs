@@ -2,17 +2,17 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {configuredValidationCommands} from '../packages/main/dist/handlers/validation-identity.js';
 import {runValidationCommand} from '../packages/main/dist/core/validation-executor.js';
+// Fail fast on the repaired nesting boundary; retain the slow full suites last.
 const targets=[
+  "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
   "packages/main/tests/milestone-status.test.mjs",
   "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
   "packages/main/dist/tasks/verification-run-and-guard-smoke.js",
   "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
   "packages/main/dist/tasks/done-required-head-drift-proof.js",
-  "packages/main/dist/tasks/quorum-submit-smoke.js",
   "packages/main/dist/tasks/withdrawn-disposition-smoke.js",
   "packages/main/tests/red/red-done-prepare-done-parity.mjs",
   "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js",
-  "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
   "packages/main/tests/red/red-global-cli-exec-bit.mjs",
   "packages/main/tests/red/red-w2b-wiring-contract.mjs",
   "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
@@ -29,10 +29,11 @@ const targets=[
   "packages/main/dist/tasks/narrowing-repin-smoke.js",
   "packages/main/dist/tasks/validation-protocol-smoke.js",
   "packages/main/dist/tasks/managed-review-evidence-smoke.js",
-  "packages/main/dist/tasks/proof-admissibility-registry-smoke.js",
   "packages/main/dist/tasks/provider-process-registry-smoke.js",
   "packages/main/dist/tasks/semantic-scope-guard-smoke.js",
-  "packages/main/dist/tasks/flow-stability-smoke.js"
+  "packages/main/dist/tasks/flow-stability-smoke.js",
+  "packages/main/dist/tasks/proof-admissibility-registry-smoke.js",
+  "packages/main/dist/tasks/quorum-submit-smoke.js"
 ];
 const configured=configuredValidationCommands(process.cwd());
 const rows=[];

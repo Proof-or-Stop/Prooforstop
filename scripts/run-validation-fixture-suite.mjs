@@ -24,6 +24,7 @@ export const FIXTURE_ENTRIES = new Set([
   'packages/main/tests/validate-plan-scheduling.test.mjs',
   'packages/main/tests/validate-pollution-attribution.test.mjs',
   'packages/main/tests/red/red-w2d-command-readonly.mjs',
+  'packages/main/tests/red/red-b49d4-registration-derivation.mjs',
 ]);
 
 const [entry, ...rest] = process.argv.slice(2);

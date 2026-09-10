@@ -1,7 +1,7 @@
 {
   "schema": "u18-static-exceptions.v1",
   "status": "reviewed-local-lab",
-  "configDigest": "907207dba0984f88de31f415d51e3aee0181db44293732e1dcb6e8a8e534e8b1",
+  "configDigest": "6cfc0fbb8f5ca30d5167c57ef8fc91b44fbc4aa55f9156910536088fbee3c1a4",
   "binding": "Source/call and invoking source/helper/package digests; any drift requires renewed review. These are local static review records, not Story or release credentials.",
   "entries": [
     {
@@ -165,9 +165,9 @@
     },
     {
       "id": "EX-0009",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         9
       ],
@@ -177,19 +177,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "67600c1fb32acb15a1236b63be29b1eb92f16ffce869e3f6a77ef7a79d7d45b7",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0010",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         12
       ],
@@ -199,19 +200,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-command-timeout-smoke.ts": "090dc6433202693da3e42530d38237bc723b07b00c4c9bf1737137157392cabd",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0011",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         14
       ],
@@ -221,19 +223,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-focused-full-layering-smoke.ts": "dc980cd9a2d1524d88682c70ee14476c90310bad7a2749c632e6f59ff72aa672",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0012",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         21
       ],
@@ -243,20 +246,21 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/handlers/done-required-validation.ts": "9c520969569120df073839aa9ed5cb3602172a0fa0435717b9d78dd798446a57",
         "packages/main/src/tasks/done-required-validation-smoke.ts": "925755923f3fc8b4df5626ce59e8cd964bc75ff581cb087b3ebe5c0b23b35837",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0013",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         111
       ],
@@ -266,19 +270,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs": "918d67beb7ed19cd2c90e818e7c8e9a90788ae84113a9c158ed1b15623a32646",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0014",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         112
       ],
@@ -288,19 +293,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/validate-plan-scheduling.test.mjs": "232e8c2f9e00cc6ac34651b66848395531e31bd8713184595f35c69712e2526e",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0015",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         114
       ],
@@ -310,19 +316,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts": "8e9b06a4ce81516e829d98d67d79ab654e2379879a0e26c04c848850c4d62b4c",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0016",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         115
       ],
@@ -332,19 +339,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/validate-pollution-attribution.test.mjs": "995db98e62f729813c7650aeb95bc3465d9ec358a2d34bbbe84b87e840e53977",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0017",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         122
       ],
@@ -354,19 +362,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/red/red-w2d-command-readonly.mjs": "972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0018",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         134
       ],
@@ -376,20 +385,21 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0019",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         148
       ],
@@ -399,7 +409,8 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
@@ -407,7 +418,7 @@
         "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -955,6 +966,7 @@
       "requiredEvidence": [
         "localCliPath 184-186",
         "fixture validate command 2884-2891",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -963,7 +975,7 @@
         "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -979,6 +991,7 @@
       "requiredEvidence": [
         "localCliPath 184-186",
         "runBlockedCli and callers 977 onward",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/flow-stability-smoke.ts SHA256 563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -987,7 +1000,7 @@
         "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1287,6 +1300,7 @@
         "CLI constant 28",
         "native reviewer command invocation 189",
         "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -1294,7 +1308,7 @@
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
         "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1333,6 +1347,7 @@
         "CLI constant 28",
         "native reviewer command invocation 189",
         "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -1341,7 +1356,7 @@
         "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1652,12 +1667,13 @@
       "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data.",
       "requiredEvidence": [
         "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1672,12 +1688,13 @@
       "reason": "Executable argv[0] is fixed ../cli.js. Calls exercise NARROW_COMMAND, unknown command, verification_pin_guard_check and raw narrowing argv, not a registered test program; filenames in JSON remain data.",
       "requiredEvidence": [
         "narrowing-repin-smoke.ts:902,951-977,1224-1259,1480-1504",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/narrowing-repin-smoke.ts SHA256 6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1692,13 +1709,14 @@
       "reason": "Fixed package cli.js checklist_update with intentionally invalid verificationIntent schema; no test target execution.",
       "requiredEvidence": [
         "validation-protocol-smoke.ts:1174-1197",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1713,13 +1731,14 @@
       "reason": "Generated temporary bin/proof-or-stop.js help checks CommonJS wrapper syntax.",
       "requiredEvidence": [
         "validation-protocol-smoke.ts:1506-1529",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1734,13 +1753,14 @@
       "reason": "Generated temporary bin/proof-or-stop-codex.js help checks ESM-compatible wrapper syntax.",
       "requiredEvidence": [
         "validation-protocol-smoke.ts:1510-1533",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -1755,13 +1775,14 @@
       "reason": "Copied replay wrapper runs with BUN_BINARY pinned to generated fakeBun; argv verifies threshold/admission/producer modes and failure statuses, not canonical replay workload.",
       "requiredEvidence": [
         "validation-protocol-smoke.ts:2392-2415",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validation-protocol-smoke.ts SHA256 b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -2679,12 +2700,13 @@
         },
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -2733,6 +2755,7 @@
           "sourceDigest": "323e87030e8b482f9628ba7dd2b3ccd1268171595b3e2ba06c11be9bda5b64ea",
           "excerpt": "\n    const toolName = String(payload.tool_name || '').trim();\n    if (!WRITE_TOOLS.has(toolName)) { process.exit(0); return; }\n\n    const command = extractCommand(payload.tool_input);\n    if (!command.trim()) { process.exit(0); return; }\n\n    const cwd = payload.cwd || process.cwd();\n    const root = findRepoRoot(cwd);\n    const cli = resolveCli(root);\n    if (!cli) { process.exit(0); return; }\n\n    const checkArgs = JSON.stringify({\n      provider: 'codex',\n      toolName,\n      commandString: command,\n      cwd,\n      json: true,\n    });\n\n    const result = spawnSync(cli.command, [...cli.args, 'verification_pin_guard_check', checkArgs], {\n      cwd: root,\n      encoding: 'utf8',\n      timeout: GUARD_TIMEOUT_MS,\n      stdio: ['pipe', 'pipe', 'pipe'],\n    });\n\n    // FAIL-OPEN: a timeout / spawn error must NOT block (seatbelt, not the floor).\n    if (result.signal || result.error) { process.exit(0); return; }\n\n    if (result.status === 0 && !result.signal) {\n      const verdict = parseGuardVerdict(result.stdout);\n      if (verdict && verdict.verdict === 'deny') {\n        const reason = Array.isArray(verdict.reasons)\n          ? verdict.reasons.join('\\n')\n          : 'Codex PreToolUse evidence-pin seatbelt denied this evidence write.';\n        process.stderr.write(reason + '\\n');\n        process.exit(2);"
         },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/verification-run-and-guard-smoke.ts SHA256 a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/verification-run-and-guard-smoke.ts SHA256 a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -2740,7 +2763,7 @@
         ".codex/hooks/proof-or-stop-evidence-pretool.cjs": "323e87030e8b482f9628ba7dd2b3ccd1268171595b3e2ba06c11be9bda5b64ea",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -3927,6 +3950,7 @@
           "sourceDigest": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
           "excerpt": "          materialDigest: 'historical-red-material',\n          storyFilesHash: 'historical-red-story-files',\n          validationDigest: 'historical-red-validation',\n          promptDigest: 'historical-red-prompt',\n        });\n      }\n      const dirtyBytes = readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl'));\n      const result = runFixtureCli(fixture.root, ['validate', `--story=${STORY_ID}`, '--json']);\n      const payload = JSON.parse(result.stdout.trim()) as {\n        status?: unknown;\n        allPass?: unknown;\n        failureKind?: unknown;\n        disposition?: unknown;\n        commandExecutions?: unknown;\n      };\n      assert.equal(payload.status, 'fail');\n      assert.equal(payload.allPass, false);\n      assert.equal(payload.failureKind, 'infra_failure');\n      assert.equal(payload.disposition, 'executed');\n      assert.equal(payload.commandExecutions, 1);\n      assert.match(`${result.stdout}\\n${result.stderr}`, /canonical metadata was already dirty|pre-existing|infra_failure/);\n      assert.equal(fixture.store.readTestEvidence(STORY_ID)?.result, 'FAIL');\n      assert.deepEqual(\n        readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl')),\n        dirtyBytes,\n        'validation refusal preserves the historical dirty baseline',\n      );\n      assert.doesNotMatch(result.stdout, /\"result\"\\s*:\\s*\"PASS\"|\"status\"\\s*:\\s*\"pass\"/);\n    });\n  });\n"
         },
+        "2026-09-10 repair review: current caller packages/main/src/tasks/quorum-submit-smoke.ts SHA256 9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/quorum-submit-smoke.ts SHA256 9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -3934,7 +3958,7 @@
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
         "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -3971,12 +3995,13 @@
         },
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -4109,10 +4134,13 @@
           "endLine": 834,
           "sourceDigest": "7ca56917b88dd66c875f90c1b673e70e5bee17d7ab2ec4eb78c8d666bd4dd832",
           "excerpt": "   * path constant elsewhere in the file cannot masquerade as a decision. This is\n   * reading a decision somebody recorded, NOT inferring behaviour from a mention,\n   * and it cannot produce a false GREEN in either direction: a name this parse\n   * misses leaves its member in `unaccounted` (RED), and a name it over-reads\n   * cannot make an undecided member pass, because the spawned guard would have\n   * exited non-zero first.\n   */\n  const deciderRun = runNode([DECIDER_ABS]);\n  const deciderCounts = new RegExp(\n    'all (\\\\d+) entries of (\\\\S+) found ON DISK are accounted for: (\\\\d+) registered in '\n    + 'proof-or-stop\\\\.config\\\\.json validate\\\\.commands and (\\\\d+) excluded with a stated reason',\n  ).exec(deciderRun.out);\n  let deciderRecordBlock = '';\n  try {\n    deciderRecordBlock = /REGISTRATION_EXCLUSIONS\\s*=\\s*new Map\\(\\[([\\s\\S]*?)^\\]\\);/m\n      .exec(readFileSync(DECIDER_ABS, 'utf8'))?.[1] ?? '';\n  } catch {"
-        }
+        },
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-b49d4-registration-derivation.mjs SHA256 7ca56917b88dd66c875f90c1b673e70e5bee17d7ab2ec4eb78c8d666bd4dd832; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
-        "packages/main/tests/red/red-b49d4-registration-derivation.mjs": "7ca56917b88dd66c875f90c1b673e70e5bee17d7ab2ec4eb78c8d666bd4dd832"
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs": "7ca56917b88dd66c875f90c1b673e70e5bee17d7ab2ec4eb78c8d666bd4dd832",
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -4130,6 +4158,7 @@
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
         "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -4137,7 +4166,7 @@
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad"
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "52bb558940a6fc8248cfe3178b77d58cf47847f051812ec5cffd82032e7c900d"
       }
     },
     {
@@ -4155,6 +4184,7 @@
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
         "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -4162,7 +4192,7 @@
         "packages/main/src/tasks/full-suite-runner.ts": "8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad"
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "52bb558940a6fc8248cfe3178b77d58cf47847f051812ec5cffd82032e7c900d"
       }
     },
     {
@@ -4180,6 +4210,7 @@
         "packages/main/src/tasks/validation-tier-planner-smoke.ts",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts",
         "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -4187,8 +4218,8 @@
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "b2fa90260fd314c86bdcfab6a914b4da196f0f07cc339eb121f94b1d2808033d",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "2e1905ad971ccd77338a22848c7dea8a78528b132cc754da502665da53824fad",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "52bb558940a6fc8248cfe3178b77d58cf47847f051812ec5cffd82032e7c900d",
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -4260,6 +4291,7 @@
       "reason": "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently.",
       "requiredEvidence": [
         "flow-stability --canonical-core guards the only runAgentLivenessSuiteForPinnedEvidence call; its remaining assertions run independently.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/agent-liveness-suite-smoke.ts SHA256 cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/agent-liveness-suite-smoke.ts SHA256 cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -4268,7 +4300,7 @@
         "packages/main/src/tasks/flow-stability-smoke.ts": "563e990273611d75cf30283e8879ce7a106939fc85c7c1ad52f73c48ebdac451",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -4288,19 +4320,20 @@
           "property": "The recorder delegates only the explicit git fixture helper; builtin recorder interception remains observable."
         },
         "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/tests/red/red-w2d-command-readonly.mjs": "972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0186",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         10
       ],
@@ -4310,19 +4343,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "a779e247705d94bbfb07304aebfa3deda07b4dfa472614f2f9ced3998779ee52",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0187",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         13
       ],
@@ -4332,19 +4366,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0188",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         25
       ],
@@ -4354,19 +4389,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/done-required-head-drift-proof.ts": "5ba8b1901deb9ef7f7437721696459a2a6d13dc6e39608009bc8e79608e0723d",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0189",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         41
       ],
@@ -4376,21 +4412,22 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
         "packages/main/src/tasks/quorum-submit-smoke.ts": "9ac39e3f1308be2dca7b0655e429f97b2bee07a8e3a8f5738286841e96c62e7c",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0190",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         57
       ],
@@ -4400,19 +4437,20 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/withdrawn-disposition-smoke.ts": "9b6b47543b3accabe5aa2530c87de63f4d5a79ee3d6e8d1015de66a7bcee8656",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0191",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         78
       ],
@@ -4422,14 +4460,15 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
         "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts": "86b7b8cafbc8c9d33adc56c8e251c086d825b3c02aaef07acc142c8f49c78f23",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
@@ -4446,6 +4485,7 @@
         "CLI constant 28",
         "native reviewer command invocation 189",
         "fixed first Node script argument",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller packages/main/src/tasks/native-review-fixture.ts SHA256 ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
@@ -4453,14 +4493,14 @@
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
         "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts": "86b7b8cafbc8c9d33adc56c8e251c086d825b3c02aaef07acc142c8f49c78f23",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },
     {
       "id": "EX-0193",
-      "key": "scripts/run-validation-fixture-suite.mjs:35:spawnSync",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
       "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
-      "sourceDigest": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
       "configIndexes": [
         133
       ],
@@ -4470,12 +4510,36 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
         "packages/main/src/tasks/narrowing-repin-smoke.ts": "6c0cc6a44099467c656bd54315aa205e4448a38434d7017301d8782d0d91aa89",
-        "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
+      }
+    },
+    {
+      "id": "EX-0194",
+      "key": "scripts/run-validation-fixture-suite.mjs:36:spawnSync",
+      "callDigest": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "sourceDigest": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661",
+      "configIndexes": [
+        80
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs": "7ca56917b88dd66c875f90c1b673e70e5bee17d7ab2ec4eb78c8d666bd4dd832",
+        "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     }
   ]
