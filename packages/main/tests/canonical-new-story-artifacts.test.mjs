@@ -69,6 +69,7 @@ const { enforceStoryRuntimeAdmission } = await import(join(distRoot, 'cli/story-
 const { resolveEffectiveOwnershipClass } = await import(join(distRoot, 'cli/ownership-gate.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { currentMaterialHash } = await import(join(distRoot, 'core/evidence-freshness.js'));
+const { RUNTIME_ARTIFACT_REGISTRY: runtimeArtifactRegistry } = await import(join(distRoot, 'core/runtime-artifact-registry.js'));
 const { signDeliveryCheck } = await import(join(distRoot, 'core/delivery-check-hash.js'));
 const { getGuardFailureReason, getScopeAntiExpansionGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
 const promptContracts = await import(join(distRoot, 'core/prompt-contracts.js'));
@@ -1025,6 +1026,32 @@ function snapshotPublicOperationState(root, storyIds = []) {
 
 const INERT_PUBLIC_FIXTURE_LOG_SUBTREE = '.remember/logs/autonomous/';
 
+function publicFixtureProjection() {
+  const retired = runtimeArtifactRegistry.find(entry => entry.id === 'retired-generated-cache-deny-only');
+  assert.ok(retired && retired.materialHash === 'exclude' && retired.repairableTrackedArtifact === false,
+    'private fixture exclusions require the explicit retired generated-cache policy');
+  const omitted = [{ kind: 'prefix', value: INERT_PUBLIC_FIXTURE_LOG_SUBTREE }, ...retired.matchers];
+  const literal = value => {
+    assert.ok(typeof value === 'string' && value && !/[\r\n]/u.test(value), 'sparse patterns require a literal single-line path');
+    return value.replace(/[\\*?\[\]]/gu, '\\$&');
+  };
+  for (const entry of omitted) assert.ok(['prefix', 'exact'].includes(entry.kind), 'unknown cache matcher must not broaden the fixture projection');
+  const storyRoot = '.proof-or-stop/story/actives/';
+  // Public operations explicitly target B-49df. Keep the existing B-022e
+  // compatibility sample too; full verifier clones restore every Story below.
+  const keptStories = ['B-49df', 'B-022e'];
+  return {
+    patterns: ['/*', ...omitted.map(entry => `!/${literal(entry.value)}`),
+      `!/${storyRoot}*/`, ...keptStories.map(id => `/${storyRoot}${id}/`)].join('\n') + '\n',
+    materialized(path) {
+      if (omitted.some(entry => entry.kind === 'prefix' ? path.startsWith(entry.value) : path === entry.value)) return false;
+      if (!path.startsWith(storyRoot)) return true;
+      const tail = path.slice(storyRoot.length);
+      return !tail.includes('/') || keptStories.includes(tail.slice(0, tail.indexOf('/')));
+    },
+  };
+}
+
 function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot = repoRoot) {
   const root = mkdtempSync(join(tmpdir(), prefix));
   fixtureRoots.push(root);
@@ -1042,12 +1069,12 @@ function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot 
     assert.ok(match, 'committed fixture tree must have an exact index representation');
     return `${match[1]} ${match[2]} 0\t${match[3]}`;
   });
-  // Only inert third-party autonomous logs are not materialized. Keep their
-  // complete index entries: every snapshot still checks each absent path, so a
-  // later empty file, nonempty file or symlink creation cannot disappear.
+  // Scope the private working tree, never the real history or snapshot oracle.
+  // Keep all index entries: creation at any absent path remains observable.
+  const projection = publicFixtureProjection();
   git(root, ['sparse-checkout', 'init', '--no-cone']);
   const sparse = spawnSync('git', ['sparse-checkout', 'set', '--no-cone', '--stdin'], {
-    cwd: root, encoding: 'utf8', input: `/*\n!/${INERT_PUBLIC_FIXTURE_LOG_SUBTREE}\n`,
+    cwd: root, encoding: 'utf8', input: projection.patterns,
   });
   assert.equal(sparse.status, 0, `${sparse.stdout}${sparse.stderr}`);
   git(root, ['checkout', '--quiet', 'HEAD']);
@@ -1058,7 +1085,7 @@ function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot 
   for (const row of expectedIndex) {
     const path = row.slice(row.indexOf('\t') + 1);
     const present = lstatSync(join(root, path), { throwIfNoEntry: false }) !== undefined;
-    assert.equal(present, !path.startsWith(INERT_PUBLIC_FIXTURE_LOG_SUBTREE), `unexpected fixture materialization: ${path}`);
+    assert.equal(present, projection.materialized(path), `unexpected fixture materialization: ${path}`);
   }
   cpSync(join(packageRoot, 'dist'), join(root, 'packages', 'main', 'dist'), { recursive: true });
   for (const path of ACTIVE_IDENTITY_OPERATION_BOUNDARIES.flatMap(boundary => boundary.paths).filter(path => path.scope === 'project')) {
@@ -3377,6 +3404,12 @@ for (const [sourcePath, canonical] of [
   });
 }
 
+await check(['identity-cutover', 'identity-snapshot'], 'public fixture reads only required history while preserving mutation detection', () => {
+  const result = spawnSync(process.execPath, [join(packageRoot, 'tests/public-fixture-read-scope.test.mjs')], { encoding: 'utf8' });
+  assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+  assert.match(result.stdout, /PUBLIC_FIXTURE_HISTORY_READ_BUDGET_GREEN/);
+});
+
 await check(['identity-cutover', 'identity-snapshot'], 'Git material snapshot detects changes at exact special-character paths', () => {
   const result = spawnSync(process.execPath, [join(packageRoot, 'tests/identity-snapshot-paths.test.mjs')], { encoding: 'utf8' });
   assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
@@ -3925,7 +3958,7 @@ function materializeIdentityVerifierCheckout(root) {
   const index = git(root, ['ls-files', '--stage', '-z']);
   const refs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
   // The complete tracked-text scanner needs every file, unlike the public
-  // operation matrix whose snapshots deliberately observe absent inert logs.
+  // operation matrix whose snapshots observe omitted paths as absent.
   git(root, ['sparse-checkout', 'disable']);
   assert.equal(git(root, ['rev-parse', 'HEAD']), head, 'full verifier checkout changed HEAD');
   assert.equal(git(root, ['ls-files', '--stage', '-z']), index, 'full verifier checkout changed indexed paths, modes or blobs');

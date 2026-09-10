@@ -3231,7 +3231,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "d47a6b266241dd330fe9f7db5e1967c0a87de62d4c500cee5a06bf410ee0213e"
+    "sha256": "265bad12f2cce7ec156c68e88551a3af8dda20111ef4aca209b89847f0d04ade"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3616,7 +3616,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"83f4250e9cf0ff0cd77a04e5e105df03117fa1ee9c5b6c12a409f04a6f4eed0a"],
-  [4,"d47a6b266241dd330fe9f7db5e1967c0a87de62d4c500cee5a06bf410ee0213e"],
+  [4,"265bad12f2cce7ec156c68e88551a3af8dda20111ef4aca209b89847f0d04ade"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
