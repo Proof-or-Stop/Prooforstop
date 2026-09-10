@@ -1,0 +1,51 @@
+{
+  "verdict": "PASS-FOR-VERIFICATION-PLAN",
+  "scope": "Bounded independent re-audit of the six findings from /Users/jek/.codex/artifacts/proof-or-stop-remaining-delivery-verification-20260910/claude-plan-audit/audit.json, at base 442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4 / 0.3.296. Read audit-dispositions.json, updated PLAN.md, acceptance.json, verify-plan.mjs, plan-selfcheck.json, output-boundary-plan-check.json and the revisions/v1 listing; one narrowly relevant source read (packages/main/src/core/causal-evidence.ts constants and the durableOutput predicates). Ran only the authorized `node verify-plan.mjs --self-test`. No experiments executed, no repository mutation, no re-audit of the prior five-item repair, historical timing campaigns, or unchanged plan sections beyond their interaction with the six corrections.",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "medium",
+      "location": "acceptance.json items[V5].subclaims lines 313-361, against PLAN.md §4 V5 lines 113 and 115",
+      "problem": "The F2 fix created three V5 cohorts (post-receipt exactly-one, pre-receipt safe re-execution/refusal, irrecoverable expected refusal) but the ledger still carries only two subclaims: `supported recoverable faults` and `expected refusal boundary`. Pre-receipt re-execution results are neither a zero-rerun recoverable success nor a refusal, so they have no row of their own and could be recorded under V5.1, re-mixing the denominator PLAN.md:115 explicitly restricts to post-receipt cases.",
+      "correction": "Add a V5.3 subclaim `pre-receipt re-execution or explicit refusal` with its own claimScope, limitations and evidence array, so the conservative aggregation treats it as a distinct cohort."
+    },
+    {
+      "id": "R2",
+      "severity": "medium",
+      "location": "acceptance.json items[V1].subclaims lines 29-61, against PLAN.md §4 V1 line 67",
+      "problem": "V1 is split into `Lab replay` and `real Story cohort` but not into pilot versus frozen held-out confirmation, unlike V3.1/V3.2. PLAN.md:67's rule that the six-task pilot cannot earn BOUNDED_PERFORMANCE_PASS is therefore prose-only; V1.1 is a single status field that a pilot result could occupy with a performance PASS, and verify-plan.mjs cannot tell which population produced it.",
+      "correction": "Split V1.1 into a pilot row and a held-out-confirmation row, and word the held-out row's claimScope so it is the only V1 row on which BOUNDED_PERFORMANCE_PASS may be recorded."
+    },
+    {
+      "id": "R3",
+      "severity": "medium",
+      "location": "verify-plan.mjs lines 39-51 and 80; plan-selfcheck.json",
+      "problem": "Two residual traceability gaps in the F5 mechanism. (a) The recorded self-check output carries no digest of acceptance.json, so a stored `pass:true` record is not bound to the exact ledger bytes it validated. (b) The amendment chain has no enforced head: editing PLAN.md and updating `planSha256` without appending an amendment still verifies, because every check is internal to the already-recorded prior entries. This is exactly the silent loss of amendment provenance PLAN.md:158 forbids.",
+      "correction": "Emit `acceptanceSha256` alongside `planSha256` in the self-check record, and add an assertion that if a previously recorded plan-selfcheck.json exists with a different `planSha256`, the current ledger must contain an amendment whose `previousPlanSha256` equals it."
+    },
+    {
+      "id": "R4",
+      "severity": "low",
+      "location": "verify-plan.mjs lines 33-34",
+      "problem": "SETUP_BLOCKED is exempt from both the nonempty-evidence requirement (line 33) and the NOT_RUN nullity rule (line 34), so a row may report `before`, `after`, `coverage`, `completionCounts` or `cost` numbers while carrying an empty evidence array. It cannot produce a PASS, but it can publish unevidenced measurements.",
+      "correction": "Extend line 34's nullity loop to SETUP_BLOCKED, or require a nonempty `evidence` array whenever any of those measurement fields is non-null regardless of status."
+    },
+    {
+      "id": "R5",
+      "severity": "low",
+      "location": "verify-plan.mjs lines 53-56",
+      "problem": "`checkRow` does not recurse and the `aggregate` equality is asserted only for depth-1 parents. The current ledger is exactly two levels deep, so nothing is currently unchecked, but any later nested subclaim would carry no field, evidence or aggregation validation while still passing the verifier.",
+      "correction": "Inside checkRow, if `row.subclaims` is present, recurse checkRow over it and assert `row.status === aggregate(row.subclaims)`."
+    }
+  ],
+  "limitations": [
+    "This is a bounded re-audit of the six prior findings. Unchanged sections (V2, V4, V6 bodies, §3, §5, §8) were read only for interaction with the corrections, not re-audited on their own merits.",
+    "Only one extra source file was consulted (causal-evidence.ts: the 12,000-char and 1 MiB constants and the durableOutput predicate pair). V2 witness mechanics, V4 runtime eligibility semantics and V6 scheduler behaviour remain audited as plan text only.",
+    "The boundary arithmetic in output-boundary-plan-check.json was checked by recomputing the stated relations (13-byte `{\"output\":\"\"}` wrapper, 2 bytes per multibyte code unit, 6 bytes per escaped lone surrogate), not by executing product code. The reverse-straddle impossibility argument holds for the string object the current code serializes; it would need restating if that serialization shape changes.",
+    "I ran only the authorized `verify-plan.mjs --self-test`, which passed with all six items NOT_RUN and all ten rejection controls refused. That confirms ledger shape, conservative aggregation and revision provenance; it validates no execution receipt and proves nothing about product behaviour.",
+    "V3's 60 defective plus 20 clean held-out clusters still carry no cost estimate anywhere in the plan, unlike V6's explicit 90.54-minute / 9.05-hour / 18.11-machine-hour arithmetic. I again treat this as correctly deferred to the P3 per-campaign budget freeze rather than a finding, but it remains the largest unpriced item in the program.",
+    "Runtime preparation, concrete case selection, threshold calibration, cohort definition and campaign budgets are legitimately post-plan; their absence was not counted against the plan.",
+    "A plan-audit PASS is not product GREEN, not evidence that any remaining delivery problem is solved, and not authorization for any experiment, repair, release or main integration."
+  ],
+  "summary": "All six prior findings are substantively resolved. F1: the ledger is now mechanically conservative — verify-plan.mjs enforces claimScope/limitations/evidence on parents and children, forbids progress without evidence, forbids NOT_RUN rows carrying measurements, requires parent === aggregate(subclaims), and the ten rejection controls (including unrun-child-promoted-to-parent-pass) all fire; I confirmed this by running the authorized self-test. F2: PLAN.md:113 scopes 'exactly one total test execution' to faults with an already-durable authentic reusable receipt, retained authority and matching inputs, while pre-receipt faults require safe re-execution or explicit refusal with recorded (not asserted) execution counts, and PLAN.md:115 keeps the zero-rerun denominator restricted to post-receipt cases. F3: PLAN.md:67 supplies the missing confirmation population — 20 held-out clusters per claimed stratum, one pair each, balanced order, fixed seed, ratio-of-medians primary estimator, preregistered 10,000-resample paired bootstrap with a one-sided 95% upper bound below 1 plus a >=20% point reduction, censored pairs blocking the PASS, and an explicit bar on BOUNDED_PERFORMANCE_PASS before the set is frozen; P5 now names it. F4: PLAN.md:93 fixes one preregistered run per arm per cluster, a union-of-required-roles oracle, an explicit 'newly missed' definition, no best-of-k, separate clean controls, and confines the exact 1-0.05^(1/n) bound to that rule. F5: PLAN.md:158 names acceptance.json as the plan ledger and defines planSha256; revisions/v1 preserves the prior plan and ledger and the verifier checks both digests plus chain continuity. F6: I verified against causal-evidence.ts that the two gate predicates are real (matchingOutput.length and Buffer.byteLength(JSON.stringify({output:...}))) and that the documented impossibility holds — the 13-byte wrapper plus UTF-8 never emitting fewer bytes than UTF-16 code units makes an over-character/under-byte straddle unreachable; declining to fabricate it is correct. The five residual findings are ledger-structure and verifier tightenings (a missing pre-receipt V5 row, a missing V1 pilot/holdout split, an unbound self-check record and unenforced amendment head, a SETUP_BLOCKED exemption, and non-recursive row validation). None creates an unsound RED/GREEN pair, a NOT_RUN-to-PASS path, oracle leakage, an invalid broader claim or a gate weakening, and all are edits to two files. The plan is actionable and honest about which claims a Lab cannot establish."
+}

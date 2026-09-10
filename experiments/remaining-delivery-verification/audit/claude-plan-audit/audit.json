@@ -1,0 +1,57 @@
+{
+  "verdict": "NEEDS-REVISION",
+  "scope": "Independent audit of the verification PLAN only, at base 442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4 / 0.3.296. Read PLAN.md, baseline.json, inventory.mjs, acceptance.json, lab-state.json in experiments/remaining-delivery-verification/, plus two narrowly relevant source checks (packages/main/src/core/causal-evidence.ts constants; experiments/five-item-proof/publication-restart.mjs execution-count assertions). No experiments executed, no repository mutation, no re-audit of the prior five-item repair or historical timing campaigns.",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "location": "acceptance.json items[] (all six rows) and PLAN.md §7 lines 148-150",
+      "problem": "The result ledger mechanically permits the scope creep the prose forbids. Rows omit `claimScope` and `limitations`, both listed as required in §7:148. No rule derives the parent `status` from `subclaims`, and no rule ties a non-NOT_RUN status to non-empty `evidence`. V1 could therefore read MECHANISM_GREEN or BOUNDED_PERFORMANCE_PASS while its `real Story cohort` subclaim remains NOT_RUN, which is precisely the silent promotion §7:150 prohibits in prose only.",
+      "correction": "Add `claimScope` and `limitations` to every acceptance.json row and to each subclaim; add one sentence to §7: the parent `status` is the most conservative subclaim status, any NOT_RUN or SETUP_BLOCKED subclaim forces the parent to NOT_RUN or COHORT_INCOMPLETE, and any status other than NOT_RUN/SETUP_BLOCKED requires a non-empty `evidence` array."
+    },
+    {
+      "id": "F2",
+      "severity": "high",
+      "location": "PLAN.md §4 V5 GREEN, line 107 (\"one total test execution\"), against its own matrix at line 105 (\"termination after execution before receipt\")",
+      "problem": "Unachievable GREEN definition. For pre-receipt fault classes (termination after execution before receipt, partial write/rename before receipt, ENOSPC during receipt write) a restarted process has no durable record distinguishing `ran, receipt lost` from `never ran`; the only safe behaviour is re-execution. The existing control at experiments/five-item-proof/publication-restart.mjs:44-45 asserts one execution only for the case where a durable receipt already existed (worker exited after exhausting canonical write retries). As written the RED/GREEN pair either guarantees a permanent FAIL or pressures a false PASS.",
+      "correction": "Partition the V5 matrix into post-receipt faults (assert exactly one total execution) and pre-receipt faults (assert safe re-execution, no false PASS, no duplicate or foreign publication, immutable original receipt if any; report execution count rather than asserting it equals 1). If a durable pre-execution intent record is wanted, name it as a separate hypothesis with its own target RED."
+    },
+    {
+      "id": "F3",
+      "severity": "high",
+      "location": "PLAN.md §4 V1 GREEN line 63 (\"at least 20% median reduction\") versus §6 P5 line 140 and §5 line 129",
+      "problem": "The V1 performance claim has no defined confirmation population. Line 58 excludes known prior cases \"from holdout conclusions\", implying a V1 holdout, but P5 enumerates only held-out review (V3), full workload/host confirmation and soak (V6), and deployment follow-up (T_actual). No held-out Lab replay set exists, so the 20% median-reduction endpoint is computable only on the six-task pilot, which §5:129 forbids pooling into confirmation.",
+      "correction": "Either add a V1 row to the P5 table naming a preregistered held-out replay task set with target n, pairing and analysis method, or restate V1's GREEN so that only BASELINE_OBSERVED/MECHANISM_GREEN are reachable and BOUNDED_PERFORMANCE_PASS is explicitly withheld until such a set is frozen."
+    },
+    {
+      "id": "F4",
+      "severity": "medium",
+      "location": "PLAN.md §4 V3, lines 81 and 87",
+      "problem": "The unit of analysis is the task cluster, but the run-to-cluster collapse rule is unstated. The pilot uses two independent fixed-seed runs per arm; for the 60-cluster claim nothing says how many runs per cluster are scored or how multiple stochastic reviewer outcomes become the single Bernoulli `newly missed must-detect defect` outcome that `1 - 0.05^(1/n)` requires. A best-of-k reading would inflate recall and deflate the numerator the bound is computed from.",
+      "correction": "Preregister runs per held-out cluster and the collapse rule (for example: one preregistered seed per arm, or `missed` if any preregistered run misses), and state that the exact one-sided bound applies only under that fixed rule and the declared sampling assumptions."
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "location": "acceptance.json line 8 (`planSha256`) and PLAN.md §7 line 146",
+      "problem": "Traceability gap in the epoch discipline the plan imposes on itself. §7 lists per-experiment artifacts but never names acceptance.json as the plan-level ledger, and `planSha256` has no stated referent or regeneration rule. §3:34 requires preserving every amendment; this plan will be amended in response to this audit, immediately staling an unlabelled digest with no recorded predecessor.",
+      "correction": "Name acceptance.json in §7 as the plan-level status ledger, document `planSha256` as the sha256 of PLAN.md bytes, and add an `amendments` array recording each prior digest with its reason, per the §3 epoch rule."
+    },
+    {
+      "id": "F6",
+      "severity": "low",
+      "location": "PLAN.md §4 V5 matrix, line 105 (\"actual serialized 1 MiB minus one/exact/plus one\") versus packages/main/src/core/causal-evidence.ts:798-799",
+      "problem": "The source gates output on two distinct predicates against the same 1 MiB constant: `matchingOutput.length` (UTF-16 code units) and the serialized JSON byte length. These diverge for multibyte UTF-8, so a boundary triad specified only on serialized bytes leaves the character predicate's boundary untested.",
+      "correction": "State in the matrix that the minus-one/exact/plus-one triad is run against both predicates, and that the multibyte case includes at least one payload that straddles them (under one predicate, over the other, in both directions)."
+    }
+  ],
+  "limitations": [
+    "Tools were read-only and no Bash was available, so I could not recompute `planSha256`, re-run inventory.mjs, or verify baseline.json digests; F5 is raised as a missing referent and regeneration rule, not as a claim that the digest is currently wrong.",
+    "I read baseline.json's header, summary, limitations and the first ~50 command rows plus the collector that generates them; I verified the summary logic in inventory.mjs rather than recounting all 143 rows, so the 141/141 and 2/2 totals are checked by construction, not by exhaustive enumeration.",
+    "Only two extra source files were consulted (causal-evidence.ts constants, publication-restart.mjs assertions). I did not inspect validation-executor.ts, shared-validation-execution.ts, process-metrics.ts or the dynamic-validation decision record, so V2's witness mechanics, V4's runtime eligibility semantics and V6's scheduler behaviour are audited as plan text only.",
+    "I did not evaluate whether the plan's deferred items are achievable in practice: case selection, threshold calibration, runtime preparation, cohort definition and campaign budgets are legitimately post-plan, and their absence was not counted against the plan.",
+    "V3's 60-cluster confirmation carries no cost estimate anywhere in the plan (only V6 has arithmetic). I treated this as correctly deferred to the P3 per-campaign budget freeze rather than as a finding, but it is the largest unpriced item in the program.",
+    "This is a plan audit. It is not product GREEN, not evidence that any remaining delivery problem is solved, and not authorization for any experiment, repair, release or main integration."
+  ],
+  "summary": "The plan is disciplined and largely sound: it separates T_lab from deployed T_actual, denies attestation power to the --implementation-identity inspection probe, keeps irrecoverable faults as expected refusals rather than zero-rerun successes, holds NOT_RUN against manufactured records, isolates the V3 oracle, and states its exact 95% upper bound (4.87% at n=60) correctly and with the right caveats. Numeric anchors check out against source: 12,000 chars and 1 MiB match causal-evidence.ts:36-37, the sole duplicate executable/argv pair really is the excluded build command, and V6's 90.54-minute pair / 9.05-hour / 18.11-machine-hour arithmetic is right. baseline.json is faithful to inventory.mjs and honest that declarations are neither runtime eligibility nor adoption evidence. Three blocking plan defects remain, all editable now rather than deferred: acceptance.json lacks claimScope, limitations, a subclaim-to-parent status rule and an evidence requirement, so it mechanically permits the silent promotion §7 forbids in prose (F1); V5's \\\"one total test execution\\\" GREEN is unachievable for the pre-receipt fault classes in its own matrix, since no durable pre-execution record exists to distinguish a lost receipt from a command that never ran (F2); and V1's 20% median-reduction endpoint has no confirmation population, leaving it computable only on the six-task pilot that §5 forbids pooling (F3). F4-F6 are tightenings: the V3 run-to-cluster collapse rule that the exact bound depends on, the unlabelled plan digest with no amendment chain, and a 1 MiB boundary triad that exercises only one of the two source predicates. All six corrections are text edits to PLAN.md and acceptance.json; none requires a new Story, product redesign, or any executed experiment."
+}

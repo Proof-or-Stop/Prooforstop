@@ -1,0 +1,60 @@
+{
+  "scope": "Disposition of the first independent Claude verification-plan audit. No product implementation or main change.",
+  "findings": [
+    {
+      "id": "F1",
+      "status": "corrected",
+      "evidence": [
+        "acceptance.json",
+        "verify-plan.mjs",
+        "plan-selfcheck.json"
+      ],
+      "change": "All parent/child rows carry scope, limitations and evidence. Conservative aggregation, nonempty progress evidence and 10 rejection controls prevent incomplete subclaims being promoted."
+    },
+    {
+      "id": "F2",
+      "status": "corrected",
+      "evidence": [
+        "PLAN.md#v5"
+      ],
+      "change": "Exactly one execution applies only after durable reusable receipt/output and retained authority. Pre-receipt ambiguity requires safe re-execution or explicit refusal; no unsupported exactly-once side-effect promise."
+    },
+    {
+      "id": "F3",
+      "status": "corrected",
+      "evidence": [
+        "PLAN.md#v1",
+        "PLAN.md#execution-order"
+      ],
+      "change": "20 independent held-out paired Lab tasks per targeted stratum, fixed primary estimator and paired bootstrap; six-task pilot cannot earn timing PASS. All pairs need valid accepted endpoints."
+    },
+    {
+      "id": "F4",
+      "status": "corrected",
+      "evidence": [
+        "PLAN.md#v3"
+      ],
+      "change": "One preregistered run per arm per held-out cluster; fixed union-of-required-roles oracle, no best-of-k; clean controls separate."
+    },
+    {
+      "id": "F5",
+      "status": "corrected",
+      "evidence": [
+        "acceptance.json",
+        "revisions/v1/PLAN.md",
+        "revisions/v1/acceptance.json",
+        "verify-plan.mjs"
+      ],
+      "change": "The ledger binds exact PLAN.md bytes; prior plan+ledger are preserved with hashes and amendment reason; verifier checks history and staleness."
+    },
+    {
+      "id": "F6",
+      "status": "achievable requirement corrected; impossible converse declined with proof",
+      "evidence": [
+        "PLAN.md#v5",
+        "output-boundary-plan-check.json"
+      ],
+      "change": "Both UTF-16 and serialized-byte boundary triads plus multibyte/escaping probes are specified. Under-code-unit/over-byte straddle demonstrated. Reverse straddle cannot occur because standard serialized JSON byte length is at least code-unit length plus object syntax. No fake case is introduced."
+    }
+  ]
+}
