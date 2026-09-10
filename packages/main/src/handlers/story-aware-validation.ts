@@ -880,8 +880,8 @@ function deriveGateOwnedPrerequisites(args: {
   projectRoot: string;
   prepared: PreparedStoryAwareValidation;
   baseline?: CanonicalFullBaseline;
-  buildResult: ValidationResult;
-  buildProofDigest: string;
+  buildResult?: ValidationResult;
+  buildProofDigest?: string;
   receipts: ValidationCommandReceipt[];
   shardArtifacts: DynamicShardArtifact[];
 }): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
@@ -923,8 +923,8 @@ function deriveGateOwnedPrerequisites(args: {
     wholeRepoScannersClassified: catalogOwnershipGatePassed,
     processFactBindingsComplete,
     changedTestPropagationVerified,
-    sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult.allPass,
-    buildAlwaysExecuted: args.buildResult.commands.length === 1 && args.buildResult.allPass,
+    sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult?.allPass === true,
+    buildAlwaysExecuted: args.buildResult?.commands.length === 1 && args.buildResult?.allPass === true,
     // Gate/validation-infra rows remain in the inventory and are selected by
     // impact/full-escalation rules, but their mere presence must not make every
     // unrelated local Story ineligible.  Eligibility is about the rows this
@@ -938,6 +938,16 @@ function deriveGateOwnedPrerequisites(args: {
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
     catalogOwnershipGatePassed,
   };
+}
+
+/** Read-only rejection preflight. It can require full execution, never grant authority. */
+export function dynamicValidationPreflightFallbackReasons(projectRoot: string, prepared: PreparedStoryAwareValidation): string[] {
+  const prior = readStoryAwareValidationArtifacts(projectRoot, prepared.manifest.storyId);
+  const facts = deriveGateOwnedPrerequisites({ projectRoot, prepared,
+    baseline: readCanonicalFullBaseline(projectRoot), receipts: prior.receipts, shardArtifacts: [] });
+  return Object.entries(facts)
+    .filter(([name, value]) => name !== 'sourceFirstBuildProofActive' && name !== 'buildAlwaysExecuted' && value === false)
+    .map(([name]) => name);
 }
 
 /** Execute the actual Wave-0 + selected path and persist its signed receipts. */

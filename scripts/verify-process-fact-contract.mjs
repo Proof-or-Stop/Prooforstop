@@ -9476,6 +9476,7 @@ assert(read('packages/main/src/handlers/graph.ts').includes('readManagedRunDashb
 assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunStatus(st)'), 'Graph status polling must render managed changes independently');
 
 
+assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicValidationPreflightFallbackReasons(projectRoot, dynamic)'), 'dynamic rejection preflight must guard real validation launch');
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

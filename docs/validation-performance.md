@@ -404,3 +404,17 @@ Browser verification needs an installed Playwright runtime; an explicit
 dependencies fail verification rather than silently skipping it. These tests
 verify delivery behavior; real-project notification P95 and reduced user queries
 remain operational measurements.
+
+## Known dynamic fallback
+
+Before launching the dynamic plan, the verifier checks the current static
+baseline, catalog, closure, risk, and revocation prerequisites. A known rejection
+uses the ordinary canonical plan once. It does not first run a dynamic copy of
+those commands. Passing this rejection-only preflight grants no authority: the
+actual dynamic execution must still satisfy every existing runtime prerequisite.
+Observe remains selection-only followed by the full oracle; shadow retains both
+runs for comparison. Explicit full and final-phase requirements remain unchanged.
+
+The repository configuration still uses observe mode. This repair removes
+redundant execution in enforce-low-risk fallback; it does not by itself activate
+incremental validation for this repository or make its full-only policies reusable.

@@ -104,7 +104,7 @@ import {
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
 import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
-import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
+import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -1785,26 +1785,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 encoding: 'utf8',
               }).trim();
               if (args.story) {
-                if (dynamicMode === 'observe') {
-                  // DYN-1 observe is selection-only. The ordinary complete
-                  // plan below is the one authoritative execution; launching
-                  // a selected plan here would duplicate commands and violate
-                  // observe's resource/order equivalence contract.
-                  const dynamic = prepareStoryAwareValidation({
-                    projectRoot,
-                    storyId: args.story,
-                    baseHead,
-                    head: currentHead(handlerGitCwd),
-                    mode: dynamicMode,
-                    commands,
-                    gitCwd: handlerGitCwd,
-                    ...dynamicInputs,
-                  });
+                const dynamic = prepareStoryAwareValidation({
+                  projectRoot,
+                  storyId: args.story,
+                  baseHead,
+                  head: currentHead(handlerGitCwd),
+                  mode: dynamicMode,
+                  commands,
+                  gitCwd: handlerGitCwd,
+                  ...dynamicInputs,
+                });
+                const fallbackReasons = dynamicMode === 'enforce-low-risk'
+                  ? dynamicValidationPreflightFallbackReasons(projectRoot, dynamic) : [];
+                if (dynamicMode === 'observe' || (dynamicMode === 'enforce-low-risk' && (dynamic.manifest.fullEscalated || fallbackReasons.length > 0))) {
+                  // A failed static prerequisite cannot acquire dynamic authority. Execute
+                  // the canonical fallback once, without first launching the selected plan.
                   dynamicPreview = {
                     mode: dynamicMode,
                     manifest: dynamic.manifest,
-                    report: dynamic.report,
-                    authority: 'full-plan-oracle',
+                    report: dynamic.report + (dynamicMode === 'enforce-low-risk' ? '\nCanonical full fallback before dynamic execution: ' + [...dynamic.manifest.escalationReasons, ...fallbackReasons].join(', ') : ''),
+                    authority: dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
                     selectedCommands: dynamic.manifest.totals.executed,
                     reusedCommands: dynamic.manifest.totals.reused,
                     receipts: 0,
@@ -2219,24 +2219,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               cwd: handlerGitCwd,
               encoding: 'utf8',
             }).trim();
-            if (dynamicMode === 'observe') {
-              // Observe computes and persists the selection but the
-              // validate-file command below remains the sole oracle run.
-              const dynamic = prepareStoryAwareValidation({
-                projectRoot,
-                storyId: args.story,
-                baseHead,
-                head: currentHead(handlerGitCwd),
-                mode: dynamicMode,
-                commands: [identityCommand],
-                gitCwd: handlerGitCwd,
-                ...dynamicInputs,
-              });
+            const dynamic = prepareStoryAwareValidation({
+              projectRoot,
+              storyId: args.story,
+              baseHead,
+              head: currentHead(handlerGitCwd),
+              mode: dynamicMode,
+              commands: [identityCommand],
+              gitCwd: handlerGitCwd,
+              ...dynamicInputs,
+            });
+            const fallbackReasons = dynamicMode === 'enforce-low-risk'
+              ? dynamicValidationPreflightFallbackReasons(projectRoot, dynamic) : [];
+            if (dynamicMode === 'observe' || (dynamicMode === 'enforce-low-risk' && (dynamic.manifest.fullEscalated || fallbackReasons.length > 0))) {
+              // A failed static prerequisite cannot acquire dynamic authority. Execute
+              // the canonical fallback once, without first launching the selected plan.
               dynamicValidation = {
                 mode: dynamicMode,
                 manifest: dynamic.manifest,
-                report: dynamic.report,
-                authority: 'full-plan-oracle',
+                report: dynamic.report + (dynamicMode === 'enforce-low-risk' ? '\nCanonical full fallback before dynamic execution: ' + [...dynamic.manifest.escalationReasons, ...fallbackReasons].join(', ') : ''),
+                authority: dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
                 selectedCommands: dynamic.manifest.totals.executed,
                 reusedCommands: dynamic.manifest.totals.reused,
                 receipts: 0,
