@@ -123,8 +123,11 @@ descendants retain those pipes. Timeout/cancellation signals that owned group
 with a matching live fingerprint (or a fresh late observation of the still
 unreaped anchor). Provider exit code, signal and spawn errors use private IPC;
 output remains streamed. This adds one Node process per real POSIX run, so normal
-command overhead is measured separately from timeout recovery. Missing identity,
-injected runner seams, and Windows retain direct-child fallback; that fallback
+command overhead is measured separately from timeout recovery.
+Normal provider completion does not clean up background descendants that already
+closed all inherited output pipes; the independent audit observed that residual.
+This is a pipe-held timeout guarantee, not a complete background-task lifecycle.
+Missing identity, injected runner seams, and Windows retain direct-child fallback; that fallback
 does not prove descendant cleanup. A process that deliberately creates another
 group is outside this bounded cleanup guarantee. Failure stays failure; recovery
 latency is measured separately from successful Story delivery time.
