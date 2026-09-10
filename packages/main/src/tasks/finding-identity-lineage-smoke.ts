@@ -1072,6 +1072,24 @@ try {
     store.writeChecklist(targetId, { ...priorTarget, items: [{ ...currentTarget, status: 'in_progress' }] });
     const progressInput = { storyId: targetId, idempotencyKey: 'status-progress', receipt: findingConsentRef, kind: 'target_status_transition', predecessor: setRef, previousDeferralRef: neutralRef };
     const progress = routes.finding_progress_capture(progressInput); const progressRow = progress.rows[0]!;
+    function resignProgressMutation(projection: ProgressBinding['projection'], before: ProgressBaseline, changes: Partial<ProgressBinding> = {}): ProgressBinding {
+      const original = progressRow.envelope.payload as ProgressBinding;
+      const nested = original.evidence as unknown as IdentitySemanticEnvelope;
+      const payload = { ...nested.payload, kind: projection.kind, projection };
+      const { signature: _signature, ...unsigned } = { ...nested, payload, payloadDigest: identityHash(payload) };
+      const evidence = { ...unsigned, signature: signCanonical(unsigned, signer.privateKey) };
+      const { tupleDigest: _tuple, ...base } = {
+        ...original,
+        kind: projection.kind,
+        projection,
+        projectionDigest: identityHash(semanticProjection(projection)),
+        evidence,
+        predecessorBaselineDigest: before.baselineHash,
+        predecessorProjectionDigest: before.projectionDigest ?? before.absenceDigest!,
+        ...changes,
+      };
+      return { ...base, tupleDigest: identityHash(base) } as ProgressBinding;
+    }
     test('validly re-signed absent-baseline mutations cannot substitute unrelated subjects', () => {
       const original = progressRow.envelope.payload as ProgressBinding;
       const set = initialSetRow.envelope.payload;
@@ -1120,6 +1138,67 @@ try {
       assert.throws(() => routes.finding_progress_capture({ ...progressInput, idempotencyKey: 'wrong-baseline', predecessor: findingConsentRef }), /baseline/);
       const binding = progressRow.envelope.payload;
       for (const value of [{ ...binding, evidence: {} }, { ...binding, kind: 'target_source_change' }, { ...binding, signedBy: 'source-author' }]) assert.throws(() => validateProgress(value, routeTrust));
+    });
+    test('failed target test outcome is valid evidence but not semantic progress', () => {
+      const ledgerBefore = store.readFindingLedger(targetId).records.length;
+      const before = (initialSetRow.envelope.payload as BaselineSet).baselines
+        .find(row => (row.payload as ProgressBaseline).kind === 'target_test_result')!.payload as ProgressBaseline;
+      const common = {
+        kind: 'target_test_result' as const,
+        commandDigest: identityHash({ executable: targetCommand.executable, args: targetCommand.args, shell: false }),
+        selectorDigest: identityHash('TARGET_TEST_PASS'),
+        executionKey: 'signed-test-outcome-control',
+        receiptHash: sha('signed-test-outcome-control'),
+      };
+      const passing = resignProgressMutation({ ...common, outcome: 'pass' }, before);
+      validateProgress(passing, routeTrust);
+      assert.doesNotThrow(() => assertProgressTransition(before, passing));
+      const failing = resignProgressMutation({ ...common, outcome: 'fail', executionKey: 'signed-test-outcome-failure', receiptHash: sha('signed-test-outcome-failure') }, before);
+      validateProgress(failing, routeTrust);
+      assert.throws(() => assertProgressTransition(before, failing), /test regression/);
+      assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
+    });
+    test('status regression from a signed present predecessor is refused', () => {
+      const ledgerBefore = store.readFindingLedger(targetId).records.length;
+      const absent = (initialSetRow.envelope.payload as BaselineSet).baselines
+        .find(row => (row.payload as ProgressBaseline).kind === 'target_status_transition')!.payload as ProgressBaseline;
+      const priorProjection = { kind: 'target_status_transition' as const, itemId: targetItemId, state: 'in_progress' as const,
+        transitionPolicyDigest: identityHash(['pending', 'in_progress', 'done']) };
+      const { baselineHash: _baselineHash, absenceDigest: _absenceDigest, ...baselineBase } = {
+        ...absent,
+        projectionState: 'present' as const,
+        projection: priorProjection,
+        projectionDigest: identityHash(semanticProjection(priorProjection)),
+      };
+      const before = { ...baselineBase, baselineHash: identityHash(baselineBase) } as ProgressBaseline;
+      validateBaseline(before);
+      const forwardProjection = { ...priorProjection, state: 'done' as const };
+      const forward = resignProgressMutation(forwardProjection, before);
+      validateProgress(forward, routeTrust);
+      assert.doesNotThrow(() => assertProgressTransition(before, forward));
+      const regressiveProjection = { ...priorProjection, state: 'pending' as const };
+      const regressive = resignProgressMutation(regressiveProjection, before);
+      validateProgress(regressive, routeTrust);
+      assert.throws(() => assertProgressTransition(before, regressive), /status regression\/no-op/);
+      assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
+    });
+    test('predecessor digest substitutions refuse without ledger mutation', () => {
+      const ledgerBefore = store.readFindingLedger(targetId).records.length;
+      const before = (initialSetRow.envelope.payload as BaselineSet).baselines
+        .find(row => (row.payload as ProgressBaseline).kind === 'target_status_transition')!.payload as ProgressBaseline;
+      const control = progressRow.envelope.payload as ProgressBinding;
+      validateProgress(control, routeTrust);
+      assert.doesNotThrow(() => assertProgressTransition(before, control));
+      for (const changes of [
+        { predecessorBaselineDigest: sha('substituted-predecessor-baseline') },
+        { predecessorProjectionDigest: sha('substituted-predecessor-projection') },
+      ]) {
+        const { tupleDigest: _tuple, ...base } = { ...control, ...changes };
+        const mutant = { ...base, tupleDigest: identityHash(base) } as ProgressBinding;
+        validateProgress(mutant, routeTrust);
+        assert.throws(() => assertProgressTransition(before, mutant), /wrong\/stale same-kind predecessor/);
+      }
+      assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
     });
     test('old execution cannot be laundered by a newly signed target capture', () => {
       assert.throws(() => routes.finding_progress_capture({ ...progressInput, idempotencyKey: 'old-test-progress', kind: 'target_test_result', executionKey: oldTargetTest.key.key }), /execution predates/);
