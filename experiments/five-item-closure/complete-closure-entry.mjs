@@ -1,3 +1,4 @@
+await import('./value-binding-diagnostics.mjs');
 await import('./shared-identity-ownership.mjs');
 const {spawnSync} = await import('node:child_process');
 const {default:assert} = await import('node:assert/strict');
