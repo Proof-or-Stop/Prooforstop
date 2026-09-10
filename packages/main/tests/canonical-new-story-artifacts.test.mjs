@@ -2474,7 +2474,7 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
   {"sourcePath":"proof-or-stop.config.json","canonical":"proof-or-stop-experience-layer-v1.1-zh.md","occurrences":1,"contextSha256":"a0430b5c5f5727862f4f3c486638fdda0d0dd464c26f80a09fafe6c6acded30c","kind":"scope-governance-document-path","reason":"Exact responsibility-domain source path names the existing experience-layer design document; not an executable protocol identity or compatibility reader.","proof":"node scripts/verify-root-scope-budget-policy.mjs"},
-  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "5001b285aeb348a2cab4b66a2bfad24d4be9451ae2255390fe1fcff168068c74", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
+  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "c2838cff883a5e69713276550c3bea48153a8c102dcc9f625171b49c96740cd7", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
   {
     sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     canonical: 'proof-or-stop-finish-decision-boundary-',
@@ -2829,7 +2829,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",13,"4b3c8de0dda554229bf963960ef071897928c389d4046c70153f59894fccbd40"],
+  ["proof-or-stop.config.json","proof-or-stop.config.json",13,"06fc6b4edcc3a2089d865ff5a544a413ef65f7b7cbc8c9628a06b4b680c712e5"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2913,7 +2913,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 383, "contextSha256": "5c2fb4f7b814f718ac1198e151633ec0ce676268405bf7b9855349c5f53d9653"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 384, "contextSha256": "9b9969be49d5d005708420fe3965c9520ef6612fea273981b8517a87598dccba"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -3045,8 +3045,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/review-inventory-epoch.ts",
-    "occurrences": 56,
-    "contextSha256": "c77a08c0bde554abc81514c5ddb55cc1b9adb35ad9a006c9404c24fa9bdf1685"
+    "occurrences": 58,
+    "contextSha256": "63045c02af27c3806b827807dc06da94714ae4c5057936fa27152acb18539e8c"
   },
   {
     "sourcePath": "packages/main/src/core/review-run.ts",

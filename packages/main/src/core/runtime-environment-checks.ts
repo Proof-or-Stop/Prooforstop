@@ -1219,7 +1219,7 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 // the runtime never computes a new expected digest from the candidate itself.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
   'packages/main/src/core/evidence-freshness.ts': 'a1599c7381c43d16caa4f9947cc1b48e0b624927aec3f9d76f5a4e16f3cfea11',
-  'packages/main/src/core/review-inventory-epoch.ts': 'b48eb113b0ec72088912d2bee2a29b13b750b460f5e603602a050ef51e192216',
+  'packages/main/src/core/review-inventory-epoch.ts': 'ca84ff5ac2a97e45c236885eaed02d8236be7d02bc82f348f0c691588a08437e',
   'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
   'packages/main/src/handlers/checklist.ts': 'e1ceb08a68df40eef619ff3f30f4bc5e32de71f785f8abcfd45332959227cab9',
 });

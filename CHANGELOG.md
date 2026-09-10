@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.3.307 — Integrated Validation Closure — 2026-09-10
+
+### Release context
+
+The local `v0.3.306` line already contained every maintenance increment from `v0.3.301` through `v0.3.306` on top of `v0.3.300`. Remote `main` had independently added three commits from the same `v0.3.300` lineage to close the final validation-identity and package-boundary gaps. This release merges those two lines once and assigns a new version to the combined result; it does not replay or duplicate any earlier release.
+
+### Problem before the merge
+
+- The local line contained the sealed-review finalization, scope-budget provenance and legacy migration repairs, managed nested-sandbox repair, inventory-critic managed admission, and live metadata projection.
+- The remote line contained the final validation-identity closure, dependency-aware offline package verification, and its maintenance record.
+- Each line had valid evidence for its own source bytes, but the combined tree changed reviewed source and fixture inventories, executable identity bindings, dependency locks, and static-edge dependency digests. Keeping either branch's old pins would make the merged product fail closed even though the underlying behavior was preserved.
+- The remote package metadata still identified the older release line, so publishing the merge without a new version would make the integrated artifact indistinguishable from either parent.
+
+### Resolution
+
+- Merged the remote validation-closure commits into the complete local `v0.3.306` history while preserving all local `v0.3.301`–`v0.3.306` behavior and changelog records.
+- Advanced the root CLI and Core package identity to `0.3.307`, including lockfile and runtime brand metadata.
+- Preserved the exact `smol-toml` and `ws` dependency closure used by the validation and clean-install boundaries.
+- Recomputed the reviewed source, fixture, and executable-structure bindings from the actual merged bytes. The active review-inventory epoch consumer is now pinned to the built runtime representation used by production checks.
+- Refreshed only the exact dependency digests for existing static-edge exceptions. No exception reason, invocation, command coverage, or authority boundary was widened.
+- Preserved the remote final-validation checks and the local inventory-critic regressions in one buildable, packageable release line.
+
+### Before and after
+
+- **Before:** local and remote `main` each contained work absent from the other; the merged working tree initially reported stale identity and static-edge evidence, and a cold offline package test lacked the newly required dependency cache entries.
+- **After:** `main` contains both parent histories under `v0.3.307`; all reviewed bindings describe the combined bytes, the static-edge inventory reports zero unresolved or nested calls, and all four product tarballs install and verify with networking disabled.
+
+### Verification evidence
+
+- `npm run build` passed for Core, Utils, Graph, and the full-suite build binding.
+- `npm --prefix packages/lab run build` passed.
+- Runtime Story command coverage passed, including active-worktree reviewer reads, foreign-runtime write refusal, matching-runtime writes, and external installed-package consumers.
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`.
+- `INVENTORY_CRITIC_MANAGED_ADMISSION PASS`.
+- The process-fact contract passed with 539 registered entries.
+- The retired-authority vocabulary guard passed with 890 builds, 4 cache hits, 1,436 full analyses, 580 AST candidates, and 34 reachability checks.
+- The validation static-edge verifier passed with `needsReview=0`, `nested=0`, and `unexpandedCommands=0`.
+- The identity-cutover verifier passed all active identity, frozen-history, persisted-schema, consumer-runtime, and package-boundary checks.
+- The packed clean-install boundary passed for `proof-or-stop`, `@proof-or-stop/core`, `@proof-or-stop/lab`, and `@proof-or-stop/utils`, including canonical package, binary, and role identities with no retired-scope or local-file dependencies.
+- `git diff --check` passed before commit.
+
 ## Lab inventory-critic-live-metadata-projection - v0.3.306 - 2026-09-10
 
 # Inventory Critic Live Metadata Projection
@@ -152,6 +193,19 @@ No B-03b7 implementation file was edited in the Story worktree. An unrelated det
 
 Maintenance provenance: codex/lab-sealed-review-pass-finalization, repair 11e7b4e9e23228ed896c9ea9e9012d70bbd55fab.
 Verification command (replayed before integration and on main): `["node","--import","tsx","packages/main/tests/red/red-sealed-review-pass-finalization.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab final-160-closure - v0.3.298 - 2026-09-10
+
+The exact 160-command final validation completed with 158 passes and two failures.
+This Lab repairs the stale cli-engine structural identity pin and closes the packed
+consumer dependency graph for smol-toml and ws. It also refreshes only the exact
+reviewed identity and U-18 static-edge bindings. The retired vocabulary guard,
+process-fact contract, package boundary, identity boundary, reviewed-context
+mutations, and U-18 static controls all pass after the repair.
+
+Maintenance provenance: codex/lab-final-160-closure, repair a84c5f6091724b4f86da4065b0a155c5aa01b1b2.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Integrated Finding lineage and session-performance maintenance - v0.3.300 - 2026-09-10
