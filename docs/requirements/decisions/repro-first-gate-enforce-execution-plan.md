@@ -1,10 +1,6 @@
-# Trusted RED-to-GREEN Enforcement Program (v38)
+# Trusted RED-to-GREEN Enforcement Program (v37)
 
-Status: **FROZEN AUDIT CANDIDATE**. This v38 candidate preserves the v37 program design and reconciles its
-frozen 0.3.296 baseline narrative with the bounded Lab implementation shipped alongside this document. That
-Lab slice closes direct post-intake `story_create` entry and nothing else: it does not implement the trusted
-RED evidence subsystem, activate the enforcement floor, or complete P1f. The companion remains rev 14 because
-this reconciliation changes no companion-owned W2 schema or protocol. The v37 candidate preserved the v36 design and closed documentary round
+Status: **FROZEN AUDIT CANDIDATE**. This v37 candidate preserves the v36 design and closes documentary round
 R31 by aligning companion rev 14 with the complete program lock order, correcting R30's premature companion
 scope claim, and tightening the summary GREEN wording to `strict descendant`. v36 preserved the v35 design and closed the recoverability
 and lock-order defects found by the fresh but procedurally unrecordable Claude CLI audit documented as R30:
@@ -251,11 +247,9 @@ required-intent policy states the single mechanism.
 - A documentation-labelled Story that changes scripts, configuration, generators, CLI example contracts, executable snippets used by validation, or runtime gates is not exempt.
 - Visual or non-deterministic behavior that is executable but cannot be asserted by the bounded mechanical runner remains non-exempt. It uses an attributable characterization or manual-observation protocol with a stable target, captured artifact, reviewer identity, and before/after relation.
 
-## 3. Frozen 0.3.296 baseline and bounded Lab slice
+## 3. Current 0.3.296 source truth
 
-The immutable 0.3.296 baseline did **not** satisfy the required outcome. Unless a bullet explicitly names the
-bounded Lab slice, every present-tense implementation statement in this section describes that frozen baseline,
-not the release containing v38:
+The baseline does **not** satisfy the required outcome:
 
 - `resolveReproFirstPreflightMode` in `packages/main/src/core/repro-evidence-binding-gate.ts` currently resolves
   a live three-value `"off" | "warn" | "enforce"` union (`ReproFirstPreflightMode` in that file;
@@ -265,32 +259,25 @@ not the release containing v38:
 - `classifyTriggers` in `packages/main/src/core/proofstory.ts` marks a material-code-only RED trigger `diagnosticOnly`; it therefore cannot create an enforceable gap by itself.
 - `redEvidenceRecordSatisfied` excludes v2 records from the live predicate and accepts shaped v1 caller-authored records through a weaker compatibility predicate.
 - The v2 surface currently implements target binding, quarantine/recover, and read-only envelope checking. It does not yet implement `red_evidence_assert`, `red_evidence_green_confirm`, or `redEvidenceGateQuery`.
-- At the frozen 0.3.296 baseline, `story_create` accepted direct `PLAN|DEV|REVIEW|TEST|DONE` creation, so it could bypass
-  transition-owned facts and even mint a REVIEW round. The exact baseline surface, so the §6 and §13 closure
+- `story_create` currently accepts direct `PLAN|DEV|REVIEW|TEST|DONE` creation, so it can bypass
+  transition-owned facts and even mint a REVIEW round. The exact current surface, so the §6 and §13 closure
   lists can be read against it without a gap: the `story_create` schema in
   `packages/main/src/cli/command-catalog.ts` admits `phase` from the enum
   `IDEA|INIT|INIT_CHECK|PLAN|DEV|REVIEW|TEST|DONE`, and the handler in
   `packages/main/src/handlers/story-create.ts` refuses only `INIT_CHECK`
   (`story_create_direct_init_check_forbidden`). **`DISCARDED` is not a member of that enum today**, so it is
-  was rejected as an unknown schema value rather than by any dedicated lifecycle refusal. P1f closes
+  currently rejected as an unknown schema value rather than by any dedicated lifecycle refusal. P1f closes
   direct `INIT_CHECK|PLAN|DEV|REVIEW|TEST` and additionally names `DISCARDED` explicitly in its refusal list
   alongside every unknown value, so the closure is total today and stays total if that enum is ever widened;
   §6 and §13 state the same list. P1f removes direct DONE as well: historical material may be imported only
   through a separately designed, non-Story migration surface, never by constructing a terminal Story.
-- A prior bounded local Lab candidate on branch `codex/lab-repro-first-enforcement-0296` at
+- A bounded local Lab candidate on branch `codex/lab-repro-first-enforcement-0296` at
   `b0ab33dbdc1e1573e9fa6a4999da076b11be2ad3` already proves one possible closure of that direct-create gap:
   its RED reproduces post-intake phase creation on this 0.3.296 baseline, its GREEN rejects every explicit
   phase except `IDEA|INIT` before persistence, and an independent Claude CLI audit returned PASS. It is not
   merged into `main`, is not formal Story evidence, and changes no current-truth statement or workstream
   completion claim. P1f may adopt or supersede that candidate only through its own governed scope, review,
   tests, and local-main integration evidence.
-- The bounded Lab release containing v38 adopts only that direct-entry closure against local-main 0.3.306:
-  the public `story_create` schema accepts explicit `IDEA|INIT` only and returns
-  `story_create_direct_lifecycle_phase_forbidden` for every post-intake enum value; the handler independently
-  refuses `INIT_CHECK|PLAN|DEV|REVIEW|TEST|DONE` before persistence; terminal fixtures use fixture-only state
-  setup; and CLI, handler, adversarial no-persistence, and real-process concurrency regressions cover the
-  boundary. This is a partial P1f implementation and is not evidence that any other P1f requirement or any
-  trusted RED/GREEN program workstream is complete or active.
 - Lab records are local maintenance evidence only. They are not formal Story RED, GREEN, REVIEW, TEST, DONE, or product-release evidence.
 - 0.3.296 adds owner-only signed `verification_intent_append` in DEV, signed INIT/PLAN intent revisions,
   retained Git-anchored intent checkpoints, and `verification_intent_recover`. Canonical checklist reads
