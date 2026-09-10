@@ -184,8 +184,8 @@ async function main(): Promise<void> {
     assert.equal(persistedSpec.managedReviewScratch?.cwd, binding.cwd, 'sealed scratch registration binds the spec cwd');
     assert.equal(persistedSpec.managedReviewScratch?.headHash, headHash, 'sealed scratch registration binds the submitted HEAD');
     assert.equal(completed.plan?.cwd, binding.cwd, 'provider plan executes only in the sealed detached scratch cwd');
-    assert.deepEqual(completed.plan?.argv, ['exec', '--json', '-s', 'read-only', '-C', binding.cwd, '-'],
-      'Codex managed-review launch uses observable JSON plus native read-only mode with the scratch cwd');
+    assert.deepEqual(completed.plan?.argv, ['exec', '--json', '-s', 'danger-full-access', '-C', binding.cwd, '-'],
+      'Codex managed-review launch delegates isolation to the outer signed read-only lane while retaining the scratch cwd');
     assert.equal(existsSync(dirname(binding.cwd)), false,
       'a proven safe terminal removes only its managed-review scratch parent');
     assert.equal(isRegistered(root, binding.cwd), false,
