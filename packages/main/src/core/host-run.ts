@@ -57,6 +57,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   canonicalReviewHostLauncherSpec,
@@ -1105,17 +1106,14 @@ export interface HostRunRunnerRuntime {
   cancel?: (timer: NodeJS.Timeout) => void;
 }
 
-// Minimal backport of main's isolated-group principle, without the separate
-// managed-review supervisor. Only a fresh, matching live group leader authorizes
-// signalling its group; persisted or injected process identities are never used.
+// Own an isolated group through a pipe-lifetime anchor. A matching fingerprint
+// (or a fresh late observation while its ChildProcess is still unreaped) permits
+// group signalling; persisted and injected process identities never do.
 function liveHostStartFingerprint(pid: number): string | null {
   if (process.platform === 'win32' || !Number.isSafeInteger(pid) || pid <= 1) return null;
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    try {
-      const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-      if (value) return value;
-    } catch { /* A just-spawned child may not be visible yet. */ }
-  }
+  try {
+    return execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], { encoding: 'utf8', timeout: 1000, stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null;
+  } catch { /* Retry only at termination, while the owned anchor remains live. */ }
   return null;
 }
 
@@ -1149,6 +1147,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let child: ReturnType<typeof spawn> | null = null;
     const isolatedGroup = process.platform !== 'win32' && runtime.spawnChild === undefined;
     let groupFingerprint: string | null = null;
+    let providerClose: { code: number | null; signal: NodeJS.Signals | null } | null = null;
+    let anchorMessageHandler: ((message: unknown) => void) | null = null;
     let stdoutHandler: ((text: string) => void) | null = null;
     let stderrHandler: ((text: string) => void) | null = null;
     let errorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
@@ -1186,6 +1186,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (stderrHandler) child.stderr?.removeListener('data', stderrHandler);
       if (errorHandler) child.removeListener('error', errorHandler);
       if (closeHandler) child.removeListener('close', closeHandler);
+      if (anchorMessageHandler) child.removeListener('message', anchorMessageHandler);
+      anchorMessageHandler = null;
       stdoutHandler = null;
       stderrHandler = null;
       errorHandler = null;
@@ -1217,7 +1219,12 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     };
 
     try {
-      child = (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
+      child = isolatedGroup ? spawn(process.execPath, [fileURLToPath(new URL('./host-run-group-anchor.js', import.meta.url)), plan.command, ...plan.argv], {
+        cwd: plan.cwd,
+        env: plan.env,
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+        detached: isolatedGroup,
+      }) : (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,
         env: plan.env,
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -1322,7 +1329,18 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       // follows the same close/reap boundary before capacity can be released.
     };
     child.on('error', errorHandler);
+    if (isolatedGroup) {
+      anchorMessageHandler = (message: unknown) => {
+        if (!message || typeof message !== 'object') return;
+        const event = message as { schema?: string; event?: string; code?: unknown; signal?: unknown };
+        if (event.schema !== 'host-group-anchor.v1') return;
+        if (event.event === 'spawn-error') errorHandler?.(Object.assign(new Error('provider spawn failed'), { code: event.code }) as NodeJS.ErrnoException);
+        if (event.event === 'close') providerClose = { code: typeof event.code === 'number' ? event.code : null, signal: typeof event.signal === 'string' ? event.signal as NodeJS.Signals : null };
+      };
+      child.on('message', anchorMessageHandler);
+    }
     closeHandler = (code, signal) => {
+      if (providerClose) ({ code, signal } = providerClose);
       if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
         failureKind = preferredHostFailure(failureKind, classifyHostExecutionFailure({
           error: undefined,

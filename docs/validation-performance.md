@@ -110,12 +110,20 @@ canonical CLI entries and ordinary Node tools remain available. The guard's own
 directory fixes the entry allowlist, so editing a manifest cannot enroll an old
 unaware CLI. This is cooperative inherited-environment protection, not an OS
 sandbox against environment removal, alternate runtimes, or disguised imports.
+Copied entries with different filenames and packages using retired names are
+outside this recognition boundary; the symlink test proves realpath alias
+handling only.
 Existing foreign desktop sessions are not migrated by starting a Lab session.
 
 The Lab host runner backports the isolated-process-group principle already on
-main: timeout/cancellation signals the fresh owned POSIX group when its live
-leader fingerprint matches. This prevents ordinary descendants from retaining
-stdout and extending recovery past the provider timeout. Missing group identity,
+main, with a local pipe-lifetime anchor: the provider runs inside the isolated
+group, while the anchor remains alive until provider stdout/stderr close. A
+provider that exits first therefore cannot remove the owned leader while its
+descendants retain those pipes. Timeout/cancellation signals that owned group
+with a matching live fingerprint (or a fresh late observation of the still
+unreaped anchor). Provider exit code, signal and spawn errors use private IPC;
+output remains streamed. This adds one Node process per real POSIX run, so normal
+command overhead is measured separately from timeout recovery. Missing identity,
 injected runner seams, and Windows retain direct-child fallback; that fallback
 does not prove descendant cleanup. A process that deliberately creates another
 group is outside this bounded cleanup guarantee. Failure stays failure; recovery

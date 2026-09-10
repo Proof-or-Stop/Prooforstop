@@ -125,6 +125,7 @@ async function main() {
   check(sessionLauncher.includes('env.NODE_OPTIONS=transportOptions') && sessionLauncher.includes('nodeOptionsDigest') && sessionPreload.includes('IMPLEMENTATION_SESSION_ENTRY_REFUSED'), 'inherited Node session transport must reject unaware old CLI entries');
   const hostRunner = read(root, 'packages/main/src/core/host-run.ts');
   check(hostRunner.includes('detached: isolatedGroup') && hostRunner.includes('liveHostStartFingerprint') && hostRunner.includes("process.kill(-pid, 'SIGKILL')"), 'host timeout cleanup must bind its owned process group');
+  check(hostRunner.includes('host-run-group-anchor.js') && hostRunner.includes('host-group-anchor.v1'), 'owned leader must outlive provider exit while descendant pipes remain open');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');

@@ -235,7 +235,7 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   activityWitness: 'existing-records-only-entry-admission-or-unverified',
   sessionEntryTransport: 'inherited-node-entry.v1',
   legacyEntryPolicy: 'preload-refuses-unapproved-recognized-cli-before-old-core',
-  hostTimeoutCleanup: 'fresh-owned-posix-group-or-direct-child-fallback',
+  hostTimeoutCleanup: 'pipe-lifetime-anchor-owned-posix-group-or-direct-child-fallback',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
