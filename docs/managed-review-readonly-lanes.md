@@ -46,3 +46,17 @@ noninteractive environment route remains available. JSON settings must be an
 object. An explicitly selected Codex credential store must be `file`.
 These checks establish supported local syntax and shape only, not token validity
 at a server. Errors do not echo credential/configuration contents.
+
+Fresh `cross_host_review` runs use this adapter on their existing registered,
+clean detached snapshot. The sealed spec retains `cross_host_review_codex` and
+binds the snapshot HEAD and private build; it does not become an ordinary
+managed-review scratch run. Both worker launch and successful result consumption
+verify the binding. The cross-host controller and its existing garbage collector
+retain snapshot cleanup ownership. Status reads remain valid after cleanup.
+
+The trusted fresh-run controller resolves the original selected credential
+directory before redacting the provider environment. Missing executables and
+malformed supported credential files fail before snapshot creation or worker
+startup. Providers receive the private credential copy, not write access to the
+original directory. Resuming an existing run attaches its original sealed spec;
+it does not build a new lane or retroactively certify legacy runs as isolated.

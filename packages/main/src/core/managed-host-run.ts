@@ -523,6 +523,8 @@ interface ManagedHostRunSpec {
   root: string;
   /** Present only for public host_run --managedReview isolated executions. */
   managedReviewScratch?: ManagedReviewScratchWorktree | null;
+  /** Sealed runtime for the existing cross-host snapshot; its controller owns cleanup. */
+  crossHostReadonlyLane?: ManagedReviewLane;
   createdAt: string;
   deadlineAt: string;
   timeoutMs: number;
@@ -752,6 +754,27 @@ const CROSS_HOST_REVIEW_SNAPSHOT_PREFIXES: readonly string[] = [
   'lattice-xhr-review-',
 ];
 
+function crossHostReadonlySnapshot(root: string, cwd: string) {
+  const canonicalRoot = realpathSync(root), canonicalCwd = realpathSync(cwd);
+  const parent = dirname(canonicalCwd);
+  if (canonicalCwd !== resolve(cwd) || basename(canonicalCwd) !== 'worktree'
+    || dirname(parent) !== realpathSync(tmpdir())
+    || !CROSS_HOST_REVIEW_SNAPSHOT_PREFIXES.some(prefix => basename(parent).startsWith(prefix))
+    || lstatSync(parent).isSymbolicLink() || lstatSync(cwd).isSymbolicLink()) {
+    throw new Error('cross-host readonly snapshot is outside its canonical owned boundary');
+  }
+  const records = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+    cwd: canonicalRoot, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024,
+  }).split('\n\n').map(block => block.split('\n'));
+  const registered = records.find(lines => lines.includes(`worktree ${canonicalCwd}`));
+  const headHash = managedReviewScratchHead(canonicalCwd);
+  if (!registered?.includes('detached') || !registered.includes(`HEAD ${headHash}`)) {
+    throw new Error('cross-host readonly snapshot must be a registered detached worktree');
+  }
+  execFileSync('git', ['diff', '--quiet', 'HEAD', '--'], {cwd: canonicalCwd, stdio:'pipe'});
+  return {root:canonicalRoot, cwd:canonicalCwd, parent, headHash};
+}
+
 /**
  * Remove only the detached cross-host snapshot shape created by the managed
  * adapter. The canonical tmp boundary is checked before either git metadata or
@@ -759,6 +782,12 @@ const CROSS_HOST_REVIEW_SNAPSHOT_PREFIXES: readonly string[] = [
  * turn retention GC into an arbitrary deletion primitive.
  */
 export function cleanupManagedCrossHostReviewWorktree(gitCwd: string, worktree: string): void {
+  // Accept the historical lexical tmp alias, but never follow a replaced parent.
+  const lexicalParent = dirname(worktree);
+  if (existsSync(lexicalParent) && lstatSync(lexicalParent).isSymbolicLink()) {
+    throw new Error('managed host run: cross-host snapshot parent is a symlink');
+  }
+  worktree = join(realpathSync(dirname(lexicalParent)), basename(lexicalParent), basename(worktree));
   const parent = dirname(worktree);
   if (basename(worktree) !== 'worktree'
     // B-137a main-merge fix: the snapshot CREATOR
@@ -770,7 +799,7 @@ export function cleanupManagedCrossHostReviewWorktree(gitCwd: string, worktree: 
     // is still cleanable rather than leaked. Both remain exact-prefix checks
     // under tmpdir(), so the boundary is not widened beyond these two names.
     || !CROSS_HOST_REVIEW_SNAPSHOT_PREFIXES.some(prefix => basename(parent).startsWith(prefix))
-    || dirname(parent) !== tmpdir()) {
+    || dirname(parent) !== realpathSync(tmpdir())) {
     throw new Error(`managed host run: cross-host review snapshot is outside the canonical temporary boundary: ${worktree}`);
   }
   if (!existsSync(worktree)) {
@@ -972,6 +1001,7 @@ function cleanupManagedReviewScratchWorktree(gitCwd: string, scratch: ManagedRev
 
 /** Temp state belongs beside the detached source, never in the source tree. */
 function managedReviewTemporaryEnvironment(spec: ManagedHostRunSpec): NodeJS.ProcessEnv {
+  if (spec.crossHostReadonlyLane) return managedReviewLaneEnvironment(spec.crossHostReadonlyLane);
   if (!spec.managedReviewScratch) return {};
   const scratch = spec.managedReviewScratch;
   assertManagedReviewScratchShape(scratch);
@@ -997,6 +1027,14 @@ function assertManagedReviewScratchExecution(
   spec: ManagedHostRunSpec,
   options: { verifyBoundMaterial?: boolean } = {},
 ): void {
+  if (spec.crossHostReadonlyLane) {
+    if (spec.profile !== 'cross_host_review_codex' || spec.host !== 'codex' || spec.managedReviewScratch) {
+      throw new Error('managed host run: cross-host readonly lane profile mismatch');
+    }
+    const expected = crossHostReadonlySnapshot(spec.root, spec.cwd);
+    if (expected.headHash !== spec.crossHostReadonlyLane.binding.headHash) throw new Error('cross-host readonly snapshot HEAD changed');
+    verifyManagedReviewLane(spec.crossHostReadonlyLane, expected);
+  }
   const scratch = spec.managedReviewScratch;
   if (!scratch) return;
   if (!isIsolatedReviewerProfile(spec.profile)
@@ -2275,7 +2313,8 @@ export async function submitManagedHostRun(
     }
   }
 
-  const requestedReadonlyLane = args.isolateManagedReview === true ? resolveManagedReviewIsolation(args.root) : null;
+  const requestedReadonlyLane = args.isolateManagedReview === true || args.profile === 'cross_host_review_codex'
+    ? resolveManagedReviewIsolation(args.root) : null;
   if (requestedReadonlyLane) {
     preflightManagedReadonlyHost(args.host, args.cwd, {...process.env,...args.environment});
     preflightManagedProviderState(args.host, {...process.env,...args.environment});
@@ -2331,6 +2370,7 @@ export async function submitManagedHostRun(
   }
 
   let managedReviewScratch: ManagedReviewScratchWorktree | null = null;
+  let crossHostReadonlyLane: ManagedReviewLane | undefined;
   try {
     if (args.isolateManagedReview === true) {
       managedReviewScratch = createManagedReviewScratchWorktree({
@@ -2344,6 +2384,10 @@ export async function submitManagedHostRun(
         atomicWrite(managedReviewScratchRegistrationPath(managedReviewScratch), sealedScratch);
         managedReviewScratch = sealedScratch;
       }
+    }
+    if (requestedReadonlyLane && args.profile === 'cross_host_review_codex') {
+      if (args.host !== 'codex') throw new Error('cross-host readonly profile requires Codex');
+      crossHostReadonlyLane = await createManagedReviewLane(crossHostReadonlySnapshot(args.root, args.cwd), args.host, {...process.env,...args.environment});
     }
   } catch (error) {
     if (managedReviewScratch) cleanupManagedReviewScratchWorktree(args.root, managedReviewScratch);
@@ -2371,6 +2415,7 @@ export async function submitManagedHostRun(
     cwd: managedReviewScratch?.cwd ?? args.cwd,
     root: args.root,
     managedReviewScratch,
+    ...(crossHostReadonlyLane ? {crossHostReadonlyLane} : {}),
     createdAt,
     deadlineAt,
     timeoutMs,
@@ -2756,7 +2801,8 @@ export async function runManagedHostRunWorker(
     // selector leak into a child as ambient authority or confuse nested CLI
     // commands that did not inherit the worker capability descriptor.
     delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;
-    if(spec.managedReviewScratch?.readonlyLane) providerEnvironment.PATH = join(spec.managedReviewScratch.parent,MANAGED_REVIEW_LANE_ARTIFACT.directoryName,MANAGED_REVIEW_LANE_ARTIFACT.launchers)+':'+(providerEnvironment.PATH ?? process.env.PATH ?? '');
+    const readonlyLane = spec.managedReviewScratch?.readonlyLane ?? spec.crossHostReadonlyLane;
+    if(readonlyLane) providerEnvironment.PATH = join(dirname(readonlyLane.layout.buildSource),MANAGED_REVIEW_LANE_ARTIFACT.launchers)+':'+(providerEnvironment.PATH ?? process.env.PATH ?? '');
     result = await runHostRun(
       {
         host: spec.host,
@@ -2777,7 +2823,7 @@ export async function runManagedHostRunWorker(
           : isIsolatedReviewerProfile(spec.profile)
             ? { launchProfile: 'managed_reviewer' as const }
             : {}),
-        ...(spec.managedReviewScratch?.readonlyLane ? {managedReadonlyLayout: spec.managedReviewScratch.readonlyLane.layout} : {}),
+        ...(readonlyLane ? {managedReadonlyLayout: readonlyLane.layout} : {}),
         cwd: spec.cwd,
         root: spec.root,
         recordedAt: new Date(now()).toISOString(),
@@ -2876,7 +2922,7 @@ export async function runManagedHostRunWorker(
     // Re-check both the registration/HEAD and the clean material immediately
     // after provider exit, before accepting a compatibility proposal, parsing
     // final stdout, or sealing any completed terminal record.
-    if (isIsolatedReviewerProfile(spec.profile)) {
+    if (isIsolatedReviewerProfile(spec.profile) || spec.crossHostReadonlyLane) {
       try {
         assertManagedReviewScratchExecution(spec, { verifyBoundMaterial: true });
       } catch (error) {

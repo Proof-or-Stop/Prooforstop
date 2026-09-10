@@ -634,3 +634,9 @@ and lane automatically. Concurrent callers and restarted controllers receive
 the same durable run; changed inputs for that identity are refused. A partial
 submission reports its run ID for recovery, and an archived run reports its
 terminal-receipt anchor. Neither condition authorizes another provider launch.
+
+For projects opting into `managedReviewIsolation`, fresh `cross_host_review`
+Codex runs also build a private readonly lane on the existing detached snapshot.
+Executable and supported credential-format preflight runs before creating that
+snapshot. Resume attaches the original sealed run without rebuilding or changing
+its recorded isolation facts. See [readonly lane support and limits](managed-review-readonly-lanes.md).

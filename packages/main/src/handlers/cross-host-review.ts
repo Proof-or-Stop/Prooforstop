@@ -1,4 +1,6 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { resolveManagedReviewIsolation, preflightManagedReadonlyHost } from '../core/managed-review-lane-policy.js';
+import { preflightManagedProviderState } from '../core/managed-review-provider-state.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
@@ -446,7 +448,7 @@ async function resumedManagedRunAllowsSnapshotCleanup(root: string, runId: strin
 }
 
 function createCleanHeadReviewWorktree(gitCwd: string, headHash: string): { worktree: string; cleanup: () => void } {
-  const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-review-'));
+  const parent = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-xhr-review-')));
   const worktree = join(parent, 'worktree');
   try {
     execFileSync('git', ['worktree', 'add', '--detach', worktree, headHash], {
@@ -1138,6 +1140,13 @@ export function createCrossHostReviewHandlers(
       // or clean HEAD move after the snapshot cannot influence what Codex reviewed,
       // and we refuse to bind/record the verdict if either drift is still present.
       const requestedManagedRunId = normalizeString(args.managedRunId);
+      if (!requestedManagedRunId && resolveManagedReviewIsolation(ctx.root)) {
+        // Credentials are selected by the trusted controller, before provider
+        // environment redaction; only the derived private cache reaches Codex.
+        const preflightEnvironment = {...process.env,...redactedEnv};
+        preflightManagedReadonlyHost('codex', gitCwd, preflightEnvironment);
+        preflightManagedProviderState('codex', preflightEnvironment);
+      }
       const resumedBinding = requestedManagedRunId
         ? readManagedHostRunBinding(ctx.root, requestedManagedRunId)
         : null;
