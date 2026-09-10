@@ -201,11 +201,12 @@
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
         "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 reviewed timeout smoke contract repair: four actual evidence execution boundaries retain configured timeout provenance and propagation. AST negative controls reject missing/constant budgets, mismatched command/root, mutable or overwritten budgets, and parse errors; extra non-executing resolver calls remain permitted. The fixture wrapper command and machine-isolation boundary are unchanged."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validate-command-timeout-smoke.ts": "090dc6433202693da3e42530d38237bc723b07b00c4c9bf1737137157392cabd",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts": "5b2788b28f04cebba1b2c5729b25d788c86302fc1f8a4b84e010933e70be41a3",
         "scripts/run-validation-fixture-suite.mjs": "741d84f50baf01988260e6448aba6aa2bef4fe4b02593737165706c1e1135661"
       }
     },

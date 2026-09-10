@@ -277,10 +277,10 @@ async function observeOverlap(plan, jobs) {
       'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
-    ['node packages/main/dist/tasks/quorum-submit-smoke.js',
-      'explicitly out of CHK-005 scope; splitting it is its own change'],
-    ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
-      'sweepLegacyProbeDebris rmSync-es marker-gated paths under repoRoot and BLOCK D asserts whole-tree git status'],
+    ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js',
+      'the fixture wrapper isolates the machine registry, but does not declare repository resource isolation; retain the outer exclusive barrier'],
+    ['node scripts/run-validation-fixture-suite.mjs packages/main/tests/red/red-b49d4-registration-derivation.mjs',
+      'the fixture wrapper isolates nested scheduler leases, but the complete derivation still requires repository config cleanliness and guarded-tree stability; retain the outer exclusive barrier'],
     ['node packages/main/tests/red/red-b49d4-chk002-receipt.mjs',
       'plants probe files at join(repoRoot, RED_PROBE_REL) and join(repoRoot, DIST_PROBE_REL) inside the repository'],
     ['node packages/main/tests/red/red-1734-lock-liveness.mjs',
@@ -321,6 +321,20 @@ async function observeOverlap(plan, jobs) {
     caught.length === 1 && caught[0].startsWith(injected));
   ok('the probe reports WHY the audit refused it, so a later author cannot re-declare it by accident',
     caught[0].includes(PROVEN_UNSAFE_TO_SHARE.get(injected)));
+  // Wrapping a suite is not permission to drop its outer resource boundary.
+  // Probe each exact current argv independently: a generic wrapper exemption
+  // would otherwise hide either suite from the audited barrier lookup.
+  for (const wrapped of [
+    'node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js',
+    'node scripts/run-validation-fixture-suite.mjs packages/main/tests/red/red-b49d4-registration-derivation.mjs',
+  ]) {
+    const forgedWrappedPlan = configured.map((command) => (argvOf(command) === wrapped
+      ? { ...command, resources: [REPO_READ] } : command));
+    const caughtWrapped = auditedBarrierRegressions(forgedWrappedPlan);
+    ok(`declaring the wrapped audited barrier is rejected: ${wrapped}`,
+      caughtWrapped.length === 1
+      && caughtWrapped[0] === `${wrapped} — ${PROVEN_UNSAFE_TO_SHARE.get(wrapped)}`);
+  }
   console.log('VI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted');
 }
 
