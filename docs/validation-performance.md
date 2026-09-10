@@ -117,16 +117,24 @@ Existing foreign desktop sessions are not migrated by starting a Lab session.
 
 The Lab host runner backports the isolated-process-group principle already on
 main, with a local pipe-lifetime anchor: the provider runs inside the isolated
-group, while the anchor remains alive until provider stdout/stderr close. A
+group, while the anchor remains alive until controller cleanup. A
 provider that exits first therefore cannot remove the owned leader while its
 descendants retain those pipes. Timeout/cancellation signals that owned group
 with a matching live fingerprint (or a fresh late observation of the still
 unreaped anchor). Provider exit code, signal and spawn errors use private IPC;
 output remains streamed. This adds one Node process per real POSIX run, so normal
 command overhead is measured separately from timeout recovery.
-Normal provider completion does not clean up background descendants that already
-closed all inherited output pipes; the independent audit observed that residual.
-This is a pipe-held timeout guarantee, not a complete background-task lifecycle.
+On normal provider completion the anchor flushes forwarded stdout/stderr before
+sending its private completion message, and keeps the group leader alive. The
+controller then signals the attested owned group and waits for the anchor's
+actual close before returning the original provider result. This also terminates
+ordinary background descendants that closed their output pipes but still hold
+resources needed by the next invocation. These bounded host jobs do not grant
+implicit permission to keep services running after the host finishes.
+If normal-completion cleanup cannot attest or signal the group, the runner emits
+`HOST_GROUP_CLEANUP_UNVERIFIED` and refuses success. A controller disconnect makes
+the private anchor terminate its own group. This is bounded local POSIX cleanup,
+not durable crash supervision or a guarantee against deliberate group escape.
 Missing identity, injected runner seams, and Windows retain direct-child fallback; that fallback
 does not prove descendant cleanup. A process that deliberately creates another
 group is outside this bounded cleanup guarantee. Failure stays failure; recovery

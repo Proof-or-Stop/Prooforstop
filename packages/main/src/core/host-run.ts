@@ -1238,6 +1238,15 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       return;
     }
 
+    const signalOwnedGroup = (): boolean => {
+      const pid = child?.pid;
+      if (!isolatedGroup || !pid || pid <= 1 || child?.exitCode !== null || child.signalCode !== null) return false;
+      const current = liveHostStartFingerprint(pid);
+      // Late observation only belongs to this still-unreaped owned anchor.
+      if (!groupFingerprint && current) groupFingerprint = current;
+      if (!groupFingerprint || current !== groupFingerprint) return false;
+      try { process.kill(-pid, 'SIGKILL'); return true; } catch { return false; }
+    };
     const terminate = (reason: 'startup_no_output_timeout' | 'total_timeout' | 'aborted'): void => {
       if (settled || timeoutKind !== null || terminalReason === 'aborted') return;
       if (reason === 'aborted') {
@@ -1250,17 +1259,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       }
       clearTimersAndListener();
       try {
-        const pid = child?.pid;
-        let signalledGroup = false;
-        if (isolatedGroup && pid && pid > 1 && child?.exitCode === null && child.signalCode === null) {
-          const current = liveHostStartFingerprint(pid);
-          // Late capture is safe only for this still-open ChildProcess handle.
-          if (!groupFingerprint && current) groupFingerprint = current;
-          if (groupFingerprint && current === groupFingerprint) {
-            try { process.kill(-pid, 'SIGKILL'); signalledGroup = true; } catch { /* fall back to the direct child */ }
-          }
-        }
-        if (!signalledGroup) child?.kill('SIGKILL');
+        if (!signalOwnedGroup()) child?.kill('SIGKILL');
       } catch {
         // Failed group attestation keeps the old direct-child fallback. It does
         // not establish descendant cleanup or permit a fabricated completion.
@@ -1335,7 +1334,21 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         const event = message as { schema?: string; event?: string; code?: unknown; signal?: unknown };
         if (event.schema !== 'host-group-anchor.v1') return;
         if (event.event === 'spawn-error') errorHandler?.(Object.assign(new Error('provider spawn failed'), { code: event.code }) as NodeJS.ErrnoException);
-        if (event.event === 'close') providerClose = { code: typeof event.code === 'number' ? event.code : null, signal: typeof event.signal === 'string' ? event.signal as NodeJS.Signals : null };
+        if (event.event === 'close' && providerClose === null) {
+          providerClose = { code: typeof event.code === 'number' ? event.code : null, signal: typeof event.signal === 'string' ? event.signal as NodeJS.Signals : null };
+          if (timedOut || terminalReason === 'aborted') return;
+          // The provider is done and output flushed, but its silent descendants
+          // can still own resources. Keep the anchor live until this cleanup.
+          if (!signalOwnedGroup()) {
+            providerClose.code = 1;
+            if (!asyncSpawnError) terminalReason = 'child_error';
+            failureKind = preferredHostFailure(failureKind, 'unknown');
+            const diagnostic = 'HOST_GROUP_CLEANUP_UNVERIFIED: completed provider group could not be attested or signalled\n';
+            retainedStderr = `${retainedStderr}${diagnostic}`.slice(-HOST_RUN_FAILURE_TEXT_CAP);
+            deliver({ stream: 'stderr', text: diagnostic });
+            try { child?.kill('SIGKILL'); } catch { /* deadline remains active */ }
+          }
+        }
       };
       child.on('message', anchorMessageHandler);
     }

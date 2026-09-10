@@ -126,6 +126,7 @@ async function main() {
   const hostRunner = read(root, 'packages/main/src/core/host-run.ts');
   check(hostRunner.includes('detached: isolatedGroup') && hostRunner.includes('liveHostStartFingerprint') && hostRunner.includes("process.kill(-pid, 'SIGKILL')"), 'host timeout cleanup must bind its owned process group');
   check(hostRunner.includes('host-run-group-anchor.js') && hostRunner.includes('host-group-anchor.v1'), 'owned leader must outlive provider exit while descendant pipes remain open');
+  check(hostRunner.includes('HOST_GROUP_CLEANUP_UNVERIFIED') && hostRunner.includes('signalOwnedGroup()'), 'normal completion must clean its owned group or refuse success');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');

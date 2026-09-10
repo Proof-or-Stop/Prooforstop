@@ -236,6 +236,7 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   sessionEntryTransport: 'inherited-node-entry.v1',
   legacyEntryPolicy: 'preload-refuses-unapproved-recognized-cli-before-old-core',
   hostTimeoutCleanup: 'pipe-lifetime-anchor-owned-posix-group-or-direct-child-fallback',
+  hostCompletionCleanup: 'flushed-output-live-anchor-group-signal-required-before-success',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
