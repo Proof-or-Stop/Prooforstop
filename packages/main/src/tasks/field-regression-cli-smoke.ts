@@ -490,75 +490,35 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
   }
 }
 
-async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise<void> {
+async function assertDirectReviewStoryCreateIsBlocked(): Promise<void> {
   const root = initRepo('proof-or-stop-field-direct-review-create-');
   try {
     const store = new StoryStore(root);
-    const directCreated = await runProofOrStop(root, 'story_create', {
+    const rejected = await runProofOrStopRaw(root, 'story_create', {
       name: 'direct-review-round',
       title: 'Direct review round',
-      description: 'Synthetic direct REVIEW creation should initialize review metadata.',
+      description: 'Synthetic direct REVIEW creation must not bypass lifecycle gates.',
       type: 'chore',
       priority: 'medium',
       phase: 'REVIEW',
       background: [
         '## Trigger Event',
-        '2026-06-12 B-direct-review-round reproduces a direct phase REVIEW story that previously lacked currentReviewRound and blocked reviewer commands.',
+        '2026-09-10 B-direct-review-round verifies that direct REVIEW creation is rejected before persistence.',
         '',
         '## Key Insights',
-        'The direct create path must persist the same review round metadata expected by review_run_start and review_loop_start.',
+        'REVIEW metadata is valid only after the Story traverses the lifecycle gates through story_advance.',
         '',
         '## Solution Tradeoffs',
-        'Initialize only the REVIEW direct phase instead of changing other onboarding/backfill phases.',
+        'Reject the compatibility shortcut instead of manufacturing REVIEW credentials during Story creation.',
         '',
         '## Conversational Texture',
-        'The operator expects a review-only docs pass to start immediately after creating the story in REVIEW.',
+        'The operator receives a stable error that directs the Story through INIT and the complete lifecycle.',
       ].join('\n'),
-      checklist: [{ title: 'Start review commands after direct creation', context: 'Covers review-only usage' }],
+      checklist: [{ title: 'Reject direct review creation', context: 'Covers lifecycle bypass prevention' }],
     });
-    const directStoryId = directCreated.match(/B-[a-f0-9]+/)?.[0];
-    assert.ok(directStoryId, `expected direct story id in output: ${directCreated}`);
-    const directStory = store.readStory(directStoryId);
-    assert.equal(directStory.phase, 'REVIEW');
-    assertIsoReviewRound(directStory.currentReviewRound, directStory.createdAt, 'direct REVIEW story_create currentReviewRound');
-
-    const directRun = await runProofOrStop(root, 'review_run_start', {
-      storyId: directStoryId,
-      agent: 'proof-or-stop-review-quality',
-      prompt: 'direct REVIEW creation smoke',
-    });
-    assert.match(directRun, /Review run .* started/);
-
-    const directLoop = await runProofOrStop(root, 'review_loop_start', {
-      storyId: directStoryId,
-      trigger: { findingIds: [`${directStoryId}:F-001`] },
-      rollbackRef: reviewLoopRollbackRef(root),
-    });
-    assert.match(directLoop, /Review loop .* started/);
-
-    const emptyTriggerLoop = await runProofOrStopRaw(root, 'review_loop_start', {
-      storyId: directStoryId,
-      trigger: { findingIds: [] },
-      rollbackRef: reviewLoopRollbackRef(root),
-    });
-    assert.notEqual(emptyTriggerLoop.code, 0);
-    assert.match(
-      emptyTriggerLoop.stdout + emptyTriggerLoop.stderr,
-      /trigger|findingId|bugId|validationFailureRef|scopeViolationRef/,
-      'review_loop_start must reject empty trigger refs at parameter validation',
-    );
-
-    const placeholderLoop = await runProofOrStopRaw(root, 'review_loop_start', {
-      storyId: directStoryId,
-      trigger: { findingIds: [`${directStoryId}:F-002`] },
-      rollbackRef: placeholderRollbackRef,
-    });
-    assert.notEqual(placeholderLoop.code, 0);
-    assert.match(
-      placeholderLoop.stdout + placeholderLoop.stderr,
-      /rollbackRef|headHash|diffHash|materialHash|placeholder/,
-      'review_loop_start must reject placeholder rollbackRef hashes',
-    );
+    assert.notEqual(rejected.code, 0);
+    assert.match(rejected.stdout + rejected.stderr, /story_create_direct_lifecycle_phase_forbidden/);
+    assert.deepEqual(store.listStoryIds(), [], 'direct REVIEW rejection must happen before Story persistence');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1946,7 +1906,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
-await assertDirectReviewStoryCreateInitializesReviewMetadata();
+await assertDirectReviewStoryCreateIsBlocked();
 await assertReviewRunStartCliSurface();
 await assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift();
 await assertReviewRunStartWorkspaceDiagnostics();

@@ -12,7 +12,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -478,6 +478,50 @@ await check('story_create cannot directly persist post-INIT lifecycle phases wit
       assert.match(String(observedError), /story_create_direct_lifecycle_phase_forbidden/);
     }
     assert.deepEqual(store.listStoryIds(), [], 'blocked direct lifecycle phases must not persist story metadata');
+  }, 'warn');
+});
+
+await check('concurrent story_create attempts cannot race post-INIT lifecycle phases into persistence', async () => {
+  await withRoot(async (root, store) => {
+    const cli = join(process.cwd(), 'packages', 'main', 'dist', 'cli.js');
+    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    const results = await Promise.all(blockedPhases.map(phase => new Promise<{
+      phase: StoryPhase;
+      code: number | null;
+      signal: NodeJS.Signals | null;
+      output: string;
+    }>((resolve, reject) => {
+      const child = spawn(process.execPath, [
+        cli,
+        '--root', root,
+        'story_create',
+        JSON.stringify({
+          name: `concurrent-direct-${phase.toLowerCase()}`,
+          title: `Concurrent direct ${phase}`,
+          description: 'Concurrent direct phase creation must fail before any story metadata is persisted.',
+          type: 'chore',
+          phase,
+          priority: 'medium',
+          background: validBackground,
+          checklist: [{
+            title: 'Attempt a concurrent lifecycle bypass',
+            context: 'The process races other direct phase attempts against the same story store.',
+          }],
+        }),
+      ], { cwd: root, env: { ...process.env, NO_COLOR: '1' } });
+      let output = '';
+      child.stdout.on('data', chunk => { output += String(chunk); });
+      child.stderr.on('data', chunk => { output += String(chunk); });
+      child.once('error', reject);
+      child.once('close', (code, signal) => resolve({ phase, code, signal, output }));
+    })));
+
+    for (const result of results) {
+      assert.notEqual(result.code, 0, `concurrent ${result.phase} creation must fail`);
+      assert.equal(result.signal, null, `concurrent ${result.phase} creation must exit normally`);
+      assert.match(result.output, /story_create_direct_lifecycle_phase_forbidden/);
+    }
+    assert.deepEqual(store.listStoryIds(), [], 'concurrent rejected phases must leave the story store empty');
   }, 'warn');
 });
 
