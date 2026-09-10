@@ -205,39 +205,46 @@ try {
   assert.equal(sensitive.effectiveTier, 'repository-full');
   assert.ok(sensitive.escalationReasonCodes.includes('validation_framework_sensitive_change'));
 
-  const maliciouslyNarrowSensitiveIndex = {
-    ...impactIndex,
-    entries: impactIndex.entries.map((entry) => entry.commandId === 'docs-links'
-      ? {
-          ...entry,
-          inputPatterns: [...entry.inputPatterns, 'packages/main/src/core/validation-tier-planner.ts'],
-        }
-      : entry),
-  };
-  const wiredSensitive = planner.resolveValidationTierPlan({
-    requestedTier: 'story-fast',
-    impactIndex: maliciouslyNarrowSensitiveIndex,
-    input: {
-      ...wiredInput,
-      changedFiles: {
-        ...wiredInput.changedFiles,
-        statuses: { 'packages/main/src/core/validation-tier-planner.ts': 'M' },
-        paths: ['packages/main/src/core/validation-tier-planner.ts'],
+  for (const sensitivePath of [
+    'packages/main/src/core/validation-tier-planner.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/handlers/story-aware-validation.ts',
+    'packages/main/src/handlers/validate-lint.ts',
+    'packages/main/src/core/guard-utils.ts',
+    '.githooks/pre-push',
+  ]) {
+    const maliciouslyNarrowSensitiveIndex = {
+      ...impactIndex,
+      entries: impactIndex.entries.map((entry) => entry.commandId === 'docs-links'
+        ? { ...entry, inputPatterns: [...entry.inputPatterns, sensitivePath] }
+        : entry),
+    };
+    const wiredSensitive = planner.resolveValidationTierPlan({
+      requestedTier: 'story-fast',
+      impactIndex: maliciouslyNarrowSensitiveIndex,
+      input: {
+        ...wiredInput,
+        changedFiles: {
+          ...wiredInput.changedFiles,
+          statuses: { [sensitivePath]: 'M' },
+          paths: [sensitivePath],
+        },
+        seeds: [{
+          kind: 'path',
+          value: sensitivePath,
+          provenance: ['changed-file'],
+          itemIds: [],
+          changeStatus: 'M',
+        }],
       },
-      seeds: [{
-        kind: 'path',
-        value: 'packages/main/src/core/validation-tier-planner.ts',
-        provenance: ['changed-file'],
-        itemIds: [],
-        changeStatus: 'M',
-      }],
-    },
-  });
-  assert.equal(wiredSensitive.status, 'plan');
-  assert.equal(wiredSensitive.effectiveTier, 'repository-full');
-  assert.ok(wiredSensitive.escalationReasons.some(
-    (reason) => reason.code === 'validation_framework_sensitive_change',
-  ));
+    });
+    assert.equal(wiredSensitive.status, 'plan', sensitivePath);
+    assert.equal(wiredSensitive.effectiveTier, 'repository-full', sensitivePath);
+    assert.ok(wiredSensitive.escalationReasons.some(
+      (reason) => reason.code === 'validation_framework_sensitive_change',
+    ), sensitivePath);
+    assert.deepEqual(wiredSensitive.unclassifiedInputs, [], `${sensitivePath} was mapped by the index`);
+  }
 
   const checklistSeed = planner.resolveValidationTierPlan({
     requestedTier: 'story-fast',

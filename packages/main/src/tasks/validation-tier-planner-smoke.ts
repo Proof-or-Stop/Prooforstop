@@ -2286,6 +2286,38 @@ testCase('a complete current impact index produces nested Story-relevant tiers w
   assert.ok(decision.exclusionProofs.every((proof) => proof.snapshotDigest === 'snapshot-v1'));
 });
 
+testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
+  for (const sensitivePath of [
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/handlers/story-aware-validation.ts',
+    'packages/main/src/handlers/validate-lint.ts',
+    'packages/main/src/core/guard-utils.ts',
+    '.githooks/pre-push',
+  ]) {
+    const input = planInput({
+      readers: { changedFileStatuses: statusReader({ [sensitivePath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+    });
+    const result = resolveValidationTierPlan({
+      input,
+      requestedTier: 'story-fast',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'sensitive-index-v1',
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [sensitivePath], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+    assert.equal(result.status, 'plan', sensitivePath);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'repository-full', sensitivePath);
+    assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
+    assert.deepEqual(result.unclassifiedInputs, [], `${sensitivePath} was classified by the configured index`);
+  }
+});
+
 testCase('no pruning exists: a story that changed nothing still selects the complete universe', () => {
   const result = planFor('story-intermediate');
   assert.equal(result.status, 'plan');

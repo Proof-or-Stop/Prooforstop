@@ -213,17 +213,19 @@ function pathMatchesImpactPattern(path: string, pattern: string): boolean {
 
 const VALIDATION_SENSITIVE_PATH_PATTERNS = [
   'proof-or-stop.config.json',
-  'packages/main/src/core/validation-**',
-  'packages/main/src/core/story-aware-validation.ts',
   'packages/main/src/core/process-fact-registry.ts',
   'packages/main/src/core/process-fact-levels.ts',
   'packages/main/src/core/machine.ts',
-  'packages/main/src/handlers/validation-**',
-  'packages/main/src/handlers/verifier.ts',
+  'packages/main/src/core/guard-utils.ts',
+  'packages/main/src/core/command-policy.ts',
   'packages/main/src/handlers/phase-gates.ts',
   'packages/main/src/handlers/story-advance.ts',
+  'packages/main/src/handlers/done-required-validation.ts',
+  'packages/main/src/handlers/verifier.ts',
+  'packages/main/src/cli-engine.ts',
   'packages/main/src/cli/command-catalog.ts',
   'packages/main/src/tasks/full-suite-runner.ts',
+  '.githooks/**',
   'scripts/verify-process-fact-contract.mjs',
   'docs/validation-performance.md',
   'docs/requirements/decisions/*validation*.md',
@@ -247,7 +249,13 @@ const BUILD_GRAPH_PATH_PATTERNS = [
 function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
   for (const path of paths) {
-    if (VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(path, pattern))) {
+    const normalized = normalizedPath(path);
+    const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
+    const validationNamedSource = normalized.startsWith('packages/main/src/') && basename.includes('validat');
+    if (
+      validationNamedSource
+      || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+    ) {
       reasons.add('validation_framework_sensitive_change');
     }
     if (BUILD_GRAPH_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(path, pattern))) {
@@ -878,6 +886,36 @@ function collectUnclassifiedInputs(input: StoryRelevanceInput): ValidationTierPl
   return entries;
 }
 
+function collectIndexedUnclassifiedInputs(
+  input: StoryRelevanceInput,
+  impactIndex: ValidationImpactIndex,
+  materialSeedPaths: readonly string[],
+): ValidationTierPlanUnclassifiedInput[] {
+  const validEntries = Array.isArray(impactIndex.entries)
+    ? impactIndex.entries.filter((entry) => entry && Array.isArray(entry.inputPatterns))
+    : [];
+  const entries: ValidationTierPlanUnclassifiedInput[] = [];
+  for (const path of materialSeedPaths) {
+    const matched = validEntries.some((entry) => entry.inputPatterns.some(
+      (pattern) => typeof pattern === 'string' && pathMatchesImpactPattern(path, pattern),
+    ));
+    if (matched) continue;
+    const seed = input.seeds.find((candidate) => candidate.kind === 'path' && normalizedPath(candidate.value) === path);
+    entries.push({
+      kind: 'material-path',
+      value: path,
+      detail:
+        `the configured impact index contains no command input pattern matching ${path}` +
+        `${seed ? ` (provenance: ${seed.provenance.join(', ')})` : ''}, so the input is unclassified and ` +
+        'the requested subset is refused',
+    });
+  }
+  for (const upstream of input.unclassifiedInputs) {
+    entries.push({ kind: upstream.kind, value: upstream.detail, detail: upstream.detail });
+  }
+  return entries;
+}
+
 /**
  * The FIRST collected escalation whose table row says it produces no plan. The
  * membership test is the table's, so this function never needs to be edited when
@@ -1014,8 +1052,10 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     });
     const dynamicReasons = decision.escalationReasonCodes.map((code) => validationWideningReason(
       code,
-      `the versioned impact-index decision for story ${input.storyId} classified ${code}; ` +
-      'the requested subset was refused and the repository-full command universe was selected',
+      isValidationStopReasonCode(code)
+        ? `the versioned impact-index decision for story ${input.storyId} classified ${code}; no execution plan was produced`
+        : `the versioned impact-index decision for story ${input.storyId} classified ${code}; ` +
+          'the requested subset was refused and the repository-full command universe was selected',
     ));
     const dynamicStop = dynamicReasons.find((reason) => isValidationStopReasonCode(reason.code));
     if (dynamicStop) {
@@ -1024,9 +1064,7 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     }
     return {
       ...common,
-      // A successful index decision classified every changed path. On a
-      // fail-closed result retain the diagnostic paths for operator inspection.
-      unclassifiedInputs: decision.escalationReasonCodes.length === 0 ? [] : unclassifiedInputs,
+      unclassifiedInputs: collectIndexedUnclassifiedInputs(input, args.impactIndex, materialSeedPaths),
       status: 'plan',
       effectiveTier: decision.effectiveTier,
       executionMode: 'command-set',
