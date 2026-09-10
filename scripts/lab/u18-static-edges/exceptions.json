@@ -358,7 +358,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/tests/red/red-w2d-command-readonly.mjs": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
+        "packages/main/tests/red/red-w2d-command-readonly.mjs": "972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe",
         "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
@@ -2661,9 +2661,9 @@
     },
     {
       "id": "EX-0134",
-      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:219:spawn",
+      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
       "callDigest": "f193033dbc826b6f6572d1621d833f7620d4fc54ed744c31cb73b175b49b6582",
-      "sourceDigest": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+      "sourceDigest": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
       "configIndexes": [
         13
       ],
@@ -2678,11 +2678,12 @@
           "excerpt": "function createReadinessProbe(mode: 'delayed' | 'error' | 'zero' | 'finished' | 'never'): {\n  root: string; started: string; finished: string; release: string; run: CliRun;\n} {\n  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-readiness-'));\n  const started = join(root, 'started');\n  const finished = join(root, 'finished');\n  const release = join(root, 'release');\n  const child = spawn(process.execPath, ['-e', `\n    const fs = require('node:fs');\n    const [started, finished, release, mode] = process.argv.slice(1);\n    if (mode === 'error') { console.log('probe stdout'); console.error('probe preflight failed'); process.exit(23); }\n    if (mode === 'zero') process.exit(0);\n    if (mode === 'never') {\n      setTimeout(() => process.exit(0), 150);\n    } else {\n    setTimeout(() => process.exit(98), 45000).unref();\n    setTimeout(() => {\n      fs.writeFileSync(started, 'ready');\n      if (mode === 'finished') fs.writeFileSync(finished, 'finished');\n      const poll = setInterval(() => {\n        if (!fs.existsSync(release)) return;\n        clearInterval(poll);\n        fs.writeFileSync(finished, 'finished');\n      }, 20);\n    }, mode === 'delayed' ? 6000 : 0);\n    }\n  `,\n  started, finished, release, mode], { stdio: ['ignore', 'pipe', 'pipe'] });\n  let stdout = '';\n  let stderr = '';\n  child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });\n  child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });\n  const closed = new Promise<void>(resolveClosed => child.once('close', () => resolveClosed()));\n  const run = Object.assign(new Promise<CliResult>((resolveResult) => {\n    child.on('close', status => resolveResult({ status, stdout, stderr, elapsedMs: 0 }));\n    child.on('error', error => { stderr += error.message; });"
         },
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
-        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
         "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
@@ -3938,9 +3939,9 @@
     },
     {
       "id": "EX-0174",
-      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+      "key": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:442:spawn",
       "callDigest": "7791bd896df9617057155da4ebaa24a36a1ac9f2d468cf7a389bc36fe55e5431",
-      "sourceDigest": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+      "sourceDigest": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
       "configIndexes": [
         13
       ],
@@ -3969,11 +3970,12 @@
           "excerpt": "    });\n    assert.equal(retry.status, 0, 'named deadline path must preserve cleanup for immediate rerun');\n  } finally {\n    rmSync(fixture.root, { recursive: true, force: true });\n  }\n}\n\nfunction runValidate(root: string, ceilingMs?: number): Promise<CliResult> {\n  return runCli(root, ['validate', '--json'], ceilingMs);\n}"
         },
         "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 51b8779ab01db4b350dd91ed25ce744f677869ce55469180ddbaf0882707f8c3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
-        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/src/tasks/validate-progress-heartbeat-smoke.ts SHA256 7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
         "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
@@ -4273,7 +4275,7 @@
       "id": "EX-0185",
       "key": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
       "callDigest": "bb488b89883939b761b3ffef41fce1cbf8a86741ecada418a6734976a1ee6fd2",
-      "sourceDigest": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
+      "sourceDigest": "972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe",
       "configIndexes": [
         122
       ],
@@ -4285,11 +4287,12 @@
           "lines": "125-145, 205-215",
           "property": "The recorder delegates only the explicit git fixture helper; builtin recorder interception remains observable."
         },
-        "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        "2026-09-10 repair review: current caller packages/main/tests/red/red-w2d-command-readonly.mjs SHA256 972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/tests/red/red-w2d-command-readonly.mjs": "c266ed91f9e656a565f045027a23c2bf49203186069062e4a2d7be8db00ae621",
+        "packages/main/tests/red/red-w2d-command-readonly.mjs": "972ceddc2769da1f95820dcf0edbfa5b48f8b3897996f23f6c183482517048fe",
         "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },
@@ -4329,12 +4332,11 @@
         "FIXTURE_ENTRIES.has(entry) assertion",
         "rest exact assertion at line 22",
         "scanner separately expands selected wrapper entry",
-        "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         "2026-09-10 repair review: current caller scripts/run-validation-fixture-suite.mjs SHA256 5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below."
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
-        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "38425d910bfe4d8e1156b11a8aa569a60035b8a2eb1a9c0c576ff050d873ea42",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "7434ca84ad5aaa42912e7db7acb1a857eb3fe273eb562a986ba3af7514f86486",
         "scripts/run-validation-fixture-suite.mjs": "5a9310c450e4fd4e98769ae9fce8e048dbe7fac75e64feffea4e2d5e5f6ec681"
       }
     },

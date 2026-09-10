@@ -6002,10 +6002,21 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of [
     'async verification_evidence_batch_add(args:',
     "assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args)",
+    'snapshot: evidenceHashes(cwd, root)',
     'abortSignal?: AbortSignal',
     'deadlineAt?: number',
   ]) {
     assert(refreshHandlerWatchdogText.includes(token), `verification evidence batch progress/abort-atomic contract missing ${token}`);
+  }
+  for (const [start, end] of [
+    ['async verification_evidence_add(args:', 'async verification_evidence_batch_add(args:'],
+    ['async verification_evidence_batch_add(args:', 'async verification_run(args:'],
+    ['async verification_run(args:', 'verification_pin_narrow(args:'],
+  ]) {
+    const handler = refreshHandlerWatchdogText.slice(refreshHandlerWatchdogText.indexOf(start), refreshHandlerWatchdogText.indexOf(end));
+    for (const token of ['runSingleAllowlistedCommand', 'formatValidationProgressEvent(event)', 'abortSignal: args.abortSignal', 'deadlineAt: args.deadlineAt', 'deadlineError: args.deadlineError']) {
+      assert(handler.includes(token), `${start} must forward execution control at its own leaf boundary: ${token}`);
+    }
   }
   const refreshValidationExecutorText = read('packages/main/src/core/validation-executor.ts');
   for (const token of [

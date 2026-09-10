@@ -37,6 +37,7 @@ import { persistSyntheticAdmittedWindowForTest } from '../core/certification-win
 import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
@@ -1205,7 +1206,7 @@ function pinnedNodeCommand(script: string): string {
   return `node -e "eval(Buffer.from('${encoded}','base64').toString('utf8'))"`;
 }
 
-function setupRefreshFixture(mode: 'heartbeat' | 'batch-heartbeat' | 'hang' | 'selector-fail', suffix: string): RefreshFixture {
+function setupRefreshFixture(mode: 'heartbeat' | 'batch-heartbeat' | 'hang' | 'selector-fail', suffix: string, commitMaterialDrift = false): RefreshFixture {
   const root = mkdtempSync(join(tmpdir(), `lattice-refresh-watchdog-${suffix}-`));
   const storyId = `B-refresh-${suffix}`;
   const executionLog = join(root, 'refresh-executions.jsonl');
@@ -1238,6 +1239,9 @@ function setupRefreshFixture(mode: 'heartbeat' | 'batch-heartbeat' | 'hang' | 's
 
   const sharedCommand = pinnedNodeCommand([
     "const fs=require('fs');",
+    ...(commitMaterialDrift ? [
+      "const cp=require('child_process');const marker='.git/material-drift-once';if(!fs.existsSync(marker)){fs.writeFileSync('packages/main/src/base.ts','export const drifted = true;\\n');cp.execFileSync('git',['add','packages/main/src/base.ts']);cp.execFileSync('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','material drift']);fs.writeFileSync(marker,'done');}",
+    ] : []),
     `fs.appendFileSync(${JSON.stringify(executionLog)},JSON.stringify({kind:'shared',cwd:process.cwd()})+'\\n');`,
     "setTimeout(()=>console.log('SHARED_ALPHA\\nSHARED_BETA'),260);",
   ].join(''));
@@ -1530,7 +1534,7 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
       heartbeatFixture.root,
       ['verification_run', JSON.stringify({
         storyId: heartbeatFixture.storyId,
-        intentRef: 'INT-SHARED-B',
+        intentRef: 'INT-UNIQUE',
         note: 'single verification run heartbeat smoke',
       })],
       NON_MAX_HARNESS_CEILING_MS,
@@ -1546,8 +1550,20 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
     assert.doesNotMatch(runResult.stderr, /without output/);
     assert.match(runResult.stderr, /validate heartbeat: command 1\/1 verification-evidence-command elapsedMs=/);
 
+    const executionsBeforeReuse = readFileSync(heartbeatFixture.executionLog, 'utf8');
+    assert.deepEqual(executionsBeforeReuse.trim().split('\n').map(line => JSON.parse(line).kind), ['shared', 'unique'],
+      'add and the independent pinned run each execute their command');
+    const reused = await runCli(heartbeatFixture.root, ['verification_run', JSON.stringify({
+      storyId: heartbeatFixture.storyId, intentRef: 'INT-SHARED-B', note: 'reuse the current shared command with an independent selector',
+    })], NON_MAX_HARNESS_CEILING_MS, {
+      PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180', PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000', PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+    });
+    assert.equal(reused.status, 0, `current causal execution can satisfy another selector:\n${reused.stderr}`);
+    assert.equal(readFileSync(heartbeatFixture.executionLog, 'utf8'), executionsBeforeReuse,
+      'reusing a current exact command must not spawn it again merely to produce a heartbeat');
     const checklist = JSON.parse(readFileSync(heartbeatFixture.checklistPath, 'utf8')) as ChecklistData;
-    for (const intentRef of ['INT-SHARED-A', 'INT-SHARED-B']) {
+    for (const intentRef of ['INT-SHARED-A', 'INT-UNIQUE', 'INT-SHARED-B']) {
       const row = checklist.items[0].verificationEvidence?.find(entry => entry.intentRef === intentRef);
       assert.equal(row?.mechanical, true, `${intentRef} receives a mechanical receipt after its heartbeat-protected command`);
       assert.equal(row?.receipt?.selectorMatched, true, `${intentRef} receipt confirms its exact selector`);
@@ -1617,6 +1633,7 @@ async function assertSingleEvidenceWriteGuardRefusesLateAbort(): Promise<void> {
       try {
         process.chdir(fixture.root);
         const store = new StoryStore(fixture.root);
+        acquireOwnerLease(store.storyDirPath(fixture.storyId), { command: 'smoke_fixture_setup', cwd: fixture.root });
         const handlers = createChecklistHandlers({
           store,
           root: fixture.root,
@@ -1625,14 +1642,15 @@ async function assertSingleEvidenceWriteGuardRefusesLateAbort(): Promise<void> {
         const abort = new AbortController();
         const lateAbort = new Error(`${commandKind} single write guard synthetic abort`);
         const readChecklist = store.readChecklist.bind(store);
-        let checklistReads = 0;
+        let lockedChecklistReads = 0;
         store.readChecklist = ((storyId: string) => {
           const checklist = readChecklist(storyId);
-          checklistReads += 1;
-          // The first read resolves the intent before execution. The second is
-          // inside the receipt lock; trigger the abort there to prove the
-          // write-side guard prevents a late persistence race.
-          if (checklistReads === 2) abort.abort(lateAbort);
+          // Hash/provenance preflights can also read the checklist. Trigger
+          // only at the actual locked write boundary after execution.
+          if (existsSync(store.runtimeLockDirPath(storyId, 'checklist', 'checklist'))) {
+            lockedChecklistReads += 1;
+            abort.abort(lateAbort);
+          }
           return checklist;
         }) as typeof store.readChecklist;
         const evidence = fixture.batchEvidences[0];
@@ -1663,7 +1681,9 @@ async function assertSingleEvidenceWriteGuardRefusesLateAbort(): Promise<void> {
           /single write guard synthetic abort/,
           `${commandKind} refuses a watchdog abort raised from its receipt write lock`,
         );
-        assert.equal(checklistReads, 2, `${commandKind} reaches the locked checklist read before the synthetic abort`);
+        assert.equal(lockedChecklistReads, 1, `${commandKind} reaches the locked checklist read before the synthetic abort`);
+        assert.equal(JSON.parse(readFileSync(fixture.executionLog, 'utf8').trim()).kind, 'shared',
+          'the real command must execute before testing a late write-side abort');
         assert.equal(readFileSync(fixture.checklistPath, 'utf8'), checklistBefore,
           `${commandKind} late watchdog abort writes no receipt or checklist mutation`);
       } finally {
@@ -1742,6 +1762,29 @@ async function assertBatchSharedExecutionStillFailsAtomicOnSelector(): Promise<v
   }
 }
 
+async function assertBatchMaterialDriftCannotPublishReusableRawOutput(): Promise<void> {
+  const fixture = setupRefreshFixture('heartbeat', 'batch-material-drift', true);
+  const env = { PROOF_OR_STOP_SESSION_ID: 'batch-material-drift-fixture', PROOF_OR_STOP_MAX_TIMEOUT_MS: '20000' };
+  try {
+    const before = readFileSync(fixture.checklistPath, 'utf8');
+    const batch = await runCli(fixture.root, ['verification_evidence_batch_add', JSON.stringify({
+      storyId: fixture.storyId, evidences: fixture.batchEvidences.slice(0, 2),
+    })], NON_MAX_HARNESS_CEILING_MS, env);
+    assert.equal(batch.status, 1, `material drift must refuse batch: ${batch.stderr}\n${batch.stdout}`);
+    assert.equal(readFileSync(fixture.checklistPath, 'utf8'), before, 'failed batch must remain atomic');
+    const executedBefore = readFileSync(fixture.executionLog, 'utf8').trim().split('\n').length;
+    const follow = await runCli(fixture.root, ['verification_run', JSON.stringify({
+      storyId: fixture.storyId, intentRef: 'INT-SHARED-B', note: 'Execute against current material after failed batch',
+    })], NON_MAX_HARNESS_CEILING_MS, env);
+    assert.equal(follow.status, 0, `fresh independent execution must pass: ${follow.stderr}\n${follow.stdout}`);
+    assert.equal(readFileSync(fixture.executionLog, 'utf8').trim().split('\n').length, executedBefore + 1,
+      'failed batch must not publish reusable new-material CAS from old raw output');
+  } finally {
+    killRefreshFixtureTree(fixture);
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
 async function assertBatchWatchdogReapsWithoutPartialWrites(): Promise<void> {
   const cases = [
     { name: 'batch-idle', idleMs: '140', maxMs: '5000', heartbeatMs: '2000', transcript: /stuck: 0\.14 seconds without output/ },
@@ -1798,6 +1841,7 @@ void (async () => {
       await assertBatchHeartbeatAndExactCommandDedupe();
       await assertBatchSharedExecutionStillFailsAtomicOnSelector();
       await assertBatchWatchdogReapsWithoutPartialWrites();
+      await assertBatchMaterialDriftCannotPublishReusableRawOutput();
       console.log('validate-progress-heartbeat single/refresh/batch structured watchdog PASS');
       return;
     }

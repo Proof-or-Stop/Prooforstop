@@ -423,7 +423,18 @@ try {
     const argv = argvOf(call);
     return `${call.api} ${argv[0]} ${argv[1] ?? ''}`.trim();
   }))].sort();
-  // U17 replaced the shell-based cwd probe with argv-based resolution.
+  // U17's worktree resolver uses argv-based resolution. Signed-workspace
+  // resolution still has an exact shell-string top-level probe; its cache can
+  // be cold in the private Git mirror, so permit only that literal command.
+  const isSignedWorkspaceRootProbe = (call) => call.api === 'execSync'
+    && call.file === 'git rev-parse --show-toplevel' && call.args.length === 0;
+  assert.equal(isSignedWorkspaceRootProbe({ api: 'execSync', file: 'git rev-parse --show-toplevel', args: [] }), true);
+  for (const suffix of ['; git status', ' && node runner.mjs', ' --git-dir=/tmp/foreign', ' > /tmp/output']) {
+    assert.equal(isSignedWorkspaceRootProbe({ api: 'execSync', file: `git rev-parse --show-toplevel${suffix}`, args: [] }), false);
+  }
+  for (const call of spawns.filter((call) => call.api === 'execSync')) {
+    assert.ok(isSignedWorkspaceRootProbe(call), `unexpected shell-string child: ${call.file}`);
+  }
   // THE EXACT OBSERVED SPAWN SET. Two families, both read-only:
   //   - repository/worktree RESOLUTION (which git dir and toplevel this story's
   //     root maps to), which the handler needs before it can name a committed
@@ -432,7 +443,7 @@ try {
   // Anything else — a runner, a harness, a package manager, a git command that
   // MUTATES — is a regression, and this list is what makes it one.
   assert.deepEqual(
-    shapes,
+    shapes.filter((shape) => shape !== 'execSync git rev-parse'),
     [
       'execFileSync git rev-parse',
       'execFileSync git worktree',

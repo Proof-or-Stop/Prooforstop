@@ -472,14 +472,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_add',
-    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
+    consumerGate: 'validate verification coverage and freshness gates after heartbeat-protected execution with forwarded abort/deadline controls and a write-side abort check; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_batch_add: {
     name: 'checklist.json',
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_batch_add',
-    consumerGate: 'validate verification coverage and freshness gates after structured abort-atomic exact-command single-flight and per-intent selector evaluation; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
+    consumerGate: 'validate verification coverage and freshness gates after heartbeat-protected abort-atomic execution: batch command/cwd/effective-timeout/environment plus HEAD/material/story-files identity shares one process while each intent retains independent selector evaluation; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_refresh_stale: {
     name: 'checklist.json',
@@ -493,7 +493,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_run',
-    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
+    consumerGate: 'validate verification coverage and freshness gates after heartbeat-protected execution with forwarded abort/deadline controls and a write-side abort check; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   recover_evidence: {
     name: 'checklist.json',

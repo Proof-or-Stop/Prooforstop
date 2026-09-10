@@ -2765,7 +2765,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           runCommand: (command, cwd, timeoutMs) => {
             const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
             return runSingleAllowlistedCommand(
-              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+              command, root, {
+                cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}),
+                commandIndex: 1, totalCommands: 1,
+                progress: event => ctx.log?.(formatValidationProgressEvent(event)),
+                abortSignal: args.abortSignal, deadlineAt: args.deadlineAt, deadlineError: args.deadlineError,
+              },
             );
           },
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
@@ -2890,13 +2895,49 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // refusal throws before the all-or-nothing write below, so the batch path is never
       // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
-        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-        return runSingleAllowlistedCommand(
-          command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-        );
-      };
       const preCl = store.readChecklist(args.storyId);
+      const rawProcessResults = new Map<string, Promise<SingleCommandExecutionResult>>();
+      const rawCommandOrdinals = new Map<string, number>();
+      const rawKey = (command: string, cwd: string, timeoutMs?: number): string => causalCanonical({
+        command: parseAllowlistedCommand(command), cwd,
+        timeoutMs: timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command) ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+        effectiveEnvironment: effectiveCausalEnvironment(undefined, cwd),
+        snapshot: evidenceHashes(cwd, root),
+      });
+      // Plan only actual mechanical commands. The existing per-intent enforcement
+      // below still validates each immutable pin and selector independently.
+      for (let i = 0; i < args.evidences.length; i++) {
+        const entry = args.evidences[i];
+        const item = preCl.items.find(candidate => candidate.id === entry.itemId);
+        if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+        const resolved = resolveIntentForRef(item, entry.intentRef);
+        if (!resolved || normalizedKinds[i] === 'waiver') continue;
+        const pin = resolved.intent.verification;
+        const selector = entry.selector?.trim();
+        if (!pin && !selector) continue;
+        const command = pin?.command ?? entry.command?.trim();
+        if (!command) continue;
+        const timeoutMs = resolveEvidenceCommandTimeout('verification_evidence_batch_add', entry)?.timeoutMs;
+        const key = rawKey(command, gitCwd, timeoutMs);
+        if (!rawCommandOrdinals.has(key)) rawCommandOrdinals.set(key, rawCommandOrdinals.size + 1);
+      }
+      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
+        assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args);
+        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+        const key = rawKey(command, cwd, timeoutMs);
+        const commandIndex = rawCommandOrdinals.get(key);
+        if (!commandIndex) throw new Error('verification_evidence_batch_add: execution is outside the planned command set');
+        const existing = rawProcessResults.get(key);
+        if (existing) return existing;
+        const execution = runSingleAllowlistedCommand(command, root, {
+          cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}),
+          commandIndex, totalCommands: rawCommandOrdinals.size,
+          progress: event => ctx.log?.(formatValidationProgressEvent(event)),
+          abortSignal: args.abortSignal, deadlineAt: args.deadlineAt, deadlineError: args.deadlineError,
+        }).then(result => Object.freeze({ ...result }));
+        rawProcessResults.set(key, execution);
+        return execution;
+      };
       const stamps: EnforceAndStampResult[] = [];
       const causalBatch = createCausalEvidenceBatch();
       for (let i = 0; i < args.evidences.length; i++) {
@@ -3069,7 +3110,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           runCommand: (command, cwd, timeoutMs) => {
             const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
             return runSingleAllowlistedCommand(
-              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+              command, root, {
+                cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}),
+                commandIndex: 1, totalCommands: 1,
+                progress: event => ctx.log?.(formatValidationProgressEvent(event)),
+                abortSignal: args.abortSignal, deadlineAt: args.deadlineAt, deadlineError: args.deadlineError,
+              },
             );
           },
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
