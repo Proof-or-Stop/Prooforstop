@@ -93,10 +93,6 @@ function buildInitialMilestoneLedger(storyId: string, milestones?: unknown): Mil
   });
 }
 
-function isPreLifecycleStoryCreatePhase(phase: StoryPhase): boolean {
-  return phase === 'IDEA' || phase === 'INIT';
-}
-
 // Exported for the language-neutral-gates smoke (B-956f R7 F-008/F-011/F-013):
 // the smoke drives THIS production STORY_INTAKE preflight on a wrapper-root
 // fixture and asserts the snapshot build translates repo-relative paths.
@@ -173,14 +169,6 @@ export function renderReproFirstStoryCreatePreflight(args: {
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {
-    if (!isPreLifecycleStoryCreatePhase(args.phase)) {
-      throw new Error(
-        `reproFirstBypassReason cannot create repro-first-required story ${args.storyId} directly in phase ${args.phase}. ` +
-        `Create it in IDEA/INIT, then satisfy the normal lifecycle gates with a valid story-evidence-binding. ` +
-        `[repro_first_bypass_direct_phase_forbidden]\n` +
-        `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
-      );
-    }
     return [
       '⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]',
       `  reason: ${bypassReason}`,

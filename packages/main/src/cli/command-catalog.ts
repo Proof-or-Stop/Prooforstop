@@ -317,7 +317,9 @@ export const MAIN_TOOLS: ToolDef[] = [
       { message: 'executionBoundary requires at least one allowed/excluded command, tool, or path entry' },
     ).optional().describe('Optional: story_create writes execution-boundary.json synchronously; otherwise run execution_boundary_set during INIT.'),
     prefix: z.string().optional().describe('ID prefix (default: B).'),
-    phase: z.enum(['IDEA','INIT']).optional().describe('Optional intake phase. Post-intake lifecycle phases require story_advance.'),
+    phase: z.enum(['IDEA','INIT'], {
+      error: () => 'story_create phase must be IDEA or INIT; post-intake lifecycle phases require story_advance. [story_create_direct_lifecycle_phase_forbidden]',
+    }).optional().describe('Optional intake phase. Post-intake lifecycle phases require story_advance.'),
     forceNew: z.boolean().optional().describe('B-0af4: bypass same-name story idempotency and force creation; unfinished same-name stories are reused by default.'),
     background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.'),
     fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.'),
