@@ -68,6 +68,7 @@ async function main() {
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
+  check(registrySource.includes('MANAGED_PROVIDER_SEED_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('seedPolicy.encodedFileMultiplier') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix'), 'private provider seed bounds and filenames must consume runtime registries');
   const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');
   check(registrySource.includes('REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY') && batchAdmission.includes('policy.readyTtlMs') && batchAdmission.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName'), 'batch admission timing and storage must use registered runtime policy');
   const admissionSandboxPolicy = read(root, 'packages/main/src/core/managed-review-readonly.ts');

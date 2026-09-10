@@ -106,3 +106,13 @@ managed host; a consumer can check its actual host and kind against that roster.
 Missing or stale epochs are refused without rewriting inventory state. This
 helper must be used within the producer/consumer coordination boundary; it does
 not itself freeze future writes or install the managed launch gate.
+
+Trusted producer code can now persist a captured refreshed file-cache seed with
+controller-keyed integrity and exact subject, generation and host binding. A
+read-only consumer loads an opaque snapshot and materializes independent lane
+caches without opening the original credentials. Publication is exclusive;
+missing, tampered, nonregular or mismatched seeds are refused. A crash during
+hardlink publication may conservatively leave an unreadable seed rather than
+allow partially published state. The future producer must use the registered
+provider-seeds subtree, outside the controller generation-history directory.
+This storage API does not create READY or verify a successful provider probe.

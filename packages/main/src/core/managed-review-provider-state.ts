@@ -1,8 +1,11 @@
+import { REVIEWER_BATCH_ADMISSION_ARTIFACT } from './runtime-artifact-registry.js';
+import { MANAGED_PROVIDER_SEED_RUNTIME_POLICY as seedPolicy } from './runtime-fact-registry.js';
 import { managedExecutionKeyedDigest, type ManagedExecutionIdentityKey } from './managed-execution-identity-key.js';
+import { randomUUID } from 'node:crypto';
 import { parse as parseToml } from 'smol-toml';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 /** Registered file-cache adapter. Never exports a macOS Keychain credential. */
-import { constants, openSync, closeSync, fstatSync, readSync, existsSync, lstatSync, realpathSync, mkdirSync, writeFileSync } from 'node:fs';
+import { linkSync, unlinkSync, constants, openSync, closeSync, fstatSync, readSync, existsSync, lstatSync, realpathSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS } from '../providers/claude-cli.js';
@@ -92,4 +95,60 @@ export function createManagedProviderState(cache:string,host:string,env:NodeJS.P
 }
 export function managedProviderStateEnvironment(state:ManagedReviewProviderState):NodeJS.ProcessEnv {
   return state.host==='codex'?{CODEX_HOME:state.directory}:{CLAUDE_CONFIG_DIR:state.directory};
+}
+
+export interface ManagedProviderSeedBinding {
+  subjectIdentity: string;
+  generation: number;
+  host: 'codex' | 'claude';
+}
+function seedFile(directory:string,binding:ManagedProviderSeedBinding):string {
+  if(!binding.subjectIdentity||!Number.isSafeInteger(binding.generation)||binding.generation<1||!['codex','claude'].includes(binding.host))throw new Error('invalid provider seed binding');
+  const info=lstatSync(directory);
+  if(!info.isDirectory()||info.isSymbolicLink()||(info.mode&0o077)!==0||info.uid!==process.getuid?.())throw new Error('provider seed requires private controller directory');
+  return join(realpathSync(directory),`generation-${binding.generation}-${binding.host}${REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix}`);
+}
+/** Trusted producer only: caller captures the probe's refreshed private cache.
+ * This stores no READY decision and cannot manufacture admission evidence. */
+export function persistCapturedManagedProviderSeed(directory:string,snapshot:ManagedProviderStateSnapshot,key:ManagedExecutionIdentityKey,binding:ManagedProviderSeedBinding):void {
+  const state=capturedStates.get(snapshot);
+  if(!state||state.host!==binding.host)throw new Error('invalid or mismatched provider snapshot capability');
+  const file=seedFile(directory,binding);
+  const body={schema:'managed-provider-seed.v1',binding:{subjectIdentity:binding.subjectIdentity,generation:binding.generation,host:binding.host},files:state.files.map(file=>({name:file.name,base64:file.bytes.toString('base64')}))};
+  const serialized=JSON.stringify(body);
+  const signature=managedExecutionKeyedDigest(key,'managed-provider-seed.v1',[Buffer.from(serialized)]);
+  const temporary=file+'.'+randomUUID();
+  try {
+    writeFileSync(temporary,JSON.stringify({serialized,signature}),{flag:'wx',mode:0o600});
+    linkSync(temporary,file); // Exclusive publication: immutable generation/host seed.
+  }finally{try{unlinkSync(temporary);}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}}
+}
+/** Read-only cross-process load; never reopens original provider credentials. */
+export function readCapturedManagedProviderSeed(directory:string,key:ManagedExecutionIdentityKey,binding:ManagedProviderSeedBinding):ManagedProviderStateSnapshot {
+  const file=seedFile(directory,binding),fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);
+  let bytes:Buffer;
+  try {
+    const before=fstatSync(fd),limit=seedPolicy.encodedFileMultiplier*maxFileBytes+seedPolicy.envelopeAllowanceBytes;
+    if(!before.isFile()||before.size>limit||before.nlink!==1||(before.mode&0o077)!==0||before.uid!==process.getuid?.())throw new Error('invalid provider seed file');
+    const buffer=Buffer.alloc(limit+1);let length=0;
+    while(length<buffer.length){const count=readSync(fd,buffer,length,buffer.length-length,null);if(!count)break;length+=count;}
+    const after=fstatSync(fd);
+    if(length>limit||length!==before.size||before.size!==after.size||before.mtimeMs!==after.mtimeMs||before.ctimeMs!==after.ctimeMs||before.mode!==after.mode||before.nlink!==after.nlink)throw new Error('provider seed changed during read');
+    bytes=Buffer.from(buffer.subarray(0,length));
+  }finally{closeSync(fd);}
+  const envelope=JSON.parse(bytes.toString('utf8'));
+  if(typeof envelope.serialized!=='string'||typeof envelope.signature!=='string'||managedExecutionKeyedDigest(key,'managed-provider-seed.v1',[Buffer.from(envelope.serialized)])!==envelope.signature)throw new Error('provider seed integrity mismatch');
+  const body=JSON.parse(envelope.serialized);
+  if(body.schema!=='managed-provider-seed.v1'||body.binding?.subjectIdentity!==binding.subjectIdentity||body.binding?.generation!==binding.generation||body.binding?.host!==binding.host||!Array.isArray(body.files)||body.files.length>seedPolicy.maxFiles)throw new Error('provider seed binding mismatch');
+  const allowed=binding.host==='codex'?['auth.json','config.toml']:['.credentials.json','settings.json'];
+  const names=new Set<string>();const files:CapturedState['files']=[];
+  for(const file of body.files){
+    if(!file||!allowed.includes(file.name)||names.has(file.name)||typeof file.base64!=='string')throw new Error('invalid provider seed entry');
+    const content=Buffer.from(file.base64,'base64');
+    if(content.length>maxFileBytes||content.toString('base64')!==file.base64)throw new Error('invalid provider seed encoding');
+    validateInput(binding.host,file.name===allowed[0]?'credentials':'configuration',content);
+    names.add(file.name);files.push({name:file.name,bytes:content});
+  }
+  if(binding.host==='codex'&&!names.has('auth.json'))throw new Error('provider seed missing credentials');
+  const token=Object.freeze({}) as ManagedProviderStateSnapshot;capturedStates.set(token,{host:binding.host,files});return token;
 }
