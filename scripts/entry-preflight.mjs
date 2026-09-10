@@ -98,7 +98,9 @@ async function storyProbe(root, storyId) {
   const { isCanonicalStoryId, CWD_GATED_LIFECYCLE_PHASES, LIFECYCLE_PHASES } = await import(pathToFileURL(join(coreRoot, 'dist/core/lifecycle-registry.js')).href);
   if (!isCanonicalStoryId(storyId)) throw new Error('A canonical Story ID is required');
   const store = new StoryStore(root);
-  let story, checklist, understanding;
+  let story, checklist, understanding, originalItems;
+  let checklistIncomplete = false;
+  let understandingIncomplete = false;
   probe(rows, 'story-shape', () => {
     const value = store.readStory(storyId);
     if (!isObject(value) || value.storyId !== storyId || !LIFECYCLE_PHASES.includes(value.phase)) throw new Error('Invalid Story identity or phase');
@@ -107,19 +109,41 @@ async function storyProbe(root, storyId) {
   });
   probe(rows, 'checklist-shape', () => {
     const value = store.readChecklist(storyId);
-    if (!Array.isArray(value?.items) || value.items.some(item => !isObject(item) || (item.files !== undefined && !isObject(item.files)))) throw new Error('Checklist requires an array of items');
-    for (const item of value.items) for (const key of ['modify', 'create', 'test']) {
-      if (item.files?.[key] !== undefined && (!Array.isArray(item.files[key]) || item.files[key].some(path => typeof path !== 'string'))) throw new Error(`${item.id}: files.${key} requires strings`);
-    }
-    checklist = value;
+    if (!Array.isArray(value?.items)) throw new Error('Checklist requires an array of items');
+    const issues = [];
+    originalItems = value.items.filter(isObject);
+    // Diagnostic projection only: retain independently readable paths without
+    // changing stored declarations or treating malformed input as admissible.
+    checklist = {...value, items: value.items.flatMap((item, index) => {
+      if (!isObject(item)) { issues.push(`item ${index}: requires an object`); return []; }
+      if (item.files === undefined) return [item];
+      if (item.files !== undefined && !isObject(item.files)) {
+        issues.push(`${item.id}: files requires an object`);
+        return [{...item, files:{}}];
+      }
+      const files = {...item.files};
+      for (const key of ['modify', 'create', 'test']) {
+        const paths = files[key];
+        if (paths === undefined) continue;
+        if (!Array.isArray(paths) || paths.some(path => typeof path !== 'string')) {
+          issues.push(`${item.id}: files.${key} requires strings`);
+          files[key] = Array.isArray(paths) ? paths.filter(path => typeof path === 'string') : [];
+        }
+      }
+      return [{...item, files}];
+    })};
+    checklistIncomplete = issues.length > 0;
+    if (checklistIncomplete) throw new Error(issues.join('; '));
     return row('checklist-shape', 'PASS', 'Checklist path declarations are structurally readable.');
   });
   probe(rows, 'understanding-shape', () => {
     const path = store.storyFilePath(storyId, 'understanding.json');
     if (!existsSync(path)) return row('understanding-shape', 'WARNING', 'Understanding snapshot is absent.');
     const value = readObject(path);
-    if (!Array.isArray(value.touchpoints) || value.touchpoints.some(path => typeof path !== 'string')) throw new Error('Understanding touchpoints require strings');
-    understanding = value;
+    if (!Array.isArray(value.touchpoints)) throw new Error('Understanding touchpoints require strings');
+    understandingIncomplete = value.touchpoints.some(path => typeof path !== 'string');
+    understanding = {...value,touchpoints:value.touchpoints.filter(path => typeof path === 'string')};
+    if (understandingIncomplete) throw new Error('Understanding touchpoints require strings');
     return row('understanding-shape', 'PASS', 'Understanding touchpoints are structurally readable.');
   });
   let coverage;
@@ -128,7 +152,8 @@ async function storyProbe(root, storyId) {
   if (coverage && checklist?.items && understanding?.touchpoints) probe(rows, 'touchpoint-coverage', () => {
     const issues = coverage(understanding.touchpoints, checklist.items);
     return issues.length ? issues.map(issue => row(issue.type, issue.severity === 'blocker' ? 'BLOCKED' : 'WARNING', issue.message))
-      : row('touchpoint-coverage', 'PASS', 'Every declared touchpoint is covered by the checklist file declarations.');
+      : checklistIncomplete || understandingIncomplete ? row('touchpoint-coverage', 'WARNING', 'Readable declarations cover the touchpoints, but malformed input prevents complete coverage validation.')
+        : row('touchpoint-coverage', 'PASS', 'Every declared touchpoint is covered by the checklist file declarations.');
   });
   if (checklist?.items) {
     for (const item of checklist.items) for (const key of ['modify', 'create', 'test']) for (const path of item.files?.[key] ?? []) {
@@ -155,7 +180,7 @@ async function storyProbe(root, storyId) {
     }
     try {
       const { validatePlannedPathDeclarationsForChecklistItem } = await import(pathToFileURL(join(coreRoot, 'dist/core/acceptance-topology.js')).href);
-      for (const item of checklist.items) if (item.verificationIntent) probe(rows, `planned-path-schema:${item.id}`, () => {
+      for (const item of originalItems) if (item.verificationIntent) probe(rows, `planned-path-schema:${item.id}`, () => {
         validatePlannedPathDeclarationsForChecklistItem(item, item.verificationIntent);
         return row(`planned-path-schema:${item.id}`, 'PASS', 'Planned path declarations match the existing acceptance topology contract.');
       });

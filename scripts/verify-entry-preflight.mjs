@@ -71,6 +71,11 @@ try {
   assert.equal(status(baseline, 'path:CHK-001:test:tests/future.test.ts'), 'PASS');
   assert.ok(!baseline.rows.some(row => row.status === 'BLOCKED' || row.status === 'UNAVAILABLE'), JSON.stringify(baseline));
   const checklist = store.readChecklist(storyId);
+  store.writeChecklist(storyId,{items:[{id:'CHK-LEGACY',title:'Legacy declaration without file mapping',status:'pending'}]});
+  const legacy = run(script,project,storyId);
+  assert.equal(status(legacy,'checklist-shape'),'PASS');
+  assert.equal(status(legacy,'touchpoint_mapping_missing'),'WARNING','missing files keeps existing legacy advisory semantics');
+  assert.equal(status(legacy,'touchpoint_uncovered'),undefined);
   checklist.items[0].files.modify = ['src/missing.ts', '../escape.ts', 'outside/secret.ts', '.', 'broken-link/future.ts'];
   store.writeChecklist(storyId, checklist);
   symlinkSync(root, join(project, 'outside'));
@@ -84,6 +89,7 @@ try {
   assert.equal(status(brokenPlan, 'touchpoint_uncovered'), 'BLOCKED');
   const mixed = structuredClone(checklist);
   mixed.items.unshift({id:'CHK-MALFORMED',files:{modify:[123, 'src/also-missing.ts'],create:'invalid'}});
+  mixed.items.push(null, {id:'CHK-BAD-FILES',files:42});
   store.writeChecklist(storyId, mixed);
   const mixedPlan = run(script, project, storyId);
   assert.equal(status(mixedPlan, 'checklist-shape'), 'BLOCKED');
@@ -92,6 +98,23 @@ try {
   assert.equal(status(mixedPlan, 'path:CHK-001:modify:../escape.ts'), 'BLOCKED');
   assert.equal(status(mixedPlan, 'path:CHK-MALFORMED:modify:src/also-missing.ts'), 'BLOCKED');
   assert.equal(status(mixedPlan, 'touchpoint_uncovered'), 'BLOCKED');
+  assert.match(mixedPlan.rows.find(row=>row.id==='checklist-shape').detail, /files\.modify.*files\.create.*requires an object.*files requires an object/);
+  mixed.items.push({id:'CHK-COVERED',files:{modify:['src/present.ts'],create:['src/future.ts']}});
+  store.writeChecklist(storyId, mixed);
+  const partialCoverage = run(script, project, storyId);
+  assert.equal(status(partialCoverage, 'checklist-shape'), 'BLOCKED');
+  assert.equal(status(partialCoverage, 'touchpoint-coverage'), 'WARNING', 'partial projection cannot claim complete schema-valid coverage');
+  const understanding = store.readUnderstanding(storyId);
+  store.writeUnderstanding(storyId, {...understanding,touchpoints:[123,'src/uncovered-independent.ts']});
+  const mixedUnderstanding = run(script, project, storyId);
+  assert.equal(status(mixedUnderstanding, 'understanding-shape'), 'BLOCKED');
+  assert.equal(status(mixedUnderstanding, 'touchpoint_uncovered'), 'BLOCKED',
+    'U14 malformed touchpoint must not hide readable uncovered touchpoints');
+  store.writeUnderstanding(storyId,{...understanding,touchpoints:[123,'src/present.ts']});
+  const partialUnderstanding = run(script,project,storyId);
+  assert.equal(status(partialUnderstanding,'understanding-shape'),'BLOCKED');
+  assert.equal(status(partialUnderstanding,'touchpoint-coverage'),'WARNING');
+  store.writeUnderstanding(storyId, understanding);
   store.writeChecklist(storyId, checklist);
   const gitProject = join(root, 'git-project'), worktree = join(gitProject, 'worktree');
   write(join(gitProject, 'proof-or-stop.config.json'), { storyDir: '.proof-or-stop/story/actives' });

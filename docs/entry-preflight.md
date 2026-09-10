@@ -18,6 +18,13 @@ escape the project are reported. Glob existence is advisory. These checks cover
 configuration syntax/path shape and planned path declarations, not every field
 of every persisted artifact.
 
+Malformed checklist items, path fields and understanding touchpoints remain
+blocking, but do not suppress independently readable path and coverage checks.
+Partial diagnostic projections never claim complete coverage PASS and never
+replace the original input used by the planned-path schema validator. Legacy
+items without a file mapping retain the existing advisory behavior. No projected
+or corrected data is written back to the Story.
+
 The report is diagnostic only. `diagnosticsReady` means no reported blocker or
 unavailable probe; it grants no lifecycle, scope, decision, review or release
 authority. For INIT, the existing `init_preflight` report supplies the actual
