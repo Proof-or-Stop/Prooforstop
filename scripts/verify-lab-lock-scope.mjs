@@ -7,7 +7,8 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, exist
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { acquireMainWriteLock } from '../packages/main/src/core/main-write-lock.ts';
+// Load after the source resolver has registered its .js -> .ts hook.
+const { acquireMainWriteLock } = await import('../packages/main/src/core/main-write-lock.ts');
 
 // All writes and actual main-lock acquisitions are confined to disposable Git
 // repositories. Invoke the real Lab command; never mint a passing Lab record.
