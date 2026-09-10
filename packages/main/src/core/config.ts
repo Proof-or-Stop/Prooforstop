@@ -157,7 +157,14 @@ export interface EvidenceCommandTimeoutOverrideConfig {
   timeoutMs: number;
 }
 
+export interface ManagedReviewIsolationConfig {
+  mode: 'readonly-build';
+  adapter: 'prooforstop-main-v1';
+}
+
 export interface ProofOrStopConfig {
+  /** Explicit managed-review-only readonly build adapter; absent retains legacy behavior. */
+  managedReviewIsolation?: ManagedReviewIsolationConfig;
   /** Explicit semantic budgets and responsibility map; malformed opt-in policy fails closed. */
   storyScopeBudget?: import('./story-scope-budget.js').StoryScopeBudgetPolicy;
   /**

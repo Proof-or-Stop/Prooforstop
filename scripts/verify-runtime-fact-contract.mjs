@@ -78,6 +78,16 @@ async function main() {
   for (const path of ['packages/main/src/core/validation-executor.ts', 'packages/main/src/tasks/full-suite-runner.ts'])
     check(read(root,path).includes('withMachineValidationResources'), `${path} must acquire machine ports at actual child execution`);
   const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
+  const readonlyLane=read(root,'packages/main/src/core/managed-review-lane.ts');
+  const readonlyPolicy=read(root,'packages/main/src/core/managed-review-lane-policy.ts');
+  check(registrySource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY')
+    && readonlyLane.includes('MANAGED_REVIEW_LANE_ARTIFACT.directoryName')
+    && readonlyLane.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.buildTimeoutMs')
+    && readonlyPolicy.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.adapter')
+    && managedHost.includes('requestedReadonlyLane')
+    && read(root,'packages/main/src/core/host-run.ts').includes('prepareManagedReadonlyLaunch'),
+    'readonly reviewer lanes require registered explicit adapters and the actual provider boundary');
+
   check(managedHost.includes("if (!readManagedReviewScratchCleanupDiagnostic(paths)) throw new Error"),
     'cleanup diagnostic idempotency must not swallow non-file persistence failures');
   check(registrySource.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY')

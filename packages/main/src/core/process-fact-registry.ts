@@ -1935,6 +1935,16 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
 
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   {
+    name: 'runtime:managed_review_readonly_build', kind: 'runtime-behavior', level: 'L4',
+    semantics: ['runtime-behavior', 'workspace-binding', 'freshness-policy', 'gate-evidence'],
+    producer: 'core/managed-review-lane + core/managed-host-run',
+    producerSourceRefs: ['packages/main/src/core/managed-review-lane.ts', 'packages/main/src/core/managed-review-lane-build.mjs', 'packages/main/src/core/managed-review-lane-policy.ts', 'packages/main/src/core/managed-review-provider-state.ts'],
+    consumerSourceRefs: ['packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts', 'packages/main/src/core/managed-review-readonly.ts'],
+    consumerGate: 'Opted-in managed reviewer provider startup and successful terminal proposal consumption',
+    rationale: 'An explicit registered project adapter seals readonly source and independent build-source/output/temp/cache paths in the existing owner-bound spec. Unsupported requested projects/platforms refuse before provider startup; unconfigured projects retain existing behavior. Real platform probes and the actual provider wrapper deny writes outside declared lane outputs. Initial source and compiled output digests are verified before execution and before successful proposal intake. Build output writes are permitted locally but drift never passes as the sealed initial build. Trusted provider attestation and proposal signing remain outside the sandbox; no provider result or PASS is manufactured by the build.',
+  },
+
+  {
     name: 'runtime:machine_provider_admission', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state'], producer: 'core/provider-process-admission',
     producerSourceRefs: ['packages/main/src/core/provider-process-admission.ts', 'packages/main/src/core/provider-process-registry.ts'],

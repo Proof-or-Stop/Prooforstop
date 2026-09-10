@@ -13,6 +13,13 @@ const root = process.cwd();
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
 const failures = [];
+const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
+for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
+const readonlyManagedSource=readFileSync(join(root,'packages/main/src/core/managed-host-run.ts'),'utf8');
+if (!readonlyManagedSource.includes('verifyManagedReviewLane(scratch.readonlyLane, scratch)')
+  || !readonlyManagedSource.includes('readonlyLane: await createManagedReviewLane')) failures.push('Managed readonly source/build binding must be sealed and consumed');
+if (!readFileSync(join(root,'packages/main/src/core/process-fact-registry.ts'),'utf8').includes('runtime:managed_review_readonly_build')) failures.push('Managed readonly build process semantics must be registered');
+
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
 const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;

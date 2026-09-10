@@ -1,3 +1,4 @@
+import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, acceptanceReviewJsonSchema } from './acceptance-amendment-review.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the host-run choke point.
@@ -327,6 +328,8 @@ export interface HostRunStoryMeta {
 export type HostRunStoryResolver = (storyId: string) => HostRunStoryMeta | null;
 
 export interface HostRunArgs {
+  /** Sealed layout from managed worker. */
+  managedReadonlyLayout?: ManagedReadonlyLayout;
   host: HostRunHost;
   storyId: string | null;
   agentType: string;
@@ -2163,9 +2166,12 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     };
     let spawn: HostRunSpawnResult;
     try {
+      const guardedLaunch = args.managedReadonlyLayout
+        ? prepareManagedReadonlyLaunch(args.managedReadonlyLayout, {command: launch.command, argv: launch.argv, cwd: args.cwd})
+        : {command: launch.command, argv: launch.argv, cwd: args.cwd};
       spawn = await runner({
-        command: launch.command,
-        argv: launch.argv,
+        command: guardedLaunch.command,
+        argv: guardedLaunch.argv,
         env: args.env,
         // F-011: every spawn path executes in the resolved project root.
         cwd: args.cwd,

@@ -1,3 +1,6 @@
+import { preflightManagedProviderState } from './managed-review-provider-state.js';
+import { resolveManagedReviewIsolation, preflightManagedReadonlyHost } from './managed-review-lane-policy.js';
+import { createManagedReviewLane, managedReviewLaneEnvironment, verifyManagedReviewLane, type ManagedReviewLane } from './managed-review-lane.js';
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
 import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -82,7 +85,7 @@ import {
   type ExistingMkdirLockState,
 } from './mkdir-lock.js';
 import { getSessionIdentity } from './owner-session.js';
-import { resolveCanonicalRuntimeProjectRoot, MANAGED_REVIEW_TEMP_ARTIFACT } from './runtime-artifact-registry.js';
+import { resolveCanonicalRuntimeProjectRoot, MANAGED_REVIEW_TEMP_ARTIFACT, MANAGED_REVIEW_LANE_ARTIFACT } from './runtime-artifact-registry.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
@@ -485,6 +488,7 @@ export interface ManagedReviewScratchWorktree {
   cwd: string;
   headHash: string;
   nonce: string;
+  readonlyLane?: ManagedReviewLane;
 }
 
 type ManagedReviewScratchCleanupStage =
@@ -971,6 +975,7 @@ function managedReviewTemporaryEnvironment(spec: ManagedHostRunSpec): NodeJS.Pro
   if (!spec.managedReviewScratch) return {};
   const scratch = spec.managedReviewScratch;
   assertManagedReviewScratchShape(scratch);
+  if (scratch.readonlyLane) return managedReviewLaneEnvironment(scratch.readonlyLane);
   const temporaryRoot = join(scratch.parent, MANAGED_REVIEW_TEMP_ARTIFACT.directoryName);
   if (!existsSync(temporaryRoot)) mkdirSync(temporaryRoot, { mode: MANAGED_REVIEW_TEMP_RUNTIME_POLICY.directoryMode });
   if (!lstatSync(temporaryRoot).isDirectory() || lstatSync(temporaryRoot).isSymbolicLink()
@@ -1007,6 +1012,7 @@ function assertManagedReviewScratchExecution(
     || managedReviewScratchHead(scratch.cwd) !== scratch.headHash) {
     throw new Error('managed host run: managed-review scratch was replaced, unregistered, or moved off its sealed detached HEAD');
   }
+  if (scratch.readonlyLane) verifyManagedReviewLane(scratch.readonlyLane, scratch);
   if (!options.verifyBoundMaterial) return;
   const observedMaterialHash = currentMaterialHash(scratch.cwd);
   if (!observedMaterialHash || observedMaterialHash !== spec.reviewBinding?.materialHash) {
@@ -1039,7 +1045,7 @@ function assertManagedReviewScratchExecution(
       return pathText.includes(' -> ') ? pathText.split(' -> ') : [pathText];
     })
     .map(raw => raw.trim().replace(/^"(.*)"$/, '$1'))
-    .filter(path => path.length > 0 && !isMaterialExcludedPath(path, scratch.cwd));
+    .filter(path => path.length > 0 && !isMaterialExcludedPath(path, scratch.cwd) && !scratch.readonlyLane?.binding.sourceRuntimeLinks.some(link => link.path === path));
   if (offending.length > 0) {
     throw new Error(`managed host run: managed-review scratch contains provider-created or modified material: ${offending.slice(0, 5).join(', ')}`);
   }
@@ -2269,6 +2275,11 @@ export async function submitManagedHostRun(
     }
   }
 
+  const requestedReadonlyLane = args.isolateManagedReview === true ? resolveManagedReviewIsolation(args.root) : null;
+  if (requestedReadonlyLane) {
+    preflightManagedReadonlyHost(args.host, args.cwd, {...process.env,...args.environment});
+    preflightManagedProviderState(args.host, {...process.env,...args.environment});
+  }
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
@@ -2328,8 +2339,14 @@ export async function submitManagedHostRun(
         headHash: args.reviewBinding!.headHash,
         parentFactory: deps.managedReviewScratchParentFactory,
       });
+      if (requestedReadonlyLane) {
+        const sealedScratch = {...managedReviewScratch, readonlyLane: await createManagedReviewLane(managedReviewScratch, args.host, {...process.env,...args.environment})};
+        atomicWrite(managedReviewScratchRegistrationPath(managedReviewScratch), sealedScratch);
+        managedReviewScratch = sealedScratch;
+      }
     }
   } catch (error) {
+    if (managedReviewScratch) cleanupManagedReviewScratchWorktree(args.root, managedReviewScratch);
     // No worker exists before scratch setup completes. Remove only this run's
     // newly-created durable directory; the scratch helper itself owns its
     // canonical temporary parent and never targets the primary worktree.
@@ -2739,6 +2756,7 @@ export async function runManagedHostRunWorker(
     // selector leak into a child as ambient authority or confuse nested CLI
     // commands that did not inherit the worker capability descriptor.
     delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;
+    if(spec.managedReviewScratch?.readonlyLane) providerEnvironment.PATH = join(spec.managedReviewScratch.parent,MANAGED_REVIEW_LANE_ARTIFACT.directoryName,MANAGED_REVIEW_LANE_ARTIFACT.launchers)+':'+(providerEnvironment.PATH ?? process.env.PATH ?? '');
     result = await runHostRun(
       {
         host: spec.host,
@@ -2759,6 +2777,7 @@ export async function runManagedHostRunWorker(
           : isIsolatedReviewerProfile(spec.profile)
             ? { launchProfile: 'managed_reviewer' as const }
             : {}),
+        ...(spec.managedReviewScratch?.readonlyLane ? {managedReadonlyLayout: spec.managedReviewScratch.readonlyLane.layout} : {}),
         cwd: spec.cwd,
         root: spec.root,
         recordedAt: new Date(now()).toISOString(),
