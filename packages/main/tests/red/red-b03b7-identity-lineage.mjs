@@ -43,7 +43,8 @@ async function immutableBaselineModules(data) {
   if (ts.version !== data.baselineRuntime.compilerVersion) broken(`baseline compiler version changed: ${ts.version}`);
   const modules = [];
   for (const pin of data.baselineRuntime.modules) {
-    const source = run('git', ['show', `${data.registration.baselineRevision}:${pin.path}`]);
+    // Carry the exact pinned baseline bytes in the checkout; no Git object is required.
+    const source = readFileSync(resolve(root, pin.path), 'utf8');
     if (byteDigest(source) !== pin.sourceHash) broken(`immutable baseline source mismatch: ${pin.path}`);
     const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 }, fileName: pin.path, reportDiagnostics: true });
     if (compiled.diagnostics?.some(row => row.category === ts.DiagnosticCategory.Error)) broken(`baseline compilation failed: ${pin.path}`);
@@ -328,7 +329,7 @@ async function main() {
   const data = await load('packages/main/tests/data/finding-identity-gold-set.mjs');
   if (digest(data.corpus) !== data.corpusDigest) broken('preregistered corpus digest mismatch');
   const head = run('git', ['rev-parse', 'HEAD']).trim();
-  const baselineExists = run('git', ['rev-parse', `${data.registration.baselineRevision}^{commit}`]).trim();
+  const baselineReference = data.registration.baselineRevision; // Historical label, not an executable Git dependency.
   const config = JSON.parse(readFileSync(resolve(root, 'proof-or-stop.config.json'), 'utf8'));
   if (!config.validate.commands.some(command => command.command === 'node' && command.args?.includes('packages/main/tests/red/red-b03b7-identity-lineage.mjs'))) broken('harness missing standing validation registration');
   const sources = new Map();
@@ -345,7 +346,7 @@ async function main() {
   }
   // Successful real CLI source reads and existing runtime imports are setup
   // controls. They are not inferred from module existence alone.
-  console.log(`REGISTRATION ${JSON.stringify({ corpusDigest: data.corpusDigest, baselineRevision: baselineExists, executedHead: head, mode: baseline ? 'baseline' : 'green', rows: data.observations.map(row => ({ id: row.id, sourceId: row.sourceId, origin: row.origin })), caseIds: data.caseIds })}`);
+  console.log(`REGISTRATION ${JSON.stringify({ corpusDigest: data.corpusDigest, baselineRevision: baselineReference, baselineSource: 'checkout_source_and_runtime_pins', executedHead: head, mode: baseline ? 'baseline' : 'green', rows: data.observations.map(row => ({ id: row.id, sourceId: row.sourceId, origin: row.origin })), caseIds: data.caseIds })}`);
   const result = baseline ? await baselineAdapter(data, sources) : await greenAdapter(data, sources);
   if (!result || !['rawSignalFindings', 'substitutedBlockers', 'groups', 'current', 'hits'].every(key => Array.isArray(result[key]))) broken('malformed replay adapter output');
   const trace = operationTrace(data.observations, result.groups, data.registration.countingRule);

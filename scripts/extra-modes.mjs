@@ -25,8 +25,9 @@ export function extraMode({ts,file,text,ast,entry,argv,contract}){
  const functions=new Map();for(const n of ast.statements)if(ts.isFunctionDeclaration(n)&&n.name)functions.set(n.name.text,n);
  const active=new Set();let mode;
  if(file===PACK){
-  if(JSON.stringify(argv)!==JSON.stringify(['--quiet']))errors.push('Unreviewed packed-boundary invocation');
-  active.add('runBoundary');
+  const imported=entry==='packages/main/tests/canonical-new-story-artifacts.test.mjs' && (argv.length===0 || JSON.stringify(argv)===JSON.stringify(['--group=runtime']));
+  if(!imported && JSON.stringify(argv)!==JSON.stringify(['--quiet']))errors.push('Unreviewed packed-boundary invocation');
+  if(imported){active.add('prepareOfflineDependencyOverrides');active.add('sourceManifests');}else active.add('runBoundary');
   function refs(n){if(ts.isIdentifier(n)&&functions.has(n.text))active.add(n.text);ts.forEachChild(n,refs);}
   for(let before=-1;before!==active.size;){before=active.size;for(const name of [...active])ts.forEachChild(functions.get(name),refs);}
  }else{
@@ -39,7 +40,7 @@ export function extraMode({ts,file,text,ast,entry,argv,contract}){
  const shouldSkip=node=>{
   if(errors.length)return false;
   if(ts.isFunctionDeclaration(node)&&functions.get(node.name?.text)===node&&!active.has(node.name.text))return true;
-  if(file===PACK&&ts.isIfStatement(node)&&node.expression.getText(ast)==='cacheWorkerArg')return true;
+  if(file===PACK&&ts.isIfStatement(node)&&node.expression.getText(ast)==='invokedDirectly && cacheWorkerArg')return true;
   if(file===NEUTRAL){
    for(let p=node.parent;p;p=p.parent){
     if(ts.isIfStatement(p)&&p.expression.getText(ast).includes("mode === '--bootstrap'")){

@@ -1204,6 +1204,7 @@ async function completionWindowCases() {
 // only thing this file authors (B-bcae F-005/F-006/F-007 and their re-attestations).
 const HARNESS_REL = 'packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs';
 const GUARD_NAME = 'red-b49d4-harness-registration.mjs';
+const F031_SOURCE_REL = 'packages/main/src/tasks/finding-identity-lineage-smoke.ts';
 const CORE_URL = pathToFileURL(join(repoRoot, 'packages/main/dist/core/story-aware-validation.js')).href;
 const committedConfig = JSON.parse(fs.readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
 const committedRows = committedConfig.validate.commands.filter(row =>
@@ -1367,8 +1368,8 @@ async function registrationGuardCases() {
   assert.doesNotMatch(real.output, /check\(s\) failed/);
 
   // (b) an isolated mirror of the population. The guard enumerates its directory UNFILTERED and
-  //     reads only NAMES from it plus the config, so name-faithful placeholders reproduce the real
-  //     population exactly; only the guard itself is copied with its content, because it is run.
+  //     reads names, the config, and the exact F031 delivery source bound by its exclusion decision.
+  //     Name-faithful placeholders reproduce the population; executable decision inputs are copied.
   const mirror = (label, commands) => {
     const root = fs.realpathSync(fs.mkdtempSync(join(suiteRoot, `${label} `)));
     const redDir = join(root, 'packages', 'main', 'tests', 'red');
@@ -1378,6 +1379,8 @@ async function registrationGuardCases() {
       else write(join(redDir, name), '');
     }
     fs.copyFileSync(join(here, GUARD_NAME), join(redDir, GUARD_NAME));
+    fs.mkdirSync(join(root, 'packages', 'main', 'src', 'tasks'), { recursive: true });
+    fs.copyFileSync(join(repoRoot, F031_SOURCE_REL), join(root, F031_SOURCE_REL));
     write(join(root, 'proof-or-stop.config.json'),
       JSON.stringify({ ...committedConfig, validate: { ...committedConfig.validate, commands } }, null, 2) + '\n');
     return { root, guard: join(redDir, GUARD_NAME) };

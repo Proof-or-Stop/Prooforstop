@@ -16,8 +16,8 @@ import {changelogPreservesHistory,isRetiredGeneratedCache,reviewedProvenanceAmen
 
 const SCRIPT_PATH = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
 const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept-provenance.json';
-const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'e5432a4f5ec86b86e58377f03ec2ed7b8f0c23e40ef398957616c403b400382e';
-const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 52;
+const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
+const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
 const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'aa89c3c530827a290611c5ecc80441a8853dcf2a0e48f9c3ccc4c5df73e5cde4';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 199;
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "269247864e79a7d84864e8dea669eeb3c54dc49bbdc830edf906f8f4bb9f2e28"
+    "sha256": "9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "5115535cffb3a2efc41d6f12f41ea2c415467ad20f2e42b81b1f9a748810281e"
+    "sha256": "4abd049eb49a459a27873c61ec34b093f98bc5ef0630c46cb44192b7b0e45555"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"269247864e79a7d84864e8dea669eeb3c54dc49bbdc830edf906f8f4bb9f2e28"],
+  [4,"9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "f121ec87413d262eb01550d4b9204265cd6c250c44ab9c2b67bef7dcd8d6a507"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "ebbcf9d2f7057867dcbf0fb7c9c88e0526ed003fb7a1733bd974da454039809f"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "24031db10cd77e87676a89089ef9031d5bd676e9e4aa2d9595541120ea8f229f"
+    "sha256": "f4c86e07cb52166176de8ecebc0b3409cb7b94994bffcb5c59bd46c199cf5b97"
   }
 ];
 function verifyReviewedContextReaders(root) {
