@@ -422,7 +422,7 @@ await check('story_create enforce blocks file-declaring story without binding be
   });
 });
 
-await check('story_create direct lifecycle phase rejects repro-first bypass before persistence', async () => {
+await check('story_create direct lifecycle phase is forbidden before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
     assert.throws(
@@ -441,7 +441,7 @@ await check('story_create direct lifecycle phase rejects repro-first bypass befo
           files: { modify: ['src/feature.ts'] },
         }],
       }),
-      /repro_first_bypass_direct_phase_forbidden/,
+      /story_create_direct_lifecycle_phase_forbidden/,
     );
     assert.deepEqual(store.listStoryIds(), [], 'blocked direct phase bypass must not persist story metadata');
   });
@@ -562,10 +562,10 @@ await check('story_create fromDraft supports explicit repro-first bypass reason'
   });
 });
 
-await check('story_create blocks direct lifecycle phase with repro-first bypass before persistence', async () => {
+await check('story_create blocks every post-intake lifecycle phase before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
-    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    const blockedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
     for (const phase of blockedPhases) {
       assert.throws(
         () => handlers.story_create({
@@ -583,7 +583,7 @@ await check('story_create blocks direct lifecycle phase with repro-first bypass 
             files: { modify: ['src/feature.ts'], test: ['tests/feature.test.ts'] },
           }],
         }),
-        /repro_first_bypass_direct_phase_forbidden/,
+        /story_create_direct_lifecycle_phase_forbidden/,
       );
     }
     assert.deepEqual(store.listStoryIds(), [], 'blocked direct-phase bypass must not persist story metadata');

@@ -1055,14 +1055,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         }
       };
 
-      // Directly specify phase (for onboard use: completed modules marked directly as DONE)
+      if (args.phase && args.phase !== 'IDEA' && args.phase !== 'INIT') {
+        throw new Error(
+          `story_create cannot directly create ${args.phase} stories. ` +
+          'Create the story in IDEA or INIT, then use story_advance through INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE. ' +
+          '[story_create_direct_lifecycle_phase_forbidden]',
+        );
+      }
+
+      // An explicit phase is intake-only. All later phases require story_advance.
       if (args.phase) {
-        if (args.phase === 'INIT_CHECK') {
-          throw new Error(
-            'story_create cannot directly create INIT_CHECK stories. ' +
-            'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
-          );
-        }
         reproFirstHint = renderReproFirstStoryCreatePreflight({
           projectRoot: ctx.root,
           storyId,
@@ -1091,8 +1093,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
           createdAt: now,
           startedAt: args.phase !== 'IDEA' ? now : null,
-          endedAt: args.phase === 'DONE' ? now : null,
-          ...(args.phase === 'REVIEW' ? { currentReviewRound: now } : {}),
+          endedAt: null,
           events: [collectContext(args.phase, 'create')],
         };
         store.writeStory(storyId, story);
@@ -1101,9 +1102,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         writeInitialScopeArtifacts();
         // Note: direct phase specification path is for onboard etc. scenarios; normally riskHint is unnecessary, but kept consistent
         if (hasChecklist) {
-          const isDone = args.phase === 'DONE';
           const checklist = {
-            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, isDone ? 'done' : 'pending')),
+            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),
           };
           store.writeChecklist(storyId, checklist);
         }

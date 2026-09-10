@@ -10280,7 +10280,7 @@ const inventory = [
           'assertStoryCreateExplicitExcludes',
           'scanExcludedKeywordHits',
           'excluded_keyword_in_story_create',
-          'story_create cannot directly create INIT_CHECK stories',
+          'story_create_direct_lifecycle_phase_forbidden',
           "created from draft '${draftName}' (INIT)",
         ],
       },
