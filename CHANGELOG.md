@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.3.310 — Progress Evidence and Final Validation Integration — 2026-09-10
+
+### Release context
+
+This release assigns a new product version to the integration of the complete local `v0.3.309` line and Pan Qi's latest remote final-validation closure. The merge preserves both parent histories: the B-03b7 progress-transition proof remains intact, while the remote identity, harness-registration, bootstrap-mirror, static-edge, and offline package-boundary repairs are included without replaying or replacing either line.
+
+### Problems resolved
+
+- The local `v0.3.309` line proved that failed target evidence, regressive target status, and independently substituted predecessor digests cannot be misclassified as semantic progress.
+- The remote line closed the remaining failures from the 162-command validation run, including identity replay, harness registration, bootstrap mirroring, exact consumer binding, and packed offline dependency isolation.
+- Combining the two lines changed the complete bytes of one reviewed finding-lineage fixture. Its protected token, line, line hash, and unique occurrence were unchanged, but the old whole-source digest correctly failed closed against the merged file.
+- Retaining the `0.3.309` version after adding the remote closure and integration repair would make the combined artifact indistinguishable from its local parent.
+
+### Resolution
+
+- Merged Pan Qi's remote validation closure into the full `v0.3.309` ancestry and retained the newer local package behavior.
+- Advanced the root CLI, Core package, lockfiles, and runtime brand identity to `0.3.310`.
+- Preserved all B-03b7 progress-transition positive controls and one-axis refusal tests.
+- Preserved the remote self-contained offline dependency cache, current-state replay, harness-registration, bootstrap-mirror, identity, and static-edge repairs.
+- Recomputed the exact reviewed fixture inventory and reader binding from the merged source bytes. The protected line content and occurrence count remain unchanged; no compatibility allowance or authority boundary was widened.
+
+### Before and after
+
+- **Before:** the local and remote lines each passed their own focused checks, but the combined source failed the exact reviewed-fixture whole-file digest and still reported the parent version.
+- **After:** the merged artifact is uniquely identified as `v0.3.310`; exact identity evidence describes the combined bytes, both parent histories remain reachable, and the full packed consumer boundary succeeds without relying on the user npm cache.
+
+### Verification evidence
+
+- `npm run build` passed for Core, Utils, Graph, and the full-suite build binding.
+- `npm --prefix packages/lab run build` passed.
+- `B03B7_PROGRESS_TRANSITION_COVERAGE PASS` confirmed all signed-result, status-transition, predecessor-baseline, and projection-digest controls.
+- The process-fact contract passed with the current 539-entry registry.
+- The identity-cutover verifier passed active identity, frozen history, current documentation, persisted schema, canonical identity, and reviewed-fixture checks.
+- The packed clean-install boundary passed for the root CLI, Core, Lab, and Utils packages using exactly four product tarballs and a self-contained offline dependency cache.
+
 ## Lab b03b7-progress-transition-coverage - v0.3.309 - 2026-09-10
 
 # B-03b7 progress-transition coverage
