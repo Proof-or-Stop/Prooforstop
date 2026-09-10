@@ -180,19 +180,47 @@ async function authenticatedInventoryRegression(): Promise<void> {
     store.writeChecklist(sid, renamedChecklist);
     await handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS-V2', kind: 'integration_test', command,
       selector: 'INVENTORY_OK', result: 'pass', note: 'replacement observation contract' });
+    const renamedAuthentic = store.readChecklist(sid);
+    const renamedSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
     assert.doesNotThrow(
       () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
       'RETIRED_EVIDENCE_MUST_NOT_BLOCK_CURRENT_INVENTORY',
     );
-    const renamedAuthentic = store.readChecklist(sid);
-    const tamperedCurrent = structuredClone(renamedAuthentic);
-    const currentEvidence = tamperedCurrent.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS-V2')!;
-    (currentEvidence.receipt as unknown as Record<string, any>).executionReceipt.authenticity.signature = 'invalid-signature';
-    store.writeChecklist(sid, tamperedCurrent);
-    assert.throws(
-      () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
-      /invalid|signature|authentication/i,
-      'current replacement evidence remains authenticated',
+    const changedRetired = structuredClone(renamedAuthentic);
+    const retiredEvidence = changedRetired.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS')!;
+    retiredEvidence.command = 'node retired-history-does-not-define-current-acceptance.js';
+    (retiredEvidence.receipt as unknown as Record<string, any>).executionReceipt.authenticity.signature = 'invalid-retired-signature';
+    store.writeChecklist(sid, changedRetired);
+    assert.equal(
+      reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      renamedSubject,
+      'retired evidence is excluded from the current acceptance subject',
+    );
+    for (const attack of ['signature', 'command', 'freshness'] as const) {
+      const tamperedCurrent = structuredClone(renamedAuthentic);
+      const currentEvidence = tamperedCurrent.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS-V2')!;
+      const receipt = currentEvidence.receipt as unknown as Record<string, any>;
+      if (attack === 'signature') receipt.executionReceipt.authenticity.signature = 'invalid-signature';
+      if (attack === 'command') currentEvidence.command = 'node never-executed-replacement.js';
+      if (attack === 'freshness') currentEvidence.materialHash = 'f'.repeat(64);
+      store.writeChecklist(sid, tamperedCurrent);
+      assert.throws(
+        () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+        /invalid|mismatch|signature|command|freshness|binding|authentication/i,
+        `current replacement ${attack} remains authenticated`,
+      );
+    }
+    const emptyIntents = structuredClone(renamedAuthentic);
+    emptyIntents.items[0].verificationIntent = { happy: [], edge: [], adversarial: [] };
+    store.writeChecklist(sid, emptyIntents);
+    const emptyIntentSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    const emptyIntentsWithoutHistory = structuredClone(emptyIntents);
+    emptyIntentsWithoutHistory.items[0].verificationEvidence = [];
+    store.writeChecklist(sid, emptyIntentsWithoutHistory);
+    assert.equal(
+      reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      emptyIntentSubject,
+      'an explicitly empty current intent set retires all prior evidence rows',
     );
     store.writeChecklist(sid, authenticChecklist);
 
