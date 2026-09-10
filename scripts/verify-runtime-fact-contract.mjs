@@ -129,6 +129,7 @@ async function main() {
   const durationSource = read(root, 'packages/main/src/core/managed-run-duration-estimate.ts');
   check(durationSource.includes('MANAGED_DURATION_ESTIMATE_RUNTIME_POLICY') && durationSource.includes('historical_estimate')
     && durationSource.includes('unavailable'), 'duration estimates must share runtime policy and retain explicit uncertainty');
+  check(registrySource.includes('MANAGED_RUN_DASHBOARD_POLICY') && read(root, 'packages/main/src/core/managed-run-dashboard.ts').includes('MANAGED_RUN_DASHBOARD_POLICY.maxScanBytes'), 'owner/UI observation must consume registered scan budgets');
   check(registrySource.includes('MANAGED_STATUS_OBSERVATION_POLICY'), 'managed status cursor semantics must be registered');
   const managedStatusSource = read(root, 'packages/main/src/core/managed-host-run.ts');
   check(managedStatusSource.includes('args.afterGeneration === undefined && run.terminal !== null')

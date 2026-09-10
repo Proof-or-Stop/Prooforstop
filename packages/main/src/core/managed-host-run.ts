@@ -1,3 +1,4 @@
+import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
 import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
 import { consumeManagedLaunchAdmission, verifyManagedLaunchAdmission, type ManagedLaunchAdmission } from './managed-launch-admission.js';
 import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
@@ -24,6 +25,7 @@ import {
   appendFileSync,
   chmodSync,
   closeSync,
+  constants,
   existsSync,
   linkSync,
   mkdirSync,
@@ -1169,8 +1171,35 @@ async function withManagedReconcileLock<T>(
   }
 }
 
+export interface ManagedRuntimeReadBudget { remainingBytes: number; exhausted: boolean }
+// Only synchronous observation scopes use this budget; normal execution has none.
+let managedObservationBudget: ManagedRuntimeReadBudget | undefined;
+/** Runtime authority reads must not follow links or block on a special file. */
+function readManagedRuntimeText(path: string): string {
+  const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+  try {
+    const size = fstatSync(fd);
+    if (!size.isFile() || size.size > MANAGED_RUN_DASHBOARD_POLICY.maxRuntimeArtifactBytes) throw new Error('managed runtime artifact is not a bounded regular file');
+    if (managedObservationBudget) {
+      if (size.size > managedObservationBudget.remainingBytes) { managedObservationBudget.exhausted = true; throw new Error('managed observation byte budget exhausted'); }
+      managedObservationBudget.remainingBytes -= size.size;
+    }
+    const chunks: Buffer[] = [];
+    let length = 0;
+    for (;;) {
+      const chunk = Buffer.allocUnsafe(Math.min(65536, size.size + 1 - length));
+      const count = readSync(fd, chunk, 0, chunk.length, null);
+      if (!count) break;
+      length += count;
+      if (length > size.size) throw new Error('managed runtime artifact changed during read');
+      chunks.push(chunk.subarray(0, count));
+    }
+    return Buffer.concat(chunks, length).toString('utf8');
+  } finally { closeSync(fd); }
+}
+
 function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, 'utf8')) as T;
+  return JSON.parse(readManagedRuntimeText(path)) as T;
 }
 
 function assertArtifactRunId(
@@ -1186,7 +1215,7 @@ function assertArtifactRunId(
 }
 
 function readManagedHostRunSpec(paths: ManagedHostRunPaths): { text: string; value: ManagedHostRunSpec } {
-  const text = readFileSync(paths.spec, 'utf8');
+  const text = readManagedRuntimeText(paths.spec);
   const value = JSON.parse(text) as ManagedHostRunSpec;
   assertArtifactRunId(paths, 'spec', value.runId);
   return { text, value };
@@ -1631,7 +1660,7 @@ function cleanupManagedReviewScratchForTerminal(
 
 function digestFile(path: string): string | null {
   if (!existsSync(path)) return null;
-  return sha256(readFileSync(path, 'utf8'));
+  return sha256(readManagedRuntimeText(path));
 }
 
 function isSealedProcessEnvironment(value: unknown): value is NodeJS.ProcessEnv {
@@ -1700,7 +1729,7 @@ function receiptPayloadFor(paths: ManagedHostRunPaths, terminal: ManagedHostRunT
   const payload = {
     schemaVersion: 'lattice.managed_host_run_receipt.v1' as const,
     runId: terminal.runId,
-    terminalDigest: sha256(readFileSync(paths.terminal, 'utf8')),
+    terminalDigest: sha256(readManagedRuntimeText(paths.terminal)),
     state: terminal.state,
     specDigest: terminal.specDigest,
     bindingProjectionDigest: bindingProjectionDigestOf(liveBindingProjection(paths)),
@@ -1900,6 +1929,17 @@ function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
     managedReviewScratchCleanupDiagnostic: readManagedReviewScratchCleanupDiagnostic(paths),
     terminal,
   };
+}
+
+/** Read-only, fully bound projection for host-neutral owner/UI consumers. */
+export function readManagedHostRunProjection(root: string, runId: string, budget?: ManagedRuntimeReadBudget): ManagedHostRunProjection & { terminalDigest: string | null } {
+  const previous = managedObservationBudget;
+  managedObservationBudget = budget;
+  try {
+    const run = projectionFor(pathsFor(root, runId));
+    // Identity of already validated terminal content, not a new signature or PASS.
+    return { ...run, terminalDigest: run.terminal ? sha256(`${canonicalJson(run.terminal)}\n`) : null };
+  } finally { managedObservationBudget = previous; }
 }
 
 /** Recovery and its observation share the worker's transaction lock. */

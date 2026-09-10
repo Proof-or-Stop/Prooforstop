@@ -267,6 +267,26 @@
     {
       "path": "scripts/verify-u08-managed-admission-gate.mjs",
       "domain": "provider-execution"
+    },
+    {
+      "path": "packages/graph/src/core/managed-runs.ts",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "packages/graph/scripts/verify-managed-runs-browser.mjs",
+      "domain": "dependency-graph-package"
+    },
+    {
+      "path": "packages/main/src/core/managed-run-dashboard.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-run-dashboard.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-managed-run-graph-terminal.mjs",
+      "domain": "dependency-graph-package"
     }
   ],
   "basis": "Root explicitly authorized prospective U08 readonly lane files and dedicated tests as provider-execution. AGENTS.override.md is local instruction material outside this policy activation. Pending tests must be explicitly added when their final paths exist."

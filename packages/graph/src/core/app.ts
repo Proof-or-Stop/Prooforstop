@@ -1,3 +1,4 @@
+import type { ManagedRunsView } from './managed-runs.js';
 /**
  * Application assembly: one object that owns caching and rebuild policy.
  * Platform-agnostic — no HTTP, no process, no fs beyond the core modules.
@@ -15,12 +16,14 @@ import { storyDetail } from './detail/fn.js';
 import { openIndex, search, type OpenedIndex } from './search/fn.js';
 
 export interface AppOptions {
+  readonly readManagedRuns?: () => ManagedRunsView;
   readonly root: string;
   readonly dbPath?: string;
   readonly onLog?: (msg: string) => void;
 }
 
 export interface Status {
+  readonly managedRuns: ManagedRunsView;
   readonly root: string;
   readonly stories: number;
   readonly edges: number;
@@ -160,11 +163,14 @@ export function createApp(opts: AppOptions) {
       return buf;
     },
     getStatus(): Status {
+      let managedRuns: ManagedRunsView = { runs: [], diagnostics: [] };
+      try { managedRuns = opts.readManagedRuns?.() ?? managedRuns; }
+      catch { managedRuns = { runs: [], diagnostics: ['Managed run status unavailable; reconnect to retry.'] }; }
       const { content, live } = ensure();
       const meta: Record<string, string> = {};
       for (const r of ix!.db.prepare('SELECT k,v FROM meta').all() as { k: string; v: string }[]) meta[r.k] = r.v;
       return {
-        root, stories: graph!.stories.length, edges: graph!.edges.length,
+        root, managedRuns, stories: graph!.stories.length, edges: graph!.edges.length,
         contentHash: content, liveHash: live,
         indexRows: meta.rows ?? null, indexBuiltAt: meta.builtAt ?? null,
       };

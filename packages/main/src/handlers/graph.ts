@@ -1,3 +1,4 @@
+import { readManagedRunDashboard, type ManagedRunDashboard } from '../core/managed-run-dashboard.js';
 /**
  * @task B-3e16
  * @checklist CHK-003, CHK-004
@@ -328,7 +329,7 @@ export function assertGraphRuntimeSupported(packageRoot: string): void {
 
 /** Minimal shape of the graph library surface this handler consumes. */
 interface GraphLibrary {
-  createApp: (opts: { root: string; onLog?: (m: string) => void }) => GraphApp;
+  createApp: (opts: { root: string; onLog?: (m: string) => void; readManagedRuns?: () => ManagedRunDashboard }) => GraphApp;
   startServer: (o: {
     app: GraphApp;
     port: number;
@@ -539,7 +540,7 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       // Keep this branch ahead of every asset/port check so a machine-readable
       // status query never depends on the browser client being built.
       if (args.json === true) {
-        const jsonApp = lib.createApp({ root: probe.root });
+        const jsonApp = lib.createApp({ root: probe.root, readManagedRuns: () => readManagedRunDashboard(probe.root!) });
         try {
           return jsonApp.getStatus();
         } finally {
@@ -559,7 +560,7 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       ensureGraphClientBuilt(location, log);
 
       const port = args.port ?? GRAPH_DEFAULT_PORT;
-      const app = lib.createApp({ root: probe.root, onLog: (m) => log(m) });
+      const app = lib.createApp({ root: probe.root, onLog: (m) => log(m), readManagedRuns: () => readManagedRunDashboard(probe.root!) });
 
       let server: { close: (cb?: () => void) => unknown };
       try {

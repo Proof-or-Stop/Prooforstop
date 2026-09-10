@@ -9471,6 +9471,11 @@ for (const boundary of ['objects/sha256/', 'refs/by-id/', 'ledger/observed.jsonl
 assert(read('packages/main/src/core/story-git-bytes.ts').includes("'--name-status', '-z'") && read('packages/main/src/core/story-aware-validation.ts').includes("raw.diff.split('\\0')"), 'Story diff must preserve NUL-framed Git filenames');
 assert(read('packages/main/src/tasks/story-files-hash-batch-smoke.ts').includes('verify-hash-accuracy.mjs'), 'Independent hash oracle must run in the existing validation inventory');
 
+// Owner/UI delivery observes the authoritative runtime through a public adapter.
+assert(read('packages/main/src/handlers/graph.ts').includes('readManagedRunDashboard(probe.root!)'), 'Graph must wire real managed runtime observations');
+assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunStatus(st)'), 'Graph status polling must render managed changes independently');
+
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

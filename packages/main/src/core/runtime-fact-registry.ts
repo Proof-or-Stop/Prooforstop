@@ -268,3 +268,11 @@ export const VALIDATION_RUNTIME_TRACE_POLICY = { schemaVersion: 'validation-runt
 
 /** Executor-owned before/after source observations required for reusable receipts. */
 export const VALIDATION_SOURCE_PROVENANCE_SCHEMA = 'validation-source-provenance.v1' as const;
+
+/** The existing Graph status poll consumes only verified retained run projections. */
+export const MANAGED_RUN_DASHBOARD_POLICY = {
+  maxDirectoryEntries: 1000,
+  maxScanBytes: 64 * 1024 * 1024,
+  maxRuntimeArtifactBytes: 128 * 1024 * 1024,
+  authority: 'read-only-operational-projection',
+} as const;

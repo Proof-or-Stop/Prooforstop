@@ -2813,7 +2813,10 @@
           "packages/main/src/core/dual-revision-impact-graph.ts",
           "packages/main/src/core/impact-classification-policy.ts",
           "packages/main/src/handlers/graph.ts",
-          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/graph/src/core/managed-runs.ts",
+          "packages/graph/scripts/verify-managed-runs-browser.mjs",
+          "scripts/verify-managed-run-graph-terminal.mjs"
         ],
         "hostAdapters": [],
         "validationGroups": [
@@ -5698,7 +5701,9 @@
           "scripts/verify-u08-private-provider-seed.mjs",
           "scripts/verify-u08-private-state-capture.mjs",
           "scripts/verify-u08-singleton-admission.mjs",
-          "scripts/verify-u08-supervised-readiness.mjs"
+          "scripts/verify-u08-supervised-readiness.mjs",
+          "packages/main/src/core/managed-run-dashboard.ts",
+          "scripts/verify-managed-run-dashboard.mjs"
         ],
         "hostAdapters": [
           "codex",

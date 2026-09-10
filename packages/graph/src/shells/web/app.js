@@ -7,6 +7,48 @@ function fMin(v){ const d=D(v); return d?`${fDay(v)} ${P2(d.getHours())}:${P2(d.
 function fSec(v){ const d=D(v); return d?`${fMin(v)}:${P2(d.getSeconds())}`:"" }
 function fTime(v){ const d=D(v); return d?`${P2(d.getHours())}:${P2(d.getMinutes())}:${P2(d.getSeconds())}`:"" }
 
+/* Managed runtime changes are independent of the Story graph's content hashes. */
+const managedNotificationMemory=new Set();
+let latestManagedStatus=null;
+function renderManagedRunStatus(status){
+  latestManagedStatus=status;
+  const list=document.getElementById('managedRunsList'),connection=document.getElementById('managedRunsConnection'),notices=document.getElementById('managedRunNotifications');
+  if(!list||!connection||!notices)return;
+  const view=status.managedRuns;
+  if(!view||!Array.isArray(view.runs)||!Array.isArray(view.diagnostics)){connection.textContent='Managed run status unavailable; reconnecting…';return;}
+  const diagnosticText={invalid_managed_run:'Some run records could not be verified',managed_runtime_unavailable:'Run status unavailable',managed_runtime_scan_limit:'Partial run list: observation limit reached','Managed run status unavailable; reconnect to retry.':'Managed run status unavailable; reconnect to retry.'};
+  connection.textContent=view.diagnostics.length?view.diagnostics.map(code=>diagnosticText[code]||'Run status unavailable').join(' · '):(view.runs.length?'Live · updates every 5 seconds':'No managed runs');
+  const fragment=document.createDocumentFragment();
+  for(const run of view.runs){
+    const row=document.createElement('div');row.className='managed-run-row';row.dataset.runId=run.runId;
+    const identifier=document.createElement('div');identifier.className='managed-run-id';identifier.textContent='Run '+(run.runId.length>24?run.runId.slice(0,24)+'…':run.runId);identifier.title=run.runId;row.append(identifier);
+    const title=document.createElement('strong');title.textContent=`${run.storyId||'Owner task'} · ${run.host} · ${run.state}`;row.append(title);
+    const stageNames={accepted:'Accepted',starting_provider:'Starting provider',provider_running:'Provider running',finalizing_result:'Finalizing result',terminal:'Finished'};
+    const detail=document.createElement('p');detail.textContent=`${run.stage.number}/${run.stage.total} ${stageNames[run.stage.name]||run.stage.name}${run.queueReason&&!run.terminal?' · Waiting: '+run.queueReason:''}`;row.append(detail);
+    const progress=document.createElement('p');progress.textContent=run.lastProviderProgressAt?`Last provider output: ${fSec(run.lastProviderProgressAt)}`:'No provider output observed';row.append(progress);
+    const eta=document.createElement('p');eta.textContent=run.durationEstimate.kind==='historical'&&run.durationEstimate.estimatedTerminalAt?`Historical ETA: ${fSec(run.durationEstimate.estimatedTerminalAt)} (${run.durationEstimate.sampleCount} samples)`:'Historical ETA unavailable';row.append(eta);
+    fragment.append(row);
+  }
+  list.replaceChildren(fragment);
+  // Background tabs have not shown the owner a notification. Replay on visibility.
+  if(document.hidden)return;
+  const storageKey='proof-or-stop:managed-terminals:'+status.root;
+  let stored=[];try{const value=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(value))stored=value.filter(x=>typeof x==='string');}catch{}
+  for(const run of view.runs){
+    if(!run.terminal)continue;
+    const token=JSON.stringify([run.runId,run.terminal.digest]),memoryKey=storageKey+token;
+    if(stored.includes(token)||managedNotificationMemory.has(memoryKey))continue;
+    const notice=document.createElement('div');notice.className='managed-run-toast';notice.dataset.runId=run.runId;
+    const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Dismiss run notification');close.onclick=()=>notice.remove();
+    const text=document.createElement('span');text.textContent=`${run.storyId||'Owner task'} · ${run.host}: ${run.terminal.state} at ${fSec(run.terminal.terminalAt)}`;notice.append(close,text);notices.append(notice);
+    // Acknowledge only after the real DOM notification has been attached.
+    managedNotificationMemory.add(memoryKey);stored.push(token);
+    try{localStorage.setItem(storageKey,JSON.stringify(stored));}catch{}
+  }
+}
+function managedRunConnectionFailed(){const element=document.getElementById('managedRunsConnection');if(element)element.textContent='Managed run connection lost; retrying…';}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&latestManagedStatus)renderManagedRunStatus(latestManagedStatus);});
+
 /* ---------- project raw story files into the view model (no truncation) ---------- */
 function S1(v){
   if(v===null||v===undefined) return "";
@@ -2430,7 +2472,7 @@ const dr=document.getElementById("dr");
 // ---- draggable drawer width (persisted) ----
 (function drawerResize(){
   const MIN=380, MAXFRAC=0.92;
-  let w=Number(localStorage.getItem("pg.drawerW")||0);
+  let w=0;try{w=Number(localStorage.getItem("pg.drawerW")||0)}catch{}
   const apply=v=>{
     w=Math.max(MIN,Math.min(innerWidth*MAXFRAC,v));
     dr.style.width=w+"px";
@@ -2826,9 +2868,10 @@ function showFile(s,C,name){
   // poll for changes; the server rebuilds only when the story tree hash moves
   const sigOfGraph=x=>`${x.contentHash||''}|${x.liveHash||''}`;
   let lastHash=sigOfGraph(g); lastContentHash=lastHash;
-  setInterval(async()=>{
+  const pollManagedAndStoryStatus=async()=>{
     try{
-      const st=await fetch('/api/status').then(r=>r.json());
+      const st=await fetch('/api/status').then(r=>{if(!r.ok)throw Error('status unavailable');return r.json()});
+      renderManagedRunStatus(st);
       if(sigOfGraph(st)!==lastHash){
         setTag("syncing","busy");
         const ng=await API.graph();
@@ -2862,8 +2905,10 @@ function showFile(s,C,name){
         setTag("updated","ok");
         setTimeout(()=>setTag("live","ok"),4000);
       }
-    }catch(e){ setTag("offline","err") }
-  },5000);
+    }catch(e){ setTag("offline","err");managedRunConnectionFailed() }
+  };
+  void pollManagedAndStoryStatus();
+  setInterval(pollManagedAndStoryStatus,5000);
 })();
 
 })();

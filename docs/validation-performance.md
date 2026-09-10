@@ -368,3 +368,39 @@ flags, reviewed exceptions and caller/source/config drift. These static checks
 complement the eleven-parent and seven-member runtime witnesses. They are a
 bounded syntax and reviewed-call guard, not a proof of arbitrary JavaScript
 call-graph completeness or production wall-time improvement.
+
+
+### Managed-run owner/UI delivery
+
+`proof-or-stop graph` now includes a Managed runs panel. The existing status
+poll reads retained managed runtime even when Story hashes have not changed;
+it displays stage N/M, recorded queue state, last actual provider output and an
+explicitly historical ETA. Heartbeats do not become provider progress. Terminal
+notifications are rendered once per project, run and validated terminal identity.
+Reloading preserves rendered notifications in browser storage. Hidden pages do
+not acknowledge unseen notifications; returning to the page delivers them.
+Storage-disabled browsers retain deduplication within the current page.
+
+This is delivery to the existing open owner/UI, without model polling or a new
+external messaging channel. A closed browser has no live recipient; retained
+unseen terminals are delivered when the UI reconnects. Network failures are
+visible, and reconnecting resumes observation. Provider completion is an
+operational result, not Story DONE or a newly signed reviewer PASS.
+
+The main package supplies an explicit public field projection through the Graph
+library callback. Runtime artifact bindings are checked using the existing
+managed-run verifier; malformed state, corrupt bindings, symlinks and special
+files produce diagnostics rather than a normal run or success. Provider text,
+credentials, raw errors and worker heartbeats are not included. Observation is
+read-only, with registered directory and total-byte limits; hitting those limits
+explicitly labels the run list partial. Notification identity is a digest of
+validated terminal content, not a claim of an additional terminal signature.
+
+The Lab regression `scripts/verify-managed-run-graph-terminal.mjs` combines a real
+managed worker, the public HTTP and CLI status routes, read-only/fault boundary
+checks, and a real browser using `packages/graph/scripts/verify-managed-runs-browser.mjs`.
+Browser verification needs an installed Playwright runtime; an explicit
+`PROOF_OR_STOP_TEST_PLAYWRIGHT_MODULE` may select that dependency. Missing browser
+dependencies fail verification rather than silently skipping it. These tests
+verify delivery behavior; real-project notification P95 and reduced user queries
+remain operational measurements.
