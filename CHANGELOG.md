@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab repro-first-plan-integration-0306 - v0.3.308 - 2026-09-10
+
+# Repro-first lifecycle-entry maintenance
+
+Problem: `story_create` could persist a Story directly in post-intake lifecycle phases, including `DONE`, bypassing transition-owned DEV, REVIEW, TEST, and DONE facts.
+
+Fix: restrict the public CLI schema and the internal handler to explicit `IDEA` or `INIT` intake. Refuse `INIT_CHECK`, `PLAN`, `DEV`, `REVIEW`, `TEST`, and `DONE` before persistence with a stable error code. Remove unreachable terminal/review initialization and stale onboarding guidance. Preserve synthetic terminal-state tests through fixture-only setup.
+
+Documentation: import the Claude-approved trusted RED-to-GREEN v37 execution plan, companion RED-evidence decision spec rev14, their matching audit fence, and a separate Lab implementation audit log. No Story metadata or signed Story evidence is carried.
+
+Verification: the Lab runner recorded a target RED showing direct DONE persistence, then replayed the same command as GREEN. Additional checks passed for package build, 37 repro binding cases, scope anti-expansion, six CLI refusal phases, positive IDEA/INIT intake, real-process concurrency, dedup/adversarial paths, and the process-fact contract. Claude CLI 2.1.268 returned final code verdict APPROVE with REQUIRED_CHANGES NONE.
+
+Known baseline: field-regression-cli-smoke has an unrelated pre-existing cluster-finding assertion failure on both untouched local main and the Lab. It is not caused by this change; collateral review-loop assertions remain preserved.
+
+Maintenance provenance: codex/lab-repro-first-plan-integration-0306, repair 08374c89c404ef56ff19460e4da48bade2e3b8b8.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-story-create-direct-done-bypass.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.307 — Integrated Validation Closure — 2026-09-10
 
 ### Release context

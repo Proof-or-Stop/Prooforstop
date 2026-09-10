@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.307",
+  "version": "0.3.308",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -147,7 +147,8 @@
     "test:dynamic-validation-test-gate-escalation": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation",
     "test:dynamic-validation-test-gate-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations",
     "test:dynamic-validation-operations": "node ../../scripts/run-dynamic-validation-audit.mjs operations",
-    "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations"
+    "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations",
+    "test:story-create-direct-lifecycle": "node tests/red/red-story-create-direct-done-bypass.mjs"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

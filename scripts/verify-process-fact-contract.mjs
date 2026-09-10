@@ -10280,8 +10280,16 @@ const inventory = [
           'assertStoryCreateExplicitExcludes',
           'scanExcludedKeywordHits',
           'excluded_keyword_in_story_create',
-          'story_create cannot directly create INIT_CHECK stories',
+          'story_create_direct_lifecycle_phase_forbidden',
           "created from draft '${draftName}' (INIT)",
+        ],
+      },
+      {
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          "phase: z.enum(['IDEA','INIT']",
+          'story_create_direct_lifecycle_phase_forbidden',
+          'post-intake lifecycle phases require story_advance',
         ],
       },
       {
