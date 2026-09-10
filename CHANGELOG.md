@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab validated-performance-integration-20260911 - v0.3.311 - 2026-09-10
+
+Integrate the validated delivery-performance Lab repairs with local main 0.3.310. Active Story queries include REVIEW and hydrate only selected records. Private identity verification reuses unchanged baselines, preserves exact Git paths and avoids loading unrelated historical/cache bodies without weakening mutation detection. Explicit implementation sessions bind canonical entries, reject recognizable unapproved legacy entries, and retain checked identity in existing activity records. Failed owner renewal cancels capacity wait before callback execution while retaining caller cancellation.
+
+Plain POSIX Host runner calls retain an owned process-group anchor through descendant output and normal completion. Existing managed onSpawn provider-PID and signed fd3 descriptor paths retain the current-main lifecycle and are explicitly outside this added anchor route. Raw stdout digest and provider exit semantics are preserved. Unverified cleanup fails and requests private anchor self-termination; the Node26 explicit-disconnect hang discovered during integration was repaired and its failed attempts retained.
+
+Verification includes native identical-command lease-loss RED/GREEN, targeted query/snapshot/path/identity/queue/process controls, actual-PID and descriptor compatibility, current host smoke (91 checks), current identity boundary/source and offline clean-install checks, and independent Claude CLI integration review. The full identity-cutover group is verified separately before finish. Five unchanged reviewed lines were rebound to their exact current files; no token, classification, count or rejection policy was widened.
+
+Historical measured improvements remain tied to their original frozen experiment inputs; no new aggregate Story speed percentage, global running-owner/reviewer adoption rate, or guarantee for arbitrary machine load is claimed. Original experiments and evidence remain in their source Lab and integration history. This local release neither advances a Story nor authorizes a remote push.
+
+Implementation-session pinning is cooperative and inherited through NODE_OPTIONS by nested Node invocations. Deliberate foreign/legacy CLI test harnesses must isolate their test child environment explicitly; the integration tests remove NODE_OPTIONS and both implementation pin variables only for those controlled children. A filtered Story query checks only selected records; unselected corrupt records remain visible to the unfiltered integrity query. Lease-loss cancellation stops a queued wait before callback admission and does not cancel an already-running callback.
+
+Maintenance provenance: codex/lab-validated-performance-integration-20260911, repair 18735d48005ef525f68d9bf00b9933f2da6a44ad.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-queue-lease-loss.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.310 — Progress Evidence and Final Validation Integration — 2026-09-10
 
 ### Release context
