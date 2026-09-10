@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab review-inventory-retired-evidence-0296 - v0.3.297 - 2026-09-10
+
+# Review inventory retired-evidence repair
+
+Problem: review inventory authentication inspected immutable historical evidence for verification intents that had been replaced. Those retired rows no longer had a current command pin, so `reviewer_list` and `review_inventory_begin` failed with `inventory authenticated command binding mismatch` and blocked the Story lifecycle.
+
+Behavior change: the inventory acceptance-subject projection now includes evidence only for currently declared verification intents. Items with no declared legacy intent retain their existing evidence semantics. Explicitly empty intent sets retire prior rows. Current replacement receipts remain authenticated against their command, selector, signature, artifact, and freshness bindings.
+
+Verification: the managed Lab RED captured the historical failure using `node packages/main/dist/tasks/review-inventory-epoch-smoke.js`. GREEN replayed the exact executable and arguments successfully at the final repair commit. The smoke covers retired-row exclusion, explicit-empty behavior, legacy absent/null compatibility, current replacement signature/command/freshness tampering, artifact tampering, OPEN inventory mutation behavior, reviewer lane/host invariants, and zero critical/high escapes. An independent Claude CLI final static audit returned APPROVE with FINDINGS: NONE.
+
+Performance: this is a correctness repair, not a performance optimization; no performance improvement is claimed.
+
+Maintenance provenance: codex/lab-review-inventory-retired-evidence-0296, repair f6df7239a227d21a5f6064c11fe9e7a6198e2f42.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/review-inventory-epoch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab five-item-reuse-closure-20260909 - v0.3.296 - 2026-09-10
 
 # Five-item Lab maintenance closure
