@@ -407,7 +407,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // every dynamic-execution construct this guard tracks reports no match, so the
   // executable dynamic-code structure is unchanged and only the whole-file
   // structural fingerprint moves.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '5b4b8dafd2687d6507b8471c7e674855a57eb019285ebe9650fe4a700460b6d3'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'ca1a6aa99b2413a4bdfb31fa59c7f327ad55ec837f8107348de68935ee28e22b'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -504,7 +504,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // kernel, never an environment/CLI/network payload. This is a WHOLE exact test-file
   // exemption via the existing early return, not a call-site-only exemption. The
   // per-entry executable-drift negative below must invalidate this approval.
-  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', 'b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4'],
+  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', '887ef97b62f1ed886cfec54a2004ec1f858697fad92c7bd201c1660cf5ffc895'],
   // B-022e re-attestation: only verifier runtime identity tokens changed;
   // the exact-file exemption remains narrow and mutation-sensitive.
   ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
@@ -1768,7 +1768,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-7abb's bounded reference witnesses and B-49df's active-identity mutation
   // controls are both present. The fixed producer, loader relation, anchor,
   // argument and node:url provenance remain protected.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '03a0f5091afb52ae230d43227b93d8b87b1a0fcef836f7589aa32b817525f0a2'],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '13c83f0643c29adf147ac3e9d4f2d6366ca1f54939db33209463087f69791910'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH

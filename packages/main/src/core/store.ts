@@ -854,7 +854,7 @@ export class StoryStore {
     if (existsSync(indexPath)) {
       try {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-        if (index.schemaVersion === 'proofbound.causal-evidence-index.v1'
+        if (index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'
           && index.receipts && typeof index.receipts === 'object' && !Array.isArray(index.receipts)
           && Object.entries(index.receipts).every(([key, hash]) => verified.get(key) === hash)) outputs.push(indexPath);
       } catch { /* Invalid index remains workspace pollution. */ }

@@ -63,10 +63,13 @@ import {
   computeReviewHashFreshness,
   renderScopeProtectionSummary,
 } from '../core/review-scope-binding.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { collectReviewerEvidenceState, currentScopeContextForStory, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody, promptRoleContract } from '../core/prompt-role-contract-registry.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
@@ -719,6 +722,7 @@ function writeScopeStory(root: string, opts: { withContract: boolean }): { store
     // is satisfied rather than bypassed.
     nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
+  for (const args of [['init', '-b', 'main'], ['config', 'user.email', 'scope@example.invalid'], ['config', 'user.name', 'Scope Fixture'], ['add', '.'], ['commit', '-m', 'scope fixture baseline']]) execFileSync('git', args, { cwd: root, stdio: 'ignore' });
   resetConfigCache();
   const store = new StoryStore(root);
   const storyId = 'B-scopebind';
@@ -802,8 +806,8 @@ function seedScopeRuns(
   const runs: ReviewRun[] = BASELINE_LANES.map((agent, index) => {
     const reviewRunId = `${storyId}:RR-${String(index + 1).padStart(3, '0')}`;
     const startedAt = `2026-05-23T12:1${index}:00.000Z`;
-    const headHash = `head-${index}`;
-    const materialHash = `material-${index}`;
+    const headHash = currentGitHead(root)!;
+    const materialHash = currentMaterialHash(root)!;
     const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: { [agent]: 'full-envelope' },
@@ -860,11 +864,41 @@ function seedScopePasses(
       invoke: () => dispatch!({ storyId, agentType: agent }),
     });
   }
+  // Bind the preserved scope-test snapshots to the current real dispatch and
+  // actual canonical prompt producer; do not change scopeBinding or hashes.
+  const currentRuns = store.readReviewRuns(storyId).runs;
+  for (const run of currentRuns) {
+    const event = [...store.readProcessEvents(storyId)].reverse().find(row =>
+      row.type === 'dispatch' && row.agentType === run.lane && row.reviewRound === run.reviewRound);
+    assert.ok(event && typeof event.dispatchPrompt === 'string' && typeof event.dispatchBindingDigest === 'string'
+      && typeof event.hostRenderIdentityDigest === 'string', 'real current dispatch must be present');
+    const assembly = assembleFullPromptEnvelope({
+      roleContract: promptRoleContract(run.lane), runtimeContract: BASELINE_RUNTIME_CONTRACT,
+      rolePrompt: resolvePromptRoleBody(run.lane, { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [run.lane]: 'full-envelope' } }).body,
+      taskContext: buildFullTaskContext({ story: store.readStory(storyId), checklist: store.readChecklist(storyId),
+        headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash }),
+      dispatchKind: 'review-run', reviewRunId: run.reviewRunId, reviewRound: run.reviewRound, lane: run.lane,
+      dispatchPrompt: event.dispatchPrompt, hostRenderIdentityDigest: event.hostRenderIdentityDigest,
+      reviewerDispatchBindingDigest: event.dispatchBindingDigest,
+      launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest: event.dispatchBindingDigest, hostRenderHost: event.hostRenderHost as 'codex' | 'claude' },
+      createdAt: run.startedAt,
+    });
+    run.envelopeId = assembly.envelope.envelopeId;
+    run.promptHash = assembly.envelope.assembledPromptDigest;
+    run.assembledPromptRef = store.writeReviewPromptBody(storyId, assembly.prompt, run.promptHash);
+    run._hash = signReviewRun(storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
+      run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash, run.workspaceBinding?.bindingHash,
+      run.storyFilesHash, run.envelopeId);
+    const prior = store.readPromptEnvelopes(storyId);
+    store.writePromptEnvelopes(storyId, { envelopes: [...prior.envelopes.filter(row => row.envelopeId !== run.envelopeId), assembly.envelope] });
+  }
+  store.writeReviewRuns(storyId, { runs: currentRuns });
   const passes = BASELINE_LANES.map((agent, index) => {
     const id = `${storyId}:RP-${String(index + 1).padStart(3, '0')}`;
     const createdAt = `2026-05-23T12:2${index}:00.000Z`;
     const note = `${agent} reviewed the scope-protected diff and found no blocking issue`;
     const reviewRunId = runIds.get(agent)!;
+    const envelopeId = currentRuns.find(run => run.reviewRunId === reviewRunId)!.envelopeId;
     const nativeEvidenceBinding = issueBrokeredNativeReviewBinding({
       root, store, storyId, agent, reviewRunId,
     });
@@ -876,7 +910,7 @@ function seedScopePasses(
       sessionSource: nativeEvidenceBinding.sessionSource,
     };
     return {
-      id, agent, note, createdAt, reviewRound, reviewRunId,
+      id, agent, note, createdAt, reviewRound, reviewRunId, envelopeId,
       nativeEvidenceBinding,
       writerSessionId: nativeEvidenceBinding.writerSessionId,
       sessionSource: nativeEvidenceBinding.sessionSource,
@@ -884,7 +918,7 @@ function seedScopePasses(
         storyId, id, agent, note, createdAt, reviewRound, reviewRunId,
         undefined, undefined, undefined,
         provenance,
-        undefined, undefined, nativeEvidenceBinding,
+        envelopeId, undefined, nativeEvidenceBinding,
       ),
     };
   });

@@ -1,5 +1,6 @@
 // Explicit fixture entrypoints only. Real machine-admission witnesses are excluded.
 import assert from 'node:assert/strict';
+import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mjs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createFixtureMachineEnvironment } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
@@ -12,6 +13,7 @@ export const FIXTURE_ENTRIES = new Set([
   'packages/main/dist/tasks/post-done-closure-snapshot-smoke.js',
   'packages/main/dist/tasks/validate-progress-heartbeat-smoke.js',
   'packages/main/dist/tasks/narrowing-repin-smoke.js',
+  'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
 
   'packages/main/dist/tasks/flow-stability-smoke.js',
   'packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js',
@@ -33,7 +35,11 @@ assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry
 const fixture = createFixtureMachineEnvironment();
 const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
 delete env.LATTICE_HEALTH_PATH;
-const result = spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
+// This fixture exercises both native host families with real broker signatures.
+// The ambient Codex/Claude owner must not become its simulated host ancestry.
+const result = entry.endsWith('/quorum-submit-smoke.js')
+  ? await runProviderNeutralFixture(entry, rest, env)
+  : spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
 if (result.status === 0) {
   fixture.cleanup();
 } else {

@@ -63,7 +63,7 @@ export function collectOrphanPromptBodies(store: StoryStore, storyId: string): {
           keep.add(digest(envelope.assembledPromptDigest));
         }
         for (const run of runs) {
-          if (run.storyId !== storyId || !verifyReviewRun(run as unknown as ReviewRun)) throw new Error('invalid review run signature');
+          if (run.storyId !== storyId || !verifyReviewRun(run as unknown as ReviewRun, store)) throw new Error('invalid review run signature');
           if (typeof run.reviewRunId !== 'string') throw new Error('malformed run identity');
           if (run.promptHash !== undefined) keep.add(digest(run.promptHash));
           if (run.assembledPromptRef !== undefined) {

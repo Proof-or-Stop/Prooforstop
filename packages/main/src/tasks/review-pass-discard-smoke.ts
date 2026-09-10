@@ -20,7 +20,7 @@ import {
   nativeReviewFixtureHostEnvironment,
   runBrokeredNativeReviewCli,
 } from './native-review-fixture.js';
-import { adapterSessionEnv } from './adapter-session-env.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -166,7 +166,11 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string): Promise<string> {
-  const fixtureHost = nativeReviewFixtureHostEnvironment(agent);
+  // Dispatch belongs to the stable fixture owner; lane and broker identity
+  // remain explicit while subsequent owner operations retain the same lease.
+  const fixtureHost = nativeReviewFixtureHostEnvironment(
+    agent, undefined, adapterSessionId(root, 'review-pass-discard-smoke-owner', 'main'),
+  );
   await runProofOrStop(root, 'dispatch', { storyId, agentType: agent }, fixtureHost);
   return extractReviewRunId(await runProofOrStop(root, 'review_run_start', { storyId, agent }, fixtureHost));
 }

@@ -1,0 +1,16 @@
+[
+  {
+    "source": "packages/main/src/core/review-inventory-epoch.ts",
+    "compiled": "packages/main/dist/core/review-inventory-epoch.js",
+    "old": "f86823bb4b53a69e0fc3fe749cf0c819bab06c7fbcb735842d7939eb00932834",
+    "actual": "b48eb113b0ec72088912d2bee2a29b13b750b460f5e603602a050ef51e192216",
+    "reason": "Propagate trusted Story context into existing signed CAS run verification at every inventory evaluation."
+  },
+  {
+    "source": "packages/main/src/core/verification-execution-evidence.ts",
+    "compiled": "packages/main/dist/core/verification-execution-evidence.js",
+    "old": "b3f8ccac871af23b30b2406467ed9731aa60a7ab9bab32436ab2d6ab42c600c8",
+    "actual": "31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566",
+    "reason": "Move unchanged V5 schema constant to data-only module while retaining public reexport and signature semantics."
+  }
+]

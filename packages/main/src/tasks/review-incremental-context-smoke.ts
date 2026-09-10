@@ -933,7 +933,7 @@ function runAsOfRunEligibilityRegression(): void {
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
         roles: { [role]: 'full-envelope' },
       },
     }, null, 2) + '\n');
@@ -1983,7 +1983,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
       'persisted envelopes identify both actual producer paths',
     );
     assert.equal(runs.length, 1, 'actual review_run_start durably persists exactly one ReviewRun');
-    assert.equal(verifyReviewRun(runs[0]), true, 'actual mixed-writer ReviewRun remains signed');
+    assert.equal(verifyReviewRun(runs[0], store), true, 'actual mixed-writer ReviewRun remains signed');
     assert.deepEqual(
       verifyReviewRunPromptEnvelope(store, runs[0]),
       { ok: true },

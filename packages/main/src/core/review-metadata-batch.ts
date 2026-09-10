@@ -26,7 +26,7 @@ export function commitReviewResultMetadata(args: {
   if (args.reviewRunId) {
     const epoch = currentOpenReviewInventory(args.store, args.storyId);
     const run = args.store.readReviewRuns(args.storyId).runs.find(row => row.reviewRunId === args.reviewRunId);
-    if (epoch && run && verifyReviewRun(run) && run.reviewRound === epoch.reviewRound
+    if (epoch && run && verifyReviewRun(run, args.store) && run.reviewRound === epoch.reviewRound
       && run.materialHash === epoch.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
       && (epoch.requiredLanes.includes(canonicalAgentRoleId(run.lane))
@@ -54,7 +54,7 @@ export function commitReviewEpochMetadata(store: StoryStore, root: string, story
   const names: string[] = [...REVIEW_EPOCH_COMMIT_ARTIFACTS];
   for (const run of store.readReviewRuns(storyId).runs) {
     if (run.assembledPromptRef === undefined) continue;
-    if (!verifyReviewRun(run) || run.storyId !== storyId) throw new Error('review epoch commit refuses an invalid prompt reference');
+    if (!verifyReviewRun(run, store) || run.storyId !== storyId) throw new Error('review epoch commit refuses an invalid prompt reference');
     readPromptBody(storyDir, run.assembledPromptRef);
     names.push(`prompt-bodies/${run.assembledPromptRef}.txt`);
   }

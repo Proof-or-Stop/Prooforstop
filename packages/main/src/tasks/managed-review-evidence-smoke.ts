@@ -3048,6 +3048,58 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     assert.notEqual(selfMintedCli.status, 0, 'raw provider cannot self-mint authority even when all dispatch and ReviewRun claims match');
     assert.match(`${selfMintedCli.stdout}${selfMintedCli.stderr}`, /signature is invalid/);
 
+    const originalTerminalFixture = store.readReviewPasses(STORY_ID);
+    store.writeReviewPasses(STORY_ID, { passes: [] });
+    const seedRetrySession = 'seed-native-pass-retry';
+    const seedRetryAttestation = signNativeReviewInvocationAttestation({ ...invocationClaims,
+      writerSessionId: seedRetrySession, invocationNonce: randomUUID(), issuedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    }, brokerKeys.privateKey);
+    const seededRetry = await runBrokeredCli(root, 'review_pass_set', {
+      storyId: STORY_ID, agent: LANE, reviewRunId: REVIEW_RUN_ID, note: 'Real native terminal for authenticated retry controls.',
+      readManifest: { filesReadFully: ['packages/main/src/example.ts'], filesTriagedByName: [], scanEscalationReason: null },
+    }, seedRetryAttestation, { ...process.env, PROOF_OR_STOP_SESSION_ID: seedRetrySession, PROOF_OR_STOP_AGENT: LANE,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: seedRetrySession,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: LANE });
+    assert.equal(seededRetry.status, 0, `real native retry baseline: ${seededRetry.stderr}`);
+    const terminalBeforeForgedRetry = store.readReviewPasses(STORY_ID);
+    const existingTerminal = terminalBeforeForgedRetry.passes.find(pass => pass.reviewRunId === REVIEW_RUN_ID && pass.agent === LANE)!;
+    assert.ok(existingTerminal, 'forged retry control requires an existing terminal pass');
+    const samePayloadForgedRetry = await runBrokeredCli(root, 'review_pass_set', {
+      storyId: STORY_ID, agent: LANE, reviewRunId: REVIEW_RUN_ID,
+      note: existingTerminal.note, readManifest: existingTerminal.readManifest,
+    }, selfMinted, {
+      ...process.env, PROOF_OR_STOP_SESSION_ID: 'raw-self-mint-session', PROOF_OR_STOP_AGENT: LANE,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'raw-provider-self-mint',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: LANE,
+    });
+    assert.notEqual(samePayloadForgedRetry.status, 0, 'semantic equality must not bypass native invocation authentication');
+    assert.match(`${samePayloadForgedRetry.stdout}${samePayloadForgedRetry.stderr}`, /signature is invalid/);
+    assert.deepEqual(store.readReviewPasses(STORY_ID), terminalBeforeForgedRetry, 'forged retries cannot mutate the terminal evidence');
+
+    const authorizedRetrySession = 'authorized-native-pass-retry';
+    const authorizedRetryEnv = {
+      ...process.env, PROOF_OR_STOP_SESSION_ID: authorizedRetrySession, PROOF_OR_STOP_AGENT: LANE,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'authorized-native-pass-retry',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: LANE,
+    };
+    const authorizedRetry = signNativeReviewInvocationAttestation({
+      ...invocationClaims, writerSessionId: authorizedRetrySession, invocationNonce: randomUUID(),
+      issuedAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    }, brokerKeys.privateKey);
+    const retryPayload = { storyId: STORY_ID, agent: LANE, reviewRunId: REVIEW_RUN_ID, note: existingTerminal.note, readManifest: existingTerminal.readManifest };
+    const authorizedRetryResult = await runBrokeredCli(root, 'review_pass_set', retryPayload, authorizedRetry, authorizedRetryEnv);
+    assert.equal(authorizedRetryResult.status, 0, `fresh authorized retry: ${authorizedRetryResult.stderr}`);
+    assert.match(authorizedRetryResult.stdout, /idempotent retry/);
+    assert.deepEqual(store.readReviewPasses(STORY_ID), terminalBeforeForgedRetry);
+    const consumedRetry = await runBrokeredCli(root, 'review_pass_set', retryPayload, authorizedRetry, authorizedRetryEnv);
+    assert.notEqual(consumedRetry.status, 0, 'a repeated attestation nonce cannot authorize an idempotent retry');
+    assert.match(`${consumedRetry.stdout}${consumedRetry.stderr}`, /nonce was already consumed/);
+    assert.deepEqual(store.readReviewPasses(STORY_ID), terminalBeforeForgedRetry);
+
+    store.writeReviewPasses(STORY_ID, originalTerminalFixture);
     const inlineSession = 'inherited-inline-attestation-session';
     const inlineAttestation = signNativeReviewInvocationAttestation({
       ...invocationClaims,

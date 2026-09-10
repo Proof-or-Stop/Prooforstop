@@ -3,7 +3,7 @@ import { assembleFullPromptEnvelope } from '../packages/main/dist/core/prompt-en
 import { promptRoleContract, resolvePromptRoleBody, PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../packages/main/dist/core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../packages/main/dist/core/prompt-measurement.js';
 const role=promptRoleContract('proof-or-stop-review-quality');
-const taskContext={schemaVersion:'proofbound.full-task-context.v1',storyId:'B-envelope',title:'Trusted envelope',description:'This Story must not change any part of the Dynamic Finding authority document.',phase:'REVIEW',priority:'high',checklist:[{id:'CHK-001',title:'Assemble',status:'done',relatedDocs:[],files:{modify:[],create:[],test:[]},verificationIntent:{happy:[],edge:[],adversarial:[]}}],headHash:'a'.repeat(40),materialHash:'b'.repeat(64),storyFilesHash:'c'.repeat(64)};
+const taskContext={schemaVersion:'proof-or-stop.full-task-context.v1',storyId:'B-envelope',title:'Trusted envelope',description:'This Story must not change any part of the Dynamic Finding authority document.',phase:'REVIEW',priority:'high',checklist:[{id:'CHK-001',title:'Assemble',status:'done',relatedDocs:[],files:{modify:[],create:[],test:[]},verificationIntent:{happy:[],edge:[],adversarial:[]}}],headHash:'a'.repeat(40),materialHash:'b'.repeat(64),storyFilesHash:'c'.repeat(64)};
 function assemble(description) {
   return assembleFullPromptEnvelope({roleContract:role,runtimeContract:BASELINE_RUNTIME_CONTRACT,
     rolePrompt:resolvePromptRoleBody(role.roleId,{version:PROMPT_ENVELOPE_ROLLOUT_VERSION,roles:{[role.roleId]:'full-envelope'}}).body,

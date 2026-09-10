@@ -151,6 +151,7 @@ function makeEnv(
   intents: VerificationIntentItem[],
   runnerAfterExecution?: (command: string, cwd: string) => void | Promise<void>,
   log?: (message: string) => void,
+  runnerMode: 'counted' | 'production' = 'counted',
 ): Env {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b1507-'));
   write(root, 'proof-or-stop.config.json', JSON.stringify({
@@ -191,7 +192,7 @@ function makeEnv(
     store,
     root,
     scanRoot: join(root, 'packages/main'),
-    verificationCommandRunner: async (command, cwd, timeoutMs) => {
+    ...(runnerMode === 'production' ? {} : { verificationCommandRunner: async (command: string, cwd: string, timeoutMs?: number) => {
       launchCounter.count++;
       const result = await runSingleAllowlistedCommand(command, root, {
         cwd,
@@ -199,7 +200,7 @@ function makeEnv(
       });
       await runnerAfterExecution?.(command, cwd);
       return result;
-    },
+    } }),
   });
   const guard = createEvidencePinGuardHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   return { root, store, handlers, guard, storyId, launchCounter };
@@ -434,7 +435,7 @@ async function partB(): Promise<void> {
     intent('INT-PINLESS', 'cli'), // NO pin — a hand-written mechanical row (B-3b88 coexistence)
     intent('INT-DOC', 'docs'),    // docs intent with a deliberate pinned mechanical verifier
     intent('INT-MANUAL', 'manual'), // manual intent can also deliberately pin a verifier
-  ], undefined, message => progress.push(message));
+  ], undefined, message => progress.push(message), 'production');
   try {
     // Seed a material file the flagCountingCommand pin depends on, so re-execution outcome is controllable.
     write(env.root, 'flag.txt', 'MARKER_OK');

@@ -1,3 +1,5 @@
+import { assertCanonicalActiveIdentityBoundary } from './runtime-environment-checks.js';
+import { CONVERGENCE_PROGRESS_JOURNAL_SCHEMA } from './artifact-schema.js';
 import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 /** Tool-owned observation boundary. Callers supply identifiers, never progress counts. */
 import { existsSync, readFileSync } from 'node:fs';
@@ -15,7 +17,7 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { ACTIVE_PHASE_ORDER } from './phase-flow.js';
 
 export interface ConvergenceProgressJournal {
-  schemaVersion: 'proofbound.convergence_progress_journal.v1';
+  schemaVersion: typeof CONVERGENCE_PROGRESS_JOURNAL_SCHEMA;
   storyId: string;
   state: EffectiveProgressState;
   openVerifiedFindingIds: string[];
@@ -43,10 +45,11 @@ function completedClaim(store: StoryStore, storyId: string, epochId: string, all
   return { epoch, receipt, revoked, claimDigest: canonicalDigest({ epoch: epochClaims, receipt: receiptClaims }) };
 }
 export function readConvergenceProgress(store: StoryStore, storyId: string, root: string): ConvergenceProgressJournal | null {
+  assertCanonicalActiveIdentityBoundary({ boundaryId: 'canonical-journal-authority' });
   const journal = store.readConvergenceProgress(storyId);
   if (!journal) return null;
   const { signature, ...claims } = journal;
-  if (journal.schemaVersion !== 'proofbound.convergence_progress_journal.v1' || journal.storyId !== storyId
+  if (journal.schemaVersion !== CONVERGENCE_PROGRESS_JOURNAL_SCHEMA || journal.storyId !== storyId
     || !verifyValidationArtifact(claims, signature, root)) throw new Error('Convergence progress journal signature invalid');
   assessEffectiveProgress(journal.state, journal.state.snapshot); // Validate state shape without changing it.
   if (canonicalDigest(journal.completedEpochBindings.map(b => b.epochId)) !== canonicalDigest(journal.state.snapshot.completedEpochIds)) throw new Error('Convergence epoch binding history invalid');
@@ -144,7 +147,7 @@ export function recordConvergenceProgressUnlocked(store: StoryStore, storyId: st
   const current = collect(store, storyId, root, prior, bindings.map(b => b.epochId));
   const revocation = revocationState(store, storyId, prior);
   const assessment = assessEffectiveProgress(revocation.state, current.snapshot);
-  const claims = { schemaVersion: 'proofbound.convergence_progress_journal.v1' as const, storyId,
+  const claims = { schemaVersion: CONVERGENCE_PROGRESS_JOURNAL_SCHEMA, storyId,
     state: assessment.state, humanDecisions: prior?.humanDecisions ?? [], revokedCompletedEpochIds: revocation.revokedIds, openVerifiedFindingIds: current.openVerifiedFindingIds, completedEpochBindings: bindings };
   // Compare claims explicitly so repeated observations remain byte-identical.
   const previousClaims = prior ? (({ signature: _signature, ...rest }: ConvergenceProgressJournal) => rest)(prior) : null;

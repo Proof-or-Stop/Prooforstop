@@ -90,7 +90,7 @@ async function createDoneReadyFixture(): Promise<{
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements'), { recursive: true });
   writeConfig(root);
-  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n', 'utf8');
+  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n.native-review-fixture-*.json\n', 'utf8');
   writeFileSync(join(root, 'README.md'), '# post done closure snapshot smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);

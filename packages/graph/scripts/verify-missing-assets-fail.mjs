@@ -11,6 +11,15 @@ const stash = path.join(pkgRoot, 'assets', '.app.html.verify-stash');
 const rebuiltStash = `${asset}.rebuilt-probe`;
 const PORT = Number(process.env.GRAPH_VERIFY_PORT ?? 8819);
 
+function reportedPort(log, requestedPort) {
+  for (const line of log.split('\n')) {
+    const match = line.trim().replace(/^\[\d+(?:\.\d+)?s\] /, '').match(/^graph serving http:\/\/localhost:(\d+)\/$/);
+    const port = match ? Number(match[1]) : 0;
+    if (Number.isInteger(port) && port > 0 && port <= 65535 && (requestedPort === 0 || port === requestedPort)) return port;
+  }
+  return null;
+}
+
 if (!fs.existsSync(asset)) {
   console.error('PRECONDITION_FAILED: assets/app.html is not built; run the build first.');
   process.exit(1);
@@ -25,6 +34,7 @@ process.on('SIGINT', onSigint);
 process.on('SIGTERM', onSigterm);
 function checkInterrupted() { if (interrupted) throw new Error(`graph verifier interrupted by ${interrupted}`); }
 assert.ok(!fs.existsSync(stash) && !fs.existsSync(rebuiltStash), 'Refusing to overwrite an interrupted verifier backup');
+const original = fs.readFileSync(asset);
 fs.renameSync(asset, stash);
 function startOwnedServer() {
   const child = spawn(process.execPath, ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
@@ -45,7 +55,8 @@ function startOwnedServer() {
     catch (e) { if (e.code !== 'ESRCH') throw e; }
   };
   return { child, get log() { return log; }, get error() { return error; }, get closed() { return closed; },
-    ready: () => log.split('\n').some(line => line.trim().replace(/^\[\d+(?:\.\d+)?s\] /, '') === `graph serving http://localhost:${PORT}/`),
+    get port() { return reportedPort(log, PORT); },
+    ready: () => reportedPort(log, PORT) !== null,
     async stop() {
       signal('SIGTERM');
       const grace = Date.now() + 2000;
@@ -71,7 +82,7 @@ async function serveAndFetch() {
       if (owned.closed || owned.child.exitCode !== null) return { ok: false, reason: `server exited early with code ${owned.child.exitCode}${tail()}` };
       if (!owned.ready()) { await pause(); continue; }
       try {
-        const res = await fetch(`http://127.0.0.1:${PORT}/`, { signal: AbortSignal.timeout(Math.max(1, Math.min(2000, deadline - Date.now()))) });
+        const res = await fetch(`http://127.0.0.1:${owned.port}/`, { signal: AbortSignal.timeout(Math.max(1, Math.min(2000, deadline - Date.now()))) });
         status = res.status; body = await res.text(); break;
       } catch { await pause(); }
     }
@@ -97,7 +108,7 @@ try {
     // ours; unrelated listeners on the same port must never be killed or blamed.
     if (owned.child.pid) {
       let pids = [];
-      try { pids = execFileSync('lsof', ['-t', '-iTCP:' + PORT, '-sTCP:LISTEN'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().split(/\s+/).filter(Boolean); }
+      try { pids = execFileSync('lsof', ['-t', '-a', '-g', String(owned.child.pid), '-iTCP', '-sTCP:LISTEN'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().split(/\s+/).filter(Boolean); }
       catch (e) { if (e.status !== 1) throw e; }
       leaked = pids.filter(pid => {
         try { return Number(execFileSync('ps', ['-p', pid, '-o', 'pgid='], { encoding: 'utf8' }).trim()) === owned.child.pid; }

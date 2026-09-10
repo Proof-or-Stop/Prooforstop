@@ -55,7 +55,7 @@
     "test:brand-path-resolver-smoke": "node packages/main/dist/tasks/brand-path-resolver-smoke.js",
     "test:review-incremental-context-smoke": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
     "test:narrowing-repin": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
-    "test:review-inventory-epoch": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+    "test:review-inventory-epoch": "node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/review-inventory-epoch-smoke.js",
     "test:validation-tier-planner": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
     "test:single-owner-extraction": "node packages/main/dist/tasks/single-owner-extraction-smoke.js",
     "test:validation-protocol": "node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/validation-protocol-smoke.js",

@@ -41,18 +41,18 @@ try {
       idempotencyKey: 'fixture-findings', records: findings.map(payload => ({ recordType: 'finding', payload })),
       writerSessionId: 'fixture', writerLeaseId: 'fixture', writerFenceToken: fence.writerFenceToken });
   } finally { lock.release(); }
-  const epoch = { schemaVersion: 'proofbound.review_inventory_epoch.v1', epochId: 'E-1', storyId, reviewRound: now,
+  const epoch = { schemaVersion: 'proof-or-stop.review_inventory_epoch.v1', epochId: 'E-1', storyId, reviewRound: now,
     state: 'FINALIZED', begunAt: now, updatedAt: now, cutoff: { headHash: baseline, materialHash: 'a'.repeat(64) },
     scopeDigest: 'b'.repeat(64), requiredLanes: ['proof-or-stop-review-quality'], baselineFindingIds: [], maxWaves: 3,
     waves: [{ wave: 1, startedAt: now, completedAt: now, lanes: [{ lane: 'proof-or-stop-review-quality', reviewRunId: 'RR-1',
       terminal: 'finding', hostIdentity: 'fixture', promptIdentity: 'fixture', evidenceIds: ['F-1', 'F-2'], coverageDigest: 'c'.repeat(64) }],
       verifiedFindingFamilies: ['positive', 'zero'], verifiedFindingSetDigest: 'd'.repeat(64), newVerifiedFindingCount: 2, criticDigest: 'e'.repeat(64) }],
     receiptId: 'IR-1', consumedAt: now, consumedByReviewRound: now };
-  const receipt = { schemaVersion: 'proofbound.review_inventory_receipt.v1', receiptId: 'IR-1', epochId: 'E-1', storyId,
+  const receipt = { schemaVersion: 'proof-or-stop.review_inventory_receipt.v1', receiptId: 'IR-1', epochId: 'E-1', storyId,
     reviewRound: now, cutoff: epoch.cutoff, scopeDigest: epoch.scopeDigest, requiredLanes: epoch.requiredLanes, waveCount: 1,
     findingSetDigest: 'd'.repeat(64), coverageDigest: 'c'.repeat(64), saturationResult: 'NOT_EVALUATED_FOR_REMEDIATION',
     authority: 'review-remediation-only', authorizesTest: false, issuedAt: now, consumedAt: now };
-  store.writeReviewInventoryEpochs(storyId, { schemaVersion: 'proofbound.review_inventory_epochs.v1',
+  store.writeReviewInventoryEpochs(storyId, { schemaVersion: 'proof-or-stop.review_inventory_epochs.v1',
     epochs: [{ ...epoch, _hash: signReviewInventoryEpoch(epoch) }], receipts: [{ ...receipt, _hash: signReviewInventoryReceipt(receipt) }], criticReceipts: [] });
   git('add', '.'); git('commit', '-qm', 'frozen review input');
   writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');

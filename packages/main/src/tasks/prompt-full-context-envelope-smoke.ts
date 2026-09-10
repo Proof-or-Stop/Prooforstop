@@ -2690,7 +2690,7 @@ try {
     assert.equal(runs.length, before + 1, 'actual handler persists exactly one run');
     const issued = runs.at(-1)!;
     assert.equal(issued.lane, roleId);
-    assert.equal(verifyReviewRun(issued), true, 'actual run signature verifies');
+    assert.equal(verifyReviewRun(issued, store), true, 'actual run signature verifies');
     assert.ok(issued.envelopeId, 'actual run binds a persisted prompt envelope');
     const envelope = store.readPromptEnvelopes(storyId).envelopes.find(
       value => value.envelopeId === issued.envelopeId);
@@ -2707,7 +2707,7 @@ try {
         'actual handler persists a run for each bounded safe continuation');
       const safeIssued = safeRuns.at(-1)!;
       mainlineAssert.equal(safeIssued.lane, roleId);
-      mainlineAssert.equal(verifyReviewRun(safeIssued), true,
+      mainlineAssert.equal(verifyReviewRun(safeIssued, store), true,
         'safe continuation run signature verifies');
       mainlineAssert.ok(safeIssued.envelopeId,
         'safe continuation run binds a persisted prompt envelope');

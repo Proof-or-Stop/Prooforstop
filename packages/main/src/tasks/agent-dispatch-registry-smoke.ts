@@ -1,3 +1,4 @@
+import { resetSessionIdForTest } from '../core/owner-session.js';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -439,6 +440,12 @@ for (const payloadActor of ['human', 'proof-or-stop-review-quality', 'test-inten
   );
 }
 
+// Explicit fixture host context survives validation sanitization; actor fields stay untouched.
+const previousHostSession = process.env.PROOF_OR_STOP_SESSION_ID;
+const previousHostProvider = process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+process.env.PROOF_OR_STOP_SESSION_ID = `fixture-dispatch-host-${process.pid}`;
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+resetSessionIdForTest();
 const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
 try {
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
@@ -897,6 +904,11 @@ try {
   }
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
+  if (previousHostSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+  else process.env.PROOF_OR_STOP_SESSION_ID = previousHostSession;
+  if (previousHostProvider === undefined) delete process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+  else process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = previousHostProvider;
+  resetSessionIdForTest();
   rmSync(root, { recursive: true, force: true });
 }
 

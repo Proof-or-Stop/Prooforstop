@@ -110,9 +110,9 @@ async function authenticatedInventoryRegression(): Promise<void> {
     const entries = entriesFromSerialReference(chain, pkg.scripts);
     validateInventory(entries, chain, pkg.scripts);
     assert.ok(entries.some(entry => entry.name === 'test:review-inventory-epoch'));
-    assert.equal(pkg.scripts['test:review-inventory-epoch'], 'node packages/main/dist/tasks/review-inventory-epoch-smoke.js');
+    assert.equal(pkg.scripts['test:review-inventory-epoch'], 'node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/review-inventory-epoch-smoke.js');
     const config = JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8'));
-    assert.ok(config.validate.commands.some((entry: { command: string; args?: string[] }) => entry.command === 'node' && entry.args?.join(' ') === 'packages/main/dist/tasks/review-inventory-epoch-smoke.js'),
+    assert.ok(config.validate.commands.some((entry: { command: string; args?: string[] }) => entry.command === 'node' && entry.args?.join(' ') === 'scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/review-inventory-epoch-smoke.js'),
       'F063 inventory smoke registered in configured validation as well as full npm inventory');
     await record();
     const first = validated();

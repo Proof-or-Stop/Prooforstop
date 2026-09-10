@@ -18,10 +18,9 @@ const [
   { StoryStore },
   { createDeliveryCheckHandlers },
   { createStoryDispatchHandlers },
-  { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, withBrokeredNativeDeliveryInvocation },
+  { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, withBrokeredNativeDeliveryInvocation, withBrokeredNativeReviewInvocation },
   { buildDoneClosureRunbook },
   { createPlaybookRuntimeMemoryHandlers },
-  { createStoryDispatchHandlers },
   { createReviewRunHandlers },
   { createFindingHandlers },
 ] = await Promise.all([
@@ -34,7 +33,6 @@ const [
   load('tasks/native-review-fixture.js'),
   load('handlers/done-closure.js'),
   load('handlers/playbook-runtime-memory.js'),
-  load('handlers/story-dispatch.js'),
   load('handlers/review-run.js'),
   load('handlers/finding.js'),
 ]);
@@ -103,6 +101,7 @@ try {
     workflow: { profile: 'balanced' },
     nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }, null, 2));
+  write(root, '.gitignore', '.native-review-fixture-*.json\n');
   write(root, 'packages/main/src/index.ts', 'export const stable = true;\n');
   write(root, 'docs/requirements/decisions/parity.md', '# parity fixture\n');
   resetConfigCache();
@@ -197,12 +196,12 @@ try {
   const priorCwd = process.cwd();
   try {
     process.chdir(root);
-    createStoryDispatchHandlers(ctx).dispatch({ storyId: STORY_ID, agentType: lane });
-    const runOutput = createReviewRunHandlers(ctx).review_run_start({ storyId: STORY_ID, agent: lane });
+    withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createStoryDispatchHandlers(ctx).dispatch({ storyId: STORY_ID, agentType: lane }) });
+    const runOutput = withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createReviewRunHandlers(ctx).review_run_start({ storyId: STORY_ID, agent: lane }) });
     const reviewRunId = runOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
     assert.ok(reviewRunId, `review_run_start should return a current signed run id: ${runOutput}`);
     const note = 'Signed pass over the pre-closeout material diff pack.';
-    createFindingHandlers(ctx).review_pass_set({
+    withBrokeredNativeReviewInvocation({ root, store, storyId: STORY_ID, agent: lane, reviewRunId, invoke: () => createFindingHandlers(ctx).review_pass_set({
       storyId: STORY_ID,
       agent: lane,
       note,
@@ -216,7 +215,7 @@ try {
         { path: 'packages/main/src/index.ts', action: 'Read' },
         { path: 'docs/requirements/decisions/parity.md', mode: 'triage' },
       ],
-    });
+    }) });
   } finally {
     process.chdir(priorCwd);
   }

@@ -537,7 +537,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
    // Lab integration preserves the complete current main inventory and its timeouts;
    // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
    // Merged 160-command inventory; recomputed with the actual configured-command normalizer.
-   assert.equal(real.commandSetDigest, '42b76b374fcbc5a032f50ffb3e9d103d55690852fac981b3dd470924ec16a3f3', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+   assert.equal(real.commandSetDigest, '4e798199f1a1337c4a567c2977a161eb4d48c6e8582fc6c9a76fbc6c0821ae84', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

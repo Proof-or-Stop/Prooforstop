@@ -296,11 +296,13 @@ export function makeFixture(
   const root = targetRoot ?? createQuorumSmokeOwnedFixtureRoot('proof-or-stop-quorum-submit-');
   writeConfig(root);
   write(root, '.gitignore', [
+    '.native-review-fixture-*.json',
     // B-cc10: list BOTH state-dir spellings. The runtime writes under the canonical
     // dir, so a fixture ignoring only the deprecated one left '?? .proof-or-stop/'
     // untracked and failed its own clean-baseline assertion.
     ...STATE_DIR_NAMES.flatMap((dir) => [
       `${dir}/autopilot-verdicts/`,
+      `${dir}/runtime/native-review-invocations/`,
       `${dir}/activity.jsonl`,
       `${dir}/locks/`,
     ]),

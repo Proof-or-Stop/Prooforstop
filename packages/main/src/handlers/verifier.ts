@@ -1506,7 +1506,7 @@ function precertCheapCheckPersistenceFailure(
 ): any {
   return {
     ...externalResult({
-      provider: 'lattice-verifier-precert-cheap-check',
+      provider: 'proof-or-stop-verifier-precert-cheap-check',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Focused validation PASS could not persist the PRE_CERT cheap-check receipt',

@@ -121,6 +121,11 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  // Explicit synthetic discovery dependencies required by the current registry;
+  // these are not executed and do not claim production runtime coverage.
+  for (const file of ["bin/bootstrap-runner.js", "packages/main/src/cli-engine.ts", "packages/main/src/core/auto-commit-metadata.ts", "packages/main/src/core/causal-evidence.ts", "packages/main/src/core/execution-implementation.ts", "packages/main/src/core/store.ts", "packages/main/src/core/verification-intent-amendment.ts", "packages/main/src/core/verification-intent-checkpoint.ts", "packages/main/src/handlers/done-required-validation.ts", "packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts", "packages/main/src/tasks/quorum-submit-smoke-fixture.ts", "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-worker.ts", "packages/main/src/tasks/quorum-submit-smoke.ts", "scripts/build-lock-target.mjs"]) {
+    write(root, file, 'export const fixtureDependency = true;\n');
+  }
   // Current registered source snapshots, not execution evidence for these modules.
   for (const file of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts"]) {
     if (!existsSync(join(root, file))) write(root, file, "export const fixtureDependency = true;\n");
@@ -237,7 +242,8 @@ function registerNativeReviewFixtureContexts(
 }
 
 function fixtureNativeBinding(storyId: string, agent: string, reviewRunId: string) {
-  const context = nativeReviewFixtureContexts.get(`${storyId}\0${agent}\0${reviewRunId}`);
+  const context = nativeReviewFixtureContexts.get(`${storyId}\0${agent}\0${reviewRunId}`)
+    ?? [...nativeReviewFixtureContexts].find(([key]) => key.startsWith(`${storyId}\0${agent}\0`))?.[1];
   if (!context || !existsSync(context.root)) return undefined;
   return issueBrokeredNativeReviewBinding({ ...context, storyId, agent, reviewRunId });
 }
@@ -372,13 +378,13 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
   const reviewRunHandlers = createReviewRunHandlers(context);
   const result = new Map<string, string>();
   for (const agent of agents) {
-    dispatchHandlers.dispatch({ storyId, agentType: agent });
+    withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => dispatchHandlers.dispatch({ storyId, agentType: agent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     const previousCwd = process.cwd();
     process.env.PROOF_OR_STOP_AGENT = agent;
     process.chdir(root);
     try {
-      reviewRunHandlers.review_run_start({ storyId, agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => reviewRunHandlers.review_run_start({ storyId, agent }) });
     } finally {
       process.chdir(previousCwd);
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -1551,11 +1557,11 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 
     const lane = 'proof-or-stop-review-test-coverage';
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: lane });
+    withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: lane }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     process.env.PROOF_OR_STOP_AGENT = lane;
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent: lane });
+      withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent: lane }) });
     } finally {
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
       else process.env.PROOF_OR_STOP_AGENT = previousAgent;
@@ -1671,11 +1677,11 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // withhold forgiveness.
     const laneAgent = 'proof-or-stop-review-test-coverage';
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: laneAgent });
+    withNativeReviewFixtureHostIdentity({ agent: laneAgent, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: laneAgent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     process.env.PROOF_OR_STOP_AGENT = laneAgent;
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent: laneAgent });
+      withNativeReviewFixtureHostIdentity({ agent: laneAgent, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent: laneAgent }) });
     } finally {
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
       else process.env.PROOF_OR_STOP_AGENT = previousAgent;
@@ -1868,13 +1874,13 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     const dispatchHandlers = createStoryDispatchHandlers(context);
     const reviewRunHandlers = createReviewRunHandlers(context);
     const startRun = (): ReviewRun => {
-      dispatchHandlers.dispatch({ storyId, agentType: agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => dispatchHandlers.dispatch({ storyId, agentType: agent }) });
       const previousAgent = process.env.PROOF_OR_STOP_AGENT;
       const previousCwd = process.cwd();
       process.env.PROOF_OR_STOP_AGENT = agent;
       process.chdir(root);
       try {
-        reviewRunHandlers.review_run_start({ storyId, agent });
+        withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => reviewRunHandlers.review_run_start({ storyId, agent }) });
       } finally {
         process.chdir(previousCwd);
         if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -2281,13 +2287,13 @@ function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvi
     });
     resetConfigCache();
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: agent });
+    withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: agent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     const previousCwd = process.cwd();
     process.env.PROOF_OR_STOP_AGENT = agent;
     process.chdir(root);
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent }) });
     } finally {
       process.chdir(previousCwd);
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -2301,6 +2307,16 @@ function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvi
       passes: [makeReviewPass(storyId, agent, reviewRound, '099', run.reviewRunId)],
     });
     git(root, ['merge', 'main', '--no-edit']);
+    const beforeEnvelopeDrift = runReviewCliGates(storyId, { store, projectRoot: root, registryNames: new Set() });
+    assert.equal(beforeEnvelopeDrift.ok, true, 'unrelated main merge remains admissible before actual envelope drift');
+    assert.equal(beforeEnvelopeDrift.gates.find(gate => gate.name === 'reviewer-evidence')?.status, 'warn', 'unrelated main merge has its material advisory positive control');
+    // Unrelated main material is legitimately advisory; create the actual envelope
+    // corruption this negative control names, without changing its expected rejection.
+    const driftedEnvelopes = store.readPromptEnvelopes(storyId);
+    const driftedEnvelope = driftedEnvelopes.envelopes.find(row => row.envelopeId === run.envelopeId)!;
+    driftedEnvelope.assembledPromptDigest = '0'.repeat(64);
+    store.writePromptEnvelopes(storyId, driftedEnvelopes);
+
 
     const preflight = runReviewCliGates(storyId, {
       store,
@@ -4621,9 +4637,11 @@ function assertDoneOracleSameSource(): void {
   );
   assert.match(
     doneOracleSrc,
-    /const finishDecision = donePredicates \? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
+    /const finishDecisionRead = donePredicates \? donePredicateValue<ReturnType<typeof inspectDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
     'DONE preflight finish-decision row must consume the already evaluated shared presence fact',
   );
+  assert.match(doneOracleSrc, /const finishDecision = finishDecisionRead\?\.record;/, 'DONE finish decision must read the shared inspected record');
+  assert.match(doneOracleSrc, /const unsupportedFinishDecision = finishDecisionRead\?\.unsupportedIdentity;/, 'unsupported finish identity must remain fail closed');
   assert.match(doneOracleSrc, /const completedSnapshot = store\.readStory\(storyId\)\.phase === 'DONE' \? options\.completedSnapshot : undefined;/,
     'Historical presentation must not exempt TEST admission');
 

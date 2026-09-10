@@ -1,3 +1,5 @@
+import { assertCanonicalActiveIdentityBoundary } from './runtime-environment-checks.js';
+import { ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA, ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA } from './artifact-schema.js';
 import { prepareManagedSingletonAdmission, bindManagedSingletonSubmission } from './managed-launch-admission.js';
 import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 /** Acceptance owns proposal derivation and recoverable application; reviewers own only their verdict. */
@@ -15,7 +17,7 @@ import { withReviewInventoryMutationLock } from './review-inventory-epoch.js';
 import { submitManagedHostRun, readManagedAcceptanceReviewReceipt, type ManagedHostRunSubmitDeps, type ManagedHostRunSubmitArgs } from './managed-host-run.js';
 
 export interface AcceptanceAmendmentEntry {
-  schemaVersion: 'proofbound.acceptance_amendment.v1';
+  schemaVersion: typeof ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA;
   storyId: string;
   amendmentId: string;
   submitterSessionId: string;
@@ -31,7 +33,7 @@ export interface AcceptanceAmendmentEntry {
   signature: string;
 }
 export interface AcceptanceAmendmentJournal {
-  schemaVersion: 'proofbound.acceptance_amendments.v1';
+  schemaVersion: typeof ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA;
   entries: AcceptanceAmendmentEntry[];
   signature?: string;
 }
@@ -39,15 +41,16 @@ const hashText = (text: string) => `sha256:${createHash('sha256').update(text).d
 const pending = (entry: AcceptanceAmendmentEntry) => !['APPROVED', 'CANCELLED'].includes(entry.state);
 
 function readJournal(store: StoryStore, storyId: string, root: string): AcceptanceAmendmentJournal {
+  assertCanonicalActiveIdentityBoundary({ boundaryId: 'canonical-journal-authority' });
   const journal = store.readAcceptanceAmendments(storyId);
-  if (!journal) return { schemaVersion: 'proofbound.acceptance_amendments.v1', entries: [] };
-  if (journal.schemaVersion !== 'proofbound.acceptance_amendments.v1' || !Array.isArray(journal.entries)
+  if (!journal) return { schemaVersion: ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA, entries: [] };
+  if (journal.schemaVersion !== ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA || !Array.isArray(journal.entries)
     || new Set(journal.entries.map(e => e.amendmentId)).size !== journal.entries.length) throw new Error('acceptance amendment journal invalid');
   const { signature: journalSignature, ...journalClaims } = journal;
   if (!verifyValidationArtifact(journalClaims, journalSignature, root)) throw new Error('acceptance amendment journal signature invalid');
   for (const entry of journal.entries) {
     const { signature, ...claims } = entry;
-    if (entry.storyId !== storyId || entry.schemaVersion !== 'proofbound.acceptance_amendment.v1'
+    if (entry.storyId !== storyId || entry.schemaVersion !== ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA
       || !verifyValidationArtifact(claims, signature, root)) throw new Error('acceptance amendment signature invalid');
   }
   return journal;
@@ -112,7 +115,7 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         if (journal.entries.some(pending)) throw new Error('Another acceptance amendment is pending; finish or cancel it first');
         const base = snapshot(store, args.storyId), next = deriveAcceptanceAmendment(base, args.delta);
         const baseDigest = canonicalDigest(base);
-        const proposed = save(journal, { schemaVersion: 'proofbound.acceptance_amendment.v1', ...args, state: 'PROPOSED', base,
+        const proposed = save(journal, { schemaVersion: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA, ...args, state: 'PROPOSED', base,
           baseDigest, amendmentDigest: canonicalDigest({ storyId: args.storyId, baseDigest, delta: args.delta }), nextDigest: canonicalDigest(next), requestDigest, signature: '' });
         onCreated?.(); // The owner's optional metadata commit remains inside the same serialization boundary.
         return proposed;

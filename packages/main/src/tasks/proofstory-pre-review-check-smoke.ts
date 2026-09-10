@@ -2,14 +2,14 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
-import { assertHistoricalImplementationSource } from './historical-implementation-fixture.js';
+import { createFixtureImplementationCommit } from './current-implementation-fixture.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
-import { resetConfigCache } from '../core/config.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
 import {
   createProofStoryHandlers,
   currentPreReviewInputForContext,
@@ -24,8 +24,10 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
-import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
-import { renderPromptForHost } from '../core/prompt-registry.js';
+import { adapterSessionEnv } from './adapter-session-env.js';
+import { deriveAdapterOwnerSessionId } from '../core/owner-session-adapters.js';
+import { renderPromptForHost, isActiveModularReviewerRoleId } from '../core/prompt-registry.js';
+import { resolvePromptRoleBody, promptRoleContract } from '../core/prompt-role-contract-registry.js';
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { verifyReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
@@ -680,6 +682,10 @@ function git(root: string, args: string[]): string {
  *
  * B-137a: `host` selects which brokered native-review host identity the nested CLI runs as.
  */
+function fixtureSessionId(root: string, task: string, agent: string, host: 'codex' | 'claude' = nativeReviewFixtureAmbientHost()): string {
+  return deriveAdapterOwnerSessionId(realpathSync(root), host === 'claude' ? 'claude-code' : 'codex', task, agent);
+}
+
 function cli(
   root: string,
   command: string,
@@ -699,8 +705,9 @@ function cli(
         // actor from the explicit session envelope instead of inheriting that
         // non-dispatch actor marker.
         PROOF_OR_STOP_AGENT: agent,
-        ...adapterSessionEnv(sessionTask, agent),
         ...nativeReviewFixtureHostEnvironment(agent, host, sessionTask),
+        ...adapterSessionEnv(sessionTask, agent),
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: host === 'claude' ? 'claude-code' : 'codex',
       },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -714,7 +721,7 @@ function cli(
     assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
     const storyDir = new StoryStore(root).storyDirPath(storyId);
     const lease = readOwnerLease(storyDir);
-    if (lease?.sessionId === adapterSessionId(root, sessionTask, agent)) {
+    if (lease?.sessionId === fixtureSessionId(root, sessionTask, agent, host)) {
       assert.equal(releaseOwnerLease(storyDir), true, 'completed matching fixture owner releases its lease');
       assert.equal(readOwnerLease(storyDir), null);
     }
@@ -1123,11 +1130,7 @@ function assertTopologyCriticPhaseContract(): void {
     git(root, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
     git(root, ['add', '.']); git(root, ['commit', '-m', 'seed isolated critic phase contract']);
     git(root, ['switch', '-c', `story/${storyId}`]);
-    // Explicit archived fixture prerequisite for the existing author policy.
-    // Preserve this real object; never manufacture a new implementer-author commit.
-    const historicalImplementation = assertHistoricalImplementationSource(repositoryRoot);
-    git(root, ['fetch', '--no-tags', '--depth=1', repositoryRoot, historicalImplementation]);
-    git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historicalImplementation, '-m', 'retain unchanged historical provenance prerequisite']);
+    createFixtureImplementationCommit(root);
     process.chdir(root); resetConfigCache();
     const store = new StoryStore(root);
     const story = { storyId, name: storyId, title: 'Critic phase contract', description: 'Canonical critic dispatch phase contract', type: 'feature', priority: 'high', phase: 'DEV', createdAt: baseAt, startedAt: baseAt, endedAt: null, events: [], worktree: { path: root, branch: `story/${storyId}`, createdAt: baseAt } } as StoryInfo;
@@ -1156,7 +1159,12 @@ function assertTopologyCriticPhaseContract(): void {
     const round = '2026-09-05T00:00:00.000Z';
     store.writeStory(storyId, { ...story, phase: 'REVIEW', currentReviewRound: round });
     const review = JSON.parse(cli(root, 'dispatch', { storyId, agentType: critic }, false, critic, task));
-    assert.match(review.prompt, /proof-or-stop review_run_start/, 'REVIEW retains its reviewer run instruction');
+    assert.equal(isActiveModularReviewerRoleId(critic), false, 'critic remains a full modular role, not a five-lane bootstrap');
+    const expectedBody = renderPromptForHost(resolvePromptRoleBody(critic, loadConfig(root).promptEnvelope).body, nativeReviewFixtureAmbientHost()).trim();
+    assert.ok(expectedBody.length > 0);
+    assert.equal(review.prompt.trim().endsWith(expectedBody), true, 'REVIEW retains the complete current host-rendered critic body');
+    const renderedContract = JSON.parse(review.prompt.split('## Role Contract\n\n')[1].split('\n')[0]);
+    assert.deepEqual(renderedContract, promptRoleContract(critic), 'REVIEW binds the exact canonical critic role contract');
     const reviewEvent = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch').at(-1)!;
     assert.equal(reviewEvent.reviewRound, round);
     assert.ok(reviewEvent.dispatchBindingDigest, 'REVIEW retains trusted dispatch binding');
@@ -1166,7 +1174,7 @@ function assertTopologyCriticPhaseContract(): void {
     const run = store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === runId)!;
     assert.ok(run, 'production reviewer run was persisted');
     assert.equal(run.reviewRound, round);
-    assert.equal(verifyReviewRun(run), true, 'REVIEW run retains its valid production signature');
+    assert.equal(verifyReviewRun(run, store), true, 'REVIEW run retains its valid production signature');
     assert.equal(verifyReviewRunPromptEnvelope(store, run).ok, true, 'signed REVIEW run binds the canonical envelope');
     console.log('ProofStory topology critic phase contract: PASS');
   } finally {
@@ -1687,7 +1695,7 @@ try {
     assert.doesNotMatch(criticPrompt, /proof-or-stop review_run_start/, 'DEV topology critic is receipt authority, not REVIEW lane evidence');
     const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, 'proof-or-stop-review-topology-critic')).at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
-    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
+    assert.equal(criticDispatch.sessionId, fixtureSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
     assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
     assert.equal(criticDispatch.reviewRound, undefined, 'DEV topology critic dispatch must not fabricate a REVIEW round');

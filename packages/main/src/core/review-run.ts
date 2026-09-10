@@ -1,3 +1,4 @@
+import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
@@ -596,7 +597,7 @@ function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
   if (!hasOnlyKeys(run, [
     'reviewRunId', 'storyId', 'agent', 'lane', 'reviewRound', 'startedAt',
     'headHash', 'materialHash', 'storyFilesHash', 'promptHash', 'envelopeId',
-    'assembledPrompt', 'reviewerEscalationReason', 'scopeBinding',
+    'assembledPrompt', 'assembledPromptRef', 'reviewerEscalationReason', 'scopeBinding',
     'workspaceBinding', 'reviewPurpose', 'inventoryBinding', '_hash',
   ])) return false;
   if (run.scopeBinding && (
@@ -654,9 +655,9 @@ function verifyReviewRunSignatureIntegrity(run: ReviewRun): boolean {
     );
 }
 
-function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun): boolean {
-  if (!run.assembledPrompt || !run.envelopeId) return false;
-  const versions = [...run.assembledPrompt.matchAll(/"schemaVersion":"([^"]+)"/g)].map(match => match[1]);
+function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun, body: string | undefined): boolean {
+  if (!body || !run.envelopeId) return false;
+  const versions = [...body.matchAll(/"schemaVersion":"([^"]+)"/g)].map(match => match[1]);
   const allowedValues = new Set<string>([
     CURRENT_PROMPT_IDENTITIES.roleContract,
     CURRENT_PROMPT_IDENTITIES.fullTaskContext,
@@ -672,10 +673,14 @@ function reviewRunPromptUsesCurrentIdentityFamily(run: ReviewRun): boolean {
 }
 
 /** Current consumer: full-envelope ReviewRuns must carry only current prompt identities. */
-export function verifyReviewRun(run: ReviewRun): boolean {
+export function verifyReviewRun(run: ReviewRun, promptStore?: { storyDirPath(storyId: string): string }): boolean {
   if (!isReviewerAgent(run.agent) || run.agent !== run.lane) return false;
   if (!verifyReviewRunSignatureIntegrity(run)) return false;
-  return reviewRunPromptUsesCurrentIdentityFamily(run);
+  try {
+    const body = run.assembledPromptRef === undefined ? run.assembledPrompt
+      : promptStore ? readReviewPromptBody(promptStore.storyDirPath(run.storyId), run) : undefined;
+    return reviewRunPromptUsesCurrentIdentityFamily(run, body);
+  } catch { return false; }
 }
 
 export interface VerifiedReviewerDispatchBinding {
@@ -1015,9 +1020,9 @@ function compareRunRecency(a: ReviewRun, b: ReviewRun): number {
   return aTime - bTime;
 }
 
-function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
+function currentRunForLane(store: StoryStore, runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
   const current = runs
-    .filter(run => verifyReviewRun(run) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
+    .filter(run => verifyReviewRun(run, store) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
     .sort(compareRunRecency);
   return current.length > 0 ? current[current.length - 1] : null;
 }
@@ -1403,7 +1408,7 @@ export function assertCurrentReviewRunForEvidence(
       `${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, agent)}`,
     );
   }
-  if (!verifyReviewRun(run)) {
+  if (!verifyReviewRun(run, store)) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid signature. ${startRunHint(story.storyId, agent)}`);
   }
   if (run.reviewPurpose === 'inventory-completeness') {
@@ -1547,7 +1552,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} bound reviewRunId ${evidence.reviewRunId} has invalid workspace binding: ${workspaceValidation.message}. ${workspaceBindingHint(story.storyId, evidence.agent)}`,
     };
   }
-  if (!verifyReviewRun(run)) {
+  if (!verifyReviewRun(run, store)) {
     return {
       code: 'invalid_run_signature',
       kind: evidence.kind,
@@ -1632,7 +1637,7 @@ function validateEvidenceRunBinding(
   // surfaced and is NOT hidden by a newer pass on the same lane; the supersede filter
   // in collectReviewerEvidenceState already drops a stale_run finding once it is
   // resolved/dismissed (terminal), so resolved findings stay superseded as before.
-  const currentRun = currentRunForLane(runs, evidence.agent, story.currentReviewRound);
+  const currentRun = currentRunForLane(store, runs, evidence.agent, story.currentReviewRound);
   if (currentRun && currentRun.reviewRunId !== run.reviewRunId && evidence.kind !== 'pass') {
     return {
       code: 'stale_run',

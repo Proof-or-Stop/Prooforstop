@@ -324,7 +324,7 @@ function evaluateCurrentWave(
   findingDispositions?: ReviewInventoryFindingDisposition[],
 ) {
   const dispositions = findingDispositions ?? criticReceiptForCurrentWave(ctx, epoch)?.findingDispositions;
-  return evaluateReviewInventoryWave({
+  return evaluateReviewInventoryWave({ promptStore: ctx.store,
     epoch,
     runs: ctx.store.readReviewRuns(epoch.storyId).runs,
     passes: ctx.store.readReviewPasses(epoch.storyId).passes,
@@ -342,7 +342,7 @@ function currentCriticComplete(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
   if (epoch.state !== 'OPEN') return epoch.state === 'FINALIZED';
   const evaluation = evaluateCurrentWave(ctx, epoch);
   if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0) return false;
-  return validateReviewInventoryCriticReceipt({
+  return validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
     receipt: criticReceiptForCurrentWave(ctx, epoch),
     epoch,
     evaluation,
@@ -361,7 +361,7 @@ function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpo
     Date.parse(evidenceById.find(row => row.id === id)?.createdAt ?? ''),
   )).filter(Number.isFinite));
   const latest = ctx.store.readReviewRuns(epoch.storyId).runs
-    .filter(run => verifyReviewRun(run) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
+    .filter(run => verifyReviewRun(run, ctx.store) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
       && run.reviewPurpose === 'inventory-completeness' && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
       && run.reviewRound === epoch.reviewRound && run.materialHash === epoch.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
@@ -482,7 +482,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           } : {}),
         };
-        const baselineFindingIds = captureReviewInventoryBaselineFindingIds({
+        const baselineFindingIds = captureReviewInventoryBaselineFindingIds({ promptStore: ctx.store,
           epoch: { ...provisional, _hash: '' },
           runs: ctx.store.readReviewRuns(args.storyId).runs,
           findings: ctx.store.readFindings(args.storyId).findings,
@@ -572,7 +572,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           createdAt: now,
         };
         const receipt: ReviewInventoryCriticReceipt = { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) };
-        const validated = validateReviewInventoryCriticReceipt({
+        const validated = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt, epoch, evaluation,
           runs: ctx.store.readReviewRuns(args.storyId).runs,
           passes: ctx.store.readReviewPasses(args.storyId).passes,
@@ -648,7 +648,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (evaluation.duplicateIdentities.length > 0) {
           throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}; independent lane evidence required`);
         }
-        const critic = validateReviewInventoryCriticReceipt({
+        const critic = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt: criticReceiptForCurrentWave(ctx, epoch),
           epoch,
           evaluation,
@@ -722,7 +722,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (evaluation.duplicateIdentities.length > 0) {
           throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}`);
         }
-        const critic = validateReviewInventoryCriticReceipt({
+        const critic = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
           receipt: criticReceiptForCurrentWave(ctx, epoch),
           epoch,
           evaluation,

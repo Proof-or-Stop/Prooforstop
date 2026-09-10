@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+import { issueBrokeredNativeReviewBinding, nativeReviewFixtureBrokers } from './native-review-fixture.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -40,7 +44,7 @@ import { StoryStore } from '../core/store.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentScopeContextForStory, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody, promptRoleContract, reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { createStoryActor, evaluateReviewVerdict, getGuardFailureReason, getStateName } from '../core/machine.js';
 import type { Finding, ReviewRun } from '../core/types.js';
@@ -296,6 +300,41 @@ assert.equal(evaluateMetadataOnlyReviewRetention({
 }).ok, false, 'concurrent HEAD movement must invalidate review retention');
 console.log('PASS closeout review retention binds material, story files, scope, round, and stable HEAD');
 
+
+/** Fixture producer: preserve original review snapshot, bind actual canonical envelope bytes. */
+function bindCloseoutFixtureEnvelope(root: string, store: StoryStore, run: ReviewRun): void {
+  const dispatchPrompt = `Review closeout evidence for ${run.storyId} as ${run.lane}.`;
+  const host = reviewerHostRenderIdentity(root, run.lane, 'codex', 'full-envelope');
+  const dispatchBindingDigest = reviewerDispatchBindingDigest({ storyId: run.storyId, lane: run.lane,
+    reviewRound: run.reviewRound, dispatchPromptDigest: reviewerDispatchPromptDigest(dispatchPrompt),
+    hostRenderIdentityDigest: host.identityDigest });
+  store.appendProcessEvent(run.storyId, {
+    type: 'dispatch', storyId: run.storyId, agentType: run.lane, targetKind: 'story-review',
+    reviewRound: run.reviewRound, dispatchPrompt, dispatchPromptDigest: reviewerDispatchPromptDigest(dispatchPrompt),
+    hostRenderHost: 'codex', hostRenderIdentityDigest: host.identityDigest, dispatchBindingDigest,
+  });
+  const assembly = assembleFullPromptEnvelope({
+    roleContract: promptRoleContract(run.lane), runtimeContract: BASELINE_RUNTIME_CONTRACT,
+    rolePrompt: resolvePromptRoleBody(run.lane, { version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: { [run.lane]: 'full-envelope' } }).body,
+    taskContext: buildFullTaskContext({ story: store.readStory(run.storyId), checklist: store.readChecklist(run.storyId),
+      headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash }),
+    dispatchKind: 'review-run', reviewRunId: run.reviewRunId, reviewRound: run.reviewRound, lane: run.lane,
+    dispatchPrompt, hostRenderIdentityDigest: host.identityDigest, reviewerDispatchBindingDigest: dispatchBindingDigest,
+    launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest, hostRenderHost: 'codex' }, createdAt: run.startedAt,
+  });
+  run.envelopeId = assembly.envelope.envelopeId;
+  run.promptHash = assembly.envelope.assembledPromptDigest;
+  delete run.assembledPrompt;
+  run.assembledPromptRef = store.writeReviewPromptBody(run.storyId, assembly.prompt, run.promptHash);
+  run._hash = signReviewRun(run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
+    run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash, run.workspaceBinding?.bindingHash,
+    run.storyFilesHash, run.envelopeId, run.reviewerEscalationReason, run.reviewPurpose, run.inventoryBinding);
+  const prior = store.readPromptEnvelopes(run.storyId);
+  store.writePromptEnvelopes(run.storyId, { envelopes: [...prior.envelopes.filter(e => e.envelopeId !== run.envelopeId), assembly.envelope] });
+  assert.equal(verifyReviewRun(run, store), true, 'canonical closeout fixture signature and CAS body verify');
+}
+
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
@@ -331,6 +370,7 @@ try {
     currentReviewRound: indexRound,
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: indexRound, branch: `story/${indexStoryId}`, user: 'closeout-smoke', sessionId: 'review-session', agent: 'main' }],
   });
+  indexStore.writeChecklist(indexStoryId, { items: [] });
   indexStore.writeScopeContract(indexStoryId, indexContract);
   indexStore.writeMilestoneLedger(indexStoryId, indexLedger);
   indexStore.writeProofStorySlicePlan(indexStoryId, indexPlan);
@@ -344,10 +384,7 @@ try {
     promptHash: canonicalPromptHash('proof-or-stop-review-quality'),
     scopeBinding: indexBinding,
   } as ReviewRun;
-  indexRun._hash = signReviewRun(
-    indexRun.storyId, indexRun.reviewRunId, indexRun.agent, indexRun.lane, indexRun.reviewRound, indexRun.startedAt,
-    indexRun.headHash, indexRun.materialHash, indexRun.promptHash, indexRun.scopeBinding?.bindingHash, undefined, indexRun.storyFilesHash,
-  );
+  bindCloseoutFixtureEnvelope(indexRepo, indexStore, indexRun);
   const transitioned = indexStore.readStory(indexStoryId);
   git(indexRepo, ['config', '--unset', 'user.name']);
   git(indexRepo, ['config', '--unset', 'user.email']);
@@ -415,6 +452,7 @@ const repo = mkdtempSync(join(tmpdir(), 'closeout-retention-'));
 try {
   writeFileSync(join(repo, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     validate: { commands: [{ label: 'closeout smoke validate', command: 'node', args: ['-e', 'process.exit(0)'] }] },
     doneRequiredCommands: [{ label: 'closeout smoke done required', command: 'node', args: ['-e', 'process.exit(0)'] }],
   }), 'utf8');
@@ -464,14 +502,12 @@ try {
     promptHash: canonicalPromptHash('proof-or-stop-review-quality'),
     scopeBinding: runtimeBinding,
   } as ReviewRun;
-  run._hash = signReviewRun(
-    run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
-    run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash,
-    undefined, run.storyFilesHash,
-  );
-  assert.equal(verifyReviewRun(run), true);
+  bindCloseoutFixtureEnvelope(repo, store, run);
+  assert.equal(verifyReviewRun(run, store), true);
   const preCloseoutPassCreatedAt = new Date().toISOString();
   store.writeReviewRuns(runtimeStoryId, { runs: [run] });
+  const initialNativeBinding = issueBrokeredNativeReviewBinding({ root: repo, store, storyId: runtimeStoryId, agent: run.agent, reviewRunId: run.reviewRunId });
+  const initialProvenance = { writerSessionId: initialNativeBinding.writerSessionId, sessionSource: initialNativeBinding.sessionSource };
   store.writeReviewPasses(runtimeStoryId, { passes: [{
     id: 'RP-001',
     agent: run.agent,
@@ -479,6 +515,8 @@ try {
     createdAt: preCloseoutPassCreatedAt,
     reviewRound: run.reviewRound,
     reviewRunId: run.reviewRunId,
+    envelopeId: run.envelopeId,
+    nativeEvidenceBinding: initialNativeBinding, ...initialProvenance,
     _hash: signReviewPass(
       runtimeStoryId,
       'RP-001',
@@ -487,6 +525,7 @@ try {
       preCloseoutPassCreatedAt,
       run.reviewRound,
       run.reviewRunId,
+      undefined, undefined, undefined, initialProvenance, run.envelopeId, undefined, initialNativeBinding,
     ),
   }] });
   const proofstoryHandlers = createProofStoryHandlers({ store, root: repo, scanRoot: repo } as HandlerContext);
@@ -689,20 +728,19 @@ try {
       storyFilesHash: currentStoryFiles,
       promptHash: canonicalPromptHash(agent),
     } as ReviewRun;
-    freshRun._hash = signReviewRun(
-      freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
-      freshRun.startedAt, freshRun.headHash, freshRun.materialHash, freshRun.promptHash,
-      freshRun.scopeBinding?.bindingHash, undefined, freshRun.storyFilesHash,
-    );
+    bindCloseoutFixtureEnvelope(repo, store, freshRun);
     return freshRun;
   });
+  store.writeReviewRuns(runtimeStoryId, { runs: freshRuns });
   const freshPasses = freshRuns.map((freshRun, index) => {
     const id = `RP-${String(index + 2).padStart(3, '0')}`;
+    const nativeEvidenceBinding = issueBrokeredNativeReviewBinding({ root: repo, store, storyId: runtimeStoryId, agent: freshRun.agent, reviewRunId: freshRun.reviewRunId });
+    const provenance = { writerSessionId: nativeEvidenceBinding.writerSessionId, sessionSource: nativeEvidenceBinding.sessionSource };
     const note = `Fresh post-closeout ${freshRun.lane} review snapshot.`;
     const createdAt = new Date(Date.now() + index).toISOString();
     return {
-      id, agent: freshRun.agent, note, createdAt, reviewRound: freshRun.reviewRound, reviewRunId: freshRun.reviewRunId,
-      _hash: signReviewPass(runtimeStoryId, id, freshRun.agent, note, createdAt, freshRun.reviewRound, freshRun.reviewRunId),
+      id, agent: freshRun.agent, note, createdAt, reviewRound: freshRun.reviewRound, reviewRunId: freshRun.reviewRunId, envelopeId: freshRun.envelopeId, nativeEvidenceBinding, ...provenance,
+      _hash: signReviewPass(runtimeStoryId, id, freshRun.agent, note, createdAt, freshRun.reviewRound, freshRun.reviewRunId, undefined, undefined, undefined, provenance, freshRun.envelopeId, undefined, nativeEvidenceBinding),
     };
   });
 
@@ -720,8 +758,10 @@ try {
   store.writeReviewRuns(runtimeStoryId, { runs: freshRuns });
   store.writeReviewPasses(runtimeStoryId, { passes: freshPasses });
   const findingCreatedAt = new Date().toISOString();
+  const findingNativeBinding = issueBrokeredNativeReviewBinding({ root: repo, store, storyId: runtimeStoryId, agent: freshRuns[0].agent, reviewRunId: freshRuns[0].reviewRunId });
   const blockingFinding: Finding = {
     id: `${runtimeStoryId}:F-001`,
+    nativeEvidenceBinding: findingNativeBinding,
     desc: 'Verified high finding must remain blocking at DONE.',
     severity: 'high',
     category: 'adversarial',
@@ -731,10 +771,11 @@ try {
     createdAt: findingCreatedAt,
     reviewRound: freshRuns[0].reviewRound,
     reviewRunId: freshRuns[0].reviewRunId,
-    _hash: signFinding(runtimeStoryId, `${runtimeStoryId}:F-001`, 'Verified high finding must remain blocking at DONE.', 'high', findingCreatedAt, freshRuns[0].reviewRound, freshRuns[0].reviewRunId),
+    _hash: signFinding(runtimeStoryId, `${runtimeStoryId}:F-001`, 'Verified high finding must remain blocking at DONE.', 'high', findingCreatedAt, freshRuns[0].reviewRound, freshRuns[0].reviewRunId, undefined, undefined, undefined, undefined, undefined, findingNativeBinding, { category: 'adversarial', evidenceState: 'verified', uncertaintyReason: null, files: [] }),
   };
   store.writeFindings(runtimeStoryId, { findings: [blockingFinding] });
-  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_finding_blocking');
+  const findingVerdict = evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo });
+  assert.equal(findingVerdict.code, 'review_finding_blocking', JSON.stringify(findingVerdict));
   const blockingFindingActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
   blockingFindingActor.start();
   blockingFindingActor.send({ type: 'FINISH' });

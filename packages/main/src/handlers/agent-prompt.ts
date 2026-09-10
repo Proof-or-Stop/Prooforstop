@@ -1,3 +1,4 @@
+import { ACCEPTANCE_REVIEW_FINAL_SCHEMA } from '../core/acceptance-amendment-review.js';
 /**
  * agent-prompt.ts — `proof-or-stop agent_prompt --role=<name>` (B-097f CHK-002)
  *
@@ -103,6 +104,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
   return {
     agent_prompt(args: AgentPromptArgs = {}): string {
       assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION);
+      assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.

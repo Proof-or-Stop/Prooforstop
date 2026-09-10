@@ -602,7 +602,7 @@ function latestTrustedPriorPass(
     if (!agentRoleIdsEqual(pass.agent, role) || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
-    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run)) continue;
+    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run, store)) continue;
     if (!run.envelopeId || pass.envelopeId !== run.envelopeId) continue;
     try { if (!store.readReviewPrompt(run)) continue; } catch { continue; }
     const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(

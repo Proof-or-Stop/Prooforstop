@@ -585,8 +585,8 @@ try {
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
   writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
   const aboveCeilingConfig = deriveAcceptanceCoverageBasis(input);
-  assert.equal(aboveCeilingConfig.basis.status, 'partial', '129 KiB config padding remains rejected by the strict config snapshot cap');
-  assert.ok(aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), '129 KiB config padding produces a bounded-read blind spot');
+  assert.equal(aboveCeilingConfig.basis.status, 'complete', '129 KiB config padding is within the current strict config snapshot cap');
+  assert.ok(!aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'admitted 129 KiB config padding has no bounded-read blind spot');
   writeFileSync(configPath, configControl);
   const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
   try {
@@ -1539,9 +1539,9 @@ try {
   const overBoundedConfig = JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    policyPadding: 'x'.repeat(128 * 1024),
+    policyPadding: 'x'.repeat(MAX_PROOF_OR_STOP_CONFIG_BYTES),
   });
-  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > 128 * 1024, 'oversize control exceeds the corrected bounded cap');
+  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > MAX_PROOF_OR_STOP_CONFIG_BYTES, 'oversize control exceeds the corrected bounded cap');
   write(packageProfileRoot, 'proof-or-stop.config.json', overBoundedConfig);
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'config beyond the corrected bounded cap remains fail-closed');
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));

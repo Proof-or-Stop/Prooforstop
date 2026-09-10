@@ -119,7 +119,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           headHash: run.headHash,
           materialHash: run.materialHash,
           storyFilesHash: run.storyFilesHash ?? null,
-          signatureValid: verifyReviewRun(run),
+          signatureValid: verifyReviewRun(run, store),
         }));
       const report = {
         schemaVersion: 'proof-or-stop.review_run_list.v1',

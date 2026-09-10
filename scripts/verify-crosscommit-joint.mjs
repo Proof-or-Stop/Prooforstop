@@ -109,7 +109,7 @@ function runAsOfRunEligibilityRegression() {
             storyPrefix: 'B',
             flows: { defaults: {}, patterns: [] },
             promptEnvelope: {
-                version: 'proofbound.prompt-envelope-rollout.v1',
+                version: 'proof-or-stop.prompt-envelope-rollout.v1',
                 roles: { [role]: 'full-envelope' },
             },
         }, null, 2) + '\n');

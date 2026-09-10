@@ -2389,7 +2389,7 @@ function assertCloseoutTrustBoundary() {
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
     'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b',
-    '5b4b8dafd2687d6507b8471c7e674855a57eb019285ebe9650fe4a700460b6d3',
+    'ca1a6aa99b2413a4bdfb31fa59c7f327ad55ec837f8107348de68935ee28e22b',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -4773,7 +4773,7 @@ function assertReviewInventoryRemediationContract() {
     `${epochPath}: inventory PASS coverage requires both signed read fields`,
   );
   assert(
-    /const inventoryCriticRuns = candidates\.filter\([\s\S]*?canonicalAgentRoleId\(run\.lane\)[\s\S]*?run\.reviewPurpose === 'inventory-completeness'[\s\S]*?inventoryPurposeMatchesEpoch\(run\.inventoryBinding, args\.epoch\)[\s\S]*?for \(const run of inventoryCriticRuns\)[\s\S]*?evidenceForRun\(run, args\.passes, args\.findings\)\.findings[\s\S]*?rawFindings\.set\(finding\.id, finding\)/.test(epochText),
+    /const inventoryCriticRuns = candidates\.filter\([\s\S]*?canonicalAgentRoleId\(run\.lane\)[\s\S]*?run\.reviewPurpose === 'inventory-completeness'[\s\S]*?inventoryPurposeMatchesEpoch\(run\.inventoryBinding, args\.epoch\)[\s\S]*?for \(const run of inventoryCriticRuns\)[\s\S]*?evidenceForRun\(run, args\.passes, args\.findings, args\.promptStore\)\.findings[\s\S]*?rawFindings\.set\(finding\.id, finding\)/.test(epochText),
     `${epochPath}: exact inventory aggregate must include signed current purpose-bound critic discoveries without lane promotion`,
   );
   assert(
@@ -5055,6 +5055,23 @@ function assertReviewInventoryRemediationContract() {
     /sameTerminal[\s\S]*verifyReviewPass[\s\S]*idempotent retry[\s\S]*conflicting terminal pass/.test(idempotentFindingHandlerText),
     'packages/main/src/handlers/finding.ts: review-pass terminal writes must be strongly idempotent and reject semantic conflicts',
   );
+  const passAst = ts.createSourceFile('finding.ts', idempotentFindingHandlerText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const passFunction = passAst.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'recordReviewPass');
+  let authenticatedRetryBlock = false;
+  const visitPassBlock = node => {
+    if (ts.isBlock(node)) {
+      const declarations = node.statements.flatMap((statement, index) => ts.isVariableStatement(statement)
+        ? statement.declarationList.declarations.map(declaration => ({ declaration, index })) : []);
+      const auth = declarations.find(({ declaration }) => ts.isIdentifier(declaration.name) && declaration.name.text === 'nativeEvidenceBinding'
+        && declaration.initializer && ts.isCallExpression(declaration.initializer)
+        && ts.isIdentifier(declaration.initializer.expression) && declaration.initializer.expression.text === 'issueDirectReviewAuthority');
+      const terminal = declarations.find(({ declaration }) => ts.isIdentifier(declaration.name) && declaration.name.text === 'sameTerminal');
+      if (auth && terminal && auth.index < terminal.index) authenticatedRetryBlock = true;
+    }
+    ts.forEachChild(node, visitPassBlock);
+  };
+  if (passFunction) visitPassBlock(passFunction);
+  assert(authenticatedRetryBlock, 'review_pass_set must authenticate direct authority in the same execution block before terminal retry selection');
   const agentsDocText = read('AGENTS.md');
   const storyLifecycleText = read('docs/requirements/decisions/story-lifecycle.md');
   const testingInfraText = read('docs/requirements/decisions/testing-infra.md');
@@ -7236,6 +7253,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(!providerRegistryText.includes('Best effort: a later acquire reclaims this slot'), 'provider slot release must not suppress registry-lock failure');
 
   const deliveryAuthorityText = read('packages/main/src/core/delivery-review-authority.ts');
+  assert(deliveryAuthorityText.includes("DELIVERY_REVIEW_LANE = 'proof-or-stop-review-delivery'"), 'delivery dispatch and native provenance must use the registered canonical lane');
   for (const token of ['deliveryReviewDispatchBindingDigest', 'authorizeNativeDeliveryReview', 'issueNativeReviewEvidenceBinding']) {
     assert(deliveryAuthorityText.includes(token), `packages/main/src/core/delivery-review-authority.ts: required delivery broker token missing: ${token}`);
   }
@@ -7354,7 +7372,10 @@ function assertCurrentPromptIdentityBoundary() {
     'verifyReviewRunSignatureIntegrity',
     'hasOnlyKeys(run',
     'verifyReviewScopeBinding(run.scopeBinding)',
-    'reviewRunPromptUsesCurrentIdentityFamily(run)',
+    'reviewRunPromptUsesCurrentIdentityFamily(run, body)',
+    'readReviewPromptBody(promptStore.storyDirPath(run.storyId), run)',
+    'if (!verifyReviewRunSignatureIntegrity(run)) return false;',
+    'run.assembledPromptRef === run.promptHash',
   ]) {
     assert(reviewRun.includes(token), `review-run.ts: current signed ReviewRun boundary missing ${token}`);
   }
@@ -10618,6 +10639,12 @@ for (const path of ['packages/main/src/core/review-run.ts', 'packages/main/src/c
   assert(read(path).includes('.readReviewPrompt('), `${path}: prompt authority must explicitly hydrate body references`);
 }
 
+const reviewRunCasVerifier = read('packages/main/src/core/review-run.ts');
+for (const token of ["'assembledPromptRef'", 'run.assembledPromptRef === run.promptHash', 'readReviewPromptBody(promptStore.storyDirPath(run.storyId), run)', 'reviewRunPromptUsesCurrentIdentityFamily(run, body)']) {
+  assert(reviewRunCasVerifier.includes(token), `review run CAS authority contract missing: ${token}`);
+}
+assert(read('scripts/verify-review-run-prompt-cas.mjs').includes('missing physical body refused'), 'review run CAS requires real missing-body and signature regression coverage');
+
 assert(read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewInventoryMutationLock') && read('packages/main/src/core/prompt-body-gc.ts').includes('withReviewMetadataTicketLock'), 'prompt GC must serialize with prompt publication');
 assert(read('packages/main/src/handlers/review-inventory.ts').includes('collectOrphanPromptBodies'), 'prompt GC must have a registered production consumer');
 
@@ -10647,3 +10674,35 @@ assert(scanPromptProjectionConsumers('packages/main/src').length === 0, 'all pro
 
 assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('verifyTestValidationEvidence'), 'TEST admission must authenticate the complete PASS before selecting its verification mode');
 assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageAdmitted'), 'dynamic aggregate reuse must consume verified logical coverage without altering actual execution counts');
+
+
+// Canonical journal authority is checked at both producer and consumer, including
+// authentic signed old-domain negatives (not merely broken-signature fixtures).
+{
+  const schema = read('packages/main/src/core/artifact-schema.ts');
+  for (const [name, value] of [
+    ['ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA', 'proof-or-stop.acceptance_amendment.v1'],
+    ['ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA', 'proof-or-stop.acceptance_amendments.v1'],
+    ['EFFECTIVE_PROGRESS_SCHEMA', 'proof-or-stop.effective_progress.v1'],
+    ['CONVERGENCE_PROGRESS_JOURNAL_SCHEMA', 'proof-or-stop.convergence_progress_journal.v1'],
+  ]) assert(schema.includes(`export const ${name} = '${value}' as const`), `Canonical journal constant missing ${name}`);
+  const amendment = read('packages/main/src/core/acceptance-amendment-journal.ts');
+  for (const token of ['schemaVersion: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA', 'schemaVersion: ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA',
+    'entry.schemaVersion !== ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA', 'journal.schemaVersion !== ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA',
+    'verifyValidationArtifact(journalClaims, journalSignature, root)', 'verifyValidationArtifact(claims, signature, root)'])
+    assert(amendment.includes(token), `Amendment canonical signed boundary missing ${token}`);
+  const progress = read('packages/main/src/core/convergence-progress-journal.ts');
+  for (const token of ['schemaVersion: CONVERGENCE_PROGRESS_JOURNAL_SCHEMA', 'journal.schemaVersion !== CONVERGENCE_PROGRESS_JOURNAL_SCHEMA', 'verifyValidationArtifact(claims, signature, root)', 'assessEffectiveProgress(journal.state, journal.state.snapshot)'])
+    assert(progress.includes(token), `Progress canonical signed boundary missing ${token}`);
+  assert(amendment.includes("assertCanonicalActiveIdentityBoundary({ boundaryId: 'canonical-journal-authority' })") && progress.includes("assertCanonicalActiveIdentityBoundary({ boundaryId: 'canonical-journal-authority' })"), 'journal business consumers must enforce identity without CLI preflight');
+  const effective = read('packages/main/src/core/convergence-effective-progress.ts');
+  assert(effective.includes('schemaVersion: EFFECTIVE_PROGRESS_SCHEMA') && effective.includes('prior.schemaVersion !== state.schemaVersion'), 'Nested progress must reject incompatible domains');
+  const store = read('packages/main/src/core/store.ts');
+  const outputReader = store.slice(store.indexOf('  causalEvidenceOutputPaths('), store.indexOf('  private recoverOrphanedCausalEvidenceReceipt('));
+  assert(outputReader.includes("index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'")
+    && outputReader.includes('verifyCausalEvidenceReceipt(receipt)')
+    && outputReader.includes('verified.get(key) === hash'), 'CAS output exemption must match canonical writer and authenticated exact receipt map');
+  const regression = read('scripts/verify-canonical-journal-authority.mjs');
+  for (const token of ['executeCausalEvidence', 'execFileSync(command.executable', 'CANONICAL_INDEX_WRITER_MUST_BE_RECOGNIZED', 'controller.propose', 'recordConvergenceProgress', 'signValidationArtifact(c,root)', 'acceptanceAmendmentBlocker', 'readConvergenceProgress'])
+    assert(regression.includes(token), `Canonical journal real producer regression missing ${token}`);
+}

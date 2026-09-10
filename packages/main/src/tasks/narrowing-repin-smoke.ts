@@ -17,7 +17,7 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -2083,6 +2083,37 @@ const CASES: SmokeCase[] = [
   ...CHK003_CASES,
 ];
 
+const NARROWING_WORKER_COUNT = 4;
+const SHARD_RESULT_PREFIX = 'NARROWING_SHARD_RESULT ';
+
+function runCaseShard(shardIndex: number, shardCount: number): Promise<{ status: number | null; output: string; caseIds: string[] }> {
+  return new Promise(resolveShard => {
+    const child = spawn(process.execPath, [fileURLToPath(import.meta.url), `--case-shard=${shardIndex}/${shardCount}`], {
+      cwd: process.cwd(),
+      env: process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const chunks: Buffer[] = [];
+    let bytes = 0;
+    let spawnError = '';
+    const collect = (chunk: Buffer) => {
+      bytes += chunk.length;
+      if (bytes <= 4 * 1024 * 1024) chunks.push(chunk);
+      else child.kill('SIGKILL');
+    };
+    child.stdout.on('data', collect);
+    child.stderr.on('data', collect);
+    child.once('error', error => { spawnError = String(error); });
+    child.once('close', status => {
+      const output = Buffer.concat(chunks).toString('utf8');
+      const marker = output.split('\n').find(line => line.startsWith(SHARD_RESULT_PREFIX));
+      let caseIds: string[] = [];
+      try { caseIds = marker ? JSON.parse(marker.slice(SHARD_RESULT_PREFIX.length)) : []; } catch { /* fail closed below */ }
+      resolveShard({ status: spawnError || bytes > 4 * 1024 * 1024 ? null : status, output, caseIds });
+    });
+  });
+}
+
 /** Keep a failure line short so a failing run cannot blow the output budget. */
 function briefly(e: unknown): string {
   const msg = e instanceof Error ? e.message : String(e);
@@ -2090,15 +2121,39 @@ function briefly(e: unknown): string {
   return firstLine.length > 240 ? `${firstLine.slice(0, 240)}...` : firstLine;
 }
 
-let failures = 0;
-for (const testCase of CASES) {
-  try {
-    await testCase.run();
-    console.log(`[PASS] ${testCase.id} ${testCase.desc}`);
-  } catch (e) {
-    failures += 1;
-    console.log(`[FAIL] ${testCase.id} ${testCase.desc} -- ${briefly(e)}`);
-  }
+const shardArg = process.argv.slice(2).find(arg => arg.startsWith('--case-shard='));
+if (process.argv.length > 2 && (process.argv.length !== 3 || !shardArg)) {
+  throw new Error('narrowing-repin-smoke accepts only one internal --case-shard=<index>/<count> argument');
 }
-console.log(`narrowing-repin-smoke: ${failures === 0 ? 'PASS' : 'FAIL'}`);
-if (failures > 0) process.exit(1);
+if (shardArg) {
+  const match = shardArg.match(/^--case-shard=(\d+)\/(\d+)$/);
+  if (!match) throw new Error('invalid narrowing case shard');
+  const shardIndex = Number(match[1]), shardCount = Number(match[2]);
+  if (shardCount !== NARROWING_WORKER_COUNT || shardIndex < 0 || shardIndex >= shardCount) throw new Error('unsupported narrowing case shard');
+  let failures = 0;
+  const completedCaseIds: string[] = [];
+  for (const [index, testCase] of CASES.entries()) {
+    if (index % shardCount !== shardIndex) continue;
+    try {
+      await testCase.run();
+      completedCaseIds.push(testCase.id);
+      console.log(`[PASS] ${testCase.id} ${testCase.desc}`);
+    } catch (e) {
+      failures += 1;
+      console.log(`[FAIL] ${testCase.id} ${testCase.desc} -- ${briefly(e)}`);
+    }
+  }
+  console.log(`${SHARD_RESULT_PREFIX}${JSON.stringify(completedCaseIds)}`);
+  if (failures > 0) process.exitCode = 1;
+} else {
+  const results = await Promise.all(Array.from({ length: NARROWING_WORKER_COUNT }, (_, index) => runCaseShard(index, NARROWING_WORKER_COUNT)));
+  for (const result of results) process.stdout.write(`${result.output.split('\n').filter(line => !line.startsWith(SHARD_RESULT_PREFIX)).join('\n')}\n`);
+  const completedCaseIds = results.flatMap(result => result.caseIds);
+  const completed = new Set(completedCaseIds);
+  const complete = results.every(result => result.status === 0)
+    && completed.size === CASES.length
+    && completedCaseIds.length === CASES.length
+    && CASES.every(testCase => completed.has(testCase.id));
+  console.log(`narrowing-repin-smoke: ${complete ? 'PASS' : 'FAIL'}`);
+  if (!complete) process.exitCode = 1;
+}

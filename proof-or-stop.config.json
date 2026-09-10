@@ -3210,6 +3210,11 @@
         "timeoutMs": 180000,
         "resources": [
           {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
@@ -3261,6 +3266,7 @@
         "label": "B-aa5f CHK-007: real authenticated inventory observation, reexecution/reuse compatibility, tamper rejection and independent cutoff regression",
         "command": "node",
         "args": [
+          "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/review-inventory-epoch-smoke.js"
         ],
         "timeoutMs": 180000,

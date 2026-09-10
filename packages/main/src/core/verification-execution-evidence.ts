@@ -1,3 +1,5 @@
+import { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
+export { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'child_process';
 import { createHash, createPublicKey, randomBytes, randomUUID } from 'crypto';
@@ -57,7 +59,7 @@ export const VERIFICATION_ASSERTION_RECEIPT_V2 = 'proof-or-stop.verification-ass
 export const VERIFICATION_RECEIPT_BUNDLE_VERSION = 'proof-or-stop.verification-receipt-bundle.v2' as const;
 export const VERIFICATION_RECEIPT_BUNDLE_V3 = 'proof-or-stop.verification-receipt-bundle.v3' as const;
 export const VERIFICATION_RECEIPT_BUNDLE_V4 = 'proof-or-stop.verification-receipt-bundle.v4' as const;
-export const VERIFICATION_RECEIPT_BUNDLE_V5 = 'proof-or-stop.verification-receipt-bundle.v5' as const;
+
 const VERIFICATION_PUBLICATION_BINDING_V1 = 'proof-or-stop.verification-publication-binding.v1' as const;
 export const VERIFICATION_RECEIPT_BUNDLE_BINDING_V1 = 'proof-or-stop.verification-receipt-bundle-binding.v1' as const;
 export const VERIFICATION_REUSE_RECEIPT_VERSION = 'proof-or-stop.verification-reuse-receipt.v1' as const;

@@ -1,3 +1,5 @@
+import { ACCEPTANCE_REVIEW_FINAL_SCHEMA } from '../core/acceptance-amendment-review.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import type { AgentDispatchMutationCommand } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -31,11 +33,13 @@ export function createAcceptanceAmendmentHandlers(ctx: HandlerContext, reviewDep
       return JSON.stringify({ ...result, ...(commitHint ? { commitHint } : {}) });
     },
     async acceptance_amendment_review(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' }) {
+      assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       authorize('acceptance_amendment_review', args, ['storyId', 'amendmentId', 'host']);
       // Do not commit the key pin after capturing reviewer HEAD: its signed journal is already durable.
       return JSON.stringify(await controller(args.storyId).startReview(args, reviewDeps));
     },
     acceptance_amendment_approve(args: { storyId: string; amendmentId: string }) {
+      assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       authorize('acceptance_amendment_approve', args, ['storyId', 'amendmentId']);
       let commitHint: string | undefined;
       const result = controller(args.storyId).approve(args, () => {

@@ -34,7 +34,14 @@ const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
 async function eventually(predicate: () => Promise<boolean>, message: string, timeoutMs = 2_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (await predicate()) return;
+    try {
+      if (await predicate()) return;
+    } catch (error) {
+      // A read-only status projection refuses the writer's publication window.
+      // Let the existing supervisor finish it within this same fixed deadline.
+      if (!(error instanceof Error)
+        || !/^managed host run [A-Za-z0-9_-]+: snapshot\/event recovery pending; supervisor recovery required$/u.test(error.message)) throw error;
+    }
     await new Promise(resolve => setTimeout(resolve, 10));
   }
   throw new Error(message);

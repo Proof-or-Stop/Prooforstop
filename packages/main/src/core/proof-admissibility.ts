@@ -5,7 +5,6 @@ import {
   prepareVerificationExecutionIdentity,
   validateVerificationReceipt,
   verificationReceiptHasCurrentReuseAuthority,
-  VERIFICATION_RECEIPT_BUNDLE_V5,
 } from './verification-execution-evidence.js';
 import {
   checkStrictVerificationEvidenceFreshnessForGit,
@@ -21,6 +20,7 @@ import {
  */
 
 import {
+  VERIFICATION_RECEIPT_BUNDLE_V5,
   DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
   isDoneRequiredEvidenceVersionedSchema,
 } from './artifact-schema.js';

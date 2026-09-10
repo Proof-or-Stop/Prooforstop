@@ -59,7 +59,7 @@ try {
   // closed, but for the wrong reason, which is exactly what the assertion exists
   // to distinguish.
   withNativeReviewFixtureHostIdentity({
-    agent: 'lattice-review-delivery',
+    agent: 'proof-or-stop-review-delivery',
     host: 'codex',
     invoke: () => createStoryDispatchHandlers(ctx).dispatch({
       storyId,
@@ -75,18 +75,18 @@ try {
     adapterAgent: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT,
   };
   try {
-    process.env.PROOF_OR_STOP_AGENT = 'lattice-review-delivery';
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-delivery';
     process.env.PROOF_OR_STOP_SESSION_ID = 'raw-delivery-reviewer-session';
     process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
     process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK = 'raw-delivery-reviewer-task';
-    process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT = 'lattice-review-delivery';
+    process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT = 'proof-or-stop-review-delivery';
     resetSessionIdForTest();
 
     const handlers = createDeliveryCheckHandlers(ctx);
     assert.throws(
       () => handlers.delivery_check_set({
         storyId,
-        agentId: 'lattice-review-delivery',
+        agentId: 'proof-or-stop-review-delivery',
         docsPromises: [],
         realMachineTests: [],
         closingSelfCheck: {
@@ -107,7 +107,7 @@ try {
       storyId,
       invoke: () => handlers.delivery_check_set({
         storyId,
-        agentId: 'lattice-review-delivery',
+        agentId: 'proof-or-stop-review-delivery',
         docsPromises: [],
         realMachineTests: [],
         closingSelfCheck: {
@@ -120,10 +120,21 @@ try {
     });
     assert.match(saved, /Delivery check saved/);
     const delivery = store.readDeliveryCheck(storyId);
-    assert.equal(delivery?.agentId, 'lattice-review-delivery');
+    assert.equal(delivery?.agentId, 'proof-or-stop-review-delivery');
     assert.ok(delivery?.nativeEvidenceBinding, 'delivery check persists the broker evidence binding it consumed');
     assert.equal(evaluateDeliveryCheckFreshness(storyId, store, root, root).ok, true,
       'canonical delivery dispatch preserves valid broker provenance at the DONE reader');
+    const canonicalDelivery = structuredClone(delivery!);
+    for (const field of ['agent', 'lane'] as const) {
+      const retired = structuredClone(canonicalDelivery);
+      retired.nativeEvidenceBinding = { ...retired.nativeEvidenceBinding!, [field]: 'lattice-review-delivery' };
+      store.writeDeliveryCheck(storyId, retired);
+      retired._hash = recomputeDeliveryCheckHash(storyId, store)!;
+      store.writeDeliveryCheck(storyId, retired);
+      assert.equal(evaluateDeliveryCheckFreshness(storyId, store, root, root).ok, false,
+        `retired delivery ${field} cannot acquire broker authority through a recomputed public hash`);
+    }
+    store.writeDeliveryCheck(storyId, canonicalDelivery);
     const originalHash = delivery!._hash;
     delivery!.nativeEvidenceBinding = { ...delivery!.nativeEvidenceBinding!, brokerId: 'forged-broker' };
     store.writeDeliveryCheck(storyId, delivery!);

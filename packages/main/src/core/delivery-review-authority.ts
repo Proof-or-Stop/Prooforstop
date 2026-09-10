@@ -8,7 +8,7 @@ import { issueNativeReviewEvidenceBinding, type NativeReviewDispatchAuthority } 
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
 
-export const DELIVERY_REVIEW_LANE = 'lattice-review-delivery' as const;
+export const DELIVERY_REVIEW_LANE = 'proof-or-stop-review-delivery' as const;
 
 export interface VerifiedDeliveryReviewDispatch {
   invocationId: string;
@@ -40,13 +40,7 @@ export function verifyCurrentDeliveryReviewDispatch(args: {
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
     && candidate.targetKind === 'delivery-review'
-    // B-137a main-merge fix: dispatch records the CANONICAL agentType
-    // (`proof-or-stop-review-delivery`), while DELIVERY_REVIEW_LANE is the
-    // retired alias. A literal comparison therefore never matched any recorded
-    // dispatch, so every delivery-review provenance check reported "no trusted
-    // delivery-review dispatch event exists" -- breaking the TEST->DONE
-    // delivery gate. Compare through the canonical role identity so both
-    // spellings resolve to the same lane.
+    // Active dispatch identity must resolve to the registered canonical lane.
     && agentRoleIdsEqual(String(candidate.agentType ?? ''), DELIVERY_REVIEW_LANE));
   if (!event) return { ok: false, reason: 'no trusted delivery-review dispatch event exists' };
   const hostRenderHost = event.hostRenderHost;

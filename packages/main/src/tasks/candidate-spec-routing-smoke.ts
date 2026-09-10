@@ -1,3 +1,4 @@
+import { resetSessionIdForTest } from '../core/owner-session.js';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -67,6 +68,12 @@ function proposal(storyId: string, digest: string): HostKeywordProposal {
 }
 
 export async function runCandidateSpecRoutingSmoke(): Promise<void> {
+  // Explicit fixture host context survives validation sanitization; actor fields stay untouched.
+  const previousHostSession = process.env.PROOF_OR_STOP_SESSION_ID;
+  const previousHostProvider = process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+  process.env.PROOF_OR_STOP_SESSION_ID = `fixture-dispatch-host-${process.pid}`;
+  process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+  resetSessionIdForTest();
   const root = fixtureRoot();
   try {
     const first = buildCorpusIndex(root);
@@ -913,6 +920,11 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     console.log('candidate-spec-routing smoke: PASS');
   } finally {
+    if (previousHostSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+    else process.env.PROOF_OR_STOP_SESSION_ID = previousHostSession;
+    if (previousHostProvider === undefined) delete process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+    else process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = previousHostProvider;
+    resetSessionIdForTest();
     rmSync(root, { recursive: true, force: true });
   }
 }

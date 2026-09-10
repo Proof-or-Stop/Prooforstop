@@ -62,7 +62,7 @@ assert.throws(()=>validate(receipt,${JSON.stringify(selector)},${JSON.stringify(
     const receiptPath = join(temporary,'port.json');
     invoke('packages/main/dist/tasks/full-suite-fixed-port-os-collision.js',['--out',receiptPath]);
     const receipt = JSON.parse(readFileSync(receiptPath,'utf8'));
-    assert.equal(receipt.schema,'lattice.fixed-port-os-collision.v1');
+    assert.equal(receipt.schema,'proof-or-stop.fixed-port-os-collision.v1');
     assert.equal(receipt.capability,'detected'); assert.equal(receipt.normalBind,'PASS');
     assert.equal(receipt.collision.code,'EADDRINUSE'); assert.equal(receipt.collision.status,'TERMINAL_FAIL');
     assert.equal(receipt.cleanupRebind,'PASS'); assert.equal(receipt.overallStatus,'PASS');

@@ -1,3 +1,4 @@
+import { EFFECTIVE_PROGRESS_SCHEMA } from './artifact-schema.js';
 /** Pure comparison of verifier-owned progress snapshots, shared by stall and burn consumers. */
 export interface EffectiveProgressSnapshot {
   /** Ordered completed epochs validated by the inventory owner before collection. */
@@ -12,7 +13,7 @@ export interface EffectiveProgressSnapshot {
   phaseAdvanceOrdinal: number;
 }
 export interface EffectiveProgressState {
-  schemaVersion: 'proofbound.effective_progress.v1';
+  schemaVersion: typeof EFFECTIVE_PROGRESS_SCHEMA;
   snapshot: EffectiveProgressSnapshot;
   epochBaseline: EffectiveProgressSnapshot;
   /** Historical completed outcomes; live progress may release their block before the next completion. */
@@ -48,7 +49,7 @@ export function assessEffectiveProgress(prior: EffectiveProgressState | null, cu
     missingRequired: current.missingRequired, blockingSignature: current.blockingSignature, materialHash: current.materialHash,
     currentPassLanes: [...current.currentPassLanes].sort(), phaseAdvanceOrdinal: current.phaseAdvanceOrdinal,
   };
-  const state: EffectiveProgressState = { schemaVersion: 'proofbound.effective_progress.v1', snapshot,
+  const state: EffectiveProgressState = { schemaVersion: EFFECTIVE_PROGRESS_SCHEMA, snapshot,
     epochBaseline: structuredClone(snapshot), stagnantEpochIds: [], stablePassProgress: [] };
   if (!prior) return { decision: 'continue', progressReasons: [], state };
   validate(prior.snapshot); validate(prior.epochBaseline);

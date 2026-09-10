@@ -2003,12 +2003,7 @@ try {
 
     // Text rendering
     const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
-    // B-137a main-merge fix: the schema literal is `lattice.dispatch_watch.v1`
-    // (core/proof-or-stop-dispatch.ts:389,3810 -- all 40 schema strings there keep
-    // the `lattice.` prefix deliberately, because renaming a schema version would
-    // invalidate stored evidence). unattended-dispatch-smoke asserts the same
-    // literal. The `proofOrStop.` prefix appears nowhere in production code.
-    assert.match(watchText, /lattice\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+    assert.match(watchText, /proof-or-stop\.dispatch_watch\.v1/, 'dispatch_watch text must include the same canonical schema as JSON');
     assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
   }
 

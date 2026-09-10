@@ -592,6 +592,29 @@ function recordReviewPass(
     if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
       throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
     }
+    // Authenticate every invocation, including an otherwise idempotent retry.
+    // B-3b05 CHK-002: writer-session provenance. Resolve the writing session
+    // identity, compare it against the current story owner lease session, and
+    // persist writerSessionId + sessionSource into the versioned signature
+    // domain. Enforce mode rejects BEFORE anything is persisted; warn mode
+    // (default) flags + warns; no lease → record identity only. The flag is
+    // AUDIT-ONLY — canPassReviewGuard and every other blocking gate ignore it.
+    const writerIdentity = getSessionIdentity();
+    const ownerLease = readOwnerLease(ctx.store.storyDirPath(storyId));
+    const provenanceMode = resolveReviewPassProvenanceMode(loadConfig(ctx.root).reviewPassProvenance);
+    const provenance = evaluateReviewPassProvenance({
+      command,
+      writer: writerIdentity,
+      leaseSessionId: ownerLease?.sessionId ?? null,
+      mode: provenanceMode,
+    });
+    if (provenance.rejection) {
+      throw new Error(provenance.rejection);
+    }
+    if (provenance.warning) {
+      process.stderr.write(`⚠ ${provenance.warning}\n`);
+    }
+    const nativeEvidenceBinding = issueDirectReviewAuthority(ctx, reviewRun);
     const semanticKey = digestCandidateRoutingValue({
       storyId,
       reviewRound,
@@ -644,28 +667,6 @@ function recordReviewPass(
       throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
     }
     const createdAt = new Date().toISOString();
-    // B-3b05 CHK-002: writer-session provenance. Resolve the writing session
-    // identity, compare it against the current story owner lease session, and
-    // persist writerSessionId + sessionSource into the versioned signature
-    // domain. Enforce mode rejects BEFORE anything is persisted; warn mode
-    // (default) flags + warns; no lease → record identity only. The flag is
-    // AUDIT-ONLY — canPassReviewGuard and every other blocking gate ignore it.
-    const writerIdentity = getSessionIdentity();
-    const ownerLease = readOwnerLease(ctx.store.storyDirPath(storyId));
-    const provenanceMode = resolveReviewPassProvenanceMode(loadConfig(ctx.root).reviewPassProvenance);
-    const provenance = evaluateReviewPassProvenance({
-      command,
-      writer: writerIdentity,
-      leaseSessionId: ownerLease?.sessionId ?? null,
-      mode: provenanceMode,
-    });
-    if (provenance.rejection) {
-      throw new Error(provenance.rejection);
-    }
-    if (provenance.warning) {
-      process.stderr.write(`⚠ ${provenance.warning}\n`);
-    }
-    const nativeEvidenceBinding = issueDirectReviewAuthority(ctx, reviewRun);
     const pass = {
       id,
       agent,
