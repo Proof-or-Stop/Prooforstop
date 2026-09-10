@@ -1,5 +1,39 @@
 # Changelog
 
+## Lab b03b7-identity-lineage-review-gaps - v0.3.298 - 2026-09-10
+
+# B-03b7 identity and historical-lineage integration
+
+## Problem
+
+The latest local main did not contain the B-03b7 Finding Identity and Historical Lineage commands or implementation. During independent review of the completed candidate, F-028 and its test-coverage duplicate F-029 identified a critical catalog omission: a canonical identity contribution that existed only in another active Story's signed Git worktree was ignored when the main and caller mirrors were empty. The prior F-026 repair correctly removed direct parsing of protected ledger files, but its mirror-only precheck made the foreign active contributor invisible.
+
+## Change
+
+This Lab integrates the bounded non-metadata B-03b7 implementation candidate and adds a regression that creates distinct real linked worktrees, writes a signed canonical-defect probe only in the foreign active Story worktree, and queries it from another worktree. `StoryStore` now supports a repository-relative trusted Story-directory override sourced from existing metadata authority. Identity catalog discovery uses the signed-workspace resolver plus this Store port to inspect the resolved ledger without directly parsing protected storage or loading unrelated runtime configuration. Full workspace context is loaded only after the Store probe proves that the foreign worktree contributes a requested identity record kind.
+
+The Lab integration is engineering provenance, not formal Story DONE evidence. B-03b7 lifecycle metadata, review credentials, findings, receipts, and other `.proof-or-stop` Story artifacts are not imported into main by this release.
+
+## RED and GREEN
+
+The Lab RED replay used the committed multi-worktree smoke and required the marker `F028_FOREIGN_ACTIVE_CATALOG`. Before the repair, 29 controls passed and the single target assertion failed because the foreign signed contributor was absent. The Lab GREEN replay executed the exact same command and reported 30 passing, 0 failed.
+
+## Verification
+
+- `npm --prefix packages/main run build` passed.
+- The exact Lab GREEN command passed with 30/30 multi-worktree candidate checks.
+- `node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery` passed 91/91 candidate, route, progress, scorecard, supersession, historical query, recall, and linked-worktree checks.
+- `node scripts/verify-process-fact-contract.mjs` passed.
+- The frozen benchmark remains a fixture measurement: 64 baseline manual operations versus 51 grouped operations. It is not an elapsed-time or production-workload claim; joint grouping-plus-batch qualification remains assigned to B-e6d9.
+
+## Scope
+
+The repair is limited to B-03b7 identity/history code, its existing CLI/docs/config registration, and the new active-worktree regression. The unrelated low-severity unused-import/local-variable cleanup reported as F-030 remains separately traceable and is not included merely to make the repository cosmetically green.
+
+Maintenance provenance: codex/lab-b03b7-identity-lineage-review-gaps, repair 5eeb957d3b37fd767e782095d844eb7eb2c5aefc.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/finding-identity-lineage-smoke.js","--section=worktrees"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-inventory-retired-evidence-0296 - v0.3.297 - 2026-09-10
 
 # Review inventory retired-evidence repair
