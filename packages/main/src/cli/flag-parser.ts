@@ -1,4 +1,4 @@
-import { z, ZodArray, ZodNumber, ZodOptional, type ZodType } from 'zod';
+import { z, ZodArray, ZodBoolean, ZodNumber, ZodOptional, type ZodType } from 'zod';
 
 /** Test entrypoint: accepts a JSON-described schema (string/number/boolean/array/object) and converts it to Zod internally. */
 export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown> {
@@ -21,6 +21,14 @@ export function normalizeFlagKey(key: string, schema: Record<string, ZodType>): 
 
 export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  const negatedBooleanKey = (rawKey: string): string | undefined => {
+    // Existing literal/camel-case fields (such as noSync) retain their meaning.
+    if (!rawKey.startsWith('no-') || schema[normalizeFlagKey(rawKey, schema)]) return;
+    const key = normalizeFlagKey(rawKey.slice(3), schema);
+    let type: unknown = schema[key];
+    while (type instanceof ZodOptional) type = type._def.innerType;
+    return type instanceof ZodBoolean ? key : undefined;
+  };
   const arrayKeys = new Set(
     Object.entries(schema).filter(([, t]) => {
       const inner = t instanceof ZodOptional ? (t as any)._def.innerType : t;
@@ -36,10 +44,22 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
       // --key=value or --key value or --flag (boolean)
       const eqIdx = arg.indexOf('=');
       if (eqIdx > 0) {
+        if (negatedBooleanKey(arg.slice(2, eqIdx))) {
+          throw new Error(`${arg.slice(0, eqIdx)} accepts no value; use the positive flag with =true or =false.`);
+        }
         const key = normalizeFlagKey(arg.slice(2, eqIdx), schema);
         const val = arg.slice(eqIdx + 1);
         addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
       } else {
+        const negatedKey = negatedBooleanKey(arg.slice(2));
+        if (negatedKey) {
+          if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
+            throw new Error(`${arg} accepts no value; use --${arg.slice(5)}=true or =false.`);
+          }
+          result[negatedKey] = false;
+          i++;
+          continue;
+        }
         const key = normalizeFlagKey(arg.slice(2), schema);
         // Next argument is not a flag, so treat it as the value.
         if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
