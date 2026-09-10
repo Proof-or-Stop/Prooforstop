@@ -24,6 +24,7 @@ const functions = names.map(name => {
   assert.ok(fn, name); return fn.getText(ast);
 }).join('\n');
 const imports = { ...fs, execFileSync, join, createHash };
+delete imports.default;
 const snapshot = new Function(...Object.keys(imports), functions + '\nreturn snapshotPublicOperationState;')(...Object.values(imports));
 const root = join(temporary, 'private'); fs.mkdirSync(root);
 const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] });
