@@ -16,16 +16,19 @@ const selected = ['git', 'snapshotGitMaterial'].map(name => {
   assert.ok(fn, `Missing actual ${name}`); return fn.getText(ast);
 }).join('\n');
 const imports = { execFileSync, join, lstatSync: fs.lstatSync, readFileSync: fs.readFileSync, readlinkSync: fs.readlinkSync, createHash };
-const snapshot = new Function(...Object.keys(imports), selected + '\nreturn snapshotGitMaterial;')(...Object.values(imports));
+const actual = new Function(...Object.keys(imports), selected + '\nreturn { snapshotGitMaterial, git };')(...Object.values(imports));
+const snapshot = actual.snapshotGitMaterial;
 const root = fs.mkdtempSync(join(tmpdir(), 'proof-or-stop-snapshot-paths-'));
 const runGit = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const hash = value => createHash('sha256').update(value).digest('hex');
 const rows = [];
+const rawProtocolRows = [];
 try {
   runGit(['init', '-q']);
   for (const name of [' leading.txt', 'plain.txt', '中文.txt', 'tab\tfile.txt', 'line\nfile.txt', 'quote"file.txt', 'slash\\file.txt', 'trailing.txt ']) {
     const file = join(root, name);
     fs.writeFileSync(file, 'before'); runGit(['add', '--', name]);
+    rawProtocolRows.push({ name, pass: actual.git(root, ['ls-files', '-z']) === `${name}\0` });
     const baseline = snapshot(root);
     const expectedBefore = `${name}\0${hash('before')}`;
     const stat = fs.statSync(file);
@@ -43,7 +46,8 @@ try {
   fs.symlinkSync('missing-target', join(root, '符号\tlink'));
   rows.push({ name: 'dangling-symlink', pass: snapshot(root).includes(`符号\tlink\0symlink:${hash('missing-target')}`) });
   const failed = rows.filter(r => r.pass === false || r.presentBefore === false || r.presentAfter === false || r.mutationDetected === false);
-  console.log(JSON.stringify({ rows, failures: failed.length }, null, 2));
-  assert.equal(failed.length, 0, 'IDENTITY_SNAPSHOT_PATH_RED: a valid Git filename was missed by the protected-state oracle');
+  const rawFailures = rawProtocolRows.filter(r => !r.pass);
+  console.log(JSON.stringify({ rows, failures: failed.length, rawProtocolRows, rawFailures: rawFailures.length }, null, 2));
+  assert.equal(failed.length + rawFailures.length, 0, 'IDENTITY_SNAPSHOT_PATH_RED: a valid Git filename was missed by the protected-state oracle');
   console.log('IDENTITY_SNAPSHOT_PATH_GREEN');
 } finally { fs.rmSync(root, { recursive: true, force: true }); }
