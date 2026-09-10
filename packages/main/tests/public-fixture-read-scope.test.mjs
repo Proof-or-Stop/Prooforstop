@@ -17,6 +17,8 @@ const declarations = ast.statements.filter(node =>
   (ts.isFunctionDeclaration(node) && functions.includes(node.name?.text)) ||
   (ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'INERT_PUBLIC_FIXTURE_LOG_SUBTREE')),
 ).map(node => node.getText(ast)).join('\n');
+// publicFixtureProjection is intentionally optional: the pre-repair builder
+// has no such helper and must reach the same behavioral RED assertion.
 for (const name of ['git', 'snapshotGitMaterial', 'createPublicOperationClone']) assert.ok(declarations.includes(`function ${name}(`));
 const seed = fs.mkdtempSync(path.join(tmpdir(), 'proof-or-stop-fixture-read-scope-seed-'));
 const fixtureRoots = [];
@@ -90,9 +92,10 @@ try {
     } finally { fs.writeFileSync(absolute, bytes);fs.utimesSync(absolute, stat.atime, stat.mtime); }
     assert.equal(actual.snapshot(clone), baseline);
   }
-  const observedReadBytes = Object.keys(seedFiles).filter(name => fs.lstatSync(path.join(clone, name), { throwIfNoEntry: false })?.isFile()).reduce((n, name) => n + fs.statSync(path.join(clone, name)).size, 0);
-  console.log(JSON.stringify({ rows, retained: retained.length, creationControls, retainedMutationControls, observedReadBytes, expectedReadBytes: retained.reduce((n,name)=>n+Buffer.byteLength(seedFiles[name]),0) }, null, 2));
+  const materializedTrackedBytes = Object.keys(seedFiles).filter(name => fs.lstatSync(path.join(clone, name), { throwIfNoEntry: false })?.isFile()).reduce((n, name) => n + fs.statSync(path.join(clone, name)).size, 0);
+  console.log(JSON.stringify({ rows, retained: retained.length, creationControls, retainedMutationControls, materializedTrackedBytes, expectedTrackedBytes: retained.reduce((n,name)=>n+Buffer.byteLength(seedFiles[name]),0) }, null, 2));
   assert.ok(rows.every(row => row.absent), 'PUBLIC_FIXTURE_HISTORY_READ_BUDGET_RED: unused Story history or retired cache remains materialized');
+  assert.equal(materializedTrackedBytes, retained.reduce((n,name)=>n+Buffer.byteLength(seedFiles[name]),0), 'Materialized tracked byte budget must match the independent retained seed');
   assert.equal(creationControls, expectedOmitted.length * 3, 'All omitted categories must have actual write detection controls');
   console.log('PUBLIC_FIXTURE_HISTORY_READ_BUDGET_GREEN');
 } finally {
