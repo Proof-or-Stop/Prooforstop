@@ -1,5 +1,8 @@
 {
-  "managedReviewIsolation": {"mode": "readonly-build", "adapter": "prooforstop-main-v1"},
+  "managedReviewIsolation": {
+    "mode": "readonly-build",
+    "adapter": "prooforstop-main-v1"
+  },
   "scanRoot": "packages/main",
   "rootDir": "src",
   "outDir": "packages/main/dist",
@@ -2615,6 +2618,14 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "label": "validation-static-edges",
+        "command": "node",
+        "args": [
+          "scripts/verify-validation-static-edges.mjs"
+        ],
+        "timeoutMs": 60000
       }
     ],
     "evidenceCommandTimeoutOverrides": [
@@ -5659,7 +5670,8 @@
           "scripts/verify-managed-terminal-cleanup-failure-bite.mjs",
           "scripts/verify-supervised-provider-boundaries.mjs",
           "scripts/verify-supervised-provider-control.mjs",
-          "scripts/verify-supervised-provider-worker-exit.mjs"
+          "scripts/verify-supervised-provider-worker-exit.mjs",
+          "scripts/verify-u08-supervised-readiness.mjs"
         ],
         "hostAdapters": [
           "codex",
@@ -6720,6 +6732,7 @@
           "scripts/lab/u09-paired-fault/module-pair.mjs",
           "scripts/lab/u09-paired-fault/run.mjs",
           "scripts/lab/u09-paired-fault/selector-pair.mjs",
+          "scripts/lab/u18-static-edges/exceptions.json",
           "scripts/migrate-fixture-reform-v2.mjs",
           "scripts/migrate-fixture-reform.mjs",
           "scripts/precert-fast-case.mjs",
@@ -6767,6 +6780,8 @@
           "scripts/verify-validation-catalog.mjs",
           "scripts/verify-validation-inventory.mjs",
           "scripts/verify-validation-reuse-proof-boundaries.mjs",
+          "scripts/verify-validation-static-edge-boundaries.mjs",
+          "scripts/verify-validation-static-edges.mjs",
           "scripts/verify-watchdog-activity.mjs",
           "tests/blackbox/.gitkeep",
           "tests/fixtures/.gitkeep",
@@ -6835,7 +6850,8 @@
           "prov-d52f888a405319932caa129442bcbc42e67a284324634bd0ebaa7911e0ab7bc5",
           "prov-df5c93214b6df4e3299a849e9424407d539e99db634014f73ffbfd7de3f687ee",
           "prov-f34087ad656aeb2da2efe91f8f6ee878cbb820e62049c13eb66d852836da5acb",
-          "prov-fd3bda9f509818e0fdbed9a77dafe9a2c508ff9101f5da4de3dc9bb95ffbc246"
+          "prov-fd3bda9f509818e0fdbed9a77dafe9a2c508ff9101f5da4de3dc9bb95ffbc246",
+          "prov-fe821719c297ee53943a486b3100df1252db9381294d0149a47774db325ecc03"
         ]
       },
       {

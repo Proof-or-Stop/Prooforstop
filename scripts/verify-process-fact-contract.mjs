@@ -8868,6 +8868,8 @@ const inventory = [
       {relPath:'packages/main/src/core/store.ts',patterns:['causalEvidenceOutputPaths','verifyCausalEvidenceReceipt(receipt)','verified.get(key) === hash']},
       {relPath:'scripts/verify-shared-receipt-publication.mjs',patterns:['new StoryStore(root)','dirty material cannot consume a shared receipt']},
       {relPath:'scripts/verify-flat-provider-validation.mjs',patterns:['canonical validation must not launch another registered command','canonical coverage union must retain']},
+      {relPath:'scripts/verify-validation-static-edges.mjs',patterns:['exception dependency coverage missing or changed','source parse diagnostics','U18_STATIC_','configDrift','staleExceptions']},
+      {relPath:'scripts/verify-validation-static-edge-boundaries.mjs',patterns:['omitted caller dependency refused','removed canonical flag reveals nested suite','source drift invalidates exception']},
       {relPath:'scripts/verify-liveness-validation-union.mjs',patterns:['U18_LIVENESS_UNION_REQUIRED','U18_NESTED_REGISTERED_MEMBER','provider-codex F181 independent child CLI boundary PASS']},
       {relPath:'scripts/verify-convergence-net-progress.mjs',patterns:['verified blocker reduction must not be classified as a stall','canMintReviewRoundGuard(ctx)']},
       {relPath:'scripts/verify-shared-output-boundary.mjs',patterns:['truncated capture must never become reusable evidence','receipt digest binds complete captured output','exactly 12000 complete characters remain reusable']},

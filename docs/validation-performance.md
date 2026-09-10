@@ -266,7 +266,7 @@ arguments, emits stdout/stderr, and fails on a negative-control argument. This
 retains executor observation without rerunning the envelope suite. Its default
 entry preserves the original complete pipeline invocation and receipt.
 
-The bounded U18 static audit of the 146 configured entries also retains these
+The U18 static audit of the configured command array retains these
 property executions explicitly:
 
 | Parent | Retained execution | Reason |
@@ -279,7 +279,7 @@ property executions explicitly:
 
 These executions are paired property controls, not independent repeated baseline
 suite obligations. The runtime nesting witness covers the eleven changed
-canonical parents; the static inventory review covers all 146 entries. Neither
+canonical parents; the static inventory review covers the whole configured array. Neither
 is a claim that the entire production workload has been benchmarked.
 
 Managed execution now starts an independent detached recovery supervisor and
@@ -343,3 +343,28 @@ registered tool-source identities do not have to recreate them. Existing final
 full-validation requirements remain unchanged. The six paired fault witnesses
 under `scripts/lab/u09-paired-fault` measure bounded functional detection and
 command selection, not population noninferiority or external LLM review quality.
+
+## Whole-array nested execution guard
+
+Routine validation now registers `scripts/verify-validation-static-edges.mjs`.
+It inspects every configured entry (153 at adoption), expands the supported npm
+script forms and follows bounded fixture/helper imports. Unsupported expansion,
+source parse errors and unresolved child executable/arguments require review.
+The evaluator recognizes imported child-process APIs and simple aliases, and
+resolves path helpers only when bound to their Node builtin imports.
+
+`scripts/lab/u18-static-edges/exceptions.json` records 185 individually reviewed
+call contexts for private mutants, positive controls, explicit worker modes and
+unreachable suite branches. Each binds its exact config index, call, source and
+all traversed caller/helper/package bytes; the whole command array is also bound.
+New edges, missing dependency keys and changed sources/configuration fail closed.
+Refreshing these pins requires renewed review; the checker never refreshes them.
+This retains the CHK011 three-run seed property and real atomic build/read races.
+
+`node scripts/verify-validation-static-edge-boundaries.mjs` tests the public
+checker against temporary source/config fixtures: hidden aliases, mutable argv,
+package children, malformed source, false builtin identities, removed canonical
+flags, reviewed exceptions and caller/source/config drift. These static checks
+complement the eleven-parent and seven-member runtime witnesses. They are a
+bounded syntax and reviewed-call guard, not a proof of arbitrary JavaScript
+call-graph completeness or production wall-time improvement.
