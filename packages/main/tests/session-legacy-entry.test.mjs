@@ -1,4 +1,5 @@
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {mkdtempSync,readFileSync,writeFileSync,mkdirSync,rmSync,realpathSync} from 'node:fs';
 import {join,resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -16,7 +17,7 @@ try {
  for(const name of ['proof-or-stop','proof-or-stop-codex']) {
   const good=invoke(['exec',manifest,'--',name,'--version']);assert.equal(good.status,0,good.stderr);
   const witnesses=good.stderr.split('\n').filter(x=>x.startsWith('IMPLEMENTATION_SESSION_WITNESS ')).map(x=>JSON.parse(x.slice('IMPLEMENTATION_SESSION_WITNESS '.length)));
-  assert.ok(witnesses.some(x=>x.entrypoint.endsWith('/'+name+'.js')&&x.argvDigest));
+  assert.ok(witnesses.some(x=>x.entrypoint.endsWith('/'+name+'.js')&&x.argvDigest===createHash('sha256').update(JSON.stringify(['--version'])).digest('hex')));
   console.log('PASS approved actual entry '+name);
  }
  const generic=invoke(['exec',manifest,'--',process.execPath,'-e','console.log("ordinary-node-ok")']);assert.equal(generic.status,0,generic.stderr);assert.match(generic.stdout,/ordinary-node-ok/);
