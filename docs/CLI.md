@@ -65,6 +65,13 @@ are unaffected. Internal stdout consumers that `JSON.parse` a bare command are
 also preserved in brief mode: `finding_list` keeps `findings[].evidenceState`
 and `attention.suspected`; `story_list` keeps `_bugSummary`.
 
+`story_list --active` includes REVIEW along with the other non-terminal lifecycle
+phases (including legacy test phases). Explicit `--active` and `--phase` filters
+use the resolved workspace phase before reading row details. They do not inspect
+excluded Stories' checklist, bug, test-evidence or metrics details; use the
+unfiltered listing for the complete dashboard and its full-population totals.
+A filtered listing is not an integrity audit of excluded Stories.
+
 ### Non-silent filtering
 
 When brief mode filters a listing to its actionable subset, it always emits the
