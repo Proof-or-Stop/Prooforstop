@@ -759,6 +759,18 @@
         "args": [
           "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
         ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          }
+        ],
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
@@ -2998,6 +3010,7 @@
           "packages/main/src/tasks/grill-planning-artifact-smoke.ts",
           "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
           "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "scripts/verify-material-hash-resource-plan.mjs",
           "packages/main/src/tasks/pinn-claim-admissibility-smoke.ts",
           "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
           "packages/main/src/tasks/project-gitroot-cwd-smoke.ts",
