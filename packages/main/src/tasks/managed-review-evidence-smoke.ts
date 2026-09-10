@@ -41,7 +41,9 @@ import {
   verifyManagedReviewLiveBinding,
   type ManagedReviewExpectedBinding,
 } from '../core/managed-review-evidence.js';
-import { reviewerHostRenderIdentity, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { promptRoleContract, reviewerHostRenderIdentity, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
@@ -65,9 +67,9 @@ import { createManagedReviewEvidenceHandlers } from '../handlers/managed-review-
 import { createHostRunHandlers, type HostRunDetachResult } from '../handlers/host-run.js';
 
 const STORY_ID = 'B-managed-evidence';
-const LANE = 'lattice-review-quality';
+const LANE = 'proof-or-stop-review-quality';
 const REVIEW_RUN_ID = `${STORY_ID}:RR-001`;
-const CONCEPT_LANE = 'lattice-review-concept';
+const CONCEPT_LANE = 'proof-or-stop-review-concept';
 const CONCEPT_REVIEW_RUN_ID = `${STORY_ID}:RR-002`;
 const REVIEW_ROUND = '2026-08-14T00:00:00.000Z';
 const SELF = fileURLToPath(import.meta.url);
@@ -219,10 +221,10 @@ function seedReviewStory(
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     promptEnvelope: {
-      version: 'proofbound.prompt-envelope-rollout.v1',
+      version: 'proof-or-stop.prompt-envelope-rollout.v1',
       roles: {
-        [LANE]: 'legacy-full-context',
-        [CONCEPT_LANE]: 'legacy-full-context',
+        [LANE]: 'full-envelope',
+        [CONCEPT_LANE]: 'full-envelope',
       },
     },
     nativeReviewInvocation: {
@@ -273,7 +275,7 @@ function seedReviewStory(
   store.writeChecklist(STORY_ID, checklist);
   const dispatchPrompt = 'Perform the exact native-host review for this story.';
   const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
-  const hostIdentity = reviewerHostRenderIdentity(root, LANE, 'codex', 'legacy-full-context');
+  const hostIdentity = reviewerHostRenderIdentity(root, LANE, 'codex', 'full-envelope');
   const dispatchBindingDigest = reviewerDispatchBindingDigest({
     storyId: STORY_ID,
     lane: LANE,
@@ -294,9 +296,9 @@ function seedReviewStory(
     dispatchBindingDigest,
   });
 
-  const legacy = resolvePromptRoleBody(LANE, {
-    version: 'proofbound.prompt-envelope-rollout.v1',
-    roles: { [LANE]: 'legacy-full-context' },
+  const currentRoleBody = resolvePromptRoleBody(LANE, {
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
+    roles: { [LANE]: 'full-envelope' },
   });
   const headHash = currentGitHead(root)!;
   const materialHash = currentMaterialHash(root)!;
@@ -311,7 +313,7 @@ function seedReviewStory(
     headHash,
     materialHash,
     storyFilesHash,
-    promptHash: hashReviewPrompt(legacy.body),
+    promptHash: hashReviewPrompt(currentRoleBody.body),
     _hash: signReviewRun(
       STORY_ID,
       REVIEW_RUN_ID,
@@ -321,12 +323,13 @@ function seedReviewStory(
       REVIEW_ROUND,
       headHash,
       materialHash,
-      hashReviewPrompt(legacy.body),
+      hashReviewPrompt(currentRoleBody.body),
       undefined,
       undefined,
       storyFilesHash,
     ),
   };
+  bindCurrentReviewEnvelope(root, store, run);
   store.writeReviewRuns(STORY_ID, { runs: [run] });
   refreshCandidateArtifact(root, store, options.candidateRoutingMode ?? 'shadow');
   return {
@@ -340,10 +343,40 @@ function seedReviewStory(
   };
 }
 
-function addLegacyReviewRun(root: string, store: StoryStore, lane: string, reviewRunId: string): ReviewRun {
+/** Test-owned current envelope producer; broker authority and managed seals remain real. */
+function bindCurrentReviewEnvelope(root: string, store: StoryStore, run: ReviewRun): ReviewRun {
+  const dispatch = [...store.readProcessEvents(run.storyId)].reverse().find(event =>
+    event.type === 'dispatch' && event.agentType === run.lane && event.reviewRound === run.reviewRound);
+  if (!dispatch || typeof dispatch.dispatchPrompt !== 'string' || typeof dispatch.dispatchBindingDigest !== 'string'
+    || typeof dispatch.hostRenderIdentityDigest !== 'string') throw new Error('fixture requires a current bound dispatch');
+  const assembly = assembleFullPromptEnvelope({
+    roleContract: promptRoleContract(run.lane), runtimeContract: BASELINE_RUNTIME_CONTRACT,
+    rolePrompt: resolvePromptRoleBody(run.lane, {
+      version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [run.lane]: 'full-envelope' },
+    }).body,
+    taskContext: buildFullTaskContext({ story: store.readStory(run.storyId), checklist: store.readChecklist(run.storyId),
+      headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash }),
+    dispatchKind: 'review-run', reviewRunId: run.reviewRunId, reviewRound: run.reviewRound, lane: run.lane,
+    dispatchPrompt: dispatch.dispatchPrompt, hostRenderIdentityDigest: dispatch.hostRenderIdentityDigest,
+    reviewerDispatchBindingDigest: dispatch.dispatchBindingDigest,
+    launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest: dispatch.dispatchBindingDigest, hostRenderHost: 'codex' },
+    createdAt: run.startedAt,
+  });
+  run.envelopeId = assembly.envelope.envelopeId;
+  run.assembledPrompt = assembly.prompt;
+  run.promptHash = assembly.envelope.assembledPromptDigest;
+  run._hash = signReviewRun(run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
+    run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash, run.workspaceBinding?.bindingHash,
+    run.storyFilesHash, run.envelopeId, run.reviewerEscalationReason, run.reviewPurpose, run.inventoryBinding);
+  const prior = store.readPromptEnvelopes(run.storyId);
+  store.writePromptEnvelopes(run.storyId, { envelopes: [...prior.envelopes.filter(item => item.envelopeId !== run.envelopeId), assembly.envelope] });
+  return run;
+}
+
+function addCurrentReviewRun(root: string, store: StoryStore, lane: string, reviewRunId: string): ReviewRun {
   const dispatchPrompt = `Perform the exact native-host review for ${lane}.`;
   const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
-  const hostIdentity = reviewerHostRenderIdentity(root, lane, 'codex', 'legacy-full-context');
+  const hostIdentity = reviewerHostRenderIdentity(root, lane, 'codex', 'full-envelope');
   const dispatchBindingDigest = reviewerDispatchBindingDigest({
     storyId: STORY_ID,
     lane,
@@ -363,9 +396,9 @@ function addLegacyReviewRun(root: string, store: StoryStore, lane: string, revie
     hostRenderIdentityDigest: hostIdentity.identityDigest,
     dispatchBindingDigest,
   });
-  const legacy = resolvePromptRoleBody(lane, {
-    version: 'proofbound.prompt-envelope-rollout.v1',
-    roles: { [lane]: 'legacy-full-context' },
+  const currentRoleBody = resolvePromptRoleBody(lane, {
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
+    roles: { [lane]: 'full-envelope' },
   });
   const headHash = currentGitHead(root)!;
   const materialHash = currentMaterialHash(root)!;
@@ -380,7 +413,7 @@ function addLegacyReviewRun(root: string, store: StoryStore, lane: string, revie
     headHash,
     materialHash,
     storyFilesHash,
-    promptHash: hashReviewPrompt(legacy.body),
+    promptHash: hashReviewPrompt(currentRoleBody.body),
     _hash: signReviewRun(
       STORY_ID,
       reviewRunId,
@@ -390,12 +423,13 @@ function addLegacyReviewRun(root: string, store: StoryStore, lane: string, revie
       REVIEW_ROUND,
       headHash,
       materialHash,
-      hashReviewPrompt(legacy.body),
+      hashReviewPrompt(currentRoleBody.body),
       undefined,
       undefined,
       storyFilesHash,
     ),
   };
+  bindCurrentReviewEnvelope(root, store, run);
   const reviewRuns = store.readReviewRuns(STORY_ID);
   store.writeReviewRuns(STORY_ID, { runs: [...reviewRuns.runs, run] });
   return run;
@@ -775,6 +809,7 @@ async function assertManagedImportRejectsLiveMaterialDrift(brokerPublicKey: stri
         undefined, undefined, snapshotStoryFiles,
       ),
     };
+    bindCurrentReviewEnvelope(driftRoot, store, updatedRun);
     store.writeReviewRuns(STORY_ID, { runs: [updatedRun] });
     // Create the managed run while the signed review tuple still names the
     // canonical HEAD. The negative control is about import-time live material
@@ -846,7 +881,7 @@ async function assertManagedImportAllowsSameMaterialMetadataAdvance(brokerPublic
   try {
     const { store } = seedReviewStory(metadataRoot, brokerPublicKey);
     git(metadataRoot, ['checkout', '-b', 'story/managed-import-metadata-advance']);
-    addLegacyReviewRun(metadataRoot, store, CONCEPT_LANE, CONCEPT_REVIEW_RUN_ID);
+    addCurrentReviewRun(metadataRoot, store, CONCEPT_LANE, CONCEPT_REVIEW_RUN_ID);
     refreshCandidateArtifact(metadataRoot, store, 'shadow');
     const completeReceipt = async (lane: string, reviewRunId: string): Promise<{ runId: string; receiptId: string }> => {
       const hostHandlers = createHostRunHandlers(
@@ -1163,6 +1198,7 @@ async function main(): Promise<void> {
         _hash: signReviewRun(STORY_ID, reviewRunId, LANE, LANE, REVIEW_ROUND,
           REVIEW_ROUND, headHash, materialHash, run.promptHash, undefined, undefined, storyFilesHash),
       };
+      bindCurrentReviewEnvelope(root, store, attempt);
       store.writeReviewRuns(STORY_ID, { runs: [...store.readReviewRuns(STORY_ID).runs, attempt] });
       return attempt;
     };
@@ -1171,45 +1207,13 @@ async function main(): Promise<void> {
       console.log('managed-review-evidence descriptor-proposal-transport PASS');
       return;
     }
-    const legacyDocsRun: ReviewRun = {
-      ...run,
-      reviewRunId: `${REVIEW_RUN_ID}-legacy-docs`,
-      agent: 'lattice-review-docs',
-      lane: 'lattice-review-docs',
-      promptHash: hashReviewPrompt(resolvePromptRoleBody('lattice-review-docs', {
-        version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { 'lattice-review-docs': 'legacy-full-context' },
-      }).body),
-    };
-    const legacyDocsManagedPrompt = buildManagedReviewerPrompt(root, legacyDocsRun);
-    // F-182: a signed pre-envelope ReviewRun keeps its exact legacy body when
-    // a later project rollout changes the docs lane to full-envelope.
-    write(root, 'proof-or-stop.config.json', JSON.stringify({
-      scanRoot: 'packages/main', rootDir: 'src', storyDir: PROOF_OR_STOP_STORY_DIR, requirementsDir: 'docs/requirements',
-      workflow: { profile: 'balanced' },
-      promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { 'lattice-review-docs': 'full-envelope' },
-      },
-    }));
-    resetConfigCache();
-    assert.equal(
-      buildManagedReviewerPrompt(root, legacyDocsRun),
-      legacyDocsManagedPrompt,
-      'legacy managed review prompt is reconstructed from its signed frozen role body, not the current docs rollout mode',
-    );
-    write(root, 'proof-or-stop.config.json', JSON.stringify({
-      scanRoot: 'packages/main', rootDir: 'src', storyDir: PROOF_OR_STOP_STORY_DIR, requirementsDir: 'docs/requirements',
-      workflow: { profile: 'balanced' },
-      promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { [LANE]: 'legacy-full-context' },
-      },
-      nativeReviewInvocation: {
-        brokers: [{ brokerId: 'smoke-codex-broker', adapterId: 'codex-desktop', host: 'codex', publicKey: brokerKeys.publicKey }],
-      },
-    }));
-    resetConfigCache();
+    // Current full-only authority rejects a pre-envelope run; legacy reconstruction
+    // is no longer an allowed positive path. Preserve the actual broker config.
+    const preEnvelopeRun: ReviewRun = { ...run, envelopeId: undefined, assembledPrompt: undefined,
+      promptHash: hashReviewPrompt('retired pre-envelope fixture body') };
+    assert.throws(() => buildManagedReviewerPrompt(root, preEnvelopeRun),
+      /managed reviewer requires a current canonical full-envelope ReviewRun; pre-envelope runs must be renewed/,
+      'managed reviewer must reject missing current envelope instead of reconstructing legacy authority');
     await assertManagedImportAllowsSameMaterialMetadataAdvance(brokerKeys.publicKey);
     await assertManagedImportRejectsLiveMaterialDrift(brokerKeys.publicKey);
     await assertManagedImportRejectsLateLiveMaterialDrift(brokerKeys.publicKey);
@@ -1380,14 +1384,14 @@ async function main(): Promise<void> {
         gateCoveredSeparately?: boolean;
       };
       const mutationCases: MutationCase[] = [
-        { name: 'agent', mutateIntake: value => ({ ...value, providerAgent: 'lattice-review-concept' }), mutateBinding: value => ({ ...value!, providerAgent: 'lattice-review-concept' }) },
+        { name: 'agent', mutateIntake: value => ({ ...value, providerAgent: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, providerAgent: 'proof-or-stop-review-concept' }) },
         {
           name: 'story',
           mutateIntake: value => ({ ...value, storyId: 'B-cross-story' }),
           mutateBinding: value => value!,
           gateCoveredSeparately: true,
         },
-        { name: 'lane', mutateIntake: value => ({ ...value, lane: 'lattice-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'lattice-review-concept' }) },
+        { name: 'lane', mutateIntake: value => ({ ...value, lane: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'proof-or-stop-review-concept' }) },
         { name: 'reviewRun', mutateIntake: value => ({ ...value, reviewRunId: `${STORY_ID}:RR-999` }), mutateBinding: value => ({ ...value!, reviewRunId: `${STORY_ID}:RR-999` }) },
         { name: 'provider', mutateIntake: value => ({ ...value, expected: { ...value.expected, providerHost: 'claude' } }), mutateBinding: value => ({ ...value!, providerHost: 'claude' }) },
         { name: 'head', mutateIntake: value => ({ ...value, expected: { ...value.expected, headHash: 'other-head' } }), mutateBinding: value => ({ ...value!, headHash: 'other-head' }) },
@@ -1860,8 +1864,8 @@ async function main(): Promise<void> {
     // stopped testing anything. Use the canonical names the guard actually reads.
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     const previousRole = process.env.PROOF_OR_STOP_ACTIVITY_ROLE;
-    process.env.PROOF_OR_STOP_AGENT = 'lattice-review-test-coverage';
-    process.env.PROOF_OR_STOP_ACTIVITY_ROLE = 'lattice-review-test-coverage';
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-test-coverage';
+    process.env.PROOF_OR_STOP_ACTIVITY_ROLE = 'proof-or-stop-review-test-coverage';
     try {
       assert.throws(
         () => f100Findings.finding_resolve({
@@ -2077,7 +2081,8 @@ async function main(): Promise<void> {
     // fake-Codex fd-3 transport assertion. Do not let transport setup obscure
     // an evaluator mutation's intended boundary.
     if (!evaluatorMutationBoundary) {
-    const descriptorReviewRunId = newAttempt('descriptor').reviewRunId;
+    const descriptorReviewRun = newAttempt('descriptor');
+    const descriptorReviewRunId = descriptorReviewRun.reviewRunId;
     const fakeBin = join(root, PROOF_OR_STOP_DIR, 'runtime', 'fake-provider-bin');
     mkdirSync(fakeBin, { recursive: true });
     const fakeCodex = join(fakeBin, 'codex');
@@ -2134,11 +2139,11 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
         PROOF_OR_STOP_USAGE_LEDGER: '0',
       },
       reviewBinding: {
-        headHash: run.headHash,
-        materialHash: run.materialHash,
-        storyFilesHash: run.storyFilesHash ?? '',
-        promptHash: run.promptHash,
-        envelopeId: run.envelopeId ?? null,
+        headHash: descriptorReviewRun.headHash,
+        materialHash: descriptorReviewRun.materialHash,
+        storyFilesHash: descriptorReviewRun.storyFilesHash ?? '',
+        promptHash: descriptorReviewRun.promptHash,
+        envelopeId: descriptorReviewRun.envelopeId ?? null,
       },
     }, {
       launchWorker: descriptorLauncher,
@@ -2358,7 +2363,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     for (const [name, environment] of [
       ['missing capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE }],
       ['forged capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE, LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'forged-same-uid-capability' }],
-      ['wrong provider agent', { ...forgedTargetEnvironment!, PROOF_OR_STOP_AGENT: 'lattice-review-concept' }],
+      ['wrong provider agent', { ...forgedTargetEnvironment!, PROOF_OR_STOP_AGENT: 'proof-or-stop-review-concept' }],
     ] as const) {
       assert.throws(
         () => writeManagedReviewEvidenceProposal({ root, runId: forgeryRun.run.runId, environment, proposal: forgedProposal }),
@@ -2552,14 +2557,14 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       gateCoveredSeparately?: boolean;
     };
     const mutationCases: MutationCase[] = [
-      { name: 'agent', mutateIntake: value => ({ ...value, providerAgent: 'lattice-review-concept' }), mutateBinding: value => ({ ...value!, providerAgent: 'lattice-review-concept' }) },
+      { name: 'agent', mutateIntake: value => ({ ...value, providerAgent: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, providerAgent: 'proof-or-stop-review-concept' }) },
       {
         name: 'story',
         mutateIntake: value => ({ ...value, storyId: 'B-cross-story' }),
         mutateBinding: value => value!,
         gateCoveredSeparately: true,
       },
-      { name: 'lane', mutateIntake: value => ({ ...value, lane: 'lattice-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'lattice-review-concept' }) },
+      { name: 'lane', mutateIntake: value => ({ ...value, lane: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'proof-or-stop-review-concept' }) },
       { name: 'reviewRun', mutateIntake: value => ({ ...value, reviewRunId: `${STORY_ID}:RR-999` }), mutateBinding: value => ({ ...value!, reviewRunId: `${STORY_ID}:RR-999` }) },
       { name: 'provider', mutateIntake: value => ({ ...value, expected: { ...value.expected, providerHost: 'claude' } }), mutateBinding: value => ({ ...value!, providerHost: 'claude' }) },
       { name: 'head', mutateIntake: value => ({ ...value, expected: { ...value.expected, headHash: 'other-head' } }), mutateBinding: value => ({ ...value!, headHash: 'other-head' }) },
@@ -2634,7 +2639,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     });
     store.writeChecklist(crossStoryId, store.readChecklist(STORY_ID));
     const crossDispatchPrompt = 'Perform the exact native-host review for this story.';
-    const crossHostIdentity = reviewerHostRenderIdentity(root, LANE, 'codex', 'legacy-full-context');
+    const crossHostIdentity = reviewerHostRenderIdentity(root, LANE, 'codex', 'full-envelope');
     store.appendProcessEvent(crossStoryId, {
       type: 'dispatch',
       storyId: crossStoryId,
@@ -2671,8 +2676,9 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
         run.storyFilesHash,
       ),
     };
+    bindCurrentReviewEnvelope(root, store, crossRun);
     store.writeReviewRuns(crossStoryId, { runs: [crossRun] });
-    const crossPass = { ...structuredClone(originalPass), id: `${crossStoryId}:RP-001` };
+    const crossPass = { ...structuredClone(originalPass), id: `${crossStoryId}:RP-001`, envelopeId: crossRun.envelopeId };
     crossPass._hash = signReviewPass(
       crossStoryId,
       crossPass.id,
@@ -2991,8 +2997,8 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
 
     for (const [field, changed] of [
       ['storyId', 'B-other-story'],
-      ['agent', 'lattice-review-concept'],
-      ['lane', 'lattice-review-concept'],
+      ['agent', 'proof-or-stop-review-concept'],
+      ['lane', 'proof-or-stop-review-concept'],
       ['reviewRunId', `${STORY_ID}:RR-999`],
       ['writerSessionId', 'different-writer-session'],
       ['dispatchBindingDigest', `sha256:${'9'.repeat(64)}`],

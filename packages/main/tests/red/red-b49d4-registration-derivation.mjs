@@ -168,6 +168,21 @@
  * `sweepLegacyProbeDebris` remains only to clear marker-carrying debris a pre-fix
  * run may already have stranded in somebody's tree.
  *
+ * ── A MIRROR THE TARGETS CANNOT TELL FROM THE REPOSITORY ────────────────────
+ *
+ * A mirror that is faithful to the guard this file was written around is not
+ * automatically faithful to a guard derived into the target set later. The mirror
+ * is mostly symlinks, and a real directory holding symlinks reads as EMPTY to
+ * `readdirSync(…, { withFileTypes: true })`, which classifies a symlink as neither
+ * a file nor a directory. `red-1734-desktop-asset-manifest.mjs` derives the desktop
+ * asset manifest through exactly that call, so it saw no files under
+ * `packages/main/dist` — a directory forced to be real because BLOCK D materializes
+ * `packages/main/dist/tasks` — and failed here for a reason the mirror invented.
+ * Two things answer that: `hydrateDirs` reproduces such a tree as real directories
+ * of byte copies, and the pre-plant baseline now runs EVERY target rather than the
+ * two required ones, so `NEWCOMER_MIRROR_IS_FAITHFUL` fails when the mirror is what
+ * broke instead of leaving it to be read out of a clipped excerpt downstream.
+ *
  * ── SELF-INCLUSION ──────────────────────────────────────────────────────────
  *
  * The BLOCK C population is enumerated unfiltered, so THIS file and its receipt
@@ -181,7 +196,7 @@
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
  */
 import {
-  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync,
+  copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, readdirSync, realpathSync, rmSync, statSync,
   symlinkSync, writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -197,7 +212,8 @@ const repoRoot = join(pkgRoot, '..', '..');        // repository root
 const SELF = basename(fileURLToPath(import.meta.url));
 
 const RED_DIR_REL = 'packages/main/tests/red';
-const DIST_TASKS_REL = 'packages/main/dist/tasks';
+const MAIN_DIST_REL = 'packages/main/dist';
+const DIST_TASKS_REL = `${MAIN_DIST_REL}/tasks`;
 const SRC_TASKS_REL = 'packages/main/src/tasks';
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
@@ -300,47 +316,88 @@ const sweepLegacyProbeDebris = () => {
  * with the committed file is ASSERTED per target in BLOCK D rather than assumed.
  * Sub-directories inside a copied directory are symlinked, not copied.
  *
+ * `hydrateDirs` reproduces a whole sub-tree as REAL directories holding BYTE
+ * COPIES, because materializing a directory makes its PARENT real too, and a real
+ * directory full of symlinks is not faithful to every reader. `readdirSync(…,
+ * { withFileTypes: true })` classifies a symlink entry as neither `isFile()` nor
+ * `isDirectory()`, so a guard that enumerates that way sees an EMPTY directory
+ * where the repository has files. That is not hypothetical: materializing
+ * `packages/main/dist/tasks` forced `packages/main/dist` to be a real directory of
+ * symlinks, and `red-1734-desktop-asset-manifest.mjs` — which derives the desktop
+ * asset manifest by evaluating `listFiles()` out of `scripts/package-desktop.mjs`,
+ * and that function filters on exactly those two Dirent predicates — derived an
+ * EMPTY file list for `packages/main/dist` instead of the compiled tree the
+ * checkout holds, and failed inside the mirror for a reason that has nothing to do
+ * with the newcomer.
+ * Hydration is opt-in per directory rather than automatic, because "make every
+ * entry under every materialized ancestor real" reaches the repository root and
+ * would copy `node_modules` and every sibling worktree.
+ *
  * Guards are then executed through `--preserve-symlinks-main`: the main module
  * keeps its mirror path, so the guard resolves its repository root to the mirror
  * while running bytes that are identical to the committed file. A kill at any
  * moment can therefore strand nothing except a directory under `os.tmpdir()`,
  * which is outside every guarded population and cannot make any guard fail.
  */
-function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [] } = {}) {
-  const root = mkdtempSync(join(tmpdir(), prefix));
+function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [], copyTracked = false, copyTrees = [], hydrateDirs = [] } = {}) {
+  // Canonical argv paths keep nested ESM entrypoint detection faithful on macOS
+  // (/var is a symlink to /private/var); a preserved parent path must not make
+  // the child silently look like an import instead of a CLI invocation.
+  const root = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   const mustBeReal = new Set();
   const copied = new Set(copyDirs);
+  const tracked = new Set(copyTracked ? gitRead(repoRoot,['ls-files','-z']).toString('utf8').split('\0').filter(Boolean) : []);
+  const wholeTrees = new Set(copyTrees);
+  const hydrated = new Set(hydrateDirs);
   const addAncestors = (rel) => {
     const parts = rel.split('/');
     for (let i = 1; i < parts.length; i += 1) mustBeReal.add(parts.slice(0, i).join('/'));
   };
-  for (const rel of writableFiles) addAncestors(rel);
-  for (const rel of [...materializeDirs, ...copyDirs]) {
+  for (const rel of [...writableFiles,...tracked,...copyTrees]) addAncestors(rel);
+  for (const rel of [...materializeDirs, ...copyDirs, ...hydrateDirs]) {
     addAncestors(rel);
     mustBeReal.add(rel);
   }
   const skip = new Set(writableFiles);
-  const walk = (relDir) => {
+  const walk = (relDir, hydrating) => {
     const inCopiedDir = copied.has(relDir);
     for (const entry of readdirSync(relDir === '' ? repoRoot : join(repoRoot, relDir))) {
       const childRel = relDir === '' ? entry : `${relDir}/${entry}`;
       if (childRel === '.git' || skip.has(childRel)) continue;
       const src = join(repoRoot, childRel);
       const dest = join(root, childRel);
-      if (mustBeReal.has(childRel)) {
-        mkdirSync(dest);
-        walk(childRel);
+      if (wholeTrees.has(childRel)) { cpSync(src,dest,{recursive:true,dereference:true}); continue; }
+      if (tracked.has(childRel)) {
+        if (lstatSync(src).isSymbolicLink()) symlinkSync(readlinkSync(src),dest);
+        else copyFileSync(src,dest);
         continue;
       }
-      if (inCopiedDir && !statSync(src).isDirectory()) {
+      const childHydrating = hydrating || hydrated.has(childRel);
+      // Inside a hydrated sub-tree every directory is real and every file is a
+      // copy, so `withFileTypes` classification matches the repository exactly.
+      if (mustBeReal.has(childRel) || (childHydrating && statSync(src).isDirectory())) {
+
+        mkdirSync(dest);
+        walk(childRel, childHydrating);
+        continue;
+      }
+      if ((inCopiedDir || hydrating) && !statSync(src).isDirectory()) {
         copyFileSync(src, dest);
         continue;
       }
       symlinkSync(src, dest);
     }
   };
-  walk('');
+  walk('', false);
   initializePrivateGit(root, repoRoot);
+  if (copyTracked && gitText(root,['branch','--show-current']) !== 'main') {
+    // A copied self-host runtime needs a real PRIVATE main authority worktree,
+    // just as the source Lab has. Never borrow the real repository's admin.
+    const mainAuthority=join(root,'.worktrees','mirror-main-authority');
+    mkdirSync(dirname(mainAuthority),{recursive:true});
+    gitRead(root,['worktree','add','--quiet',mainAuthority,'main']);
+    assert.ok(realpathSync(gitText(mainAuthority,['rev-parse','--path-format=absolute','--git-common-dir'])).startsWith(realpathSync(root)+'/'));
+  }
   return root;
 }
 
@@ -482,17 +539,62 @@ const largestCount = (text) => {
   return ns.length === 0 ? null : Math.max(...ns);
 };
 
+/**
+ * BOUNDED CHILD EXECUTION (B-bcae F-054).
+ *
+ * BLOCK D spawns every derived target TWICE — the pre-plant baseline and the
+ * post-plant run — and several of those targets carry their own registered
+ * budgets, one of them equal to this file's. Nothing inside this guard used to
+ * bound a child: `spawnSync` was called with no timeout, so the only thing that
+ * could stop an over-budget aggregate was the OUTER validation killing this
+ * process mid-run. That surfaces as "the registration-derivation guard failed",
+ * not as budget exhaustion — precisely the misattribution the widened baseline
+ * exists to prevent, arriving through the mechanism the widening introduced.
+ *
+ * So spend a budget derived from THIS file's own registered row and fail with an
+ * attributable message when it runs out. Each child is capped by whichever is
+ * smaller: the budget still remaining, or that target's OWN registered timeout
+ * (so a target is never given less than it declares it needs while the aggregate
+ * still holds). A spawn attempted with nothing left returns a synthetic non-zero
+ * result naming the exhaustion rather than starting a process that cannot finish.
+ * With no registered row to read, the budget is unbounded and behaviour is
+ * unchanged — running this guard by hand is not budgeted by anything.
+ */
+const SPAWN_BUDGET_RESERVE_MS = 45_000;      // config parsing, mirror construction, digests, the report
+const UNREGISTERED_TARGET_TIMEOUT_MS = 120_000;
+let spawnBudgetRemainingMs = Infinity;
+let registeredTimeoutForRel = () => null;
+const spawnBudgetIncidents = [];
+
 let spawnMs = 0;
-function runNode(args, cwd = repoRoot) {
+function runNode(args, cwd = repoRoot, rel = null) {
+  if (spawnBudgetRemainingMs <= 0) {
+    const note = `SPAWN_BUDGET_EXHAUSTED: this guard's aggregate child-process budget ran out before `
+      + `${rel ?? args[args.length - 1]} could be spawned. The row below is a BUDGET result, not a `
+      + `verdict about that target`;
+    spawnBudgetIncidents.push(note);
+    return { status: 124, stdout: '', stderr: note, out: note, ms: 0 };
+  }
+  const timeout = Math.min(
+    spawnBudgetRemainingMs,
+    (rel === null ? null : registeredTimeoutForRel(rel)) ?? UNREGISTERED_TARGET_TIMEOUT_MS,
+  );
   const started = Date.now();
-  const r = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: localGitEnvironment() });
+  const r = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: localGitEnvironment(), timeout });
   const ms = Date.now() - started;
   spawnMs += ms;
+  spawnBudgetRemainingMs -= ms;
+  const timedOut = Boolean(r.error) && (r.error.code === 'ETIMEDOUT' || r.signal !== null);
+  const note = timedOut
+    ? `\nSPAWN_TIMEOUT: ${rel ?? args[args.length - 1]} was killed after ${ms}ms (cap ${timeout}ms). The row `
+      + `below is a BUDGET result, not a verdict about that target`
+    : '';
+  if (timedOut) spawnBudgetIncidents.push(note.trim());
   return {
-    status: r.status,
+    status: timedOut ? 124 : r.status,
     stdout: r.stdout ?? '',
-    stderr: r.stderr ?? '',
-    out: `${r.stdout ?? ''}${r.stderr ?? ''}`,
+    stderr: `${r.stderr ?? ''}${note}`,
+    out: `${r.stdout ?? ''}${r.stderr ?? ''}${note}`,
     ms,
   };
 }
@@ -517,18 +619,45 @@ function registeredTokens(cfg) {
   return tokens;
 }
 
+// Arm the spawn budget from the live registered rows (see the runNode block above).
+const registeredRowFor = (rel) => (config?.validate?.commands ?? [])
+  .find((entry) => entryArgv(entry).includes(rel));
+registeredTimeoutForRel = (rel) => {
+  const row = registeredRowFor(rel);
+  return row && typeof row.timeoutMs === 'number' && row.timeoutMs > 0 ? row.timeoutMs : null;
+};
+const SELF_REGISTERED_TIMEOUT_MS = registeredTimeoutForRel(`${RED_DIR_REL}/${SELF}`);
+spawnBudgetRemainingMs = SELF_REGISTERED_TIMEOUT_MS === null
+  ? Infinity
+  : Math.max(30_000, SELF_REGISTERED_TIMEOUT_MS - SPAWN_BUDGET_RESERVE_MS);
+
 /** Enumerate the dist red-evidence family under ANY root (the repo, or a mirror). */
 const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
 /** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
-// This receipt also carries independent historical invariance proofs. The
-// newcomer oracle needs its actual registration rule, not those nested suites.
-// The exact mode leaves source bytes unchanged and emits no full-proof marker.
-const runInMirror = (mirrorRoot, rel) => runNode([
-  '--preserve-symlinks-main', join(mirrorRoot, rel),
-  ...(rel === `${RED_DIR_REL}/red-b2aa7-chk007-receipt.mjs` ? ['--registration-only'] : []),
-], mirrorRoot);
+// Execute the actual configured argv for registered node harnesses. A selector-only
+// harness must not be misclassified as broken merely because this mirror dropped
+// its required arguments. Multiple registered variants all remain observable.
+function registeredNodeArgs(rel, configuration = config) {
+  const invocations = (configuration.validate?.commands ?? []).map(entryArgv)
+    .filter(argv => argv[0] === 'node' && (argv[1] === rel || (argv[1] === 'scripts/run-validation-fixture-suite.mjs' && argv[2] === rel)))
+    .map(argv => argv.slice(argv[1] === rel ? 2 : 3));
+  return invocations.length ? invocations : [[]];
+}
+assert.deepEqual(registeredNodeArgs('fixture.mjs', {validate:{commands:[
+  {command:'node',args:['fixture.mjs','--case=one']},
+  {command:'node',args:['fixture.mjs','--case=two']},
+]}}), [['--case=one'],['--case=two']], 'every configured selector variant must run');
+assert.deepEqual(registeredNodeArgs('unregistered.mjs',{validate:{commands:[]}}),[[]]);
+const runInMirror = (mirrorRoot, rel) => {
+  const runs = registeredNodeArgs(rel).map(configuredArgs => { const args = rel === `${RED_DIR_REL}/red-b2aa7-chk007-receipt.mjs` ? [...configuredArgs, '--registration-only'] : configuredArgs; return ({args,...runNode(['--preserve-symlinks-main', join(mirrorRoot, rel), ...args], mirrorRoot)}); });
+  const failed = runs.find(r=>r.status!==0);
+  // Preserve every command and result; any failed variant keeps the aggregate red.
+  return {status:failed ? failed.status : 0,variants:runs,
+    stdout:runs.map(r=>r.stdout).join('\n'),stderr:runs.map(r=>r.stderr).join('\n'),
+    out:runs.map(r=>r.out).join('\n'),ms:runs.reduce((sum,r)=>sum+r.ms,0)};
+};
 
 const gitStatusFor = (paths) => {
   try {
@@ -1089,22 +1218,36 @@ try {
   // against that mirror. The red directory is copied byte for byte so a guard's
   // own git-cleanliness check still passes; the dist task directory is
   // materialized so a target that plants its own probe there lands in the mirror
-  // rather than in the repository. Nothing here can strand a file in a guarded
-  // directory of the working tree.
+  // rather than in the repository. Materializing it also makes packages/main/dist
+  // real, so that whole tree is HYDRATED — a real directory of symlinks reads as
+  // empty to a `withFileTypes` enumeration, which is how a target came to fail in
+  // here for a reason of the mirror's own making. Nothing here can strand a file
+  // in a guarded directory of the working tree.
   let newcomerMirror = null;
   let targetRuns = [];
   let faithful = [];
   let byteMismatches = [];
   try {
     newcomerMirror = makeMirror('red-b49d4-newcomer-', {
+      // New selector-driven harnesses inspect the whole Git tree. Real tracked
+      // copies preserve modes and bound git-status output; private dist copies
+      // prevent any nested fixture from writing through a runtime symlink.
+      copyTracked: true,
+      copyTrees: ['packages/main/dist','packages/utils/dist','packages/lab/dist'],
       writableFiles: [NEWCOMER_REL],
       copyDirs: [RED_DIR_REL],
       materializeDirs: [DIST_TASKS_REL],
+      hydrateDirs: [MAIN_DIST_REL],
     });
 
-    // The mirror is faithful: both required guards pass BEFORE the newcomer is
-    // planted, so a catch below is attributable to the newcomer alone.
-    faithful = REQUIRED_NEWCOMER_TARGETS.map((rel) => ({ rel, ...runInMirror(newcomerMirror, rel) }));
+    // The mirror is faithful: EVERY guard that will be spawned passes BEFORE the
+    // newcomer is planted, so a catch below is attributable to the newcomer alone.
+    // This baseline used to cover only the two REQUIRED targets, which is why an
+    // unfaithful mirror could fail one of the other eight and be visible only as an
+    // unattributable verdict — a failure a reader had to diagnose by hand from a
+    // clipped 120-character excerpt. It is now the whole spawned set, so the mirror
+    // is what fails when the mirror is what broke.
+    faithful = targetRels.map((rel) => ({ rel, ...runInMirror(newcomerMirror, rel) }));
 
     writeFileSync(join(newcomerMirror, NEWCOMER_REL), newcomerBody, 'utf8');
 
@@ -1115,10 +1258,9 @@ try {
         return true;
       }
     });
-    targetRuns = targetRels.map((rel) => {
-      const r = runInMirror(newcomerMirror, rel);
-      return { rel, status: r.status, names: r.out.includes(NEWCOMER_BASE), ms: r.ms, out: r.out };
-    });
+    targetRuns = targetRels.flatMap((rel) => runInMirror(newcomerMirror, rel).variants.map(r => ({
+      rel, args:r.args, status:r.status, names:r.out.includes(NEWCOMER_BASE), ms:r.ms, out:r.out,
+    })));
   } finally {
     if (newcomerMirror !== null) rmSync(newcomerMirror, { recursive: true, force: true });
   }
@@ -1126,12 +1268,16 @@ try {
   const catchers = targetRuns.filter((t) => t.status !== 0 && t.names);
   const blindTargets = targetRuns.filter((t) => t.status === 0);
 
+  const unfaithful = faithful.filter((f) => f.status !== 0);
   row(
     'NEWCOMER_MIRROR_IS_FAITHFUL', 'D',
-    faithful.length === REQUIRED_NEWCOMER_TARGETS.length && faithful.every((f) => f.status === 0),
-    `before the newcomer was planted: ${faithful.map((f) => `${basename(f.rel)}(exit=${f.status})`).join(', ') || 'none run'}`,
-    'both required guards must pass inside the mirror before the newcomer is planted, or the mirror — not the '
-    + 'newcomer — is what failed them',
+    faithful.length === targetRels.length && targetRels.length > 0 && unfaithful.length === 0,
+    `all ${faithful.length} spawned target(s) run before the newcomer was planted: `
+    + `${faithful.map((f) => `${basename(f.rel)}(exit=${f.status})`).join(', ') || 'none run'}`
+    + `${unfaithful.length > 0 ? `; FAILED IN THE UNTOUCHED MIRROR: ${unfaithful.map((f) => `${basename(f.rel)} "${clip(f.out, 300)}"`).join(' | ')}` : ''}`,
+    'EVERY guard that will be spawned must pass inside the mirror before the newcomer is planted, or the mirror — '
+    + 'not the newcomer — is what failed it. A baseline narrower than the spawned set leaves the difference '
+    + 'diagnosable only by hand',
   );
   row(
     'NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS', 'D',
@@ -1145,11 +1291,15 @@ try {
     + 'the bytes executed for each target must be sha256-identical to the committed guard they stand for',
   );
   const unattributable = targetRuns.filter((t) => t.status !== 0 && !t.names);
+  // The pre-plant exit of the same target, so a mirror artefact is separated from a
+  // newcomer-driven failure in the row itself rather than by a later reader.
+  const preplantOf = (rel) => faithful.find((f) => f.rel === rel);
   row(
     'EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE', 'D',
     unattributable.length === 0,
     `targets that failed WITHOUT naming the newcomer: `
-    + `${unattributable.map((t) => `${basename(t.rel)}(exit=${t.status}, "${clip(t.out, 120)}")`).join(' | ') || 'none'}`,
+    + `${unattributable.map((t) => `${basename(t.rel)}(exit=${t.status}, pre-plant exit=`
+      + `${preplantOf(t.rel)?.status ?? 'not run'}, "${clip(t.out, 300)}")`).join(' | ') || 'none'}`,
     'a target may fail only because it saw the newcomer. A target failing for any other reason is an artefact of the '
     + 'mirror, and it would silently downgrade this block from "a derived guard is blind to the newcomer" to "a '
     + 'derived guard errored" while the rows above stayed GREEN',
@@ -1170,8 +1320,9 @@ try {
     observations.push(
       `NARROWED_ENUMERATION_MISSES_NEWCOMER — ${narrowed.map((t) => basename(t.rel)).join(', ')} derive their `
       + 'population from disk yet reported success with the newcomer sitting undecided in the same directory, because '
-      + 'their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the '
-      + 'whole population can only come from an UNFILTERED enumeration.',
+      + 'their enumeration is narrowed — by name, or to a population that is not this directory at all. Measured on '
+      + 'real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED '
+      + 'enumeration of it.',
     );
   }
 
@@ -1227,6 +1378,15 @@ for (const r of rows) {
   if (!r.green) console.log(`      required: ${r.required}`);
 }
 for (const note of observations) console.log(`  [OBS  ] ${note}`);
+// Report the budget every run, not only when it bites: a run that finished comfortably and a run that
+// finished by a hair read identically otherwise, and the second is the one about to become a false RED
+// attributed to a target (B-bcae F-054).
+console.log(
+  `  [BUDGET] registered row timeoutMs=${SELF_REGISTERED_TIMEOUT_MS ?? 'unregistered'}; `
+  + `child-process budget spent=${spawnMs}ms remaining=`
+  + `${spawnBudgetRemainingMs === Infinity ? 'unbounded' : `${Math.max(0, Math.round(spawnBudgetRemainingMs))}ms`}`
+  + `${spawnBudgetIncidents.length > 0 ? `; INCIDENTS: ${spawnBudgetIncidents.join(' | ')}` : ''}`,
+);
 console.log(`\n${red.length} RED / ${rows.length - red.length} GREEN of ${rows.length} rows (${spawnMs}ms in child processes)`);
 
 if (red.length > 0) {

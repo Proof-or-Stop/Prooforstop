@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 
 import { execFileSync, execSync } from 'child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
@@ -117,7 +118,7 @@ interface IntentFixtureLocation {
 
 const INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS = new Set([
   'proof-or-stop-review-story-init',
-  'product-reviewer',
+  'proof-or-stop-product-reviewer',
 ]);
 
 const STORY_LEVEL_SCOPE_FIELDS = ['title', 'description', 'source', 'depends'] as const;
@@ -457,7 +458,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
     story_get(args: StoryGetArgs): object {
       const cl = (() => {
-        try { return store.readChecklist(args.storyId); } catch { return { items: [] }; }
+        try { return store.readChecklist(args.storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); return { items: [] }; }
       })();
 
       const review = (() => {
@@ -554,7 +555,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const results = ids.map(id => {
         const { story, sourceStore, mainPhase } = readStoryProjection(id);
         const cl = (() => {
-          try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }
+          try { return sourceStore.readChecklist(id); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); return { items: [] }; }
         })();
         const bugs = sourceStore.readBugs(id);
         const evidence = sourceStore.readTestEvidence(id);

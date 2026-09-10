@@ -240,7 +240,7 @@ async function observeOverlap(plan, jobs) {
   ok('every configured command resolves to at least one claim', entries.every((entry) => entry.resources.length >= 1));
   const declared = entries.filter((entry) => !entry.exclusiveByDefault);
   const byDefault = entries.filter((entry) => entry.exclusiveByDefault);
-  ok('both paths are exercised by the real config', declared.length > 0 && byDefault.length > 0);
+  ok('every configured command has an explicit declaration for cross-worktree capacity', declared.length === commands.length && byDefault.length === 0);
   ok('every undeclared configured command is a single exclusive barrier claim',
     byDefault.every((entry) => entry.resources.length === 1 && isBarrier(entry.resources[0], 'exclusive')));
   ok('every declared configured command carries the shared barrier plus its own claims',
@@ -249,35 +249,67 @@ async function observeOverlap(plan, jobs) {
     new Set(entries.map((entry) => entry.name)).size === entries.length);
 
   const canonical = canonicalizeEntries(entries, repoRoot);
-  const overlappable = canonical.filter((entry) => !entry.exclusiveByDefault);
-  const barriers = canonical.filter((entry) => entry.exclusiveByDefault);
+  const overlappable = canonical.filter((entry) => !entry.resources.some(claim => isBarrier(claim, 'exclusive')));
+  const barriers = canonical.filter((entry) => entry.resources.some(claim => isBarrier(claim, 'exclusive')));
   ok('no configured command may overlap an undeclared one',
     barriers.every((barrier) => canonical.every((other) => other.name === barrier.name || claimsConflict(barrier, other))));
-  ok('the declared configured commands are mutually compatible',
-    overlappable.every((entry, i) => overlappable.slice(i + 1).every((other) => !claimsConflict(entry, other))));
+  const takesAdmission = entry => entry.resources.some(claim => claim.class === 'runtime-lock'
+    && claim.key === 'proof-or-stop-real-root-admission' && claim.access === 'exclusive');
+  ok('the configured plan retains at least two admission readers and independent readers',
+    overlappable.filter(takesAdmission).length >= 2 && overlappable.filter(entry => !takesAdmission(entry)).length >= 2);
+  ok('declared readers serialize exactly the audited admission pairs and otherwise remain compatible',
+    overlappable.every((entry, i) => overlappable.slice(i + 1).every((other) =>
+      claimsConflict(entry, other) === (takesAdmission(entry) && takesAdmission(other)))));
   console.log(`VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
 }
 
-// ── 7. CHK-005: commands the audit could NOT prove isolated stay barriers ───
-//
-// CHK-005 read every undeclared command's source and declared the ones that
-// write only inside a per-process temp root (`mkdtempSync` / `$TMPDIR/<name>-<pid>`)
-// or are provably read-only against the repository. The commands below were
-// examined and REFUSED a declaration: each one writes a repository-shared path,
-// so declaring it would let it run beside another command that reads or writes
-// the same path. This is a SUBSET check, not an equality check — a new
-// undeclared command is already safe by the fail-closed default and must not
-// fail this test — but re-declaring one of these must fail here, because the
-// evidence that made it a barrier is recorded here and nowhere else.
+// ── 7. Quorum keeps internal workers parallel and isolates outer writes ─────
+{
+  const configured = configuredValidationCommands(repoRoot);
+  const quorumRows = configured.filter((entry) => entry.command === 'node'
+    && Array.isArray(entry.args)
+    && entry.args.includes('packages/main/dist/tasks/quorum-submit-smoke.js'));
+  ok('the configured plan contains exactly one quorum-submit smoke row', quorumRows.length === 1);
+  const quorum = quorumRows[0];
+  const outerBarrier = { class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' };
+  const exactDeclaration = (entry) => entry.command === 'node'
+    && JSON.stringify(entry.args) === JSON.stringify([
+      'scripts/run-validation-fixture-suite.mjs',
+      'packages/main/dist/tasks/quorum-submit-smoke.js',
+      '--jobs=2',
+    ])
+    && JSON.stringify(entry.resources) === JSON.stringify([REPO_READ, outerBarrier]);
+  ok('quorum smoke selects jobs=2 with shared Git plus its exact protected-root barrier',
+    exactDeclaration(quorum));
+  const [resolved] = resolveValidationPlanEntries({ provider: 'b-e40f-quorum', commands: [quorum] });
+  ok('quorum retains its explicit outer barrier and shared Git access',
+    resolved.exclusiveByDefault === false
+      && resolved.resources.length === 3
+      && isBarrier(resolved.resources[0], 'shared')
+      && resolved.resources[1].class === REPO_READ.class
+      && resolved.resources[1].key === REPO_READ.key
+      && resolved.resources[1].access === REPO_READ.access
+      && isBarrier(resolved.resources[2], 'exclusive'));
+  const allEntries = canonicalizeEntries(resolveValidationPlanEntries({ provider: 'quorum-root-isolation', commands: configured }), repoRoot);
+  const quorumEntry = allEntries.find(entry => entry.name === resolved.name);
+  ok('quorum protected-root observation excludes every other local validation writer', quorumEntry
+    && allEntries.every(other => other.name === quorumEntry.name || claimsConflict(quorumEntry, other)));
+  ok('a wrong, missing or extra quorum claim is rejected by the exact declaration guard',
+    !exactDeclaration({ ...quorum, resources: [REPO_READ] })
+      && !exactDeclaration({ ...quorum, resources: [{ ...REPO_READ, access: 'exclusive' }, outerBarrier] })
+      && !exactDeclaration({ ...quorum, resources: [REPO_READ, { class: 'fixed-path', key: 'extra', access: 'exclusive' }] }));
+  console.log('VI-OK B-E40F-CHK005-QUORUM-EXACT-SHARED-CLAIM quorum smoke keeps internal jobs=2, shared Git and an exact outer protected-root barrier');
+}
+
+// ── 8. Audited local writers retain an effective exclusive barrier ──────
+// Explicit writer claims preserve local serialization and cross-worktree capacity.
 {
   const PROVEN_UNSAFE_TO_SHARE = new Map([
     ['npm --prefix packages/main run build',
       'rewrites packages/main/dist, the artifact every other node command in this plan executes'],
-    ['node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js',
-      'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
     ['node packages/main/dist/tasks/command-catalog-smoke.js',
       'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .proof-or-stop/activity.jsonl'],
-    ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js',
+    ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js --jobs=2',
       'the fixture wrapper isolates the machine registry, but does not declare repository resource isolation; retain the outer exclusive barrier'],
     ['node scripts/run-validation-fixture-suite.mjs packages/main/tests/red/red-b49d4-registration-derivation.mjs',
       'the fixture wrapper isolates nested scheduler leases, but the complete derivation still requires repository config cleanliness and guarded-tree stability; retain the outer exclusive barrier'],
@@ -296,7 +328,7 @@ async function observeOverlap(plan, jobs) {
   const argvOf = (command) => [command.command, ...(command.args ?? [])].join(' ');
   /** Every audited repo-shared writer in `commands` that has been given a claim. */
   const auditedBarrierRegressions = (commands) => commands
-    .filter((command) => PROVEN_UNSAFE_TO_SHARE.has(argvOf(command)) && Array.isArray(command.resources) && command.resources.length > 0)
+    .filter((command) => PROVEN_UNSAFE_TO_SHARE.has(argvOf(command)) && !resolveValidationCommandResources(command, argvOf(command)).some(claim => isBarrier(claim, 'exclusive')))
     .map((command) => `${argvOf(command)} — ${PROVEN_UNSAFE_TO_SHARE.get(argvOf(command))}`);
 
   const configured = configuredValidationCommands(repoRoot);
@@ -306,7 +338,7 @@ async function observeOverlap(plan, jobs) {
   const regressed = auditedBarrierRegressions(configured);
   ok(`CHK-005 audited these as repo-shared writers; they must keep the fail-closed barrier: ${regressed.join(' | ') || 'none declared'}`,
     regressed.length === 0);
-  console.log(`VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD ${PROVEN_UNSAFE_TO_SHARE.size} commands the audit proved write repo-shared paths remain undeclared`);
+  console.log(`VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD ${PROVEN_UNSAFE_TO_SHARE.size} commands retain an effective exclusive local barrier`);
 
   // NEGATIVE CONTROL. The assertion above is only worth something if it would
   // actually fire; a guard that cannot fail is decoration. Feed it a plan where
@@ -321,19 +353,10 @@ async function observeOverlap(plan, jobs) {
     caught.length === 1 && caught[0].startsWith(injected));
   ok('the probe reports WHY the audit refused it, so a later author cannot re-declare it by accident',
     caught[0].includes(PROVEN_UNSAFE_TO_SHARE.get(injected)));
-  // Wrapping a suite is not permission to drop its outer resource boundary.
-  // Probe each exact current argv independently: a generic wrapper exemption
-  // would otherwise hide either suite from the audited barrier lookup.
-  for (const wrapped of [
-    'node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/quorum-submit-smoke.js',
-    'node scripts/run-validation-fixture-suite.mjs packages/main/tests/red/red-b49d4-registration-derivation.mjs',
-  ]) {
-    const forgedWrappedPlan = configured.map((command) => (argvOf(command) === wrapped
-      ? { ...command, resources: [REPO_READ] } : command));
-    const caughtWrapped = auditedBarrierRegressions(forgedWrappedPlan);
-    ok(`declaring the wrapped audited barrier is rejected: ${wrapped}`,
-      caughtWrapped.length === 1
-      && caughtWrapped[0] === `${wrapped} — ${PROVEN_UNSAFE_TO_SHARE.get(wrapped)}`);
+  for (const target of PROVEN_UNSAFE_TO_SHARE.keys()) {
+    const weakened = configured.map(command => argvOf(command) === target ? { ...command, resources: [REPO_READ] } : command);
+    const rejected = auditedBarrierRegressions(weakened);
+    ok(`every audited writer retains its own rejection control: ${target}`, rejected.length === 1 && rejected[0].startsWith(target));
   }
   console.log('VI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted');
 }

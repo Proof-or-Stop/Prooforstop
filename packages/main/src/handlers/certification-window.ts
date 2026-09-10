@@ -1,6 +1,7 @@
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { currentPrecertFastIdentity } from './validation-identity.js';
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
 import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
@@ -38,6 +39,7 @@ import {
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import {
   classifyDonePrepareWorktree,
@@ -48,9 +50,11 @@ import {
   nonRuntimeDirtyEntries,
 } from '../core/done-prepare-validation-reuse.js';
 import {
+  CERTIFICATION_WINDOW_SCHEMA,
   evaluateCertificationWindowAdmit,
   currentPrecertCheapCheckReceipt,
   isSaturatedReviewInventoryForPrecert,
+  inspectCertificationWindowLineage,
   loadReviewInventoryAdmitApis,
   loadVerifiedCertificationWindow,
   persistAdmittedCertificationWindow,
@@ -63,6 +67,7 @@ import {
   PRECERT_TEST_IDENTITY,
   PRECERT_VERIFIER_IDENTITY,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_WINDOW_INVALIDATED,
   type CertificationWindowAdmitFacts,
   type CertificationWindowCurrentIdentity,
   type CertificationWindowFrozenIdentity,
@@ -70,6 +75,8 @@ import {
   type CertificationWindowStatusProjection,
   type ReviewInventoryAdmitPair,
 } from '../core/certification-window.js';
+import { REVIEW_INVENTORY_EPOCHS_SCHEMA } from '../core/review-inventory-epoch.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 function persistHint(root: string, storyId: string, command: string): string {
   try {
@@ -396,8 +403,9 @@ function collectAdmitFacts(
         const recorded = evidence?.storyFilesHash;
         return Boolean(storyFilesHash && recorded && recorded === storyFilesHash);
       },
+      { receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId) },
     ).missingRequired;
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     missingRequiredIntents = Number.MAX_SAFE_INTEGER;
   }
   let openBlockingFindingIds: string[] = [];
@@ -617,27 +625,39 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
       return render(projectCertificationWindowStatus(storyId, admitted.window, admitted.receipt), hint);
     },
 
-    certification_window_status(args: { storyId: string }): string {
+    certification_window_status(args: { storyId: string; refresh?: boolean }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_status: storyId is required');
-      const refreshed = refreshCertificationWindowLineage({
+      const current = currentCertificationIdentity(ctx, storyId);
+      const inspected = inspectCertificationWindowLineage({
         store: ctx.store,
         storyId,
-        current: currentCertificationIdentity(ctx, storyId),
+        current,
       });
-      const projection = projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory);
-      if (windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
-        try {
-          // Consume exactly the same signature/coverage/freshness predicate as
-          // REVIEW -> TEST. RUNNING means allocation consumed, not necessarily
-          // that a validation child is still alive.
-          if (ctx.store.readStory(storyId).phase === 'REVIEW'
-            && assessStoredValidationPassAdmissibility(ctx, storyId).ok) {
-            projection.nextCommand = `proof-or-stop story_advance --storyId=${storyId} --phase=TEST`;
-          }
-        } catch { /* Unavailable evidence never authorizes advancement. */ }
+      if (args.refresh === true && inspected.drift.drifted) {
+        const refreshed = refreshCertificationWindowLineage({ store: ctx.store, storyId, current });
+        return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
       }
-      return render(projection);
+      const projection = projectCertificationWindowStatus(storyId, inspected.window, inspected.receipt, inspected.drift.advisory);
+      if (!inspected.drift.drifted) {
+        if (windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
+          try {
+            if (ctx.store.readStory(storyId).phase === 'REVIEW'
+              && assessStoredValidationPassAdmissibility(ctx, storyId).ok) {
+              projection.nextCommand = `proof-or-stop story_advance --storyId=${storyId} --phase=TEST`;
+            }
+          } catch (error) { rethrowIntentAmendmentIntegrityError(error); }
+        }
+        return render(projection);
+      }
+      return render({
+        ...projection,
+        blockerCode: PRE_CERT_WINDOW_INVALIDATED,
+        observedDriftReason: inspected.drift.reason ?? 'certification subject changed',
+        nextCommand: `proof-or-stop certification_window_status --storyId=${storyId} --refresh=true`,
+      });
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {

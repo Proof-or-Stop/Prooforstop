@@ -120,6 +120,9 @@ export function resolveEffectiveOwnershipClass(
   args: Record<string, unknown>,
   storyId: string | null,
   externalOwnershipClasses?: ExternalCommandOwnershipClasses,
+  runtimeContext?: {
+    config?: Pick<ProofOrStopConfig, 'promptEnvelope' | 'browser' | 'cli'>;
+  },
 ): OwnershipClass | null {
   const policy = getCommandPolicy(cmd);
   const declaredClass = policy?.ownershipClass ?? externalOwnershipClasses?.[cmd];
@@ -181,6 +184,63 @@ export function resolveEffectiveOwnershipClass(
     cls = typeof out === 'string' && out.trim().length > 0 ? 'storyScopedMutating' : 'readOnly';
   }
 
+  if (cmd === 'signature_backfill') {
+    // Default is a report-only scan. Only --apply reaches writeFindings.
+    cls = args.apply === true || args.apply === 'true' ? 'mainSharedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'identity_state_migrate') {
+    // Without --confirm the migrator only validates and renders its plan.
+    cls = args.confirm === true || args.confirm === 'true' ? 'mainSharedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'reviewer_list') {
+    // Plain reviewer discovery is observational. --forceReviewer appends
+    // reviewer_forced events to the selected Story and therefore needs the
+    // owner/runtime write gates.
+    const forced = args.forceReviewer;
+    cls = typeof forced === 'string' && forced.trim().length > 0 ? 'storyScopedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'certification_window_status') {
+    // Default status performs a read-only drift preflight. Only explicit
+    // refresh may persist the detected INVALIDATED state.
+    cls = args.refresh === true || args.refresh === 'true' ? 'storyScopedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'doctor') {
+    // Health inspection writes nothing by default. Only explicit repair can
+    // clean shared worktree state or append Story cleanup events.
+    cls = args.repair === true || args.repair === 'true' ? 'mainSharedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'agent_prompt') {
+    const role = typeof args.role === 'string' ? args.role.trim() : '';
+    // The handler enters its Story-writing path only for an explicit storyId.
+    // Do not let the active-Story fallback turn a role-only prompt lookup into
+    // a mutating command inside a Story worktree.
+    const hasStory = typeof args.storyId === 'string' && args.storyId.trim().length > 0;
+    const explicitAuditWrite = args.auditExperiment === true || args.auditExperiment === 'true';
+    // CLI callers always supply config. An embedding that omits it is treated
+    // conservatively for Story-aware calls so an unknown rollout cannot bypass
+    // write admission; role-only prompt lookup remains unconditionally readOnly.
+    const unknownStoryMode = hasStory && runtimeContext?.config === undefined;
+    cls = hasStory && (role.length > 0 || explicitAuditWrite || unknownStoryMode)
+      ? 'storyScopedMutating'
+      : 'readOnly';
+  }
+
+  if (cmd === 'evaluate') {
+    const config = runtimeContext?.config;
+    const hasEvaluatorTarget = Boolean(config?.browser?.devCommand || config?.cli?.command);
+    // evaluate requires a Story id at the schema boundary. With known config it
+    // writes only for the full-envelope + evaluator-target combination. Unknown
+    // embedding config fails closed instead of assuming the handler is read-only.
+    cls = config === undefined || hasEvaluatorTarget
+      ? 'storyScopedMutating'
+      : 'readOnly';
+  }
+
   if (cmd === 'done_prepare' && args.dryRun === true) {
     cls = 'readOnly';
   }
@@ -201,6 +261,67 @@ export function resolveEffectiveOwnershipClass(
   return cls;
 }
 
+function rawRuntimeAdmissionArgs(rawArgs: readonly string[]): Record<string, unknown> | null {
+  if (rawArgs.length === 0) return {};
+  if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
+    try {
+      const parsed = JSON.parse(rawArgs[0]);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? parsed as Record<string, unknown>
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const parsed: Record<string, unknown> = {};
+  const keyFrom = (raw: string): string => raw
+    .replace(/^--?/, '')
+    .replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase());
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const token = rawArgs[index];
+    const equal = token.indexOf('=');
+    if (equal > 0) {
+      const key = keyFrom(token.slice(0, equal));
+      const value = token.slice(equal + 1);
+      parsed[key] = value === 'true' ? true : value === 'false' ? false : value;
+      continue;
+    }
+    if (!token.startsWith('-')) return null;
+    const key = keyFrom(token);
+    const next = rawArgs[index + 1];
+    if (next !== undefined && !next.startsWith('-')) {
+      parsed[key] = next === 'true' ? true : next === 'false' ? false : next;
+      index += 1;
+    } else {
+      parsed[key] = true;
+    }
+  }
+  return parsed;
+}
+
+/**
+ * Resolve the earliest runtime-admission decision from untrusted raw argv.
+ * Dynamic commands keep their genuinely read-only forms available, while
+ * malformed/ambiguous argv falls back to the declared (usually mutating)
+ * ownership class and therefore fails closed.
+ */
+export function resolveRawRuntimeAdmissionOwnership(
+  cmd: string,
+  rawArgs: readonly string[],
+  externalOwnershipClasses?: ExternalCommandOwnershipClasses,
+  runtimeContext?: {
+    config?: Pick<ProofOrStopConfig, 'promptEnvelope' | 'browser' | 'cli'>;
+  },
+): OwnershipClass | null {
+  const declared = getCommandPolicy(cmd)?.ownershipClass ?? externalOwnershipClasses?.[cmd];
+  if (!isOwnershipClass(declared)) return null;
+  const parsed = rawRuntimeAdmissionArgs(rawArgs);
+  if (!parsed) return declared;
+  const storyId = storyIdFromArgs(parsed, null);
+  return resolveEffectiveOwnershipClass(cmd, parsed, storyId, externalOwnershipClasses, runtimeContext);
+}
+
 const RETIRED_ROOT_BLOCKED_OWNERSHIP_CLASSES: ReadonlySet<OwnershipClass> = new Set([
   'storyScopedMutating',
   'reviewerWrite',
@@ -217,7 +338,7 @@ function canonicalRootFromConfig(config: Pick<ProofOrStopConfig, 'canonicalRoot'
 export function enforceRetiredRootGuard(
   cmd: string,
   args: Record<string, unknown>,
-  config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'>,
+  config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot' | 'promptEnvelope' | 'browser' | 'cli'>,
   activeStory: ActiveStoryForOwnershipGate | null,
   projectRoot: string,
   externalOwnershipClasses?: ExternalCommandOwnershipClasses,
@@ -225,7 +346,7 @@ export function enforceRetiredRootGuard(
   if (config.retiredRoot !== true) return;
 
   const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses, { config });
 
   if (cls === null) {
     throw new Error(
@@ -278,9 +399,10 @@ export function enforceStoryOwnerLeaseGate(
   activeStory: ActiveStoryForOwnershipGate | null,
   projectRoot: string,
   externalOwnershipClasses?: ExternalCommandOwnershipClasses,
+  config?: Pick<ProofOrStopConfig, 'promptEnvelope' | 'browser' | 'cli'>,
 ): void {
   const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses, { config });
 
   if (cls === null) {
     throw new Error(

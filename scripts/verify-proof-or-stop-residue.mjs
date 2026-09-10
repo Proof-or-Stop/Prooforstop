@@ -22,30 +22,12 @@
  * ---------------------------------------------------------------------------
  * CHECK 2 — un-renamed brand PROSE in active docs (B-cdf6). Exemption-based.
  * ---------------------------------------------------------------------------
- *   The `proof-or-stop` token CANNOT be scanned with a zero-tolerance detector the way
- *   `koala` can. Measured fact: 602 files under the src roots legitimately contain it
- *   — signature salts, `.lattice/` state paths, `LATTICE_*` env vars, `@lattice/core`
- *   imports, the historical `lattice-*` role IDs retained as compatibility-only
- *   legacy reads, and `lattice.config.json`. The genuinely frozen rows and the
- *   compatibility-read rows are explicit in the mapping table. A
- *   `/lattice/i` sweep would flag all 602 and be useless, so this check is deliberately
- *   NOT modelled on check 1.
- *
- *   Instead it detects the ONE token shape the mapping table marks RENAMED and that a
- *   reader can act on wrongly: a bare CLI INVOCATION, `proofOrStop <subcommand>`, in an
- *   active doc. That shape tells a user what to run now, so a stale one is a live
- *   instruction to type a command under the old brand name. It is also precisely what
- *   CHK-003 rewrote, which makes this check a real regression detector: reverting any
- *   CHK-003 file re-introduces `proofOrStop <cmd>` and fails the gate (verified in CHK-004
- *   by reverting CLAUDE.md to main — 40+ hits, exit 1).
- *
- *   Why preserved identifiers do NOT false-positive: they are all structurally
- *   distinguishable from an invocation by the character that follows the token —
- *   `.lattice/` and `bin/lattice.js` carry a path separator or dot, `LATTICE_*` and
- *   historical `lattice-review-*` role IDs / `@lattice/core` carry `_` `-` `/`, `lattice.config.json`
- *   carries a dot. The detector requires WHITESPACE after the token and a lowercase
- *   subcommand-shaped word after that, so none of those classes can match. That is
- *   a structural exclusion, not an allowlist.
+ *   This detector checks bare retired CLI invocations in current documentation.
+ *   It intentionally does not classify schema strings, paths, environment keys,
+ *   or role identifiers. The independent identity-cutover verifier checks those
+ *   surfaces with exact historical and negative-test provenance. Exclusion from
+ *   this narrow invocation detector does not authorize an active compatibility
+ *   alias or make an old artifact admissible to a current gate.
  *
  *   EXEMPT_PROSE_FILES holds the small set of active docs that legitimately quote a
  *   bare `proofOrStop <cmd>` string as their SUBJECT MATTER rather than as advice. Each
@@ -304,12 +286,8 @@ export function isCanonicalMainPackageMetadata(value) {
  * injected slice is stale, or the mirror was not regenerated after the registry
  * changed. Both are real defects a reader/agent would act on: unlike a doc, a stale
  * host prompt is fed verbatim to a spawned agent, so it actively teaches the retired
- * bin name. Gating them costs no exemptions — the invocation detector already
- * ignores every preserved identifier shape that legitimately appears here
- * (`lattice-implementer` and the other 12 historical role aliases, `.lattice/` paths,
- * `LATTICE_*` env vars, `lattice-*-v1` salts) because its lookbehind excludes `-`, `.`,
- * `/`, `_`. B-5a88 makes `proof-or-stop-*` canonical for new writes; these `lattice-*`
- * role IDs remain compatibility-only legacy reads.
+ * bin name. The invocation detector checks this same shape in mirrors; its
+ * structural exclusions grant no authority to other retired identity shapes.
  */
 const DOC_SCAN_ROOTS = [
   'README.md',
@@ -320,10 +298,7 @@ const DOC_SCAN_ROOTS = [
   '.claude/agents',
   // B-cc10 F-054: scan the CANONICAL adapter dir. This listed '.proof-or-stop-codex/agents', which
   // CHK-003 renamed — so `git ls-files -- <deleted path>` returned an EMPTY list and this root
-  // contributed ZERO files while 17 live role-prompt mirrors sat unscanned. The check reported
-  // PASS on nothing: the same "looks verified but isn't" failure this gate exists to catch,
-  // inside the gate itself. Both spellings are listed so a pre-migration tree is still covered.
-  '.proof-or-stop-codex/agents',
+  // contributed no files. Keep the canonical mirror root explicitly in the scan.
   '.proof-or-stop-codex/agents',
 ];
 
@@ -346,9 +321,9 @@ const DOC_SCAN_ROOTS = [
  *     original finding: they are overwhelmingly (a) smoke/verifier fixtures that embed stale
  *     prose as the SPECIMEN under test — rewriting them destroys the positive test case, which
  *     is how Pass B broke and then restored this very file's self-test — and (b) tests that
- *     deliberately exercise legacy `bin/lattice.js` provenance and compatibility paths. The
- *     alias is removed from the shipped bin map; these read-both probes remain outside the
- *     brand detector so they do not erase historical compatibility evidence. Gating still fails closed.
+ *     deliberately exercise retired bin provenance and rejection paths. These specimens
+ *     remain subject to the independent identity-cutover verifier and cannot authorize
+ *     current runtime aliases.
  *   - `scripts` — 173 hits / 24 files, same specimen-fixture class (77 of them in
  *     verify-entrypoints.mjs alone, which asserts on the deprecated bin on purpose).
  *   - `CHANGELOG.md` — 19 hits, FROZEN historical release record per the mapping table.
@@ -603,10 +578,10 @@ function runScan() {
     }
   }
   if (npmBinProblems.length === 0) {
-    console.log('PASS lattice-residue [npm-bin]: packages/main publishes only the proof-or-stop bin');
+    console.log('PASS proof-or-stop-residue [npm-bin]: packages/main publishes only the proof-or-stop bin');
   } else {
     failed = true;
-    console.error('FAIL lattice-residue [npm-bin]: retired lattice npm bin alias is active or metadata is invalid');
+    console.error('FAIL proof-or-stop-residue [npm-bin]: retired lattice npm bin alias is active or metadata is invalid');
     for (const problem of npmBinProblems) console.error(`  ${problem}`);
   }
 
@@ -654,20 +629,10 @@ function runScan() {
 /**
  * Cases for isResidue() — the koala zero-tolerance detector.
  *
- * NOTE ON THE TWO `false` CASES BELOW: they assert that a FROZEN `proof-or-stop-*`
- * identifier is clean *for the koala check*. The reason is NOT "proof-or-stop is the
- * current brand" — it is not; `proof-or-stop` is. The reason is that these exact
- * token shapes are FROZEN rows in
- * docs/requirements/decisions/brand-rename-mapping.md:
- *   - `lattice-review-integrity-v1` is 1 of the 13 frozen signature salts. It is
- *     hashed into `_hash` fields already persisted on live artifacts; renaming it
- *     would invalidate every stored signature and make active stories read as
- *     tampered.
- *   - `./lattice.js` is a retired bin alias that can still occur in historical/read-both
- *     provenance, so the module path remains a compatibility specimen rather than a shipped bin.
- * Both are therefore correctly outside the koala detector's remit, and both are
- * separately outside the brand-prose detector's remit by structural exclusion
- * (see BRAND_PROSE_CASES).
+ * The `false` cases test only this detector's lexical scope. Canonical signature
+ * identifiers and retired module-path specimens do not contain its target token.
+ * This does not authorize retired runtime aliases, readers, or signing salts;
+ * those decisions remain subject to the independent active-identity guard.
  *
  * @type {Array<[string, boolean]>}
  */
@@ -677,9 +642,9 @@ const RESIDUE_CASES = [
   ['const KoalaFoo = 1', true],
   ['existsSync(.claude/skills/koala)', true],
   // frozen signature salt (mapping table: FROZEN) — not koala residue
-  ['const REVIEW_SALT = "lattice-review-integrity-v1";', false],
-  // retired bin alias in historical/read-both provenance (not a shipped executable)
-  ['import { lattice } from "./lattice.js";', false],
+  ['const REVIEW_SALT = "proof-or-stop-review-integrity-v1";', false],
+  // deprecated-but-retained bin alias (mapping table: RENAMED-additive, keeps `proof-or-stop`)
+  ['import { proofOrStop } from "./proofOrStop.js";', false],
   ['a clean line with no brand token at all', false],
 ];
 
@@ -700,32 +665,29 @@ const BRAND_PROSE_CASES = [
   [`  ${LEGACY_BIN} validate --full       # includes real-machine tests`, true],
   [`${LEGACY_BIN[0].toUpperCase()}${LEGACY_BIN.slice(1)} validate is the single entry point`, true],
 
-  // --- MUST NOT FLAG: FROZEN identifier classes (each a mapping-table row) ---
-  // .lattice/ state directory (FROZEN)
+  // --- MUST NOT FLAG: specimens outside the bare-invocation detector's shape ---
+  // Retired path specimens are outside this bare-invocation detector's shape.
   ['state lives in .lattice/story/actives/B-xxxx/', false],
   ['writes .lattice/locks/main-write.lock/', false],
-  // LATTICE_* env prefix (FROZEN, 56 vars)
+  // Retired environment specimens are outside the bare-invocation shape.
   ['export LATTICE_SESSION_BRIEF_FRESH_MINUTES=60', false],
   ['`LATTICE_CLI_VERSION` must be bumped', false],
-  // the 13 historical lattice-* role IDs (B-5a88: compatibility-only legacy reads;
+  // Retired role specimens cannot satisfy a bare-invocation pattern (
   // proof-or-stop-* is canonical for new writes)
   ['Agent({ subagent_type: "lattice-implementer" })', false],
   ['| `lattice-review-scope-plan` | PLAN |', false],
   // signature salts (FROZEN)
-  ['salt = `lattice-delivery-check-integrity-v1`', false],
-  // Canonical package import. The deprecated @lattice/core spelling is forbidden
-  // in product runtime source by CHK-007; compatibility remains only at the
-  // explicitly named readers, not as a frozen residue fixture.
+  ['salt = `proof-or-stop-delivery-check-integrity-v1`', false],
+  // A canonical package import is not a bare executable invocation.
   ["import { devHost } from '@proof-or-stop/core/dev-host';", false],
-  // Deprecated-but-still-READ config filename (B-cc10 CHK-004 flipped canonical to
-  // `proof-or-stop.config.json`; this spelling still resolves for reads).
+  // Retired config filenames are specimens, not supported runtime readers.
   ['edit `lattice.config.json` directly', false],
-  // legacy bin wrapper paths in read-both provenance (the shipped bin map is canonical-only)
+  // Retired wrapper path specimens; the shipped bin map is canonical-only.
   ['node bin/lattice.js verify_codex', false],
   ['node bin/lattice-codex.js session_brief', false],
-  // managed-block markers (FROZEN)
+  // Explicit migration marker input is not a bare executable invocation.
   ['<!-- lattice:start -->', false],
-  // runtime discovery file (FROZEN)
+  // Canonical runtime discovery path is not a bare executable invocation.
   ['reads .proof-or-stop-serve.json for the port', false],
   // brand-name PROSE proper noun — a different mapping row, not an invocation
   ['reviewer evidence through ProofOrStop CLI.', false],
@@ -739,12 +701,12 @@ const BRAND_PROSE_CASES = [
   // newly-gated `bin/` and `.codex/` files, so each is pinned here. ---
   // All 13 frozen signature salts share this shape; the trailing `-v<N>` means the token
   // is followed by `-`, which the left/right fences reject. Byte-frozen by the mapping table.
-  ['const SALT = "lattice-review-integrity-v1";', false],
-  ['lattice-closeout-write-receipt-integrity-v3', false],
-  // Retired deprecated bin ALIAS paths in compatibility probes — file paths, not invocations.
-  // Never flag these historical/read-both specimens; the shipped alias itself is absent.
-  ["path.join(root, 'bin', 'lattice.js'),", false],
-  ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'lattice.js'];", false],
+  ['const SALT = "proof-or-stop-review-integrity-v1";', false],
+  ['proof-or-stop-closeout-write-receipt-integrity-v3', false],
+  // Retained deprecated bin ALIAS paths — a file path, not an invocation. Never flagged,
+  // which is what makes the rename additive: keeping the alias cannot fail the gate.
+  ["path.join(root, 'bin', 'proofOrStop.js'),", false],
+  ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'proofOrStop.js'];", false],
   ['import \'./proof-or-stop-codex.js\';', false],
   // Read-both bin-name lists: the deprecated name appears as a quoted STRING, not as a
   // `proofOrStop <cmd>` invocation, so the read-both compat pattern is gate-safe.

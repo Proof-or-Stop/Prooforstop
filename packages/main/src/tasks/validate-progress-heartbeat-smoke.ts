@@ -328,8 +328,7 @@ function setupFixture(): { root: string; started: string; finished: string } {
   write(root, '.gitignore', [
     'command-started.txt',
     'command-finished.txt',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
     '.proof-or-stop/locks/',
     '',
   ].join('\n'));
@@ -1437,6 +1436,10 @@ async function runRefreshWatchdogCli(
   assert.fail('watchdog fired before a complete process tree was published in every bounded attempt');
 }
 
+// These positive/selector witnesses exercise idle heartbeats and atomicity, not
+// the max-timeout boundary. V5 signed publication can exceed the old incidental
+// 5s cap; use the existing non-max harness policy. Dedicated max-timeout
+// negative controls below retain their short independent deadlines.
 async function assertRefreshHeartbeatAndDedupe(): Promise<void> {
   const fixture = setupRefreshFixture('heartbeat', 'heartbeat');
   try {
@@ -1447,7 +1450,7 @@ async function assertRefreshHeartbeatAndDedupe(): Promise<void> {
       {
         PROOF_OR_STOP_SESSION_ID: 'refresh-heartbeat-smoke',
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
       },
     );
@@ -1465,6 +1468,11 @@ async function assertRefreshHeartbeatAndDedupe(): Promise<void> {
     for (const intentRef of ['INT-SHARED-A', 'INT-SHARED-B', 'INT-UNIQUE']) {
       const row = rows.find(entry => entry.intentRef === intentRef);
       assert.equal(row?.mechanical, true, `${intentRef} keeps an independent mechanical stamp`);
+      assert.ok(row?.receipt && 'executionReceipt' in row.receipt, 'fresh evidence carries the actual signed execution');
+      const actualBudget = row.receipt.executionReceipt.effectiveTimeoutMs;
+      assert.ok(Number.isSafeInteger(actualBudget) && actualBudget > 0 && actualBudget <= NON_MAX_OUTER_TIMEOUT_MS,
+        'receipt records the actual deadline-capped budget, never the larger configured policy');
+      assert.equal(row.receipt.timeoutMs, actualBudget, 'compatibility and signed execution budgets agree');
       assert.equal(row?.receipt?.selectorMatched, true, `${intentRef} independently evaluates its immutable selector`);
       assert.notEqual(row?.receipt?.executedAt, '2026-08-14T00:00:00.000Z', `${intentRef} receives a fresh receipt`);
     }
@@ -1521,7 +1529,7 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
       {
         PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
       },
     );
@@ -1541,7 +1549,7 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
       {
         PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
       },
     );
@@ -1557,11 +1565,13 @@ async function assertSingleEvidenceCommandsHeartbeatAndReap(): Promise<void> {
       storyId: heartbeatFixture.storyId, intentRef: 'INT-SHARED-B', note: 'reuse the current shared command with an independent selector',
     })], NON_MAX_HARNESS_CEILING_MS, {
       PROOF_OR_STOP_SESSION_ID: 'single-evidence-add-heartbeat-smoke',
-      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180', PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000', PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180', PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
     });
-    assert.equal(reused.status, 0, `current causal execution can satisfy another selector:\n${reused.stderr}`);
-    assert.equal(readFileSync(heartbeatFixture.executionLog, 'utf8'), executionsBeforeReuse,
-      'reusing a current exact command must not spawn it again merely to produce a heartbeat');
+    assert.equal(reused.status, 0, `ordinary V5 verification run observes the command again:\n${reused.stderr}`);
+    assert.match(reused.stderr, /validate heartbeat: command 1\/1 verification-evidence-command elapsedMs=/);
+    assert.deepEqual(readFileSync(heartbeatFixture.executionLog, 'utf8').trim().split('\n').map(line => JSON.parse(line).kind),
+      ['shared', 'unique', 'shared'],
+      'ordinary V5 rerun must record a fresh observation; only explicit shared publication fans out without another execution');
     const checklist = JSON.parse(readFileSync(heartbeatFixture.checklistPath, 'utf8')) as ChecklistData;
     for (const intentRef of ['INT-SHARED-A', 'INT-UNIQUE', 'INT-SHARED-B']) {
       const row = checklist.items[0].verificationEvidence?.find(entry => entry.intentRef === intentRef);
@@ -1708,7 +1718,7 @@ async function assertBatchHeartbeatAndExactCommandDedupe(): Promise<void> {
       {
         PROOF_OR_STOP_SESSION_ID: 'batch-heartbeat-smoke',
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '180',
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
       },
     );
@@ -1746,7 +1756,7 @@ async function assertBatchSharedExecutionStillFailsAtomicOnSelector(): Promise<v
       {
         PROOF_OR_STOP_SESSION_ID: 'batch-selector-fail-smoke',
         PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000',
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: '5000',
+        PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '40',
       },
     );

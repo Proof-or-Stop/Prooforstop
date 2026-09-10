@@ -190,7 +190,7 @@ function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; 
  */
 function reviewOnlyPolicy(overrides: Partial<DispatchPolicy> = {}): DispatchPolicy {
   return {
-    schemaVersion: 'lattice.dispatch_policy.v1',
+    schemaVersion: 'proof-or-stop.dispatch_policy.v1',
     policy: 'xhr-review-only',
     allowedHosts: ['codex'],
     allowedPaths: ['packages/main/src/'],
@@ -1310,7 +1310,7 @@ async function run(): Promise<void> {
     // and gemini/antigravity stay refused even under the review-only flag.
     await check('CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag', () => {
       const base: Omit<DispatchPolicy, 'allowedHosts' | 'allowReviewOnlyRealHostSubprocess'> = {
-        schemaVersion: 'lattice.dispatch_policy.v1',
+        schemaVersion: 'proof-or-stop.dispatch_policy.v1',
         policy: 'fake',
         allowedPaths: ['packages/main/src/generated/'],
         deniedPaths: [],
@@ -1352,7 +1352,7 @@ async function run(): Promise<void> {
       // so a pure review-only policy naming gemini/antigravity must be REFUSED.
       // (Codex host-B lane fix.)
       const pureBase: Omit<DispatchPolicy, 'allowedHosts'> = {
-        schemaVersion: 'lattice.dispatch_policy.v1',
+        schemaVersion: 'proof-or-stop.dispatch_policy.v1',
         policy: 'fake',
         allowedPaths: ['packages/main/src/'],
         deniedPaths: [],
@@ -1470,7 +1470,7 @@ async function run(): Promise<void> {
     // selectedHost==='codex' && allowRealHostSubprocess===true), defeating the grant.
     await check('CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED', () => {
       const base: Omit<DispatchPolicy, 'allowedHosts'> = {
-        schemaVersion: 'lattice.dispatch_policy.v1',
+        schemaVersion: 'proof-or-stop.dispatch_policy.v1',
         policy: 'fake',
         allowedPaths: ['packages/main/src/generated/'],
         deniedPaths: [],

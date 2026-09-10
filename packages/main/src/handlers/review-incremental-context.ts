@@ -13,6 +13,8 @@
 
 import type { HandlerContext } from './context.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import { IMPACT_CLASSIFICATION_POLICY_VERSION } from '../core/impact-classification-policy.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
 function renderIncrementalContextText(
   ctx: ReturnType<typeof reviewIncrementalContext>,
@@ -56,6 +58,7 @@ export function createReviewIncrementalContextHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   return {
     review_incremental_context(args: { storyId: string; role: string; json?: boolean }): string {
+      assertActiveIdentityConsumerContract('review-incremental-context', IMPACT_CLASSIFICATION_POLICY_VERSION);
       const storyId = (args.storyId || '').trim();
       const role = (args.role || '').trim();
       if (!storyId) {

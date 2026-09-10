@@ -378,7 +378,7 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
 }
 
 function trustedReviewEvidence(storyId: string, role: string, runId: string, startedAt: string, passAt: string, boundHeadHash: string) {
-  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
+  const rollout = { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
   const roleBody = resolvePromptRoleBody(role, rollout).body;
   const dispatchPrompt = `As ${role}, review story ${storyId} in full.`;
   const host = reviewerHostRenderIdentity(process.cwd(), role, 'codex', 'full-envelope');
@@ -390,7 +390,7 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     rolePrompt: roleBody,
     taskContext: {
-      schemaVersion: 'proofbound.full-task-context.v1', storyId, title: 'cutoff regression',
+      schemaVersion: 'proof-or-stop.full-task-context.v1', storyId, title: 'cutoff regression',
       description: 'Bind prior review evidence to its signed run start.', phase: 'REVIEW', priority: 'high',
       checklist: [{ id: 'CHK-001', title: 'Bind', status: 'done', relatedDocs: [], files: { modify: ['src/feature.ts'], create: [], test: [] },
         verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Cutoff is respected.', type: 'logic' }], edge: [], adversarial: [] } }],
@@ -485,7 +485,7 @@ async function runProductionVerifierTemporalCutoffRegression(): Promise<void> {
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
         roles: { [role]: 'full-envelope', [laterLane]: 'full-envelope' },
       },
     }, null, 2) + '\n');
@@ -1862,7 +1862,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
         roles: {
           'proof-or-stop-review-quality': 'full-envelope',
           'proof-or-stop-review-docs': 'full-envelope',
@@ -2000,7 +2000,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
 
 export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
   'review-run-identity': 'concurrent review_run_start preserves every lane and unique IDs',
-  'mixed-envelope-selection': 'each legacy/full lane binds only its selected representation',
+  'mixed-envelope-selection': 'each lane binds exactly one current Prompt Envelope representation',
   'pass-finding-write-serialization': 'three passes and two findings are retained exactly once',
   'signed-result-admissibility': 'collector accepts every current signed result',
   'lane-no-overwrite': 'collector counts every reviewer lane once',
@@ -2022,10 +2022,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     'proof-or-stop-review-quality',
     'proof-or-stop-review-test-coverage',
   ];
-  const rolloutModes = Object.fromEntries(roles.map((role, index) => [
-    role,
-    (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
-  ]));
+  const rolloutModes = Object.fromEntries(roles.map(role => [role, 'full-envelope']));
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
     `PROOF_OR_STOP_AGENT=${JSON.stringify(role)}`,
@@ -2050,7 +2047,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
         roles: rolloutModes,
       },
     }, null, 2) + '\n');
@@ -2122,7 +2119,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     if (!mutation) assert.equal(
       store.readPromptEnvelopes(storyId).envelopes.length,
       fullRoles.length,
-      `mixed mask ${mask} iteration ${iteration} persists one envelope for each full-envelope lane only`,
+      `concurrency mask ${mask} iteration ${iteration} persists one current envelope per lane`,
     );
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
@@ -2164,14 +2161,14 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     }
     const evidence = collectReviewerEvidenceState(store, storyId, root);
     const signedResultAdmissibility = evidence.invalid.length === 0 && evidence.valid.length === roles.length;
-    if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
+    if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under concurrency mask ${mask} iteration ${iteration}`);
     const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
     if (mutation === 'lane-no-overwrite') observedAgents.pop();
     const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
     if (!mutation) assert.deepEqual(
       observedAgents,
       [...roles].sort(),
-      `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
+      `collector counts every reviewer lane once without overwrite under concurrency mask ${mask} iteration ${iteration}`,
     );
     let realGateMutationTrace: GuardObservation['mutationTrace'];
     if (mutation === 'real-review-gate') {
@@ -2184,8 +2181,8 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
       realGateMutationTrace = { redundantDeletionStillTrue, allPassesCleared: canPassReviewGuard({ storyId, store, projectRoot: root }) };
     }
     const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
-    if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
-    console.log(`${MARKER} MIXED MASK ${mask} iteration ${iteration}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
+    if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under concurrency mask ${mask} iteration ${iteration}`);
+    console.log(`${MARKER} CONCURRENCY MASK ${mask} iteration ${iteration}: five current runs + pass/finding writers preserved gate evidence`);
     return {
       'review-run-identity': reviewRunIdentity,
       'mixed-envelope-selection': mixedEnvelopeSelection,
@@ -2205,6 +2202,60 @@ function runIncrementalGuardClassMatrix(): GuardObservation[] {
   const observations = [runConcurrentReviewerWriteCase(0b11111), runConcurrentReviewerWriteCase(0b01010), runConcurrentReviewerWriteCase(0b10101, 1)];
   console.log(`${MARKER} INCREMENTAL_GUARD_CLASSES=${Object.keys(INCREMENTAL_GUARD_CLASS_MAP).join(',')}`);
   return observations;
+}
+
+function startGuardScenario(mask: number, iteration: number): Promise<GuardObservation> {
+  const target = fileURLToPath(import.meta.url);
+  const child = spawn(process.execPath, [target, `--guard-scenario=${mask}`, `--guard-iteration=${iteration}`], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', chunk => { stdout += String(chunk); });
+  child.stderr.on('data', chunk => { stderr += String(chunk); });
+  return new Promise((resolveScenario, rejectScenario) => {
+    child.once('error', rejectScenario);
+    child.once('close', code => {
+      if (code !== 0) {
+        rejectScenario(new Error(`guard scenario ${mask}/${iteration} failed: ${stderr || stdout}`));
+        return;
+      }
+      const receiptLine = stdout.split(/\r?\n/).find(line => line.startsWith('GUARD_SCENARIO_RECEIPT='));
+      if (!receiptLine) {
+        rejectScenario(new Error(`guard scenario ${mask}/${iteration} emitted no receipt: ${stderr || stdout}`));
+        return;
+      }
+      for (const line of stdout.split(/\r?\n/).filter(line => line && !line.startsWith('GUARD_SCENARIO_RECEIPT='))) console.log(line);
+      const receipt = JSON.parse(receiptLine.slice('GUARD_SCENARIO_RECEIPT='.length)) as { mask: number; iteration: number; observation: GuardObservation };
+      if (receipt.mask !== mask || receipt.iteration !== iteration) {
+        rejectScenario(new Error(`guard scenario receipt mismatch: expected ${mask}/${iteration}, got ${receipt.mask}/${receipt.iteration}`));
+        return;
+      }
+      resolveScenario(receipt.observation);
+    });
+  });
+}
+
+function startIsolatedMode(argument: string, expectedMarker: RegExp): Promise<{ durationMs: number }> {
+  const target = fileURLToPath(import.meta.url);
+  const started = performance.now();
+  const child = spawn(process.execPath, [target, argument], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', chunk => { stdout += String(chunk); });
+  child.stderr.on('data', chunk => { stderr += String(chunk); });
+  return new Promise((resolveMode, rejectMode) => {
+    child.once('error', rejectMode);
+    child.once('close', code => {
+      const output = `${stdout}${stderr}`;
+      if (code !== 0 || !expectedMarker.test(output)) {
+        rejectMode(new Error(`isolated mode ${argument} failed or omitted its marker: ${output}`));
+        return;
+      }
+      for (const line of stdout.split(/\r?\n/).filter(Boolean)) console.log(line);
+      resolveMode({ durationMs: performance.now() - started });
+    });
+  });
 }
 
 function runGuardShardTrials(): unknown {
@@ -2287,24 +2338,42 @@ async function run(): Promise<void> {
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
-  const cutoffStarted = performance.now();
-  await runProductionVerifierTemporalCutoffRegression();
+  // The production verifier cutoff owns a separate repository and already has
+  // a dedicated direct-run mode. Keep the real mutation proof, but overlap it
+  // with the other independent incremental checks instead of paying its ~75s
+  // as a serial full-suite tail.
+  const cutoffProbe = startIsolatedMode('--cutoff-verifier-only', /PRODUCTION VERIFIER CUTOFF/u);
   runAsOfRunEligibilityRegression();
-  const cutoffDurationMs = performance.now() - cutoffStarted;
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   const abaStarted = performance.now();
   runDeterministicTicketReclaimAbaCase();
   const abaDurationMs = performance.now() - abaStarted;
-  const matrixObservations = runIncrementalGuardClassMatrix();
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
   const burnInIterations = process.env.PROOF_OR_STOP_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  // In the canonical run, execute the independent replay in its own process
+  // while the three fixed-mask cases use this process. This preserves a real
+  // second repository/run and the exact comparison, but removes a redundant
+  // serial tail from the full-suite critical path. Stress mode keeps its
+  // historical sequential/sharded schedule unchanged.
+  const overlappedReplay = burnInIterations === 1 ? startGuardScenario(0b10101, 2) : null;
+  let matrixObservations: GuardObservation[];
+  let replayObservation: GuardObservation;
+  try {
+    matrixObservations = runIncrementalGuardClassMatrix();
+    replayObservation = overlappedReplay
+      ? await overlappedReplay
+      : runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
+  } catch (error) {
+    await overlappedReplay?.catch(() => undefined);
+    throw error;
+  }
   const burnInObservations = [matrixObservations[2]!];
   for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
-  const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
   const canonicalObservation = burnInObservations[0]!;
+  const { durationMs: cutoffDurationMs } = await cutoffProbe;
   const mutationKillMap = Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => {
     if (burnInIterations !== 20) return [guardClass, { executed: false, detected: false }];
     let mutated: GuardObservation | { threw: string };
@@ -2360,7 +2429,9 @@ if (isDirectRun) {
   const guardScenario = process.argv.find(argument => argument.startsWith('--guard-scenario='));
   if (guardScenario) {
     const mask = Number(guardScenario.slice('--guard-scenario='.length));
-    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, observation: runConcurrentReviewerWriteCase(mask, 900) })}`);
+    const iterationArgument = process.argv.find(argument => argument.startsWith('--guard-iteration='));
+    const iteration = iterationArgument ? Number(iterationArgument.slice('--guard-iteration='.length)) : 900;
+    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, iteration, observation: runConcurrentReviewerWriteCase(mask, iteration) })}`);
   } else if (process.argv.includes('--guard-timeout-fixture')) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
   } else if (process.argv.includes('--aba-only')) {

@@ -677,7 +677,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         _hash: '',
       };
       // Signature = sha256(storyId + timestamp + issueCount + blockerCount + fixed salt)
-      const REVIEW_SALT = 'lattice-review-integrity-v1';
+      const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
       const hashInput = `${args.storyId}:${timestamp}:${issues.length}:${blockerCount}:${REVIEW_SALT}`;
       reviewEntry._hash = createHash('sha256').update(hashInput).digest('hex');
       reviewData.reviews.push(reviewEntry);

@@ -29,15 +29,15 @@ export const CERTIFICATION_WINDOW_STATES = [
 
 export type CertificationWindowState = (typeof CERTIFICATION_WINDOW_STATES)[number];
 
-export const CERTIFICATION_WINDOW_SCHEMA = 'proofbound.certification_window.v1';
-export const PRECERT_RECEIPT_SCHEMA = 'proofbound.precert_receipt.v1';
-export const PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA = 'proofbound.precert_cheap_check_receipt.v1';
-export const CERTIFICATION_WINDOW_FILE_SCHEMA = 'proofbound.certification_windows.v1';
+export const CERTIFICATION_WINDOW_SCHEMA = 'proof-or-stop.certification_window.v1';
+export const PRECERT_RECEIPT_SCHEMA = 'proof-or-stop.precert_receipt.v1';
+export const PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA = 'proof-or-stop.precert_cheap_check_receipt.v1';
+export const CERTIFICATION_WINDOW_FILE_SCHEMA = 'proof-or-stop.certification_windows.v1';
 export const CERTIFICATION_WINDOW_FILE = 'certification-window.json';
 
-const WINDOW_DOMAIN = 'proofbound.certification-window.v1';
-const RECEIPT_DOMAIN = 'proofbound.precert-receipt.v1';
-const CHEAP_CHECK_RECEIPT_DOMAIN = 'proofbound.precert-cheap-check-receipt.v1';
+const WINDOW_DOMAIN = 'proof-or-stop.certification-window.v1';
+const RECEIPT_DOMAIN = 'proof-or-stop.precert-receipt.v1';
+const CHEAP_CHECK_RECEIPT_DOMAIN = 'proof-or-stop.precert-cheap-check-receipt.v1';
 
 export const PRECERT_AUTHORITY = 'pre-cert';
 export const PRECERT_CHEAP_CHECK_AUTHORITY = 'pre-cert-cheap-check';
@@ -296,6 +296,7 @@ export interface CertificationWindowStatusProjection {
   receipt: PrecertReceipt | null;
   blockerCode: string | null;
   nextCommand: string;
+  observedDriftReason?: string;
   advisory?: {
     code: typeof PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY;
     detail: string;
@@ -807,6 +808,7 @@ export function renderCertificationWindowStatus(projection: CertificationWindowS
   }
   if (blockerCode) lines.push(`Blocker: [${blockerCode}]`);
   if (window?.blockerDetail) lines.push(`Detail: ${window.blockerDetail}`);
+  if (projection.observedDriftReason) lines.push(`Observed drift: ${projection.observedDriftReason}`);
   lines.push(`Next: ${nextCommand}`);
   const rendered = lines.join('\n');
   if (countExactLines(rendered, 'State:') !== 1 || countExactLines(rendered, 'Next:') !== 1) {
@@ -1219,23 +1221,38 @@ export function refreshCertificationWindowLineage(args: {
   storyId: string;
   current: CertificationWindowCurrentIdentity;
 }): { window: CertificationWindow | null; receipt: PrecertReceipt | null; advisory?: CertificationWindowStatusProjection['advisory'] } {
-  const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
-  if (!loaded.window) return { window: null, receipt: null };
-  if (loaded.window.state !== 'ADMITTED' && loaded.window.state !== 'RUNNING') {
-    return { window: loaded.window, receipt: loaded.receipt };
+  const inspected = inspectCertificationWindowLineage(args);
+  if (!inspected.drift.drifted) {
+    return { window: inspected.window, receipt: inspected.receipt, advisory: inspected.drift.advisory };
   }
-  const drift = detectCertificationWindowMaterialDrift(loaded.window, args.current);
-  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt, advisory: drift.advisory };
   return persistInvalidatedCertificationWindow({
     store: args.store,
     storyId: args.storyId,
     current: args.current,
-    reason: drift.reason ?? 'certification subject changed',
+    reason: inspected.drift.reason ?? 'certification subject changed',
   });
 }
 
+export function inspectCertificationWindowLineage(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  current: CertificationWindowCurrentIdentity;
+}): {
+  window: CertificationWindow | null;
+  receipt: PrecertReceipt | null;
+  drift: { drifted: boolean; reason?: string; advisory?: CertificationWindowStatusProjection['advisory'] };
+} {
+  const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
+  if (!loaded.window) return { window: null, receipt: null, drift: { drifted: false } };
+  if (loaded.window.state !== 'ADMITTED' && loaded.window.state !== 'RUNNING') {
+    return { window: loaded.window, receipt: loaded.receipt, drift: { drifted: false } };
+  }
+  const drift = detectCertificationWindowMaterialDrift(loaded.window, args.current);
+  return { window: loaded.window, receipt: loaded.receipt, drift };
+}
+
 export function heavyCertificationStatusNext(storyId: string): string {
-  return `proof-or-stop certification_window_begin --storyId=${storyId}`;
+  return `proof-or-stop certification_window_status --storyId=${storyId}`;
 }
 
 /**

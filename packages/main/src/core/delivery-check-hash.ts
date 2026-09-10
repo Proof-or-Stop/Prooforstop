@@ -27,7 +27,7 @@ import { DELIVERY_REVIEW_LANE, deliveryReviewInvocationId } from './delivery-rev
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
 
-export const DELIVERY_CHECK_SALT = 'lattice-delivery-check-integrity-v1';
+export const DELIVERY_CHECK_SALT = 'proof-or-stop-delivery-check-integrity-v1';
 
 /**
  * Signing function (deterministic: same input yields same output).

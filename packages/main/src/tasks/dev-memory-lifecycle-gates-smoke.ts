@@ -2,7 +2,7 @@
 /**
  * B-a7c5: dev-memory lifecycle gates smoke.
  *
- * Covers all three gates this story adds around Proofbound's previously
+ * Covers all three gates this story adds around Proof-or-Stop's previously
  * 100%-voluntary dev-memory system, each against a fresh temp-git fixture
  * (mkdtempSync + git init, mirroring quorum-submit-smoke.ts's makeFixture /
  * parallel-decomposition-gate-integration-smoke.ts's buildRepo pattern):
@@ -29,7 +29,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -45,6 +45,7 @@ import {
   type StoryMachineContext,
 } from '../core/machine.js';
 import { readDevMemoryFinishDecision } from '../core/playbook-runtime-memory.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { persistFinalizedReviewInventory } from '../core/review-inventory-epoch.js';
 import { findRuntimeArtifactEntry } from '../core/runtime-artifact-registry.js';
@@ -204,7 +205,7 @@ function assertAckRoundTripAndExistenceOnly(): void {
   try {
     ackHandler(root)({ storyId, query: 'roundtrip smoke query' });
     const ack = store.readDevMemoryPreflightAck(storyId);
-    check('CHK-001 edge: ack has correct schemaVersion', ack?.schemaVersion === 'lattice.dev_memory_preflight_ack.v1');
+    check('CHK-001 edge: ack has correct schemaVersion', ack?.schemaVersion === 'proof-or-stop.dev_memory_preflight_ack.v1');
     check('CHK-001 edge: ack.storyId matches', ack?.storyId === storyId);
     check('CHK-001 edge: ack.topHitIds is an array', Array.isArray(ack?.topHitIds));
     check('CHK-001 edge: ack.acknowledgedAt is a non-empty string', typeof ack?.acknowledgedAt === 'string' && ack.acknowledgedAt.length > 0);
@@ -579,12 +580,12 @@ function assertDoneGateFinishDecision(): void {
     check('CHK-003 adversarial: canFinishGuard is false again on a corrupt finish-decision record', canFinishGuard(context) === false);
 
     // ── adversarial: wrong decision value / missing decision field ──
-    write(root, finishDecisionPath, JSON.stringify({ schemaVersion: 'proofbound.dev-memory-finish-decision.v1', storyId, decision: 'invented-value', reason: 'x'.repeat(10), recordedAt: NOW }));
+    write(root, finishDecisionPath, JSON.stringify({ schemaVersion: 'proof-or-stop.dev-memory-finish-decision.v1', storyId, decision: 'invented-value', reason: 'x'.repeat(10), recordedAt: NOW }));
     check('CHK-003 adversarial: an invented decision value is treated as absent', readDevMemoryFinishDecision(root, storyId) === null);
     check('CHK-003 adversarial: canFinishGuard is false on an invented decision value', canFinishGuard(context) === false);
 
     // ── adversarial: cross-story record cannot satisfy this story's gate ──
-    write(root, finishDecisionPath, JSON.stringify({ schemaVersion: 'proofbound.dev-memory-finish-decision.v1', storyId: 'B-someone-else', decision: 'captured', reason: '', recordedAt: NOW }));
+    write(root, finishDecisionPath, JSON.stringify({ schemaVersion: 'proof-or-stop.dev-memory-finish-decision.v1', storyId: 'B-someone-else', decision: 'captured', reason: '', recordedAt: NOW }));
     check('CHK-003 adversarial: a record naming a DIFFERENT storyId is treated as absent', readDevMemoryFinishDecision(root, storyId) === null);
     check('CHK-003 adversarial: canFinishGuard is false on a cross-story record', canFinishGuard(context) === false);
   } finally {
@@ -594,6 +595,97 @@ function assertDoneGateFinishDecision(): void {
 
 // ─────────────────────────────────────────────────────────────────────────
 
+function assertFinishDecisionCanonicalSchema(): void {
+  const storyId = 'B-devmem-schema';
+  const { root, store } = buildDoneReadyFixture(storyId);
+  const path = `${PROOF_OR_STOP_STATE_DIR}/dev-memory/finish-decisions/${storyId}.json`;
+  try {
+    const context: StoryMachineContext = { storyId, store, projectRoot: root, gitCwd: root };
+    const snapshot = (): string => {
+      const files: Array<[string, string]> = [];
+      const walk = (dir: string): void => {
+        for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
+          const relative = join(dir, entry.name);
+          if (relative === '.git') continue;
+          if (entry.isDirectory()) walk(relative);
+          else files.push([relative, readFileSync(join(root, relative)).toString('hex')]);
+        }
+      };
+      walk('');
+      return JSON.stringify({ files, index: readFileSync(join(root, '.git/index')).toString('hex'),
+        refs: execFileSync('git', ['show-ref'], { cwd: root, encoding: 'utf8' }),
+        status: execFileSync('git', ['status', '--porcelain=v1'], { cwd: root, encoding: 'utf8' }) });
+    };
+    const oracleRow = () => buildDoneChecklist(storyId, store, root, { auditWriter: null })
+      .find(row => row.id === 'dev-memory-finish-decision');
+    const missingBefore = snapshot();
+    check('CHK-007 finish schema: true absence keeps the missing-decision diagnostic',
+      /missing_dev_memory_finish_decision/.test(getGuardFailureReason(storyId, store, 'DONE', root, root) ?? ''));
+    check('CHK-007 finish schema: true absence blocks the oracle with the missing code',
+      oracleRow()?.status === 'fail' && /missing_dev_memory_finish_decision/.test(oracleRow()?.detail ?? ''));
+    assert.equal(snapshot(), missingBefore, 'missing-record diagnostics do not mutate fixture state');
+    const handlers = createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    handlers.dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'Fresh isolated schema acceptance regression.' });
+    const canonicalBytes = readFileSync(join(root, path));
+    const canonical = JSON.parse(canonicalBytes.toString('utf8'));
+    const schema = 'proof-or-stop.dev-memory-finish-decision.v1';
+    check('CHK-007 finish schema: public writer emits exact canonical identity', canonical.schemaVersion === schema);
+    check('CHK-007 finish schema: canonical reader and DONE guard admit the fresh record',
+      readDevMemoryFinishDecision(root, storyId)?.schemaVersion === schema && canFinishGuard(context));
+    check('CHK-007 finish schema: canonical oracle admits the fresh record', oracleRow()?.status === 'pass');
+    assert.deepEqual(readFileSync(join(root, path)), canonicalBytes, 'canonical reads preserve complete fixture bytes');
+    const invalidSchemas: Array<[string, unknown]> = [
+      ['retired family', schema.replace('proof-or-stop', ['proof', 'bound'].join(''))],
+      ['missing', undefined], ['null', null], ['object', {}], ['empty', ''],
+      ['trailing space', `${schema} `], ['leading space', ` ${schema}`],
+      ['wrong case', schema.toUpperCase()], ['wrong version', schema.replace('.v1', '.v2')],
+      ['extra suffix', `${schema}.extra`], ['confusable separator', schema.replace('.', '\uFF0E')],
+    ];
+    for (const [label, schemaVersion] of invalidSchemas) {
+      const bytes = `${JSON.stringify({ ...canonical, schemaVersion }, null, 2)}\n`;
+      write(root, path, bytes);
+      const before = snapshot();
+      check(`CHK-007 finish schema: ${label} is rejected by current reader`, readDevMemoryFinishDecision(root, storyId) === null);
+      check(`CHK-007 finish schema: ${label} blocks DONE`, canFinishGuard(context) === false);
+      const reason = getGuardFailureReason(storyId, store, 'DONE', root, root) ?? '';
+      const row = oracleRow();
+      assert.equal(snapshot(), before, `${label} reader, guard and oracle preserve bytes, events, outputs, locks, index, status and refs`);
+      check(`CHK-007 finish schema: ${label} reports explicit unsupported identity`,
+        /unsupported.identity/i.test(reason) && !/missing_dev_memory_finish_decision/.test(reason));
+      check(`CHK-007 finish schema: ${label} names the rejected schema and artifact site`,
+        reason.includes('schemaVersion') && reason.includes(path) && reason.includes(String(JSON.stringify(schemaVersion))));
+      check(`CHK-007 finish schema: ${label} oracle matches the guard without a missing-decision claim`,
+        row?.status === 'fail' && row.blocking && (row.detail ?? '').includes(reason)
+        && !/missing_dev_memory_finish_decision/.test(JSON.stringify(row)));
+      assert.equal(readFileSync(join(root, path), 'utf8'), bytes, `${label} rejection preserves complete fixture bytes`);
+    }
+    for (const schemaVersion of [`${schema}\n\u001b[31m`, `${schema}${'x'.repeat(1000)}`]) {
+      write(root, path, JSON.stringify({ ...canonical, schemaVersion }));
+      const before = snapshot();
+      const reason = getGuardFailureReason(storyId, store, 'DONE', root, root) ?? '';
+      const row = oracleRow();
+      check('CHK-007 finish schema: unsupported diagnostic is bounded and escapes control characters',
+        /unsupported.identity/i.test(reason) && reason.length < 600 && !/[\u0000-\u001f\u007f]/.test(reason)
+        && row?.status === 'fail' && (row.detail ?? '').includes(reason));
+      assert.equal(snapshot(), before, 'bounded diagnostic rendering preserves fixture state');
+    }
+    write(root, path, '{ malformed json');
+    const malformedBefore = snapshot();
+    check('CHK-007 finish schema: malformed JSON retains existing fail-closed behavior',
+      readDevMemoryFinishDecision(root, storyId) === null && !canFinishGuard(context)
+      && /missing_dev_memory_finish_decision/.test(getGuardFailureReason(storyId, store, 'DONE', root, root) ?? '')
+      && /missing_dev_memory_finish_decision/.test(oracleRow()?.detail ?? ''));
+    assert.equal(snapshot(), malformedBefore, 'malformed-record diagnostics preserve fixture state');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+assertFinishDecisionCanonicalSchema();
+if (process.argv.includes('--finish-schema-only')) {
+  console.log(`finish-decision identity diagnostic smoke passed: ${passed} assertions`);
+  process.exit(0);
+}
 assertAllFourDevDoorsGated();
 assertAckRoundTripAndExistenceOnly();
 assertAckFailClosedOnCorruption();

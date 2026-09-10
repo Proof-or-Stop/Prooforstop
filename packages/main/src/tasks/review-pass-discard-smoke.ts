@@ -20,6 +20,7 @@ import {
   nativeReviewFixtureHostEnvironment,
   runBrokeredNativeReviewCli,
 } from './native-review-fixture.js';
+import { adapterSessionEnv } from './adapter-session-env.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -118,6 +119,7 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
     createdAt: now,
     startedAt: now,
     endedAt: null,
+    ...(phase === 'REVIEW' ? { currentReviewRound: now } : {}),
     events: [{ phase, action: 'advance', timestamp: now }],
   });
   store.writeChecklist(storyId, {
@@ -137,7 +139,12 @@ async function runProofOrStop(root: string, command: string, args: Record<string
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...sanitizedFixtureChildEnvironment(process.env), PROOF_OR_STOP_PROJECT_ROOT: root, ...envOverrides },
+      env: {
+        ...sanitizedFixtureChildEnvironment(process.env),
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        ...adapterSessionEnv('review-pass-discard-smoke-owner', 'main'),
+        ...envOverrides,
+      },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -191,7 +198,9 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `proof-or-stop-review-${name}`);
-    const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
+    const runIds = new Map<string, string>();
+    // startReviewRun issues signed dispatch under the real fixture host identity.
+    for (const agent of agents) runIds.set(agent, await startReviewRun(root, storyId, agent));
     await Promise.all(agents.map(agent => runBrokeredNativeReviewCli({
       root,
       store: new StoryStore(root),
@@ -702,7 +711,8 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
   try {
     const storyId = 'B-init';
     const now = '2026-04-30T10:00:00.000Z';
-    new StoryStore(root).writeStory(storyId, {
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
       storyId,
       name: 'init-dispatch-timeout-smoke',
       title: 'Init dispatch timeout smoke',
@@ -714,6 +724,16 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
       startedAt: now,
       endedAt: null,
       events: [],
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Synthetic INIT item',
+        context: 'Synthetic context for INIT reviewer dispatch.',
+        status: 'pending',
+        startTime: null,
+        endTime: null,
+      }],
     });
 
     const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-story-init' });
@@ -810,7 +830,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     const verificationPrompt = await runProofOrStop(root, 'dispatch', {
       storyId: planStoryId,
       itemId: 'CHK-001',
-      agentType: 'verification-intent',
+      agentType: 'proof-or-stop-verification-intent',
     });
     assert.match(verificationPrompt, /define verification intent/, 'verification-intent must route to its prompt');
     assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, 'verification-intent must not receive implementer completion guidance');
@@ -818,13 +838,13 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
       assert.throws(
         () => validateAgentDispatchRequest({ agentType, phase: 'PLAN', itemId: 'CHK-001' }),
         (error: unknown) => error instanceof AgentDispatchRegistryError
-          && error.code === 'legacy_agent_type'
-          && /legacy read-side identity.*proof-or-stop-verification-intent/.test(error.message),
+          && (error.code === 'legacy_agent_type' || error.code === 'unknown_agent_type')
+          && /proof-or-stop-verification-intent/.test(error.message),
         `${agentType} must be rejected with canonical verification-intent guidance`,
       );
     }
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'verification-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'proof-or-stop-verification-intent' }),
       /agent_dispatch_mutation_scope_denied/,
       'verification-intent role must not mark checklist done',
     );

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "proof-or-stop.scope_boundary.v1.1",
+  "storyId": "B-0aa0",
+  "mode": "maintenance",
+  "allowed": [
+    "Add the canonical plan navigation entry to docs/requirements/NAV.md",
+    "Recover and reconcile docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md from local branch story/B-ccf4",
+    "Run read-only pinned-version Claude CLI and Agy CLI audits over identical frozen bytes and incorporate accepted findings"
+  ],
+  "excluded": [
+    "Change Story or fixture data outside B-0aa0",
+    "Create docs/requirements/decisions/dynamic-validation-three-tier-red-green-execution-plan.md",
+    "Enable enforce-low-risk",
+    "Modify runtime implementation or validation configuration"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "The user requested the three-tier execution plan and two independent CLI audits; the existing B-ccf4 plan is promoted instead of creating a competing source.",
+  "createdAt": "2026-09-09T22:31:19.069Z",
+  "updatedAt": "2026-09-09T22:31:19.069Z",
+  "_hash": "ce4c32140ad63ffa2be7536200414766612673f628a4e580483ae019140bb456"
+}

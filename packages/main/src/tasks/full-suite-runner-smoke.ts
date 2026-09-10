@@ -4,7 +4,7 @@ import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync,
 import { dirname, join, resolve, win32 } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createServer } from 'node:net';
 import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
@@ -169,7 +169,7 @@ async function main(): Promise<void> {
   const sentinelFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-port');
   assert(runnerSmokeFixedPort?.access === 'exclusive' && runnerSmokeFixedPort.canonicalKey === sentinelFixedPort?.canonicalKey, 'canonical runner smoke declares the real fixed-port collision it probes');
   const heavyKey = stateDirKey('runtime', 'full-suite-heavy');
-  for (const member of ['test:flow-stability-smoke', 'test:milestone-status', 'test:proofstory-acceptance-rollout', 'test:proofstory-intent-hardening-smoke', 'test:review-incremental-context-smoke']) {
+  for (const member of ['test:flow-stability-smoke', 'test:proofstory-acceptance-rollout', 'test:proofstory-intent-hardening-smoke', 'test:review-incremental-context-smoke']) {
     const heavyClaim = FULL_SUITE_ENTRIES.find(item => item.name === member)?.resources.find(resource => resource.class === 'fixed-path' && resource.key === heavyKey);
     assert(heavyClaim?.access === 'exclusive', `high-fan-out member ${member} shares the exclusive heavy-smoke resource claim`);
   }
@@ -318,6 +318,38 @@ async function main(): Promise<void> {
   const reportOrder = await runScheduled([entry('inventory-first', [], 1), entry('priority-first', [], 100)], 1, async (item) => { launchOrder.push(item.name); return pass(item.name); }, cancelOnFirstFailure);
   assert(launchOrder[0] === 'priority-first', 'priority affects launch order');
   assert(reportOrder.map(({ name }) => name).join(',') === 'inventory-first,priority-first', 'priority preserves canonical report order');
+  const dependencyEvents: string[] = [];
+  await runScheduled([
+    { ...entry('dependent-first-by-priority', [], 100), after: ['prerequisite'] } as FullSuiteEntry,
+    entry('prerequisite'),
+    entry('independent', [], 50),
+  ], 2, async (item) => {
+    dependencyEvents.push(`${item.name}:start`);
+    await new Promise(done => setTimeout(done, item.name === 'prerequisite' ? 20 : 1));
+    dependencyEvents.push(`${item.name}:end`);
+    return pass(item.name);
+  }, cancelOnFirstFailure);
+  assert(
+    dependencyEvents.indexOf('dependent-first-by-priority:start') > dependencyEvents.indexOf('prerequisite:end')
+      && dependencyEvents.indexOf('independent:start') < dependencyEvents.indexOf('prerequisite:end'),
+    'an explicit predecessor completion overrides dependent priority without occupying a worker',
+  );
+  let invalidDependencyLaunches = 0;
+  let unknownPredecessorRejected = false;
+  try {
+    await runScheduled([
+      { ...entry('unknown-dependent'), after: ['missing'] },
+    ], 1, async item => { invalidDependencyLaunches++; return pass(item.name); }, cancelOnFirstFailure);
+  } catch (error) { unknownPredecessorRejected = /unknown scheduled predecessor/.test(String(error)); }
+  assert(unknownPredecessorRejected && invalidDependencyLaunches === 0, 'an unknown predecessor fails closed before any process launch');
+  let cycleRejected = false;
+  try {
+    await runScheduled([
+      { ...entry('cycle-a'), after: ['cycle-b'] },
+      { ...entry('cycle-b'), after: ['cycle-a'] },
+    ], 2, async item => { invalidDependencyLaunches++; return pass(item.name); }, cancelOnFirstFailure);
+  } catch (error) { cycleRejected = /scheduled predecessor cycle/.test(String(error)); }
+  assert(cycleRejected && invalidDependencyLaunches === 0, 'a predecessor cycle fails closed before any process launch');
   assert((await runScheduled([], 4, async (item) => pass(item.name), cancelOnFirstFailure)).length === 0, 'empty selection completes');
   assert((await runScheduled([entry('only')], 64, async (item) => pass(item.name), cancelOnFirstFailure)).length === 1, 'jobs above member count executes member once');
   for (const invalid of ['NaN', 'Infinity', '0', '-1', '1.5', '65', undefined]) {
@@ -346,6 +378,57 @@ async function main(): Promise<void> {
   assert(effectiveEntryTimeoutMs(headroomProbe, 4) === Math.round(200_000 * CONCURRENCY_HEADROOM_FACTOR), 'parallel execution scales the declared budget by the concurrency headroom factor');
   assert(effectiveEntryTimeoutMs(defaultedProbe, 4) === Math.round(120_000 * CONCURRENCY_HEADROOM_FACTOR), 'an entry with no declared timeout scales the default rather than staying at it');
   assert(withConcurrencyHeadroom(headroomProbe, 4).timeoutMs === effectiveEntryTimeoutMs(headroomProbe, 4) && withConcurrencyHeadroom(headroomProbe, 4).name === headroomProbe.name, 'the scheduler-facing entry carries the scaled cap and nothing else changes');
+  const rolloutEntry = FULL_SUITE_ENTRIES.find(entry => entry.name === 'test:proofstory-acceptance-rollout');
+  assert(rolloutEntry !== undefined, 'the ProofStory acceptance rollout member has a scheduler policy entry');
+  const rolloutConcurrentAllowanceMs = effectiveEntryTimeoutMs(rolloutEntry!, 4);
+  assert(
+    rolloutEntry!.timeoutMs === 600_000 && rolloutConcurrentAllowanceMs === 900_000,
+    `ProofStory rollout retains its 600000ms standalone / 900000ms concurrent scheduler cap (actual ${rolloutConcurrentAllowanceMs}ms)`,
+  );
+  assert(
+    rolloutConcurrentAllowanceMs < FULL_SUITE_BUDGET_MS,
+    `ProofStory rollout concurrent allowance ${rolloutConcurrentAllowanceMs}ms remains below the ${FULL_SUITE_BUDGET_MS}ms whole-suite budget`,
+  );
+  const retiredVocabularyEntry = FULL_SUITE_ENTRIES.find(entry => entry.name === 'test:retired-authority-vocabulary-guard');
+  assert(retiredVocabularyEntry !== undefined, 'the retired-authority vocabulary guard has a scheduler policy entry');
+  assert(
+    retiredVocabularyEntry!.timeoutMs === 240_000 && effectiveEntryTimeoutMs(retiredVocabularyEntry!, 3) === 360_000,
+    'the 836-build vocabulary guard retains a bounded 240000ms standalone / 360000ms concurrent budget',
+  );
+  assert(
+    retiredVocabularyEntry!.resources.some(resource => resource.class === 'git-common-dir' && resource.access === 'shared')
+      && !retiredVocabularyEntry!.resources.some(resource => resource.class === 'git-common-dir' && resource.access === 'exclusive'),
+    'the vocabulary guard remains a shared repo reader after its CLI help probes move to a disposable root',
+  );
+  const narrowingEntry = FULL_SUITE_ENTRIES.find(entry => entry.name === 'test:narrowing-repin');
+  assert(
+    narrowingEntry?.timeoutMs === 300_000 && effectiveEntryTimeoutMs(narrowingEntry, 3) === 450_000,
+    'the narrowing receipt matrix retains a bounded 300000ms standalone / 450000ms concurrent budget',
+  );
+  const verificationEntry = FULL_SUITE_ENTRIES.find(entry => entry.name === 'test:verification-run-and-guard-smoke');
+  assert(verificationEntry?.priority === 950, 'the longest verification matrix retains priority ahead of the remaining heavy members');
+  assert(
+    (verificationEntry as FullSuiteEntry & { after?: string[] } | undefined)?.after?.join(',') === 'test:proofstory-acceptance-rollout',
+    'the sharded verification matrix waits through rollout without returning to inventory tail',
+  );
+  const milestoneEntry = FULL_SUITE_ENTRIES.find(entry => entry.name === 'test:milestone-status');
+  assert(
+    milestoneEntry?.priority === -100 && !milestoneEntry.resources.some(resource => resource.key === heavyKey),
+    'the bounded milestone matrix launches after ordinary work without extending the exclusive heavy critical path',
+  );
+  const cohortRunnerUrl = pathToFileURL(resolve(process.cwd(), 'scripts/run-proofstory-acceptance-rollout-cohort.mjs')).href;
+  const cohortJobsProbe = JSON.parse(execFileSync(process.execPath, [
+    '--input-type=module',
+    '--eval',
+    `const m=await import(${JSON.stringify(cohortRunnerUrl)});` +
+      `let aboveMaxRejected=false;try{m.resolveCohortJobs({PROOF_OR_STOP_ROLLOUT_COHORT_JOBS:'13'});}catch{aboveMaxRejected=true;}` +
+      `console.log(JSON.stringify({defaultJobs:m.resolveCohortJobs({}),overrideJobs:m.resolveCohortJobs({PROOF_OR_STOP_ROLLOUT_COHORT_JOBS:'4'}),maxJobs:m.resolveCohortJobs({PROOF_OR_STOP_ROLLOUT_COHORT_JOBS:'12'}),aboveMaxRejected}));`,
+  ], { cwd: process.cwd(), encoding: 'utf8' })) as {
+    defaultJobs: number; overrideJobs: number; maxJobs: number; aboveMaxRejected: boolean;
+  };
+  assert(cohortJobsProbe.defaultJobs === 6, 'acceptance rollout cohort defaults to six production case jobs');
+  assert(cohortJobsProbe.overrideJobs === 4, 'acceptance rollout cohort retains the bounded environment override');
+  assert(cohortJobsProbe.maxJobs === 12 && cohortJobsProbe.aboveMaxRejected, 'acceptance rollout cohort accepts MAX=12 and rejects any value above it');
   assert(!fullSuiteBudgetIsSatisfiable([{ name: 'test:oversized', resources: [], timeoutMs: FULL_SUITE_BUDGET_MS }], 1), 'an entry allowed the whole budget makes the gate unsatisfiable');
   // Default concurrency is derived from the machine. Asserted across cpu counts
   // rather than against this host's own number, which would make the assertion
@@ -687,8 +770,21 @@ async function main(): Promise<void> {
     const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
     const child = interruptChild = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
     let output = ''; child.stdout?.on('data', (chunk) => { output += chunk; }); child.stderr?.on('data', (chunk) => { output += chunk; });
-    for (let index = 0; index < 100 && !existsSync(heartbeat); index++) await new Promise((done) => setTimeout(done, 20));
-    assertWithDetail(existsSync(heartbeat), 'fixture runner starts real descendant before SIGINT', `output=${output}`); child.kill('SIGINT');
+    const descendantReadyDeadline = Date.now() + 20_000;
+    while (!existsSync(heartbeat) && child.exitCode === null && Date.now() < descendantReadyDeadline) {
+      await new Promise((done) => setTimeout(done, 20));
+    }
+    if (!existsSync(heartbeat)) {
+      let earlyExitCode = child.exitCode;
+      if (earlyExitCode === null) {
+        const stopped = new Promise<number | null>((done) => child.once('exit', done));
+        child.kill('SIGINT');
+        earlyExitCode = await stopped;
+      }
+      assertWithDetail(false, 'fixture runner starts real descendant before SIGINT', `exit=${earlyExitCode}; signal=${child.signalCode}; output=${output}`);
+    }
+    assertWithDetail(existsSync(heartbeat), 'fixture runner starts real descendant before SIGINT', 'ready');
+    child.kill('SIGINT');
     const exitCode = await new Promise<number | null>((done) => child.on('exit', done));
     assertWithDetail(exitCode === 130, 'top-level SIGINT exits 130', `actual=${exitCode}; output=${output}`);
     const receipt = JSON.parse(readFileSync(resultPath, 'utf8')) as { interruptedBy: string; processLaunchCount: number; results: FullSuiteResult[] };

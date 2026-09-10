@@ -29,7 +29,7 @@ export const FIXTURE_ENTRIES = new Set([
 
 const [entry, ...rest] = process.argv.slice(2);
 assert.ok(FIXTURE_ENTRIES.has(entry), 'expected one registered validation fixture entry');
-assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry.endsWith('/flow-stability-smoke.js')) ? ['--canonical-core'] : [], 'registered fixture arguments');
+assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry.endsWith('/flow-stability-smoke.js')) ? ['--canonical-core'] : entry.endsWith('/quorum-submit-smoke.js') && rest.length > 0 ? ['--jobs=2'] : [], 'registered fixture arguments');
 const fixture = createFixtureMachineEnvironment();
 const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
 delete env.LATTICE_HEALTH_PATH;

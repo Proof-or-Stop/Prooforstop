@@ -137,7 +137,7 @@ function assertNoHumanHint(stdout: string, label: string): void {
 {
   const stdout = runCli(['conduit_status', '--format=json']);
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
-  assert.equal(parsed.schemaVersion, 'lattice.conduit_status.v1');
+  assert.equal(parsed.schemaVersion, 'proof-or-stop.conduit_status.v1');
   assert.equal(parsed.productionDone, false);
   assertNoHumanHint(stdout, 'conduit_status --format=json');
 }
@@ -146,7 +146,7 @@ function assertNoHumanHint(stdout: string, label: string): void {
 {
   const stdout = runCli(['conduit_status', '--json']);
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
-  assert.equal(parsed.schemaVersion, 'lattice.conduit_status.v1');
+  assert.equal(parsed.schemaVersion, 'proof-or-stop.conduit_status.v1');
   assertNoHumanHint(stdout, 'conduit_status --json');
 }
 
@@ -156,7 +156,7 @@ function assertNoHumanHint(stdout: string, label: string): void {
 {
   const stdout = runCli(['host_list', '--format=json']);
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
-  assert.equal(parsed.schemaVersion, 'lattice.host_list.v1');
+  assert.equal(parsed.schemaVersion, 'proof-or-stop.host_list.v1');
   assertNoHumanHint(stdout, 'host_list --format=json');
 }
 

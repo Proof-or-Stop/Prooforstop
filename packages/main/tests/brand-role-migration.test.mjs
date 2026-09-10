@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
@@ -20,6 +20,7 @@ const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'))
 const reviewerOptIn = await import(join(distRoot, 'core/reviewer-opt-in.js'));
 const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
 const managedAssets = await import(join(distRoot, 'core/managed-assets.js'));
+const { getSessionIdentity, resetSessionIdForTest } = await import(join(distRoot, 'core/owner-session.js'));
 
 const aliases = [
   ['lattice-implementer', 'proof-or-stop-implementer'],
@@ -62,20 +63,24 @@ assert.deepEqual(
 assert.equal(
   Object.keys(configuredPromptRoles).some(roleId => roleId.startsWith('lattice-')),
   false,
-  'legacy lattice role IDs remain compatibility reads, not active configuration keys',
+  'retired role IDs cannot appear in active configuration keys',
 );
 for (const [legacy, canonical] of aliases) {
-  assert.equal(identity.canonicalAgentRoleId(legacy), canonical, `${legacy} canonicalizes`);
-  assert.equal(identity.agentRoleIdsEqual(legacy, canonical), true, `${legacy} compares equal to its canonical role`);
+  assert.equal(identity.canonicalAgentRoleId(legacy), legacy, `${legacy} is not silently rewritten`);
+  assert.equal(identity.agentRoleIdsEqual(legacy, canonical), false, `${legacy} cannot satisfy a canonical role`);
 }
 
-assert.equal(dispatch.resolveAgentDispatchType('lattice-review-quality').canonicalType, 'proof-or-stop-review-quality');
-assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-verification-intent');
+for (const [retired, canonical] of aliases) {
+  assert.throws(() => dispatch.resolveAgentDispatchType(retired), /unknown agentType/);
+  assert.equal(identity.isCanonicalAgentRoleId(retired), false);
+  assert.equal(identity.canonicalAgentRoleId(canonical), canonical);
+}
+assert.equal(dispatch.resolveAgentDispatchType('proof-or-stop-verification-intent').canonicalType, 'proof-or-stop-verification-intent');
 for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
   assert.throws(
     () => dispatch.resolveAgentDispatchType(legacyType),
-    /legacy read-side identity.*proof-or-stop-verification-intent/,
-    `${legacyType} is a read-side identity, not a new dispatch role`,
+    legacyType.startsWith('proof-or-stop-') ? /legacy read-side identity.*proof-or-stop-verification-intent/ : /unknown agentType/,
+    `${legacyType} cannot authorize new dispatch`,
   );
 }
 assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);
@@ -87,52 +92,49 @@ assert.equal(
 );
 assert.equal(
   reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality', 'lattice-review-quality'),
-  true,
-  'registered canonical and legacy reviewer identities still compare equal',
+  false,
+  'retired reviewer identity cannot satisfy a canonical lane',
 );
 assert.equal(
   reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality@fallback', 'lattice-review-quality@fallback'),
-  true,
-  'registered canonical and legacy scoped reviewer identities still compare equal',
+  false,
+  'retired scoped identity cannot satisfy a canonical lane',
 );
-assert.equal(dispatch.resolveAgentDispatchType('lattice-review-concept').canonicalType, 'proof-or-stop-review-concept');
-assert.equal(dispatch.resolveAgentDispatchType('lattice-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
-assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);
+assert.equal(dispatch.resolveAgentDispatchType('proof-or-stop-review-concept').canonicalType, 'proof-or-stop-review-concept');
+assert.equal(dispatch.resolveAgentDispatchType('proof-or-stop-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
+assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), []);
 assert.deepEqual(
   identity.legacyAgentRoleIds('proof-or-stop-review-quality@fallback'),
-  ['lattice-review-quality@fallback'],
-  'fallback canonical roles reconstruct the suffixed legacy alias',
+  [],
+  'canonical fallback roles expose no retired alias',
 );
 assert.deepEqual(
   identity.legacyAgentRoleIds('lattice-review-quality@fallback'),
-  ['lattice-review-quality@fallback'],
-  'fallback legacy roles remain readable without dropping their suffix',
+  [],
+  'retired fallback roles expose no registered alias',
 );
 assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-unknown@fallback'), []);
 assert.equal(
   identity.agentRoleIdsEqual('lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'),
-  true,
-  'canonical and legacy fallback roles compare equal',
+  false,
+  'retired fallback roles cannot satisfy canonical roles',
 );
 assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA, 'proof-or-stop.done-required-evidence');
-assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY, 'lattice.done-required-evidence');
 assert.equal(schema.isDoneRequiredEvidenceSchema('proof-or-stop.done-required-evidence'), true);
-assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), true);
+assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), false);
 assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence.v99'), false);
 assert.equal(schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA, 'proof-or-stop.command-spec.v2');
-assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.v2'), true);
-assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v2'), true);
-assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v1'), true);
+assert.equal(schema.isDoneRequiredCommandSpecV2Schema('proof-or-stop.command-spec.v2'), true);
+assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v2'), false);
+assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v1'), false);
 assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.v99'), false);
 assert.equal(schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA, 'proof-or-stop.done-prepare-generated-metadata.v1');
-assert.equal(schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA_LEGACY, 'lattice.done-prepare-generated-metadata.v1');
 assert.equal(schema.isDonePrepareGeneratedMetadataSchema('proof-or-stop.done-prepare-generated-metadata.v1'), true);
-assert.equal(schema.isDonePrepareGeneratedMetadataSchema('lattice.done-prepare-generated-metadata.v1'), true);
+assert.equal(schema.isDonePrepareGeneratedMetadataSchema('lattice.done-prepare-generated-metadata.v1'), false);
 assert.equal(schema.isDonePrepareGeneratedMetadataSchema('lattice.done-prepare-generated-metadata.v99'), false);
 assert.equal(schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA, 'proof-or-stop.done-prepare-validation-reuse.v1');
-assert.equal(schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA_LEGACY, 'lattice.done-prepare-validation-reuse.v1');
 assert.equal(schema.isDonePrepareValidationReuseSchema('proof-or-stop.done-prepare-validation-reuse.v1'), true);
-assert.equal(schema.isDonePrepareValidationReuseSchema('lattice.done-prepare-validation-reuse.v1'), true);
+assert.equal(schema.isDonePrepareValidationReuseSchema('lattice.done-prepare-validation-reuse.v1'), false);
 assert.equal(schema.isDonePrepareValidationReuseSchema('lattice.done-prepare-validation-reuse.v99'), false);
 assert.equal(
   generatedMetadata.DONE_PREPARE_GENERATED_METADATA_SCHEMA,
@@ -146,24 +148,24 @@ assert.equal(
 );
 assert.equal(
   identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
-  'proof-or-stop-review-quality -> proof-or-stop-implementer',
+  'lattice-review-quality -> lattice-implementer',
 );
 assert.deepEqual(
-  reviewerList.parseForceReviewers('proof-or-stop-review-quality,lattice-review-quality,quality'),
+  reviewerList.parseForceReviewers('proof-or-stop-review-quality,quality'),
   ['quality'],
-  'canonical and legacy spellings of one logical reviewer deduplicate before mounting',
+  'canonical and short reviewer names deduplicate before mounting',
 );
 const forcedQuality = reviewerList.computeActiveReviewers(
   { riskSignals: [] },
   { items: [] },
   null,
   [],
-  ['proof-or-stop-review-quality', 'lattice-review-quality', 'quality'],
+  ['proof-or-stop-review-quality', 'quality'],
 );
 assert.equal(
   forcedQuality.filter((reviewer) => reviewer.name === 'quality').length,
   1,
-  'canonical, legacy, and short reviewer identities produce one logical roster entry',
+  'canonical and short reviewer identities produce one logical roster entry',
 );
 assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'proof-or-stop-review-quality'), false);
 assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'lattice-review-quality'), false);
@@ -180,7 +182,9 @@ const reviewerText = reviewerList.renderActiveReviewersText(
   ),
 );
 assert.match(reviewerText, /proof-or-stop-review-concept/);
-assert.match(reviewerText, /legacy alias: lattice-review-concept/);
+assert.doesNotMatch(reviewerText, /lattice-|proofbound-/);
+assert.throws(() => reviewerList.parseForceReviewers('lattice-review-quality'), /not supported/);
+assert.throws(() => reviewerList.parseForceReviewers('proofbound-review-quality'), /not supported/);
 assert.match(reviewerText, /proof-or-stop-review-quality/);
 assert.match(reviewerText, /proof-or-stop-review-test-coverage/);
 assert.match(reviewerText, /proof-or-stop-review-behavior/);
@@ -191,22 +195,35 @@ try {
   const agentsDir = join(localAgentsRoot, '.claude', 'agents');
   mkdirSync(agentsDir, { recursive: true });
   writeFileSync(join(agentsDir, 'lattice-review-quality.md'), 'legacy managed role\n');
+  writeFileSync(join(agentsDir, 'proof-or-stop-review-quality.md'), 'canonical managed role\n');
   writeFileSync(join(agentsDir, 'my-personal-agent.md'), 'user-authored role\n');
   const templateDir = join(packageRoot, 'templates', 'agents');
   const scan = managedAssets.scanProjectLocalManagedAgents(localAgentsRoot, templateDir);
-  assert.ok(scan.managedFiles.includes('lattice-review-quality.md'), 'legacy lattice role basename is managed by exact alias mapping');
-  assert.deepEqual(scan.userFiles, ['my-personal-agent.md'], 'unrelated user-authored agent remains outside the managed set');
+  assert.ok(scan.managedFiles.includes('proof-or-stop-review-quality.md'), 'canonical role is managed');
+  assert.ok(!scan.managedFiles.includes('lattice-review-quality.md'), 'retired role is not a managed alias');
+  assert.deepEqual(scan.userFiles.sort(), ['lattice-review-quality.md', 'my-personal-agent.md'], 'unrecognized files remain outside the managed set');
   const migration = managedAssets.migrateProjectLocalManagedAgents(localAgentsRoot, templateDir);
-  assert.deepEqual(migration.removed, ['lattice-review-quality.md']);
-  assert.deepEqual(migration.preserved, ['my-personal-agent.md']);
-  assert.equal(existsSync(join(agentsDir, 'lattice-review-quality.md')), false, 'upgrade removes the legacy managed role');
+  assert.deepEqual(migration.removed, ['proof-or-stop-review-quality.md']);
+  assert.deepEqual(migration.preserved.sort(), ['lattice-review-quality.md', 'my-personal-agent.md']);
+  assert.equal(readFileSync(join(agentsDir, 'lattice-review-quality.md'), 'utf8'), 'legacy managed role\n', 'unrecognized retired file bytes are preserved without active alias admission');
   assert.equal(existsSync(join(agentsDir, 'my-personal-agent.md')), true, 'upgrade preserves the user-authored role');
 } finally {
   rmSync(localAgentsRoot, { recursive: true, force: true });
 }
 
 const reviewRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-role-'));
+const reviewFixtureEnv = {
+  PROOF_OR_STOP_SESSION_ID: 'sess-brand-role-review-fixture',
+  PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+};
+const previousReviewEnv = Object.fromEntries(Object.keys(reviewFixtureEnv).map(key => [key, process.env[key]]));
 try {
+  // Only these isolated registry consumers use the explicit supported host.
+  // They must not inherit the invoking host or its cached session identity.
+  Object.assign(process.env, reviewFixtureEnv);
+  resetSessionIdForTest();
+  assert.equal(getSessionIdentity().sessionId, reviewFixtureEnv.PROOF_OR_STOP_SESSION_ID);
+  assert.equal(getSessionIdentity().hostProvider, 'codex');
   mkdirSync(join(reviewRoot, 'packages/main/src'), { recursive: true });
   writeFileSync(join(reviewRoot, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
@@ -215,11 +232,11 @@ try {
     requirementsDir: 'docs/requirements',
     proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
   }));
-  writeFileSync(join(reviewRoot, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n.lattice/\n');
+  writeFileSync(join(reviewRoot, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n');
   writeFileSync(join(reviewRoot, 'packages/main/src/index.ts'), 'export const migrationSmoke = true;\n');
   execFileSync('git', ['init', '-q'], { cwd: reviewRoot });
-  execFileSync('git', ['config', 'user.email', 'migration-test@example.com'], { cwd: reviewRoot });
-  execFileSync('git', ['config', 'user.name', 'Migration Test'], { cwd: reviewRoot });
+  execFileSync('git', ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com'], { cwd: reviewRoot });
+  execFileSync('git', ['config', 'user.name', 'Harmonynet'], { cwd: reviewRoot });
   execFileSync('git', ['add', '.'], { cwd: reviewRoot });
   execFileSync('git', ['commit', '-qm', 'review role migration baseline'], { cwd: reviewRoot });
   const { StoryStore } = await import(join(distRoot, 'core/store.js'));
@@ -274,11 +291,13 @@ try {
   const findingAdd = registry.get('finding_add');
   const quorumSubmit = registry.get('quorum_submit');
   assert.ok(dispatch && reviewRunStart && reviewPassSet && findingAdd && quorumSubmit, 'canonical evidence consumers are registered');
+  const reviewRuns = new Map();
   for (const lane of ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage']) {
     assert.match(String(dispatch({ storyId, agentType: lane }).prompt), new RegExp(`Review lane: ${lane}`));
     const started = String(reviewRunStart({ storyId, agent: lane }));
     const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
     assert.ok(reviewRunId, `${lane} review_run_start emits a signed run id`);
+    reviewRuns.set(lane, reviewRunId);
     reviewPassSet({
       storyId,
       agent: lane,
@@ -287,29 +306,34 @@ try {
       readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
     });
   }
-  const legacyLane = 'lattice-review-quality';
-  assert.match(String(dispatch({ storyId, agentType: legacyLane }).prompt), /Review lane: proof-or-stop-review-quality/);
-  const legacyStarted = String(reviewRunStart({ storyId, agent: legacyLane }));
-  const legacyReviewRunId = legacyStarted.match(/Review run (\S+) started/)?.[1];
-  assert.ok(legacyReviewRunId, 'legacy reviewer alias reaches review_run_start');
-  findingAdd({
-    storyId,
-    agent: legacyLane,
-    reviewRunId: legacyReviewRunId,
-    desc: 'legacy reviewer actor is canonicalized on a new finding write',
-    severity: 'low',
-    category: 'edge',
+  const canonicalFinding = {
+    storyId, agent: 'proof-or-stop-review-quality',
+    reviewRunId: reviewRuns.get('proof-or-stop-review-quality'),
+    desc: 'Canonical reviewer writes a signed finding in the isolated test project',
+    severity: 'low', category: 'edge',
     readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
-  });
-  const persistedLegacyFinding = store.readFindings(storyId).findings.at(-1);
-  assert.equal(persistedLegacyFinding?.agent, 'proof-or-stop-review-quality', 'new findings persist canonical reviewer IDs');
-  reviewPassSet({
-    storyId,
-    agent: legacyLane,
-    reviewRunId: legacyReviewRunId,
-    note: 'Legacy reviewer alias normalized to the canonical quality lane',
-    readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
-  });
+  };
+  findingAdd(canonicalFinding);
+  assert.equal(store.readFindings(storyId).findings.at(-1)?.agent, canonicalFinding.agent);
+  function snapshotFiles(dir) {
+    return Object.fromEntries(readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).map(entry => [
+      entry.name, entry.isDirectory() ? snapshotFiles(join(dir, entry.name)) : readFileSync(join(dir, entry.name)).toString('base64'),
+    ]));
+  }
+  const storyPath = join(reviewRoot, '.proof-or-stop/story/actives', storyId);
+  for (const retiredLane of ['lattice-review-quality', 'proofbound-review-quality']) {
+    const before = snapshotFiles(storyPath);
+    assert.throws(() => dispatch({ storyId, agentType: retiredLane }), /unknown agentType/);
+    assert.throws(() => reviewRunStart({ storyId, agent: retiredLane }), /reviewer|agent|lane/i);
+    assert.throws(() => findingAdd({
+      ...canonicalFinding, agent: retiredLane,
+    }), /reviewer|agent|lane|retired/i);
+    assert.throws(() => reviewPassSet({
+      storyId, agent: retiredLane, reviewRunId: canonicalFinding.reviewRunId,
+      note: 'Retired actor must be rejected', readManifest: canonicalFinding.readManifest,
+    }), /reviewer|agent|lane|retired/i);
+    assert.deepEqual(snapshotFiles(storyPath), before, 'rejected retired actors preserve every Story file byte');
+  }
   execFileSync('git', ['add', '-f', '.proof-or-stop/story'], { cwd: reviewRoot });
   execFileSync('git', ['commit', '-qm', 'canonical reviewer evidence'], { cwd: reviewRoot });
   const quorum = quorumSubmit({
@@ -324,8 +348,14 @@ try {
   });
   assert.ok(quorum, 'canonical reviewer passes are accepted by quorum_submit');
 } finally {
+  for (const [key, value] of Object.entries(previousReviewEnv)) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+  resetSessionIdForTest();
   rmSync(reviewRoot, { recursive: true, force: true });
 }
+for (const [key, value] of Object.entries(previousReviewEnv)) assert.equal(process.env[key], value, `${key} fixture context was not restored`);
 
 const initRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-init-role-'));
 try {
@@ -337,8 +367,8 @@ try {
     requirementsDir: 'docs/requirements',
   }));
   execFileSync('git', ['init', '-q'], { cwd: initRoot });
-  execFileSync('git', ['config', 'user.email', 'migration-test@example.com'], { cwd: initRoot });
-  execFileSync('git', ['config', 'user.name', 'Migration Test'], { cwd: initRoot });
+  execFileSync('git', ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com'], { cwd: initRoot });
+  execFileSync('git', ['config', 'user.name', 'Harmonynet'], { cwd: initRoot });
   execFileSync('git', ['add', '.'], { cwd: initRoot });
   execFileSync('git', ['commit', '-qm', 'init role migration smoke'], { cwd: initRoot });
   const { StoryStore } = await import(join(distRoot, 'core/store.js'));

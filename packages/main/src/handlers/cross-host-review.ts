@@ -301,7 +301,7 @@ interface CrossHostIdentity {
 }
 
 export interface CrossHostReviewResult {
-  schemaVersion: 'lattice.cross_host_review.v1';
+  schemaVersion: 'proof-or-stop.cross_host_review.v1';
   storyId: string;
   runId: string;
   materialDigest: string;
@@ -530,7 +530,7 @@ function loadHostAFindings(path: string): Finding[] {
 
 function deriveValidationDigest(storyId: string, materialDigest: string, storyFilesHash: string, headHash?: string): string {
   return canonicalDigest({
-    schemaVersion: 'lattice.cross_host_review.validation_digest.v1',
+    schemaVersion: 'proof-or-stop.cross_host_review.validation_digest.v1',
     storyId,
     headHash,
     materialDigest,
@@ -545,7 +545,7 @@ function derivePromptDigest(
   storyFilesHash: string,
 ): string {
   return canonicalDigest({
-    schemaVersion: 'lattice.cross_host_review.prompt_digest.v1',
+    schemaVersion: 'proof-or-stop.cross_host_review.prompt_digest.v1',
     purpose: 'local crypto-deferred automatic cross-host adversarial review',
     storyId,
     hostId: host.hostId,
@@ -943,7 +943,7 @@ interface CrossHostVerdictDraft {
 
 function buildLocalHostVerdict(draft: CrossHostVerdictDraft, issuedAt: string): CrossHostVerdictRecord {
   const base = {
-    schemaVersion: 'lattice.host_verdict.v1' as const,
+    schemaVersion: 'proof-or-stop.host_verdict.v1' as const,
     mode: 'local' as const,
     storyId: draft.storyId,
     runId: draft.runId,
@@ -1312,7 +1312,7 @@ export function createCrossHostReviewHandlers(
       });
 
       const result: CrossHostReviewResult = {
-        schemaVersion: 'lattice.cross_host_review.v1',
+        schemaVersion: 'proof-or-stop.cross_host_review.v1',
         storyId,
         runId,
         materialDigest,

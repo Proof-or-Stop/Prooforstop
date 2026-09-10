@@ -116,6 +116,11 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-B-e40f-lab-convergence.mjs`,
+    'Lab-only maintenance harness for the completed B-e40f convergence experiment. It intentionally measures the '
+    + 'full 73-case coordinator against built dist and records Lab RED/GREEN evidence; running it inside every canonical '
+    + 'validate would duplicate the registered quorum-submit smoke and turn a bounded maintenance witness into standing '
+    + 'suite policy. The permanent red-B-e40f-quorum-submit-harness.mjs coverage remains registered.'],
   [`${POPULATION_DIR_REL}/red-b2aa7-chk001-receipt.mjs`,
     'PRE-FIX attestation. Every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED '
     + '(run.status !== 0 plus redCount === total), so on the finished tree it prints nothing and exits 0. Registering '

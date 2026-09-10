@@ -41,9 +41,9 @@ import {
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { readGitBlobAt } from './git-blob-reader.js';
 
-export const MATERIAL_CODE_POLICY_SCHEMA_VERSION = 'lattice.material_code_policy.v1' as const;
+export const MATERIAL_CODE_POLICY_SCHEMA_VERSION = 'proof-or-stop.material_code_policy.v1' as const;
 export const MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION =
-  'lattice.material_classification_snapshot.v1' as const;
+  'proof-or-stop.material_classification_snapshot.v1' as const;
 
 /** Level-1 immutable runtime/build-config manifest basenames (exact, case-insensitive). */
 export const IMMUTABLE_MANIFEST_BASENAMES: readonly string[] = [

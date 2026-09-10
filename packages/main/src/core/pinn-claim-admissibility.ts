@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
-export const PINN_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'lattice.pinn_claim_admissibility.v1' as const;
-export const PINN_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.pinn_claim_admissibility_verifier.v1' as const;
+export const PINN_CLAIM_ADMISSIBILITY_SCHEMA_VERSION = 'proof-or-stop.pinn_claim_admissibility.v1' as const;
+export const PINN_CLAIM_ADMISSIBILITY_VERIFIER_VERSION = 'proof-or-stop.pinn_claim_admissibility_verifier.v1' as const;
 
 export const PINN_BOUNDARY_PARAGRAPH =
   'Proof-or-Stop for PINNs is a local claim-admissibility control layer. It checks whether a stated PINN claim has current, bound evidence before advancing; it does not prove PDE correctness, deployment readiness, production readiness, or external completion.';
@@ -133,7 +133,7 @@ export interface PinnArmMetrics {
 }
 
 export interface PinnBenchmarkReport {
-  schemaVersion: 'lattice.pinn_claim_admissibility_benchmark.v1';
+  schemaVersion: 'proof-or-stop.pinn_claim_admissibility_benchmark.v1';
   suiteStatus: 'PASS' | 'FAIL';
   generatedAt: string;
   totalInjections: number;
@@ -614,7 +614,7 @@ export function runPinnClaimBenchmark(): PinnBenchmarkReport {
   const weakerArmsExposeGap = arms.filter((arm) => arm.armId !== 'A4').some((arm) => arm.unsupportedAcceptanceCount > 0);
   const suiteStatus = a4.rejectedInjectionCount === PINN_FAILURE_INJECTIONS.length && weakerArmsExposeGap ? 'PASS' : 'FAIL';
   return {
-    schemaVersion: 'lattice.pinn_claim_admissibility_benchmark.v1',
+    schemaVersion: 'proof-or-stop.pinn_claim_admissibility_benchmark.v1',
     suiteStatus,
     generatedAt: '2026-07-02T00:00:00.000Z',
     totalInjections: PINN_FAILURE_INJECTIONS.length,

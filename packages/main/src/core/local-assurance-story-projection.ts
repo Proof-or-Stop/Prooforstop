@@ -9,7 +9,7 @@ import {
   resolveWorktreePath,
 } from './worktree-runtime.js';
 
-export const LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION = 'lattice.local_assurance_story_projection.v1';
+export const LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION = 'proof-or-stop.local_assurance_story_projection.v1';
 
 export type StoryStateSource = 'main' | 'worktree';
 

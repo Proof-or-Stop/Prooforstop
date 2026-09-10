@@ -1,0 +1,20 @@
+{
+  "base": "cf21df09c273074d7aa3227a5f436c6f5badf47a",
+  "historicalCandidate": "50ca0454dc8d6e2f44aa34918493da7415ee2c78",
+  "currentMain": "04e66fdbaeaeeb540a80c9f8e16085a5ee468f5a",
+  "beforeCommands": 135,
+  "afterCommands": 135,
+  "retainedMainConflicts": [
+    {
+      "argv": "node packages/main/dist/tasks/quorum-submit-smoke.js --jobs=2",
+      "field": "args",
+      "resolution": "preserve latest main modular coordinator"
+    },
+    {
+      "argv": "node packages/main/dist/tasks/quorum-submit-smoke.js --jobs=2",
+      "field": "resources",
+      "resolution": "preserve latest main modular coordinator"
+    }
+  ],
+  "identityKey": "executable plus argv, with only known --jobs and --probe-jobs execution-count arguments excluded"
+}

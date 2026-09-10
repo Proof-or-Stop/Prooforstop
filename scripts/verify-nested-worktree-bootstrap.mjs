@@ -114,7 +114,7 @@ function setupInitCheckGates(projectRoot, storyId) {
 // smoke does (two required reviewer agents + scope/execution boundaries).
 function recordInitCheck(projectRoot, storyId) {
   run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer' });
+  run(projectRoot, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
   setupInitCheckGates(projectRoot, storyId);
 }
 

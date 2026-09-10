@@ -17,6 +17,7 @@ import {
   assertClaudeSchemaEquivalent,
   deriveClaudeCompatibleSchema,
 } from './lib/story6-schema-compat.mjs';
+import { assertCanonicalStory6Provenance } from './lib/story6-provenance.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -42,16 +43,17 @@ const ORDER = Object.freeze([
 
 function digest(domain, value) {
   return createHash('sha256')
-    .update(`proofbound.story6-ab.v1\0${domain}\0`, 'utf8')
+    .update(`proof-or-stop.story6-ab.v1\0${domain}\0`, 'utf8')
     .update(typeof value === 'string' ? value : canonicalJsonStringify(value), 'utf8')
     .digest('hex');
 }
 
 function parseArgs(argv) {
-  const out = { execute: false, selfcheck: false, cellId: null, campaignId: null, codexModel: null, claudeModel: null, timeoutMs: 600_000 };
+  const out = { execute: false, selfcheck: false, selfcheckProvenanceOutput: null, cellId: null, campaignId: null, codexModel: null, claudeModel: null, timeoutMs: 600_000 };
   for (const arg of argv) {
     if (arg === '--execute') out.execute = true;
     else if (arg === '--selfcheck') out.selfcheck = true;
+    else if (arg.startsWith('--selfcheck-provenance-output=')) out.selfcheckProvenanceOutput = path.resolve(arg.slice(30));
     else if (arg.startsWith('--cell=')) out.cellId = arg.slice(7);
     else if (arg.startsWith('--campaign-id=')) out.campaignId = arg.slice(14);
     else if (arg.startsWith('--codex-model=')) out.codexModel = arg.slice(14);
@@ -63,13 +65,14 @@ function parseArgs(argv) {
     throw new Error('--execute requires --campaign-id, --codex-model, and --claude-model');
   }
   if (out.execute && !out.cellId) throw new Error('--execute requires exactly one --cell; full campaigns must be externally serialized');
+  if (out.selfcheckProvenanceOutput && !out.selfcheck) throw new Error('--selfcheck-provenance-output requires --selfcheck');
   if (!Number.isSafeInteger(out.timeoutMs) || out.timeoutMs < 10_000) throw new Error('--timeout-ms must be an integer >= 10000');
   return out;
 }
 
 async function loadInputs() {
   const protocol = JSON.parse(await readFile(path.join(HERE, 'protocol.json'), 'utf8'));
-  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.json'), 'utf8'));
+  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.current.json'), 'utf8'));
   const identity = validateExperiment(protocol, corpus);
   return { protocol, corpus, identity };
 }
@@ -119,15 +122,15 @@ function outputInstruction(sample) {
 }
 
 async function producePromptThroughAgentPrompt(cell, sample) {
-  const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'proofbound-story6-live-handler-'));
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'proof-or-stop-story6-live-handler-'));
   const storyId = `EXP-${sample.id}`;
   try {
     await writeFile(path.join(fixtureRoot, 'proof-or-stop.config.json'), `${JSON.stringify({
       scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
       storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
       promptEnvelope: {
-        version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { [cell.roleId]: 'legacy-full-context' },
+        version: 'proof-or-stop.prompt-envelope-rollout.v1',
+        roles: { [cell.roleId]: 'full-envelope' },
       },
     })}\n`);
     execFileSync('git', ['init', '-q'], { cwd: fixtureRoot });
@@ -157,33 +160,30 @@ async function producePromptThroughAgentPrompt(cell, sample) {
       storyId,
       format: 'json',
       auditExperiment: true,
-      ...(cell.arm === 'modular' ? { experimentalModeOverride: 'full-envelope' } : {}),
     });
     const response = JSON.parse(rawResponse);
     if (response.auditOnly !== true || response.auditExperiment !== true || response.canMintReviewEvidence !== false) {
       throw new Error('agent_prompt experiment response lost its audit-only boundary');
     }
-    const expectedMode = cell.arm === 'modular' ? 'full-envelope' : 'legacy-full-context';
+    const expectedMode = 'full-envelope';
     if (response.mode !== expectedMode || typeof response.prompt !== 'string') throw new Error(`agent_prompt returned wrong ${cell.arm} mode`);
     const events = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.targetKind === 'story-dispatch');
     const event = events.at(-1);
     if (!event || event.agentType !== cell.roleId) throw new Error('agent_prompt did not persist the matching dispatch event');
-    if (cell.arm === 'modular') {
-      if (!response.envelope?.envelopeId
-          || event.promptEnvelopeId !== response.envelope.envelopeId
-          || event.assembledPromptDigest !== response.envelope.assembledPromptDigest) {
-        throw new Error('agent_prompt modular envelope/event binding mismatch');
-      }
+    if (!response.envelope?.envelopeId
+        || event.promptEnvelopeId !== response.envelope.envelopeId
+        || event.assembledPromptDigest !== response.envelope.assembledPromptDigest) {
+      throw new Error(`agent_prompt ${cell.arm} envelope/event binding mismatch`);
     }
     return {
       prompt: response.prompt,
       producerResponseDigest: digest('agent-prompt-response', rawResponse),
       producerMode: response.mode,
       envelopeId: response.envelope?.envelopeId ?? null,
-      eventBinding: cell.arm === 'modular' ? {
+      eventBinding: {
         promptEnvelopeId: event.promptEnvelopeId,
         assembledPromptDigest: event.assembledPromptDigest,
-      } : null,
+      },
     };
   } finally {
     await rm(fixtureRoot, { recursive: true, force: true });
@@ -289,7 +289,7 @@ async function main() {
   const cells = buildCells(corpus);
   assertCampaignFloor(corpus, cells);
   const protocolBinding = {
-    schemaVersion: 'proofbound.story6-live-ab.v1',
+    schemaVersion: 'proof-or-stop.story6-live-ab.v1',
     protocolDigest: identity.protocolDigest,
     corpusDigest: identity.corpusDigest,
     hosts: HOSTS,
@@ -312,11 +312,24 @@ async function main() {
     const probeSample = corpus.samples.find(sample => sample.id === probe.sampleId);
     const legacyProbe = await producePromptThroughAgentPrompt(probe, probeSample);
     const modularProbe = await producePromptThroughAgentPrompt({ ...probe, arm: 'modular' }, probeSample);
-    assert.equal(legacyProbe.producerMode, 'legacy-full-context');
-    assert.equal(legacyProbe.envelopeId, null);
+    assert.equal(legacyProbe.producerMode, 'full-envelope');
+    assert.ok(legacyProbe.envelopeId);
+    assert.equal(legacyProbe.eventBinding.promptEnvelopeId, legacyProbe.envelopeId);
     assert.equal(modularProbe.producerMode, 'full-envelope');
     assert.ok(modularProbe.envelopeId);
     assert.equal(modularProbe.eventBinding.promptEnvelopeId, modularProbe.envelopeId);
+    const probes = [
+      { arm: 'legacy', provenance: { kind: 'production-provider-dispatch', producer: 'agent_prompt', ...legacyProbe, prompt: undefined, gateEvidence: false } },
+      { arm: 'modular', provenance: { kind: 'production-provider-dispatch', producer: 'agent_prompt', ...modularProbe, prompt: undefined, gateEvidence: false } },
+    ].map(({ arm, provenance }) => {
+      delete provenance.prompt;
+      assertCanonicalStory6Provenance(provenance, `${arm} producer provenance`);
+      return { arm, provenance };
+    });
+    if (options.selfcheckProvenanceOutput) {
+      await mkdir(path.dirname(options.selfcheckProvenanceOutput), { recursive: true });
+      await writeFile(options.selfcheckProvenanceOutput, `${JSON.stringify(probes, null, 2)}\n`);
+    }
     process.stdout.write(`story6-live selfcheck: PASS classes=3 samples=${corpus.samples.length} cells=${cells.length} roles=5 hosts=2 repetitions=3 producer=agent_prompt claudeSchemaMutationsRejected=2 gateEvidence=false\n`);
     process.stdout.write(`protocolBindingDigest=${digest('protocol-binding', protocolBinding)}; execution not requested => provider outcome INCONCLUSIVE\n`);
     return;
@@ -331,7 +344,7 @@ async function main() {
   const result = await runProcess(invocation, prompt, options.timeoutMs);
   const provider = parseProvider(cell, result);
   const receipt = {
-    schemaVersion: 'proofbound.story6-live-ab-receipt.v1',
+    schemaVersion: 'proof-or-stop.story6-live-ab-receipt.v1',
     campaignId: options.campaignId,
     campaignBindingDigest: digest('campaign-binding', campaignBinding),
     cell,

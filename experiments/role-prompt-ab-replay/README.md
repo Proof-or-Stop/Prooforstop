@@ -24,13 +24,15 @@ node experiments/role-prompt-ab-replay/analyze.mjs \
 ## Story 6 live complex-role campaign
 
 `story6-live.mjs` extends the frozen corpus into a real provider matrix: three
-historical Story classes, two samples per class, legacy/modular arms, three
+historical Story classes, two samples per class, historical legacy/modular arm
+labels, three
 repetitions, all five migrated complex roles, and both Codex CLI and Claude
 CLI. Both arms are now produced through the production `agent_prompt` handler
-in an explicitly audit-only experiment: legacy uses the configured rollback
-body, while modular uses the handler's experiment-only override and persists a
-Prompt Envelope plus its bound dispatch event. A receipt is inadmissible unless
-it proves that producer/mode/envelope/event chain. This short command validates
+in an explicitly audit-only experiment. New executions route both historical
+arm labels through the one canonical full-envelope producer and persist a
+Prompt Envelope plus its bound dispatch event; therefore they are A/A drift
+calibration, not evidence of legacy-vs-modular savings. A receipt is inadmissible
+unless it proves that producer/mode/envelope/event chain. This short command validates
 the 72-cell preregistration and production producer binding without spending
 provider tokens:
 
@@ -98,12 +100,16 @@ delete generated rows after inspection.
 `docs/requirements/decisions/proof-or-stop-identity-cutover.md` describes an
 unrelated five-arm lifecycle ablation. It is design inspiration for
 pre-registration discipline only; it is not this experiment's governing
-protocol or acceptance source. `protocol.json`, `corpus.json`, and the canonical
-role-prompt decision are the Story 3 contract.
+protocol or acceptance source. `protocol.json`, `corpus.current.json`, and the
+canonical role-prompt decision are the runnable Story 3 contract. The original
+`corpus.json` is immutable historical evidence; active commands never load it
+or normalize its retired wrapper identity.
 
 `lib/replay.mjs` also contains the separately versioned, content-addressed
-`B-235e-active-reviewers-v1` campaign. It does not alter `protocol.json`,
-`corpus.json`, their digests, sample semantics, or the Story 3 result. The
+`B-235e-active-reviewers-v1` campaign. Its old mode comparison is historical
+only now that the runtime rejects that retired dispatch mode. It does not alter
+`protocol.json`, `corpus.current.json`, their digests, sample semantics, or the
+Story 3 result. The
 campaign pins the five active reviewer roles, three arms
 (`legacy-full`, `modular-full`, `modular-incremental`), exact legacy/modular
 role-body bytes and SHA-256 digests, the six frozen Story 3 sample IDs, model,
@@ -122,7 +128,7 @@ assembled target is claimed as met.
 ## Claim boundary
 
 The authority for each replay sample is the inline `material.content` committed
-inside `corpus.json`, bound by `materialDigest` and the corpus/experiment
+inside `corpus.current.json`, bound by `materialDigest` and the corpus/experiment
 digests. `material.sourceHintPath` is provenance context for a human; it is not
 read, executed, or treated as proof that the hinted file's current or historical
 bytes equal the inline snapshot. The validator requires

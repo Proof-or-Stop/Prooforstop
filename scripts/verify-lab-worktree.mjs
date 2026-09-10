@@ -26,6 +26,7 @@ function fixture(name) {
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', scripts: { build: 'node ../../build.cjs' } }, null, 2));
   for (const rel of ['package-lock.json', 'packages/main/package-lock.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', lockfileVersion: 3, packages: { '': { name: 'proof-or-stop', version: '1.0.0' } } }, null, 2));
+  for (const rel of ['packages/lab/package-lock.json', 'packages/utils/package-lock.json']) write(repo, rel, JSON.stringify({ lockfileVersion: 3, packages: { '../main': { name: '@proof-or-stop/core', version: '1.0.0' } } }, null, 2));
   write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', "export const PROOF_OR_STOP_CLI_VERSION = '1.0.0';\n");
   for (const name of ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']) {
     write(repo, `packages/main/src/core/${name}.ts`, readFileSync(join(root, `packages/main/src/core/${name}.ts`)));
@@ -71,6 +72,8 @@ try {
   assert.ok(!existsSync(lab)); assert.equal(git(repo, 'branch', '--list', 'codex/lab-one'), '');
   assert.notEqual(git(repo, 'rev-parse', 'HEAD'), before);
   assert.equal(JSON.parse(readFileSync(join(repo, 'package.json'))).version, '1.0.1');
+  assert.equal(JSON.parse(readFileSync(join(repo, 'packages/lab/package-lock.json'))).packages['../main'].version, '1.0.1');
+  assert.equal(JSON.parse(readFileSync(join(repo, 'packages/utils/package-lock.json'))).packages['../main'].version, '1.0.1');
   assert.match(readFileSync(join(repo, 'CHANGELOG.md'), 'utf8'), /Lab one - v1.0.1/);
   assert.equal(git(repo, 'status', '--porcelain'), '');
   assert.equal(JSON.parse(cmd(repo, ['status', 'one'])).phase, 'closed');
@@ -153,5 +156,13 @@ try {
   const record = join(guarded, '.git/lab-maintenance/guard.json'); const envelope = JSON.parse(readFileSync(record)); envelope.payload.phase = 'verified'; writeFileSync(record, JSON.stringify(envelope));
   cmd(guarded, ['status', 'guard'], 1, /Invalid Lab record/);
   assert.ok(existsSync(guardLab));
+  execFileSync(process.execPath, [join(root, 'scripts/verify-lab-story-carry-forward.mjs')], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: 'inherit',
+    timeout: 120000,
+    env: { ...process.env, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
+  });
+  checks++;
   console.log(`Lab worktree verification passed (${checks} command checks plus state, version and cleanup assertions).`);
 } finally { rmSync(dir, { recursive: true, force: true }); }

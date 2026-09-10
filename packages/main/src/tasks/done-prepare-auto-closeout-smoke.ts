@@ -960,7 +960,7 @@ function assertHeadRollbackSurvivesRefreshAndRestoreFailures(): void {
       root,
       gitCwd: root,
       storyId,
-      storyDirRel: '.lattice/story/actives',
+      storyDirRel: '.proof-or-stop/story/actives',
       baseline,
       expectedProcessEventBinding: expected,
     }));

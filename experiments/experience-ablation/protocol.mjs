@@ -24,7 +24,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-export const PROTOCOL_SCHEMA_VERSION = 'proofbound.experience-ablation-protocol.v1';
+export const PROTOCOL_SCHEMA_VERSION = 'proof-or-stop.experience-ablation-protocol.v1';
 
 export function experimentRoot(root, experimentId) {
   return join(root, '.proof-or-stop', 'experiments', 'experience-ablation', experimentId);

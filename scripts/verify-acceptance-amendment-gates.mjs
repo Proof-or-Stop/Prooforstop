@@ -75,7 +75,7 @@ try {
   const preservedHistory = store.readChecklist(storyId).items.slice(0, 5);
   const verifiedHandlers = createAcceptanceAmendmentHandlers(ctx, { launchWorker: request => {
     const entry = store.readAcceptanceAmendments(storyId).entries.find(e => e.review?.runId === request.runId);
-    const body = { schemaVersion: 'proofbound.acceptance_amendment_review_final.v1', runId: request.runId, storyId,
+    const body = { schemaVersion: 'proof-or-stop.acceptance_amendment_review_final.v1', runId: request.runId, storyId,
       amendmentId: entry.amendmentId, amendmentDigest: entry.amendmentDigest, baseDigest: entry.baseDigest, submitterSessionId: entry.submitterSessionId,
       decision: 'approve', rationale: 'The new zero-sum boundary has mandatory verification and topology, preserving all thirty-five original requirements.', readRefs: ['sum.cjs', 'verify.cjs'] };
     const event = { type: 'item.completed', item: { type: 'agent_message', text: JSON.stringify(body) } };

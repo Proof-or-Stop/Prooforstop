@@ -1,4 +1,6 @@
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
+import { sharedValidationReuseAllowed } from '../core/shared-validation-execution.js';
+import { execFileSync } from 'node:child_process';
 import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -36,11 +38,10 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       const amendment = acceptanceCompletionBlocker(ctx.store, storyId, gitCwd);
       if (amendment) throw new Error(amendment);
       const policy = resolveDoneRequiredPolicy(ctx.root);
-      if (policy.required) {
+      const requiresCleanWorkspaceForReuse = policy.commands.some(sharedValidationReuseAllowed);
+      if (policy.required && !requiresCleanWorkspaceForReuse) {
         requireCurrentHeavyCertificationWindow({
-          store: ctx.store,
-          storyId,
-          current: currentCertificationIdentity(ctx, storyId),
+          store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId),
         });
       }
       try {
@@ -58,9 +59,21 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         deadlineError: args.deadlineError,
         onWaitProgress: (message) => ctx.log?.(message),
       }, async () => {
+      // DONE-required has its own command policy and evidence. It checks the
+      // routine admission but never claims or commits its one heavy allocation.
+      if (policy.required && requiresCleanWorkspaceForReuse) {
+        // Preserve shared execution's clean-workspace opt-in prerequisite.
+        const dirty = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+          cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
+        if (dirty) throw new Error('SHARED_DONE_REQUIRES_CLEAN_WORKSPACE');
+        requireCurrentHeavyCertificationWindow({
+          store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId),
+        });
+      }
 
-      const policy = resolveDoneRequiredPolicy(ctx.root);
-      if (!policy.required) {
+      const currentPolicy = resolveDoneRequiredPolicy(ctx.root);
+      if (!currentPolicy.required) {
         const result = {
           provider: 'proof-or-stop-done-required-validation',
           status: 'warn',

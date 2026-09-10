@@ -243,7 +243,7 @@ try {
   });
 
   const reviewTimestamp = new Date().toISOString();
-  const hashInput = `${storyId}:${reviewTimestamp}:0:0:lattice-review-integrity-v1`;
+  const hashInput = `${storyId}:${reviewTimestamp}:0:0:proof-or-stop-review-integrity-v1`;
   writeJson(join(storyDir, 'review.json'), {
     reviews: [
       {

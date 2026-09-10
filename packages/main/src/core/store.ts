@@ -2,6 +2,9 @@ import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
 import type { AcceptanceAmendmentJournal } from './acceptance-amendment-journal.js';
 import type { ScopeBudgetDecisionJournal } from './story-scope-budget-decisions.js';
+import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
+import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
+import { digestCanonicalJson } from './digest.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -69,7 +72,10 @@ import {
   type LedgerRecord,
 } from './finding-ledger.js';
 import {
+  type CausalPublicationRecovery,
+  verifyCausalPublicationRecovery,
   CAUSAL_RECEIPT_DIRECTORY,
+  CAUSAL_OUTPUT_DIRECTORY,
   CAUSAL_RECEIPT_INDEX_FILE,
   causalDigest,
   computeCausalReceiptHash,
@@ -761,11 +767,37 @@ export class StoryStore {
   // ── Checklist ──
 
   readChecklist(storyId: string): ChecklistData {
-    return this.readJson<ChecklistData>(storyId, 'checklist.json');
+    const checkpoint = readIntentCheckpoint(storyId,this.storyDirPath(storyId));
+    let data: ChecklistData;
+    try {data = this.readJson<ChecklistData>(storyId, 'checklist.json');}
+    catch (error) {if(checkpoint)throw new IntentAmendmentIntegrityError('AMENDMENT_CHECKLIST_UNREADABLE','restore the signed checkpoint with verification_intent_recover');throw error;}
+    assertIntentCheckpointProjection(data,checkpoint);
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    return data;
   }
 
   writeChecklist(storyId: string, data: ChecklistData): void {
+    // Canonical writers cannot erase an existing signed amendment by dropping
+    // its field, its item, or a prefix of its history on a later metadata write.
+    if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
+      const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
+      assertIntentCheckpointProjection(previous,readIntentCheckpoint(storyId,this.storyDirPath(storyId)));
+      for (const old of previous.items) {
+        if (!old.verificationIntentAmendments?.length) continue;
+        const next = data.items.find(item => item.id === old.id);
+        const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
+        if (digestCanonicalJson(prefix ?? null) !== digestCanonicalJson(old.verificationIntentAmendments)) throw new IntentAmendmentIntegrityError('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+      }
+    }
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    writeIntentCheckpoint(storyId,data,this.storyDirPath(storyId));
     this.writeJson(storyId, 'checklist.json', data);
+  }
+
+  restoreIntentCheckpoint(storyId: string, expectedDigest: string): void {
+    const checkpoint=repairIntentCheckpointStorage(storyId,this.storyDirPath(storyId),expectedDigest);
+    // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
+    this.writeJson(storyId,'checklist.json',checkpoint.data);
   }
 
   // ── Bug ──
@@ -870,6 +902,29 @@ export class StoryStore {
     return receipt;
   }
 
+  readCausalSelectorOutput(storyId: string, digest: string): string {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    try {
+      const data = JSON.parse(readFileSync(this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`), 'utf8'));
+      if (typeof data.output !== 'string') throw new Error('Invalid output type');
+      return data.output;
+    } catch {
+      throw new Error('Complete selector output is missing or unreadable [causal_selector_output_invalid]');
+    }
+  }
+
+  writeCausalSelectorOutput(storyId: string, digest: string, output: string): void {
+    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+    const outputPath = this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`);
+    // The execution-key lock serializes producers; equal content addresses can
+    // also be produced by different keys, where identical bytes are harmless.
+    if (existsSync(outputPath)) {
+      if (this.readCausalSelectorOutput(storyId, digest) !== output) throw new Error('Output address collision [causal_selector_output_invalid]');
+      return;
+    }
+    this.writeJsonFile(outputPath, { output });
+  }
+
   /** Read-only callers may verify an orphan receipt without rebuilding its index. */
   readCausalEvidenceReceipt(storyId: string, executionKey: string, options: { repairIndex?: boolean } = {}): CausalEvidenceReceipt | null {
     const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
@@ -935,6 +990,32 @@ export class StoryStore {
     }
   }
 
+  private pendingPublicationPath(storyId: string, requestKey: string): string {
+    if (!/^[a-f0-9]{64}$/.test(requestKey)) throw new Error('publication recovery key invalid');
+    return this.storyFilePath(storyId, `causal-evidence/pending-publications/${requestKey}.json`);
+  }
+
+  readPendingPublication(storyId: string, requestKey: string, cwd: string): CausalPublicationRecovery | null {
+    const path = this.pendingPublicationPath(storyId, requestKey);
+    if (!existsSync(path)) return null;
+    const value = JSON.parse(readFileSync(path, 'utf8')) as CausalPublicationRecovery;
+    if (!verifyCausalPublicationRecovery(value, storyId, requestKey, cwd)) {
+      throw new Error('Pending publication signature or subject invalid [publication_recovery_invalid]');
+    }
+    return value;
+  }
+
+  writePendingPublication(value: CausalPublicationRecovery): void {
+    if (!verifyCausalPublicationRecovery(value, value.storyId, value.requestKey, value.cwd)) {
+      throw new Error('Pending publication signature invalid [publication_recovery_invalid]');
+    }
+    this.writeJsonFile(this.pendingPublicationPath(value.storyId, value.requestKey), value);
+  }
+
+  removePendingPublication(storyId: string, requestKey: string): void {
+    rmSync(this.pendingPublicationPath(storyId, requestKey), { force: true });
+  }
+
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void {
     if (!verifyCausalEvidenceReceipt(receipt)) {
       throw new Error('CausalEvidence receipt refused: invalid or partial receipt [causal_receipt_invalid]');
@@ -942,8 +1023,8 @@ export class StoryStore {
     const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
     withMkdirLock(indexLockPath, () => {
       const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-      let index: { schemaVersion: 'proofbound.causal-evidence-index.v1'; receipts: Record<string, string> } = {
-        schemaVersion: 'proofbound.causal-evidence-index.v1',
+      let index: { schemaVersion: 'proof-or-stop.causal-evidence-index.v1'; receipts: Record<string, string> } = {
+        schemaVersion: 'proof-or-stop.causal-evidence-index.v1',
         receipts: {},
       };
       if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
@@ -1091,7 +1172,7 @@ export class StoryStore {
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) {
         return {
-          schemaVersion: 'lattice.decision_doc_proposals.v1',
+          schemaVersion: 'proof-or-stop.decision_doc_proposals.v1',
           storyId,
           updatedAt: '',
           proposals: [],

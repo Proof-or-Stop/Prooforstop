@@ -29,11 +29,15 @@ const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
 // main build is mid-swap). (build-main keeps its pre-lock fast-path safely because
 // its binding is self-contained: main src + main dist only, no external mutable input.)
 
-// Same lock as packages/main (a single per-repo mutex): a utils build reads
-// packages/main/dist while a main build swaps it, so the two must be mutually
-// exclusive. The lock wraps the ENTIRE critical section (staging build + atomic
-// swap + write), serializing BUILDERS; the atomic staging-swap (not an in-place rm)
-// is what keeps the ~90 non-lock-holding dist readers from ever seeing a torn dist.
+// Same lock as packages/main: a utils build reads packages/main/dist while a main build
+// swaps it, so the two must be mutually exclusive. Since B-bcae withBuildLock is a pair of
+// per-repo targets — buildLockTarget, which serializes builders against each other and is
+// what every build-in-progress observer reads, and, nested inside it, the reader-admission
+// target bin/bootstrap-runner.js takes before its initial dist import. The pair wraps the
+// ENTIRE critical section (staging build + atomic swap + write), so a bin/proof-or-stop.js
+// startup waits here rather than importing mid-promotion. Dist readers that take no lock
+// at all (in-repo direct dist imports) are still not excluded; for those the atomic
+// staging-swap (not an in-place rm) is what keeps them from ever seeing a torn dist.
 await withBuildLock(projectRoot, async () => {
   try { verifyUtilsBuildBinding(projectRoot); return; } catch { /* still stale → rebuild */ }
   const dist = join(packageRoot, 'dist');
@@ -41,8 +45,10 @@ await withBuildLock(projectRoot, async () => {
   const trash = join(packageRoot, `dist.trash-${process.pid}`);
   // ATOMIC-SWAP build (identical to build-main-with-binding.mjs): tsc emits over
   // seconds, so building in place (rm dist; tsc) exposes an absent/partial dist to
-  // the non-lock-holding readers (bin/bootstrap-runner.js, in-repo dist imports)
-  // → MODULE_NOT_FOUND. Build into a dist SIBLING (same filesystem → rename is
+  // readers this section does NOT hold a target against — in-repo direct dist imports;
+  // bin/bootstrap-runner.js is no longer among them, since B-bcae it takes the
+  // reader-admission target nested in this lock → MODULE_NOT_FOUND for the rest.
+  // Build into a dist SIBLING (same filesystem → rename is
   // atomic) and promote by rename: a reader sees the old-complete or new-complete
   // dist. A fresh staging each build preserves the clean-build proof.
   //

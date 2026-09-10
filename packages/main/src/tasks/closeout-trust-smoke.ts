@@ -8,7 +8,6 @@ import { dirname, join } from 'node:path';
 import {
   CLOSEOUT_ARTIFACT_POLICIES,
   CLOSEOUT_WRITE_RECEIPTS_PATH,
-  CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
   assertCanonicalCloseoutWrite,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
@@ -65,9 +64,9 @@ import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcri
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { acquireOwnerLease } from '../core/story-owner-lease.js';
 
-const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
+const canonicalPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-  roles: { [roleId]: 'legacy-full-context' },
+  roles: { [roleId]: 'full-envelope' },
 }).body);
 
 const storyId = 'B-closeout';
@@ -342,7 +341,7 @@ try {
     reviewRunId: `${indexStoryId}:RR-001`, storyId: indexStoryId, agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: indexRound, startedAt: indexRound, headHash: currentGitHead(indexRepo)!, materialHash: currentMaterialHash(indexRepo, 'HEAD', indexRepo)!,
     storyFilesHash: currentStoryFilesHash(indexRepo, 'HEAD', indexRepo)!,
-    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
+    promptHash: canonicalPromptHash('proof-or-stop-review-quality'),
     scopeBinding: indexBinding,
   } as ReviewRun;
   indexRun._hash = signReviewRun(
@@ -462,7 +461,7 @@ try {
     reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
     reviewRound: 'round-1', startedAt: new Date().toISOString(), headHash: baselineHead, materialHash: baselineMaterial,
     storyFilesHash: baselineStoryFiles,
-    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
+    promptHash: canonicalPromptHash('proof-or-stop-review-quality'),
     scopeBinding: runtimeBinding,
   } as ReviewRun;
   run._hash = signReviewRun(
@@ -566,13 +565,13 @@ try {
     projectRoot: repo,
     causalInputHashes: baselineCausalInputHashes,
   });
+  // Direct handler tests bypass the CLI ownership gate; seed the same owner
+  // lease that both real story-scoped verifier commands acquire before their
+  // shared causal preflight probes writer availability.
+  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'done_required_validate', cwd: repo });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
-  // Direct handler tests bypass the CLI ownership gate; seed the same owner
-  // lease that a real story-scoped validate command would acquire before the
-  // causal preflight probes writer availability.
-  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'validate', cwd: repo });
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
   console.log('PASS canonical routine validation lineage recorded');
@@ -688,7 +687,7 @@ try {
       headHash: currentHead,
       materialHash: currentMaterial,
       storyFilesHash: currentStoryFiles,
-      promptHash: legacyPromptHash(agent),
+      promptHash: canonicalPromptHash(agent),
     } as ReviewRun;
     freshRun._hash = signReviewRun(
       freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
@@ -918,7 +917,7 @@ try {
     headHash: currentGitHead(wrapperRepo)!,
     materialHash: currentMaterialHash(wrapperRepo, 'HEAD', wrapper)!,
     storyFilesHash: currentStoryFilesHash(wrapperRepo, 'HEAD', wrapper)!,
-    promptHash: legacyPromptHash('proof-or-stop-review-quality'),
+    promptHash: canonicalPromptHash('proof-or-stop-review-quality'),
     scopeBinding: wrapperBinding,
   });
   const preCloseoutRun = makeWrapperRun('RR-001');
@@ -929,14 +928,12 @@ try {
     { projectRoot: wrapperRepo, metadataRoot: wrapper },
   ), 'wrapper-root canonical command must still emit coherent causal telemetry');
 
-  // F-118: a canonical writer must continue the chain after an exact legacy
-  // lattice closeout receipt, while emitting the canonical schema for the new
-  // receipt. This uses only the isolated wrapper fixture's temporary state.
+  // A canonical writer continues the chain after a previous canonical receipt.
   const wrapperReceiptPath = join(wrapperStore.storyDirPath(wrapperStoryId), CLOSEOUT_WRITE_RECEIPTS_PATH);
   const firstWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
   const { integrityHash: _legacyIntegrityHash, ...legacyReceiptPayload } = {
     ...firstWrapperReceipt,
-    schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
+    schemaVersion: 'proof-or-stop.closeout_write_receipt.v3' as const,
   };
   const legacyWrapperReceipt = {
     ...legacyReceiptPayload,
@@ -947,8 +944,8 @@ try {
   assert.match(autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] }), /metadata auto-committed/);
   const chainedWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
   assert.equal(chainedWrapperReceipt.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
-  assert.equal(chainedWrapperReceipt.sequence, legacyWrapperReceipt.sequence + 1, 'canonical receipt continues after legacy receipt');
-  assert.equal(chainedWrapperReceipt.previousIntegrityHash, legacyWrapperReceipt.integrityHash, 'canonical receipt links to legacy predecessor');
+  assert.equal(chainedWrapperReceipt.sequence, legacyWrapperReceipt.sequence + 1, 'canonical receipt continues after previous canonical receipt');
+  assert.equal(chainedWrapperReceipt.previousIntegrityHash, legacyWrapperReceipt.integrityHash, 'canonical receipt links to canonical predecessor');
 
   // F-121: an unsupported schema for the same artifact must not be ignored by
   // either the trust reader or the auto-commit receipt predecessor selector.

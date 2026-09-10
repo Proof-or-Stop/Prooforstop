@@ -52,7 +52,7 @@ write(
   root,
   '.proof-or-stop/artifact-releases.jsonl',
   JSON.stringify({
-    schemaVersion: 'proofbound.artifact-release.v1',
+    schemaVersion: 'proof-or-stop.artifact-release.v1',
     id: 'AR-4e885ed0209e5a32330cdc33',
     idempotencyKey: 'B-785e:main:sha256:9896bd',
     storyId: 'B-785e',

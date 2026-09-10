@@ -38,6 +38,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { closedEnvironmentForVerificationReuseCapsuleInvocation } from './verification-reuse-capsule.js';
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './done-prepare-generated-metadata.js';
 import { readBrandEnv } from './brand-env.js';
 
@@ -158,6 +159,8 @@ export interface RunValidationCommandOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  /** Exact tool-owned environment for the canonical reuse capsule only. */
+  exactEnvironment?: Record<string, string>;
 }
 
 interface CapturedValidationCommandResult {
@@ -277,7 +280,7 @@ function commandCwd(projectRoot: string, cwd?: string): string {
   return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
 }
 
-function trimOutput(output: string): string {
+function trimOutput(output: string, retainFailureTail: boolean): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   // Receipts verify exact selectors against this bounded capture. Retaining
   // only the prefix made successful commands whose terminal proof line is at
@@ -1410,7 +1413,12 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
   const timeoutMs = deadlineRemainingMs === undefined
     ? configuredTimeoutMs
     : Math.min(configuredTimeoutMs, deadlineRemainingMs);
-  const effectiveEnv = effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+  // A policy-owned reuse capsule supplies its already-closed environment. Do not
+  // merge ambient variables back into that boundary while retaining the normal
+  // validation environment construction for every ordinary command.
+  const effectiveEnv = options.exactEnvironment
+    ? { ...options.exactEnvironment }
+    : effectiveValidationCommandEnvironment(process.env, command.env, cwd);
   const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
@@ -1428,7 +1436,10 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
   }
   const headBefore = readValidationSourceHead(statusGitCwd);
   const statusBefore = readGitStatus(statusGitCwd);
-  const tracer = runtimeTracerPath(projectRoot);
+  // The runtime tracer is a useful ordinary-command observation aid, but its
+  // NODE_OPTIONS injection would widen the capsule's exact environment and
+  // therefore invalidate the deterministic reuse authority contract.
+  const tracer = options.exactEnvironment ? undefined : runtimeTracerPath(projectRoot);
   const traceFile = tracer
     ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
     : undefined;
@@ -1485,7 +1496,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
-        output: trimOutput(completeOutput),
+        output: trimOutput(completeOutput, code !== 0),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs: reportedTimeoutMs,
@@ -1845,11 +1856,16 @@ export async function runSingleAllowlistedCommand(
     ...(cwd ? { cwd } : {}),
     timeoutMs: configuredTimeoutMs,
   };
+  const capsuleEnvironment = closedEnvironmentForVerificationReuseCapsuleInvocation({
+    executable,
+    argv: args,
+    cwd: options.cwd ?? projectRoot,
+  });
   const { result, completeOutput } = await runValidationCommandWithCompleteOutput(
     validationCommand,
     projectRoot,
     DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
-    runOptions,
+    { ...runOptions, ...(capsuleEnvironment ? { exactEnvironment: capsuleEnvironment } : {}) },
   );
   // Read the abort/deadline controls from the DECLARED `options` type rather than
   // the rest-spread `runOptions`. Both hold the same values (runOptions is options

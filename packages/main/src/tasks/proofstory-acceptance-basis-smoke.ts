@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -31,6 +32,7 @@ import {
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
+import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { resetConfigCache } from '../core/config.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
@@ -51,12 +53,59 @@ import { signScopeCheck } from '../handlers/scope-check.js';
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
+const probeOptions=process.argv.slice(2);
+assert.ok(probeOptions.length<=1&&probeOptions.every(arg=>/^--probe-jobs=[1-4]$/.test(arg)),'INVALID_ACCEPTANCE_PROBE_JOBS');
+const probeJobs=Number(probeOptions[0]?.slice('--probe-jobs='.length)??'1');
+const execFileAsync=promisify(execFile);
 const storyId = 'B-basis-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 
 function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
   writeFileSync(join(root, rel), content, 'utf8');
+}
+
+/**
+ * Every source a PROCESS_FACT_REGISTRY entry declares as its producer or
+ * consumer implementation.
+ *
+ * `buildBoundedSourceGraph` reports a missing declared ref of a REACHED entry
+ * as `uninspectable registered source ...`, which seals as `snapshot_missing`
+ * and drops the basis from `complete` to `partial`. Reading that set from the
+ * registry itself is what stops these fixtures from silently going partial the
+ * next time an entry declares a new source: B-bcae CHK-004 recovered from
+ * exactly that, when runtime:evidence_hash_input_boundary and
+ * runtime:shared_validation_execution added six refs the hand-written stub list
+ * below did not know about.
+ */
+export function registryDeclaredSourceRefs(): string[] {
+  const refs = new Set<string>();
+  for (const entry of PROCESS_FACT_REGISTRY) {
+    for (const ref of [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]) refs.add(ref);
+  }
+  return [...refs].sort();
+}
+
+/** A valid module identifier for a derived stub, from the ref's basename. */
+export function derivedStubIdentifier(ref: string): string {
+  const base = (ref.split('/').at(-1) ?? ref).replace(/\.[^.]+$/, '');
+  return base.replace(/[^A-Za-z0-9]+(.)?/g, (_match, next?: string) => (next ? next.toUpperCase() : ''));
+}
+
+/**
+ * Write a minimal module for every registry-declared source the fixture does
+ * not already stub explicitly, and report which ones that produced. The
+ * explicit stubs above stay authoritative — several of them carry text the
+ * discovery adapters actually parse — so this only fills genuine gaps.
+ */
+function writeDerivedRegistrySourceStubs(root: string): string[] {
+  const derived: string[] = [];
+  for (const ref of registryDeclaredSourceRefs()) {
+    if (existsSync(join(root, ref))) continue;
+    write(root, ref, `export const ${derivedStubIdentifier(ref)} = true;\n`);
+    derived.push(ref);
+  }
+  return derived;
 }
 
 function git(root: string, args: string[]): string {
@@ -158,12 +207,8 @@ const topology: AcceptanceVerificationTopologyV1 = {
   ],
 };
 
-function writeCanonicalAcceptanceRegistration(root: string): void {
-  // Snapshot-only dependencies registered by current process facts; not execution evidence.
-  for (const file of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/acceptance-amendment-journal.ts", "packages/main/src/core/convergence-progress-gate.ts", "packages/main/src/core/convergence-progress-journal.ts", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/host-run.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-host-run.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-review-lane-build.mjs", "packages/main/src/core/managed-review-lane-policy.ts", "packages/main/src/core/managed-review-lane.ts", "packages/main/src/core/managed-review-provider-state.ts", "packages/main/src/core/managed-review-readonly.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/planned-steps-executor.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/proof-or-stop-dispatch.ts", "packages/main/src/core/provider-process-admission.ts", "packages/main/src/core/provider-process-registry.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/core/scope-inventory-budget.ts", "packages/main/src/core/story-scope-budget-decisions.ts", "packages/main/src/core/story-scope-budget-legacy.ts", "packages/main/src/core/story-scope-budget.ts", "packages/main/src/core/story-scope-decomposition.ts", "packages/main/src/handlers/cross-host-review.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts", "packages/main/src/handlers/story-review.ts", "packages/main/src/providers/supervised-process-worker.ts", "packages/main/src/providers/supervised-process.ts"]) {
-    if (!existsSync(join(root, file))) write(root, file, "export const fixtureDependency = true;\n");
-  }
-
+function writeCanonicalAcceptanceRegistration(root: string): string[] {
+  // Lab's current registered-source closure is preserved by the derived writer below.
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'branch_status', description: 'infer from the story/* branch' },",
@@ -206,6 +251,27 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  // The B-aa5f runtime facts explicitly bind their real producer and lifecycle
+  // consumer sources. Synthetic repositories must contain bounded stand-ins for
+  // every registered source so the snapshot seal tests absence rather than
+  // inheriting files from this repository.
+  for (const file of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/verification-execution-evidence.ts',
+    'packages/main/src/core/proof-admissibility.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/certification-window.ts',
+  ]) write(root, file, 'export const verificationEvidenceContract = true;\n');
   // B-74b9 CHK-001: PROCESS_FACT_REGISTRY's artifact:acceptance-rollout-report.json entry lists
   // these two files as producerSourceRefs alongside handlers/proofstory.ts (stubbed above), so
   // buildBoundedSourceGraph pulls them into the required snapshot closure once that entry is
@@ -228,7 +294,17 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // bounded snapshot closure requires them once that entry is live.
   write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/evidence-freshness.ts', 'export const evidenceFreshness = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/material-path-policy.ts', 'export const materialPathPolicy = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/shared-validation-execution.ts', 'export const sharedValidationExecution = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-aware-validation.ts', 'export const storyAwareValidation = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/story-owner-lease.ts', 'export const storyOwnerLease = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/validation-execution-lock.ts', 'export const validationExecutionLock = "acceptance_basis";\n');
   write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
+  // Everything above is an explicit stub whose CONTENT matters to a discovery
+  // adapter. Whatever the registry declares beyond that only has to be
+  // inspectable, so derive it instead of extending the hand-list again.
+  return writeDerivedRegistrySourceStubs(root);
 }
 
 function checklist(): ChecklistData {
@@ -272,7 +348,19 @@ const pureRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-pure-'));
 try {
   write(pureRoot, 'tsconfig.json', '{}\n');
   write(pureRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
-  writeCanonicalAcceptanceRegistration(pureRoot);
+  const derivedRegistrySourceRefs = writeCanonicalAcceptanceRegistration(pureRoot);
+  // B-bcae CHK-004, asserted BEFORE the first basis control so a newly required
+  // source is reported by name. PROCESS_FACT_REGISTRY — not this fixture — owns
+  // which sources the snapshot closure must be able to inspect, and a missing
+  // declared ref of a reached entry seals as snapshot_missing and drops the
+  // basis to `partial`. Without this, that arrives as a bare complete/partial
+  // mismatch with no indication of which ref moved.
+  for (const ref of registryDeclaredSourceRefs()) {
+    assert.ok(existsSync(join(pureRoot, ref)),
+      `registry-declared source ${ref} is absent from the fixture; writeCanonicalAcceptanceRegistration must supply or derive every declared ref`);
+  }
+  assert.ok(derivedRegistrySourceRefs.length > 0,
+    'the registry declares sources this fixture does not stub explicitly, so the derivation — not the hand-list — must be what supplies them');
   const plannedBeforeCode = deriveAcceptanceCoverageBasis({
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
@@ -286,6 +374,106 @@ try {
   };
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  // B-aa5f F-047: these are discovery-owned import/call paths, not invented
+  // endpoint names. Keep the original planned endpoints mapped while adding
+  // reference-only consumers at the two supported topology shapes.
+  {
+    const sourcePath = 'path:static-call:packages/main/src/producer.ts#produceBasis->consumer:packages/main/src/consumer.ts#produceBasis';
+    const existingSource = { refKind: 'existing' as const, canonicalSourceRef: `basis-path:${sourcePath}` };
+    const sameExisting = structuredClone(topology);
+    sameExisting.producerRefs.push({ id: 'P-STATIC', sourceRef: existingSource });
+    sameExisting.consumerRefs.push({ id: 'C-STATIC', sourceRef: existingSource, producerRefs: ['P-STATIC'] });
+    const mixed = structuredClone(topology);
+    mixed.producerRefs.push({ id: 'P-MIXED', sourceRef: structuredClone(topology.producerRefs[0].sourceRef) });
+    mixed.consumerRefs.push({ id: 'C-MIXED', sourceRef: existingSource, producerRefs: ['P-MIXED'] });
+    for (const phaseBasis of ['plan', 'pre_review'] as const) {
+      for (const [label, edgeTopology] of [['same-existing', sameExisting], ['planned-static', mixed]] as const) {
+        const derived = deriveAcceptanceCoverageBasis({
+          ...input, contract: contract(edgeTopology), phaseBasis,
+          ...(phaseBasis === 'pre_review' ? { priorPlanBasisDigest: first.basis.basisDigest } : {}),
+        });
+        assert.ok(derived.basis.enumeratedPathRefs.includes(sourcePath), `${label}: the real call must first be discovered`);
+        assert.equal(derived.basis.status, 'complete',
+          `F-047 ${label} ${phaseBasis}: exact discovered static edge must reconcile: ${JSON.stringify(derived.diagnostics)}`);
+        assert.deepEqual(derived.basis.blindSpots, [], `${label}: no hidden discovery gaps`);
+        assert.ok(!derived.basis.enumeratedPathRefs.some(path => path.includes('existing:basis-path:')),
+          `${label}: topology projection must not manufacture discovery paths`);
+      }
+    }
+
+    const control = deriveAcceptanceCoverageBasis({ ...input, contract: contract(mixed), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+    const rejects = (label: string, candidate: AcceptanceVerificationTopologyV1, basis = control.basis): void => {
+      assert.ok(reconcileTopologyWithCoverageBasis(contract(candidate), basis)
+        .some(issue => issue.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), `F-047 rejects ${label}`);
+    };
+    for (const endpointRef of ['EP-MISSING', declaration.consumers[0].id]) {
+      const candidate = structuredClone(mixed);
+      candidate.producerRefs.find(node => node.id === 'P-MIXED')!.sourceRef = {
+        refKind: 'planned', plannedPathDeclarationRef: 'INT-BASIS:VPP-BASIS', endpointRef,
+      };
+      rejects(`wrong producer endpoint ${endpointRef}`, candidate);
+    }
+    for (const [label, change] of [
+      ['producer file', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.expectedFileRef = declaration.consumers[0].expectedFileRef; }],
+      ['producer symbol', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.expectedSymbolOrFact = 'anotherProducer'; }],
+      ['producer role', (record: typeof control.basis.plannedPathRecords[number]) => { record.producer.role = 'consumer'; }],
+    ] as const) {
+      const changedBasis = structuredClone(control.basis);
+      change(changedBasis.plannedPathRecords[0]);
+      rejects(label, mixed, changedBasis);
+    }
+    for (const ref of [
+      `basis-path:${sourcePath.replace('#produceBasis->', '#anotherProducer->')}`,
+      `basis-path:${sourcePath.replace('src/producer.ts', 'src/missing.ts')}`,
+      `basis-path:${sourcePath.replace('src/producer.ts', 'src/../producer.ts')}`,
+      `basis-path:${sourcePath} `,
+      `consumer:${sourcePath}`,
+    ]) {
+      const candidate = structuredClone(mixed);
+      candidate.consumerRefs.find(node => node.id === 'C-MIXED')!.sourceRef = { refKind: 'existing', canonicalSourceRef: ref };
+      candidate.commandRefs.push({ refKind: 'existing', canonicalSourceRef: ref });
+      rejects('mismatched/malformed source even with commandRef', candidate);
+    }
+    const missingBasis = structuredClone(control.basis);
+    missingBasis.enumeratedPathRefs = missingBasis.enumeratedPathRefs.filter(path => path !== sourcePath);
+    rejects('missing discovered path despite unchanged commandRef', mixed, missingBasis);
+    rejects('missing identical-existing path despite unchanged commandRef', sameExisting, missingBasis);
+
+    const originalConsumer = bytes(pureRoot, declaration.consumers[0].expectedFileRef);
+    try {
+      const otherPath = sourcePath.replace(/#produceBasis$/, '#otherBasis');
+      write(pureRoot, declaration.consumers[0].expectedFileRef,
+        `${originalConsumer}import { produceBasis as otherBasis } from './producer.js'; export const invokeOtherBasis = () => otherBasis();\n`);
+      const twoPathsTopology = structuredClone(sameExisting);
+      twoPathsTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: `basis-path:${otherPath}` });
+      const twoPaths = deriveAcceptanceCoverageBasis({ ...input, contract: contract(twoPathsTopology), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+      assert.equal(twoPaths.basis.status, 'complete', 'two independently discovered path controls reconcile');
+      assert.ok([sourcePath, otherPath].every(path => twoPaths.basis.enumeratedPathRefs.includes(path)), 'both differently named import calls are source-proven');
+      const differentExisting = structuredClone(twoPathsTopology);
+      differentExisting.consumerRefs.find(node => node.id === 'C-STATIC')!.sourceRef = { refKind: 'existing', canonicalSourceRef: `basis-path:${otherPath}` };
+      rejects('two different discovered paths despite both commandRefs', differentExisting, twoPaths.basis);
+
+      write(pureRoot, declaration.consumers[0].expectedFileRef, 'export const verifyBasis = () => true; export const invokeBasis = () => verifyBasis();\n');
+      const deleted = deriveAcceptanceCoverageBasis({ ...input, contract: contract(mixed), phaseBasis: 'pre_review', priorPlanBasisDigest: first.basis.basisDigest });
+      assert.ok(!deleted.basis.enumeratedPathRefs.includes(sourcePath), 'deleted call is absent from production discovery');
+      assert.ok(deleted.diagnostics.some(issue => issue.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'deleted call cannot be restored by topology text');
+    } finally { write(pureRoot, declaration.consumers[0].expectedFileRef, originalConsumer); }
+  }
+  // B-bcae CHK-004 non-vacuity: the derived sources are load-bearing, not
+  // decorative. Removing exactly the refs the derivation supplies must drop the
+  // complete control above to `partial` and name them, so an entry that starts
+  // declaring a new source can never pass unnoticed.
+  for (const ref of derivedRegistrySourceRefs) rmSync(join(pureRoot, ref));
+  const withoutDerivedSources = deriveAcceptanceCoverageBasis(input);
+  assert.equal(withoutDerivedSources.basis.status, 'partial',
+    'omitting the registry-declared sources this fixture derives must drop the basis out of complete');
+  const missingSeals = (withoutDerivedSources.basis.snapshotSeal?.issues ?? [])
+    .filter(issue => issue.code === 'snapshot_missing' && derivedRegistrySourceRefs.includes(issue.canonicalRef));
+  assert.ok(missingSeals.length > 0,
+    `an omitted registry-declared source must be named as snapshot_missing: ${JSON.stringify(withoutDerivedSources.basis.snapshotSeal)}`);
+  writeDerivedRegistrySourceStubs(pureRoot);
+  assert.equal(deriveAcceptanceCoverageBasis(input).basis.status, 'complete',
+    'restoring the derived registry sources returns the control to complete');
   const registryEdgeTopology = structuredClone(topology);
   registryEdgeTopology.producerRefs.push({
     id: 'P-REGISTRY-BASIS-GENERATOR',
@@ -395,6 +583,10 @@ try {
   const oversizedConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
+  const aboveCeilingConfig = deriveAcceptanceCoverageBasis(input);
+  assert.equal(aboveCeilingConfig.basis.status, 'partial', '129 KiB config padding remains rejected by the strict config snapshot cap');
+  assert.ok(aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), '129 KiB config padding produces a bounded-read blind spot');
   writeFileSync(configPath, configControl);
   const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
   try {
@@ -1332,6 +1524,26 @@ try {
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
   write(packageProfileRoot, 'packages/main/tsconfig.json', '{}\n');
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'scanRoot tsconfig activates the canonical TypeScript profile without a root tsconfig');
+  const representativeLargeConfig = JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    policyPadding: 'x'.repeat(70 * 1024),
+  });
+  assert.ok(
+    Buffer.byteLength(representativeLargeConfig, 'utf8') > 64 * 1024
+      && Buffer.byteLength(representativeLargeConfig, 'utf8') < 128 * 1024,
+    'representative grown project config stays between the legacy and corrected bounded caps',
+  );
+  write(packageProfileRoot, 'proof-or-stop.config.json', representativeLargeConfig);
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'valid project config above the legacy 64 KiB cap still activates discovery support');
+  const overBoundedConfig = JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    policyPadding: 'x'.repeat(128 * 1024),
+  });
+  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > 128 * 1024, 'oversize control exceeds the corrected bounded cap');
+  write(packageProfileRoot, 'proof-or-stop.config.json', overBoundedConfig);
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'config beyond the corrected bounded cap remains fail-closed');
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'escaping config cannot activate discovery support');
   rmSync(join(packageProfileRoot, 'proof-or-stop.config.json'));
@@ -1486,15 +1698,39 @@ try {
     adapterResults: [], discoveryMethods: [], discoveryProfileRef: 'forged', discoveryProfileDigest: 'forged',
     sourceInventoryRefs: [], plannedPathRecords: [], receipt: {}, binding: {}, evidence: {}, verdict: 'pass', authority: 'forged',
   };
-  for (const command of ['acceptance_basis', 'acceptance_basis_generate']) {
-    for (const [field, value] of Object.entries(forbiddenFields)) {
-      const forged = run(root, command, { storyId, [field]: value }, true);
-      assert.match(forged, /Forbidden|never|invalid|expected|unsupported caller fields/i, `${command} rejects caller ${field}`);
-      assert.deepEqual(fullSnapshot(), snapshot, `${command} ${field} rejection is atomic`);
-      assert.throws(() => directHandlers[command]({ storyId, [field]: value }), /unsupported caller fields/, `direct ${command} rejects caller ${field}`);
-      assert.deepEqual(fullSnapshot(), snapshot, `direct ${command} ${field} rejection is atomic`);
+  // Every row is an immutable rejection probe; actual CLI and direct-handler
+  // assertions remain per row. The matrix shares the frozen fixture only while
+  // all calls must refuse before writing; each completion rechecks atomicity.
+  const probes=['acceptance_basis','acceptance_basis_generate'].flatMap(command=>Object.entries(forbiddenFields).map(([field,value])=>({command,field,value})));
+  assert.equal(probes.length,58,'all forbidden fields and both consumers must remain covered');
+  const probeHead=git(root,['rev-parse','HEAD']);
+  let nextProbe=0,activeProbes=0,peakProbes=0;
+  const completedProbes:string[]=[],probeFailures:unknown[]=[];
+  await Promise.all(Array.from({length:probeJobs},async()=>{
+    while(nextProbe<probes.length){
+      const {command,field,value}=probes[nextProbe++];
+      try{
+        let forged='';activeProbes++;peakProbes=Math.max(peakProbes,activeProbes);
+        try{const result=await execFileAsync(process.execPath,[cliPath,'--root',root,command,JSON.stringify({storyId,[field]:value})],{
+          cwd:root,env:{...process.env,PROOF_OR_STOP_SESSION_ID:'acceptance-basis-smoke',PROOF_OR_STOP_AGENT:'proof-or-stop-implementer'},encoding:'utf8',timeout:30000,maxBuffer:1024*1024,
+        });throw new Error('FORBIDDEN_PROBE_UNEXPECTED_SUCCESS: '+result.stdout);}
+        catch(error:any){
+          if(error.killed||error.signal||typeof error.code!=='number'||error.code===0)throw error;
+          forged=`${String(error.stdout||'')}${String(error.stderr||'')}${String(error.message||'')}`;}
+        finally{activeProbes--;}
+        assert.match(forged,/Forbidden|never|invalid|expected|unsupported caller fields/i,`${command} rejects caller ${field}`);
+        assert.deepEqual(fullSnapshot(),snapshot,`${command} ${field} rejection is atomic`);
+        assert.throws(()=>directHandlers[command]({storyId,[field]:value}),/unsupported caller fields/,`direct ${command} rejects caller ${field}`);
+        assert.deepEqual(fullSnapshot(),snapshot,`direct ${command} ${field} rejection is atomic`);
+        assert.equal(git(root,['rev-parse','HEAD']),probeHead,'rejected probes must not commit shared state');
+        completedProbes.push(`${command}:${field}`);
+      }catch(error){probeFailures.push(error);}
     }
-  }
+  }));
+  assert.equal(probeFailures.length,0,probeFailures.map(String).join('\n'));
+  assert.deepEqual(completedProbes.sort(),probes.map(({command,field})=>`${command}:${field}`).sort(),'every forbidden field must run exactly once');
+  assert.ok(peakProbes<=probeJobs&&(probeJobs===1||peakProbes>1),'requested bounded concurrency must actually execute');
+  console.log('ACCEPTANCE_FORBIDDEN_FIELD_COVERAGE '+JSON.stringify({count:completedProbes.length,jobs:probeJobs,peak:peakProbes,ids:completedProbes}));
   const replayedOutput = run(root, 'acceptance_basis_generate', { storyId, evidence: JSON.parse(readOne) }, true);
   assert.match(replayedOutput, /Forbidden|never|invalid|unsupported caller fields/i, 'rendered diagnostic output cannot be replayed as authority');
   assert.deepEqual(fullSnapshot(), snapshot, 'output replay rejection is atomic');

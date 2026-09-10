@@ -18,7 +18,7 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: checklist.ts's four evidence execution boundaries derive their timeout from the
+ *   - B-16df F-004: checklist.ts's four evidence writers consume an invocation-bound runner whose timeout comes from the
  *     shared resolvePinnedCommandTimeoutMs helper and forward it to the executor
  *     (with negative controls for omitted and constant budgets); and a very large configured
  *     timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS
@@ -43,7 +43,7 @@
  * source state (REPO_ROOT, resolved from this file's own compiled location) rather than
  * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
  * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
- * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
+ * try/finally (B-16df F-001) so repeated `proof-or-stop validate` runs don't leak stray tmpdirs.
  * Registered in proof-or-stop.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
@@ -52,6 +52,7 @@
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import ts from 'typescript';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   resolveEvidenceCommandTimeoutMs,
@@ -64,7 +65,7 @@ import {
   VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST,
 } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
-import ts from 'typescript';
+
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
 /**
@@ -74,7 +75,7 @@ import type { ValidationCommand, ValidationPlan } from '../core/validation-types
  * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to locate the
  * repo-root marker file and read checklist.ts's own source text. Section 12 no longer runs
  * `git diff` (see BUG-B16DF-BYTEPIN in section 12); the only two reads through REPO_ROOT are
- * now existsSync on proof-or-stop.config.json (with legacy lattice.config.json fallback;
+ * now existsSync on proof-or-stop.config.json (the canonical root marker;
  * section 12) and readFileSync on
  * packages/main/src/handlers/checklist.ts (section 13).
  */
@@ -97,8 +98,9 @@ const base = (over: Partial<ValidationCommand>): ValidationCommand => ({
 });
 
 /** Inspect execution boundaries, not incidental resolver calls used by cache keys. */
-type TimeoutWiringSite = { call: ts.CallExpression; budget: ts.VariableDeclaration; property: ts.PropertyAssignment };
-function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = []): string[] {
+type TimeoutWiringSite = { call: ts.CallExpression; budget: ts.VariableDeclaration; property: ts.PropertyAssignment; controls: ts.PropertyAssignment[] };
+type TimeoutFactorySite = { call: ts.CallExpression; binding: ts.VariableDeclaration; consumption: ts.Node };
+function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = [], factories: TimeoutFactorySite[] = []): string[] {
   const file = ts.createSourceFile('checklist.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const failures: string[] = [];
   if ((file as ts.SourceFile & { parseDiagnostics: readonly ts.Diagnostic[] }).parseDiagnostics.length) {
@@ -110,6 +112,7 @@ function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = []):
   ]);
   const seen = new Set<string>();
   let declarations = 0;
+  let executorCount = 0;
   const named = (node: ts.Node | undefined, name: string): boolean =>
     !!node && ts.isIdentifier(node) && node.text === name;
   const propertyNamed = (node: ts.PropertyName, name: string): boolean =>
@@ -125,7 +128,33 @@ function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = []):
       && named(node.initializer, 'effectiveTimeoutMs');
   const visit = (node: ts.Node): void => {
     if (ts.isFunctionDeclaration(node) && node.name?.text === 'resolvePinnedCommandTimeoutMs') declarations++;
+    if (ts.isCallExpression(node) && named(node.expression, 'createPinnedCommandRunner')) {
+      let ancestor: ts.Node | undefined = node.parent;
+      while (ancestor && !ts.isMethodDeclaration(ancestor)) ancestor = ancestor.parent;
+      const handler = ancestor && ts.isMethodDeclaration(ancestor) ? ancestor : undefined;
+      const name = handler?.name.getText(file) ?? '<unknown>';
+      const binding = ts.isVariableDeclaration(node.parent) ? node.parent : undefined;
+      if (!expected.has(name) || seen.has(name)) failures.push(`unexpected factory boundary: ${name}`);
+      seen.add(name);
+      if (!ts.isStringLiteral(node.arguments[0]) || node.arguments[0].text !== name || !named(node.arguments[1], 'args')
+        || !binding || !ts.isIdentifier(binding.name) || !ts.isVariableDeclarationList(binding.parent)
+        || !(binding.parent.flags & ts.NodeFlags.Const)) failures.push(`${name}: factory must bind actual caller controls immutably`);
+      const uses: ts.Node[] = [];
+      if (handler?.body && binding && ts.isIdentifier(binding.name)) {
+        const local = binding.name.text;
+        const findUse = (child: ts.Node): void => {
+          if (ts.isPropertyAssignment(child) && propertyNamed(child.name, 'runCommand') && named(child.initializer, local)) uses.push(child.initializer);
+          if (ts.isShorthandPropertyAssignment(child) && local === 'runCommand' && child.name.text === local) uses.push(child.name);
+          if (name === 'verification_evidence_refresh_stale' && ts.isCallExpression(child) && named(child.expression, local)) uses.push(child.expression);
+          ts.forEachChild(child, findUse);
+        };
+        findUse(handler.body);
+      }
+      if (uses.length !== 1) failures.push(`${name}: producer must consume its guarded runner exactly once`);
+      if (binding && uses.length === 1) factories.push({ call: node, binding, consumption: uses[0] });
+    }
     if (ts.isCallExpression(node) && named(node.expression, 'runSingleAllowlistedCommand')) {
+      executorCount++;
       let ancestor: ts.Node | undefined = node.parent;
       let scope: ts.ArrowFunction | undefined;
       let handler: ts.MethodDeclaration | undefined;
@@ -134,9 +163,10 @@ function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = []):
         if (ts.isMethodDeclaration(ancestor)) { handler = ancestor; break; }
         ancestor = ancestor.parent;
       }
-      const name = handler?.name.getText(file) ?? '<unknown>';
-      if (!expected.has(name) || seen.has(name)) failures.push(`unexpected execution boundary: ${name}`);
-      seen.add(name);
+      let factoryAncestor: ts.Node | undefined = node.parent;
+      while (factoryAncestor && !(ts.isVariableDeclaration(factoryAncestor) && named(factoryAncestor.name, 'createPinnedCommandRunner'))) factoryAncestor = factoryAncestor.parent;
+      const name = 'createPinnedCommandRunner';
+      if (!factoryAncestor) failures.push('executor must live inside the guarded shared runner factory');
       if (node.arguments.length !== 3 || !named(node.arguments[0], 'command') || !named(node.arguments[1], 'root')) {
         failures.push(`${name}: executor command and configuration root must match the resolver`);
       }
@@ -185,11 +215,21 @@ function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = []):
         }
       }
       if (invalid || timeoutProperties.length !== 1) failures.push(`${name}: executor must receive the resolved timeout`);
-      if (budget && timeoutProperties.length === 1) sites.push({ call: node, budget, property: timeoutProperties[0] });
+      const controls: ts.PropertyAssignment[] = [];
+      for (const key of ['abortSignal', 'deadlineAt', 'deadlineError']) {
+        const matches = options && ts.isObjectLiteralExpression(options)
+          ? options.properties.filter((p): p is ts.PropertyAssignment => ts.isPropertyAssignment(p) && propertyNamed(p.name, key)) : [];
+        if (matches.length !== 1 || !ts.isPropertyAccessExpression(matches[0].initializer)
+          || !named(matches[0].initializer.expression, 'controls') || !named(matches[0].initializer.name, key)) {
+          failures.push(`${name}: executor must preserve caller ${key}`);
+        } else controls.push(matches[0]);
+      }
+      if (budget && timeoutProperties.length === 1) sites.push({ call: node, budget, property: timeoutProperties[0], controls });
     }
     ts.forEachChild(node, visit);
   };
   visit(file);
+  if (executorCount !== 1) failures.push('exactly one shared execution boundary is required');
   if (declarations !== 1) failures.push('the shared pinned timeout resolver must have exactly one declaration');
   for (const name of expected) if (!seen.has(name)) failures.push(`missing execution boundary: ${name}`);
   return failures;
@@ -374,7 +414,7 @@ void (async () => {
 
       // 6b. The real red->green assertion: exercises the actual fixed surface --
       //     checklist.ts's resolvePinnedCommandTimeoutMs combined with
-      //     runSingleAllowlistedCommand, mirroring exactly what the 4 real call sites do.
+      //     runSingleAllowlistedCommand, mirroring what the production call sites do.
       //     Dynamic import (not a static top-level import) so this file still compiles even
       //     before CHK-002 adds the export. Currently RED before CHK-002: the export does not
       //     exist yet, so runSingleAllowlistedCommand is never given the configured override and
@@ -589,8 +629,8 @@ void (async () => {
     //     review, both of which are evaluated per story against that story's declared
     //     boundary -- not to a suite command every later story is forced to satisfy.
     check(
-      'REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json or legacy lattice.config.json present there)',
-      existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')) || existsSync(join(REPO_ROOT, 'lattice.config.json')),
+      'REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json present there)',
+      existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')),
     );
 
     // 13. The four public evidence writers must pass their resolved budget at the
@@ -598,15 +638,28 @@ void (async () => {
     // its call count is not an execution-wiring contract.
     const checklistSource = readFileSync(join(REPO_ROOT, 'packages/main/src/handlers/checklist.ts'), 'utf-8');
     const sites: TimeoutWiringSite[] = [];
-    const wiringFailures = timeoutWiringFailures(checklistSource, sites);
+    const factories: TimeoutFactorySite[] = [];
+    const wiringFailures = timeoutWiringFailures(checklistSource, sites, factories);
     check(`all evidence execution boundaries preserve configured timeouts: ${wiringFailures.join('; ')}`, wiringFailures.length === 0);
     check('an additional non-executing resolver call does not invalidate execution wiring',
       timeoutWiringFailures(checklistSource + '\nconst extraCacheIdentity = resolvePinnedCommandTimeoutMs(root, command);').length === 0);
     check('malformed source fails closed', timeoutWiringFailures(checklistSource + '\nfunction {').length > 0);
     const replaced = (node: ts.Node, replacement: string): string =>
       checklistSource.slice(0, node.getStart()) + replacement + checklistSource.slice(node.end);
-    check('negative controls cover all four executor timeout properties', sites.length === 4);
+    check('one shared executor and all four factory consumers are covered', sites.length === 1 && factories.length === 4);
+    for (const [index, site] of factories.entries()) {
+      check(`factory ${index + 1} cannot lose caller watchdog controls`,
+        timeoutWiringFailures(replaced(site.call.arguments[1], '{}')).length > 0);
+      check(`factory ${index + 1} cannot claim another command identity`,
+        timeoutWiringFailures(replaced(site.call.arguments[0], "'unrelated_writer'")).length > 0);
+      check(`factory ${index + 1} must be the actual producer runner`,
+        timeoutWiringFailures(replaced(site.consumption, 'unguardedRunner')).length > 0);
+    }
     for (const [index, site] of sites.entries()) {
+      for (const control of site.controls) {
+        check(`shared runner cannot drop ${control.name.getText()}`,
+          timeoutWiringFailures(replaced(control.initializer, 'undefined')).length > 0);
+      }
       check(`negative control catches constant timeout at execution boundary ${index + 1}`,
         timeoutWiringFailures(replaced(site.property.initializer, '270000')).length > 0);
       check(`negative control catches omitted timeout at execution boundary ${index + 1}`,

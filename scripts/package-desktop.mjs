@@ -134,8 +134,22 @@ function writeAssetManifest() {
     // bootstrap (B-1734 D1). red-1734-desktop-asset-manifest.mjs asserts every scripts/ module in
     // bootstrap's static import graph is present here.
     'scripts/build-lock-target.mjs',
+    // bin/bootstrap-runner.js reaches this one DYNAMICALLY (after it has confirmed dist is present) to
+    // take reader admission before importing the dist entries. A dynamic import is still a hard runtime
+    // requirement of the packaged desktop startup path — bootstrap takes that branch on EVERY packaged
+    // invocation, because pkg-entry always materializes dist into the runtime root — so it must ship too
+    // (B-bcae F-008/F-017). Unlike build-lock-target.mjs this module is NOT dependency-free: it imports
+    // proper-lockfile, whose runtime closure is listed below.
+    'scripts/build-lock.mjs',
     'packages/main/package.json',
     ...listFiles('packages/main/dist'),
+    // Agent prompt bodies have a single source of truth: this template registry (they are deliberately
+    // NOT materialized into host directories). readPromptRegistry() reads packages/main/templates/agents
+    // relative to the package root during CLI startup, and the role-policy registry is validated for
+    // TOTALITY against whatever it finds — so an absent directory is not a soft degradation, it aborts
+    // startup with `unknown prompt role policy "<role>"`. Templates live outside dist, so no spread above
+    // ships them. Pre-existing gap, surfaced by red-1734-desktop-asset-manifest.mjs's startup witness.
+    ...listFiles('packages/main/templates'),
     'packages/utils/package.json',
     ...listFiles('packages/utils/dist'),
     'packages/lab/package.json',
@@ -143,6 +157,20 @@ function writeAssetManifest() {
     ...listFiles('node_modules/typescript'),
     ...listFiles('node_modules/xstate'),
     ...listFiles('node_modules/zod'),
+    // The runtime dependency closure of scripts/build-lock.mjs. proper-lockfile requires graceful-fs,
+    // retry and signal-exit; the first two resolve at the root, but signal-exit resolves to the copy
+    // NESTED under node_modules/proper-lockfile/node_modules — a different major from the hoisted root
+    // one, whose CommonJS export is an object rather than the callable proper-lockfile invokes at
+    // module-init. listFiles() recurses, so this spread ships that nested copy along with the package.
+    // Shipping the root copy INSTEAD does not work, and that is executed rather than asserted from
+    // reading: red-1734-desktop-asset-manifest.mjs derives this closure by real Node resolution, checks
+    // every resolved package directory is shipped here, and its manifest:5 substitution control replaces
+    // the nested copy with the hoisted root one in a real packaged runtime root and requires startup to
+    // still fail (B-bcae F-053). It also asserts the two are different majors, so the control cannot
+    // quietly degrade into "some copy is required" if the installs are ever deduped.
+    ...listFiles('node_modules/proper-lockfile'),
+    ...listFiles('node_modules/graceful-fs'),
+    ...listFiles('node_modules/retry'),
   ].sort();
   writeFileSync(assetManifestPath, JSON.stringify({ files }, null, 2) + '\n', 'utf8');
   return files;

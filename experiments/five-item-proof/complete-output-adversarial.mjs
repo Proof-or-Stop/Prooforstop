@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,readdirSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {verifyCausalEvidenceReceipt,executeCausalEvidence,preflightCausalEvidence,DEFAULT_CAUSAL_SELECTOR_POLICY,effectiveCausalEnvironment,createCausalExecutionKey} from '../../packages/main/dist/core/causal-evidence.js';
+import {performance} from 'node:perf_hooks';
+import {StoryStore} from '../../packages/main/dist/core/store.js';
+import {createChecklistHandlers} from '../../packages/main/dist/handlers/checklist.js';
+import {acquireOwnerLease} from '../../packages/main/dist/core/story-owner-lease.js';
+const script=fileURLToPath(import.meta.url),storyId='B-longoutput';
+process.env.LAB_SELECTOR_SECRET_TOKEN='private-selector-token-91369';
+process.env.PROOF_OR_STOP_SESSION_ID='five-item-long-output';
+const absent=process.argv[4]==='absent';
+const request={storyId,evidences:(absent?['I-3']:['I-1','I-2']).map(intentRef=>({itemId:'CHK-001',intentRef,kind:'integration_test',command:'node witness.mjs',selector:absent?'ABSENT_MIDDLE_MARKER':'PUBLISH_RESTART_OK',note:'Recover the original complete output after a failed canonical batch publication.'}))};
+if(process.argv[2]==='--worker'){
+ const [fixture,mode]=process.argv.slice(3),store=new StoryStore(fixture);
+ const handlers=createChecklistHandlers({store,root:fixture,scanRoot:join(fixture,'packages/main')});
+ if(mode==='first')store.writeChecklist=()=>{throw new Error('INJECTED_PENDING_PUBLICATION_FAILURE');};
+
+ try{console.log(await handlers.verification_evidence_batch_add(request));}
+ catch(error){console.error(String(error.stack));process.exitCode=70;}
+}else{
+ const output=process.env.FIVE_ITEM_PROOF_OUTPUT||join(tmpdir(),'publication-restart-'+Date.now());mkdirSync(output,{recursive:true});
+ const fixture=mkdtempSync(join(tmpdir(),'pub-restart-fixture-'));
+ const git=args=>execFileSync('git',args,{cwd:fixture,stdio:'pipe',encoding:'utf8'}).trim();
+ const write=(path,value)=>{mkdirSync(dirname(join(fixture,path)),{recursive:true});writeFileSync(join(fixture,path),value);};
+ try{
+  write('proof-or-stop.config.json',JSON.stringify({scanRoot:'packages/main',rootDir:'src',storyDir:'.proof-or-stop/story/actives',requirementsDir:'docs/requirements'}));
+  write('packages/main/package.json',JSON.stringify({name:'@proof-or-stop/core',version:'0.0.0-fixture'}));write('packages/main/src/base.ts','export const base=true;\n');
+  write('.gitignore','.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.counts\n');
+  write('witness.mjs',"import {appendFileSync} from 'node:fs';appendFileSync('.counts','executed\\n');console.log(process.env.LAB_SELECTOR_SECRET_TOKEN);console.log('x'.repeat(15000));console.log('PUBLISH_RESTART_OK');console.log('y'.repeat(15000));\n");
+  git(['init','-q','-b','work']);git(['config','user.name','Lab fixture']);git(['config','user.email','fixture@example.test']);git(['add','.']);git(['commit','-qm','isolated fixture']);git(['branch','main']);
+  const store=new StoryStore(fixture),now=new Date().toISOString();
+  store.writeStory(storyId,{storyId,name:'publication-restart-fixture',title:'Recover successful command after process exit',description:'Isolated fault injection fixture',type:'chore',phase:'DEV',priority:'medium',createdAt:now,startedAt:now,endedAt:null});
+  store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Preserve original command receipt',context:'Retry canonical publication without running again',status:'in_progress',startTime:null,endTime:null,verificationIntent:{happy:[{id:'I-1',desc:'Original successful command receipt is imported',type:'cli',priority:'must'},{id:'I-2',desc:'A second intent reuses the complete original output',type:'cli',priority:'must'},{id:'I-3',desc:'Reject a selector absent from the original output',type:'cli',priority:'must'}],edge:[],adversarial:[]}}]});
+  acquireOwnerLease(store.storyDirPath(storyId),{command:'isolated-fixture',cwd:fixture});
+  const runs=[];
+  const worker=mode=>{
+   const start=performance.now(),result=spawnSync(process.execPath,[script,'--worker',fixture,mode],{cwd:fixture,encoding:'utf8',timeout:60000,env:{...process.env}});
+   writeFileSync(join(output,mode+'.log'),result.stdout+result.stderr);
+   runs.push({mode,elapsedMs:performance.now()-start,exitCode:result.status,executions:readFileSync(join(fixture,'.counts'),'utf8').trim().split('\n').length});return result;
+  };
+  const first=worker('first');assert.equal(first.status,70);assert.match(first.stderr,/INJECTED_PENDING_PUBLICATION_FAILURE/);
+  assert.equal(runs[0].executions,1,'The actual two-selector batch fans out one execution');
+  const receiptFiles=readdirSync(join(store.storyDirPath(storyId),'causal-evidence/receipts')).filter(x=>x.endsWith('.json'));
+  assert.equal(receiptFiles.length,1);
+  const receiptJson=JSON.parse(readFileSync(join(store.storyDirPath(storyId),'causal-evidence/receipts',receiptFiles[0]),'utf8'));
+  const stored=store.readCausalEvidenceReceipt(storyId,receiptJson.executionKey);
+  assert.ok(stored.selectorOutput,'Complete bytes have a signed digest');
+  const fullPath=join(store.storyDirPath(storyId),'causal-evidence/outputs',stored.selectorOutput.digest+'.json');
+  const fullBytes=readFileSync(fullPath,'utf8');assert.ok(!fullBytes.includes(process.env.LAB_SELECTOR_SECRET_TOKEN),'SECRET_PERSISTED');
+  assert.ok(fullBytes.includes('PUBLISH_RESTART_OK'));assert.ok(!stored.outputProbe.includes('PUBLISH_RESTART_OK'));
+  const corrupted=structuredClone(stored);corrupted.selectorOutput.digest='0'.repeat(64);assert.equal(verifyCausalEvidenceReceipt(corrupted),false);
+  const before=JSON.stringify(store.readChecklist(storyId));
+  for(const fault of ['tamper','missing']){
+   if(fault==='tamper')writeFileSync(fullPath,fullBytes.replace('PUBLISH_RESTART_OK','FORGED_SELECTOR_OK'));
+   else rmSync(fullPath);
+   const result=worker(fault);assert.equal(result.status,70);assert.match(result.stderr,/causal_selector_output_invalid/);
+   assert.equal(runs.at(-1).executions,1,'REFUSAL_RERAN_COMMAND');
+   assert.equal(JSON.stringify(store.readChecklist(storyId)),before,'REFUSAL_MUTATED_EVIDENCE');
+  }
+  writeFileSync(fullPath,fullBytes);
+  const identity={...stored.identity,effectiveEnvironment:effectiveCausalEnvironment(undefined,stored.identity.cwd),selectorPolicy:DEFAULT_CAUSAL_SELECTOR_POLICY};
+  const derived=createCausalExecutionKey(identity);
+  assert.equal(createCausalExecutionKey(identity).key,stored.executionKey,'The direct selector control uses the exact original physical observation');
+  const absentReuse=await executeCausalEvidence({identity,preflight:preflightCausalEvidence(stored.identity.inputs.preflightFacts,undefined,identity),revalidateBeforeRun:()=>false,selector:'ABSENT_MIDDLE_MARKER',intentRef:'I-3',receiptStore:store,run:async()=>{throw new Error('ABSENT_REUSE_RERAN_COMMAND');}});
+  assert.equal(absentReuse.disposition,'reused');assert.equal(absentReuse.verdict.matched,false,'Saved output cannot prove an absent selector');
+  const second=worker('second');assert.equal(second.status,0,second.stdout+second.stderr);assert.match(second.stdout,/commandExecutions=0/);
+  assert.equal(runs.at(-1).executions,1,'LONG_OUTPUT_FANOUT_RERAN_COMMAND');
+  const allEvidence=store.readChecklist(storyId).items[0].verificationEvidence;assert.equal(allEvidence.length,2);const evidence=allEvidence[0];assert.equal(evidence.result,'pass');assert.equal(evidence.receipt.exitCode,0);
+  const published=JSON.stringify(store.readChecklist(storyId));
+  const absentRun=worker('absent');assert.equal(absentRun.status,70);assert.match(absentRun.stderr,/receipt_selector_absent/);
+  assert.equal(runs.at(-1).executions,2,'A new ordinary observation must execute, even with an old cached PASS');
+  assert.equal(JSON.stringify(store.readChecklist(storyId)),published,'ABSENT_SELECTOR_MUTATED_EVIDENCE');
+  console.log('OUTPUT_TAMPER_MISSING_ABSENT_REDACTION_GREEN');
+  writeFileSync(join(output,'results.json'),JSON.stringify({runs,evidence,commandExecutions:2,successfulBatchExecutions:1,recoveryCommandExecutions:0,ordinaryAbsentSelectorExecutions:1,limitations:['This fixture exercises complete-output selection across independent handler processes; it does not measure full-Story delivery time.']},null,2));
+  console.log('COMPLETE_OUTPUT_SELECTOR_AND_FANOUT_GREEN');
+ }finally{rmSync(fixture,{recursive:true,force:true});}
+}

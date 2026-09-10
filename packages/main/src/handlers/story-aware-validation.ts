@@ -449,6 +449,16 @@ function artifactDir(projectRoot: string, storyId: string): string {
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
 }
 
+/** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */
+export function readRoutineReuseRevocationBasis(projectRoot: string, storyId: string): string | null {
+  const path = join(artifactDir(projectRoot, storyId), 'revocation-ledger.json');
+  if (!existsSync(path)) return buildRevocationLedger([], []).digest;
+  try {
+    const ledger = JSON.parse(readFileSync(path, 'utf8')) as ReceiptRevocationLedger;
+    return verifyRevocationLedger(ledger) ? ledger.digest : null;
+  } catch { return null; }
+}
+
 /** Runtime state only; this path is covered by the runtime artifact registry. */
 export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: string): DynamicValidationArtifacts {
   const dir = artifactDir(projectRoot, storyId);
@@ -535,16 +545,32 @@ function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-
 }
 
 const DYN5_ADAPTER_ENTRYPOINT = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
-const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string; sourceDigest?: string }> = {
+const DYN5_CHILD_ENVIRONMENT_SOURCE = 'packages/main/src/tasks/validation-child-environment.mjs';
+const DYN5_ADAPTER_SOURCE_DIGEST = '6de0a88aea6964edb5d69ae696610f62c10d5b1f6046b56f36fdc9549efe03a4';
+const DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST = '7db8412e767f9fe9e0c00cbd4b62b701caa51f7e268b8ef6b76aa0c264c5afe7';
+const DYN5_ADAPTER_REGISTRY: Record<string, {
+  digest: string;
+  entrypoint: string;
+  sourceDigest: string;
+  sourceDependencies: readonly { entrypoint: string; sourceDigest: string }[];
+}> = {
   'case-registry-output-v1': {
     digest: stableDigest({
       name: 'case-registry-output-v1',
       version: 1,
       entrypoint: DYN5_ADAPTER_ENTRYPOINT,
       contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker', 'case-evidence-files'],
+      sourceDependencies: [{
+        entrypoint: DYN5_CHILD_ENVIRONMENT_SOURCE,
+        sourceDigest: DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST,
+      }],
     }),
     entrypoint: DYN5_ADAPTER_ENTRYPOINT,
-    sourceDigest: '23e5676be5e9258a14ad20c528b58a082c185c1d844d1297a39c723152f50c30',
+    sourceDigest: DYN5_ADAPTER_SOURCE_DIGEST,
+    sourceDependencies: [{
+      entrypoint: DYN5_CHILD_ENVIRONMENT_SOURCE,
+      sourceDigest: DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST,
+    }],
   },
 };
 
@@ -558,6 +584,13 @@ function registeredShardAdapter(projectRoot: string, command: ValidationCommand,
   // entrypoint under the same name.
   if (!existsSync(expectedEntrypoint)) return undefined;
   if (adapter.sourceDigest && stableDigest(readFileSync(expectedEntrypoint, 'utf8')) !== adapter.sourceDigest) return undefined;
+  for (const dependency of adapter.sourceDependencies) {
+    const dependencyPath = resolve(projectRoot, dependency.entrypoint);
+    const dependencyRelative = relative(resolve(projectRoot), dependencyPath);
+    if (dependencyRelative === '..' || dependencyRelative.startsWith('../')
+      || !existsSync(dependencyPath)
+      || stableDigest(readFileSync(dependencyPath, 'utf8')) !== dependency.sourceDigest) return undefined;
+  }
   const commandPath = resolve(command.command);
   const runtimePath = resolve(process.execPath);
   const nodeLike = commandPath === runtimePath || /(?:^|[\\/])(?:node|bun)(?:\.exe)?$/i.test(commandPath);
@@ -661,12 +694,9 @@ async function executeShardedEntry(args: {
   const receipts: ValidationShardReceipt[] = [];
   const results: ValidationResult[] = [];
   const residue: string[] = [];
-  // B-45a0 F-447: read BOTH names, preferring the canonical one, per
-  // brand-rename-mapping.md's rule for LATTICE_* env vars. The writer below emits
-  // the canonical PROOF_OR_STOP_* names; the deprecated spelling stays readable so
-  // an existing caller that already exports it keeps working.
-  const shardAdapter = baseCommand.env?.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER
-    ?? baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
+  // Dynamic validation shard execution is canonical-only: the active runtime reads
+  // PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER and does not accept the retired spelling.
+  const shardAdapter = baseCommand.env?.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER;
   const adapter = registeredShardAdapter(args.projectRoot, baseCommand, shardAdapter);
   if (!adapter) {
     const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
@@ -1024,8 +1054,8 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     resources: entry.resources,
   }));
   const schedulerCapacity = {
-    workerCapacity: Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
-    cpuCapacity: Number(process.env.LATTICE_VALIDATE_CPU) || Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
+    workerCapacity: Number(process.env.PROOF_OR_STOP_VALIDATE_JOBS) || 4,
+    cpuCapacity: Number(process.env.PROOF_OR_STOP_VALIDATE_CPU) || Number(process.env.PROOF_OR_STOP_VALIDATE_JOBS) || 4,
   };
   const scheduled = buildValidationSchedule(scheduleEntries, schedulerCapacity);
   const scheduleCheck = verifyValidationSchedule(scheduled, scheduleEntries, schedulerCapacity);

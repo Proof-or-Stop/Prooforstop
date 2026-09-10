@@ -8,10 +8,8 @@
  * all held, so no case line can appear on a failing run — the exact defect
  * (a selector that prints unconditionally) this story exists to fix.
  *
- * Default output stays well under 11000 characters because the verification
- * executor truncates a command's captured output at 12000 characters BEFORE
- * matching a pinned selector; a smoke whose own verdict line falls off the end
- * of the tail cannot be pinned as evidence.
+ * Default output remains concise. Receipt and narrowing selector evaluation use
+ * complete authenticated output; the bounded compatibility tail is display-only.
  *
  * Structure: cases are grouped per checklist item (`CHK001_CASES` below), and
  * the groups are concatenated into `CASES`. CHK-002 and CHK-003 append their
@@ -28,7 +26,17 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import * as checklistHandlerModule from '../handlers/checklist.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
-import { buildVerificationCoverage, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
+import {
+  createCurrentVerificationAssertionReceipt,
+  createVerificationAssertionReceipt,
+  captureVerificationFreshness,
+  createVerificationExecutionReceipt,
+  validateVerificationReceipt,
+} from '../core/verification-execution-evidence.js';
+import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
+import { computeCanonicalDigest } from '../core/evidence/artifact-store.js';
 import { computeEvidencePinVerdict } from '../core/evidence-pin-guard.js';
 import { renderCodexEvidencePretoolHookScript } from '../init-assets.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
@@ -44,6 +52,7 @@ import type {
   StoryInfo,
   VerificationEvidence,
   VerificationExecutionReceipt,
+  VerificationReceiptBundleV5,
   VerificationIntentPin,
   VerificationIntentType,
 } from '../core/types.js';
@@ -313,7 +322,7 @@ const CHK001_CASES: SmokeCase[] = [
 ];
 
 
-// ── CHK-002: narrowing-only re-pin proved from tool-recorded receipts ─────────
+// ── CHK-002: narrowing-only re-pin proved from current signed V5 receipts ─────
 
 /**
  * The re-pin entry point, resolved DYNAMICALLY off the handler module rather than
@@ -355,10 +364,16 @@ const NARROW_REASON =
   'the pinned selector is printed on every branch, so it matched a failing run; re-pin to the status discriminator';
 
 /** A real, allowlisted command whose render depends on a scratch file — one command, two renders. */
-function renderCommand(modePath: string): string {
+type CorpusShape = 'normal' | 'pass-before-tail' | 'fail-before-tail';
+
+function renderCommand(modePath: string, shape: CorpusShape = 'normal'): string {
+  const passPadding = shape === 'pass-before-tail' ? ";console.log('x'.repeat(5000))" : '';
+  const failingRender = shape === 'fail-before-tail'
+    ? `console.log('${NEW_SELECTOR}');console.log('x'.repeat(5000));process.exit(1)`
+    : 'process.exit(1)';
   return `node -e "const fs=require('fs');console.log('${OLD_SELECTOR}');` +
     `if(fs.readFileSync('${modePath}','utf8').includes('plan')){console.log('${NEW_SELECTOR}');` +
-    `console.log('${PLAN_ONLY_EXTRA}')}else{process.exit(1)}"`;
+    `console.log('${PLAN_ONLY_EXTRA}')${passPadding}}else{${failingRender}}"`;
 }
 
 function readPin(env: Env, index = 0): VerificationIntentPin | undefined {
@@ -376,19 +391,76 @@ interface SeedRow {
   intentRef: string;
   exitCode: number;
   tail: string;
-  /** Omitted = a pre-B-1482 receipt whose judged selector is unknown and NOT re-derivable. */
+  /** Judged selector; current V5 seeds default to the pin, while legacy seeds may omit it. */
   selector?: string;
   selectorMatched?: boolean;
   executedAt?: string;
   materialHash?: string;
 }
 
-/**
- * Seed a corpus of recorded receipts for ONE pinned command. Used by the refusal cases,
- * several of which describe corpora the real write path cannot mint (a pre-B-1482 receipt,
- * a receipt recorded against different story material).
- */
-function seedRecordedReceipts(env: Env, command: string, pinSelector: string, rows: SeedRow[]): void {
+/** Seed a current signed V5 corpus for evaluator-focused narrowing cases. */
+async function seedRecordedReceipts(env: Env, _command: string, pinSelector: string, rows: SeedRow[]): Promise<void> {
+  const seedRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-narrowing-observation-'));
+  const observationPath = join(seedRoot, 'observation.json');
+  const command = `node -e "const r=JSON.parse(require('fs').readFileSync('${observationPath}','utf8'));process.stdout.write(r.output);process.exitCode=r.code"`;
+  const cl = env.store.readChecklist(env.storyId);
+  const item = cl.items[0];
+  for (const intent of item.verificationIntent?.happy ?? []) {
+    intent.verification = { command, selector: pinSelector };
+  }
+  item.verificationEvidence = [];
+  let materialLabel: string | undefined;
+  try {
+  for (const row of rows) {
+    if (materialLabel !== undefined && row.materialHash !== materialLabel) {
+      write(env.root, 'packages/main/src/narrowing-material.ts', `export const label = ${JSON.stringify(row.materialHash)};\n`);
+      git(env.root, ['add', 'packages/main/src/narrowing-material.ts']);
+      git(env.root, ['commit', '-m', 'real narrowing corpus material drift']);
+    }
+    materialLabel = row.materialHash;
+    writeFileSync(observationPath, JSON.stringify({ output: row.tail, code: row.exitCode }));
+    const freshness = captureVerificationFreshness(env.root, env.root);
+    const run = await runSingleAllowlistedCommand(command, env.root, { cwd: env.root, timeoutMs: 270_000 });
+    assert.equal(run.output, row.tail, 'seed output comes from the actual command');
+    assert.equal(run.code, row.exitCode, 'seed exit code comes from the actual command');
+    const selector = row.selector ?? pinSelector;
+    const executionReceipt = createVerificationExecutionReceipt({
+      projectRoot: env.root,
+      storyId: env.storyId,
+      command,
+      cwd: env.root,
+      run,
+      executedAt: row.executedAt ?? '2026-09-01T00:00:00.000Z',
+    });
+    const receipt = createCurrentVerificationAssertionReceipt({
+      freshness,
+      projectRoot: env.root,
+      storyId: env.storyId,
+      executionReceipt,
+      intentRef: row.intentRef,
+      selector,
+    });
+    if (row.selectorMatched !== undefined) {
+      assert.equal(receipt.selectorMatched, row.selectorMatched,
+        `seed ${row.intentRef} selectorMatched expectation agrees with its signed output`);
+    }
+    item.verificationEvidence.push({
+      intentRef: row.intentRef,
+      kind: 'integration_test',
+      command,
+      result: row.exitCode === 0 ? 'pass' : 'fail',
+      note: 'seeded current signed V5 recorded receipt',
+      mechanical: true,
+      ...freshness,
+      receipt,
+    });
+  }
+  } finally { rmSync(seedRoot, { recursive: true, force: true }); }
+  env.store.writeChecklist(env.storyId, cl);
+}
+
+/** Seed unsigned combined receipts solely to prove their read-only compatibility boundary. */
+function seedLegacyRecordedReceipts(env: Env, command: string, pinSelector: string, rows: SeedRow[]): void {
   const cl = env.store.readChecklist(env.storyId);
   const item = cl.items[0];
   for (const intent of item.verificationIntent?.happy ?? []) {
@@ -399,7 +471,7 @@ function seedRecordedReceipts(env: Env, command: string, pinSelector: string, ro
     kind: 'integration_test',
     command,
     result: row.exitCode === 0 ? 'pass' : 'fail',
-    note: 'seeded recorded receipt',
+    note: 'seeded legacy read-only receipt',
     mechanical: true,
     materialHash: row.materialHash ?? 'MATERIAL-1',
     receipt: {
@@ -412,6 +484,65 @@ function seedRecordedReceipts(env: Env, command: string, pinSelector: string, ro
     },
   })) as VerificationEvidence[];
   env.store.writeChecklist(env.storyId, cl);
+}
+
+/** Build internally consistent read-only V2/V3 fixtures from a current signed V5 receipt. */
+function downgradeV4Receipt(
+  receipt: VerificationReceiptBundleV5,
+  version: 'v2' | 'v3',
+): VerificationEvidence['receipt'] {
+  const executionV3 = receipt.executionReceipt;
+  let executionReceipt: any = executionV3;
+  if (version === 'v2') {
+    const {
+      schemaVersion: _schemaVersion,
+      executionReceiptDigest: _executionReceiptDigest,
+      dependencyManifest: _dependencyManifest,
+      platform: _platform,
+      architecture: _architecture,
+      nodeVersion: _nodeVersion,
+      executionIdentityDigest: _executionIdentityDigest,
+      reuseDeniedReason: _reuseDeniedReason,
+      authenticity: _authenticity,
+      ...executionV2Fields
+    } = executionV3;
+    const executionV2Subject = {
+      ...executionV2Fields,
+      schemaVersion: 'proof-or-stop.verification-execution-receipt.v2',
+    };
+    executionReceipt = {
+      ...executionV2Subject,
+      executionReceiptDigest: computeCanonicalDigest(executionV2Subject),
+    };
+  }
+  const assertionSubject = {
+    schemaVersion: 'proof-or-stop.verification-assertion-receipt.v1',
+    intentRef: receipt.assertionReceipt.intentRef,
+    selectorDigest: receipt.assertionReceipt.selectorDigest,
+    matcherVersion: receipt.assertionReceipt.matcherVersion,
+    executionReceiptDigest: executionReceipt.executionReceiptDigest,
+    outputDigest: receipt.assertionReceipt.outputDigest,
+    matched: receipt.assertionReceipt.matched,
+  };
+  return {
+    schemaVersion: version === 'v2'
+      ? 'proof-or-stop.verification-receipt-bundle.v2'
+      : 'proof-or-stop.verification-receipt-bundle.v3',
+    executionReceipt,
+    assertionReceipt: {
+      ...assertionSubject,
+      assertionReceiptDigest: computeCanonicalDigest(assertionSubject),
+    },
+    compatibility: { projection: 'legacy-verification-receipt.v1', reusable: false, promotable: false },
+    exitCode: receipt.exitCode,
+    outputDigest: receipt.outputDigest,
+    outputTail: receipt.outputTail,
+    selectorMatched: receipt.selectorMatched,
+    selector: receipt.selector,
+    executedAt: receipt.executedAt,
+    timeoutMs: receipt.timeoutMs,
+    ...(receipt.timeoutOverride ? { timeoutOverride: { ...receipt.timeoutOverride } } : {}),
+  } as VerificationEvidence['receipt'];
 }
 
 const PASS_TAIL = `${OLD_SELECTOR}\n${NEW_SELECTOR}\n${PLAN_ONLY_EXTRA}\n`;
@@ -441,10 +572,10 @@ function commitStoryMetadata(root: string, label: string): void {
 }
 
 /** Drive the real write path to the exact B-a745 corpus: one passing render, one failing render. */
-async function recordA745Corpus(): Promise<{ env: Env; command: string; modePath: string }> {
+async function recordA745Corpus(shape: CorpusShape = 'normal'): Promise<{ env: Env; command: string; modePath: string }> {
   const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-A745', type: 'cli' }]);
   const modePath = join(env.root, 'render-mode.txt');
-  const command = renderCommand(modePath);
+  const command = renderCommand(modePath, shape);
   writeFileSync(modePath, 'plan\n');
   await env.handlers.verification_evidence_add({
     storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS', kind: 'integration_test',
@@ -470,7 +601,7 @@ async function recordA745Corpus(): Promise<{ env: Env; command: string; modePath
 async function assertLooseningRefused(): Promise<void> {
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
       try {
-        seedRecordedReceipts(env, PASS_CMD, NEW_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, NEW_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: NEW_SELECTOR },
           { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: NEW_SELECTOR, selectorMatched: false },
         ]);
@@ -491,7 +622,7 @@ async function assertLooseningRefused(): Promise<void> {
 async function assertMissingProofSideRefused(): Promise<void> {
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-OTHER', type: 'cli' }]);
       try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           { intentRef: 'INT-OTHER', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
         ]);
@@ -505,7 +636,7 @@ async function assertMissingProofSideRefused(): Promise<void> {
         );
         // The mirror image: a failing render with no recorded PASSING receipt is refused too,
         // so "matches every passing receipt" can never hold vacuously.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
         ]);
         await expectRejection(
@@ -526,7 +657,7 @@ async function assertAbsentFromPassingReceiptRefused(): Promise<void> {
         { ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-PASS2', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' },
       ]);
       try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           // A second known-good run that never printed the candidate: narrowing to it would
           // start failing a run that genuinely passed.
@@ -570,8 +701,8 @@ async function assertA745ShapeReplayedEndToEnd(): Promise<void> {
         assert.ok(message.includes(OLD_SELECTOR), 'the acceptance names the OLD pin');
         assert.ok(message.includes(NEW_SELECTOR), 'the acceptance names the NEW pin');
         assert.ok(message.includes(NARROW_REASON), 'the acceptance carries the caller-supplied reason');
-        assert.match(message, /outputTail/, 'the acceptance states absence was asserted in the retained tail');
-        assert.match(message, /bounded/, 'the acceptance states the tail is BOUNDED, not the whole run');
+        assert.match(message, /complete authenticated output artifacts/, 'the acceptance identifies full-output proof');
+        assert.match(message, /outputTail is a bounded display-only projection/, 'the acceptance gives tails no proof authority');
 
         const pin = readPin(env, 1);
         assert.equal(pin?.selector, NEW_SELECTOR, 'the pin now carries the narrowed selector');
@@ -621,7 +752,7 @@ const CHK002_CASES: SmokeCase[] = [
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
       try {
         // The stop render prints the candidate selector as well: narrowing to it proves nothing.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           { intentRef: 'INT-FAIL', exitCode: 1, tail: `${OLD_SELECTOR}\n${NEW_SELECTOR}\n`, selector: OLD_SELECTOR },
         ]);
@@ -699,25 +830,31 @@ const CHK002_CASES: SmokeCase[] = [
   },
   {
     id: 'CHK-002/B7',
-    desc: 'a receipt with no recorded selector cannot serve as the failing proof',
+    desc: 'a selector-less legacy receipt remains readable but cannot serve as narrowing proof',
     run: async () => {
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-LEGACY', type: 'cli' }]);
       try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        seedLegacyRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           // Pre-B-1482 receipt: absent selector means UNKNOWN, not re-derivable from the pin.
           { intentRef: 'INT-LEGACY', exitCode: 1, tail: FAIL_TAIL },
         ]);
+        const legacy = readEvidence(env, 'INT-LEGACY');
+        assert.ok(legacy?.receipt, 'the historical combined receipt remains present');
+        const legacyRead = validateVerificationReceipt(env.root, legacy.receipt, {
+          intentRef: 'INT-LEGACY', selector: '', storyId: env.storyId,
+        });
+        assert.equal(legacyRead.ok, true, 'legacy combined evidence remains readable for audit');
+        assert.equal(legacyRead.kind, 'legacy-readable-only', 'readability is explicitly non-authoritative compatibility');
         await expectRejection(
           narrow(env, {
             storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-LEGACY',
             selector: NEW_SELECTOR, reason: NARROW_REASON,
           }),
-          /narrowing_receipt_selector_unknown/,
+          /narrowing_recorded_receipt_not_authoritative/,
           'B7 selector-less receipt',
         );
         assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
-        const legacy = readEvidence(env, 'INT-LEGACY');
         assert.equal('selector' in (legacy?.receipt ?? {}), false, 'the pre-B-1482 receipt was not back-filled');
       } finally { cleanup(env); }
     },
@@ -730,7 +867,7 @@ const CHK002_CASES: SmokeCase[] = [
       try {
         // A corpus with no failing render: the transcript below is the ONLY thing that could
         // make this re-pin provable, so considering it at all would show up as an acceptance.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           { intentRef: 'INT-OTHER', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
         ]);
@@ -760,7 +897,7 @@ const CHK002_CASES: SmokeCase[] = [
     run: async () => {
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
       try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR, materialHash: 'MATERIAL-1' },
           // An engineered failing run recorded against OTHER material is not comparable with
           // the passing receipts it is being weighed against.
@@ -777,10 +914,8 @@ const CHK002_CASES: SmokeCase[] = [
         assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
 
         // Same corpus, one recorded material: now the proof completes, and the acceptance
-        // must say WHERE absence was asserted. outputTail is a BOUNDED tail of the
-        // captured output, so an acceptance that claimed absence from the whole run would
-        // be claiming more than the recorded evidence can carry.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        // must identify complete authenticated output rather than bounded display tails.
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR, materialHash: 'MATERIAL-1' },
           { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, materialHash: 'MATERIAL-1' },
         ]);
@@ -788,12 +923,8 @@ const CHK002_CASES: SmokeCase[] = [
           storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
           selector: NEW_SELECTOR, reason: NARROW_REASON,
         });
-        assert.match(message, /outputTail/, 'the acceptance names the retained outputTail as where absence was asserted');
-        assert.match(message, /bounded/, 'the acceptance states that tail is BOUNDED, not the whole run');
-        assert.equal(
-          /absent from the (whole|entire) (run|output)/i.test(message), false,
-          'the acceptance does not claim absence from the whole recorded run',
-        );
+        assert.match(message, /complete authenticated output artifacts/, 'the acceptance names the complete proof source');
+        assert.match(message, /outputTail is a bounded display-only projection/, 'the acceptance states the diagnostic-only tail boundary');
         assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'the proved narrowing was applied');
       } finally { cleanup(env); }
     },
@@ -806,7 +937,7 @@ const CHK002_CASES: SmokeCase[] = [
       try {
         // A provable corpus: only the requested selector is the problem, so a refusal
         // here cannot be a missing-proof refusal wearing the wrong code.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
           { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
         ]);
@@ -854,7 +985,7 @@ const CHK002_CASES: SmokeCase[] = [
       const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
       try {
         // Otherwise provable, but both sides claim to have run AFTER this request.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+        await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
           { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR, executedAt: '2099-01-01T00:00:00.000Z' },
           { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, executedAt: '2099-01-01T00:00:00.000Z' },
         ]);
@@ -866,25 +997,218 @@ const CHK002_CASES: SmokeCase[] = [
           /narrowing_receipt_not_predating_request/,
           'B12 receipts postdating the request',
         );
-        // The other half of the same branch: an unusable execution time is UNKNOWN, and
-        // unknown never counts as "recorded before the request".
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
-          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
-          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR, executedAt: 'not-a-time' },
-        ]);
-        await expectRejection(
-          narrow(env, {
-            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
-            selector: NEW_SELECTOR, reason: NARROW_REASON,
-          }),
-          /narrowing_receipt_not_predating_request/,
-          'B12 unusable execution time',
-        );
-        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after both refusals');
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
       } finally { cleanup(env); }
     },
   },
+  {
+    id: 'CHK-002/B13',
+    desc: 'a persisted V5 top-level selector tamper is rejected before narrowing can consume it',
+    run: async () => {
+      const { env } = await recordA745Corpus();
+      try {
+        const checklist = env.store.readChecklist(env.storyId);
+        const row = checklist.items[0].verificationEvidence?.find(evidence => evidence.intentRef === 'INT-A745');
+        assert.ok(row?.receipt, 'the production handler persisted the failing V5 witness receipt');
+        assert.equal((row.receipt as { schemaVersion?: string }).schemaVersion, 'proof-or-stop.verification-receipt-bundle.v5',
+          'the tamper targets the current lifecycle-admissible V5 bundle');
+        row.receipt.selector = 'FORGED_SELECTOR_NEVER_EXECUTED';
+        env.store.writeChecklist(env.storyId, checklist);
+
+        const persisted = readEvidence(env, 'INT-A745');
+        assert.ok(persisted?.receipt, 'the selector-only tamper was persisted before validation');
+        const validation = validateVerificationReceipt(env.root, persisted.receipt, {
+          intentRef: 'INT-A745', selector: OLD_SELECTOR, storyId: env.storyId,
+        });
+        assert.equal(validation.ok, false, 'authoritative validation rejects the stored selector projection tamper');
+        assert.ok(validation.errors.includes('receipt selector compatibility digest mismatch'),
+          'the refusal names the signed assertion selector-digest boundary');
+
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_recorded_receipt_invalid/,
+          'B13 persisted V5 selector projection tamper',
+        );
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the tampered witness cannot change the pin');
+        assert.equal(readNarrowings(env, 1).length, 0, 'no narrowing record is minted from the tampered witness');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B14',
+    desc: 'injecting plausible selectors into persisted legacy PASS/FAIL receipts cannot authorize narrowing',
+    run: async () => {
+      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-LEGACY-FAIL', type: 'cli' }]);
+      try {
+        seedLegacyRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL },
+          { intentRef: 'INT-LEGACY-FAIL', exitCode: 1, tail: FAIL_TAIL },
+        ]);
+        const checklist = env.store.readChecklist(env.storyId);
+        for (const row of checklist.items[0].verificationEvidence ?? []) {
+          assert.ok(row.receipt, `legacy row ${row.intentRef} has a persisted receipt`);
+          assert.equal('selector' in row.receipt, false, `legacy row ${row.intentRef} starts selector-less`);
+          row.receipt.selector = OLD_SELECTOR;
+          row.receipt.selectorMatched = true;
+        }
+        env.store.writeChecklist(env.storyId, checklist);
+
+        const injected = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+        assert.equal(injected.length, 2, 'the persisted attack corpus contains one PASS and one FAIL receipt');
+        for (const row of injected) {
+          assert.equal(row.receipt?.selector, OLD_SELECTOR, `legacy row ${row.intentRef} carries the injected plausible selector`);
+          const readable = validateVerificationReceipt(env.root, row.receipt!, {
+            intentRef: row.intentRef, selector: OLD_SELECTOR, storyId: env.storyId,
+          });
+          assert.equal(readable.ok, true, `legacy row ${row.intentRef} remains readable after injection`);
+          assert.equal(readable.kind, 'legacy-readable-only', `legacy row ${row.intentRef} gains no authority from readability`);
+        }
+
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-LEGACY-FAIL',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_recorded_receipt_not_authoritative/,
+          'B14 injected legacy selector corpus',
+        );
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the injected legacy corpus leaves the pin unchanged');
+        assert.equal(readNarrowings(env, 1).length, 0, 'the injected legacy corpus mints no narrowing ledger entry');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B15',
+    desc: 'internally consistent legacy Bundle V2/V3/V4 remain readable but cannot authorize narrowing',
+    run: async () => {
+      for (const version of ['v2', 'v3', 'v4'] as const) {
+        const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
+        try {
+          await seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+            { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+            { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
+          ]);
+          const checklist = env.store.readChecklist(env.storyId);
+          for (const row of checklist.items[0].verificationEvidence ?? []) {
+            const current = row.receipt as VerificationReceiptBundleV5;
+            row.receipt = version === 'v4' ? createVerificationAssertionReceipt({
+              projectRoot: env.root, storyId: env.storyId,
+              executionReceipt: current.executionReceipt,
+              intentRef: row.intentRef, selector: OLD_SELECTOR,
+            }) : downgradeV4Receipt(current, version);
+          }
+          env.store.writeChecklist(env.storyId, checklist);
+          for (const row of env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? []) {
+            const validation = validateVerificationReceipt(env.root, row.receipt!, {
+              intentRef: row.intentRef, selector: OLD_SELECTOR, storyId: env.storyId,
+            });
+            assert.equal(validation.ok, true, `legacy Bundle ${version} remains structurally readable`);
+            assert.equal(validation.output, row.intentRef === 'INT-PASS' ? PASS_TAIL : FAIL_TAIL,
+              `legacy Bundle ${version} retains complete authenticated historical output`);
+            assert.equal(validation.kind, `split-${version}`, `legacy Bundle ${version} keeps its explicit read-only kind`);
+          }
+          await expectRejection(
+            narrow(env, {
+              storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+              selector: NEW_SELECTOR, reason: NARROW_REASON,
+            }),
+            /narrowing_recorded_receipt_not_authoritative/,
+            `B15 legacy Bundle ${version}`,
+          );
+          assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, `legacy Bundle ${version} leaves the pin unchanged`);
+          assert.equal(readNarrowings(env, 1).length, 0, `legacy Bundle ${version} mints no narrowing ledger entry`);
+        } finally { cleanup(env); }
+      }
+    },
+  },
 ];
+
+// B-aa5f F-048: independent cases keep all three RED outcomes observable.
+CHK002_CASES.push(
+  {
+    id: 'CHK-002/B16',
+    desc: 'a stored V5 outputTail mismatch is refused without changing the pin or ledger',
+    run: async () => {
+      const { env } = await recordA745Corpus();
+      try {
+        const checklist = env.store.readChecklist(env.storyId);
+        const row = checklist.items[0].verificationEvidence!.find(e => e.intentRef === 'INT-A745')!;
+        const original = structuredClone(row.receipt!);
+        const expected = { intentRef: row.intentRef, selector: OLD_SELECTOR, storyId: env.storyId };
+        assert.equal(validateVerificationReceipt(env.root, original, expected).ok, true,
+          'B16: the real baseline receipt is valid before changing only its display summary');
+        row.receipt!.outputTail += 'UNRECORDED_DISPLAY_SUMMARY\n';
+        env.store.writeChecklist(env.storyId, checklist);
+        const persisted = readEvidence(env, row.intentRef)!.receipt!;
+        const validation = validateVerificationReceipt(env.root, persisted, expected);
+        assert.equal(validation.ok, false, 'B16: authoritative validation rejects the stored outputTail mismatch');
+        assert.ok(validation.errors.includes('receipt outputTail compatibility mismatch'),
+          'B16: refusal identifies the complete-output-derived display projection');
+        await expectRejection(narrow(env, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+          selector: NEW_SELECTOR, reason: NARROW_REASON,
+        }), /narrowing_recorded_receipt_invalid/, 'B16 stored outputTail mismatch');
+        assert.deepEqual(env.store.readChecklist(env.storyId), checklist,
+          'B16: rejected evidence leaves every pin, receipt, and narrowing ledger unchanged');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B17',
+    desc: 'a passing selector before the retained tail is found in complete authenticated output',
+    run: async () => {
+      const { env } = await recordA745Corpus('pass-before-tail');
+      try {
+        const before = env.store.readChecklist(env.storyId);
+        const passing = readEvidence(env, 'INT-PASS')!.receipt!;
+        const validated = validateVerificationReceipt(env.root, passing, {
+          intentRef: 'INT-PASS', selector: OLD_SELECTOR, storyId: env.storyId,
+        });
+        assert.equal(validated.ok, true, `B17: the long-output receipt is valid: ${validated.errors.join('; ')}`);
+        assert.ok(validated.output!.includes(NEW_SELECTOR), 'B17: complete output contains the candidate');
+        assert.equal(passing.outputTail.length, 4000, 'B17: the compatibility tail is bounded');
+        assert.equal(passing.outputTail.includes(NEW_SELECTOR), false, 'B17: the candidate is outside the tail');
+        await narrow(env, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+          selector: NEW_SELECTOR, reason: NARROW_REASON,
+        });
+        assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'B17: full-output proof permits the valid narrowing');
+        assert.equal(readNarrowings(env, 1).length, 1, 'B17: exactly one narrowing is recorded');
+        assert.deepEqual(env.store.readChecklist(env.storyId).items[0].verificationEvidence,
+          before.items[0].verificationEvidence, 'B17: original signed receipts remain unchanged');
+      } finally { cleanup(env); }
+    },
+  },
+  {
+    id: 'CHK-002/B18',
+    desc: 'a failing discriminator before the retained tail cannot be treated as absent',
+    run: async () => {
+      const { env } = await recordA745Corpus('fail-before-tail');
+      try {
+        const before = env.store.readChecklist(env.storyId);
+        const failing = readEvidence(env, 'INT-A745')!.receipt!;
+        const validated = validateVerificationReceipt(env.root, failing, {
+          intentRef: 'INT-A745', selector: OLD_SELECTOR, storyId: env.storyId,
+        });
+        assert.equal(validated.ok, true, `B18: the long failing receipt is valid: ${validated.errors.join('; ')}`);
+        assert.notEqual(failing.exitCode, 0, 'B18: the recorded command failed');
+        assert.equal(failing.selectorMatched, true, 'B18: the old pin matched the complete failing output');
+        assert.ok(validated.output!.includes(NEW_SELECTOR), 'B18: complete failing output contains the candidate');
+        assert.equal(failing.outputTail.length, 4000, 'B18: the compatibility tail is bounded');
+        assert.equal(failing.outputTail.includes(NEW_SELECTOR), false, 'B18: tail absence is not full-output absence');
+        await expectRejection(narrow(env, {
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+          selector: NEW_SELECTOR, reason: NARROW_REASON,
+        }), /narrowing_selector_not_discriminating/, 'B18 complete failing output already contains the candidate');
+        assert.deepEqual(env.store.readChecklist(env.storyId), before,
+          'B18: a nondiscriminating candidate changes no pin, receipt, or ledger');
+      } finally { cleanup(env); }
+    },
+  },
+);
 
 // ── CHK-003: reachable as a proof-or-stop command, documented, and registered ──
 
@@ -921,6 +1245,8 @@ const HANDLER_NARROWING_REFUSAL_CODES = [
   'narrowing_intent_not_executable',
   'narrowing_intent_not_pinned',
   'narrowing_receipt_set_unchanged',
+  'narrowing_recorded_receipt_invalid',
+  'narrowing_recorded_receipt_not_authoritative',
 ] as const;
 
 const ALL_NARROWING_REFUSAL_CODES: readonly string[] = [
@@ -1073,10 +1399,10 @@ const DOCUMENTED_CLAIM_SENTENCES: ReadonlyArray<{ claim: string; sentences: Reco
     },
   },
   {
-    claim: 'that the proof reads only tool-recorded receipts',
+    claim: 'that the proof reads only current signed V5 receipts',
     sentences: {
-      'decision doc': 'Its only inputs are tool-recorded receipts',
-      'CLAUDE.md': 'The proof reads tool-recorded receipts only.',
+      'decision doc': 'Its only proof witnesses are current signed V5 receipts',
+      'CLAUDE.md': 'The proof reads current signed V5 receipts only.',
     },
   },
   {
@@ -1147,8 +1473,8 @@ function assertDocumentationClaims(label: DocLabel, text: string): void {
   // prose: the rule itself must be stated, and the absence of a transcript/output/receipt
   // parameter with it.
   assert.match(
-    text, /(the proof reads tool-recorded receipts only|its only inputs are tool-recorded receipts)/i,
-    `${label} states the proof reads only tool-recorded receipts`,
+    text, /(the proof reads current signed V5 receipts only|its only proof witnesses are current signed V5 receipts)/i,
+    `${label} states the proof reads only current signed V5 receipts`,
   );
   assert.match(
     text, /there is no transcript[^.]*parameter/i,
@@ -1229,7 +1555,7 @@ const CHK003_CASES: SmokeCase[] = [
         assert.ok(res.stdout.includes(OLD_SELECTOR), 'the CLI output names the OLD pin');
         assert.ok(res.stdout.includes(NEW_SELECTOR), 'the CLI output names the NEW pin');
         assert.ok(res.stdout.includes(NARROW_REASON), 'the CLI output carries the caller-supplied reason');
-        assert.match(res.stdout, /outputTail/, 'the CLI output states absence was asserted in the retained tail');
+        assert.match(res.stdout, /complete authenticated output artifacts/, 'the CLI output states the complete proof source');
 
         // The pin actually moved on disk — the CLI ran the real writer, not a preview.
         const pin = readPin(env, 1);
@@ -1608,11 +1934,150 @@ const CHK003_CASES: SmokeCase[] = [
       } finally { cleanup(env); }
     },
   },
+  {
+    id: 'CHK-003/C11',
+    desc: 'the real CLI help teaches the signed V5-only witness boundary and legacy remediation',
+    run: async () => {
+      const help = runCliArgv(REPO_ROOT, [NARROW_COMMAND, '--help']);
+      const output = squashWhitespace(`${help.stdout}${help.stderr}`);
+      assert.equal(help.code, 0, `the real ${NARROW_COMMAND} --help command succeeds: ${output.slice(0, 240)}`);
+      assert.match(
+        output,
+        /Only current signed authoritative VerificationReceiptBundleV5 receipts recorded by this tool[^.]*may be proof witnesses/,
+        'help states the hard current signed authoritative V5-only witness precondition',
+      );
+      assert.match(
+        output,
+        /legacy combined and Bundle V2\/V3\/V4 receipts remain audit-readable but are rejected with narrowing_recorded_receipt_not_authoritative/,
+        'help states that readable legacy combined and Bundle V2/V3/V4 evidence has no narrowing authority',
+      );
+      assert.match(output, /record current signed V5 evidence first/i, 'help gives stable remediation');
+      assert.equal(
+        /proof is drawn ONLY from receipts this tool recorded/i.test(output),
+        false,
+        'help does not retain the over-broad tool-recorded-receipts-only promise',
+      );
+      assert.match(
+        output,
+        /--selector[^*]*Accepted only when current signed authoritative VerificationReceiptBundleV5 witnesses prove it stricter/,
+        'selector argument help repeats the authoritative witness precondition at the decision field',
+      );
+    },
+  },
 ];
+
+const CURRENT_AUTHORITY_LABEL_CASES: SmokeCase[] = [{
+  id: 'B-aa5f/F077',
+  desc: 'successful narrowing accurately names its authentic current V5 authority',
+  run: async () => {
+    const { env } = await recordA745Corpus();
+    try {
+      const receipt = readEvidence(env, 'INT-A745')?.receipt;
+      assert.ok(receipt && 'schemaVersion' in receipt, 'F077 current witness has a versioned receipt');
+      assert.equal(receipt.schemaVersion, 'proof-or-stop.verification-receipt-bundle.v5',
+        'F077 positive control uses an actual current V5 witness');
+      assert.equal(validateVerificationReceipt(env.root, receipt!, {
+        storyId: env.storyId, intentRef: 'INT-A745', selector: OLD_SELECTOR,
+      }).ok, true, 'F077 recorded witness is authentic before successful narrowing');
+      const message = await narrow(env, {
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745',
+        selector: NEW_SELECTOR, reason: NARROW_REASON,
+      });
+      assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'F077 genuine narrowing positive control succeeds');
+      assert.match(message, /current signed authoritative V5 receipts/,
+        'F077 successful current narrowing must name V5, not audit-only V4 authority');
+      assert.doesNotMatch(message, /current signed authoritative V4 receipts/);
+    } finally { cleanup(env); }
+  },
+}];
+
+const CHK007_CASES: SmokeCase[] = [{
+  id: 'CHK-007/F062',
+  desc: 'authenticated command witnesses reject unsigned relabeling without mutating pins or history',
+  run: async () => {
+    const control = await recordA745Corpus();
+    try {
+      const wanted = control.command;
+      const readOutput = ({ intentRef, receipt }: Parameters<typeof collectRecordedPinnedReceipts>[2] extends (input: infer I) => unknown ? I : never) => {
+        const expected = { storyId: control.env.storyId, intentRef, selector: OLD_SELECTOR, command: wanted };
+        const validated = validateVerificationReceipt(control.env.root, receipt, expected);
+        assert.equal(validated.ok, true, validated.errors.join('; '));
+        assert.equal(typeof validated.output, 'string');
+        return validated.output!;
+      };
+      assert.equal(collectRecordedPinnedReceipts(control.env.store.readChecklist(control.env.storyId), wanted, readOutput).length, 2,
+        'F062: genuine same-command passing and failing outputs are accepted by the collector');
+      await narrow(control.env, { storyId: control.env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745', selector: NEW_SELECTOR, reason: NARROW_REASON });
+      assert.equal(readPin(control.env, 1)?.selector, NEW_SELECTOR, 'F062: genuine current output preserves supported narrowing');
+      console.log('F062 normal-control realPassAndFail=true collectorAccepted=true narrowingAccepted=true');
+    } finally { cleanup(control.env); }
+
+    const { env, command } = await recordA745Corpus();
+    try {
+      const original = env.store.readChecklist(env.storyId);
+      const passing = original.items[0].verificationEvidence!.find(row => row.intentRef === 'INT-PASS')!;
+      // The corpus contains two historical observations; for the gate's normal
+      // control use the passing row's own recorded Git state, not invented hashes.
+      const expectedCommand = `node never-executed-command-witness.js`;
+      const attacked = structuredClone(original);
+      attacked.items[0].verificationEvidence!.find(row => row.intentRef === 'INT-PASS')!.command = expectedCommand;
+      assert.deepEqual(attacked.items[0].verificationEvidence!.map(row => row.receipt), original.items[0].verificationEvidence!.map(row => row.receipt),
+        'F062: the attack changes no original signed receipt/output bytes');
+      const failures: string[] = [];
+      const check = async (label: string, fn: () => unknown | Promise<unknown>) => {
+        try { await fn(); } catch (error) {
+          const detail = `${label}: ${error instanceof Error ? error.message : String(error)}`;
+          failures.push(detail);
+          console.log(`[F062 assertion FAIL] ${detail}`);
+        }
+      };
+      await check('F062 collector rejects unsigned row.command relabeling', () => {
+        assert.throws(() => collectRecordedPinnedReceipts(attacked, expectedCommand, ({ intentRef, receipt }) => {
+          const expected = { storyId: env.storyId, intentRef, selector: OLD_SELECTOR, command: expectedCommand };
+          const validated = validateVerificationReceipt(env.root, receipt, expected);
+          if (!validated.ok) throw new Error(validated.errors.join('; '));
+          assert.equal(typeof validated.output, 'string');
+          return validated.output!;
+        }), /command/i, 'an authentic output executed by another command cannot become a requested-command witness');
+      });
+      // Test the lifecycle command comparison on an actual current passing row
+      // from a separate one-run fixture, so stale corpus history cannot mask it.
+      const live = makeEnv([{ ref: 'LIVE-COMMAND', type: 'cli' }]);
+      try {
+        await live.handlers.verification_evidence_add({ storyId: live.storyId, itemId: 'CHK-001', intentRef: 'LIVE-COMMAND',
+          kind: 'integration_test', command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'F062 actual current gate control' });
+        const liveChecklist = live.store.readChecklist(live.storyId);
+        const options = { receiptAdmissibility: createVerificationEvidenceGateEvaluator(live.root, live.storyId) };
+        assert.equal(buildVerificationCoverage(liveChecklist, undefined, undefined, options).entries[0].status, 'covered',
+          'F062 current same-command lifecycle control is covered');
+        liveChecklist.items[0].verificationEvidence![0].command = expectedCommand;
+        await check('F062 lifecycle rejects unsigned command relabeling', () => {
+          const entry = buildVerificationCoverage(liveChecklist, undefined, undefined, options).entries[0];
+          assert.notEqual(entry.status, 'covered');
+          assert.match(entry.evidence?.nonMechanicalReason ?? '', /command/i, 'refusal is the command boundary, not blanket legacy rejection');
+        });
+      } finally { cleanup(live); }
+      env.store.writeChecklist(env.storyId, attacked);
+      const beforeRefusal = env.store.readChecklist(env.storyId);
+      await check('F062 real narrowing rejects the mismatched command witness', async () => {
+        await expectRejection(narrow(env, { storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745', selector: NEW_SELECTOR, reason: NARROW_REASON }),
+          /command/i, 'F062 command mismatch');
+      });
+      assert.deepEqual(env.store.readChecklist(env.storyId), beforeRefusal,
+        'F062 refusal preserves attacked row, original receipts, immutable pins, narrowing history and spent-set ledger');
+      assert.equal(readPin(env, 1)?.command, command);
+      assert.deepEqual(passing.receipt, original.items[0].verificationEvidence!.find(row => row.intentRef === 'INT-PASS')!.receipt);
+      assert.equal(failures.length, 0, failures.join('\n'));
+      console.log('B-aa5f F062 authenticated-command-binding PASS');
+    } finally { cleanup(env); }
+  },
+}];
 
 // ── runner ────────────────────────────────────────────────────────────────────
 
 const CASES: SmokeCase[] = [
+  ...CURRENT_AUTHORITY_LABEL_CASES,
+  ...CHK007_CASES,
   ...CHK001_CASES,
   ...CHK002_CASES,
   ...CHK003_CASES,

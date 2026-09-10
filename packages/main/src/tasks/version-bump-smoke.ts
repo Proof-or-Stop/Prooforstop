@@ -153,7 +153,11 @@ void (async () => {
     legacyLock.name = 'lattice';
     legacyLock.packages[''].name = 'lattice';
     writeFileSync(legacyLockPath, JSON.stringify(legacyLock, null, 2) + '\n');
-    check('legacy root package identity remains readable', readSyncedVersion(f3legacy) === '0.9.9');
+    const retiredPackageBytes = readFileSync(legacyPackagePath, 'utf8');
+    const retiredLockBytes = readFileSync(legacyLockPath, 'utf8');
+    throws('retired root package identity is rejected', () => readSyncedVersion(f3legacy));
+    check('rejected root package bytes stay unchanged', readFileSync(legacyPackagePath, 'utf8') === retiredPackageBytes);
+    check('rejected root lock bytes stay unchanged', readFileSync(legacyLockPath, 'utf8') === retiredLockBytes);
 
     // 4. The bump gate matches watched CLI/runtime inputs, skips metadata-only and
     //    offline experiment harnesses. It also watches bounded CLI capability
@@ -371,6 +375,66 @@ void (async () => {
       },
     }));
     check('verify wrong-value rolled back: all sync points restored to 0.9.9', readSyncedVersion(fverWrong) === '0.9.9');
+
+    // Product extension locks embed the core version but retain independent root versions.
+    const extensionLocks = ['packages/lab/package-lock.json', 'packages/utils/package-lock.json'];
+    const extensionFixture = (): string => {
+      const root = fixture('0.9.9');
+      for (const path of extensionLocks) {
+        mkdirSync(join(root, path, '..'), { recursive: true });
+        writeFileSync(join(root, path), JSON.stringify({
+          name: path.includes('/lab/') ? '@proof-or-stop/lab' : '@proof-or-stop/utils',
+          version: '1.2.3', lockfileVersion: 3,
+          packages: {
+            '': { version: '1.2.3' },
+            '../main': { name: '@proof-or-stop/core', version: '0.9.9', dependencies: { preserved: '^2.0.0' } },
+            'node_modules/unrelated': { version: '8.8.8' },
+          },
+        }, null, 2) + '\n');
+      }
+      return root;
+    };
+    const extensions = extensionFixture();
+    const extensionOriginals = extensionLocks.map(path => readJson(join(extensions, path)));
+    const extensionGitCalls: string[][] = [];
+    bumpVersionOnDoneMerge({ mainMergeRoot: extensions, shouldBump: true, runGit: args => { extensionGitCalls.push(args); return ''; } });
+    for (const [index, path] of extensionLocks.entries()) {
+      const expected = extensionOriginals[index];
+      expected.packages['../main'].version = '0.9.10';
+      check(`${path} changes only embedded core version`, JSON.stringify(readJson(join(extensions, path))) === JSON.stringify(expected));
+      check(`${path} is staged with the atomic bump`, extensionGitCalls.some(args => args[0] === 'add' && args.includes(path)));
+    }
+    for (const target of extensionLocks) {
+      const malformed = extensionFixture();
+      const bad = readJson(join(malformed, target));
+      bad.packages['../main'].version = '0.9.8';
+      writeFileSync(join(malformed, target), JSON.stringify(bad, null, 2) + '\n');
+      const paths = [...Object.values(VERSION_SYNC_FILES), ...extensionLocks];
+      const before = paths.map(path => readFileSync(join(malformed, path), 'utf8'));
+      throws(`${target} drift refuses before writing`, () => applyPatchBump(malformed));
+      throws(`${target} drift also refuses an already-bumped DONE candidate`, () => bumpVersionOnDoneMerge({
+        mainMergeRoot: malformed, shouldBump: true, preMergeVersion: '0.9.8',
+        runGit: () => { throw new Error('unexpected Git call for invalid nested version'); },
+      }));
+      check(`${target} drift preserves every byte`, paths.every((path, index) => readFileSync(join(malformed, path), 'utf8') === before[index]));
+      for (const shape of [null, { name: '@proof-or-stop/core' }, { name: 'unrelated', version: '0.9.9' }]) {
+        bad.packages['../main'] = shape;
+        writeFileSync(join(malformed, target), JSON.stringify(bad, null, 2) + '\n');
+        const malformedBefore = paths.map(path => readFileSync(join(malformed, path), 'utf8'));
+        throws(`${target} malformed embedded core refuses before writing`, () => applyPatchBump(malformed));
+        check(`${target} malformed embedded core preserves every byte`, paths.every((path, index) => readFileSync(join(malformed, path), 'utf8') === malformedBefore[index]));
+      }
+      const rollbackRoot = extensionFixture();
+      const rollbackBefore = paths.map(path => readFileSync(join(rollbackRoot, path), 'utf8'));
+      throws(`${target} post-write drift triggers rollback`, () => applyPatchBump(rollbackRoot, {
+        afterWriteForTest: () => {
+          const corrupted = readJson(join(rollbackRoot, target));
+          corrupted.packages['../main'].version = '9.9.9';
+          writeFileSync(join(rollbackRoot, target), JSON.stringify(corrupted, null, 2) + '\n');
+        },
+      }));
+      check(`${target} rollback restores every byte`, paths.every((path, index) => readFileSync(join(rollbackRoot, path), 'utf8') === rollbackBefore[index]));
+    }
 
     console.log(`version-bump smoke passed: ${passed} assertions`);
   } catch (e) {

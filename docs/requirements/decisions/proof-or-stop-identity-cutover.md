@@ -117,10 +117,13 @@ Only the following classes may contain a legacy identity after GREEN:
 3. **Compatibility fixtures:** exact negative, migration, or historical-verification test cases
    that prove rejection or migration. A fixture cannot make production accept an alias.
 4. **`CHANGELOG.md`:** shipped release history remains unchanged.
-5. **Signature salts:** the thirteen existing salts listed below remain byte-stable because old
-   signatures depend on them.
-6. **Persisted schemas:** exact versioned schema literals already written into persisted artifacts
-   or external evidence contracts. New schemas use the canonical identity.
+5. **Historical signature bytes:** retired salts may remain only inside protected pre-cutover
+   artifacts. Current signing and verification source uses canonical salts and rejects records
+   bound to a retired identity; preserving historical bytes does not make them admissible.
+6. **Historical persisted bytes:** retired schema literals may remain in protected artifacts or
+   negative/migration fixtures. The exact signed `scope_boundary.v1`, `execution_boundary.v1`, and
+   `scope_freeze_check.v1` schemas retain read/gate/hash compatibility because the frozen Story
+   contract requires it; they are preserved byte-for-byte and can never be emitted by a writer.
 7. **Provenance/hash-bound bytes:** exact pre-cutover files or byte ranges whose digest/signature
    is consumed to establish historical provenance. This includes the unchanged B-cdf6 and B-cc10
    decision documents named above; it is not a general exemption for `docs/requirements`.
@@ -130,7 +133,7 @@ env keys, normal runtime path/config fallbacks, source/test/verifier filenames, 
 markers emitted to new installs, live registry keys, current prompts, generated mirrors, and
 current docs are not evidence merely because old code refers to them.
 
-The frozen signature salts are:
+The following retired salts can still occur inside frozen historical bytes:
 
 - `lattice-review-integrity-v1`
 - `lattice-init-check-integrity-v1`
@@ -146,8 +149,11 @@ The frozen signature salts are:
 - `lattice-final-host-check-v1`
 - `lattice-stall-adjudication-integrity-v1`
 
-This list freezes only those exact salt literals at their exact source sites. It does not freeze a
-role, filename, prompt, or schema merely because it shares a substring with a salt.
+This salt list does not authorize any active source constant, verifier fallback, reader alias,
+role, filename, prompt, or schema. Current source must use the corresponding `proof-or-stop-*`
+salt; historical records that require a retired salt fail current verification without being
+rewritten. The three explicitly bounded scope-schema readers above are a separate persisted-schema
+exception and do not restore any retired signature salt or general protocol alias.
 
 ## Exact allowlist contract
 

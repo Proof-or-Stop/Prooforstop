@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
@@ -33,54 +33,64 @@ const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 // B-cc10: resolve the codex adapter agents dir instead of hardcoding the deprecated
 // spelling. With the old name, all 23 prompt mirrors read as "missing; no semantic drift
 // comparison available", so this contract failed and took several dependent smokes with it.
-const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.proof-or-stop-codex/agents']
-  .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
+const CODEX_AGENTS_DIR = '.proof-or-stop-codex/agents';
 
-// Role assets are canonical on disk after the rename. Keep the old spelling as
-// a read-only fallback so this contract can still inspect an older checkout;
-// never use the fallback to define the process-fact contract itself.
-const LEGACY_ROLE_ALIASES = Object.freeze({
-  'proof-or-stop-evaluator': ['lattice-evaluator'],
-  'proof-or-stop-evaluator-cli': ['lattice-evaluator-cli'],
-  'proof-or-stop-implementer': ['lattice-implementer'],
-  'proof-or-stop-review-behavior': ['lattice-review-behavior'],
-  'proof-or-stop-review-channel': ['lattice-review-channel'],
-  'proof-or-stop-review-concept': ['lattice-review-concept'],
-  'proof-or-stop-review-delivery': ['lattice-review-delivery'],
-  'proof-or-stop-review-docs': ['lattice-review-docs'],
-  'proof-or-stop-review-quality': ['lattice-review-quality'],
-  'proof-or-stop-review-scope-plan': ['lattice-review-scope-plan'],
-  'proof-or-stop-review-story-init': ['lattice-review-story-init'],
-  'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
-  'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
-  'proof-or-stop-product-reviewer': ['product-reviewer'],
-  'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
-  'proof-or-stop-test-intent': ['verification-intent', 'test-intent'],
-});
-const LEGACY_ROLE_TO_CANONICAL = new Map(
-  Object.entries(LEGACY_ROLE_ALIASES).flatMap(([canonical, aliases]) =>
-    aliases.map(alias => [alias, canonical])),
-);
-
+// Only current canonical assets and lane identities satisfy this contract.
 function canonicalRoleId(roleId) {
-  const name = String(roleId).replace(/\.md$/, '');
-  return LEGACY_ROLE_TO_CANONICAL.get(name) ?? name;
+  return String(roleId).replace(/\.md$/, '');
+}
+
+function capabilityMaterialContractErrors(source) {
+  const errors = [];
+  const requirePattern = (pattern, label) => { if (!pattern.test(source)) errors.push(label); };
+  requirePattern(/value\.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION/u, 'canonical schema rejection');
+  requirePattern(/options\.requireCurrentWrite \|\| value\.changedPathsScope !== undefined/u, 'current-write and unknown-marker rejection');
+  requirePattern(/value\.changedPathsScope === 'capability-material'[\s\S]*selectArtifactReleasePathsV1\(paths\)/u, 'marked subset validation');
+  requirePattern(/computeCapabilityDigest\(value\.capabilityId,[\s\S]*paths, value\.artifactSetDigest[\s\S]*value\.capabilityDigest !== expectedDigest/u, 'marked digest integrity');
+  requirePattern(/capabilityPaths\.some\(path => !fullChangedPaths\.has\(path\)\)/u, 'actual full-input subset binding');
+  requirePattern(/changedPathsScope: 'capability-material',\s*changedPaths: capabilityPaths/u, 'current builder material-only output');
+  const append = source.slice(source.indexOf('export function appendCapabilityReleaseRecord('));
+  const validation = append.indexOf('capabilityReleaseRecordValidationErrors(record, { requireCurrentWrite: true })');
+  const lookup = append.indexOf('const existing =');
+  if (validation < 0 || lookup < 0 || validation > lookup) errors.push('current-write validation before idempotency');
+  return errors;
+}
+
+function assertCapabilityMaterialContract() {
+  const path = 'packages/main/src/core/capability-release.ts';
+  const source = read(path);
+  for (const error of capabilityMaterialContractErrors(source)) fail(`${path}: ${error}`);
+  const mutations = [
+    ['options.requireCurrentWrite || value.changedPathsScope !== undefined', 'false'],
+    ['selectArtifactReleasePathsV1(paths)', 'paths'],
+    ['value.capabilityDigest !== expectedDigest', 'false'],
+    ['capabilityPaths.some(path => !fullChangedPaths.has(path))', 'false'],
+    ['changedPaths: capabilityPaths', 'changedPaths: opts.changedPaths'],
+    ['value.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION', 'false'],
+  ];
+  for (const [before, after] of mutations) {
+    assert(source.includes(before) && capabilityMaterialContractErrors(source.replace(before, after)).length > 0,
+      `${path}: capability material contract mutation escaped: ${before}`);
+  }
+  const appendStart = source.indexOf('export function appendCapabilityReleaseRecord(');
+  const appendMutation = source.slice(0, appendStart) + source.slice(appendStart).replace('requireCurrentWrite: true', 'requireCurrentWrite: false');
+  assert(capabilityMaterialContractErrors(appendMutation).length > 0, `${path}: append current-write bypass escaped`);
+  const entry = parseRegistryArrayEntriesFromSource(read(processFactRegistryPath), 'PROCESS_FACT_ARTIFACTS')
+    .find(entry => entry.name === 'artifact:.proof-or-stop/capability-releases.jsonl');
+  assert(entry?.kind === 'artifact' && entry.level === 'L1' && entry.semantics.includes('schema-contract')
+    && /gateEvidence:\s*false/u.test(entry.block) && /capability-material/u.test(entry.rationale),
+  `${processFactRegistryPath}: capability material boundary must remain non-authoritative and registered`);
+  const doc = read('docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md');
+  assert(/changedPathsScope/u.test(doc) && /capability-material/u.test(doc) && /before.*idempotency/u.test(doc),
+    'capability execution plan must describe current material-only writes and before-idempotency validation');
 }
 
 function rolePromptPath(directory, roleId) {
-  const canonical = canonicalRoleId(roleId);
-  const candidates = [
-    `${directory}/${canonical}.md`,
-    ...(LEGACY_ROLE_ALIASES[canonical] ?? []).map(alias => `${directory}/${alias}.md`),
-  ];
-  return candidates.find(relPath => existsSync(join(root, relPath))) ?? candidates[0];
+  return `${directory}/${canonicalRoleId(roleId)}.md`;
 }
 
 function reviewerLaneEntry(registry, roleId) {
-  const canonical = canonicalRoleId(roleId);
-  return [canonical, ...(LEGACY_ROLE_ALIASES[canonical] ?? [])]
-    .map(name => registry.get(`reviewer-lane:${name}`))
-    .find(Boolean);
+  return registry.get(`reviewer-lane:${canonicalRoleId(roleId)}`);
 }
 
 const promptDirs = [
@@ -141,6 +151,20 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+const verificationReceiptModelPaths = [
+  'docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md',
+  'packages/main/src/core/process-fact-levels.ts',
+  'packages/main/src/core/runtime-fact-registry.ts',
+  'packages/main/src/core/types.ts',
+  'packages/main/src/tasks/certification-window-smoke.ts',
+  'packages/main/src/tasks/verification-run-and-guard-smoke.ts',
+];
+const bundleV3SubjectPattern = String.raw`(?:VerificationReceiptBundleV3|Bundle\s*V3|V3\s+(?:receipt\s+)?bundle)`;
+const positiveCurrentBundleV3Patterns = [
+  new RegExp(String.raw`\b${bundleV3SubjectPattern}\b[^.!?;]{0,180}\b(?:is|remains|continues\s+to\s+be|serves\s+as)\s+(?:still\s+)?(?:the\s+)?(?:current|authoritative|admissible|eligible)\b`, 'i'),
+  new RegExp(String.raw`\b${bundleV3SubjectPattern}\b[^.!?;]{0,180}\b(?:can|may)\s+(?:still\s+)?(?:satisfy\s+lifecycle\s+admission|authorize\s+reuse)\b`, 'i'),
+  new RegExp(String.raw`\b(?:current|authoritative|admissible)\s+(?:receipt\s+)?bundle\b[^.!?;]{0,100}\b(?:is|remains)\s+(?:still\s+)?(?:the\s+)?${bundleV3SubjectPattern}\b`, 'i'),
+];
 // B-cdf6 CHK-005: the validate-command term follows the renamed canonical bin. Every doc in
 // activeLifecycleDocPaths is an ACTIVE doc that tells a reader what to run now, so per
 // docs/requirements/decisions/brand-rename-mapping.md it is RENAMED, not frozen. The assertion is
@@ -178,6 +202,7 @@ const legacyTestAutoProcessFactClaimPatterns = [
 const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
 const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
 const processFactRegistryPath = 'packages/main/src/core/process-fact-registry.ts';
+const storyRuntimeAdmissionPath = 'packages/main/src/cli/story-runtime-admission.ts';
 const localAssuranceBoundaryPattern = /local (?:assurance|admissibility|workflow evidence|host verdict|quorum|review escalation|review assurance|validation|DONE-required-validation)|proof-admissibility|receipt-bundle|quorum|admissibility/i;
 const noReleaseOrRemoteCompletionBoundaryPattern = /retired remote-completion fields|remote completion|remote-completion|release readiness|release approval|remote publish readiness/i;
 const processFactRegistryKinds = new Set([
@@ -203,9 +228,11 @@ const requiredProcessFactSemantics = {
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
-  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
@@ -281,12 +308,16 @@ const requiredRuntimeFactSemantics = {
   'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
-  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  // B-7abb binds finite reference normalization to the existing signed launch
+  // gate; behavioral positive/negative controls run in the envelope smoke task.
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:review_execution_authority_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'reviewer-lane', 'execution-evidence', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  'runtime:verification_execution_key_producer_lock': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
@@ -317,7 +348,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-discard-digest.json', path: 'scope-discard-digest.json', signed: false },
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
-  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
+  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash.*exact-field allowlists/ },
   { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; direct native records seal a registered-broker Ed25519 invocation attestation bound to exact story\/lane\/ReviewRun\/writer\/dispatch\/adapter\/host\/nonce.*envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; direct native records bind category\/evidenceState\/uncertaintyReason\/files\/disprovenEvidence in the signed domain, and reviewRunId-inclusive records do not fall back to legacy signatures/ },
@@ -697,6 +728,198 @@ function warn(message) {
   warnings.push(message);
 }
 
+function timeoutWiringFailures(source, sites = [], factories = []) {
+    const file = ts.createSourceFile('checklist.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const failures = [];
+    if (file.parseDiagnostics.length) {
+        return ['checklist source must parse without errors'];
+    }
+    const expected = new Set([
+        'verification_evidence_add', 'verification_evidence_batch_add',
+        'verification_run', 'verification_evidence_refresh_stale',
+    ]);
+    const seen = new Set();
+    let declarations = 0;
+    let executorCount = 0;
+    const named = (node, name) => !!node && ts.isIdentifier(node) && node.text === name;
+    const propertyNamed = (node, name) => (ts.isIdentifier(node) || ts.isStringLiteral(node)) && node.text === name;
+    const nullishParts = (node) => ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+        ? [...nullishParts(node.left), ...nullishParts(node.right)] : [node];
+    const validResolver = (node) => ts.isCallExpression(node)
+        && named(node.expression, 'resolvePinnedCommandTimeoutMs')
+        && node.arguments.length === 2 && named(node.arguments[0], 'root') && named(node.arguments[1], 'command');
+    const validTimeoutProperty = (node) => ts.isPropertyAssignment(node) && propertyNamed(node.name, 'timeoutMs')
+        && named(node.initializer, 'effectiveTimeoutMs');
+    const visit = (node) => {
+        if (ts.isFunctionDeclaration(node) && node.name?.text === 'resolvePinnedCommandTimeoutMs')
+            declarations++;
+        if (ts.isCallExpression(node) && named(node.expression, 'createPinnedCommandRunner')) {
+            let ancestor = node.parent;
+            while (ancestor && !ts.isMethodDeclaration(ancestor))
+                ancestor = ancestor.parent;
+            const handler = ancestor && ts.isMethodDeclaration(ancestor) ? ancestor : undefined;
+            const name = handler?.name.getText(file) ?? '<unknown>';
+            const binding = ts.isVariableDeclaration(node.parent) ? node.parent : undefined;
+            if (!expected.has(name) || seen.has(name))
+                failures.push(`unexpected factory boundary: ${name}`);
+            seen.add(name);
+            if (!ts.isStringLiteral(node.arguments[0]) || node.arguments[0].text !== name || !named(node.arguments[1], 'args')
+                || !binding || !ts.isIdentifier(binding.name) || !ts.isVariableDeclarationList(binding.parent)
+                || !(binding.parent.flags & ts.NodeFlags.Const))
+                failures.push(`${name}: factory must bind actual caller controls immutably`);
+            const uses = [];
+            if (handler?.body && binding && ts.isIdentifier(binding.name)) {
+                const local = binding.name.text;
+                const findUse = (child) => {
+                    if (ts.isPropertyAssignment(child) && propertyNamed(child.name, 'runCommand') && named(child.initializer, local))
+                        uses.push(child.initializer);
+                    if (ts.isShorthandPropertyAssignment(child) && local === 'runCommand' && child.name.text === local)
+                        uses.push(child.name);
+                    if (name === 'verification_evidence_refresh_stale' && ts.isCallExpression(child) && named(child.expression, local))
+                        uses.push(child.expression);
+                    ts.forEachChild(child, findUse);
+                };
+                findUse(handler.body);
+            }
+            if (uses.length !== 1)
+                failures.push(`${name}: producer must consume its guarded runner exactly once`);
+            if (binding && uses.length === 1)
+                factories.push({ call: node, binding, consumption: uses[0] });
+        }
+        if (ts.isCallExpression(node) && named(node.expression, 'runSingleAllowlistedCommand')) {
+            executorCount++;
+            let ancestor = node.parent;
+            let scope;
+            let handler;
+            while (ancestor) {
+                if (!scope && ts.isArrowFunction(ancestor))
+                    scope = ancestor;
+                if (ts.isMethodDeclaration(ancestor)) {
+                    handler = ancestor;
+                    break;
+                }
+                ancestor = ancestor.parent;
+            }
+            let factoryAncestor = node.parent;
+            while (factoryAncestor && !(ts.isVariableDeclaration(factoryAncestor) && named(factoryAncestor.name, 'createPinnedCommandRunner')))
+                factoryAncestor = factoryAncestor.parent;
+            const name = 'createPinnedCommandRunner';
+            if (!factoryAncestor)
+                failures.push('executor must live inside the guarded shared runner factory');
+            if (node.arguments.length !== 3 || !named(node.arguments[0], 'command') || !named(node.arguments[1], 'root')) {
+                failures.push(`${name}: executor command and configuration root must match the resolver`);
+            }
+            const budgets = [];
+            let reassigned = false;
+            const collect = (child) => {
+                if (ts.isVariableDeclaration(child) && named(child.name, 'effectiveTimeoutMs') && child.initializer) {
+                    budgets.push(child);
+                }
+                if (child !== scope?.body && (ts.isArrowFunction(child) || ts.isFunctionExpression(child)))
+                    return;
+                if (ts.isBinaryExpression(child) && named(child.left, 'effectiveTimeoutMs')
+                    && child.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && child.operatorToken.kind <= ts.SyntaxKind.LastAssignment)
+                    reassigned = true;
+                if ((ts.isPrefixUnaryExpression(child) || ts.isPostfixUnaryExpression(child)) && named(child.operand, 'effectiveTimeoutMs')
+                    && (child.operator === ts.SyntaxKind.PlusPlusToken || child.operator === ts.SyntaxKind.MinusMinusToken))
+                    reassigned = true;
+                ts.forEachChild(child, collect);
+            };
+            if (scope)
+                collect(scope.body);
+            const budget = budgets.length === 1 ? budgets[0] : undefined;
+            if (!budget || !ts.isVariableDeclarationList(budget.parent) || !(budget.parent.flags & ts.NodeFlags.Const) || reassigned) {
+                failures.push(`${name}: resolved timeout must be a single immutable binding`);
+            }
+            const parts = budget?.initializer ? nullishParts(budget.initializer) : [];
+            if (!(parts.length >= 2 && parts.length <= 3 && named(parts[0], 'timeoutMs')
+                && validResolver(parts[1]) && (parts.length === 2 || named(parts[2], 'DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS')))) {
+                failures.push(`${name}: timeout must derive from the caller budget and shared pinned resolver`);
+            }
+            const options = node.arguments[2];
+            const timeoutProperties = [];
+            let invalid = false;
+            if (options && ts.isObjectLiteralExpression(options)) {
+                for (const property of options.properties) {
+                    if (ts.isPropertyAssignment(property) && propertyNamed(property.name, 'timeoutMs')) {
+                        timeoutProperties.push(property);
+                        invalid ||= !validTimeoutProperty(property);
+                    }
+                    else if (ts.isSpreadAssignment(property)) {
+                        const value = ts.isParenthesizedExpression(property.expression) ? property.expression.expression : property.expression;
+                        const condition = ts.isConditionalExpression(value) ? value.condition : undefined;
+                        if (ts.isConditionalExpression(value) && condition && ts.isBinaryExpression(condition)
+                            && named(condition.left, 'effectiveTimeoutMs') && condition.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
+                            && named(condition.right, 'undefined') && ts.isObjectLiteralExpression(value.whenTrue)
+                            && value.whenTrue.properties.length === 1 && validTimeoutProperty(value.whenTrue.properties[0])
+                            && ts.isObjectLiteralExpression(value.whenFalse) && value.whenFalse.properties.length === 0) {
+                            timeoutProperties.push(value.whenTrue.properties[0]);
+                        }
+                        else
+                            invalid = true;
+                    }
+                }
+            }
+            if (invalid || timeoutProperties.length !== 1)
+                failures.push(`${name}: executor must receive the resolved timeout`);
+            const controls = [];
+            for (const key of ['abortSignal', 'deadlineAt', 'deadlineError']) {
+                const matches = options && ts.isObjectLiteralExpression(options)
+                    ? options.properties.filter((p) => ts.isPropertyAssignment(p) && propertyNamed(p.name, key)) : [];
+                if (matches.length !== 1 || !ts.isPropertyAccessExpression(matches[0].initializer)
+                    || !named(matches[0].initializer.expression, 'controls') || !named(matches[0].initializer.name, key)) {
+                    failures.push(`${name}: executor must preserve caller ${key}`);
+                }
+                else
+                    controls.push(matches[0]);
+            }
+            if (budget && timeoutProperties.length === 1)
+                sites.push({ call: node, budget, property: timeoutProperties[0], controls });
+        }
+        ts.forEachChild(node, visit);
+    };
+    visit(file);
+    if (executorCount !== 1)
+        failures.push('exactly one shared execution boundary is required');
+    if (declarations !== 1)
+        failures.push('the shared pinned timeout resolver must have exactly one declaration');
+    for (const name of expected)
+        if (!seen.has(name))
+            failures.push(`missing execution boundary: ${name}`);
+    return failures;
+}
+function assertEvidenceFactoryWiring(checklistSource) {
+    const check = (name, ok) => assert(ok, name);
+    const sites = [];
+    const factories = [];
+    const wiringFailures = timeoutWiringFailures(checklistSource, sites, factories);
+    check(`all evidence execution boundaries preserve configured timeouts: ${wiringFailures.join('; ')}`, wiringFailures.length === 0);
+    check('an additional non-executing resolver call does not invalidate execution wiring', timeoutWiringFailures(checklistSource + '\nconst extraCacheIdentity = resolvePinnedCommandTimeoutMs(root, command);').length === 0);
+    check('malformed source fails closed', timeoutWiringFailures(checklistSource + '\nfunction {').length > 0);
+    const replaced = (node, replacement) => checklistSource.slice(0, node.getStart()) + replacement + checklistSource.slice(node.end);
+    check('one shared executor and all four factory consumers are covered', sites.length === 1 && factories.length === 4);
+    for (const [index, site] of factories.entries()) {
+        check(`factory ${index + 1} cannot lose caller watchdog controls`, timeoutWiringFailures(replaced(site.call.arguments[1], '{}')).length > 0);
+        check(`factory ${index + 1} cannot claim another command identity`, timeoutWiringFailures(replaced(site.call.arguments[0], "'unrelated_writer'")).length > 0);
+        check(`factory ${index + 1} must be the actual producer runner`, timeoutWiringFailures(replaced(site.consumption, 'unguardedRunner')).length > 0);
+    }
+    for (const [index, site] of sites.entries()) {
+        for (const control of site.controls) {
+            check(`shared runner cannot drop ${control.name.getText()}`, timeoutWiringFailures(replaced(control.initializer, 'undefined')).length > 0);
+        }
+        check(`negative control catches constant timeout at execution boundary ${index + 1}`, timeoutWiringFailures(replaced(site.property.initializer, '270000')).length > 0);
+        check(`negative control catches omitted timeout at execution boundary ${index + 1}`, timeoutWiringFailures(replaced(site.property.name, 'unrelatedBudget')).length > 0);
+        for (const argument of site.call.arguments.slice(0, 2)) {
+            check(`negative control catches mismatched command or root at execution boundary ${index + 1}`, timeoutWiringFailures(replaced(argument, 'unrelatedIdentity')).length > 0);
+        }
+        const mutable = replaced(site.budget.parent, site.budget.parent.getText().replace(/^const\b/, 'let'));
+        check(`negative control catches mutable timeout at execution boundary ${index + 1}`, timeoutWiringFailures(mutable).length > 0);
+        const statement = site.budget.parent.parent;
+        check(`negative control catches overwritten timeout at execution boundary ${index + 1}`, timeoutWiringFailures(checklistSource.slice(0, statement.end) + '\neffectiveTimeoutMs = 270000;' + checklistSource.slice(statement.end)).length > 0);
+    }
+}
+
+
 function assert(condition, message) {
   if (!condition) fail(message);
 }
@@ -825,6 +1048,34 @@ function read(relPath) {
   }
   if (mutation === 'weaken-acceptance-rollout-3x2' && relPath === 'packages/main/src/core/acceptance-rollout.ts') {
     text = text.replace("record.quorum.rounds === 3", 'record.quorum.rounds >= 1');
+  }
+  if (mutation === 'synthetic-story-writer-partial-runtime-admission' && relPath === commandPolicyPath) {
+    text = text.replace(
+      'export const COMMAND_POLICIES: Record<string, CommandPolicy> = {',
+      `export const COMMAND_POLICIES: Record<string, CommandPolicy> = {
+  synthetic_story_writer: {
+    status: 'supported',
+    reason: 'Synthetic mutation: a future Story writer must inherit the shared runtime gate.',
+    allowedPhases: 'all',
+    ownershipClass: 'storyScopedMutating',
+    destructiveRisk: 'metadata-write',
+  },`,
+    );
+  }
+  if (mutation === 'synthetic-story-writer-partial-runtime-admission' && relPath === storyRuntimeAdmissionPath) {
+    text = text.replace(
+      'commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)',
+      "input.command === 'story_update'",
+    );
+  }
+  if (mutation === 'omit-dangerous-story-writer-capability' && relPath === commandPolicyPath) {
+    text = text.replace("  'story_discard',\n", '');
+  }
+  if (mutation === 'omit-direct-story-writer-effects' && relPath === commandPolicyPath) {
+    for (const command of ['agent_prompt', 'evaluate']) {
+      const row = new RegExp(`(${command}: \\{[^\\n]*?)storyWriteEffect: '[^']+', `);
+      text = text.replace(row, '$1');
+    }
   }
   return text;
 }
@@ -1612,6 +1863,19 @@ function assertProofStoryProgressiveBoundary() {
   );
   const topologyPolicy = commandPolicyEntries.get('acceptance_topology_check');
   assert(
+    basisText.includes('canonicalStaticTopologyPath')
+      && basisText.includes('!discoveredPaths.has(path)')
+      && basisText.includes('sourceRefValue(producer) === consumerValue')
+      && basisText.includes('matchingRecords.length !== 1')
+      && basisText.includes('endpoint.id !== sourceRef.endpointRef')
+      && basisText.includes("endpoint.role !== 'producer'")
+      && basisText.includes('endpoint.expectedFileRef !== staticCall[1]')
+      && basisText.includes('endpoint.expectedSymbolOrFact !== staticCall[2]')
+      && processRegistryText.includes('Exact static topology projection requires a discovery-owned path')
+      && read('packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts').includes('two different discovered paths despite both commandRefs'),
+    'acceptance basis static edge projection must preserve discovery membership and exact producer identity, not manufacture relationships from topology references',
+  );
+  assert(
     catalogText.includes("name: 'acceptance_topology_check'")
       && catalogText.includes("mode: z.never()")
       && handlerText.includes('acceptance_topology_check(args')
@@ -1683,7 +1947,7 @@ function assertProofStoryProgressiveBoundary() {
   const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
     'proof-or-stop-implementer',
-    'test-case-reviewer',
+    'proof-or-stop-test-case-reviewer',
     'proof-or-stop-review-topology-critic',
     'proof-or-stop-review-concept',
     'proof-or-stop-review-quality',
@@ -1748,7 +2012,7 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutText.includes('export function deriveAcceptanceRolloutReport')
       && acceptanceRolloutText.includes('ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3')
       && acceptanceRolloutText.includes('issueAcceptanceRolloutObservationFromProduction')
-      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'lattice.quorum_submit.v1'")
+      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'proof-or-stop.quorum_submit.v1'")
       && acceptanceRolloutText.includes("['cat-file', '-e'")
       && acceptanceRolloutText.includes('quorum.reviewerPasses.some')
       && acceptanceRolloutText.includes("run('acceptance_topology_check')")
@@ -1827,6 +2091,10 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticText.includes('events: readonly ProcessEvent[];')
       && topologyCriticText.includes('if (!Array.isArray(args.events) || args.events.length === 0)')
       && topologyCriticText.includes('implementationProvenanceDiagnostics')
+      && topologyCriticText.includes("const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>'")
+      && !topologyCriticText.includes('LEGACY_IMPLEMENTER_AUTHOR')
+      && /function canonicalBusinessAuthorIdentity\(identity: string\): string \{[^}]*return identity\.trim\(\);\s*\}/.test(topologyCriticText)
+      && processRegistryText.includes('retired author spellings cannot be mapped or selected as canonical implementation provenance')
       && topologyCriticText.includes('exact one-to-one independent approvals')
       && processRegistryText.includes('runtime:topology_critic_authority_verification')
       && processLevelText.includes('runtime:topology_critic_authority_verification')
@@ -2036,9 +2304,9 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    rolePromptPath('packages/main/templates/agents', 'product-reviewer'),
-    rolePromptPath(CODEX_AGENTS_DIR, 'product-reviewer'),
-    rolePromptPath('.claude/agents', 'product-reviewer'),
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-product-reviewer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-product-reviewer'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-product-reviewer'),
   ]) {
     const promptText = read(promptPath);
     assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
@@ -2109,8 +2377,8 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5',
-    '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
+    'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5',
+    '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
     // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT
@@ -2120,7 +2388,22 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    '449328f3f0b94be40d58dcf8c9f27cadb2cf72ce635f60f36a50a7ea07ef6c08',
+    'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b',
+    '5b4b8dafd2687d6507b8471c7e674855a57eb019285ebe9650fe4a700460b6d3',
+    // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
+    // after the user-facing bin rename changed cli-engine.ts hint/error strings.
+    //
+    // B-cdf6:F-057 follow-on: this is the SECOND copy of that fingerprint. When the
+    // guard's own allowlist was repinned I updated only that file, and this verifier —
+    // which cross-checks that the guard pins the expected value — kept the old hash and
+    // failed closed. The two are coupled by design (the comment above already said so),
+    // so they must always move together. Same re-approval basis as the guard: the
+    // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
+    // path producers, and the approved loader call site is byte-identical to main.
+    // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
+    // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
+    // both copies were updated in the same commit, as the note above requires.
+    'c55866c68906e74a5a5a369314348aeff6c39c22b85d94d8bb0fba1981c0e17b',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2221,16 +2504,17 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    'de4cc2a94af9ce74baa02f6e5aea2aa3dc0e34f01b9ce00210268fa3dc464cf4',
-    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
-    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
+    'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
+    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
+    'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
     'mutant path rebound to external input',
     'mutant producer type widened',
     'mutant producer nested shadow',
     'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
@@ -4689,39 +4973,67 @@ function assertReviewInventoryRemediationContract() {
       `executing CLI tool version must remain registered for causal-version producer ${producerCommand}`);
   }
   const stampBody = findFunctionDeclaration(refreshSource, 'enforceAndStampEvidence')?.body?.getText(refreshSource) ?? '';
-  assert(stampBody.includes('executedAt: receipt.executedAt')
+  const actualLaunches = [];
+  const inspectLaunch = (node) => {
+    if (ts.isCallExpression(node)
+      && ['deps.runCommand', 'executePinnedCommand'].includes(node.expression.getText(refreshSource))) {
+      actualLaunches.push(node);
+      let owner = node.parent;
+      while (owner && !ts.isPropertyAssignment(owner)) owner = owner.parent;
+      assert(owner?.name?.getText(refreshSource) === 'run'
+        && ts.isCallExpression(owner.parent.parent)
+        && owner.parent.parent.expression.getText(refreshSource) === 'executeCausalEvidence',
+      'actual verification launch must occur inside the causal run callback, after its last-moment preflight');
+    }
+    ts.forEachChild(node, inspectLaunch);
+  };
+  inspectLaunch(refreshSource);
+  assert(actualLaunches.length === 2, 'both existing verification launch paths retain causal launch ownership');
+  assert(read(processFactRegistryPath).includes('actual child launch occurs inside the causal runner'),
+    'causal last-moment preflight launch ownership remains a registered process fact');
+  assert(stampBody.includes('sharedExecution?.executedAt ?? causal?.receipt.executedAt')
+    && stampBody.includes('executedAt: sourceExecutedAt')
+    && checklistHandlerText.includes('executedAt: causal.receipt.executedAt')
     && !stampBody.includes('executedAt: new Date()'),
-    'verification execution time must project the signed causal receipt, never per-intent restamping time');
+    'V3 execution time must project the actual signed causal source and V5 fan-out must preserve it, never per-intent restamping time');
   for (const binding of [
-    'verificationExecutionSemanticsKey: deps.executionSemanticsKey',
-    'executionSemanticsKey: candidate.executionKey',
-    'rawExecutionKey: candidate.rawExecutionKey',
-    'context: rawExecutionContext',
-    'rawProcessResults.get(cacheKey)',
-    'rawProcessResults.set(cacheKey, execution)',
-    'Object.freeze({ ...result })',
+    'verificationExecutionKey: createVerificationExecutionKey({',
+    'verificationExecutionKey: executionKey',
+    'verificationObservationId: randomUUID()',
+    'inputs: sharedCausalReceipt?.identity.inputs ?? {',
+    'const causal = !sharedExecution || sharedCausalReceipt',
+    'causalReceipt: stamp.causalReceipt',
+    'groups.get(candidate.executionKey)',
+    'currentExecutionKey === reexec.executionKey',
+    'currentCandidate.assertionKey === executionOutcome.assertionKey',
     'preflightInputKey(input, sourceReceipt.executionKey)',
     'preflightInputKey(input, receipt.executionKey)',
     'preflightInputKey(causalPreflight.input, receipt.executionKey)',
     'preflightInputKey(firstPreflight.input, firstReceipt.executionKey)',
-  ]) assert(checklistHandlerText.includes(binding), `layered refresh identity binding missing: ${binding}`);
-  assert(/const rawExecutionKey = JSON\.stringify\(\{\s*version: 1,\s*command: normalizedCommand,\s*cwd: refreshGitCwd,\s*effectiveTimeoutMs,\s*timeoutProvenance,\s*\}\)/.test(refreshCandidate)
-    && /const executionKey = JSON\.stringify\(\{\s*version: 1,\s*rawExecutionKey,\s*selector: pin\.selector,\s*intentType: resolved\.intent\.type,\s*evidenceKind: kind,\s*\}\)/.test(refreshCandidate),
-    'refresh must separate exact command/cwd/timeout/provenance process keys from selector/type/kind evidence keys');
-  assert(/const rawExecutionContext = causalCanonical\(\{\s*schemaVersion: 1,\s*storyId: args\.storyId,\s*materialHash: computed\.materialHash \?\? null,\s*storyFilesHash: computed\.storyFilesHash \?\? null,\s*effectiveEnvironment: effectiveCausalEnvironment\(undefined, computed\.refreshGitCwd\),\s*runtimeVersion: process\.version,\s*toolVersion: resolveCausalToolVersion\(root\) \?\? null,\s*\}\)/.test(checklistHandlerText),
-    'raw refresh reuse must bind current material, story, environment and runtime context');
-  assert(read(processFactRegistryPath).includes('raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context')
-    && read(processFactRegistryPath).includes('selector/type/kind bind distinct signed causal identities and receipt-keyed import checks'),
-    'layered refresh physical/CAS/import identity and signed execution time must remain registered');
+  ]) assert(checklistHandlerText.includes(binding), `strict refresh identity binding missing: ${binding}`);
+  assert(!refreshCandidate.includes('verificationObservationId')
+    && !refreshCandidate.includes('randomUUID'),
+    'observation addressing must never split physical execution grouping');
+  assert(read(processFactRegistryPath).includes('selector-free physical execution keys bind signed causal identity')
+    && read(processFactRegistryPath).includes('observation-only identifier'),
+    'physical/CAS/import identity, independent assertions and actual signed execution time must remain registered');
   const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
   for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
     'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
-    'shared rows bind cloned facts from the same execution',
-    'three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct',
+    'shared rows bind the same selector-free execution receipt', 'only different effective timeout values split execution',
     'selector-specific evidence identities remain distinct over one raw run',
-    'selector-specific causal receipts remain independently bound',
+    'independent selector assertions preserve the same signed source execution',
     'nonmatching selector receives no mechanical receipt',
-    'same timeout with different audited provenance is not collapsed']) {
+    'raw verifier refreshed git index without cross-receipt identity mismatch',
+    'cross-identity cached preflight is refused before execution', 'actual production import refuses substituted signed CAS receipt',
+    'cross-identity refusal leaves prior receipts and pins unchanged', 'fan-out retains source signed execution time, never publication time',
+    'new ordinary executions borrowed an older same-key CAS observation', 'B-aa5f CHK008 causal-import-integration PASS',
+    'causal ledger counts every independently evaluated intent, including shared-execution followers',
+    'bounded diagnostic probe still omits the middle-of-large-output selector',
+    'causal replay binds durable complete selector output',
+    'complete-output replay does not launch another execution',
+    'authenticated complete causal output finds the middle-of-large-output selector',
+    'authenticated complete-output V5 assertion agrees with causal replay']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(
@@ -4890,6 +5202,60 @@ function assertArrayPropertyIncludesValue(block, propertyName, value, label) {
 }
 
 function assertProcessFactMappedSourceContracts(sourceText) {
+  const runtimeSourceRefsInitializer = extractConstInitializer(sourceText, 'RUNTIME_PROCESS_FACT_SOURCE_REFS', processFactRegistryPath);
+  const sourceContracts = [
+    {
+      name: 'verification_pin_narrow',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/core/verification.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+    },
+    {
+      name: 'runtime:verification_execution_assertion_reuse_gate',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/core/evidence-freshness.ts',
+        'packages/main/src/core/proof-admissibility.ts',
+        'packages/main/src/core/verification.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/core/machine.ts',
+        'packages/main/src/core/lifecycle-readiness.ts',
+        'packages/main/src/handlers/phase-gates.ts',
+        'packages/main/src/handlers/verifier.ts',
+        'packages/main/src/handlers/done-prepare.ts',
+        'packages/main/src/handlers/certification-window.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+    },
+    {
+      name: 'runtime:verification_execution_key_producer_lock',
+      producerSourceRefs: [
+        'packages/main/src/core/verification-execution-evidence.ts',
+        'packages/main/src/handlers/checklist.ts',
+      ],
+      consumerSourceRefs: [
+        'packages/main/src/handlers/checklist.ts',
+        'packages/main/src/core/proof-admissibility.ts',
+        'packages/main/src/core/verification.ts',
+      ],
+    },
+  ];
+  for (const contract of sourceContracts) {
+    const match = new RegExp(`['"]${contract.name}['"]\\s*:\\s*\\{`).exec(runtimeSourceRefsInitializer);
+    assert(Boolean(match), `${processFactRegistryPath}: ${contract.name} must declare explicit source refs`);
+    if (!match) continue;
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(runtimeSourceRefsInitializer, openIndex, '{', '}', `${processFactRegistryPath} ${contract.name}`);
+    for (const ref of contract.producerSourceRefs) assertArrayPropertyIncludesValue(block, 'producerSourceRefs', ref, contract.name);
+    for (const ref of contract.consumerSourceRefs) assertArrayPropertyIncludesValue(block, 'consumerSourceRefs', ref, contract.name);
+  }
+
   const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
   assertInitializerPattern(
     commandFactsInitializer,
@@ -4902,6 +5268,12 @@ function assertProcessFactMappedSourceContracts(sourceText) {
     'COMMAND_PROCESS_FACTS',
     /\bconst\s+policy\s*=\s*commandPolicy\(entry\.name\)\s*;/,
     'must derive lifecycle policy from commandPolicy(entry.name)',
+  );
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bconst\s+sourceRefs\s*=\s*RUNTIME_PROCESS_FACT_SOURCE_REFS\[entry\.name\]\s*;/,
+    'must derive explicit runtime producer/consumer sources from RUNTIME_PROCESS_FACT_SOURCE_REFS',
   );
   assertInitializerPattern(
     commandFactsInitializer,
@@ -4927,7 +5299,9 @@ function assertProcessFactMappedSourceContracts(sourceText) {
     ['gateEvidence', /\bgateEvidence\s*,/],
     ['destructiveRisk', /\bdestructiveRisk:\s*policy\?\.destructiveRisk\b/],
     ['producer', /\bproducer:\s*entry\.owner\b/],
+    ['producerSourceRefs', /\bproducerSourceRefs:\s*sourceRefs\?\.producerSourceRefs\s*\?\?/],
     ['consumerGate', /\bconsumerGate:\s*entry\.gateConsumer\b/],
+    ['consumerSourceRefs', /\bconsumerSourceRefs:\s*sourceRefs\?\.consumerSourceRefs\s*\?\?/],
     ['artifact', /\bartifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]/],
     ['reviewerLane', /\breviewerLane:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]\?\.reviewerLane\b/],
     ['rationale', /\brationale:\s*entry\.rationale\b/],
@@ -5235,6 +5609,7 @@ function parseInlineProcessFactArtifactFromSource(block, label) {
   const openIndex = artifactMatch.index + artifactMatch[0].lastIndexOf('{');
   const artifactBlock = extractBalancedBlock(block, openIndex, '{', '}', `${label} inline artifact`);
   return {
+    name: readStringProperty(artifactBlock, 'name'),
     path: readStringProperty(artifactBlock, 'path'),
     signed: /\bsigned:\s*true\b/.test(artifactBlock),
     signature: readStringProperty(artifactBlock, 'signature'),
@@ -5563,6 +5938,17 @@ function assertDonePreflightPredicateInventoryParity() {
     assert(fact?.level === 'L4' && fact?.consumerGate?.includes('storyMachine.canFinish DONE gate')
       && fact?.consumerGate?.includes('done_closure/done_prepare preflight'), name + ': both DONE consumers must stay registered at L4');
   }
+  assert(registry.get('runtime:done_finish_decision_presence')?.rationale.includes('byte-exact proof-or-stop.dev-memory-finish-decision.v1'),
+    'finish-decision process fact must require exact canonical schema admission');
+  const finishReader = read('packages/main/src/core/playbook-runtime-memory.ts');
+  assert(finishReader.includes("if (record.schemaVersion !== 'proof-or-stop.dev-memory-finish-decision.v1') {")
+    && finishReader.includes('return { record: null, unsupportedIdentity:')
+    && finishReader.includes('return inspectDevMemoryFinishDecision(root, storyId).record;'),
+    'finish-decision reader must reject unsupported schema before DONE admission');
+  assert(registry.get('runtime:done_finish_decision_presence')?.rationale.includes('unsupported_identity')
+    && machineSource.includes('const finishDecisionRead = inspectDevMemoryFinishDecision(projectRoot, storyId);')
+    && doneOracleSource.includes("donePredicateValue<ReturnType<typeof inspectDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision')"),
+    'unsupported finish identity must retain its shared diagnostic in DONE and the read-only oracle');
   const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
   if (evaluator?.body) {
@@ -5698,14 +6084,11 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
     const policy = policyByName.get(commandName);
     assert(policy, `${commandPolicyPath}: ${commandName} missing COMMAND_POLICIES entry`);
     assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence`);
+    assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
     if (commandName === 'certification_window_status') {
-      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
-      assert(
-        policyBlockHasOwnershipClass(policy, 'readOnly'),
-        `${commandPolicyPath}: ${commandName} must stay readOnly`,
-      );
+      assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} default must stay readOnly`);
+      assert(readStringProperty(policy.block, 'storyWriteEffect') === 'whenRefresh', `${commandPolicyPath}: ${commandName} explicit refresh must stay a declared Story write`);
     } else {
-      assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
       assert(
         policyBlockHasOwnershipClass(policy, 'storyScopedMutating'),
         `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
@@ -5731,6 +6114,9 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
   assert(/currentIdentity: currentPrecertFastIdentity\(ctx, storyId\)/.test(read('packages/main/src/handlers/certification-window.ts')), 'PRE_CERT must reconstruct current fast identity before consuming a receipt');
   assert(/requireCurrentHeavyCertificationWindow/.test(doneRequired), 'DONE-required must retain PRE_CERT admission');
   assert(!/refuseHeavyCertificationUnlessAdmitted/.test(doneRequired), 'DONE-required must not consume routine execution allocation');
+  assert(!/captureLifecycleMetadataTransaction|commitLifecycleMetadataTransaction|persistRunningCertificationWindow|claimTestAdmissibleRoutineValidationWindow/.test(doneRequired), 'DONE-required must not claim or commit the routine certification allocation');
+  const doneCloseouts = [...doneRequired.matchAll(/closeoutArtifactPaths\s*:\s*\[([^\]]*)\]/g)];
+  assert(doneCloseouts.length === 1 && /^\s*['"]done-required-evidence\.json['"]\s*$/.test(doneCloseouts[0][1]), 'DONE-required must commit only its own evidence artifact');
   const testGate = phaseGate.slice(phaseGate.indexOf('export async function runValidateGate('), phaseGate.indexOf('export function runDoneOracleGate('));
   assert(/PRE_CERT_ROUTINE_PASS_REQUIRED/.test(testGate) && !/createVerifierHandlers|await.*\.validate\(/.test(testGate), 'TEST must consume signed routine PASS without executing a second suite');
   assert(
@@ -5970,11 +6356,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     'abortSignal?: AbortSignal',
     "assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args)",
     'return writeStaleRefresh',
-    'totalCommands: rawCommandOrdinals.size',
+    'totalCommands: commandOrdinals.size',
     'progress: event => ctx.log?.(formatValidationProgressEvent(event))',
-    'abortSignal: args.abortSignal',
-    'deadlineAt: args.deadlineAt',
-    'deadlineError: args.deadlineError',
+    'abortSignal: controls.abortSignal',
+    'deadlineAt: controls.deadlineAt',
+    'deadlineError: controls.deadlineError',
   ]) {
     assert(refreshHandlerWatchdogText.includes(token), `stale refresh progress/abort-atomic contract missing ${token}`);
   }
@@ -6002,22 +6388,24 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of [
     'async verification_evidence_batch_add(args:',
     "assertVerificationEvidenceWriteActive('verification_evidence_batch_add', args)",
-    'snapshot: evidenceHashes(cwd, root)',
+    'assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot))',
     'abortSignal?: AbortSignal',
     'deadlineAt?: number',
   ]) {
     assert(refreshHandlerWatchdogText.includes(token), `verification evidence batch progress/abort-atomic contract missing ${token}`);
   }
-  for (const [start, end] of [
-    ['async verification_evidence_add(args:', 'async verification_evidence_batch_add(args:'],
-    ['async verification_evidence_batch_add(args:', 'async verification_run(args:'],
-    ['async verification_run(args:', 'verification_pin_narrow(args:'],
-  ]) {
-    const handler = refreshHandlerWatchdogText.slice(refreshHandlerWatchdogText.indexOf(start), refreshHandlerWatchdogText.indexOf(end));
-    for (const token of ['runSingleAllowlistedCommand', 'formatValidationProgressEvent(event)', 'abortSignal: args.abortSignal', 'deadlineAt: args.deadlineAt', 'deadlineError: args.deadlineError']) {
-      assert(handler.includes(token), `${start} must forward execution control at its own leaf boundary: ${token}`);
-    }
-  }
+  assertEvidenceFactoryWiring(refreshHandlerWatchdogText);
+  const stampStart = refreshHandlerWatchdogText.indexOf('async function enforceAndStampEvidence(');
+  const stampEnd = refreshHandlerWatchdogText.indexOf('function applyVerificationPin', stampStart);
+  const stampSource = refreshHandlerWatchdogText.slice(stampStart, stampEnd);
+  const postflight = stampSource.indexOf('assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot))');
+  const publishExecution = stampSource.indexOf('createVerificationExecutionReceipt({');
+  assert(stampStart >= 0 && postflight >= 0 && publishExecution > postflight
+    && stampSource.includes('assertVerificationInputUnchanged(beforeIdentity, afterIdentity)'),
+    'V5 execution receipt must be signed only after command input and current material postflight checks');
+  assert(read('packages/main/src/tasks/validate-progress-heartbeat-smoke.ts').includes('failed batch must not publish reusable new-material CAS from old raw output'),
+    'V5 snapshot protection requires the real failed-batch follow-up execution regression');
+
   const refreshValidationExecutorText = read('packages/main/src/core/validation-executor.ts');
   for (const token of [
     'SingleCommandExecutionOptions extends RunValidationCommandOptions',
@@ -6921,6 +7309,72 @@ function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   }
 }
 
+function assertCurrentPromptIdentityBoundary() {
+  const contracts = read('packages/main/src/core/prompt-contracts.ts');
+  const envelope = read('packages/main/src/core/prompt-envelope.ts');
+  const reviewRun = read('packages/main/src/core/review-run.ts');
+  const registry = read(processFactRegistryPath);
+
+  for (const token of [
+    'CURRENT_PROMPT_IDENTITIES',
+    'PROMPT_ENVELOPE_ACTIVE_IDENTITY_PATHS',
+    'assertPromptEnvelopeIdentityRegistryTotal',
+    'validatePromptEnvelopeAgainst(value)',
+    "promptEnvelope: 'proof-or-stop.prompt-envelope.v1'",
+  ]) {
+    assert(contracts.includes(token), `prompt-contracts.ts: current Prompt identity boundary missing ${token}`);
+  }
+  for (const retiredToken of ['LEGACY_PROMPT_IDENTITIES', 'validateLegacyPromptEnvelope']) {
+    assert(!contracts.includes(retiredToken), `prompt-contracts.ts: retired Prompt identity API remains active: ${retiredToken}`);
+  }
+  for (const path of [
+    'schemaVersion',
+    'runtimeContractVersion',
+    'roleContractVersion',
+    'assemblerVersion',
+    'dispatchProtocolVersion',
+  ]) {
+    assert(contracts.includes(`'${path}'`), `prompt-contracts.ts: active Prompt Envelope identity path missing ${path}`);
+  }
+  assert(
+    contracts.includes("proof-or-stop.digest.v1\\0${domain}\\0"),
+    'prompt-contracts.ts: current proof-or-stop.digest.v1 domain separator must remain exact',
+  );
+  for (const token of [
+    'verifyPromptEnvelopeIntegrity',
+    'validatePromptEnvelope(envelope)',
+  ]) {
+    assert(envelope.includes(token), `prompt-envelope.ts: current reader boundary missing ${token}`);
+  }
+  for (const retiredToken of ['verifyLegacyPromptEnvelopeIntegrity', 'validateLegacyPromptEnvelope']) {
+    assert(!envelope.includes(retiredToken), `prompt-envelope.ts: retired Prompt identity reader remains active: ${retiredToken}`);
+  }
+  for (const token of [
+    "REVIEW_RUN_SALT = 'proof-or-stop-review-run-integrity-v1'",
+    'verifyReviewRunSignatureIntegrity',
+    'hasOnlyKeys(run',
+    'verifyReviewScopeBinding(run.scopeBinding)',
+    'reviewRunPromptUsesCurrentIdentityFamily(run)',
+  ]) {
+    assert(reviewRun.includes(token), `review-run.ts: current signed ReviewRun boundary missing ${token}`);
+  }
+  for (const retiredToken of ['verifyLegacyReviewRun', 'LEGACY_PROMPT_IDENTITIES']) {
+    assert(!reviewRun.includes(retiredToken), `review-run.ts: retired ReviewRun reader remains active: ${retiredToken}`);
+  }
+  for (const token of [
+    'Fresh Story writers persist exact proof-or-stop.* Prompt identities',
+    'retired identity family remain inert historical bytes',
+    'reject them without a compatibility fallback',
+    'Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
+  ]) {
+    assert(registry.includes(token), `${processFactRegistryPath}: Prompt identity process contract missing ${token}`);
+  }
+  assert(
+    !registry.includes('exact proof-or-stop.* rows are available only through the named legacy verifier'),
+    `${processFactRegistryPath}: canonical Prompt identity must never be described as legacy-verifier-only`,
+  );
+}
+
 function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   for (const commandName of requiredDecisionDocPromotionCommands) {
     assert(cliToolNameSet.has(commandName), `CLI schema: required decision-doc promotion command missing from MAIN_TOOLS: ${commandName}`);
@@ -7104,6 +7558,260 @@ function assertEvidenceBoundaryDocs() {
     for (const phrase of requiredEvidenceBoundaryPhrases) {
       assert(text.includes(phrase), `${relPath}: missing process evidence boundary phrase "${phrase}"`);
     }
+  }
+}
+
+function assertCurrentVerificationReceiptModel() {
+  // Collapse whitespace before matching so a claim cannot evade the contract by
+  // wrapping its subject and predicate onto different Markdown/comment lines.
+  // Positive grammatical predicates are matched directly; legacy keywords do
+  // not waive a contradictory later clause, and negative/historical predicates
+  // are outside the accepted positive forms by construction.
+  const staleClaim = (text) => {
+    const bounded = text.replace(/\s+/g, ' ').trim();
+    return positiveCurrentBundleV3Patterns.some(pattern => pattern.test(bounded));
+  };
+  for (const sample of [
+    'VerificationReceiptBundleV3 is current and admissible.',
+    'BundleV3 is legacy but remains current/admissible.',
+    'VerificationReceiptBundleV3\ncontinues to be authoritative for lifecycle admission.',
+    'The authoritative receipt bundle\nis VerificationReceiptBundleV3.',
+  ]) {
+    assert(staleClaim(sample), `receipt-model scanner must reject positive current/admissible Bundle V3 claim: ${JSON.stringify(sample)}`);
+  }
+  for (const sample of [
+    'VerificationReceiptBundleV3 is not current or admissible.',
+    'VerificationReceiptBundleV3 cannot satisfy lifecycle admission or authorize reuse.',
+    'VerificationReceiptBundleV3 was historically authoritative before V5.',
+    'VerificationReceiptBundleV3 is legacy read-only and non-reusable.',
+    'The current authoritative receipt bundle is VerificationReceiptBundleV5; VerificationReceiptBundleV3 remains readable for audit only.',
+  ]) {
+    assert(!staleClaim(sample), `receipt-model scanner must allow negative/historical/legacy Bundle V3 description: ${JSON.stringify(sample)}`);
+  }
+  for (const relPath of verificationReceiptModelPaths) {
+    assert(
+      !staleClaim(read(relPath)),
+      `${relPath}: Bundle V3 / V1 assertion are legacy read-only compatibility; current authoritative evidence is Bundle V5 with a V3 execution component`,
+    );
+  }
+  const decisionDoc = read('docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md');
+  assert(
+    decisionDoc.includes('`VerificationReceiptBundleV5`')
+      && decisionDoc.includes('is the only split bundle eligible for lifecycle admission and reuse'),
+    'verification receipt decision must identify Bundle V5 as the sole lifecycle-admissible/reusable split bundle',
+  );
+  assert(
+    decisionDoc.includes('`VerificationAssertionReceiptV1`, `VerificationReceiptBundleV2`, `VerificationReceiptBundleV3`')
+      && decisionDoc.includes('cannot satisfy lifecycle admission'),
+    'verification receipt decision must identify V1 assertion and Bundle V2/V3/V4 as legacy non-admissible compatibility',
+  );
+  assert(
+    decisionDoc.includes('SHA-256 of the top-level compatibility selector must equal the selector digest carried by the independently signed assertion')
+      && decisionDoc.includes('ExecutionReceipt remains selector-free'),
+    'verification receipt decision must bind the V5 compatibility selector to the signed assertion without polluting the execution identity',
+  );
+  const narrowingDecision = read('docs/requirements/decisions/narrowing-only-evidence-repin.md');
+  const normalizedNarrowingDecision = narrowingDecision.replace(/\s+/g, ' ');
+  // B-aa5f F-048: an authenticated selector does not authenticate a persisted
+  // display tail. Trace the validated complete-output value into every decision.
+  const receiptValidator = extractNamedFunctionBody(
+    read('packages/main/src/core/verification-execution-evidence.ts'), 'validateVerificationReceipt',
+  ) ?? '';
+  assert(
+    receiptValidator.includes('receipt.outputTail !== boundedOutputTail(output)')
+      && receiptValidator.includes('receipt outputTail compatibility mismatch'),
+    'V5 receipt validation must compare the display projection with complete authenticated output',
+  );
+  const verificationSource = read('packages/main/src/core/verification.ts');
+  const narrowingLabelSource = read('packages/main/src/handlers/checklist.ts');
+  assert(narrowingLabelSource.includes('Proved from current signed authoritative V5 receipts')
+    && !narrowingLabelSource.includes('Proved from current signed authoritative V4 receipts'),
+    'successful current narrowing must truthfully identify its required V5 authority');
+  assert(verificationSource.includes('Complete output returned by authoritative receipt/artifact validation.'),
+    'validated complete-output consumer documentation must not imply obsolete V4-only authority');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('unprovable executable resolution fails closed'),
+    'verification process facts must retain actual-spawn toolchain currentness and fail-closed resolution');
+  assert(receiptValidator.includes('authenticated execution command mismatch'), 'receipt reader must authenticate the requested command');
+  assert(receiptValidator.includes('publication freshness binding mismatch'), 'receipt reader must bind unsigned outer coordinates to the signed context');
+  const inventoryProjection = read('packages/main/src/core/review-inventory-epoch.ts');
+  assert(inventoryProjection.includes('proof-or-stop.inventory-verification-observation.v1')
+    && inventoryProjection.includes('validateVerificationReceipt')
+    && inventoryProjection.includes('executionIdentityDigest: execution.executionIdentityDigest'),
+    'inventory projection must authenticate first and retain versioned execution-input semantics');
+  const publicationIssuer = extractNamedFunctionBody(read('packages/main/src/core/verification-execution-evidence.ts'), 'createCurrentVerificationAssertionReceipt') ?? '';
+  assert(publicationIssuer.includes("'publication', digested") && publicationIssuer.includes('freshness: { ...input.freshness }'),
+    'current publication must sign the exact freshness tuple in its own authenticity domain');
+  const collector = extractNamedFunctionBody(verificationSource, 'collectRecordedPinnedReceipts') ?? '';
+  const narrowing = extractNamedFunctionBody(verificationSource, 'evaluateSelectorNarrowing') ?? '';
+  const narrowingHandler = extractNamedFunctionBody(read('packages/main/src/handlers/checklist.ts'), 'narrowVerificationPin') ?? '';
+  assert(
+    collector.includes('const output = readValidatedOutput(') && !collector.includes('receipt.outputTail'),
+    'narrowing collection must require validated complete output without a compatibility-tail fallback',
+  );
+  assert(
+    narrowingHandler.includes("typeof validation.output !== 'string'")
+      && narrowingHandler.includes('return validation.output;'),
+    'narrowing handler must fail closed without complete output and return the authoritative validator output',
+  );
+  for (const expression of [
+    'r.output.includes(selector) && !r.output.includes(previousSelector)',
+    'judgedByPin.filter(r => !r.output.includes(selector))',
+    'passing.filter(r => !r.output.includes(selector))',
+  ]) {
+    assert(narrowing.includes(expression), `narrowing must decide against complete output: ${expression}`);
+  }
+  assert(!narrowing.includes('outputTail'), 'narrowing evaluator must never use a display tail as proof');
+  assert(
+    normalizedNarrowingDecision.includes('complete authenticated output')
+      && normalizedNarrowingDecision.includes('never a proof fallback')
+      && decisionDoc.includes('`outputTail` is display-only'),
+    'receipt and narrowing decisions must distinguish complete-output proof from display tails',
+  );
+  const narrowingSmoke = read('packages/main/src/tasks/narrowing-repin-smoke.ts');
+  for (const regression of ['CHK-002/B16', 'CHK-002/B17', 'CHK-002/B18']) {
+    assert(narrowingSmoke.includes(regression), `registered narrowing smoke must retain ${regression}`);
+  }
+  assert(
+    normalizedNarrowingDecision.includes('The narrowing consumer runs')
+      && normalizedNarrowingDecision.includes('authoritative receipt validation before reading any projected witness fields')
+      && normalizedNarrowingDecision.includes('narrowing_recorded_receipt_invalid')
+      && normalizedNarrowingDecision.includes('Legacy combined receipts and Bundle V2/V3/V4 remain')
+      && normalizedNarrowingDecision.includes('narrowing_recorded_receipt_not_authoritative'),
+    'narrowing decision must require current signed V5 authority before consuming projected selector witnesses',
+  );
+  const commandCatalog = read('packages/main/src/cli/command-catalog.ts').replace(/\s+/g, ' ');
+  assert(
+    commandCatalog.includes('Only current signed authoritative VerificationReceiptBundleV5 receipts recorded by this tool for that pinned command may be proof witnesses')
+      && commandCatalog.includes('legacy combined and Bundle V2/V3/V4 receipts remain audit-readable but are rejected with narrowing_recorded_receipt_not_authoritative')
+      && commandCatalog.includes('record current signed V5 evidence first'),
+    'verification_pin_narrow help must state the signed V5-only witness boundary, legacy refusal code, and remediation',
+  );
+  assert(
+    !commandCatalog.includes('the proof is drawn ONLY from receipts this tool recorded for that pinned command'),
+    'verification_pin_narrow help must not describe every tool-recorded legacy receipt as an authoritative witness',
+  );
+  const receiptTypes = read('packages/main/src/core/types.ts');
+  assert(
+    receiptTypes.includes('Current V3 execution component carried by the authoritative V5 bundle'),
+    'verification receipt types must identify Execution V3 as the current V5 bundle execution component',
+  );
+  assert(
+    receiptTypes.includes('Legacy V1 assertion: read-only, non-reusable, and non-admissible compatibility'),
+    'verification receipt types must identify Assertion V1 as legacy read-only/non-reusable/non-admissible compatibility',
+  );
+  assert(
+    receiptTypes.includes('Legacy V2 split bundle')
+      && receiptTypes.includes('Legacy V3 split bundle: read-only, non-reusable, non-promotable, and')
+      && receiptTypes.includes('cannot satisfy lifecycle admission'),
+    'verification receipt types must identify Bundle V2/V3/V4 as legacy read-only/non-reusable/non-admissible compatibility',
+  );
+  const runtimeReceiptFacts = read('packages/main/src/core/runtime-fact-registry.ts');
+  assert(
+    runtimeReceiptFacts.includes('V2 assertions and V5 bundles bind executed versus reused publication'),
+    'verification receipt runtime fact must assign publication mode and reuse binding to Assertion V2 / Bundle V5',
+  );
+  assert(
+    runtimeReceiptFacts.includes('validates the V5 bundle, V3 execution, V2 assertion, required mode-specific V1 reuse lineage'),
+    'verification gate runtime fact must name the current V5/V3/V2/V1 record model exactly',
+  );
+  assert(
+    read(processFactLevelRegistryPath).includes('V5 bundle links across its V3 execution, V2 assertion, and optional V1 reuse components'),
+    `${processFactLevelRegistryPath}: verification gate fact must name the current V5/V3/V2/V1 component model`,
+  );
+  assert(
+    read('packages/main/src/tasks/certification-window-smoke.ts').includes('authoritative V5 bundle and V3 execution component'),
+    'certification-window smoke fixture must describe the current V5 bundle rather than an authoritative V3 receipt',
+  );
+  assert(
+    read('packages/main/src/tasks/verification-run-and-guard-smoke.ts').includes('authoritative V5 bundle and its V3 execution component'),
+    'verification lifecycle smoke must describe the current V5 bundle rather than authoritative V3 validation',
+  );
+  const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  assert(
+    verificationReceiptSmoke.includes('expected VerificationReceiptBundleV5 with VerificationAssertionReceiptV2 and VerificationExecutionReceiptV3'),
+    'verification split-receipt helper diagnostic must name Bundle V5, Assertion V2, and Execution V3 exactly',
+  );
+  assert(
+    verificationReceiptSmoke.includes('expected reuse-capable VerificationReceiptBundleV5 with VerificationExecutionReceiptV3 component'),
+    'verification reusable-receipt helper diagnostic must name reuse-capable Bundle V5 and its Execution V3 component',
+  );
+  for (const staleDiagnostic of [
+    'expected a v2 split receipt',
+    'expected a v3 reuse-capable receipt',
+  ]) {
+    assert(
+      !verificationReceiptSmoke.includes(staleDiagnostic),
+      `verification receipt helper must reject stale ambiguous diagnostic: ${JSON.stringify(staleDiagnostic)}`,
+    );
+  }
+
+  const refreshHelp = read('packages/main/src/cli/command-catalog.ts');
+  for (const phrase of [
+    'may reuse immutable evidence with zero subprocesses',
+    'fails closed to at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes every dependent row, selector mismatch demotes only that row',
+  ]) {
+    assert(refreshHelp.includes(phrase), `verification_evidence_refresh_stale help must state: ${JSON.stringify(phrase)}`);
+  }
+  const normalizeCommentSurface = (text) => text
+    .replace(/^\s*\/\*+\s?/gmu, ' ')
+    .replace(/^\s*\*\/?\s?/gmu, ' ')
+    .replace(/\s+/g, ' ');
+  const refreshHandler = read('packages/main/src/handlers/checklist.ts');
+  const normalizedRefreshHandler = normalizeCommentSurface(refreshHandler);
+  for (const phrase of [
+    'Safe input-scoped reuse can publish the prior immutable execution with zero subprocesses',
+    'freshness fails closed',
+    'at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes',
+    'selector mismatch demotes only that row',
+  ]) {
+    assert(normalizedRefreshHandler.includes(phrase), `stale-refresh implementation contract must state: ${JSON.stringify(phrase)}`);
+  }
+  const normalizedVerificationReceiptSmoke = normalizeCommentSurface(verificationReceiptSmoke);
+  for (const phrase of [
+    'may reuse immutable evidence with zero subprocesses',
+    'freshness fails closed to at most one real rerun per affected execution key',
+    'Timeout/nonzero failure demotes every',
+    'selector mismatch demotes only its row',
+  ]) {
+    assert(normalizedVerificationReceiptSmoke.includes(phrase), `stale-refresh smoke contract must state: ${JSON.stringify(phrase)}`);
+  }
+  for (const refreshDocPath of [
+    'docs/step2-evidence-receipts-handoff.md',
+    'docs/requirements/decisions/testing-infra.md',
+    'docs/requirements/decisions/story-lifecycle.md',
+  ]) {
+    const refreshDoc = normalizeCommentSurface(read(refreshDocPath));
+    for (const phrase of [
+      'policy-owned deterministic capsule',
+      'signed `ReuseReceipt` with zero subprocesses',
+      'at most once per affected execution key',
+      'fails closed',
+    ]) {
+      assert(refreshDoc.includes(phrase), `${refreshDocPath}: stale-refresh contract must state ${JSON.stringify(phrase)}`);
+    }
+  }
+  const storyFilesHashDecision = normalizeCommentSurface(read('docs/requirements/decisions/story-files-hash-material-drift.md'));
+  for (const phrase of [
+    'Bounded input-closure exception for checklist verification',
+    'current `VerificationReceiptBundleV5`, not a legacy bundle',
+    'policy-owned deterministic capsule, not an arbitrary command',
+    '`evidenceInputDigest` and selector-free execution identity are unchanged',
+    'signed `ReuseReceipt` referencing the immutable prior execution',
+    '`storyFilesHash` remains the strict fallback',
+  ]) {
+    assert(storyFilesHashDecision.includes(phrase), `story-files-hash drift decision must state ${JSON.stringify(phrase)}`);
+  }
+  for (const diagnostic of [
+    ['[verification_refresh_execution_timeout]', 'shared execution was attempted and timed out'],
+    ['[verification_refresh_execution_nonzero]', 'shared execution was attempted and exited nonzero'],
+  ]) {
+    const [code, phrase] = diagnostic;
+    assert(refreshHandler.includes(code) && refreshHandler.includes(phrase),
+      `stale-refresh handler must persist truthful execution-failure provenance ${code}`);
+    assert(verificationReceiptSmoke.includes(code.slice(1, -1)) && verificationReceiptSmoke.includes(phrase),
+      `stale-refresh smoke must assert handler and persisted provenance ${code}`);
   }
 }
 
@@ -8312,6 +9020,14 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(read('packages/main/src/core/story-aware-validation.ts').includes('authorityReasons(change)'), 'dynamic plan must consume authority closure reasons');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:full_task_scope_authority'), 'scope inventory gate must be explicitly registered');
   assert(read('scripts/verify-validation-authority-graph.mjs').includes('base dependency must survive head edge removal'), 'authority graph requires dual-revision regression');
+  const routineReuseSource = read('packages/main/src/handlers/verifier.ts');
+  for (const token of ['tryReuseRoutinePass', 'reuseFreshRoutinePass', 'readRoutineReuseRevocationBasis', 'preparationHead', 'reusedFromIdentityDigest', "oracleStatus: 'not-run'", "authority: 'observe-only'", 'observe-opt-in']) {
+    assert(routineReuseSource.includes(token), `observe whole-PASS reuse must retain ${token}`);
+  }
+  assert(read('packages/main/src/cli/command-catalog.ts').includes('reuseFreshRoutinePass: z.boolean().optional()'), 'validate must expose the independent whole-PASS reuse option');
+  assert(read('packages/main/src/core/types.ts').includes('dynamicRevocationLedgerDigest?: string'), 'canonical evidence must bind the signed revocation state');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes("'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence'"), 'routine reuse must retain execution evidence semantics');
+
   const levelText = read('packages/main/src/core/process-fact-levels.ts');
   const registryText = read('packages/main/src/core/process-fact-registry.ts');
   const facts = [
@@ -8353,7 +9069,10 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2'"), 'dynamic reuse must reject legacy receipts without executor source observations');
   assert(validationText.includes('certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)') && validationText.includes('environmentDigest: declaredEnvironmentDigest(entry, ctx)'), 'cross-commit reuse must bind receipt-relative trees and effective declared environment');
   assert(handlerText.includes('!provenance.cleanBefore || !provenance.cleanAfter') && handlerText.includes('provenance.headBefore !== args.head || provenance.headAfter !== args.head'), 'receipt issuance requires executor-observed unchanged clean source at both boundaries');
-  const registeredAdapterDigest = handlerText.match(/sourceDigest: '([a-f0-9]{64})'/)?.[1];
+  const registeredAdapterDigest = handlerText.match(/const DYN5_ADAPTER_SOURCE_DIGEST = '([a-f0-9]{64})'/)?.[1];
+  assert(handlerText.includes('sourceDigest: DYN5_ADAPTER_SOURCE_DIGEST'), 'registered adapter must consume the checked digest constant');
+  const registeredChildDigest = handlerText.match(/const DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST = '([a-f0-9]{64})'/)?.[1];
+  assert(handlerText.includes('sourceDigest: DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST') && registeredChildDigest === createHash('sha256').update(JSON.stringify(read('packages/main/src/tasks/validation-child-environment.mjs'))).digest('hex'), 'adapter child environment dependency must retain audited source identity');
   assert(registeredAdapterDigest === createHash('sha256').update(JSON.stringify(read('packages/main/src/tasks/story-aware-validation-case-adapter.mjs'))).digest('hex'), 'registered shard adapter digest must match audited source bytes');
 
   assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
@@ -8373,6 +9092,8 @@ function assertPromptMeasurementObservationBoundary() {
   const registryText = read('packages/main/src/registry.ts');
   const handlerText = read('packages/main/src/handlers/prompt-measurement.ts');
   const verifierText = read('scripts/verify-proof-or-stop-prompt-baseline.mjs');
+  const promptRegistryText = read('packages/main/src/core/prompt-registry.ts');
+  const promptRoleRegistryText = read('packages/main/src/core/prompt-role-contract-registry.ts');
 
   assert(catalogText.includes(`name: '${command}'`), `prompt measurement: ${command} missing from command catalog`);
   assert(
@@ -8390,6 +9111,281 @@ function assertPromptMeasurementObservationBoundary() {
   assert(handlerText.includes('generatePromptMeasurementReport'), 'prompt measurement: handler must use deterministic local generator');
   assert(verifierText.includes('verifyPromptMeasurementSidecar'), 'prompt measurement: proof-or-stop verifier sidecar check missing');
   assert(verifierText.includes('PromptMeasurementRecord sidecar verified without refresh authority'), 'prompt measurement: verifier must state non-authoritative no-refresh boundary');
+  assert(
+    promptRegistryText.includes('assertPromptRegistrySnapshotIdentity'),
+    'prompt registry: exact schemaVersion/source identity validator missing',
+  );
+  assert(
+    /buildPromptRoleContracts\([\s\S]*?assertPromptRegistrySnapshotIdentity\(snapshot\)/.test(promptRoleRegistryText),
+    'prompt registry: role-contract consumer must validate the snapshot identity before deriving contracts',
+  );
+}
+
+function assertStoryWriterRuntimeAdmissionContract() {
+  const admission = read(storyRuntimeAdmissionPath);
+  const engine = read('packages/main/src/cli-engine.ts');
+  const policy = read(commandPolicyPath);
+  const processFacts = read('packages/main/src/core/process-fact-registry.ts');
+  const scopeEvaluator = read('packages/main/src/core/scope-anti-expansion.ts');
+  const policyEntries = parseCommandPolicyEntries();
+  const crossOwnershipEffects = new Map([
+    ['story_create', 'always'],
+    ['story_reconcile', 'always'],
+    ['identity_state_migrate', 'whenConfirm'],
+    ['story_discard', 'always'],
+    ['story_draft_discard', 'always'],
+    ['story_create_from_repro', 'always'],
+    ['signature_backfill', 'whenApply'],
+    ['done_recover', 'always'],
+    ['audit', 'always'],
+    ['gap_log', 'always'],
+    ['doctor', 'whenRepair'],
+    ['certification_window_status', 'whenRefresh'],
+    ['reviewer_list', 'whenForceReviewer'],
+    ['agent_prompt', 'whenStoryPromptEnvelope'],
+    ['evaluate', 'whenEvaluatorPromptEnvelope'],
+    ['planner_create_story', 'always'],
+    ['planner_run', 'always'],
+  ]);
+  const storyWriteEffect = entry => readStringProperty(entry.block, 'storyWriteEffect');
+  const capabilityCommands = new Set(policyEntries
+    .filter(entry =>
+      policyBlockHasOwnershipClass(entry, 'storyScopedMutating')
+      || policyBlockHasOwnershipClass(entry, 'reviewerWrite')
+      || Boolean(storyWriteEffect(entry)))
+    .map(entry => entry.name));
+  const omittedCapability = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_OMIT_STORY_WRITER;
+  if (omittedCapability === '*') capabilityCommands.clear();
+  else if (omittedCapability) capabilityCommands.delete(omittedCapability);
+  assert(policy.includes('STORY_WRITE_CAPABILITY_COMMANDS'), `${commandPolicyPath}: missing actual Story-write capability registry`);
+  assert(policy.includes('commandRequiresAuthoritativeRuntime'), `${commandPolicyPath}: missing actual Story-write capability predicate`);
+  const runtimePredicate = policy.match(/export function commandRequiresAuthoritativeRuntime\([\s\S]*?\n\}/)?.[0].replace(/\s/g, '') ?? '';
+  assert(
+    runtimePredicate.includes("returneffectiveOwnership!==null&&effectiveOwnership!=='readOnly'&&(effectiveOwnership==='storyScopedMutating'||effectiveOwnership==='reviewerWrite'||STORY_WRITE_CAPABILITY_COMMAND_SET.has(command));"),
+    `${commandPolicyPath}: raw and final admission must include intrinsic effective extension writers while preserving null/read-only refusal and declared cross-class effects`,
+  );
+  assert(policy.includes("policy.ownershipClass === 'storyScopedMutating'"), `${commandPolicyPath}: Story-write capability registry must derive owner writers from command policy`);
+  assert(policy.includes("policy.ownershipClass === 'reviewerWrite'"), `${commandPolicyPath}: Story-write capability registry must derive reviewer writers from command policy`);
+  assert(policy.includes("'storyWriteEffect' in policy && policy.storyWriteEffect !== undefined"), `${commandPolicyPath}: Story-write capability registry must derive cross-class writers from declared effects`);
+  for (const [command, expectedEffect] of crossOwnershipEffects) {
+    const entry = policyEntries.find(candidate => candidate.name === command);
+    assert(entry, `${commandPolicyPath}: missing cross-class Story writer ${command}`);
+    assert(storyWriteEffect(entry) === expectedEffect, `${commandPolicyPath}: ${command} storyWriteEffect must be ${expectedEffect}`);
+    assert(capabilityCommands.has(command), `${commandPolicyPath}: Story-write capability registry missing ${command}`);
+  }
+  for (const entry of policyEntries) {
+    if (policyBlockHasOwnershipClass(entry, 'storyScopedMutating') || policyBlockHasOwnershipClass(entry, 'reviewerWrite')) {
+      assert(capabilityCommands.has(entry.name), `${commandPolicyPath}: Story-write capability registry missing ${entry.name}`);
+      continue;
+    }
+    const effect = storyWriteEffect(entry);
+    if (effect) {
+      assert(crossOwnershipEffects.get(entry.name) === effect, `${commandPolicyPath}: unverified cross-class Story writer effect ${entry.name}:${effect}`);
+    }
+  }
+  const policyNames = new Set(policyEntries.map(entry => entry.name));
+  const sourceRoot = join(root, 'packages/main/src');
+  const sourcePaths = [];
+  const collectSourcePaths = (absoluteDir, relativeDir) => {
+    for (const entry of readdirSync(absoluteDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const absolutePath = join(absoluteDir, entry.name);
+      const relPath = join(relativeDir, entry.name);
+      if (entry.isDirectory()) collectSourcePaths(absolutePath, relPath);
+      else if (entry.isFile() && entry.name.endsWith('.ts')) sourcePaths.push(relPath);
+    }
+  };
+  collectSourcePaths(sourceRoot, 'packages/main/src');
+
+  const definitions = [];
+  const definitionsByFileAndName = new Map();
+  const importsByFile = new Map();
+  const namespaceImportsByFile = new Map();
+  const callableDescriptor = (node, sourceFile, relPath) => {
+    if (ts.isFunctionDeclaration(node) && node.name && node.body) {
+      return { name: node.name.text, body: node.body };
+    }
+    if (ts.isMethodDeclaration(node) && node.name && node.body) {
+      const name = ts.isIdentifier(node.name) || ts.isStringLiteral(node.name) ? node.name.text : null;
+      return name ? { name, body: node.body } : null;
+    }
+    if (
+      ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.initializer
+      && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+      && node.initializer.body
+    ) {
+      return { name: node.name.text, body: node.initializer.body };
+    }
+    return null;
+  };
+  const resolveImportedModule = (fromRelPath, specifier) => {
+    if (!specifier.startsWith('.')) return null;
+    const joined = join(dirname(fromRelPath), specifier);
+    const candidates = joined.endsWith('.js')
+      ? [`${joined.slice(0, -3)}.ts`]
+      : [joined, `${joined}.ts`, join(joined, 'index.ts')];
+    return candidates.find(candidate => existsSync(join(root, candidate))) ?? null;
+  };
+  for (const relPath of sourcePaths) {
+    const sourceFile = parseSourceFile(relPath);
+    const namedImports = new Map();
+    const namespaceImports = new Map();
+    for (const statement of sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const importedPath = resolveImportedModule(relPath, statement.moduleSpecifier.text);
+      if (!importedPath || !statement.importClause) continue;
+      const bindings = statement.importClause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          namedImports.set(element.name.text, { relPath: importedPath, name: element.propertyName?.text ?? element.name.text });
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings)) {
+        namespaceImports.set(bindings.name.text, importedPath);
+      }
+    }
+    importsByFile.set(relPath, namedImports);
+    namespaceImportsByFile.set(relPath, namespaceImports);
+    const visit = node => {
+      const descriptor = callableDescriptor(node, sourceFile, relPath);
+      if (descriptor) {
+        const definition = {
+          key: `${relPath}:${descriptor.name}:${node.pos}`,
+          name: descriptor.name,
+          relPath,
+          node,
+          body: descriptor.body,
+          directWrites: [],
+          calls: [],
+        };
+        definitions.push(definition);
+        const fileKey = `${relPath}:${descriptor.name}`;
+        const matches = definitionsByFileAndName.get(fileKey) ?? [];
+        matches.push(definition);
+        definitionsByFileAndName.set(fileKey, matches);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  const isNestedNamedCallable = node => Boolean(callableDescriptor(node));
+  for (const definition of definitions) {
+    const sourceFile = parseSourceFile(definition.relPath);
+    const visitBody = node => {
+      if (node !== definition.body && isNestedNamedCallable(node)) return;
+      if (ts.isCallExpression(node)) {
+        if (ts.isPropertyAccessExpression(node.expression)) {
+          const receiver = node.expression.expression.getText(sourceFile);
+          const method = node.expression.name.text;
+          if (/(?:^|\.)store$/.test(receiver) && /^(?:write|append)/.test(method)) {
+            definition.directWrites.push(`${receiver}.${method}`);
+          }
+          if (ts.isIdentifier(node.expression.expression)) {
+            definition.calls.push({ kind: 'property', receiver: node.expression.expression.text, name: method });
+          }
+        } else if (ts.isIdentifier(node.expression)) {
+          definition.calls.push({ kind: 'identifier', name: node.expression.text });
+        }
+      }
+      ts.forEachChild(node, visitBody);
+    };
+    ts.forEachChild(definition.body, visitBody);
+  }
+
+  const edges = new Map(definitions.map(definition => [definition.key, []]));
+  for (const definition of definitions) {
+    const targets = edges.get(definition.key);
+    for (const call of definition.calls) {
+      if (call.kind === 'identifier') {
+        const local = definitionsByFileAndName.get(`${definition.relPath}:${call.name}`);
+        if (local?.length) {
+          targets.push(...local);
+          continue;
+        }
+        const imported = importsByFile.get(definition.relPath)?.get(call.name);
+        if (imported) targets.push(...(definitionsByFileAndName.get(`${imported.relPath}:${imported.name}`) ?? []));
+        continue;
+      }
+      const importedPath = namespaceImportsByFile.get(definition.relPath)?.get(call.receiver);
+      if (importedPath) targets.push(...(definitionsByFileAndName.get(`${importedPath}:${call.name}`) ?? []));
+    }
+  }
+
+  const storyWriteTraces = new Map();
+  const traceWrites = (definition, path, seen) => {
+    if (seen.has(definition.key)) return [];
+    const nextSeen = new Set(seen).add(definition.key);
+    const nextPath = [...path, definition];
+    const traces = definition.directWrites.length > 0
+      ? [{ path: nextPath, writes: definition.directWrites }]
+      : [];
+    for (const target of edges.get(definition.key) ?? []) {
+      traces.push(...traceWrites(target, nextPath, nextSeen));
+    }
+    return traces;
+  };
+  for (const definition of definitions) {
+    if (!ts.isMethodDeclaration(definition.node) || !policyNames.has(definition.name)) continue;
+    const traces = traceWrites(definition, [], new Set());
+    if (traces.length > 0) {
+      const existing = storyWriteTraces.get(definition.name) ?? [];
+      existing.push(...traces);
+      storyWriteTraces.set(definition.name, existing);
+    }
+  }
+  for (const [command, traces] of storyWriteTraces) {
+    if (capabilityCommands.has(command)) continue;
+    const trace = traces[0];
+    const kind = trace.path.length === 1 ? 'direct' : 'transitive';
+    const chain = trace.path.map(definition => definition.name).join(' -> ');
+    const sink = trace.path.at(-1);
+    assert(
+      false,
+      `${kind} Story-writing handler ${command} is absent from the capability inventory (${chain} -> ${trace.writes.join(', ')} at ${sink.relPath})`,
+    );
+  }
+  const ownership = read('packages/main/src/cli/ownership-gate.ts');
+  for (const [command, argument] of [
+    ['signature_backfill', 'args.apply'],
+    ['identity_state_migrate', 'args.confirm'],
+    ['reviewer_list', 'args.forceReviewer'],
+    ['doctor', 'args.repair'],
+    ['certification_window_status', 'args.refresh'],
+    ['agent_prompt', 'args.auditExperiment'],
+    ['evaluate', 'hasEvaluatorTarget'],
+  ]) {
+    assert(ownership.includes(`cmd === '${command}'`), `ownership gate missing conditional Story writer ${command}`);
+    assert(ownership.includes(argument), `ownership gate missing ${command} write argument ${argument}`);
+  }
+  assert(
+    admission.includes('commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)'),
+    `${storyRuntimeAdmissionPath}: admission must consume the actual Story-write capability predicate`,
+  );
+  assert(!admission.includes("input.effectiveOwnership === 'storyScopedMutating'"), `${storyRuntimeAdmissionPath}: admission must not enumerate ownership classes`);
+  assert(admission.includes('classifyRuntimeEntrypointAuthority'), `${storyRuntimeAdmissionPath}: must consume the shared runtime authority classifier`);
+  const rawResolution = engine.indexOf('resolveRawRuntimeAdmissionOwnership(');
+  const rawClassifier = engine.indexOf('classifyRuntimeEntrypointAuthority({', rawResolution);
+  assert(
+    rawResolution >= 0 && rawClassifier > rawResolution,
+    'cli-engine: raw runtime preflight must resolve argument-aware effective ownership before classifying runtime authority',
+  );
+  assert(
+    engine.indexOf('commandRequiresAuthoritativeRuntime(', rawResolution) >= rawResolution,
+    'cli-engine: raw and parsed runtime admission must consume the actual Story-write capability predicate',
+  );
+  for (const schema of [
+    'proof-or-stop.execution_boundary.v1.1',
+    'lattice.execution_boundary.v1',
+    'proof-or-stop.scope_freeze_check.v1.1',
+    'lattice.scope_freeze_check.v1',
+  ]) {
+    assert(scopeEvaluator.includes(schema), `scope anti-expansion: missing exact schema contract ${schema}`);
+    assert(processFacts.includes(schema), `process fact registry: missing exact schema contract ${schema}`);
+  }
+  const gate = engine.indexOf('enforceStoryRuntimeAdmission({');
+  const hook = engine.indexOf("runHooks('preCommand'", gate);
+  assert(gate >= 0 && hook > gate, 'cli-engine: Story runtime admission must precede preCommand hooks');
 }
 
 function assertProcessFactCommandInventory() {
@@ -8750,8 +9746,16 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   for (const invariant of ['parseAcceptanceReviewFinal', 'readManagedAcceptanceReviewReceipt', 'managedAcceptanceReviewPublicKey', 'verifyCanonical(claims, signature, expected.publicKey)']) {
     assert(acceptanceReviewer.includes(invariant), `DEV amendment review requires ${invariant}`);
   }
+  const acceptanceFinal = read('packages/main/src/core/acceptance-amendment-review.ts');
+  assert(acceptanceFinal.includes("ACCEPTANCE_REVIEW_FINAL_SCHEMA = 'proof-or-stop.acceptance_amendment_review_final.v1'")
+    && acceptanceFinal.includes('schemaVersion: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA')
+    && acceptanceFinal.includes('proposal.schemaVersion !== ACCEPTANCE_REVIEW_FINAL_SCHEMA')
+    && acceptanceFinal.includes('enum: [ACCEPTANCE_REVIEW_FINAL_SCHEMA]'), 'DEV final schema declaration/type/parser/transport must use one canonical identity');
+  assert(acceptanceReviewer.includes('finalResultSchema: ACCEPTANCE_REVIEW_FINAL_SCHEMA')
+    && acceptanceReviewer.includes('seal.proposal.schemaVersion !== ACCEPTANCE_REVIEW_FINAL_SCHEMA'), 'worker scanner and signed receipt consumer must reject retired inner schemas');
+  assert(acceptanceReviewer.indexOf('const proposal = parseAcceptanceReviewFinal(result') < acceptanceReviewer.indexOf('signature: signCanonical(claims, proposalInvocationPrivateKey)'), 'worker must parse exact final before signing proposal');
   const acceptanceReviewWitness = read('scripts/verify-acceptance-review-receipt.mjs');
-  for (const invariant of ['recomputing every unsigned digest', 'GC preserves approval', 'DEV approval cannot become an old REVIEW final result']) {
+  for (const invariant of ['recomputing every unsigned digest', 'GC preserves approval', 'DEV approval cannot become an old REVIEW final result', 'retired inner schema cannot obtain worker approval', 'authentic signed retired inner schema is not current authority']) {
     assert(acceptanceReviewWitness.includes(invariant), `DEV amendment review needs witness: ${invariant}`);
   }
   const remediationSource = read('packages/main/src/handlers/review-remediation.ts');
@@ -8892,6 +9896,37 @@ function assertFilePatterns(entryName, relPath, patterns) {
 }
 
 const inventory = [
+  {name:'Complete selector output remains receipt-bound',files:[
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['readCausalSelectorOutput','selectorOutput','selectorWitness','CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES','causal_legacy_selector_output_unproven','retryExecutions.get(key.key) ??','causal_selector_output_invalid','redactCausalOutput']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readCausalSelectorOutput','writeCausalSelectorOutput','CAUSAL_OUTPUT_DIRECTORY']},
+    {relPath:'docs/validation-performance.md',patterns:['complete redacted output','12,000','missing or changed']},
+  ]},
+  {name:'DONE checks current admission and commits only its own evidence',files:[
+    {relPath:'packages/main/src/handlers/done-required-validation.ts',patterns:['policy.commands.some(sharedValidationReuseAllowed)', 'policy.required && requiresCleanWorkspaceForReuse', "['status', '--porcelain=v1', '--untracked-files=all']", "if (dirty) throw new Error('SHARED_DONE_REQUIRES_CLEAN_WORKSPACE')", 'requireCurrentHeavyCertificationWindow', "autoCommitStoryMetadata(ctx.root, storyId, 'done_required_validate'", "closeoutArtifactPaths: ['done-required-evidence.json']"]},
+    {relPath:'packages/main/src/core/auto-commit-metadata.ts',patterns:["'certification-running'","['certification-window.json']"]},
+  ]},
+  {name:'Exact quorum assertion inventory and current main partitioning',files:[
+    {relPath:'packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts',patterns:['validateQuorumSmokeInventory','validateQuorumSmokePartitions','unresolved executable callback','missing canonical quorum smoke shard(s)','partition must contain exactly 73 cases','competing quorum smoke selectors']},
+    {relPath:'packages/main/src/tasks/quorum-submit-smoke.ts',patterns:['runQuorumSmokeCoordinator','QUORUM_SMOKE_RUN_JSON','QUORUM_SMOKE_CASES_JSON']},
+    {relPath:'packages/main/tests/red/red-B-e40f-lab-convergence.mjs',patterns:['MAX_QUORUM_SMOKE_JOBS','validateQuorumSmokeInventory','validateQuorumSmokePartitions','one-process-per-shard']},
+    {relPath:'docs/validation-performance.md',patterns:['73','--jobs=2','modular coordinator']},
+  ]},
+  {name:'Governed acceptance revision and durable recovery',files:[
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['createIntentRevision','verification_intent_recover','restoreIntentCheckpoint','AMENDMENT_RECOVERY_REASON_REQUIRED']},
+    {relPath:'packages/main/src/core/verification-intent-amendment.ts',patterns:['proof-or-stop.intent-revision.v1','AMENDMENT_REPLAN_REQUIRED','IntentAmendmentIntegrityError','beforeScopeHash']},
+    {relPath:'packages/main/src/core/verification-intent-checkpoint.ts',patterns:['proof-or-stop-intent-checkpoints','verifyValidationArtifact','AMENDMENT_CHECKPOINT_HISTORY_GAP','linkSync(temp,path)','AMENDMENT_CHECKPOINT_PROJECTION_MISMATCH','refs/proof-or-stop/intent-checkpoints/','update-ref','commit-tree','AMENDMENT_CHECKPOINT_ANCHOR_INVALID','for-each-ref','cat-file','AMENDMENT_CHECKPOINT_ROLLBACK','AMENDMENT_CHECKPOINT_MIRROR_CONFLICT','AMENDMENT_CHECKPOINT_ANCHOR_WRITE_FAILED','reconcileMirror(directory,records)','inspectIntentCheckpointRecovery','repairIntentCheckpointStorage','AMENDMENT_CHECKPOINT_SIGNED_MIRROR_CONFLICT','validateCheckpoints','assertIntentAmendmentItems',"'.quarantine-'"]},
+    {relPath:'packages/main/src/core/store.ts',patterns:['assertIntentCheckpointProjection','writeIntentCheckpoint','restoreIntentCheckpoint','digestCanonicalJson(prefix ?? null)']},
+    {relPath:'packages/main/src/core/canonical-story.ts',patterns:['rethrowIntentAmendmentIntegrityError(error)']},
+    {relPath:'docs/validation-performance.md',patterns:['verification_intent_recover','INIT/PLAN','checkpoint']},
+  ]},
+  {name:'Pinned implementation and original batch publication',files:[
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['implementationDigest','currentImplementationDigest','execution_implementation_changed','enforceWithPublicationRecovery','publicationRecoveryKey']},
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['createCausalPublicationRecovery','verifyCausalPublicationRecovery','proof-or-stop.causal-publication-recovery.v1']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readPendingPublication','writePendingPublication','removePendingPublication','publication_recovery_invalid']},
+    {relPath:'packages/main/src/cli-engine.ts',patterns:['enforceExecutionImplementationPin();','--implementation-identity','enforcedImplementationIdentity ?? executionImplementationIdentity()']},
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:["withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add'","withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add'",'commitCanonicalCausalEvidence']},
+    {relPath:'docs/validation-performance.md',patterns:['PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN','verification_evidence_batch_add','opt-in']},
+  ]},
   {
     name: 'Production validation sharing and bounded repair authority',
     files: [
@@ -8904,8 +9939,10 @@ const inventory = [
       {relPath:'scripts/verify-liveness-validation-union.mjs',patterns:['U18_LIVENESS_UNION_REQUIRED','U18_NESTED_REGISTERED_MEMBER','provider-codex F181 independent child CLI boundary PASS']},
       {relPath:'scripts/verify-convergence-net-progress.mjs',patterns:['verified blocker reduction must not be classified as a stall','canMintReviewRoundGuard(ctx)']},
       {relPath:'scripts/verify-shared-output-boundary.mjs',patterns:['truncated capture must never become reusable evidence','receipt digest binds complete captured output','exactly 12000 complete characters remain reusable']},
+      {relPath:'packages/main/src/handlers/verifier.ts',patterns:['validate?.sharedExecution === true']},
+      {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['resolveCausalToolVersion(_projectRoot: string)', 'return PROOF_OR_STOP_CLI_VERSION']},
       {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},
-      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt']},
+      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt','executionImplementationIdentity().digest','implementationDigest']},
       {relPath:'packages/main/src/core/review-inventory-epoch.ts',patterns:['review-remediation-only','remediation-only receipt cannot enter certification','rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount']},
       {relPath:'packages/main/src/handlers/transition-effects.ts',patterns:['--remediation','cannot enter certification or TEST']},
       {relPath:'docs/validation-performance.md',patterns:['exact-inputs','forbidden','--remediation','no Story-wide speedup']},
@@ -8915,8 +9952,9 @@ const inventory = [
     name: 'Explicit Lab maintenance integration boundary',
     files: [
       { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
-      { relPath: 'scripts/lab-worktree.mjs', patterns: ['acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', '--ff-only', "phase = 'verified'", "'branch', '-d'"] },
-      { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
+      { relPath: 'scripts/verify-lab-story-carry-forward.mjs', patterns: ['tamper Story hash binding', 'tamper Story receipt authenticity', 'add open Finding', 'exceed bounded baseline failures', 'product change after evidence', 'overlaps dirty main paths', 'trace_incomplete', 'candidate-story-integration', 'main-story-integration'] },
+      { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm', 'Carry a blocked Story patch', 'not Story DONE', 'strict authoritative', 'normalized diagnostic identity', 'bounded dynamic revalidation'] },
     ],
   },
 
@@ -9407,6 +10445,44 @@ for (const dir of promptDirs) {
 }
 await comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
+{
+  const admissibility = read('packages/main/src/core/proof-admissibility.ts');
+  const verification = read('packages/main/src/core/verification.ts');
+  assert(admissibility.includes('evaluateVerificationEvidenceForGate'), 'verification receipt lifecycle evaluator must be authoritative in proof-admissibility');
+  assert(admissibility.includes('validateVerificationReceipt'), 'verification lifecycle evaluator must validate receipt and full-output artifact integrity');
+  assert(admissibility.includes('VERIFICATION_RECEIPT_BUNDLE_V5'), 'verification lifecycle evaluator must require the publication-bound v5 receipt bundle');
+  for (const code of ['verification_receipt_missing', 'verification_receipt_legacy', 'verification_receipt_invalid', 'verification_receipt_stale', 'verification_receipt_not_passing', 'verification_reuse_incomplete']) {
+    assert(admissibility.includes(code), `verification lifecycle evaluator missing stable diagnostic: ${code}`);
+  }
+  assert(verification.includes('receiptAdmissibility'), 'verification coverage must consume a gate-owned receipt admissibility callback');
+  assert(verification.includes('nonMechanicalReason: decision.detail'), 'verification coverage must preserve stable receipt diagnostics on denied rows');
+  const maintenance = read('packages/main/src/handlers/checklist.ts');
+  for (const token of ['hasStaleLegacyMetadata', "entry.status !== 'non_mechanical'", 'evidence.receipt',
+    'evidence.mechanical === true', '!evidence.headHash', "evidence.kind === 'waiver'", "evidence.result === 'fail'",
+    'resolved.intent.verification', 'checkEvidenceFreshnessForGit(', 'createVerificationEvidenceGateEvaluator(root, storyId)']) {
+    assert(maintenance.includes(token), `legacy metadata maintenance must preserve its narrow non-authoritative boundary: ${token}`);
+  }
+  const regression = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  for (const token of ['partMLegacyMetadataMaintenance', 'partNLiveProducerOwnership',
+    'metadata never grants execution authority', 'dry-run is read-only', 'unexecuted command-backed PASS is explicitly demoted']) {
+    assert(regression.includes(token), `receipt maintenance and producer ownership regression missing: ${token}`);
+  }
+  for (const consumerPath of [
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/certification-window.ts',
+  ]) {
+    const source = read(consumerPath);
+    const direct = source.includes('createVerificationEvidenceGateEvaluator');
+    const shared = consumerPath === 'packages/main/src/handlers/phase-gates.ts'
+      && source.includes("from './validation-pass-admissibility.js'") && source.includes('assessStoredValidationPassAdmissibility(ctx, storyId)')
+      && read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId)');
+    assert(direct || shared, `${consumerPath}: actual gate/reader must use authoritative verification receipt evaluator`);
+  }
+}
 for (const relPath of [
   'packages/main/src/cli-engine.ts',
   commandPolicyPath,
@@ -9424,6 +10500,7 @@ for (const issue of scanCodeLikeStringArrayConst(
 assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
+assertCurrentVerificationReceiptModel();
 assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
@@ -9462,6 +10539,9 @@ assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
 assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
+assertCurrentPromptIdentityBoundary();
+assertCapabilityMaterialContract();
+assertStoryWriterRuntimeAdmissionContract();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
@@ -9505,6 +10585,7 @@ if (failures.length) {
 
 console.log('');
 console.log('Process fact contract verified');
+console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
 
 // U11 tool-owned progress must stay bound to real inventory and evidence verifiers.

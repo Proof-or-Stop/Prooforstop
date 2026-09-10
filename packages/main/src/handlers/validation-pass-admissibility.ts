@@ -1,3 +1,4 @@
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
 import type { HandlerContext } from './context.js';
@@ -53,7 +54,7 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
       ctx.root,
       evidence?.storyFilesHash,
     ).fresh,
-    { deferredGateEvidence: 'missing', evidenceQualityProfile: policy.profile },
+    { deferredGateEvidence: 'missing', evidenceQualityProfile: policy.profile, receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId) },
   );
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }

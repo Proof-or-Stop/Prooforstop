@@ -372,7 +372,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'review_escalation_policy_set');
       if (wantsJson(args)) {
         return {
-          schemaVersion: 'lattice.review_escalation_policy_set.v1',
+          schemaVersion: 'proof-or-stop.review_escalation_policy_set.v1',
           policyId,
           predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
           requires3x2: true,
@@ -550,7 +550,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'review_escalation_fallback_set');
       if (wantsJson(args)) {
         return {
-          schemaVersion: 'lattice.review_escalation_fallback_set.v1',
+          schemaVersion: 'proof-or-stop.review_escalation_fallback_set.v1',
           fallbackId,
           materialHash: freshMaterialHash,
           ...(storyFilesHash ? { storyFilesHash } : {}),

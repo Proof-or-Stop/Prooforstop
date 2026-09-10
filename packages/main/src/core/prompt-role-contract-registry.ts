@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
 
 import {
+  CURRENT_PROMPT_IDENTITIES,
   canonicalJsonStringify,
   domainSeparatedDigest,
   type RoleContract,
@@ -13,6 +14,7 @@ import {
 } from './prompt-contracts.js';
 import {
   MODULAR_COMPLEX_ROLE_IDS,
+  assertPromptRegistrySnapshotIdentity,
   isModularReviewerRoleId,
   readPromptRegistry,
   projectPromptAsset,
@@ -23,13 +25,10 @@ import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.j
 import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
-
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proof-or-stop.prompt-role-contract-registry.v1';
-export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION_LEGACY = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proof-or-stop.prompt-envelope-rollout.v1';
-export const PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY = 'proofbound.prompt-envelope-rollout.v1';
-export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
-export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
+export type PromptEnvelopeRolloutMode = 'full-envelope';
+export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
 
 export interface ResolvedPromptRoleBody {
@@ -37,11 +36,10 @@ export interface ResolvedPromptRoleBody {
   mode: PromptEnvelopeRolloutMode;
   body: string;
   bodyDigest: string;
-  legacyBytesRestored: boolean;
 }
 
 export interface ReviewerHostRenderIdentity {
-  schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' | 'proofbound.reviewer-host-render-identity.v1';
+  schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1';
   roleId: string;
   rolloutMode: PromptEnvelopeRolloutMode;
   host: PromptHost;
@@ -410,7 +408,7 @@ export class PromptRoleContractRegistryError extends Error {
 
 function roleSemanticValue(roleId: string, policy: RolePolicy): Record<string, unknown> {
   return {
-    schemaVersion: ROLE_CONTRACT_SCHEMA,
+    schemaVersion: CURRENT_PROMPT_IDENTITIES.roleContract,
     registryVersion: PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
     roleId,
     status: policy.status,
@@ -428,12 +426,13 @@ function roleSemanticValue(roleId: string, policy: RolePolicy): Record<string, u
 }
 
 export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = readPromptRegistry()): RoleContract[] {
+  assertPromptRegistrySnapshotIdentity(snapshot);
   const expectedIds = snapshot.agents.map(entry => entry.agentId);
   validatePromptRolePolicyDefinition(ROLE_POLICIES, expectedIds);
   const contracts = snapshot.agents.map(entry => {
     const policy = ROLE_POLICIES[entry.agentId]!;
     const contract: RoleContract = {
-      schemaVersion: ROLE_CONTRACT_SCHEMA,
+      schemaVersion: CURRENT_PROMPT_IDENTITIES.roleContract,
       roleId: entry.agentId,
       status: policy.status,
       ...(policy.replacementAgentType ? { replacementAgentType: policy.replacementAgentType } : {}),
@@ -468,7 +467,14 @@ export function validatePromptRolePolicyDefinition(
   if (duplicateExpected) throw new PromptRoleContractRegistryError(`prompt registry contains duplicate role "${duplicateExpected}"`);
   const expected = new Set(expectedRoleIds);
   for (const roleId of actual) {
-    if (!expected.has(roleId)) throw new PromptRoleContractRegistryError(`unknown prompt role policy "${roleId}"`);
+    if (!expected.has(roleId)) {
+      // The independent package snapshot identifies absent canonical policies;
+      // no spelling conversion can establish an unknown role's counterpart.
+      const missing = expectedRoleIds.filter(id => !Object.prototype.hasOwnProperty.call(policies, id));
+      const missingSites = missing.map(id => `packages/main/src/core/prompt-role-contract-registry.ts#${id}`);
+      const detail = missingSites.length > 0 ? `; missing canonical policy source sites: ${JSON.stringify(missingSites)}` : '';
+      throw new PromptRoleContractRegistryError(`unknown prompt role policy "${roleId}"${detail}`);
+    }
   }
   for (const roleId of expectedRoleIds) {
     if (!Object.prototype.hasOwnProperty.call(policies, roleId)) throw new PromptRoleContractRegistryError(`missing prompt role policy "${roleId}"`);
@@ -623,9 +629,8 @@ export function resolvePromptEnvelopeRolloutMode(
   roleId: string,
   config: unknown,
 ): PromptEnvelopeRolloutMode {
-  const canonicalRoleId = canonicalAgentRoleId(roleId);
-  const contract = promptRoleContract(canonicalRoleId);
-  if (config === undefined || config === null) return 'legacy-full-context';
+  const contract = promptRoleContract(roleId);
+  if (config === undefined || config === null) return 'full-envelope';
   if (typeof config !== 'object' || Array.isArray(config) || Object.getPrototypeOf(config) !== Object.prototype) {
     throw new PromptRoleContractRegistryError('promptEnvelope config must be a plain object');
   }
@@ -633,40 +638,30 @@ export function resolvePromptEnvelopeRolloutMode(
   for (const key of Object.keys(record)) {
     if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
   }
-  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION
-    && record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY) {
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
     throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
   }
   if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {
     throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
   }
   const roles = record.roles as Record<string, unknown>;
-  const logicalRoles = new Map<string, { key: string; mode: unknown }>();
   for (const key of Object.keys(roles)) {
-    const canonicalKey = canonicalAgentRoleId(key);
-    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(canonicalKey)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
-    const previous = logicalRoles.get(canonicalKey);
-    if (previous) {
-      throw new PromptRoleContractRegistryError(
-        `promptEnvelope.roles contains duplicate logical role "${canonicalKey}" via keys "${previous.key}" and "${key}"`,
-      );
-    }
-    logicalRoles.set(canonicalKey, { key, mode: roles[key] });
-    if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
+    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    if (roles[key] !== 'full-envelope') {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
     }
-    if (roles[key] === 'full-envelope' && promptRoleContract(canonicalKey).status !== 'active') {
-      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(canonicalKey).status} and cannot enable full-envelope`);
+    if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
+      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
     }
-    if (!isModularReviewerRoleId(canonicalKey) && !MODULAR_COMPLEX_ROLE_IDS.includes(canonicalKey as typeof MODULAR_COMPLEX_ROLE_IDS[number])) {
+    if (!isModularReviewerRoleId(key) && !MODULAR_COMPLEX_ROLE_IDS.includes(key as typeof MODULAR_COMPLEX_ROLE_IDS[number])) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the approved modular rollout`);
     }
   }
   if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
     throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
   }
-  const configured = logicalRoles.get(contract.roleId)?.mode;
-  return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
+  const configured = roles[contract.roleId];
+  return configured === undefined ? 'full-envelope' : configured as PromptEnvelopeRolloutMode;
 }
 
 export function resolvePromptRoleBody(
@@ -685,6 +680,5 @@ export function resolvePromptRoleBody(
     mode,
     body,
     bodyDigest: domainSeparatedDigest(`reviewer-role-body.${mode}.raw-utf8.v1`, body),
-    legacyBytesRestored: projection.legacyBytesRestored,
   });
 }

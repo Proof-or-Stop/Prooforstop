@@ -36,7 +36,7 @@ import {
 } from '../handlers/english-artifact-gate.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-  // packageRoot is packages/main/dist; repository guidance is three levels above it.
+// packageRoot is packages/main/dist; guides live three levels above it.
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
 const cliPath = join(packageRoot, 'cli.js');
 const STORY_DIR = '.proof-or-stop/story/actives';

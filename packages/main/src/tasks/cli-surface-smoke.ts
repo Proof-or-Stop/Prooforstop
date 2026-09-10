@@ -114,6 +114,18 @@ assert.deepEqual(
   normalizeNestedSpaceAlias(['host', 'run', '--host=local', '--dryRun']).argv,
   ['host_run', '--host=local', '--dryRun'],
 );
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'eval', '{}']).argv, ['lab_eval', '{}']);
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'help']).argv, ['lab_help']);
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'compare', '--config=experiment.json']).argv,
+  ['lab_compare', '--config=experiment.json']);
+assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'promote', '--config=experiment.json']).argv,
+  ['lab_promote', '--config=experiment.json']);
+for (const command of ['lab_help', 'lab_create', 'lab_run', 'lab_eval', 'lab_compare', 'lab_promote']) {
+  const flat = normalizeNestedSpaceAlias([command, '--help']);
+  assert.equal(flat.matched, false, `${command}: flat command must remain unchanged`);
+  assert.deepEqual(flat.argv, [command, '--help']);
+}
+assert.equal(normalizeNestedSpaceAlias(['lab', 'unknown']).matched, false, 'unknown Lab subcommands are not normalized');
 assert.deepEqual(normalizeNestedSpaceAlias(['dispatch', 'status', '{}']).argv, ['dispatch_status', '{}']);
 assert.deepEqual(normalizeNestedSpaceAlias(['host', 'list']).argv, ['host_list']);
 function assertCurrentConfigAliases(): void {
@@ -126,9 +138,8 @@ function assertCurrentConfigAliases(): void {
   }, 'config aliases must target the current registered commands');
 }
 assertCurrentConfigAliases();
-for (const prefix of [[], ['proof-or-stop'], ['lattice']]) {
-  // Canonical Lab commands remain public; tolerating a redundant historical
-  // bin token does not advertise that token or register a retired command.
+for (const prefix of [[], ['proof-or-stop']]) {
+  // Preserve main's public Lab coverage without restoring retired bin admission.
   for (const action of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
     const observed = normalizeNestedSpaceAlias([...prefix, 'lab', action, '--help']);
     assert.equal(observed.matched, true,
@@ -216,7 +227,7 @@ const versionThroughProofOrStopNamespace = runCli(['proof-or-stop', 'version']);
 assert.match(versionThroughProofOrStopNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');
 
 const hostRuntimeList = runJson<{ schemaVersion: string }>(['proof-or-stop', 'host', 'runtime', 'list', '--json']);
-assert.equal(hostRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');
+assert.equal(hostRuntimeList.schemaVersion, 'proof-or-stop.host_runtime_list.v1');
 
 const hostRuntimeProbe = runJson<{ schemaVersion: string; host: string; requestedHost: string }>([
   'host',
@@ -224,7 +235,7 @@ const hostRuntimeProbe = runJson<{ schemaVersion: string; host: string; requeste
   'probe',
   JSON.stringify({ host: 'agy', json: true }),
 ]);
-assert.equal(hostRuntimeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+assert.equal(hostRuntimeProbe.schemaVersion, 'proof-or-stop.host_runtime_probe.v1');
 assert.equal(hostRuntimeProbe.host, 'antigravity');
 assert.equal(hostRuntimeProbe.requestedHost, 'agy');
 
@@ -234,7 +245,7 @@ const configDoctor = runJson<{ schemaVersion: string; migration: { cliFirst: boo
   'doctor',
   '--json',
 ]);
-assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
+assert.equal(configDoctor.schemaVersion, 'proof-or-stop.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 const configRepairHelp = runCli(['proof-or-stop', 'config', 'repair', '--help']);
 assert.match(configRepairHelp, /--setGitRoot|--set-git-root/, 'nested repair reaches its registered argument contract');
@@ -246,7 +257,7 @@ const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolea
   'explain',
   '--json',
 ]);
-assert.equal(conduitExplain.schemaVersion, 'lattice.conduit_explain.v1');
+assert.equal(conduitExplain.schemaVersion, 'proof-or-stop.conduit_explain.v1');
 assert.equal(conduitExplain.authorityChanged, false);
 
 const invalidRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-cli-surface-root-'));

@@ -248,7 +248,7 @@ function exerciseFailingLifecycleMode(mode: 'observe' | 'warn' | 'enforce'): { r
     store.writeScopeContract(storyId, scopeContract());
     store.writeScopeCheck(storyId, scopeCheck(root));
     const reviewAt = '2026-07-22T00:00:01.000Z';
-    const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:lattice-review-integrity-v1`).digest('hex');
+    const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:proof-or-stop-review-integrity-v1`).digest('hex');
     store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', `seed ${mode} failing topology`]);
@@ -551,7 +551,7 @@ try {
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'enable enforce mode']);
   const reviewAt = '2026-07-22T00:00:01.000Z';
-  const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:lattice-review-integrity-v1`).digest('hex');
+  const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:proof-or-stop-review-integrity-v1`).digest('hex');
   store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'record clean plan review']);

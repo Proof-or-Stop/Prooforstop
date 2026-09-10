@@ -181,7 +181,7 @@ function recordOutcome(
 function decisionFor(root: string, playbook: Playbook, action: PlaybookPromotionDecisionRow['action']): PlaybookPromotionDecisionRow {
   const aggregate = aggregatePlaybookPromotion(playbook, [], []);
   return {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: `PBD-${playbook.id}-${action}`,
     idempotencyKey: `seed:${playbook.id}:${action}:${aggregate.aggregateDigest}`,
     decidedAt: NOW,
@@ -470,7 +470,7 @@ try {
     const inheritedDecision = Object.create(validDecision);
     assert.equal(validatePlaybookPromotionDecisionRow(inheritedDecision).ok, false);
     const validOutcome = {
-      schemaVersion: 'proofbound.playbook-outcome.v1',
+      schemaVersion: 'proof-or-stop.playbook-outcome.v1',
       eventId: 'PBO-owned',
       idempotencyKey: 'owned',
       observedAt: NOW,

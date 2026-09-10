@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
 import {
+  containsRetiredMemoryIdentity,
   readGlobalMemoryEntries,
   readProjectMemoryEntries,
   type DevMemoryEntry,
@@ -29,7 +30,7 @@ import type {
   RuntimeConsumer,
 } from './playbook-runtime-memory.js';
 
-export const RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION = 'proofbound.runtime-memory-pack-cache.v1' as const;
+export const RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION = 'proof-or-stop.runtime-memory-pack-cache.v1' as const;
 
 type SourceKind = 'dev-memory' | 'playbook' | 'signature-registry';
 
@@ -423,6 +424,10 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
     rememberStatsMiss('empty', lookupDigest);
     return { hit: false, reason: 'empty' };
   }
+  if (containsRetiredMemoryIdentity(entry.pack)) {
+    rememberStatsMiss('noncanonical-identity', lookupDigest);
+    return { hit: false, reason: 'noncanonical-identity' };
+  }
 
   const currentIndexVersion = context.runtimeIndex?.manifest.indexVersion ?? null;
   const currentSourceDigests = sourceDigestsFor(context);
@@ -471,6 +476,7 @@ export function rememberRuntimeMemoryPackCache(
 ): RuntimeMemoryPackCacheKey {
   const contributionTuple = contributionTupleFromRefs(pack.results.contributingSourceRefs, context);
   const cacheKey = buildRuntimeMemoryPackCacheKey(context, contributionTuple);
+  if (containsRetiredMemoryIdentity(pack)) return cacheKey;
   const entry: RuntimeMemoryPackCacheEntry = {
     lookupDigest: cacheKey.lookupDigest,
     cacheKey,

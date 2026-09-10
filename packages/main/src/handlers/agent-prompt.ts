@@ -3,11 +3,10 @@
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
  * host render: a body-free `review_run_start` bootstrap for the five active
- * REVIEW lanes among the six migrated reviewer definitions, the rollout-selected
- * body for migrated complex roles, and the package role body for ordinary roles
- * (including topology-critic). For the five active REVIEW lanes,
- * `review_run_start` selects and returns exactly one legacy or modular body.
- * Codex registry mode resolves the same bootstrap/body split.
+ * REVIEW lanes among the six migrated reviewer definitions, the current
+ * full-envelope body for complex roles, and the package body for ordinary
+ * roles (including topology-critic). For active REVIEW lanes, `review_run_start`
+ * selects exactly one current role body. Codex uses the same bootstrap/body split.
  *
  * Contract: docs/requirements/decisions/lifecycle-artifact-scope.md
  *   §"Policy: host-neutral prompt content, thin host adapters (B-097f)" point 2.
@@ -21,12 +20,15 @@
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
+  PROMPT_REGISTRY_VERSION,
   type PromptRegistryEntry,
 } from '../core/prompt-registry.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import {
   ACTIVE_MODULAR_COMPLEX_ROLE_IDS,
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
@@ -46,7 +48,6 @@ import {
 import { getSessionId } from '../core/owner-session.js';
 import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
 import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -101,6 +102,7 @@ function validateAgentPromptArgs(args: unknown): asserts args is AgentPromptArgs
 export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     agent_prompt(args: AgentPromptArgs = {}): string {
+      assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION);
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
@@ -142,10 +144,6 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       if (!args.storyId || !ctx) {
         return renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
-
-      // Rollback is exact: a disabled role follows the original no-Story path
-      // even when a host still supplies storyId/format during rollout.
-      if (resolvedRoleBody.mode === 'legacy-full-context' && !args.auditExperiment) return rolePrompt;
 
       const storyId = args.storyId.trim();
       const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
@@ -192,7 +190,6 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
-          legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
           auditOnly: true,
           auditExperiment: true,
           canMintReviewEvidence: false,
@@ -263,7 +260,6 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
-          legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
           auditOnly: true,
           ...(args.auditExperiment ? { auditExperiment: true } : {}),
           canMintReviewEvidence: false,

@@ -31,8 +31,8 @@ import {
   validatePlaybook,
 } from './learning-store.js';
 
-export const SOURCE_LINEAGE_AUDIT_SCHEMA_VERSION = 'proofbound.source-lineage-audit.v1' as const;
-export const SOURCE_LINEAGE_CANONICAL_KEY_VERSION: SourceLineageCanonicalKeyVersion = 'proofbound.learning-source-key.v1';
+export const SOURCE_LINEAGE_AUDIT_SCHEMA_VERSION = 'proof-or-stop.source-lineage-audit.v1' as const;
+export const SOURCE_LINEAGE_CANONICAL_KEY_VERSION: SourceLineageCanonicalKeyVersion = 'proof-or-stop.learning-source-key.v1';
 
 const CANONICALIZATION_POLICY = {
   version: SOURCE_LINEAGE_CANONICAL_KEY_VERSION,

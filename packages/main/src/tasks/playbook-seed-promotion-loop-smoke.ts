@@ -271,7 +271,7 @@ function unrelatedSeedProposal(): PlaybookProposal {
       sourceArtifactId: 'mem-unrelated-preexisting',
       sourceRef: 'smoke:unrelated-preexisting',
       canonicalSourceKey: 'PBLS-unrelatedpre001',
-      canonicalSourceKeyVersion: 'proofbound.learning-source-key.v1',
+      canonicalSourceKeyVersion: 'proof-or-stop.learning-source-key.v1',
       canonicalizationPolicyHash: 'smoke-unrelated-canonicalization',
     },
     status: 'proposed',
@@ -412,7 +412,7 @@ function playbook(id: string, status: Playbook['status'], keyword: string): Play
 
 function doneSettlementOutcome(playbookId: string): PlaybookOutcomeEvent {
   return {
-    schemaVersion: 'proofbound.playbook-outcome.v1',
+    schemaVersion: 'proof-or-stop.playbook-outcome.v1',
     eventId: 'PBO-DONE-NEUTRAL',
     idempotencyKey: 'done-neutral',
     observedAt: NOW,
@@ -531,7 +531,7 @@ function appendAppliedRecommendActivateDecision(root: string, playbook: Playbook
   const evaluation = evaluatePlaybookPromotion(aggregate);
   assert.equal(evaluation.action, 'recommend_activate');
   const row: PlaybookPromotionDecisionRow = {
-    schemaVersion: 'proofbound.playbook-promotion-decision.v1',
+    schemaVersion: 'proof-or-stop.playbook-promotion-decision.v1',
     decisionId: 'PBD-SMOKE-STALE',
     idempotencyKey: [
       'playbook-promotion-v1',

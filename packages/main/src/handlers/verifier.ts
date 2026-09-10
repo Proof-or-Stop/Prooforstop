@@ -3,6 +3,7 @@ import { signTestValidationEvidence, verifyTestValidationEvidence } from '../cor
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * @task B-9cec
  * @checklist CHK-001
@@ -69,7 +70,8 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
+import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -106,7 +108,7 @@ import {
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
 import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
-import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
+import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -673,9 +675,13 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       cl,
       head,
       (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
-      { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
+      {
+        deferredGateEvidence: 'missing',
+        evidenceQualityProfile: effectivePolicy.profile,
+        receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+      },
     );
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return result;
   }
   const rendered = renderVerificationCoverage(coverage, verificationPolicy);
@@ -711,7 +717,11 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
     checklist,
     head,
     (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
-    { deferredGateEvidence: 'missing', evidenceQualityProfile: workflowPolicy.profile },
+    {
+      deferredGateEvidence: 'missing',
+      evidenceQualityProfile: workflowPolicy.profile,
+      receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId),
+    },
   );
   return {
     checklist,
@@ -859,6 +869,8 @@ function reusedStoryValidationResult(args: {
   reuse: RoutineValidationReuseEvaluation;
   focus?: string;
   warn?: boolean;
+  resolvedDynamicMode?: DynamicValidationMode;
+  dynamicValidation?: Record<string, unknown>;
 }): any {
   const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
   let priorOutput: any;
@@ -894,6 +906,7 @@ function reusedStoryValidationResult(args: {
     commandExecutions: 0,
     verificationPolicy: args.snapshot.verificationPolicy,
     verificationCoverage: args.snapshot.coverage,
+    ...(args.dynamicValidation ? { dynamicValidation: args.dynamicValidation } : {}),
     reuse: {
       lineage: args.reuse.lineage,
       existingEvidenceBasis: args.reuse.existingEvidenceBasis,
@@ -968,6 +981,9 @@ function reusedStoryValidationResult(args: {
       commandExecution: priorCommandExecution,
       disposition: 'reused',
       routineValidationIdentity: args.identity,
+      resolvedDynamicMode: args.resolvedDynamicMode ?? 'off',
+      ...(args.resolvedDynamicMode === 'enforce-low-risk' ? {} : { reuseAdmission: args.resolvedDynamicMode === 'observe' ? 'observe-opt-in' as const : 'mode-off' as const }),
+      ...(priorEvidence.dynamicRevocationLedgerDigest ? { dynamicRevocationLedgerDigest: priorEvidence.dynamicRevocationLedgerDigest } : {}),
     }, args.gitCwd),
   });
   const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
@@ -1017,6 +1033,88 @@ function reusedStoryValidationResult(args: {
     });
   }
   return reused;
+}
+
+/** Selection remains advisory. A reused complete PASS is never a fresh observe oracle. */
+function tryReuseRoutinePass(args: {
+  ctx: HandlerContext;
+  storyId: string;
+  gitCwd: string;
+  commands: ValidationCommand[];
+  dynamicMode: DynamicValidationMode;
+  observeOptIn: boolean;
+  focus?: string;
+  built: NonNullable<ReturnType<typeof buildStoryRoutineIdentity>>;
+  reuse: RoutineValidationReuseEvaluation;
+  rebuild: () => ReturnType<typeof buildStoryRoutineIdentity>;
+}): any | null {
+  if (!args.reuse.reusable || args.focus) return null;
+  if (args.dynamicMode === 'enforce-low-risk') {
+    const prior = args.ctx.store.readTestEvidence(args.storyId);
+    let output: any;
+    try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return null; }
+    if (output?.dynamicValidation?.authority !== 'enforce-authority'
+      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok) return null;
+    args.ctx.log?.('routine dynamic validation reused; commandExecutions=0');
+    return reusedStoryValidationResult({
+      ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'enforce-low-risk',
+    });
+  }
+  if (args.dynamicMode === 'off') {
+    args.ctx.log?.('routine validation reused; commandExecutions=0');
+    return reusedStoryValidationResult({
+      ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'off',
+    });
+  }
+  if (args.dynamicMode !== 'observe' || !args.observeOptIn) return null;
+  try {
+    const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
+    const priorBasis = readRoutineReuseRevocationBasis(args.ctx.root, args.storyId);
+    // The ledger has no timestamp. Bind its signed content digest instead of
+    // inventing temporal ordering or trusting a missing/corrupt cache as empty.
+    if (!priorBasis || priorEvidence?.dynamicRevocationLedgerDigest !== priorBasis) return null;
+    const preparationHead = currentHead(args.gitCwd);
+    if (!preparationHead) return null;
+    const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], { cwd: args.gitCwd, encoding: 'utf8' }).trim();
+    const priorArtifacts = readStoryAwareValidationArtifacts(args.ctx.root, args.storyId);
+    const dynamic = prepareStoryAwareValidation({
+      projectRoot: args.ctx.root, storyId: args.storyId, gitCwd: args.gitCwd,
+      baseHead, head: preparationHead, mode: 'observe', commands: args.commands,
+      ...storyDynamicInputs(args.ctx, args.storyId),
+      receipts: priorArtifacts.receipts, revocationLedger: priorArtifacts.revocationLedger,
+    });
+    persistStoryAwareValidationArtifacts({
+      projectRoot: args.ctx.root, storyId: args.storyId, manifest: dynamic.manifest,
+      report: `${dynamic.report}\nAdvisory selection prepared; complete PASS reuse still requires a fresh check. No fresh observe oracle is claimed by this report.`,
+      receipts: priorArtifacts.receipts, revocationLedger: dynamic.revocationLedger,
+      preserveExistingReceipts: true,
+    });
+    args.ctx.log?.('observe selection persisted; checking complete PASS freshness again');
+    // Selection persistence is an intervening operation. Rebuild the full
+    // identity/coverage and double-read current Git inputs before consumption.
+    if (currentHead(args.gitCwd) !== preparationHead
+      || readRoutineReuseRevocationBasis(args.ctx.root, args.storyId) !== priorBasis) return null;
+    const current = args.rebuild();
+    if (!current || current.identity.digest !== args.built.identity.digest) return null;
+    const reuse = evaluateStoryRoutineReuse({
+      ctx: args.ctx, storyId: args.storyId, gitCwd: args.gitCwd,
+      identity: current.identity, coverage: current.snapshot.coverage,
+    });
+    if (!reuse.reusable) return null;
+    args.ctx.log?.('routine validation reused; commandExecutions=0');
+    return reusedStoryValidationResult({
+      ctx: args.ctx, storyId: args.storyId, gitCwd: args.gitCwd,
+      snapshot: current.snapshot, identity: current.identity, reuse, resolvedDynamicMode: 'observe',
+      dynamicValidation: {
+        mode: 'observe', manifest: dynamic.manifest, report: dynamic.report,
+        authority: 'observe-only', oracleStatus: 'not-run', receipts: 0,
+        reusedFromIdentityDigest: current.identity.digest,
+      },
+    });
+  } catch (error) {
+    args.ctx.log?.(`observe complete PASS reuse refused; executing: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
 }
 
 function recordValidationTerminal(
@@ -1110,6 +1208,8 @@ function persistStoryValidationEvidence(
   // string alone left a reachable wedge where an in-bound string produced an out-of-bound file, the
   // metadata commit hit the blob ceiling, and no story could persist evidence. What that measurement
   // does and does not settle is described on boundPersistedValidationEvidence.
+  const dynamicRevocationBasis = result.dynamicValidation?.mode
+    ? readRoutineReuseRevocationBasis(ctx.root, storyId) : null;
   const evidenceRecord = (output: string, hashes: {
     headHash?: string;
     materialHash?: string;
@@ -1135,6 +1235,10 @@ function persistStoryValidationEvidence(
     }),
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
+    ...(result.dynamicValidation?.mode ? {
+      resolvedDynamicMode: result.dynamicValidation.mode,
+      ...(dynamicRevocationBasis ? { dynamicRevocationLedgerDigest: dynamicRevocationBasis } : {}),
+    } : {}),
   });
   // ONE computation gates and writes. The gate used to run without the hashes and the write with
   // them, discarding the second measurement - two artifacts, one measured, the other stored. The
@@ -1548,6 +1652,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       full?: string | boolean;
       focus?: string;
       dynamicMode?: DynamicValidationMode;
+      reuseFreshRoutinePass?: boolean;
       story?: string;
       storyId?: string;
       json?: boolean;
@@ -1583,7 +1688,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const configuredDynamicMode = resolveDynamicMode(
         args.dynamicMode
         || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
-        || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
             || projectConfig.validation?.dynamic?.mode
             || projectConfig.validate?.dynamic?.mode,
       );
@@ -1618,7 +1722,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         command: 'validate',
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
-        sharedExecution: args.story && dynamicMode === 'off' ? {
+        sharedExecution: args.story && (dynamicMode === 'off' || projectConfig?.validate?.sharedExecution === true) ? {
           storyId: args.story, receiptStore: ctx.store,
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,
@@ -1796,11 +1900,15 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             : null;
           const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
           if (reuse?.reusable && built) {
-            ctx.log?.('routine validation reused; commandExecutions=0');
-            return reusedStoryValidationResult({
-              ctx, storyId: args.story!, gitCwd: handlerGitCwd,
-              snapshot: built.snapshot, identity: built.identity, reuse, focus,
+            const reused = tryReuseRoutinePass({
+              ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands, dynamicMode, focus,
+              observeOptIn: args.reuseFreshRoutinePass ?? projectConfig.validate?.reuseFreshRoutinePass ?? false,
+              built, reuse, rebuild: () => buildStoryRoutineIdentity({
+                ctx, storyId: args.story!, sourceKind: usingConfigured ? 'configured' : 'fallback',
+                commands, full: args.full, focus,
+              }),
             });
+            if (reused) return reused;
           }
           const launchGate = createRoutineValidationLaunchGate(ctx, args.story, commands, projectRoot, officialHeavyStoryValidate);
           let dynamicPreview: {
@@ -1899,7 +2007,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     receipts: dynamic.receipts.length,
                     selectedAllPass: dynamic.dynamicAllPass,
                     authoritativeResult: {
-                      provider: 'lattice-verifier-dynamic-authoritative',
+                      provider: 'proof-or-stop-verifier-dynamic-authoritative',
                       status: dynamic.dynamicAllPass ? 'pass' : 'fail',
                       allPass: dynamic.dynamicAllPass,
                       summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
@@ -1971,7 +2079,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               'full-plan oracle not run; supply --story',
             ];
             const preview = externalResult({
-              provider: 'lattice-verifier-dynamic-preview',
+              provider: 'proof-or-stop-verifier-dynamic-preview',
               status: 'warn',
               summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
               details: previewDetails,
@@ -2196,7 +2304,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const runValidateFile = (beforeLaunch?: () => void) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
         return executeValidationPlan({
-          provider: 'lattice-verifier-validate-file',
+          provider: 'proof-or-stop-verifier-validate-file',
           commands: [identityCommand],
           warnings: [],
           ...(focus ? { focus } : {}),
@@ -2226,7 +2334,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               changedFiles: [],
             });
             const preview = externalResult({
-              provider: 'lattice-verifier-dynamic-preview',
+              provider: 'proof-or-stop-verifier-dynamic-preview',
               status: 'warn',
               summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
               details: [dynamic.report, 'full-plan oracle not run; supply --story'],
@@ -2267,12 +2375,15 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
         if (reuse?.reusable && built) {
-          ctx.log?.('routine validation reused; commandExecutions=0');
-          const reused = reusedStoryValidationResult({
-            ctx, storyId: args.story!, gitCwd: handlerGitCwd,
-            snapshot: built.snapshot, identity: built.identity, reuse, focus,
+          const reused = tryReuseRoutinePass({
+            ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands: [identityCommand], dynamicMode, focus,
+            observeOptIn: args.reuseFreshRoutinePass ?? projectConfig.validate?.reuseFreshRoutinePass ?? false,
+            built, reuse, rebuild: () => buildStoryRoutineIdentity({
+              ctx, storyId: args.story!, sourceKind: 'validate-file', commands: [identityCommand],
+              full: args.full, focus, entrypointPath: join(projectRoot, validateFile),
+            }),
           });
-          return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
+          if (reused) return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
         const launchGate = createRoutineValidationLaunchGate(ctx, args.story, [identityCommand], projectRoot, officialHeavyStoryValidate);
         let dynamicValidation: any;
@@ -2332,7 +2443,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 receipts: dynamic.receipts.length,
                 selectedAllPass: dynamic.dynamicAllPass,
                 authoritativeResult: dynamic.authority.authoritative ? {
-                  provider: 'lattice-verifier-dynamic-authoritative',
+                  provider: 'proof-or-stop-verifier-dynamic-authoritative',
                   status: dynamic.dynamicAllPass ? 'pass' : 'fail',
                   allPass: dynamic.dynamicAllPass,
                   summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
@@ -2527,12 +2638,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               cl,
               head,
               (headHash, evidence) => evidenceFreshness(handlerGitCwd, projectRoot, headHash, evidence).fresh,
-              { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
+              {
+                deferredGateEvidence: 'missing',
+                evidenceQualityProfile: effectivePolicy.profile,
+                receiptAdmissibility: createVerificationEvidenceGateEvaluator(projectRoot, args.story),
+              },
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
             return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
-          } catch {
+          } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }

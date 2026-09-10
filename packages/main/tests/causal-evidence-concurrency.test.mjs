@@ -174,7 +174,7 @@ test('batch retries a non-pass exact key through one shared retry flight', async
 test('StoryStore single-flight preserves one exact receipt and concurrent index writes', async () => {
   const root = mkdtempSync(join(tmpdir(), 'causal-evidence-concurrency-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',

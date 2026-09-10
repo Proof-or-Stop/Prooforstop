@@ -21,9 +21,10 @@ const functionText = (text, name) => {
 };
 
 // F027: execute the real serializer, envelope integrity, signatures and prior
-// selector, without importing a potentially stale dist build. Keep these pure
-// modules in the same realm: canonical JSON deliberately rejects foreign object
-// prototypes. No review eligibility, integrity, or signature result is mocked.
+// selector. The current built reviewer registry supplies real lane eligibility;
+// this integration witness therefore requires the normal current-source build.
+// Keep modules in the same realm: canonical JSON rejects foreign prototypes.
+// No review eligibility, integrity, or signature result is mocked.
 export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('packages/main/src/core/review-run.ts', 'utf8')) {
   const nativeRequire = createRequire(import.meta.url);
   const modules = new Map();
@@ -43,6 +44,7 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
   };
   const contracts = load('packages/main/src/core/prompt-contracts.ts');
   const bindings = {
+    ...nativeRequire('../../dist/core/review-run.js'),
     ...contracts,
     ...load('packages/main/src/core/digest.ts'),
     ...load('packages/main/src/core/agent-role-identity.ts'),
@@ -55,7 +57,7 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
     && node.declarationList.declarations.some(declaration => declaration.name.getText() === name)).getText();
   const parts = [constantText(reviewSource, 'REVIEW_RUN_SALT'), constantText(passSource, 'REVIEW_PASS_SALT')];
   for (const [source, names] of [
-    [reviewSource, ['snapshotPromptEnvelopes', 'signReviewRun', 'verifyReviewRun']],
+    [reviewSource, ['snapshotPromptEnvelopes', 'signReviewRun', 'verifyReviewRunSignatureIntegrity', 'reviewRunPromptUsesCurrentIdentityFamily', 'verifyReviewRun']],
     [envelopeSource, ['promptEnvelopeSemanticValue', 'computePromptEnvelopeId', 'verifyPromptEnvelopeIntegrity']],
     [passSource, ['signReviewPass', 'verifyReviewPass']],
     [incrementalSource, ['verdictTime', 'latestTrustedPriorPass']],
@@ -67,15 +69,20 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
   const api = {};
   new Function(...Object.keys(bindings), 'exports', compiled)(...Object.values(bindings), api);
   const digest = 'a'.repeat(64);
-  const assembledPrompt = 'F027 signed prior reviewer prompt';
+  const assembledPrompt = [contracts.CURRENT_PROMPT_IDENTITIES.roleContract,
+    contracts.CURRENT_PROMPT_IDENTITIES.fullTaskContext,
+    contracts.CURRENT_PROMPT_IDENTITIES.knownExecutionEnvironment]
+    .map(schemaVersion => JSON.stringify({ schemaVersion })).join('\n');
   const role = 'proof-or-stop-review-test-coverage';
   const envelope = {
     schemaVersion: 'proof-or-stop.prompt-envelope.v1', envelopeId: digest,
     roleId: role, lane: role, storyId: 'B-probe', dispatchKind: 'review-run',
     reviewRunId: 'B-probe:RR-001', reviewRound: 'round-1', createdAt: '2026-09-05T00:00:00.000Z',
     headHash: 'b'.repeat(40), materialHash: digest, storyFilesHash: digest,
-    runtimeContractVersion: '1', roleContractVersion: '1', contextMode: 'full', eligibilityDecision: 'full',
-    assemblerVersion: '1', dispatchProtocolVersion: '1', tokenEstimatorVersion: '1', bytes: 10, lines: 1, estimatedTokens: 3,
+    runtimeContractVersion: contracts.CURRENT_PROMPT_IDENTITIES.runtimeContract,
+    roleContractVersion: contracts.CURRENT_PROMPT_IDENTITIES.roleContract, contextMode: 'full', eligibilityDecision: 'full',
+    assemblerVersion: contracts.CURRENT_PROMPT_IDENTITIES.assembler,
+    dispatchProtocolVersion: contracts.CURRENT_PROMPT_IDENTITIES.dispatchProtocol, tokenEstimatorVersion: '1', bytes: 10, lines: 1, estimatedTokens: 3,
     ...Object.fromEntries(['runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest',
       'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest',
       'dispatchPromptDigest', 'hostRenderIdentityDigest'].map(key => [key, digest])),
@@ -112,13 +119,15 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
   ]) {
     const raw = seal({ ...envelope, ...optional });
     const select = prior(raw);
-    assert.equal(api.verifyPromptEnvelopeIntegrity(raw), true, `${name}: raw integrity control`);
-    assert.equal(select([raw]), 'RP-001', `${name}: raw trusted-prior control`);
+    const canonical = raw.schemaVersion === envelope.schemaVersion;
+    const expectedPrior = canonical ? 'RP-001' : null;
+    assert.equal(api.verifyPromptEnvelopeIntegrity(raw), canonical, `${name}: raw identity/integrity control`);
+    assert.equal(select([raw]), expectedPrior, `${name}: only canonical evidence grants trusted-prior authority`);
     const snapshot = api.snapshotPromptEnvelopes([raw]);
-    const observed = { rawIntegrity: true, rawPrior: 'RP-001', snapshotIntegrity: api.verifyPromptEnvelopeIntegrity(snapshot[0]), snapshotPrior: select(snapshot) };
+    const observed = { rawIntegrity: canonical, rawPrior: expectedPrior, snapshotIntegrity: api.verifyPromptEnvelopeIntegrity(snapshot[0]), snapshotPrior: select(snapshot) };
     console.log(`F027 ${name}: ${JSON.stringify(observed)}`);
-    assert.equal(observed.snapshotIntegrity, true, `${name}: snapshot must preserve canonical envelope integrity`);
-    assert.equal(observed.snapshotPrior, 'RP-001', `${name}: snapshot must preserve trusted prior selection`);
+    assert.equal(observed.snapshotIntegrity, canonical, `${name}: snapshot must preserve identity rejection or canonical integrity`);
+    assert.equal(observed.snapshotPrior, expectedPrior, `${name}: snapshot must preserve trusted prior selection`);
     assert.equal(api.computePromptEnvelopeId(snapshot[0]), raw.envelopeId, `${name}: semantic digest unchanged`);
     assert.deepEqual(Reflect.ownKeys(snapshot[0]), Reflect.ownKeys(raw), `${name}: absence is not own undefined`);
     assert.ok(Object.isFrozen(snapshot) && Object.isFrozen(snapshot[0]));
@@ -287,6 +296,12 @@ function productionConsumers(machineSource, oracleSource, state) {
     exports: exported, process: { cwd: () => 'ROOT' },
     acceptanceCompletionBlocker: (inputStore, id, root) => { assert.equal(inputStore, store); assert.equal(id, 'B-probe'); assert.equal(root, 'GIT'); return state.amendment ?? null; },
     readDevMemoryFinishDecision: (root, id) => { calls.push(['finish', root, id]); return root === 'ROOT' && id === 'B-probe' ? state.finish : null; },
+    inspectDevMemoryFinishDecision: (root, id) => {
+      calls.push(['finish', root, id]);
+      return root === 'ROOT' && id === 'B-probe'
+        ? { record: state.finish, unsupportedIdentity: state.unsupportedFinishIdentity }
+        : { record: null };
+    },
     evaluateDeliveryCheckFreshness: (id, inputStore, gitCwd, root) => { calls.push(['delivery', id, gitCwd, root]); return state.delivery; },
     evaluateOptionalLiveSmokeTranscript: () => state.live,
     deliveryPromiseBlocksDone: promise => promise.status === 'unverified',
@@ -331,6 +346,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     ['bug open', f => { f.bugs.bugs = [{ id: 'BUG-1', status: 'open' }]; }, 'bugs-fixed', 'unfixed bug'],
     ['legacy bug status', f => { f.bugs.bugs = [{ id: 'BUG-1', status: 'unknown' }]; }, 'bugs-fixed', 'unfixed bug'],
     ['finish missing or malformed', f => { f.finish = null; }, 'dev-memory-finish-decision', 'missing_dev_memory_finish_decision'],
+    ['finish unsupported schema', f => { f.finish = null; f.unsupportedFinishIdentity = 'unsupported identity at ROOT/finish.json#schemaVersion: "retired-schema"'; }, 'dev-memory-finish-decision', 'unsupported_identity'],
     ['delivery missing', f => { f.delivery = { ok: false, code: 'missing_delivery_check', reason: 'missing', deliveryCheck: null }; }, 'delivery-check', 'missing_delivery_check'],
     ['delivery tampered', f => { Object.assign(f.delivery, { ok: false, code: 'delivery_check_tampered', reason: 'tampered' }); }, 'delivery-check', 'delivery_check_tampered'],
     ...[undefined, null, {}, [null], [3]].map(value => [`rejected malformed delivery ${JSON.stringify(value)}`, f => {
@@ -352,7 +368,16 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     const reason = api.getGuardFailureReason('B-probe', store, 'DONE', 'ROOT', 'GIT');
     if (diagnostic) assert.ok(reason?.includes(diagnostic), `${name}: diagnostic ${reason}`);
     else assert.equal(reason, null);
+    const finishReadsBefore = calls.filter(call => call[0] === 'finish').length;
     const rows = api.buildDoneChecklist('B-probe', store, 'ROOT', { gitCwd: 'GIT' });
+    assert.equal(calls.filter(call => call[0] === 'finish').length - finishReadsBefore, 1,
+      `${name}: oracle must consume one shared finish-decision inspection`);
+    if (diagnostic === 'unsupported_identity') {
+      const row = rows.find(row => row.id === rowId);
+      assert.ok(row.detail.includes(reason), 'unsupported-schema oracle must retain the actual guard diagnostic');
+      assert.doesNotMatch(JSON.stringify(row), /missing_dev_memory_finish_decision/,
+        'unsupported-schema oracle must not claim that the record is missing');
+    }
     if (rowId) assert.ok(rows.some(row => row.id === rowId && row.status === 'fail' && row.blocking), `${name}: emitted oracle rows ${JSON.stringify(rows)}`);
     else assert.ok(rows.every(row => !row.blocking), 'all-pass: oracle control');
     assert.equal(JSON.stringify(state), before, `${name}: readers must not mutate evidence`);

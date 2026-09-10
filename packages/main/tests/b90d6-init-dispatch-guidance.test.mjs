@@ -49,8 +49,8 @@ function ctx(root, store) {
 
 function initGitRoot(root) {
   execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'B90d6 Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'b90d6@example.local'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'Harmonynet'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
 }
@@ -299,6 +299,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
   const storyId = 'B-review';
   const root = makeRoot();
   try {
+    initGitRoot(root);
     const store = new StoryStore(root);
     seedStory(store, storyId, 'PLAN');
     store.writeUnderstanding(storyId, {
@@ -341,8 +342,13 @@ function assertScopePlanDispatchPhaseGate() {
       const dispatch = createStoryDispatchHandlers(ctx(root, store));
 
       assert.throws(
-        () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
+        () => dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' }),
         new RegExp(`(?:scope_check_save is PLAN-only; current phase ${phase} is unsupported|proof-or-stop-review-scope-plan cannot be dispatched during ${phase})`),
+      );
+      assert.throws(
+        () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
+        /unknown agentType/,
+        'retired scope reviewer spelling has no active dispatch authority in any phase',
       );
       assert.equal(
         store.readProcessEvents(storyId).some((event) => event.targetKind === 'scope-plan-review'),

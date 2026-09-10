@@ -303,7 +303,7 @@ Each arm-run produces a structured score record:
 
 ```ts
 interface ExperienceAblationScore {
-  schemaVersion: 'proofbound.experience-ablation-score.v1';
+  schemaVersion: 'proof-or-stop.experience-ablation-score.v1';
   experimentId: string;
   taskId: string;
   pairId: string;              // fixture id shared by the paired arm-runs

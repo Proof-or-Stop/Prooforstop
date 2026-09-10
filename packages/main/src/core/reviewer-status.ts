@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * B-c622 CHK-008: Reviewer status aggregation.
  *
@@ -49,7 +50,7 @@ export function resolveReviewerTouchpoints(
 
 // ── Constants ──
 
-const REVIEW_SALT = 'lattice-review-integrity-v1';
+const REVIEW_SALT = 'proof-or-stop-review-integrity-v1';
 
 // ── Public API ──
 
@@ -100,7 +101,7 @@ export function summarizeStoryReview(store: StoryStore, storyId: string): Review
 export function summarizeReviewerStatus(store: StoryStore, storyId: string, projectRoot?: string): ReviewerStatusSummary {
   const story = store.readStory(storyId);
   let checklist: { items: unknown[] } = { items: [] };
-  try { checklist = store.readChecklist(storyId); } catch { /* probe: no checklist yet */ }
+  try { checklist = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* probe: no checklist yet */ }
   const decision = store.readDecision(storyId);
   const touchpoints = resolveReviewerTouchpoints(store, storyId, projectRoot);
   const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);

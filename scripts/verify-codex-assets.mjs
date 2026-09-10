@@ -18,9 +18,6 @@ import {
   renderProofOrStopCodexAdapterManifest,
 } from '../packages/main/dist/init-assets.js';
 import {
-  DEPRECATED_ADAPTER_DIR,
-  DEPRECATED_MANIFEST_FILENAME,
-  DEPRECATED_STATE_DIR,
   PROOF_OR_STOP_ADAPTER_DIR,
   PROOF_OR_STOP_CONFIG_FILENAME,
   PROOF_OR_STOP_MANIFEST_FILENAME,
@@ -60,9 +57,9 @@ function assertNotIncludes(haystack, needle, label) {
 
 const root = process.cwd();
 const canonicalCodexDir = PROOF_OR_STOP_ADAPTER_DIR;
-const legacyCodexDir = DEPRECATED_ADAPTER_DIR;
+const legacyCodexDir = '.lattice-codex';
 const canonicalCodexManifest = join(canonicalCodexDir, PROOF_OR_STOP_MANIFEST_FILENAME);
-const legacyCodexManifest = join(legacyCodexDir, DEPRECATED_MANIFEST_FILENAME);
+const legacyCodexManifest = join(legacyCodexDir, 'lattice.json');
 const result = runCodexAdapterChecks(root, { executeHeartbeats: false });
 if (!result.ok) {
   console.error(renderCodexAdapterChecks(result));
@@ -110,7 +107,7 @@ assertNotIncludes(renderProofOrStopCodexAdapterManifest(), 'koala-codex', 'Proof
 assertNotIncludes(renderProofOrStopCodexAdapterManifest(), '.lattice-codex/koala.json', 'Proof-or-Stop manifest legacy manifest note');
 
 // Active verifier paths are canonical. Legacy adapter paths are exercised only
-// by the explicit read-compatibility fixture below.
+// by the explicit retired-layout rejection fixture below.
 const codexReadme = readFileSync(join(root, canonicalCodexDir, 'README.md'), 'utf8');
 const manifest = readFileSync(join(root, canonicalCodexManifest), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
@@ -129,7 +126,7 @@ assert(
   'canonical verification-intent prompt render must remain byte-identical to the Claude mirror',
 );
 
-assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), `${canonicalCodexDir}/README.md drifted from canonical template`);
+assert(codexReadme === renderCodexReadmeTemplate('full'), `${canonicalCodexDir}/README.md drifted from canonical template`);
 assert(manifest === renderProofOrStopCodexAdapterManifest(), `${canonicalCodexManifest} drifted from canonical template`);
 assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, `${canonicalCodexDir}/README.md`);
 assertIncludes(codexReadme, 'node bin/proof-or-stop-codex.js doctor', `${canonicalCodexDir}/README.md`);
@@ -207,10 +204,7 @@ assertCheckFails(
   'manifest drift',
 );
 
-// Explicit read-compatibility fixture: a pre-migration checkout may still
-// contain the deprecated adapter directory and manifest filename. The active
-// repository remains canonical; this fixture proves the shared verifier does
-// not silently drop that supported legacy layout.
+// A retired-only adapter layout cannot satisfy ordinary canonical verification.
 {
   const dir = copyCodexAssetsToTemp();
   try {
@@ -221,8 +215,11 @@ assertCheckFails(
     cpSync(join(canonicalDir, 'agents'), join(legacyDir, 'agents'), { recursive: true });
     cpSync(join(canonicalDir, PROOF_OR_STOP_MANIFEST_FILENAME), join(dir, legacyCodexManifest));
     rmSync(canonicalDir, { recursive: true, force: true });
+    const retiredManifestBytes = readFileSync(join(dir, legacyCodexManifest), 'utf8');
     const checkResult = runCodexAdapterChecks(dir, { executeHeartbeats: false });
-    assert(checkResult.ok, `legacy adapter directory/manifest read fallback should pass: ${hardFailureIds(checkResult).join(', ')}`);
+    assert(!checkResult.ok, 'retired adapter layout must not satisfy canonical verification');
+    assert(readFileSync(join(dir, legacyCodexManifest), 'utf8') === retiredManifestBytes, 'verification preserves retired manifest bytes');
+    assert(!existsSync(canonicalDir), 'verification must not implicitly migrate retired assets');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -271,8 +268,8 @@ assertCheckFails(
   }
 }
 // B-cc10 CHK-007: a PRE-RENAME checkout with ONLY the removed executable surface must
-// not be treated as a supported local-wrapper layout. The read-only legacy adapter
-// directory/manifest is covered above; these deprecated bin wrappers are intentionally
+// not be treated as a supported local-wrapper layout. Retired adapter rejection is
+// covered above; these deprecated bin wrappers are intentionally
 // a hard failure so the verifier cannot silently endorse a command surface we no longer
 // ship.
 assertCheckFails(
@@ -288,9 +285,9 @@ assertCheckFails(
 
 {
   const dir = copyCodexAssetsToTemp();
-  const fakeBin = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-bin-'));
-  const fakeGlobalRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-root-'));
-  const fakeHome = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-home-'));
+  const fakeBin = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-stale-global-bin-'));
+  const fakeGlobalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-stale-global-root-'));
+  const fakeHome = mkdtempSync(join(tmpdir(), 'proof-or-stop-codex-stale-global-home-'));
   const previousPath = process.env.PATH;
   const previousHome = process.env.HOME;
   try {
@@ -469,14 +466,21 @@ assertSessionBriefCommand(
   'legacy koala.js is ignored by session_brief resolver',
 );
 
-function assertGlobalThinSessionBriefCommand(stateDir, manifestFilename, label) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-session-brief-global-thin-'));
+function assertGlobalThinSessionBriefCommand(stateDir, manifestFilename, label, expectGlobal = true) {
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-session-brief-global-thin-'));
   try {
     mkdirSync(join(dir, stateDir), { recursive: true });
     writeFileSync(join(dir, stateDir, manifestFilename), JSON.stringify({ assetMode: 'global-thin' }));
+    mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'proof-or-stop-codex.js'), '// canonical local wrapper\n');
+    const manifestBytes = readFileSync(join(dir, stateDir, manifestFilename), 'utf8');
     const cmd = resolveCodexSessionBriefCommand(dir);
     const expected = `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
-    assert(cmd === expected, `${label}: expected "${expected}", got "${cmd}"`);
+    if (expectGlobal) assert(cmd === expected, `${label}: expected "${expected}", got "${cmd}"`);
+    else {
+      assert(cmd !== expected && cmd.includes('bin/proof-or-stop-codex.js'), `${label}: retired manifest cannot override the canonical local wrapper: ${cmd}`);
+    }
+    assert(readFileSync(join(dir, stateDir, manifestFilename), 'utf8') === manifestBytes, `${label}: manifest bytes remain unchanged`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -488,9 +492,10 @@ assertGlobalThinSessionBriefCommand(
   'canonical global-thin layout resolves to fallback command',
 );
 assertGlobalThinSessionBriefCommand(
-  DEPRECATED_STATE_DIR,
-  DEPRECATED_MANIFEST_FILENAME,
-  'legacy global-thin layout remains a read-only fallback',
+  '.lattice',
+  'lattice.json',
+  'retired global-thin layout is not active configuration',
+  false,
 );
 
 function seedCodexStory(dir) {

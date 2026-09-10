@@ -280,7 +280,7 @@ export interface ValidationCatalogEntry {
 }
 export interface ValidationInventory {
   schema: 'proof-or-stop.validation-inventory.v1';
-  commands: ValidationInventoryCommand[]; digest: string; source: 'proof-or-stop.config.json' | 'lattice.config.json' | 'injected';
+  commands: ValidationInventoryCommand[]; digest: string; source: 'proof-or-stop.config.json' | 'injected';
 }
 function commandId(row: { command: string; args: string[]; label?: string }, index: number): string {
   // Labels are presentation metadata; command identity is stable when a label
@@ -295,11 +295,7 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // name a different file than `raw` was actually read from.
   const picked = injected ? null : pickProjectConfigPath(projectRoot);
   if (!injected) {
-    // B-45a0 F-441: reuse the canonical resolver instead of re-deriving the
-    // canonical/legacy read-both lookup here. pickProjectConfigPath already
-    // returns {path, filename, legacy} for exactly this, and its own comment
-    // notes that deriving the answer without embedding a deprecated literal in
-    // a comparison is deliberate — the B-cdf6 F-065/F-061/F-068 regression shape.
+    // Reuse the canonical resolver instead of duplicating its lookup here.
     const raw = picked ? JSON.parse(readFileSync(picked.path, 'utf8')) as Record<string, unknown> : {};
     const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
     const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
@@ -344,22 +340,10 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     id: row.id || commandId(row, index),
     originalIndex: row.originalIndex ?? index,
   }));
-  // B-45a0 F-441: same resolver, so `source` reports the filename that actually
-  // satisfied the lookup rather than re-deriving it from a second existsSync
-  // probe. `legacy` (not a filename comparison) is what narrows to the union,
-  // keeping the deprecated literal out of the decision — the point of the resolver.
-  // B-45a0 F-444: when there is NO config file at all, pickProjectConfigPath
-  // returns null, and this reports the DEPRECATED name. That is deliberate: the
-  // old ternary chain fell through to the legacy branch whenever existsSync on
-  // the canonical path failed, so reporting the canonical name here would have
-  // silently flipped an unrelated edge case while fixing the duplication.
-  // (F-446: an earlier draft of this comment claimed the opposite. The code
-  // below, and the temp-dir probe in the commit message, are the truth.)
+  // The source reports the canonical filename without repeating the filesystem
+  // probe; injected inventories remain explicitly identified.
   const source = injected
     ? 'injected' as const
-    // Origin retired DEPRECATED_CONFIG_FILENAME: brand-paths.ts now lists only the
-    // canonical name in CONFIG_FILENAMES, and lattice.config.json is no longer tracked,
-    // so both former branches resolve to the canonical filename.
     : PROOF_OR_STOP_CONFIG_FILENAME;
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
 }
@@ -823,7 +807,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   return isTrustedAncestor(receipt.sourceHead, ctx.head, ctx.gitCwd);
 }
 
-const FULL_ESCALATION_TOKENS = ['validation', 'scheduler', 'executor', 'catalog', 'selection', 'receipt', 'graph', 'package.json', 'package-lock', 'lattice.config', 'process-fact', 'runtime-fact', 'lifecycle', 'command-policy', 'build', 'lockfile'];
+const FULL_ESCALATION_TOKENS = ['validation', 'scheduler', 'executor', 'catalog', 'selection', 'receipt', 'graph', 'package.json', 'package-lock', 'proof-or-stop.config', 'lattice.config', 'process-fact', 'runtime-fact', 'lifecycle', 'command-policy', 'build', 'lockfile'];
 export function classifyFullValidationReasons(changes: StoryChangeManifest, catalog: ValidationCatalogEntry[] = []): string[] {
   const reasons = changes.scopeViolations.map(row => 'scope-violation:' + row.kind + ':' + row.path);
   const authorityRoots = new Set(validationAuthoritySources());

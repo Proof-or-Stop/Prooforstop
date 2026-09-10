@@ -270,10 +270,6 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
-    // `lattice_config_*` is a legacy command-family spelling, not an npm bin.
-    // Keep it grouped under the canonical product name while the old command
-    // remains readable for existing projects.
-    lattice: 'Proof-or-Stop',
     rollout: 'Proof-or-Stop',
     authority: 'Authority',
     conduit: 'Conduit',

@@ -59,7 +59,7 @@ export interface RolloutProjectResult {
 }
 
 export interface RolloutCheckResult {
-  schemaVersion: 'lattice.rollout_check.v1';
+  schemaVersion: 'proof-or-stop.rollout_check.v1';
   product: {
     name: typeof PROOF_OR_STOP_PRODUCT_NAME;
     version: typeof PROOF_OR_STOP_CLI_VERSION;
@@ -477,7 +477,7 @@ export function buildRolloutCheck(options: RolloutCheckOptions): RolloutCheckRes
     return acc;
   }, { total: scanned.length, pass: 0, warn: 0, fail: 0, skip: 0 });
   return {
-    schemaVersion: 'lattice.rollout_check.v1',
+    schemaVersion: 'proof-or-stop.rollout_check.v1',
     product: PRODUCT,
     readOnly: true,
     macAppRequired: false,

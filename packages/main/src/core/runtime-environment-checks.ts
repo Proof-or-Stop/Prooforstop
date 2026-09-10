@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,12 +13,12 @@ import {
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
 import {
-  PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME,
   PROOF_OR_STOP_ROOT_PACKAGE_NAME,
 } from './proof-or-stop-brand.js';
 import { readBrandEnv } from './brand-env.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import { findBrandExport } from './version-bump.js';
+import ts from 'typescript';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -170,6 +171,7 @@ export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktre
 
 export type RuntimeEntrypointAuthorityReasonCode =
   | typeof STALE_GLOBAL_RUNTIME_REASON_CODE
+  | 'foreign_self_project_runtime_for_story_write'
   | 'runtime_authority_unresolved_in_worktree'
   | 'runtime_authority_probe_timeout_in_worktree';
 
@@ -209,12 +211,10 @@ const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
 const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
-const DEPRECATED_ROOT_PACKAGE_NAME = PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME;
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
-const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const DEPRECATED_CORE_PACKAGE_NAME = CANONICAL_CORE_PACKAGE_NAME;
 const SELF_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set([
   CANONICAL_ROOT_PACKAGE_NAME,
-  DEPRECATED_ROOT_PACKAGE_NAME,
 ]);
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
 // self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
@@ -228,6 +228,1080 @@ const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::
 const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|health check|health command/i;
 const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
 
+export interface ActiveIdentityOperationPath {
+  sourcePath: string;
+  scope: 'runtime-package' | 'project';
+  path: string;
+}
+
+export interface ActiveIdentityOperationBoundary {
+  id: string;
+  commands: readonly string[];
+  paths: readonly ActiveIdentityOperationPath[];
+  identitySites: readonly ActiveIdentityOperationIdentitySite[];
+  pathBindings: readonly ActiveIdentityOperationPathBinding[];
+  retiredIdentityCases: readonly ActiveIdentityOperationIdentityCase[];
+}
+
+export interface ActiveIdentityOperationIdentitySite {
+  siteId: string;
+  sourcePath: string;
+  canonical: string;
+  retired: string;
+  sourceNeedle: string;
+  retiredNeedle: string;
+  mutationKind: 'historical-retired' | 'unsupported-family-control';
+  retiredProvenance?: {
+    commit: string;
+    sourcePath: string;
+    value: string;
+    use: 'producer-or-domain' | 'reader-or-type-alternative';
+  };
+  sourceOccurrences?: { canonical: number; retired: number };
+  identityOrigin?: { sourcePath: string; exportName: string };
+  valueBinding?:
+    | { kind: 'export-const'; name: string }
+    | { kind: 'property'; name: string; functionName: string }
+    | { kind: 'comparison'; expression: string; functionName: string };
+}
+
+export interface ActiveIdentityOperationIdentityCase extends ActiveIdentityOperationIdentitySite {
+  command?: string;
+}
+
+export interface ActiveIdentityOperationPathBinding {
+  sourcePath: string;
+  classification: 'owned-site' | 'identity-free';
+  siteIds?: readonly string[];
+  evidence?: string;
+}
+
+interface ActiveIdentityOperationCaseRef {
+  siteId: string;
+  command?: string;
+}
+
+interface ActiveIdentityFreePath {
+  sourcePath: string;
+  evidence: string;
+}
+
+const identitySiteId = (sourcePath: string, canonical: string): string => `${sourcePath}#${canonical}`;
+const retiredIdentityNeedle = (suffix: string): string => ['proof', 'bound', suffix].join('');
+
+const identitySite = (
+  sourcePath: string,
+  canonical: string,
+  sourceNeedle = canonical,
+  retiredNeedle = canonical.replace(/^proof-or-stop/u, 'proofbound'),
+  retired = canonical.replace(/^proof-or-stop/u, 'proofbound'),
+  retiredProvenance?: ActiveIdentityOperationIdentitySite['retiredProvenance'],
+  sourceOccurrences?: ActiveIdentityOperationIdentitySite['sourceOccurrences'],
+): ActiveIdentityOperationIdentitySite => Object.freeze({
+  siteId: identitySiteId(sourcePath, canonical),
+  sourcePath,
+  canonical,
+  retired,
+  sourceNeedle,
+  retiredNeedle,
+  mutationKind: retiredProvenance ? 'historical-retired' : 'unsupported-family-control',
+  ...(retiredProvenance ? { retiredProvenance } : {}),
+  ...(sourceOccurrences ? { sourceOccurrences } : {}),
+});
+
+// These counterparts are individually verified against the imported source,
+// never inferred from the current spelling. Already-canonical values instead
+// use identitySite's explicitly synthetic unsupported-family control.
+const historicalIdentitySite = (
+  sourcePath: string,
+  canonical: string,
+  retired: string,
+  use: 'producer-or-domain' | 'reader-or-type-alternative' = 'producer-or-domain',
+  sourceOccurrences?: ActiveIdentityOperationIdentitySite['sourceOccurrences'],
+): ActiveIdentityOperationIdentitySite => identitySite(sourcePath, canonical, canonical, retired, retired, {
+  commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath, value: retired, use,
+}, sourceOccurrences);
+
+const identityMutationCase = (
+  sourcePath: string,
+  canonical: string,
+  command?: string,
+): ActiveIdentityOperationCaseRef => Object.freeze({
+  siteId: identitySiteId(sourcePath, canonical),
+  ...(command ? { command } : {}),
+});
+
+const identityFreePath = (sourcePath: string, evidence: string): ActiveIdentityFreePath => Object.freeze({ sourcePath, evidence });
+
+const runtimeSource = (sourcePath: string): ActiveIdentityOperationPath => ({
+  sourcePath,
+  scope: 'runtime-package',
+  path: sourcePath
+    .replace(/^packages\/main\/src\//, 'dist/')
+    .replace(/\.ts$/u, '.js')
+    .replace(/^packages\/main\//, ''),
+});
+const projectSource = (sourcePath: string): ActiveIdentityOperationPath => ({
+  sourcePath,
+  scope: 'project',
+  path: sourcePath,
+});
+
+type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary, 'pathBindings' | 'retiredIdentityCases'> & {
+  mutationCases: readonly ActiveIdentityOperationCaseRef[];
+  identityFreePaths?: readonly ActiveIdentityFreePath[];
+};
+
+const identityBoundary = (
+  seed: ActiveIdentityOperationBoundarySeed,
+): ActiveIdentityOperationBoundary => {
+  const identitySites = Object.freeze([...seed.identitySites]);
+  const freePaths = seed.identityFreePaths ?? [];
+  const pathBindings = seed.paths.map((entry) => {
+    const owned = identitySites.filter((site) => site.sourcePath === entry.sourcePath);
+    const identityFree = freePaths.find((candidate) => candidate.sourcePath === entry.sourcePath);
+    if ((owned.length > 0) === Boolean(identityFree)) {
+      throw new Error(`${seed.id}/${entry.sourcePath}: path must declare owned identity sites or one identity-free proof, never both/neither`);
+    }
+    return owned.length > 0
+      ? Object.freeze({ sourcePath: entry.sourcePath, classification: 'owned-site' as const, siteIds: Object.freeze(owned.map((site) => site.siteId)) })
+      : Object.freeze({ sourcePath: entry.sourcePath, classification: 'identity-free' as const, evidence: identityFree!.evidence });
+  });
+  const retiredIdentityCases = seed.mutationCases.map((caseRef) => {
+    const matches = identitySites.filter((site) => site.siteId === caseRef.siteId);
+    if (matches.length !== 1) throw new Error(`${seed.id}/${caseRef.siteId}: mutation case must resolve exactly one independently declared identity site`);
+    return Object.freeze({ ...matches[0], ...(caseRef.command ? { command: caseRef.command } : {}) });
+  });
+  const declaredCaseIds = retiredIdentityCases.map((entry) => entry.siteId).sort();
+  const declaredSiteIds = identitySites.map((entry) => entry.siteId).sort();
+  if (new Set(declaredCaseIds).size !== declaredCaseIds.length || JSON.stringify(declaredCaseIds) !== JSON.stringify(declaredSiteIds)) {
+    throw new Error(`${seed.id}: every independently declared identity site requires exactly one mutation case`);
+  }
+  return Object.freeze({
+    id: seed.id,
+    commands: seed.commands,
+    paths: seed.paths,
+    identitySites,
+    pathBindings: Object.freeze(pathBindings),
+    retiredIdentityCases: Object.freeze(retiredIdentityCases),
+  });
+};
+
+/**
+ * F-050: each active identity-bearing source is tied to the public operation
+ * that consumes or exposes it. This is intentionally a runtime-path registry,
+ * not a static source inventory: the CLI checks the exact loaded JavaScript,
+ * template, config, baseline, or verifier bytes before the handler can run.
+ */
+export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
+  identityBoundary({
+    id: 'acceptance-amendment-review',
+    commands: Object.freeze(['agent_prompt', 'acceptance_amendment_review', 'acceptance_amendment_approve']),
+    paths: Object.freeze([runtimeSource('packages/main/src/core/acceptance-amendment-review.ts')]),
+    identitySites: Object.freeze([
+      { ...identitySite('packages/main/src/core/acceptance-amendment-review.ts', 'proof-or-stop.acceptance_amendment_review_final.v1'),
+        valueBinding: { kind: 'export-const', name: 'ACCEPTANCE_REVIEW_FINAL_SCHEMA' } },
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/acceptance-amendment-review.ts', 'proof-or-stop.acceptance_amendment_review_final.v1'),
+    ]),
+  }),
+  identityBoundary({
+    id: 'candidate-spec-routing',
+    commands: Object.freeze(['candidate_spec_route', 'candidate_spec_rollout_check']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/candidate-spec-routing.ts'),
+      runtimeSource('packages/main/src/handlers/candidate-spec-routing.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/candidate-spec-routing.ts', 'proof-or-stop.corpus-index.v1'),
+      historicalIdentitySite("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.candidate-spec-set.v1", "proofbound.candidate-spec-set.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.keyword-proposal.v1", "proofbound.keyword-proposal.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.keyword-seeds.v1", "proofbound.keyword-seeds.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/handlers/candidate-spec-routing.ts', 'proof-or-stop.keyword-proposal.v1',
+        'Return only one compact JSON object matching proof-or-stop.keyword-proposal.v1.',
+        'Return only one compact JSON object matching proofbound.keyword-proposal.v1.'),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/candidate-spec-routing.ts', 'proof-or-stop.corpus-index.v1'),
+      identityMutationCase("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.candidate-spec-set.v1"),
+      identityMutationCase("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.keyword-proposal.v1"),
+      identityMutationCase("packages/main/src/core/candidate-spec-routing.ts", "proof-or-stop.keyword-seeds.v1"),
+      identityMutationCase('packages/main/src/handlers/candidate-spec-routing.ts', 'proof-or-stop.keyword-proposal.v1'),
+    ]),
+  }),
+  identityBoundary({
+    id: 'certification-window',
+    commands: Object.freeze(['certification_window_begin', 'certification_window_status', 'certification_window_cancel']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/certification-window.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/certification-window.ts', 'proof-or-stop.certification_window.v1'),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.certification-window.v1", "proofbound.certification-window.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.certification_windows.v1", "proofbound.certification_windows.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.precert-receipt.v1", "proofbound.precert-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.precert_receipt.v1", "proofbound.precert_receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.precert_cheap_check_receipt.v1", "proofbound.precert_cheap_check_receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/certification-window.ts", "proof-or-stop.precert-cheap-check-receipt.v1", "proofbound.precert-cheap-check-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/certification-window.ts', 'proof-or-stop.certification_window.v1'),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.certification-window.v1"),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.certification_windows.v1"),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.precert-receipt.v1"),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.precert_receipt.v1"),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.precert_cheap_check_receipt.v1"),
+      identityMutationCase("packages/main/src/core/certification-window.ts", "proof-or-stop.precert-cheap-check-receipt.v1"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'review-incremental-context',
+    commands: Object.freeze(['review_incremental_context', 'review_run_start']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/evidence-freshness.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/core/impact-classification-policy.ts'),
+      runtimeSource('packages/main/src/core/review-incremental-context.ts'),
+      runtimeSource('packages/main/src/handlers/review-run.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION' } },
+      identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
+      identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
+      identitySite(
+        'packages/main/src/core/review-incremental-context.ts',
+        'proof-or-stop.incremental-review-basis.v1',
+        'schemaVersion: CURRENT_PROMPT_IDENTITIES.incrementalReviewBasis',
+        `schemaVersion: '${retiredIdentityNeedle('.incremental-review-basis.v1')}'`,
+      ),
+      historicalIdentitySite("packages/main/src/core/review-incremental-context.ts", "proof-or-stop.post-remediation-review-selection.v2", "proofbound.post-remediation-review-selection.v2", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite(
+        'packages/main/src/handlers/review-run.ts',
+        'proof-or-stop.prompt-envelope.v1',
+        'const assembly = assembleConditionalReviewPromptEnvelope({',
+        `const assembly = assembleConditionalReviewPromptEnvelope({ activeIdentitySchema: '${retiredIdentityNeedle('.prompt-envelope.v1')}',`,
+      ),
+      historicalIdentitySite("packages/main/src/handlers/review-run.ts", "proof-or-stop.review_run_list.v1", "proofbound.review_run_list.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1'),
+      identityMutationCase('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
+      identityMutationCase('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop.incremental-review-basis.v1'),
+      identityMutationCase("packages/main/src/core/review-incremental-context.ts", "proof-or-stop.post-remediation-review-selection.v2"),
+      identityMutationCase('packages/main/src/handlers/review-run.ts', 'proof-or-stop.prompt-envelope.v1'),
+      identityMutationCase("packages/main/src/handlers/review-run.ts", "proof-or-stop.review_run_list.v1"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'review-inventory-epoch',
+    commands: Object.freeze(['review_inventory_finalize', 'certification_window_begin', 'certification_window_status']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/handlers/checklist.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'comparison', expression: 'evidence.receipt.schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'export-const', name: 'VERIFICATION_RECEIPT_BUNDLE_V5' } },
+      identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5', undefined, undefined, undefined, undefined, { canonical: 8, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop-verification-receipt-signer-v1.key", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-identity.v1", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-key.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-lock.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-ticket.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-output.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-publication-binding.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle-binding.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v3", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v4", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1", "proofbound.review-inventory-critic-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1", "proofbound.review-inventory-epoch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-receipt.v1", "proofbound.review-inventory-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_critic_receipt.v1", "proofbound.review_inventory_critic_receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_epoch.v1", "proofbound.review_inventory_epoch.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_receipt.v1", "proofbound.review_inventory_receipt.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop-verification-receipt-signer-v1.key"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-identity.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-key.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-lock.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v3"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-ticket.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-output.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-publication-binding.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle-binding.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v3"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v4"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-receipt.v1"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_critic_receipt.v1"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_epoch.v1"),
+      identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review_inventory_receipt.v1"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'learning-source-lineage',
+    commands: Object.freeze(['source_lineage_audit']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/experience-layer-types.ts'),
+      runtimeSource('packages/main/src/core/learning-store.ts'),
+      runtimeSource('packages/main/src/core/playbook-seed.ts'),
+      runtimeSource('packages/main/src/core/source-lineage-audit.ts'),
+      runtimeSource('packages/main/src/handlers/playbook.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/learning-store.ts', 'proof-or-stop.playbook-outcome.v1'),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.non-deducible-source.v1", "proofbound.non-deducible-source.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.non-deducible-sources.v1", "proofbound.non-deducible-sources.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-auto-activation.v1", "proofbound.playbook-auto-activation.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-decision.v1", "proofbound.playbook-promotion-decision.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-health.v1", "proofbound.playbook-promotion-health.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-observe.v1", "proofbound.playbook-promotion-observe.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-trial-control.v1", "proofbound.playbook-trial-control.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/playbook-seed.ts', 'proof-or-stop.playbook-seed-observe.v1'),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.evidence-activated-advisory-playbook.v1", "proofbound.evidence-activated-advisory-playbook.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-auto-activation.v1", "proofbound.playbook-auto-activation.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-auto-promotion-apply.v1", "proofbound.playbook-auto-promotion-apply.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-candidate-batch-manifest.v1", "proofbound.playbook-candidate-batch-manifest.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-candidate-ingest.v1", "proofbound.playbook-candidate-ingest.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-outcome.v1", "proofbound.playbook-outcome.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-promotion-decision.v1", "proofbound.playbook-promotion-decision.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-promotion-timer.v1", "proofbound.playbook-promotion-timer.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-runtime-consumption-verify.v1", "proofbound.playbook-runtime-consumption-verify.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-seed-backfill.v1", "proofbound.playbook-seed-backfill.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-seed-propose-batch.v1", "proofbound.playbook-seed-propose-batch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-trial-control.v1", "proofbound.playbook-trial-control.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-trial-run.v1", "proofbound.playbook-trial-run.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/source-lineage-audit.ts', 'proof-or-stop.source-lineage-audit.v1'),
+      historicalIdentitySite("packages/main/src/core/source-lineage-audit.ts", "proof-or-stop.learning-source-key.v1", "proofbound.learning-source-key.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/handlers/playbook.ts', 'proof-or-stop.playbook-outcome.v1'),
+      historicalIdentitySite("packages/main/src/handlers/playbook.ts", "proof-or-stop.playbook-promotion-decision.v1", "proofbound.playbook-promotion-decision.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/learning-store.ts', 'proof-or-stop.playbook-outcome.v1'),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.non-deducible-source.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.non-deducible-sources.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-auto-activation.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-decision.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-health.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-promotion-observe.v1"),
+      identityMutationCase("packages/main/src/core/learning-store.ts", "proof-or-stop.playbook-trial-control.v1"),
+      identityMutationCase('packages/main/src/core/playbook-seed.ts', 'proof-or-stop.playbook-seed-observe.v1'),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.evidence-activated-advisory-playbook.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-auto-activation.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-auto-promotion-apply.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-candidate-batch-manifest.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-candidate-ingest.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-outcome.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-promotion-decision.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-promotion-timer.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-runtime-consumption-verify.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-seed-backfill.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-seed-propose-batch.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-trial-control.v1"),
+      identityMutationCase("packages/main/src/core/playbook-seed.ts", "proof-or-stop.playbook-trial-run.v1"),
+      identityMutationCase('packages/main/src/core/source-lineage-audit.ts', 'proof-or-stop.source-lineage-audit.v1'),
+      identityMutationCase("packages/main/src/core/source-lineage-audit.ts", "proof-or-stop.learning-source-key.v1"),
+      identityMutationCase('packages/main/src/handlers/playbook.ts', 'proof-or-stop.playbook-outcome.v1'),
+      identityMutationCase("packages/main/src/handlers/playbook.ts", "proof-or-stop.playbook-promotion-decision.v1"),
+    ]),
+    identityFreePaths: Object.freeze([
+      identityFreePath('packages/main/src/core/experience-layer-types.ts', 'type-only declarations compile to no emitted identity bytes'),
+    ]),
+  }),
+  identityBoundary({
+    id: 'playbook-runtime-memory',
+    commands: Object.freeze(['playbook_runtime_health', 'final_response_check']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/playbook-runtime-baseline.ts'),
+      runtimeSource('packages/main/src/core/playbook-runtime-memory-cache.ts'),
+      runtimeSource('packages/main/src/core/playbook-runtime-memory-index.ts'),
+      runtimeSource('packages/main/src/core/playbook-runtime-memory.ts'),
+      runtimeSource('packages/main/src/handlers/playbook-runtime-memory.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/playbook-runtime-baseline.ts', 'proof-or-stop.memory-playbook-baseline.v1'),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-global-", "proofbound-memory-baseline-global-", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-matrix-", "proofbound-memory-baseline-matrix-", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-", "proofbound-memory-baseline-runtime-", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-corpus-", "proofbound-memory-baseline-runtime-corpus-", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-baseline.gold.v1", "proofbound.memory-playbook-baseline.gold.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-optimized-parity.v1", "proofbound.memory-playbook-optimized-parity.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v1'),
+      identitySite('packages/main/src/core/playbook-runtime-memory-index.ts', 'proof-or-stop.runtime-memory-index.v3'),
+      identitySite('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1'),
+      identitySite('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1'),
+      identitySite('packages/main/src/handlers/playbook-runtime-memory.ts', 'proof-or-stop.playbook-runtime-health.v1'),
+      historicalIdentitySite("packages/main/src/handlers/playbook-runtime-memory.ts", "proof-or-stop.dev-memory-finish-decision.v1", "proofbound.dev-memory-finish-decision.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/handlers/playbook-runtime-memory.ts", "proof-or-stop.final-response-check.v1", "proofbound.final-response-check.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/playbook-runtime-baseline.ts', 'proof-or-stop.memory-playbook-baseline.v1'),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-global-"),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-matrix-"),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-"),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-corpus-"),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-baseline.gold.v1"),
+      identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-optimized-parity.v1"),
+      identityMutationCase('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v1'),
+      identityMutationCase('packages/main/src/core/playbook-runtime-memory-index.ts', 'proof-or-stop.runtime-memory-index.v3'),
+      identityMutationCase('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1'),
+      identityMutationCase('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1'),
+      identityMutationCase('packages/main/src/handlers/playbook-runtime-memory.ts', 'proof-or-stop.playbook-runtime-health.v1'),
+      identityMutationCase("packages/main/src/handlers/playbook-runtime-memory.ts", "proof-or-stop.dev-memory-finish-decision.v1"),
+      identityMutationCase("packages/main/src/handlers/playbook-runtime-memory.ts", "proof-or-stop.final-response-check.v1"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'lifecycle-control',
+    commands: Object.freeze(['global_control_status', 'runtime_closure_status', 'queue_governance_status']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/lifecycle-control/control-status.ts'),
+      runtimeSource('packages/main/src/core/lifecycle-control/queue/index.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/lifecycle-control/queue/index.ts', 'proof-or-stop.queue_governance_status.v1'),
+      historicalIdentitySite("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception.v1", "proofbound.queue_exception.v1", "producer-or-domain", { canonical: 6, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception_registry.v1", "lattice.queue_exception_registry.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception_set.v1", "lattice.queue_exception_set.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/lifecycle-control/queue/index.ts', 'proof-or-stop.queue_governance_status.v1'),
+      identityMutationCase("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception.v1"),
+      identityMutationCase("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception_registry.v1"),
+      identityMutationCase("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception_set.v1"),
+    ]),
+    identityFreePaths: Object.freeze([
+      identityFreePath('packages/main/src/core/lifecycle-control/control-status.ts', 'type-only schema declarations compile to no emitted identity bytes'),
+    ]),
+  }),
+  identityBoundary({
+    id: 'milestone-status',
+    commands: Object.freeze(['milestone_status', 'milestone_closeout']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/milestone-status.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/milestone-status.ts', 'proof-or-stop.milestone_status.v1'),
+      historicalIdentitySite("packages/main/src/core/milestone-status.ts", "proof-or-stop.milestone_closeout.v1", "proofbound.milestone_closeout.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/milestone-status.ts", "proof-or-stop.milestone_closeout_missing.v1", "proofbound.milestone_closeout_missing.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/milestone-status.ts', 'proof-or-stop.milestone_status.v1'),
+      identityMutationCase("packages/main/src/core/milestone-status.ts", "proof-or-stop.milestone_closeout.v1"),
+      identityMutationCase("packages/main/src/core/milestone-status.ts", "proof-or-stop.milestone_closeout_missing.v1"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'process-fact-registry',
+    commands: Object.freeze(['session_brief']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/process-fact-registry.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/process-fact-registry.ts', 'proof-or-stop.candidate-spec-set.v1'),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-product-reviewer", "proof-or-stop-product-reviewer", "proofbound-product-reviewer", "proofbound-product-reviewer", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-channel", "proof-or-stop-review-channel", "proofbound-review-channel", "proofbound-review-channel", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 5, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 6, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 5, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 6, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/process-fact-registry.ts', 'proof-or-stop.candidate-spec-set.v1'),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-product-reviewer"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-behavior"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-channel"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-concept"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-delivery"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-docs"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-quality"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-test-coverage"),
+      identityMutationCase("packages/main/src/core/process-fact-registry.ts", "proof-or-stop-review-topology-critic"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'prompt-runtime',
+    commands: Object.freeze(['agent_prompt', 'dispatch', 'prompt_measurement_report']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/config.ts'),
+      runtimeSource('packages/main/src/core/prompt-budget.ts'),
+      runtimeSource('packages/main/src/core/prompt-contracts.ts'),
+      runtimeSource('packages/main/src/core/prompt-envelope.ts'),
+      runtimeSource('packages/main/src/core/prompt-measurement.ts'),
+      runtimeSource('packages/main/src/core/prompt-registry.ts'),
+      runtimeSource('packages/main/src/core/prompt-role-contract-registry.ts'),
+      runtimeSource('packages/main/src/core/review-run.ts'),
+      runtimeSource('packages/main/src/handlers/agent-prompt.ts'),
+      runtimeSource('packages/main/src/handlers/story-dispatch.ts'),
+      runtimeSource('packages/main/src/cli-init.ts'),
+      projectSource('docs/requirements/baselines/role-prompt-measurement-baseline.json'),
+      projectSource('proof-or-stop.config.json'),
+      ...[
+        'proof-or-stop-evaluator.md',
+        'proof-or-stop-implementer.md',
+        'proof-or-stop-review-behavior.md',
+        'proof-or-stop-review-concept.md',
+        'proof-or-stop-review-delivery.md',
+        'proof-or-stop-review-docs.md',
+        'proof-or-stop-review-quality.md',
+        'proof-or-stop-review-scope-plan.md',
+        'proof-or-stop-review-story-init.md',
+        'proof-or-stop-review-test-coverage.md',
+      ].map((name) => runtimeSource(`packages/main/templates/agents/${name}`)),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/config.ts', 'proof-or-stop.prompt-envelope-rollout.v1'),
+      identitySite('packages/main/src/core/prompt-budget.ts', 'proof-or-stop.prompt-budget-observation.v1'),
+      identitySite("packages/main/src/core/prompt-budget.ts", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-envelope.v1'),
+      identitySite("packages/main/src/core/prompt-contracts.ts", "proof-or-stop.canonical-json.code-point-keys.v1", "proof-or-stop.canonical-json.code-point-keys.v1", "proofbound.canonical-json.code-point-keys.v1", "proofbound.canonical-json.code-point-keys.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.agent-runtime.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.role-contract.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-measurement.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.known-execution-environment.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.full-task-context.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.incremental-review-basis.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.full-context-assembler.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-dispatch.v1'),
+      identitySite('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.digest.v1'),
+      identitySite(
+        'packages/main/src/core/prompt-envelope.ts',
+        'proof-or-stop.prompt-envelope.v1',
+        'schemaVersion: CURRENT_PROMPT_IDENTITIES.promptEnvelope',
+        `schemaVersion: '${retiredIdentityNeedle('.prompt-envelope.v1')}'`,
+      ),
+      identitySite('packages/main/src/core/prompt-measurement.ts', 'proof-or-stop.prompt-measurement-report.v1'),
+      identitySite("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.lifecycle.init-to-done.v2", "proof-or-stop.lifecycle.init-to-done.v2", "proofbound.lifecycle.init-to-done.v2", "proofbound.lifecycle.init-to-done.v2", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.signed-process-facts.v1", "proof-or-stop.signed-process-facts.v1", "proofbound.signed-process-facts.v1", "proofbound.signed-process-facts.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.story-owner-boundaries.v1", "proof-or-stop.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/prompt-registry.ts', 'proof-or-stop.prompt-registry.v1'),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-evaluator", "lattice-evaluator", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-implementer", "lattice-implementer", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-behavior", "lattice-review-behavior", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-concept", "lattice-review-concept", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-delivery", "lattice-review-delivery", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-docs", "lattice-review-docs", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-quality", "lattice-review-quality", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-scope-plan", "lattice-review-scope-plan", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-story-init", "lattice-review-story-init", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-test-coverage", "lattice-review-test-coverage", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-topology-critic", "lattice-review-topology-critic", "reader-or-type-alternative", { canonical: 3, retired: 0 }),
+      identitySite('packages/main/src/core/prompt-role-contract-registry.ts', 'proof-or-stop.prompt-role-contract-registry.v1'),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-evaluator", "proof-or-stop-evaluator", "proofbound-evaluator", "proofbound-evaluator", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-evaluator-cli", "proof-or-stop-evaluator-cli", "proofbound-evaluator-cli", "proofbound-evaluator-cli", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-implementation-reviewer", "proof-or-stop-implementation-reviewer", "proofbound-implementation-reviewer", "proofbound-implementation-reviewer", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-product-reviewer", "proof-or-stop-product-reviewer", "proofbound-product-reviewer", "proofbound-product-reviewer", undefined, { canonical: 3, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-channel", "proof-or-stop-review-channel", "proofbound-review-channel", "proofbound-review-channel", undefined, { canonical: 4, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 3, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 3, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-test-case-reviewer", "proof-or-stop-test-case-reviewer", "proofbound-test-case-reviewer", "proofbound-test-case-reviewer", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-test-intent", "proof-or-stop-test-intent", "proofbound-test-intent", "proofbound-test-intent", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-verification-intent", "proof-or-stop-verification-intent", "proofbound-verification-intent", "proofbound-verification-intent", undefined, { canonical: 3, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop.prompt-envelope-rollout.v1", "proofbound.prompt-envelope-rollout.v1", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop.reviewer-host-render-identity.v1", "proofbound.reviewer-host-render-identity.v1", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/core/review-run.ts', 'proof-or-stop.review_run_workspace_binding.v1'),
+      historicalIdentitySite("packages/main/src/core/review-run.ts", "proof-or-stop-review-run-workspace-binding-v1", "lattice-review-run-workspace-binding-v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      historicalIdentitySite("packages/main/src/core/review-run.ts", "proof-or-stop-review-topology-critic", "lattice-review-topology-critic", "reader-or-type-alternative", { canonical: 2, retired: 0 }),
+      identitySite(
+        'packages/main/src/core/review-run.ts',
+        'proof-or-stop-review-run-integrity-v1',
+        'proof-or-stop-review-run-integrity-v1',
+        ['lat', 'tice-review-run-integrity-v1'].join(''),
+        ['lat', 'tice-review-run-integrity-v1'].join(''),
+        { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/review-run.ts', value: ['lat', 'tice-review-run-integrity-v1'].join(''), use: 'producer-or-domain' },
+      ),
+      identitySite('packages/main/src/handlers/agent-prompt.ts', 'proof-or-stop.agent-prompt-response.v1'),
+      identitySite('packages/main/src/handlers/story-dispatch.ts', 'proof-or-stop-review-story-init'),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 8, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-channel", "proof-or-stop-review-channel", "proofbound-review-channel", "proofbound-review-channel", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 6, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 6, retired: 0 }),
+      identitySite(
+        'packages/main/src/cli-init.ts',
+        'proof-or-stop.js',
+        "const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';",
+        `const CANONICAL_BOOTSTRAP_REL = 'bin/${retiredIdentityNeedle('.js')}';`,
+      ),
+      identitySite('docs/requirements/baselines/role-prompt-measurement-baseline.json', 'proof-or-stop.prompt-measurement.v1'),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-evaluator", "proof-or-stop-evaluator", "proofbound-evaluator", "proofbound-evaluator", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-evaluator-cli", "proof-or-stop-evaluator-cli", "proofbound-evaluator-cli", "proofbound-evaluator-cli", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-implementation-reviewer", "proof-or-stop-implementation-reviewer", "proofbound-implementation-reviewer", "proofbound-implementation-reviewer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-product-reviewer", "proof-or-stop-product-reviewer", "proofbound-product-reviewer", "proofbound-product-reviewer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-channel", "proof-or-stop-review-channel", "proofbound-review-channel", "proofbound-review-channel", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-test-case-reviewer", "proof-or-stop-test-case-reviewer", "proofbound-test-case-reviewer", "proofbound-test-case-reviewer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-test-intent", "proof-or-stop-test-intent", "proofbound-test-intent", "proofbound-test-intent", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-verification-intent", "proof-or-stop-verification-intent", "proofbound-verification-intent", "proofbound-verification-intent", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.agent-runtime.v1", "proof-or-stop.agent-runtime.v1", "proofbound.agent-runtime.v1", "proofbound.agent-runtime.v1", undefined, { canonical: 19, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.canonical-json.code-point-keys.v1", "proof-or-stop.canonical-json.code-point-keys.v1", "proofbound.canonical-json.code-point-keys.v1", "proofbound.canonical-json.code-point-keys.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.lifecycle.init-to-done.v2", "proof-or-stop.lifecycle.init-to-done.v2", "proofbound.lifecycle.init-to-done.v2", "proofbound.lifecycle.init-to-done.v2", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.prompt-measurement-report.v1", "proof-or-stop.prompt-measurement-report.v1", "proofbound.prompt-measurement-report.v1", "proofbound.prompt-measurement-report.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.prompt-role-contract-registry.v1", "proof-or-stop.prompt-role-contract-registry.v1", "proofbound.prompt-role-contract-registry.v1", "proofbound.prompt-role-contract-registry.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.role-contract.v1", "proof-or-stop.role-contract.v1", "proofbound.role-contract.v1", "proofbound.role-contract.v1", undefined, { canonical: 18, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.signed-process-facts.v1", "proof-or-stop.signed-process-facts.v1", "proofbound.signed-process-facts.v1", "proofbound.signed-process-facts.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.story-owner-boundaries.v1", "proof-or-stop.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", undefined, { canonical: 1, retired: 0 }),
+      identitySite('proof-or-stop.config.json', 'proof-or-stop.prompt-envelope-rollout.v1'),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-evaluator", "proof-or-stop-evaluator", "proofbound-evaluator", "proofbound-evaluator", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 1, retired: 0 }),
+      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json", undefined, { canonical: 13, retired: 0 }),
+      identitySite('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
+      identitySite('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-concept.md', 'proof-or-stop-review-concept'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-delivery.md', 'proof-or-stop-review-delivery'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-docs.md', 'proof-or-stop-review-docs'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-quality.md', 'proof-or-stop-review-quality'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-scope-plan.md', 'proof-or-stop-review-scope-plan'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-story-init.md', 'proof-or-stop-review-story-init'),
+      identitySite('packages/main/templates/agents/proof-or-stop-review-test-coverage.md', 'proof-or-stop-review-test-coverage'),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/config.ts', 'proof-or-stop.prompt-envelope-rollout.v1'),
+      identityMutationCase('packages/main/src/core/prompt-budget.ts', 'proof-or-stop.prompt-budget-observation.v1'),
+      identityMutationCase("packages/main/src/core/prompt-budget.ts", "proof-or-stop-implementer"),
+      identityMutationCase("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-delivery"),
+      identityMutationCase("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("packages/main/src/core/prompt-budget.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-envelope.v1'),
+      identityMutationCase("packages/main/src/core/prompt-contracts.ts", "proof-or-stop.canonical-json.code-point-keys.v1"),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.agent-runtime.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.role-contract.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-measurement.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.known-execution-environment.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.full-task-context.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.incremental-review-basis.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.full-context-assembler.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.prompt-dispatch.v1'),
+      identityMutationCase('packages/main/src/core/prompt-contracts.ts', 'proof-or-stop.digest.v1'),
+      identityMutationCase('packages/main/src/core/prompt-envelope.ts', 'proof-or-stop.prompt-envelope.v1'),
+      identityMutationCase('packages/main/src/core/prompt-measurement.ts', 'proof-or-stop.prompt-measurement-report.v1'),
+      identityMutationCase("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.lifecycle.init-to-done.v2"),
+      identityMutationCase("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.signed-process-facts.v1"),
+      identityMutationCase("packages/main/src/core/prompt-measurement.ts", "proof-or-stop.story-owner-boundaries.v1"),
+      identityMutationCase('packages/main/src/core/prompt-registry.ts', 'proof-or-stop.prompt-registry.v1'),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-evaluator"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-implementer"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-behavior"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-concept"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-delivery"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-docs"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-quality"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-test-coverage"),
+      identityMutationCase("packages/main/src/core/prompt-registry.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase('packages/main/src/core/prompt-role-contract-registry.ts', 'proof-or-stop.prompt-role-contract-registry.v1'),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-evaluator"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-evaluator-cli"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-implementation-reviewer"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-implementer"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-product-reviewer"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-behavior"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-channel"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-concept"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-delivery"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-docs"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-quality"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-test-coverage"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-test-case-reviewer"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-test-intent"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop-verification-intent"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop.prompt-envelope-rollout.v1"),
+      identityMutationCase("packages/main/src/core/prompt-role-contract-registry.ts", "proof-or-stop.reviewer-host-render-identity.v1"),
+      identityMutationCase('packages/main/src/core/review-run.ts', 'proof-or-stop.review_run_workspace_binding.v1'),
+      identityMutationCase("packages/main/src/core/review-run.ts", "proof-or-stop-review-run-workspace-binding-v1"),
+      identityMutationCase("packages/main/src/core/review-run.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase('packages/main/src/core/review-run.ts', 'proof-or-stop-review-run-integrity-v1'),
+      identityMutationCase('packages/main/src/handlers/agent-prompt.ts', 'proof-or-stop.agent-prompt-response.v1'),
+      identityMutationCase('packages/main/src/handlers/story-dispatch.ts', 'proof-or-stop-review-story-init'),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-implementer"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-behavior"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-channel"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-concept"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-docs"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-quality"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase('packages/main/src/cli-init.ts', 'proof-or-stop.js'),
+      identityMutationCase('docs/requirements/baselines/role-prompt-measurement-baseline.json', 'proof-or-stop.prompt-measurement.v1'),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-evaluator"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-evaluator-cli"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-implementation-reviewer"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-implementer"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-product-reviewer"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-behavior"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-channel"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-concept"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-delivery"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-docs"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-quality"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-story-init"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-test-coverage"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-review-topology-critic"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-test-case-reviewer"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-test-intent"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-verification-intent"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.agent-runtime.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.canonical-json.code-point-keys.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.lifecycle.init-to-done.v2"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.prompt-measurement-report.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.prompt-role-contract-registry.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.role-contract.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.signed-process-facts.v1"),
+      identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.story-owner-boundaries.v1"),
+      identityMutationCase('proof-or-stop.config.json', 'proof-or-stop.prompt-envelope-rollout.v1'),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-evaluator"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-implementer"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-behavior"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-concept"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-delivery"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-docs"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-quality"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-scope-plan"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-story-init"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-test-coverage"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-topology-critic"),
+      identityMutationCase("proof-or-stop.config.json", "proof-or-stop.config.json"),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-concept.md', 'proof-or-stop-review-concept'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-delivery.md', 'proof-or-stop-review-delivery'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-docs.md', 'proof-or-stop-review-docs'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-quality.md', 'proof-or-stop-review-quality'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-scope-plan.md', 'proof-or-stop-review-scope-plan'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-story-init.md', 'proof-or-stop-review-story-init'),
+      identityMutationCase('packages/main/templates/agents/proof-or-stop-review-test-coverage.md', 'proof-or-stop-review-test-coverage'),
+    ]),
+  }),
+  identityBoundary({
+    id: 'claim-admissibility-pack',
+    commands: Object.freeze(['pinn_claim_check']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/claim-admissibility/pack-framework.ts'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.claim_admissibility_pack.v1'),
+      { ...identitySite('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.proof_admissibility.v1', 'version: PROOF_ADMISSIBILITY_CONTRACT_VERSION', "version: 'lattice.proof_admissibility.v1'", 'lattice.proof_admissibility.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/proof-admissibility.ts', value: 'lattice.proof_admissibility.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/proof-admissibility.ts', exportName: 'PROOF_ADMISSIBILITY_CONTRACT_VERSION' } },
+      { ...identitySite('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.proof_admissibility_verifier.v1', 'version: PROOF_ADMISSIBILITY_VERIFIER_VERSION', "version: 'lattice.proof_admissibility_verifier.v1'", 'lattice.proof_admissibility_verifier.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/proof-admissibility.ts', value: 'lattice.proof_admissibility_verifier.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/proof-admissibility.ts', exportName: 'PROOF_ADMISSIBILITY_VERIFIER_VERSION' } },
+      { ...identitySite('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.quantum_claim_admissibility.v1', 'version: QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION', "version: 'lattice.quantum_claim_admissibility.v1'", 'lattice.quantum_claim_admissibility.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/claim-admissibility/quantum.ts', value: 'lattice.quantum_claim_admissibility.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/claim-admissibility/quantum.ts', exportName: 'QUANTUM_CLAIM_ADMISSIBILITY_SCHEMA_VERSION' } },
+      { ...identitySite('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.quantum_claim_admissibility_verifier.v1', 'QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,\n', "'lattice.quantum_claim_admissibility_verifier.v1',\n", 'lattice.quantum_claim_admissibility_verifier.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/claim-admissibility/quantum.ts', value: 'lattice.quantum_claim_admissibility_verifier.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/claim-admissibility/quantum.ts', exportName: 'QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION' } },
+      historicalIdentitySite("packages/main/src/core/claim-admissibility/pack-framework.ts", "proof-or-stop-code-runtime", "proofbound-code-runtime", "producer-or-domain", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.claim_admissibility_pack.v1'),
+      identityMutationCase('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.proof_admissibility.v1'),
+      identityMutationCase('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.proof_admissibility_verifier.v1'),
+      identityMutationCase('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.quantum_claim_admissibility.v1'),
+      identityMutationCase('packages/main/src/core/claim-admissibility/pack-framework.ts', 'proof-or-stop.quantum_claim_admissibility_verifier.v1'),
+      identityMutationCase("packages/main/src/core/claim-admissibility/pack-framework.ts", "proof-or-stop-code-runtime"),
+    ]),
+  }),
+  identityBoundary({
+    id: 'release-ledgers',
+    commands: Object.freeze(['artifact_release_list', 'capability_release_list']),
+    paths: Object.freeze([
+      runtimeSource('packages/main/src/core/artifact-release.ts'),
+      runtimeSource('packages/main/src/core/capability-release.ts'),
+      runtimeSource('packages/main/src/handlers/done-effects.ts'),
+      projectSource('scripts/verify-proof-or-stop-identity-cutover.mjs'),
+    ]),
+    identitySites: Object.freeze([
+      identitySite('packages/main/src/core/artifact-release.ts', 'proof-or-stop.artifact-release.v1'),
+      identitySite('packages/main/src/core/capability-release.ts', 'proof-or-stop.product-capability-release.v1'),
+      historicalIdentitySite("packages/main/src/core/capability-release.ts", "proof-or-stop.capability-release-backfill.v1", "proofbound.capability-release-backfill.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
+      identitySite(
+        'packages/main/src/handlers/done-effects.ts',
+        'proof-or-stop-identity-cutover.mjs',
+        'verify-proof-or-stop-identity-cutover.mjs',
+        `verify-${retiredIdentityNeedle('-identity-cutover.mjs')}`,
+      ),
+      historicalIdentitySite("packages/main/src/handlers/done-effects.ts", "proof-or-stop.playbook-promotion-health.v1", "proofbound.playbook-promotion-health.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
+      identitySite('scripts/verify-proof-or-stop-identity-cutover.mjs', 'proof-or-stop.artifact-release.v1'),
+      historicalIdentitySite("scripts/verify-proof-or-stop-identity-cutover.mjs", "proof-or-stop.product-capability-release.v1", "proofbound.product-capability-release.v1", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+    ]),
+    mutationCases: Object.freeze([
+      identityMutationCase('packages/main/src/core/artifact-release.ts', 'proof-or-stop.artifact-release.v1', 'artifact_release_list'),
+      identityMutationCase('packages/main/src/core/capability-release.ts', 'proof-or-stop.product-capability-release.v1', 'capability_release_list'),
+      identityMutationCase("packages/main/src/core/capability-release.ts", "proof-or-stop.capability-release-backfill.v1", "capability_release_list"),
+      identityMutationCase('packages/main/src/handlers/done-effects.ts', 'proof-or-stop-identity-cutover.mjs', 'artifact_release_list'),
+      identityMutationCase("packages/main/src/handlers/done-effects.ts", "proof-or-stop.playbook-promotion-health.v1", "artifact_release_list"),
+      identityMutationCase('scripts/verify-proof-or-stop-identity-cutover.mjs', 'proof-or-stop.artifact-release.v1', 'artifact_release_list'),
+      identityMutationCase("scripts/verify-proof-or-stop-identity-cutover.mjs", "proof-or-stop.product-capability-release.v1", "artifact_release_list"),
+    ]),
+  }),
+] satisfies readonly ActiveIdentityOperationBoundary[]);
+
+const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
+
+// This exact source fragment is mutation-input data, not an active schema
+// reader. Its byte/count witness grants no exemption to surrounding code.
+const IDENTITY_MUTATION_DATA_FRAGMENTS = [
+  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: 'cea5810c94b181ad7bf1dcf78daa178c7438c724b1cf877fb24874bf58145d8c' },
+  { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
+] as const;
+function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {
+  if (sourcePath !== 'scripts/verify-proof-or-stop-identity-cutover.mjs') return bytes;
+  let activeBytes = bytes;
+  for (const pin of IDENTITY_MUTATION_DATA_FRAGMENTS) {
+    const start = activeBytes.indexOf(pin.marker);
+    const end = activeBytes.indexOf('\n].map(', start) + 2;
+    if (start < 0 || end <= start || activeBytes.split(pin.marker).length !== 2) {
+      throw new Error('identity verifier mutation-data fragment missing or duplicated');
+    }
+    const fragment = activeBytes.slice(start, end);
+    if (createHash('sha256').update(fragment).digest('hex') !== pin.sha256) {
+      throw new Error('identity verifier mutation-data fragment integrity mismatch');
+    }
+    activeBytes = activeBytes.slice(0, start) + activeBytes.slice(end);
+  }
+  return activeBytes;
+}
+
+export function assertCanonicalActiveIdentityRuntime(input: {
+  command: string;
+  projectRoot: string;
+  runtimePackageRoot?: string;
+}): void {
+  const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
+  const projectRoot = resolve(input.projectRoot);
+  for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
+    if (!boundary.commands.includes(input.command)) continue;
+    for (const registeredPath of boundary.paths) {
+      const base = registeredPath.scope === 'runtime-package' ? runtimePackageRoot : projectRoot;
+      const absolute = resolve(base, registeredPath.path);
+      if (!existsSync(absolute) || !statSync(absolute).isFile()) continue;
+      const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, readFileSync(absolute, 'utf8'));
+      if (!bytes.includes(RETIRED_ACTIVE_PROTOCOL_PREFIX)) continue;
+      throw new Error(
+        `retired active protocol identity at ${registeredPath.sourcePath} is not admitted by ` +
+        `${input.command}; restore the canonical proof-or-stop.* runtime before retrying`,
+      );
+    }
+  }
+}
+
+/**
+ * The boundary's public consumer calls this after command dispatch. Unlike the
+ * CLI-wide preflight, this verifies the exact canonical value registered for
+ * every identity site owned by that consumer. Tests deliberately ablate the
+ * CLI preflight, so a retired mutation can only be rejected here or by the
+ * consumer's own parser/verifier.
+ */
+// These reviewed executable modules own the declarations AND their producers/
+// consumers. A local syntactic decoy cannot authorize a different live dataflow.
+// Intentional implementation changes require explicit review and re-pinning;
+// the runtime never computes a new expected digest from the candidate itself.
+const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/evidence-freshness.ts': 'a1599c7381c43d16caa4f9947cc1b48e0b624927aec3f9d76f5a4e16f3cfea11',
+  'packages/main/src/core/review-inventory-epoch.ts': 'f86823bb4b53a69e0fc3fe749cf0c819bab06c7fbcb735842d7939eb00932834',
+  'packages/main/src/core/verification-execution-evidence.ts': 'b3f8ccac871af23b30b2406467ed9731aa60a7ab9bab32436ab2d6ab42c600c8',
+  'packages/main/src/handlers/checklist.ts': 'e1ceb08a68df40eef619ff3f30f4bc5e32de71f785f8abcfd45332959227cab9',
+});
+
+function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
+  const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
+  if (!expected) return;
+  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
+  const actual = createHash('sha256').update(canonical).digest('hex');
+  if (actual !== expected) throw new Error(`${label}/${sourcePath} consumer rejected active identity bytes; executable declaration/producer/consumer binding changed`);
+}
+
+function assertIdentitySiteValueBinding(site: ActiveIdentityOperationIdentitySite, text: string, label: string): void {
+  const binding = site.valueBinding;
+  if (!binding) return;
+  const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const values: Array<ts.Expression | undefined> = [];
+  if (binding.kind === 'export-const') {
+    for (const statement of source.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== binding.name) continue;
+        const isExportedConst = Boolean(statement.declarationList.flags & ts.NodeFlags.Const)
+          && statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+        values.push(isExportedConst ? declaration.initializer : undefined);
+      }
+    }
+  } else {
+    const functions = source.statements.filter((node): node is ts.FunctionDeclaration =>
+      ts.isFunctionDeclaration(node) && node.name?.text === binding.functionName);
+    if (functions.length === 1 && functions[0].body) {
+      const visit = (node: ts.Node): void => {
+        if (binding.kind === 'property' && ts.isPropertyAssignment(node)
+          && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && node.name.text === binding.name) {
+          values.push(node.initializer);
+        }
+        if (binding.kind === 'comparison' && ts.isBinaryExpression(node)
+          && node.left.getText(source).replace(/\s/g, '') === binding.expression) {
+          values.push(node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken ? node.right : undefined);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(functions[0].body);
+    }
+  }
+  // Comments, unrelated literals, computed expressions and duplicate selectors
+  // cannot satisfy the live declaration/producer/comparison contract.
+  if (values.length !== 1 || !values[0] || !ts.isStringLiteral(values[0]) || values[0].text !== site.canonical) {
+    const observed = values.map(value => value ? value.getText(source).slice(0, 256) : '<unsupported declaration>').join(', ') || '<missing binding>';
+    throw new Error(`${label}/${site.siteId} consumer rejected active identity value; expected exact ${site.canonical}; observed ${observed}`);
+  }
+}
+
+export function assertCanonicalActiveIdentityBoundary(input: {
+  boundaryId: string;
+  projectRoot?: string;
+  runtimePackageRoot?: string;
+}): void {
+  const boundaryId = input.boundaryId === 'artifact-release-ledger' || input.boundaryId === 'capability-release-ledger'
+    ? 'release-ledgers'
+    : input.boundaryId;
+  const boundary = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find((candidate) => candidate.id === boundaryId);
+  if (!boundary) throw new Error(`unregistered active identity operation boundary: ${input.boundaryId}`);
+  const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
+  const projectRoot = resolve(input.projectRoot ?? process.cwd());
+  const sourceSnapshots = new Map<string, string>();
+  const executableSources = new Map<string, string>();
+  for (const site of boundary.identitySites) {
+    const registeredPath = boundary.paths.find((candidate) => candidate.sourcePath === site.sourcePath);
+    if (!registeredPath) throw new Error(`${boundary.id}/${site.siteId}: identity-site owner is not registered`);
+    const base = registeredPath.scope === 'runtime-package' ? runtimePackageRoot : projectRoot;
+    const absolute = resolve(base, registeredPath.path);
+    if (!existsSync(absolute) || !statSync(absolute).isFile()) {
+      if (registeredPath.scope === 'project') continue;
+      throw new Error(`${boundary.id}/${site.siteId}: registered runtime identity-site bytes are missing`);
+    }
+    let sourceBytes = sourceSnapshots.get(absolute);
+    if (sourceBytes === undefined) {
+      sourceBytes = readFileSync(absolute, 'utf8');
+      executableSources.set(registeredPath.sourcePath, sourceBytes);
+      sourceSnapshots.set(absolute, sourceBytes);
+    }
+    const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, sourceBytes);
+    assertIdentitySiteValueBinding(site, sourceBytes, boundary.id);
+    if (site.identityOrigin) {
+      // Only the five explicitly bound imported authorities are inspected; this
+      // is not recursive dependency discovery or generic legacy admission.
+      const originPath = resolve(runtimePackageRoot, runtimeSource(site.identityOrigin.sourcePath).path);
+      if (!existsSync(originPath) || !statSync(originPath).isFile()) {
+        throw new Error(`${boundary.id}/${site.siteId}: imported identity origin is missing`);
+      }
+      const originBytes = readFileSync(originPath, 'utf8');
+      const escapedName = site.identityOrigin.exportName.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+      const declarations = [...originBytes.matchAll(new RegExp(`(?:^|\\n)export const ${escapedName}\\s*=\\s*([^;\\n]+);`, 'gu'))];
+      if (declarations.length !== 1 || ![`'${site.canonical}'`, `"${site.canonical}"`].includes(declarations[0][1].trim())) {
+        throw new Error(`${boundary.id}/${site.siteId} consumer rejected imported identity origin; expected exact canonical ${site.canonical}; observed ${declarations.map(declaration => declaration[1]).join(', ') || 'missing declaration'}`);
+      }
+    }
+    const counts = site.sourceOccurrences;
+    const countNeedle = (needle: string): number => {
+      if (site.sourceNeedle !== site.canonical) return bytes.split(needle).length - 1;
+      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+      return [...bytes.matchAll(new RegExp(`(?<![a-zA-Z0-9._-])${escaped}(?![a-zA-Z0-9._-])`, 'gu'))].length;
+    };
+    const exactOccurrenceDrift = counts && (
+      countNeedle(site.sourceNeedle) !== counts.canonical
+      || countNeedle(site.retiredNeedle) !== counts.retired
+    );
+    if (exactOccurrenceDrift || countNeedle(site.sourceNeedle) === 0 || (!counts && countNeedle(site.retiredNeedle) > 0)) {
+      throw new Error(
+        `${boundary.id}/${site.siteId} consumer rejected active identity bytes; ` +
+        `expected exact ${site.canonical} and no ${site.retired}`,
+      );
+    }
+  }
+  // Exact value checks remain independently operative; the final syntax guard
+  // then catches live rewiring and decoys that keep those values unchanged.
+  for (const [sourcePath, sourceBytes] of executableSources) {
+    assertIdentityExecutableSource(sourcePath, sourceBytes, boundary.id);
+  }
+}
 // B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.
 // `existsSync` follows symlinks, so a global `npm link` whose target checkout
 // was deleted (exactly the failure this story targets) reads as `absent` and
@@ -459,11 +1533,13 @@ export function classifyRuntimeEntrypointAuthority(
   // (or spoof argv/PATH) while importing main-checkout dist; process.argv[1]
   // alone cannot identify that runtime. Entrypoint git identity is only the
   // fallback for packaged/compatibility launchers without a package root.
+  const loadedCoreGitRoot = gitTopLevel(loadedCorePackageRoot, identityProbe);
   const loadedCoreRelation = worktreeRoot ? relative(worktreeRoot, loadedCorePackageRoot) : null;
   const loadedCoreInsideWorktree = loadedCoreRelation !== null
     && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${delimiter}`) && !isAbsolute(loadedCoreRelation);
-  const runtimeRoot = loadedCoreInsideWorktree ? worktreeRoot : gitTopLevel(loadedCorePackageRoot, identityProbe)
+  const runtimeRoot = loadedCoreGitRoot ?? (loadedCoreInsideWorktree ? worktreeRoot : null)
     ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint), identityProbe) : null);
+  const requiresAuthoritativeRuntime = input.requiresAuthoritativeRuntime !== false;
 
   if ((!worktreeRoot || !gitCommonDir || !mainRoot) && input.requiresAuthoritativeRuntime !== false) {
     const recoveryRoot = worktreeRoot ?? projectRoot;
@@ -483,7 +1559,8 @@ export function classifyRuntimeEntrypointAuthority(
     };
   }
 
-  if (!selfHostWorktree) {
+  const runtimeMatchesProjectWorktree = !!runtimeRoot && !!worktreeRoot && samePath(runtimeRoot, worktreeRoot);
+  if (!selfHostWorktree && runtimeMatchesProjectWorktree) {
     return {
       status: 'pass',
       selfHostWorktree: false,
@@ -493,6 +1570,44 @@ export function classifyRuntimeEntrypointAuthority(
       gitCommonDir,
       runtimeRoot,
       detail: 'Not a linked self-host story worktree; no worktree runtime mismatch applies.',
+    };
+  }
+
+  // B-49df: main-checkout commands were the missing half of the authority
+  // boundary. A globally linked CLI could load a sibling story worktree while
+  // targeting main, then run every registered Story writer. Treat any
+  // self-project runtime root other than the target checkout as foreign when
+  // the caller is admitting a write. Read-only diagnostics deliberately pass,
+  // and external package consumers returned before this self-host branch.
+  if (!selfHostWorktree && !runtimeMatchesProjectWorktree) {
+    if (!requiresAuthoritativeRuntime) {
+      return {
+        status: 'pass',
+        selfHostWorktree: false,
+        ...base,
+        worktreeRoot,
+        mainRoot,
+        gitCommonDir,
+        runtimeRoot,
+        recoveryCommand: worktreeRoot
+          ? renderLocalEntrypointRecoveryCommand(worktreeRoot, input.command, input.commandArgs)
+          : undefined,
+        detail: 'Read-only command allowed with a foreign self-project runtime; Story writers remain fail-closed.',
+      };
+    }
+    return {
+      status: 'blocked',
+      reasonCode: 'foreign_self_project_runtime_for_story_write',
+      selfHostWorktree: false,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand: renderLocalEntrypointRecoveryCommand(worktreeRoot ?? projectRoot, input.command, input.commandArgs),
+      detail: runtimeRoot
+        ? `Loaded runtime belongs to a different self-project checkout (${runtimeRoot}), not the target checkout (${worktreeRoot ?? projectRoot}).`
+        : 'Could not bind the active runtime to the target self-project checkout.',
     };
   }
 
@@ -520,7 +1635,7 @@ export function classifyRuntimeEntrypointAuthority(
     };
   }
 
-  const runtimeIsLocal = !!runtimeRoot && samePath(runtimeRoot, worktreeRoot!);
+  const runtimeIsLocal = runtimeMatchesProjectWorktree;
   if (runtimeIsLocal) {
     return {
       status: 'pass',
@@ -535,7 +1650,7 @@ export function classifyRuntimeEntrypointAuthority(
   }
 
   const runtimeIsMain = !!runtimeRoot && !!mainRoot && samePath(runtimeRoot, mainRoot);
-  if (runtimeIsMain) {
+  if (runtimeIsMain && requiresAuthoritativeRuntime) {
     return {
       status: 'blocked',
       reasonCode: STALE_GLOBAL_RUNTIME_REASON_CODE,
@@ -550,7 +1665,7 @@ export function classifyRuntimeEntrypointAuthority(
     };
   }
 
-  if (input.requiresAuthoritativeRuntime !== false) {
+  if (requiresAuthoritativeRuntime) {
     return {
       status: 'blocked',
       reasonCode: 'runtime_authority_unresolved_in_worktree',

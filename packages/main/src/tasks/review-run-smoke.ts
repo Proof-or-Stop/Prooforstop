@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
 import {
-  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptRoleBody,
   reviewerHostRenderIdentity,
@@ -13,7 +12,6 @@ import {
   reviewerDispatchPromptDigest,
 } from '../core/prompt-contracts.js';
 import {
-  hashReviewPrompt,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -22,7 +20,7 @@ import { signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import type { ReviewPass, ReviewRun } from '../core/types.js';
 
 const fullRollout = {
-  version: 'proofbound.prompt-envelope-rollout.v1',
+  version: 'proof-or-stop.prompt-envelope-rollout.v1',
   roles: { 'proof-or-stop-review-quality': 'full-envelope' },
 } as const;
 const qualityPrompt = resolvePromptRoleBody('proof-or-stop-review-quality', fullRollout).body;
@@ -41,7 +39,7 @@ const envelope = assembleFullPromptEnvelope({
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
   rolePrompt: qualityPrompt,
   taskContext: {
-    schemaVersion: 'proofbound.full-task-context.v1',
+    schemaVersion: 'proof-or-stop.full-task-context.v1',
     storyId: 'B-run',
     title: 'Review run envelope',
     description: 'Bind reviewer authority to a content-addressed full Prompt Envelope.',
@@ -188,58 +186,31 @@ pass._hash = signReviewPass(
 assert.equal(verifyReviewPass(run.storyId, pass), true);
 assert.equal(verifyReviewPass(run.storyId, { ...pass, envelopeId: 'f'.repeat(64) }), false);
 
-const legacy: ReviewRun = { ...run };
-delete legacy.envelopeId;
-delete legacy.assembledPrompt;
-legacy.promptHash = hashReviewPrompt(resolvePromptRoleBody('proof-or-stop-review-quality', {
-  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-  roles: { 'proof-or-stop-review-quality': 'legacy-full-context' },
-}).body);
-legacy._hash = signReviewRun(
-  legacy.storyId,
-  legacy.reviewRunId,
-  legacy.agent,
-  legacy.lane,
-  legacy.reviewRound,
-  legacy.startedAt,
-  legacy.headHash,
-  legacy.materialHash,
-  legacy.promptHash,
+const preEnvelope: ReviewRun = { ...run };
+delete preEnvelope.envelopeId;
+delete preEnvelope.assembledPrompt;
+preEnvelope._hash = signReviewRun(
+  preEnvelope.storyId,
+  preEnvelope.reviewRunId,
+  preEnvelope.agent,
+  preEnvelope.lane,
+  preEnvelope.reviewRound,
+  preEnvelope.startedAt,
+  preEnvelope.headHash,
+  preEnvelope.materialHash,
+  preEnvelope.promptHash,
   undefined,
   undefined,
-  legacy.storyFilesHash,
+  preEnvelope.storyFilesHash,
 );
-assert.equal(verifyReviewRun(legacy), true, 'pre-envelope ReviewRun remains readable in bounded legacy mode');
+assert.equal(verifyReviewRun(preEnvelope), false, 'pre-envelope ReviewRun is inert and rejected by the current reader');
 assert.deepEqual(
   verifyReviewRunPromptEnvelope({
     readPromptEnvelopes: () => ({ envelopes: [] }),
     readProcessEvents: () => [],
-  } as never, legacy),
-  { ok: true },
-  'bounded pre-binding legacy run must reconstruct the exact frozen body and Role Contract',
-);
-assert.equal(
-  verifyReviewRunPromptEnvelope({
-    readPromptEnvelopes: () => ({ envelopes: [] }),
-    readProcessEvents: () => [{
-      type: 'dispatch',
-      targetKind: 'story-review',
-      agentType: legacy.lane,
-      reviewRound: legacy.reviewRound,
-      hostRenderHost: 'codex',
-      hostRenderIdentityDigest: 'tampered',
-    }],
-  } as never, legacy).ok,
-  false,
-  'once legacy dispatch binding exists, host/body drift must fail closed',
-);
-assert.equal(
-  verifyReviewRunPromptEnvelope({ readPromptEnvelopes: () => ({ envelopes: [] }), readProcessEvents: () => [] } as never, {
-    ...legacy,
-    promptHash: 'tampered',
-  }).ok,
-  false,
-  'legacy no-envelope path never accepts an unverified prompt hash',
+  } as never, preEnvelope),
+  { ok: false, reason: 'ReviewRun without a current Prompt Envelope identity is unsupported' },
+  'current Prompt Envelope consumer rejects pre-binding historical runs without rewriting them',
 );
 
 console.log('review-run Prompt Envelope smoke: PASS');

@@ -26,10 +26,15 @@ const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
 try { verifyBuildBinding(projectRoot); process.exit(0); } catch { /* not verified → build under the lock */ }
 
 // The mutex wraps the ENTIRE critical section (staging build + atomic swap +
-// writeBuildBinding), serializing concurrent BUILDERS. It does NOT gate the ~90
-// non-lock-holding dist READERS, so the atomic staging-swap below (not an in-place
-// rm) is what keeps a reader from ever seeing a half-removed dist; writeBuildBinding
-// is INSIDE the lock so a concurrent verify never reads a torn binding.
+// writeBuildBinding), serializing concurrent BUILDERS. Since B-bcae withBuildLock takes
+// TWO targets — buildLockTarget, which is what serializes builders and what every
+// build-in-progress observer reads, and, nested inside it, distImportLockTarget, the
+// READER-ADMISSION target bin/bootstrap-runner.js acquires before its initial dist
+// import. So this section DOES gate that reader: a bin/proof-or-stop.js startup waits
+// here instead of importing mid-promotion. It still does not gate dist readers that take
+// no lock at all (in-repo direct dist imports), and for those the atomic staging-swap
+// below (not an in-place rm) remains what keeps them from seeing a half-removed dist.
+// writeBuildBinding is INSIDE the lock so a concurrent verify never reads a torn binding.
 await withBuildLock(projectRoot, async () => {
   // DOUBLE-CHECK under the lock: a concurrent builder may have produced a fresh
   // dist while we waited, in which case skip the rebuild.
@@ -39,9 +44,11 @@ await withBuildLock(projectRoot, async () => {
   const trash = join(packageRoot, `dist.trash-${process.pid}`);
   // ATOMIC-SWAP build: tsc emits over seconds. Doing it in place (rm dist; tsc)
   // leaves dist absent/partial for that whole window; the build lock excludes only
-  // other lock-takers, NOT the ~90 non-lock-holding dist readers (bin/bootstrap-
-  // runner.js on every bin/proofOrStop.js call, in-repo dist imports), which then hit
-  // MODULE_NOT_FOUND. Build into a dist SIBLING (same filesystem → rename is atomic)
+  // lock-takers. Since B-bcae bin/bootstrap-runner.js IS one of those on every
+  // bin/proof-or-stop.js call — it takes the reader-admission target this section also
+  // holds — but dist readers that take no lock at all (in-repo direct dist imports)
+  // still are not excluded, and would hit MODULE_NOT_FOUND in that window.
+  // Build into a dist SIBLING (same filesystem → rename is atomic)
   // and promote by rename: a reader sees the old-complete or new-complete dist. A
   // fresh staging each build preserves the clean-build proof (every emitted file
   // came from this tsc invocation).

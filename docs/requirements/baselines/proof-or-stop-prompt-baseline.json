@@ -7,136 +7,121 @@
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
     "roleCount": 18,
-    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
+    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact canonical role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally verifies current body, Role Contract, and Claude/Codex host identity digests against actual resolver outputs. Retired-mode expectations are not current evidence and remain only in Git history. Diagnostic occurrence scanners do not authorize prompt changes.",
     "roles": [
       {
         "role": "proof-or-stop-implementation-reviewer",
-        "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
+        "templateHash": "8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2"
       },
       {
         "role": "proof-or-stop-evaluator-cli",
-        "templateHash": "bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc"
+        "templateHash": "6e53041db7c75c5ca9d977f1fd1b6492f9a08b0ce1e8d3e38981dc069f3bdf73"
       },
       {
         "role": "proof-or-stop-evaluator",
-        "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
+        "templateHash": "7fe2019950da7ab4a40c93dccf1e9fcb6776427d7a4b1b0d1ecebed3ac555d9b"
       },
       {
         "role": "proof-or-stop-implementer",
-        "templateHash": "611ceb11232ebf8cb6dfc22b7669524d44b50c2729891a3681055d64936b17d5"
+        "templateHash": "a390089e003a28326996e085c50508e9e03241514f0c9d03d8ce20453f03eb63"
       },
       {
         "role": "proof-or-stop-review-behavior",
-        "templateHash": "a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54"
+        "templateHash": "cd13a77bcf6e86584693ceacdfd85e3f4f4fe3745d9b29f576ecbf6f548c8b1b"
       },
       {
         "role": "proof-or-stop-review-channel",
-        "templateHash": "dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f"
+        "templateHash": "cd448e83cf5fb71c3d484b33d7100d8338bee3c613078281ee36042533c9719a"
       },
       {
         "role": "proof-or-stop-review-concept",
-        "templateHash": "2d604a1f82169895940e4329cac3562be0e349a5107f4c988ec10db4e2e9a4e0"
+        "templateHash": "9d67e1fce1618a62d17d6596c618eabcabe77871ac6953ea2c4a6864951263e9"
       },
       {
         "role": "proof-or-stop-review-delivery",
-        "templateHash": "5e514fcd169cfd6e935ac0837ffa3caa57760af7def44b3f137896c1bbf799b8"
+        "templateHash": "c6fbc3d2d5d50e09a0be5492633e2dc30cd73dc40da83824d4050971aad53c20"
       },
       {
         "role": "proof-or-stop-review-docs",
-        "templateHash": "a0aa78c4959c3d6dc3e3433b729c165f5b778eead596010e803a3ad4fc1f6008"
+        "templateHash": "9f67a74f162139766203513fa89a57efd6300a838c1191e058fd00d13f9e98e6"
       },
       {
         "role": "proof-or-stop-review-quality",
-        "templateHash": "a4fd9fd8b2f20c63159b9134780e710383f88d729373652f10f1d9fc49c23912"
+        "templateHash": "7379d6511785830434ecec00c10a5693d0b80c7ba7dbf0321a89ad77cce3cab4"
       },
       {
         "role": "proof-or-stop-review-scope-plan",
-        "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
+        "templateHash": "3200879c4a43463bc21ed40d32b733a4d096c772b56503bcc74aebea1bebe841"
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "templateHash": "a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c"
+        "templateHash": "8727ff1840c9572ccdebcc0af2f258045cc921bfd20cff4bafeef39406b2403e"
       },
       {
         "role": "proof-or-stop-review-test-coverage",
-        "templateHash": "e393d606e38e55de6d451898da45767fb1b3eae469e00aa1728519f4c36f177d"
+        "templateHash": "5c78d6c34c74133c1d8bf40c7d08bf1d4c598fe045a40c0aa7a8b3ce1a3440a1"
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "templateHash": "8f3b75c63ed3d7df6360775d535898e628fbb41c7592d15f2ba8f4356b966063"
+        "templateHash": "85aa26b5a69ffbbd5e7d0103295b65ae0ceb95e5719f8124797aa958655b23db"
       },
       {
         "role": "proof-or-stop-product-reviewer",
-        "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
+        "templateHash": "0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda"
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
-        "templateHash": "5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57"
+        "templateHash": "501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc"
       },
       {
         "role": "proof-or-stop-test-intent",
-        "templateHash": "ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d"
+        "templateHash": "d1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27"
       },
       {
         "role": "proof-or-stop-verification-intent",
-        "templateHash": "45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4"
+        "templateHash": "a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf"
       }
     ],
     "roleBodyRollout": [
       {
         "role": "proof-or-stop-review-behavior",
-        "legacyBodySha256": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2",
-        "modularBodySha256": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4",
-        "roleSemanticDigest": "af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8",
-        "roleRenderDigest": "3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0",
-        "legacyClaudeRenderDigest": "0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d",
-        "legacyCodexRenderDigest": "0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a",
-        "modularClaudeRenderDigest": "32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767",
-        "modularCodexRenderDigest": "3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99"
+        "modularBodySha256": "a906011378e1e275833abf0832ff20fa2c91713106fc35eabf82be204963b0ce",
+        "roleSemanticDigest": "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd",
+        "roleRenderDigest": "5df25a5724090c665c061366581187dd47c7fff1cf6406b10f05a81a2e9da3ff",
+        "modularClaudeRenderDigest": "89c388cac36f89bd98ef3d7a84034d8673f27fbf800d6964600704c56f478907",
+        "modularCodexRenderDigest": "3035799f19f464c6211315e4b59da2500acdd97aeec62372e538116486902b6a"
       },
       {
         "role": "proof-or-stop-review-concept",
-        "legacyBodySha256": "c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c",
-        "modularBodySha256": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a",
-        "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
-        "roleRenderDigest": "aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43",
-        "legacyClaudeRenderDigest": "cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622",
-        "legacyCodexRenderDigest": "1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63",
-        "modularClaudeRenderDigest": "5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1",
-        "modularCodexRenderDigest": "daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1"
+        "modularBodySha256": "c4cbe1b929a2bd6e936a449611695b8c461db0124175328b1f15c3d0ca96fd53",
+        "roleSemanticDigest": "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728",
+        "roleRenderDigest": "08308c0699fc845c4f4d4ed3f11992695e0bbed9ae9749a4e29c06798f6412e9",
+        "modularClaudeRenderDigest": "6d4d443c70147fdb00d627a8d98140ace8e73c97f4001a59e4353f65fb86617a",
+        "modularCodexRenderDigest": "95999a304098b554827bf0a48285134a3c1f0fe71b91e5e7999801737e2c7ca1"
       },
       {
         "role": "proof-or-stop-review-docs",
-        "legacyBodySha256": "ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af",
-        "modularBodySha256": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6",
-        "roleSemanticDigest": "9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7",
-        "roleRenderDigest": "6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47",
-        "legacyClaudeRenderDigest": "904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b",
-        "legacyCodexRenderDigest": "10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f",
-        "modularClaudeRenderDigest": "776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5",
-        "modularCodexRenderDigest": "5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5"
+        "modularBodySha256": "23b0f2bad2415e9cfd79e5b398e5e4c2af2ef261150dd241f91d4494608c1afd",
+        "roleSemanticDigest": "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43",
+        "roleRenderDigest": "5403213e54f788d2c32aba9c2b64e5062cd3e822d479cdffff304519730a2a80",
+        "modularClaudeRenderDigest": "816b003441ff415786b678e885018018a8804f3ec8e83a59a01eef631dd60d1b",
+        "modularCodexRenderDigest": "77a90938f41129f13f5627765105faf59fa83da7ee50ef3e448a65e5aa89e47a"
       },
       {
         "role": "proof-or-stop-review-quality",
-        "legacyBodySha256": "1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504",
-        "modularBodySha256": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15",
-        "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
-        "roleRenderDigest": "10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b",
-        "legacyClaudeRenderDigest": "ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539",
-        "legacyCodexRenderDigest": "969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27",
-        "modularClaudeRenderDigest": "1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a",
-        "modularCodexRenderDigest": "f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249"
+        "modularBodySha256": "24cda6545d4ba05dd5a6540dc9cdae479cacb6ceab86624709e9c2dbe5fb208e",
+        "roleSemanticDigest": "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff",
+        "roleRenderDigest": "72b22187a59d9ea0e251686c1ed9249f60aa74cff1bed47a5893bf00bf83099b",
+        "modularClaudeRenderDigest": "9dc641ce58dd7caf6dcb688c68aaa894cf1b783b5efbdd4e50aef7715c7c70f9",
+        "modularCodexRenderDigest": "86cb9537e6d319f3b0721d1f51ec350b94f98302396b5199b02fbcf965afcead"
       },
       {
         "role": "proof-or-stop-review-test-coverage",
-        "legacyBodySha256": "2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88",
-        "modularBodySha256": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0",
-        "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
-        "roleRenderDigest": "f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3",
-        "legacyClaudeRenderDigest": "f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256",
-        "legacyCodexRenderDigest": "683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f",
-        "modularClaudeRenderDigest": "f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495",
-        "modularCodexRenderDigest": "71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2"
+        "modularBodySha256": "a0d44b7ea6bc5f38b8de5a8548ce42d470aab84cde512b9f1dc72c98de33c1c1",
+        "roleSemanticDigest": "f919fc963b1e6dbe3f98b468ad1b3aa9bf8d0e189bba9752e904f3527c1cc615",
+        "roleRenderDigest": "d9c0ba29ca866c28c1d7bf29903ef3a9eb3dd7b481ae677c0ced3bbd17366659",
+        "modularClaudeRenderDigest": "9ca0655cebeabd44d654858156aa8020376bfe9727beafca613129842f600363",
+        "modularCodexRenderDigest": "b6ab821e82b816413644a48559d1767f6ead3c1aa5f1ba9d8d66bf247c339132"
       }
     ]
   },
@@ -145,23 +130,23 @@
     "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 18,
-    "materialHash": "95300da437040a363c6ef50c99115dc47792587edce4dd60152ba75a11929137",
+    "materialHash": "e3b79235201971ac8a134636c464fa845149cbd6cc6ae4222f991b9158e85cd3",
     "roles": [
       {
         "role": "proof-or-stop-evaluator-cli",
         "file": "proof-or-stop-evaluator-cli.md",
         "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-        "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89",
-        "bytes": 9480,
+        "templateHash": "6e53041db7c75c5ca9d977f1fd1b6492f9a08b0ce1e8d3e38981dc069f3bdf73",
+        "bytes": 9492,
         "lines": 213
       },
       {
         "role": "proof-or-stop-evaluator",
         "file": "proof-or-stop-evaluator.md",
         "relPath": "templates/agents/proof-or-stop-evaluator.md",
-        "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28",
-        "bytes": 9014,
-        "lines": 201
+        "templateHash": "7fe2019950da7ab4a40c93dccf1e9fcb6776427d7a4b1b0d1ecebed3ac555d9b",
+        "bytes": 3972,
+        "lines": 107
       },
       {
         "role": "proof-or-stop-implementation-reviewer",
@@ -175,9 +160,9 @@
         "role": "proof-or-stop-implementer",
         "file": "proof-or-stop-implementer.md",
         "relPath": "templates/agents/proof-or-stop-implementer.md",
-        "templateHash": "58be1af7c404571d29d197eb6b5d2f14f6cb64618a509046c271413d59d7a59b",
-        "bytes": 16841,
-        "lines": 245
+        "templateHash": "a390089e003a28326996e085c50508e9e03241514f0c9d03d8ce20453f03eb63",
+        "bytes": 11781,
+        "lines": 151
       },
       {
         "role": "proof-or-stop-product-reviewer",
@@ -191,81 +176,81 @@
         "role": "proof-or-stop-review-behavior",
         "file": "proof-or-stop-review-behavior.md",
         "relPath": "templates/agents/proof-or-stop-review-behavior.md",
-        "templateHash": "ed3d5c2c8e995f63ea8b874bd88eb8d9801efb4ad4bed6094f8c56da91ff1a84",
-        "bytes": 20458,
+        "templateHash": "cd13a77bcf6e86584693ceacdfd85e3f4f4fe3745d9b29f576ecbf6f548c8b1b",
+        "bytes": 20461,
         "lines": 146
       },
       {
         "role": "proof-or-stop-review-channel",
         "file": "proof-or-stop-review-channel.md",
         "relPath": "templates/agents/proof-or-stop-review-channel.md",
-        "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213",
-        "bytes": 12364,
+        "templateHash": "cd448e83cf5fb71c3d484b33d7100d8338bee3c613078281ee36042533c9719a",
+        "bytes": 12370,
         "lines": 193
       },
       {
         "role": "proof-or-stop-review-concept",
         "file": "proof-or-stop-review-concept.md",
         "relPath": "templates/agents/proof-or-stop-review-concept.md",
-        "templateHash": "e3eddfbc2564482f26ac6fa36d1123f54c5ffb6e9e05400d70525a4d75bdf0b8",
-        "bytes": 16558,
+        "templateHash": "9d67e1fce1618a62d17d6596c618eabcabe77871ac6953ea2c4a6864951263e9",
+        "bytes": 16561,
         "lines": 115
       },
       {
         "role": "proof-or-stop-review-delivery",
         "file": "proof-or-stop-review-delivery.md",
         "relPath": "templates/agents/proof-or-stop-review-delivery.md",
-        "templateHash": "9b55416cc6590c2152f6af9d67e1d825f47e90632c113dc1d6a72192149de4e0",
-        "bytes": 14230,
-        "lines": 290
+        "templateHash": "c6fbc3d2d5d50e09a0be5492633e2dc30cd73dc40da83824d4050971aad53c20",
+        "bytes": 9170,
+        "lines": 196
       },
       {
         "role": "proof-or-stop-review-docs",
         "file": "proof-or-stop-review-docs.md",
         "relPath": "templates/agents/proof-or-stop-review-docs.md",
-        "templateHash": "3caa393a008e975beebfd189a291068fcd239885bb3b2a4c118595dae852f17a",
-        "bytes": 19687,
+        "templateHash": "9f67a74f162139766203513fa89a57efd6300a838c1191e058fd00d13f9e98e6",
+        "bytes": 19690,
         "lines": 164
       },
       {
         "role": "proof-or-stop-review-quality",
         "file": "proof-or-stop-review-quality.md",
         "relPath": "templates/agents/proof-or-stop-review-quality.md",
-        "templateHash": "d6293c683863f42c80117eff35d7f4656b6940ee31aed819ed7d08115b8bc52f",
-        "bytes": 17056,
+        "templateHash": "7379d6511785830434ecec00c10a5693d0b80c7ba7dbf0321a89ad77cce3cab4",
+        "bytes": 17059,
         "lines": 139
       },
       {
         "role": "proof-or-stop-review-scope-plan",
         "file": "proof-or-stop-review-scope-plan.md",
         "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
-        "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b",
-        "bytes": 15075,
-        "lines": 206
+        "templateHash": "3200879c4a43463bc21ed40d32b733a4d096c772b56503bcc74aebea1bebe841",
+        "bytes": 10021,
+        "lines": 112
       },
       {
         "role": "proof-or-stop-review-story-init",
         "file": "proof-or-stop-review-story-init.md",
         "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-        "templateHash": "b915cdfa3625ad1049ddc9662731ce73f5608ab315eea3931729621aa85599c0",
-        "bytes": 18232,
-        "lines": 259
+        "templateHash": "8727ff1840c9572ccdebcc0af2f258045cc921bfd20cff4bafeef39406b2403e",
+        "bytes": 8557,
+        "lines": 110
       },
       {
         "role": "proof-or-stop-review-test-coverage",
         "file": "proof-or-stop-review-test-coverage.md",
         "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
-        "templateHash": "0fb008a2d22a97f5d52e06cbede65f92e094935984c9886d8d822424e9edebe2",
-        "bytes": 14474,
+        "templateHash": "5c78d6c34c74133c1d8bf40c7d08bf1d4c598fe045a40c0aa7a8b3ce1a3440a1",
+        "bytes": 14477,
         "lines": 101
       },
       {
         "role": "proof-or-stop-review-topology-critic",
         "file": "proof-or-stop-review-topology-critic.md",
         "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-        "templateHash": "8ef0f3b8ed3eecf63ce13258dd0f3a3e5d7ebee605f352d900c6119d10474c35",
-        "bytes": 20313,
-        "lines": 196
+        "templateHash": "85aa26b5a69ffbbd5e7d0103295b65ae0ceb95e5719f8124797aa958655b23db",
+        "bytes": 4232,
+        "lines": 47
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
@@ -299,15 +284,15 @@
     "outputs": [
       {
         "role": "proof-or-stop-evaluator-cli",
-        "sha256": "8ce54cefe45b342a26588df7f411074a6327c8c7f3c63c9a4c57a91ab51bfd71",
-        "bytes": 9481,
+        "sha256": "98bb7b95fcf5b55005cc7dac71362922ead306a45803f1b955d647f797dd3a86",
+        "bytes": 9493,
         "lines": 214
       },
       {
         "role": "proof-or-stop-evaluator",
-        "sha256": "6428dde90a9b5a40f7d783d2c00157743b7b0dde58c7549e290c0126822f5711",
-        "bytes": 9027,
-        "lines": 202
+        "sha256": "c60d050106733acde11290289713ced41c33649ec95a824e132a956a3abe4236",
+        "bytes": 3973,
+        "lines": 108
       },
       {
         "role": "proof-or-stop-implementation-reviewer",
@@ -317,9 +302,9 @@
       },
       {
         "role": "proof-or-stop-implementer",
-        "sha256": "f8d55aed16a7815ca15e855dab48af9f213ff9971cdabcf2ab000d4b8fb86f3a",
-        "bytes": 16854,
-        "lines": 246
+        "sha256": "7b515e7af095f1bce36a98777dd5a248c685fe2f3848ecead123e3548ad2d326",
+        "bytes": 11782,
+        "lines": 152
       },
       {
         "role": "proof-or-stop-product-reviewer",
@@ -335,8 +320,8 @@
       },
       {
         "role": "proof-or-stop-review-channel",
-        "sha256": "e8b66844ba897a417a7853e95ff28f05ab8ed619f6f6fca07c12b7f372cdfadf",
-        "bytes": 12365,
+        "sha256": "41594edc77424d43ff9974a5454ae2bc6beef4071992dbe4ed2b01d4d24ada2b",
+        "bytes": 12371,
         "lines": 194
       },
       {
@@ -347,9 +332,9 @@
       },
       {
         "role": "proof-or-stop-review-delivery",
-        "sha256": "550b7397d3c32a546651a5a0e373d4c11be969d3133516d49618ba476d4f1ee5",
-        "bytes": 14243,
-        "lines": 291
+        "sha256": "651c1f4a9295118613e7a9a6106a6bc3576fea9959096fc57e4b33a98da1ff5a",
+        "bytes": 9171,
+        "lines": 197
       },
       {
         "role": "proof-or-stop-review-docs",
@@ -365,15 +350,15 @@
       },
       {
         "role": "proof-or-stop-review-scope-plan",
-        "sha256": "abc11f2e3797d9f36401131eee7138c54c89d764c8ff9105cf9c01accf8b1bd6",
-        "bytes": 15088,
-        "lines": 207
+        "sha256": "0a1108bde65c5326196121ca66886e44af23987a073c4ab8226faee309b15119",
+        "bytes": 10022,
+        "lines": 113
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "sha256": "733819f117bb23d6a93f98e7f75379a577fdc5d5c44780bbf729c29bb4e21639",
-        "bytes": 18245,
-        "lines": 260
+        "sha256": "944dff91f925bb49a66cb952f61c8ef1c4f5d8e86eaf85f7399b604aff5abc8e",
+        "bytes": 8558,
+        "lines": 111
       },
       {
         "role": "proof-or-stop-review-test-coverage",
@@ -647,7 +632,7 @@
     "machineChecks": [
       "Lock the exact 18 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
-      "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
+      "For five modular reviewer roles, verify actual canonical body, Role Contract, and Claude/Codex host identities against independent pins.",
       "Lock agent_prompt output hashes.",
       "Require every role-matrix field to be a non-empty string.",
       "Require JSON/Markdown parity and reject snapshot drift."
@@ -675,12 +660,12 @@
         {
           "role": "proof-or-stop-evaluator-cli",
           "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-          "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89"
+          "templateHash": "6e53041db7c75c5ca9d977f1fd1b6492f9a08b0ce1e8d3e38981dc069f3bdf73"
         },
         {
           "role": "proof-or-stop-evaluator",
           "relPath": "templates/agents/proof-or-stop-evaluator.md",
-          "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28"
+          "templateHash": "7fe2019950da7ab4a40c93dccf1e9fcb6776427d7a4b1b0d1ecebed3ac555d9b"
         },
         {
           "role": "proof-or-stop-implementation-reviewer",
@@ -690,7 +675,7 @@
         {
           "role": "proof-or-stop-implementer",
           "relPath": "templates/agents/proof-or-stop-implementer.md",
-          "templateHash": "58be1af7c404571d29d197eb6b5d2f14f6cb64618a509046c271413d59d7a59b"
+          "templateHash": "a390089e003a28326996e085c50508e9e03241514f0c9d03d8ce20453f03eb63"
         },
         {
           "role": "proof-or-stop-product-reviewer",
@@ -700,52 +685,52 @@
         {
           "role": "proof-or-stop-review-behavior",
           "relPath": "templates/agents/proof-or-stop-review-behavior.md",
-          "templateHash": "ed3d5c2c8e995f63ea8b874bd88eb8d9801efb4ad4bed6094f8c56da91ff1a84"
+          "templateHash": "cd13a77bcf6e86584693ceacdfd85e3f4f4fe3745d9b29f576ecbf6f548c8b1b"
         },
         {
           "role": "proof-or-stop-review-channel",
           "relPath": "templates/agents/proof-or-stop-review-channel.md",
-          "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213"
+          "templateHash": "cd448e83cf5fb71c3d484b33d7100d8338bee3c613078281ee36042533c9719a"
         },
         {
           "role": "proof-or-stop-review-concept",
           "relPath": "templates/agents/proof-or-stop-review-concept.md",
-          "templateHash": "e3eddfbc2564482f26ac6fa36d1123f54c5ffb6e9e05400d70525a4d75bdf0b8"
+          "templateHash": "9d67e1fce1618a62d17d6596c618eabcabe77871ac6953ea2c4a6864951263e9"
         },
         {
           "role": "proof-or-stop-review-delivery",
           "relPath": "templates/agents/proof-or-stop-review-delivery.md",
-          "templateHash": "9b55416cc6590c2152f6af9d67e1d825f47e90632c113dc1d6a72192149de4e0"
+          "templateHash": "c6fbc3d2d5d50e09a0be5492633e2dc30cd73dc40da83824d4050971aad53c20"
         },
         {
           "role": "proof-or-stop-review-docs",
           "relPath": "templates/agents/proof-or-stop-review-docs.md",
-          "templateHash": "3caa393a008e975beebfd189a291068fcd239885bb3b2a4c118595dae852f17a"
+          "templateHash": "9f67a74f162139766203513fa89a57efd6300a838c1191e058fd00d13f9e98e6"
         },
         {
           "role": "proof-or-stop-review-quality",
           "relPath": "templates/agents/proof-or-stop-review-quality.md",
-          "templateHash": "d6293c683863f42c80117eff35d7f4656b6940ee31aed819ed7d08115b8bc52f"
+          "templateHash": "7379d6511785830434ecec00c10a5693d0b80c7ba7dbf0321a89ad77cce3cab4"
         },
         {
           "role": "proof-or-stop-review-scope-plan",
           "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
-          "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b"
+          "templateHash": "3200879c4a43463bc21ed40d32b733a4d096c772b56503bcc74aebea1bebe841"
         },
         {
           "role": "proof-or-stop-review-story-init",
           "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-          "templateHash": "b915cdfa3625ad1049ddc9662731ce73f5608ab315eea3931729621aa85599c0"
+          "templateHash": "8727ff1840c9572ccdebcc0af2f258045cc921bfd20cff4bafeef39406b2403e"
         },
         {
           "role": "proof-or-stop-review-test-coverage",
           "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
-          "templateHash": "0fb008a2d22a97f5d52e06cbede65f92e094935984c9886d8d822424e9edebe2"
+          "templateHash": "5c78d6c34c74133c1d8bf40c7d08bf1d4c598fe045a40c0aa7a8b3ce1a3440a1"
         },
         {
           "role": "proof-or-stop-review-topology-critic",
           "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-          "templateHash": "8ef0f3b8ed3eecf63ce13258dd0f3a3e5d7ebee605f352d900c6119d10474c35"
+          "templateHash": "85aa26b5a69ffbbd5e7d0103295b65ae0ceb95e5719f8124797aa958655b23db"
         },
         {
           "role": "proof-or-stop-test-case-reviewer",
@@ -1065,18 +1050,6 @@
     ],
     "findings": [
       {
-        "id": "3dc10ad8ea7eb3c0",
-        "role": "proof-or-stop-evaluator",
-        "line": 21,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
         "id": "0bde1c7e688f2ccd",
         "role": "proof-or-stop-evaluator-cli",
         "line": 22,
@@ -1089,21 +1062,9 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "9506853ccd12d399",
+        "id": "423bf84d793029f9",
         "role": "proof-or-stop-implementer",
-        "line": 27,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "6d076cd0a23f1237",
-        "role": "proof-or-stop-implementer",
-        "line": 146,
+        "line": 52,
         "references": [
           "docs/story/"
         ],
@@ -1171,54 +1132,6 @@
         "classification": "process-event-evidence-reference",
         "grandfathered": true,
         "note": "Exact code-reviewed current story-file reference."
-      },
-      {
-        "id": "0747ee80a33f1683",
-        "role": "proof-or-stop-review-delivery",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "46c449cb5772674c",
-        "role": "proof-or-stop-review-scope-plan",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "884936ceaf903acd",
-        "role": "proof-or-stop-review-story-init",
-        "line": 28,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "6ac805b5d795e574",
-        "role": "proof-or-stop-review-topology-critic",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       }
     ]
   }

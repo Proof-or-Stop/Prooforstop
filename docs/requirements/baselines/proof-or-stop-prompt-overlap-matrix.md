@@ -1,13 +1,13 @@
 # Proof-or-Stop Prompt Overlap Matrix
 
 Source plan: `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md`
-Registry material hash: `95300da437040a363c6ef50c99115dc47792587edce4dd60152ba75a11929137`
+Registry material hash: `e3b79235201971ac8a134636c464fa845149cbd6cc6ae4222f991b9158e85cd3`
 Role count: 18
 
 ## Audit Boundary
 
-- Prompt policy boundary: The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.
-- Machine-checked: Lock the exact 18 role snapshots and role IDs. Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest. For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders. Lock agent_prompt output hashes. Require every role-matrix field to be a non-empty string. Require JSON/Markdown parity and reject snapshot drift.
+- Prompt policy boundary: The independent code-reviewed approval manifest binds every exact canonical role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally verifies current body, Role Contract, and Claude/Codex host identity digests against actual resolver outputs. Retired-mode expectations are not current evidence and remain only in Git history. Diagnostic occurrence scanners do not authorize prompt changes.
+- Machine-checked: Lock the exact 18 role snapshots and role IDs. Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest. For five modular reviewer roles, verify actual canonical body, Role Contract, and Claude/Codex host identities against independent pins. Lock agent_prompt output hashes. Require every role-matrix field to be a non-empty string. Require JSON/Markdown parity and reject snapshot drift.
 - Reviewer-audited fields: `status`, `phase`, `purpose`, `commands`, `directFileAccess`, `inputs`, `outputs`, `capabilities`, `overlapCategory`, `notes`.
 - Semantic limit: Every human-authored role-matrix field is a reviewer-audited semantic snapshot. The verifier proves required fields, exact snapshots and hashes, JSON/Markdown parity, and drift rejection; it does not infer or prove role semantics from prompt prose.
 - Commands includes: Role-owned writes plus role-defining inspection or execution calls named in the role-specific procedure.

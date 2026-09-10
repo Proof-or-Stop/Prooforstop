@@ -11,6 +11,7 @@ import {
 } from '../core/config.js';
 import {
   buildCorpusIndex,
+  CORPUS_INDEX_SCHEMA,
   buildKeywordSeeds,
   collectHostKeywordProposals,
   digestCandidateRoutingValue,
@@ -22,6 +23,7 @@ import {
   type StoryRoutingInput,
   type CandidateRoutingEvaluationWindow,
 } from '../core/candidate-spec-routing.js';
+import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import { runHostRun, type HostRunResult } from '../core/host-run.js';
 import {
   probeReviewHostAvailability,
@@ -237,7 +239,7 @@ function productionExecutor(
   return async ({ host, storyId, sanitizedPayload, promptDigest, seedDigest }) => {
     const canonicalHost = hostName(host);
     const prompt = [
-      'Return only one compact JSON object matching proofbound.keyword-proposal.v1.',
+      'Return only one compact JSON object matching proof-or-stop.keyword-proposal.v1.',
       'Proposals are advisory terms only. Do not claim reads, gates, or completion.',
       'Use at most 20 terms, 5 ambiguity signals, and 160 characters per rationale.',
       `Required identity: storyId=${storyId} host=${host} promptDigest=${promptDigest} deterministicSeedDigest=${seedDigest}`,
@@ -416,6 +418,7 @@ export function createCandidateSpecRoutingHandlers(
       return renderCandidateSpecRouteText(artifact, corpus.entries.length, hostResult.attempts, config.candidateSpecRouting?.mode ?? 'shadow');
     },
     candidate_spec_rollout_check(args: CandidateSpecRolloutCheckArgs) {
+      assertActiveIdentityConsumerContract('candidate-spec-routing', CORPUS_INDEX_SCHEMA);
       if (!Array.isArray(args.windows)) throw new Error('candidate_spec_rollout_check.windows must be an array');
       const verdict = evaluateCandidateRoutingPromotion(args);
       if (args.json || args.format === 'json') return verdict;

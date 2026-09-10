@@ -36,6 +36,12 @@ import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { buildRoutineValidationIdentity } from '../core/validation-evidence-reuse.js';
 import {
+  createCurrentVerificationAssertionReceipt,
+  captureVerificationFreshness,
+  createVerificationExecutionReceipt,
+} from '../core/verification-execution-evidence.js';
+import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
+import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
   INVENTORY_COMPLETENESS_AUTHORITY,
@@ -296,7 +302,7 @@ const admittedStoryId = 'B-cw02';
 const admittedStore = makeStore(root, admittedStoryId);
 const admittedData = emptyCertificationWindowData();
 const admittedWindow: CertificationWindow = withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${admittedStoryId}:CW-001`,
   storyId: admittedStoryId,
   state: 'ADMITTED',
@@ -306,7 +312,7 @@ const admittedWindow: CertificationWindow = withSignedCertificationWindow({
   receiptId: nextPrecertReceiptId(admittedData, admittedStoryId),
 });
 const admittedReceipt: PrecertReceipt = withSignedPrecertReceipt({
-  schemaVersion: 'proofbound.precert_receipt.v1',
+  schemaVersion: 'proof-or-stop.precert_receipt.v1',
   receiptId: admittedWindow.receiptId!,
   windowId: admittedWindow.windowId,
   storyId: admittedStoryId,
@@ -337,7 +343,7 @@ const inventoryAsWindowStoryId = 'B-cw03';
 const inventoryStore = makeStore(root, inventoryAsWindowStoryId);
 const inventoryData = emptyCertificationWindowData();
 inventoryData.windows.push(withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${inventoryAsWindowStoryId}:CW-001`,
   storyId: inventoryAsWindowStoryId,
   state: 'BLOCKED',
@@ -370,7 +376,7 @@ const tamperStoryId = 'B-cw04';
 const tamperStore = makeStore(root, tamperStoryId);
 const tamperData = emptyCertificationWindowData();
 const signed = withSignedCertificationWindow({
-  schemaVersion: 'proofbound.certification_window.v1',
+  schemaVersion: 'proof-or-stop.certification_window.v1',
   windowId: `${tamperStoryId}:CW-001`,
   storyId: tamperStoryId,
   state: 'ADMITTED',
@@ -1295,6 +1301,26 @@ const headDriftRoot = makeGitRoot();
 const headDriftStoryId = 'B-cw24';
 const headDriftStore = makeStore(headDriftRoot, headDriftStoryId);
 const headDriftStoryFiles = currentStoryFilesHash(headDriftRoot, 'HEAD', headDriftRoot)!;
+const headDriftMaterial = currentMaterialHash(headDriftRoot, 'HEAD', headDriftRoot)!;
+const headDriftSelector = 'CERTIFICATION_COVERAGE_OK';
+const headDriftCommand = `node -e "console.log('${headDriftSelector}')"`;
+const headDriftFreshness = captureVerificationFreshness(headDriftRoot, headDriftRoot);
+const headDriftRun = await runSingleAllowlistedCommand(headDriftCommand, headDriftRoot, { cwd: headDriftRoot, timeoutMs: 120_000 });
+const headDriftExecution = createVerificationExecutionReceipt({
+  projectRoot: headDriftRoot,
+  storyId: headDriftStoryId,
+  command: headDriftCommand,
+  cwd: headDriftRoot,
+  run: headDriftRun,
+});
+const headDriftReceipt = createCurrentVerificationAssertionReceipt({
+  freshness: headDriftFreshness,
+  projectRoot: headDriftRoot,
+  storyId: headDriftStoryId,
+  executionReceipt: headDriftExecution,
+  intentRef: 'CHK-001:happy:0',
+  selector: headDriftSelector,
+});
 headDriftStore.writeChecklist(headDriftStoryId, {
   items: [{
     id: 'CHK-001',
@@ -1304,20 +1330,30 @@ headDriftStore.writeChecklist(headDriftStoryId, {
     startTime: null,
     endTime: null,
     verificationIntent: {
-      happy: [{ desc: 'mechanical coverage stays fresh', type: 'logic', priority: 'must' }],
+      happy: [{
+        desc: 'mechanical coverage stays fresh',
+        type: 'logic',
+        priority: 'must',
+        verification: { command: headDriftCommand, selector: headDriftSelector },
+      }],
       edge: [],
       adversarial: [],
     },
     verificationEvidence: [{
       intentRef: 'CHK-001:happy:0',
       kind: 'logic_test',
+      mechanical: true,
+      receipt: headDriftReceipt,
+      command: headDriftCommand,
       result: 'pass',
-      note: 'headHash-only drift fixture',
-      headHash: 'e'.repeat(40),
+      note: 'headHash-only drift fixture with authoritative V5 bundle and V3 execution component',
+      headHash: headDriftFreshness.headHash,
+      materialHash: headDriftMaterial,
       storyFilesHash: headDriftStoryFiles,
     }],
   }],
 });
+git(headDriftRoot, ['commit', '--allow-empty', '-m', 'actual metadata-only head drift after execution']);
 const headDriftMock = mockInventoryApis({
   storyId: headDriftStoryId,
   headHash: currentGitHead(headDriftRoot)!,
@@ -1721,7 +1757,11 @@ writeFileSync(join(atMostOnceRoot, 'src', 'at-most-once.ts'), 'export const curr
 writeFileSync(join(atMostOnceRoot, 'tests', 'at-most-once.test.ts'), 'export const covered = true;\n');
 git(atMostOnceRoot, ['add', 'src/at-most-once.ts', 'tests/at-most-once.test.ts']);
 git(atMostOnceRoot, ['commit', '-m', 'related source and test drift']);
-const atMostOnceInvalidated = atMostOnceWindowHandlers.certification_window_status({ storyId: atMostOnceStoryId });
+const atMostOnceBeforeStatus = structuredClone(atMostOnceStore.readCertificationWindows(atMostOnceStoryId));
+const atMostOnceObservedDrift = atMostOnceWindowHandlers.certification_window_status({ storyId: atMostOnceStoryId });
+assert.match(atMostOnceObservedDrift, /Observed drift:/);
+assert.deepEqual(atMostOnceStore.readCertificationWindows(atMostOnceStoryId), atMostOnceBeforeStatus, 'default status observes drift without mutating the window');
+const atMostOnceInvalidated = atMostOnceWindowHandlers.certification_window_status({ storyId: atMostOnceStoryId, refresh: true });
 assertStatusSurface(atMostOnceInvalidated, 'INVALIDATED');
 assert.equal(
   currentPrecertCheapCheckReceipt({
@@ -2041,8 +2081,10 @@ const replayValidate = createVerifierHandlers({
 const admittedHeavy = await caught(() => replayDone.done_required_validate({ storyId: replayStoryId }));
 assert.doesNotMatch(admittedHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
 assert.equal(existsSync(join(replayRoot, heavyMarker)), true, 'DONE-required validation may start its independent policy command');
+const beforeRoutineStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
 const unchangedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(unchangedStatus, 'ADMITTED');
+assert.deepEqual(replayStore.readCertificationWindows(replayStoryId), beforeRoutineStatus, 'no-drift status stays read-only');
 const routineWindow = replayStore.readCertificationWindows(replayStoryId).windows.at(-1);
 const routineReceipt = receiptForWindow(replayStore.readCertificationWindows(replayStoryId), routineWindow ?? null);
 assert.ok(routineWindow && routineReceipt, 'independent DONE-required validation must retain the signed routine receipt');
@@ -2097,7 +2139,7 @@ assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: sel
 writeFileSync(join(selectiveRoot, 'packages/main/src/core/app.ts'), 'export const n = 2;\n');
 git(selectiveRoot, ['add', 'packages/main/src/core/app.ts']);
 git(selectiveRoot, ['commit', '-m', 'story source change']);
-assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'INVALIDATED');
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId, refresh: true }), 'INVALIDATED');
 
 mkdirSync(join(replayRoot, 'src'), { recursive: true });
 mkdirSync(join(replayRoot, 'tests'), { recursive: true });
@@ -2105,7 +2147,18 @@ writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
 writeFileSync(join(replayRoot, 'tests', 'app.test.ts'), 'export const t = 1;\n');
 git(replayRoot, ['add', 'src/app.ts', 'tests/app.test.ts']);
 git(replayRoot, ['commit', '-m', 'source and test change']);
-const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+const beforeDriftStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
+const driftStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+assertStatusSurface(driftStatus, 'RUNNING');
+assert.match(driftStatus, /^Blocker: \[pre_cert_window_invalidated\]$/m);
+assert.match(driftStatus, /^Observed drift: /m);
+assert.match(driftStatus, new RegExp(`^Next: proof-or-stop certification_window_status --storyId=${replayStoryId} --refresh=true$`, 'm'));
+assert.deepEqual(
+  replayStore.readCertificationWindows(replayStoryId),
+  beforeDriftStatus,
+  'default drift status must report without persisting INVALIDATED',
+);
+const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId, refresh: true });
 assertStatusSurface(invalidatedStatus, 'INVALIDATED');
 assert.match(invalidatedStatus, /^Next: proof-or-stop story_advance .* --phase=REVIEW$/m);
 const afterReceipt = receiptForWindow(
@@ -2209,7 +2262,7 @@ const saturatedInventoryWave = {
   saturated: true,
 };
 const saturatedInventoryEpochUnsigned = {
-  schemaVersion: 'proofbound.review_inventory_epoch.v1' as const,
+  schemaVersion: 'proof-or-stop.review_inventory_epoch.v1' as const,
   epochId: 'B-cw-saturated:RIE-001',
   storyId: 'B-cw-saturated',
   reviewRound: 'round-1',
@@ -2228,7 +2281,7 @@ const saturatedInventoryEpoch = {
   _hash: signReviewInventoryEpoch(saturatedInventoryEpochUnsigned),
 };
 const saturatedInventoryReceiptUnsigned = {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1' as const,
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1' as const,
   receiptId: saturatedInventoryEpoch.receiptId,
   epochId: saturatedInventoryEpoch.epochId,
   storyId: saturatedInventoryEpoch.storyId,

@@ -5,9 +5,10 @@
  * This is intentionally not a replay of historical F-029. The current Finding,
  * B-META, process-event, build, and Store write paths already contain useful
  * serialization/atomic-replacement primitives. Those are characterized as
- * passing below. The process exits non-zero only while the accepted Story 3
- * ledger/runtime contracts are absent; the same assertions turn green once the
- * production implementation exists.
+ * passing below. Historical RED references and actual baseline/current execution
+ * are checked separately from fresh, explicitly fixture-only candidate API
+ * controls. These fixtures do not restore historical candidate CAS or constitute
+ * independent historical review or current Story gate credentials.
  */
 
 import assert from 'node:assert/strict';
@@ -92,8 +93,9 @@ function runProof(command, payload, cwd = repoRoot) {
 // inside a symlink mirror with private Git administration. That mirror contains no
 // independent B-fe8f Story evidence store. Keep that bounded harness useful by
 // checking an integrity-pinned static copy of the already-reviewed evidence
-// identities there; the real worktree path below still executes every official
-// Story read and the same fresh production relation checks.
+// identities there; ordinary worktrees still read the actual historical RED
+// records. Both paths execute fresh production candidate API/CLI controls in a
+// private fixture, never treating it as restored historical candidate bytes.
 // The parent harness proves real Git isolation independently. This finite
 // launch/layout check only selects the existing integrity-pinned static binding;
 // it does not grant authority to the mirror or substitute for that isolation proof.
@@ -377,8 +379,9 @@ const verificationReceiptBody = /export interface VerificationExecutionReceipt\s
 assert.doesNotMatch(verificationReceiptBody, /artifactManifest|sourceMaterialHash|trustRootDigest/, 'coarse verification receipt unexpectedly contains the Story 3 runtime contract');
 
 // Official append-only RED evidence: V2 corrects only the malformed command in
-// V1, while V1's reviewed receipt digest remains preserved. The pair binds the
-// immutable baseline and the accepted relation/review artifacts.
+// V1, while V1's reviewed receipt digest remains preserved. These references do
+// not prove the original clone-local candidate CAS bytes are still available.
+// Fresh fixture identities never replace the original IDs or recorded digests.
 assert.equal(
   sha256(JSON.stringify(registrationMirrorBinding)),
   REGISTRATION_MIRROR_BINDING_DIGEST,
@@ -411,6 +414,7 @@ assert.equal(historicalProbe.artifactDigest, PROBE_DIGEST, 'probe digest changed
 assert.equal(historicalProbe.payload?.executionStatus, 'confirmed_failing', 'probe is not a confirmed failing baseline');
 assert.equal(historicalProbe.payload?.expectedFailurePattern, 'ERR_MODULE_NOT_FOUND', 'probe failure matcher changed');
 assert.equal(original.failureReceiptHash, PROBE_DIGEST, 'original official RED is not bound to the reviewed probe digest');
+assert.equal(original.baselineHeadHash, BASELINE_HEAD, 'original RED baseline reference changed');
 assert.equal(official.baselineHeadHash, historicalProbe.payload?.baselineHeadHash, 'official RED and reviewed probe bind different baseline HEADs');
 assert.match(official.baselineMaterialHash ?? '', /^[0-9a-f]{64}$/, 'official RED lacks a material hash');
 assert.match(official.observedFailure ?? '', /ERR_MODULE_NOT_FOUND/, 'official RED does not state the reviewed failure');
@@ -443,10 +447,14 @@ try {
   assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr || clone.stdout}`);
   const checkout = run('git', ['checkout', '-q', '--detach', BASELINE_HEAD], { cwd: historicalCheckout });
   assert.equal(checkout.status, 0, `historical RED checkout failed: ${checkout.stderr || checkout.stdout}`);
+  assert.equal(existsSync(join(historicalCheckout, 'packages/main/src/core/finding-ledger.ts')), false,
+    'historical missing-module witness must not be merely an unbuilt checkout of an existing ledger implementation');
   const anchoredArgs = ['-e', 'import(process.argv[1])', './packages/main/dist/core/finding-ledger.js'];
+  const baselineCommandSpec = { command: process.execPath, args: anchoredArgs, cwd: historicalCheckout };
+  const currentCommandSpec = { command: process.execPath, args: [...anchoredArgs], cwd: repoRoot };
   process.chdir(tmpdir());
-  const historical = run(process.execPath, anchoredArgs, { cwd: historicalCheckout });
-  const currentGreen = run(process.execPath, anchoredArgs, { cwd: repoRoot });
+  const historical = run(baselineCommandSpec.command, baselineCommandSpec.args, { cwd: baselineCommandSpec.cwd });
+  const currentGreen = run(currentCommandSpec.command, currentCommandSpec.args, { cwd: currentCommandSpec.cwd });
   const historicalOutput = `${historical.stdout}\n${historical.stderr}`;
   historicalBaselineFails = historical.status !== 0 && /ERR_MODULE_NOT_FOUND/.test(historicalOutput);
   currentGreenPasses = currentGreen.status === 0;
@@ -460,18 +468,17 @@ try {
   const fixtureGit = run('git', ['init', '-q', '-b', 'main'], { cwd: fixtureRoot });
   assert.equal(fixtureGit.status, 0, `fixture Git initialization failed: ${fixtureGit.stderr}`);
   writeFileSync(join(fixtureRoot, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.' }));
-  const commandSpec = { command: process.execPath, args: anchoredArgs, cwd: '.' };
   probe = createProbe(fixtureRoot, {
     candidateId: 'bfe8f-portable-relation-fixture',
     taskSummary: 'Verify the fixed historical missing-module import and current GREEN import',
     eligibility: 'Fresh disposable regression fixture from executed Git baseline',
     reason: 'Historical candidate artifacts are not distributed with Git',
-    commandSpec,
+    commandSpec: baselineCommandSpec,
     expectedFailure: 'The fixed historical checkout lacks the ledger module',
     expectedFailurePattern: 'ERR_MODULE_NOT_FOUND',
     executionStatus: historicalBaselineFails ? 'confirmed_failing' : 'confirmed_passing',
     observedFailureSummary: `Historical import exit status: ${historical.status}`,
-    boundedOutputExcerpt: historicalOutput.slice(0, 4096),
+    boundedOutputExcerpt: historicalOutput,
     producerObservedClass: 'target-bug',
     baselineHeadHash: BASELINE_HEAD,
   });
@@ -480,30 +487,63 @@ try {
   const cliProbe = parseCliJson(runProof('repro_probe_get', { probeId: probe.artifactId }, fixtureRoot), 'fresh repro_probe_get');
   assert.equal(cliProbe.artifactDigest, probe.artifactDigest, 'CLI read changed the fresh probe digest');
   assert.deepEqual(cliProbe.payload, probe.payload, 'CLI read changed the fresh probe payload');
-  reviewProbe(fixtureRoot, {
+  // F094_FROZEN_PROBE_OBSERVATION_BEGIN
+  assert.deepEqual(cliProbe.payload.commandSpec, {
+    command: process.execPath, args: anchoredArgs, cwd: historicalCheckout,
+  }, 'F094 fixture probe must bind the actual historical executable, argv and cwd');
+  assert.equal(cliProbe.payload.baselineHeadHash, BASELINE_HEAD, 'F094 fixture probe must bind the executed baseline HEAD');
+  assert.equal(cliProbe.payload.executionStatus, 'confirmed_failing', 'F094 fixture probe must bind the observed baseline failure');
+  assert.equal(cliProbe.payload.expectedFailurePattern, 'ERR_MODULE_NOT_FOUND', 'F094 fixture failure matcher changed');
+  assert.equal(cliProbe.payload.boundedOutputExcerpt, historicalOutput, 'F094 fixture probe must preserve the exact observed baseline output');
+  // F094_FROZEN_PROBE_OBSERVATION_END
+  const absentHistoricalProbe = runProof('repro_probe_get', { probeId: PROBE_ID }, fixtureRoot);
+  assert.notEqual(absentHistoricalProbe.status, 0, 'private fixture unexpectedly acquired the historical probe');
+  assert.match(`${absentHistoricalProbe.stdout}\n${absentHistoricalProbe.stderr}`, /artifact ref not found/);
+  const relation = createRedGreenRelation(fixtureRoot, {
+    probeId: probe.artifactId,
+    baselineCommandSpec,
+    baselineExpectedFailurePattern: probe.payload.expectedFailurePattern,
+    currentCommandSpec,
+    currentExpectedFailurePattern: probe.payload.expectedFailurePattern,
+    description: `Fresh fixture: baseline exit ${historical.status}, current GREEN exit ${currentGreen.status}; explicit checkout cwd per execution.`,
+  });
+  assert.equal(relation.evidenceScope, 'evidence-candidate');
+  assert.notEqual(relation.artifactId, RELATION_ID, 'fresh fixture reused a historical relation identity');
+  // F094_FROZEN_RELATION_ROOTS_BEGIN
+  assert.deepEqual(relation.payload.baselineCommandSpec, {
+    command: process.execPath, args: anchoredArgs, cwd: historicalCheckout,
+  }, 'F094 relation must bind the actual historical execution root');
+  assert.deepEqual(relation.payload.currentCommandSpec, {
+    command: process.execPath, args: anchoredArgs, cwd: repoRoot,
+  }, 'F094 relation must bind the actual current execution root');
+  // F094_FROZEN_RELATION_ROOTS_END
+  assert.equal(relation.payload.baselineCommandSpec.command, relation.payload.currentCommandSpec.command,
+    'the import executable changed between explicit historical/current roots');
+  assert.deepEqual(relation.payload.baselineCommandSpec.args, relation.payload.currentCommandSpec.args,
+    'the import argv changed between explicit historical/current roots');
+  const unreviewed = parseCliJson(runProof('red_green_relation_evaluate', {
+    relationId: relation.artifactId, relationDigest: relation.artifactDigest,
+  }, fixtureRoot), 'fixture unreviewed relation evaluation');
+  assert.equal(unreviewed.evidenceScope, 'evidence-candidate');
+  assert.equal(unreviewed.pass, false, 'otherwise matching relation passed without the fixture review premise');
+  assert.deepEqual(unreviewed.reasons, ['missing red-reviewed target-bug repro review for probe'],
+    'unreviewed relation must be rejected only for the missing fixture review premise');
+  const fixtureReview = reviewProbe(fixtureRoot, {
     probeId: probe.artifactId,
     probeDigest: probe.artifactDigest,
     verdict: 'red-reviewed',
     reviewedFailureClass: 'target-bug',
-    notes: 'Automated fixture classification of the executed missing-module baseline; not an independent historical review.',
+    notes: 'Synthetic fixture-only classification of the executed baseline; not an independent historical review or current Story gate credential.',
   });
-  const relation = createRedGreenRelation(fixtureRoot, {
-    probeId: probe.artifactId,
-    baselineCommandSpec: commandSpec,
-    baselineExpectedFailurePattern: probe.payload.expectedFailurePattern,
-    currentCommandSpec: { command: process.execPath, args: [...anchoredArgs], cwd: '.' },
-    currentExpectedFailurePattern: probe.payload.expectedFailurePattern,
-    description: `Fresh fixture: baseline exit ${historical.status}, current GREEN exit ${currentGreen.status}; explicit checkout cwd per execution.`,
-  });
-  assert.notEqual(relation.artifactId, RELATION_ID, 'fresh fixture reused a historical relation identity');
-  assert.deepEqual(relation.payload.baselineCommandSpec, relation.payload.currentCommandSpec,
-    'the full import command contract changed between baseline and current');
+  assert.equal(fixtureReview.evidenceScope, 'evidence-candidate');
+  assert.notEqual(fixtureReview.artifactId, REVIEW_ID, 'fresh fixture reused a historical review identity');
   const evaluated = evaluateRedGreenRelation(fixtureRoot, {
     relationId: relation.artifactId, relationDigest: relation.artifactDigest,
   });
   relationEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
     relationId: relation.artifactId, relationDigest: relation.artifactDigest,
   }, fixtureRoot), 'fresh red_green_relation_evaluate');
+  assert.equal(relationEvaluation.evidenceScope, 'evidence-candidate');
   assert.equal(relationEvaluation.pass, evaluated.payload.pass, 'CLI and core relation verdicts disagree');
   const digest = relation.artifactDigest;
   const badDigest = `${digest.slice(0, -1)}${digest.endsWith('0') ? '1' : '0'}`;
@@ -518,7 +558,7 @@ try {
   assert.equal(currentCorruptedRelationRejected, true, 'CLI accepted a corrupted relation digest');
   const mismatch = createRedGreenRelation(fixtureRoot, {
     ...relation.payload,
-    currentCommandSpec: { ...commandSpec, command: 'different-executable-negative-control' },
+    currentCommandSpec: { ...currentCommandSpec, command: 'different-executable-negative-control' },
   });
   const mismatchEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
     relationId: mismatch.artifactId, relationDigest: mismatch.artifactDigest,
@@ -542,6 +582,7 @@ function officialBindingAccepts(record, reviewedProbe, options = {}) {
     && record.observedFailure.includes(reviewedProbe.payload?.expectedFailurePattern ?? '__missing__');
 }
 assert.equal(officialBindingAccepts(official, historicalProbe), true, 'official RED pair is not admissible');
+assert.equal(officialBindingAccepts(official, probe), true, 'historical RED reference does not match the fresh executed replay');
 assert.equal(officialBindingAccepts({ ...official, baselineHeadHash: '0'.repeat(40) }, historicalProbe), false, 'changed HEAD was accepted');
 assert.equal(officialBindingAccepts(official, historicalProbe, { dirty: true }), false, 'dirty execution was accepted');
 assert.equal(officialBindingAccepts({ ...official, failingCommand: '' }, historicalProbe), false, 'missing executable command was accepted');
@@ -631,6 +672,7 @@ console.log(`red.audit_summary: current primitives classified; preFixHead=${offi
 console.log('red.production_unchanged: PASS');
 console.log('red.official_evidence_create: PASS');
 console.log('red.relation_fixture: fresh evidence-candidate artifacts; historical receipt identities were not recreated');
+console.log('red.f093_migration_controls: PASS historicalSourceAbsent=true actualCommandOutputBound=true missingOldIdRefused=true unreviewedRelationRefused=true reviewedRelationAccepted=true wrongRequestedDigestRefused=true commandMismatchRefused=true historicalCandidateCASConsumed=false restoredHistoricalCAS=false');
 console.log('red.relation_create: PASS unchangedAssertionBound=true');
 console.log('red.no_fabricated_race: PASS');
 console.log('red.evidence_binding: PASS');

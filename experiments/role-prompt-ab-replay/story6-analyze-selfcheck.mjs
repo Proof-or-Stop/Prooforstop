@@ -10,18 +10,20 @@ const exec = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const runtime = path.join(here, 'runtime', 'story6');
 const campaignId = `selfcheck-provenance-${process.pid}`;
-const corpus = JSON.parse(await readFile(path.join(here, 'corpus.json'), 'utf8'));
+const corpus = JSON.parse(await readFile(path.join(here, 'corpus.current.json'), 'utf8'));
 const sample = corpus.samples.find(row => row.id === 'clean-pass-01');
 const baseCell = { sampleId: sample.id, host: 'codex-cli', arm: 'legacy', repeat: 1, roleId: 'proof-or-stop-review-story-init', cellId: 'clean-pass-01.proof-or-stop-review-story-init.codex-cli.legacy.r1' };
 const base = () => ({
-  schemaVersion: 'proofbound.story6-live-ab-receipt.v1', campaignId,
+  schemaVersion: 'proof-or-stop.story6-live-ab-receipt.v1', campaignId,
   campaignBindingDigest: 'a'.repeat(64), cell: { ...baseCell },
   promptDigest: 'b'.repeat(64), materialDigest: sample.materialDigest, findingSetDigest: sample.findingSetDigest,
   observedAt: '2026-07-20T00:00:00.000Z',
   provenance: {
     kind: 'production-provider-dispatch', producer: 'agent_prompt',
-    producerMode: 'legacy-full-context', producerResponseDigest: 'c'.repeat(64),
-    envelopeId: null, eventBinding: null, gateEvidence: false,
+    producerMode: 'full-envelope', producerResponseDigest: 'c'.repeat(64),
+    envelopeId: 'd'.repeat(64),
+    eventBinding: { promptEnvelopeId: 'd'.repeat(64), assembledPromptDigest: 'e'.repeat(64) },
+    gateEvidence: false,
   },
   provider: { availability: 'unavailable' },
 });
@@ -63,12 +65,12 @@ async function runBindingMismatchRejected() {
   );
 }
 
-async function runModularProducerRejected(name, mutate) {
+async function runCanonicalProducerRejected(name, mutate, arm = 'modular') {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
   const receipt = base();
-  receipt.cell.arm = 'modular';
-  receipt.cell.cellId = receipt.cell.cellId.replace('.legacy.', '.modular.');
+  receipt.cell.arm = arm;
+  receipt.cell.cellId = receipt.cell.cellId.replace('.legacy.', `.${arm}.`);
   receipt.provenance.producerMode = 'full-envelope';
   receipt.provenance.envelopeId = 'd'.repeat(64);
   receipt.provenance.eventBinding = { promptEnvelopeId: 'd'.repeat(64), assembledPromptDigest: 'e'.repeat(64) };
@@ -77,7 +79,7 @@ async function runModularProducerRejected(name, mutate) {
   await assert.rejects(
     exec(process.execPath, [path.join(here, 'story6-analyze.mjs'), `--campaign-id=${campaignId}`]),
     error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? ''),
-    `modular producer mutation ${name} must be rejected`,
+    `${arm} producer mutation ${name} must be rejected`,
   );
 }
 
@@ -88,7 +90,7 @@ async function runAdjudicationBoundaryAccepted() {
   const receiptPath = path.join(runtime, `${campaignId}.${receipt.cell.cellId}.json`);
   const adjudicationPath = path.join(runtime, `${campaignId}.independent-adjudication.json`);
   const adjudication = {
-    schemaVersion: 'proofbound.story6-independent-adjudication.v1',
+    schemaVersion: 'proof-or-stop.story6-independent-adjudication.v1',
     campaignId,
     adjudicatorId: 'independent-schema-selfcheck',
     method: 'deterministic boundary selfcheck',
@@ -148,7 +150,7 @@ try {
     ['findingDigest', row => { row.findingSetDigest = '0'.repeat(64); }],
     ['productionProvenance', row => { row.provenance.kind = 'synthetic-forged'; }],
     ['directCoreProducer', row => { row.provenance.producer = 'direct-core-assembly'; }],
-    ['producerMode', row => { row.provenance.producerMode = 'full-envelope'; }],
+    ['producerMode', row => { row.provenance.producerMode = 'retired-mode'; }],
     ['producerResponseDigest', row => { row.provenance.producerResponseDigest = 'short'; }],
     ['observedAt', row => { row.observedAt = 'not-a-date'; }],
     ['staleReceipt', row => { delete row.observedAt; }],
@@ -157,13 +159,15 @@ try {
   for (const [name, mutate] of mutations) await runRejected(name, mutate);
   await runRejected('duplicate-cell-key', row => { row.cell.cellId = baseCell.cellId; }, true);
   await runBindingMismatchRejected();
-  await runModularProducerRejected('missing-event', row => { row.provenance.eventBinding = null; });
-  await runModularProducerRejected('wrong-event-envelope', row => { row.provenance.eventBinding.promptEnvelopeId = 'f'.repeat(64); });
-  await runModularProducerRejected('wrong-event-digest', row => { row.provenance.eventBinding.assembledPromptDigest = 'short'; });
-  await runModularProducerRejected('missing-envelope', row => { row.provenance.envelopeId = null; });
+  for (const arm of ['legacy', 'modular']) {
+    await runCanonicalProducerRejected('missing-event', row => { row.provenance.eventBinding = null; }, arm);
+    await runCanonicalProducerRejected('wrong-event-envelope', row => { row.provenance.eventBinding.promptEnvelopeId = 'f'.repeat(64); }, arm);
+    await runCanonicalProducerRejected('wrong-event-digest', row => { row.provenance.eventBinding.assembledPromptDigest = 'short'; }, arm);
+    await runCanonicalProducerRejected('missing-envelope', row => { row.provenance.envelopeId = null; }, arm);
+  }
   await runAdjudicationBoundaryAccepted();
   await runUnknownReceiptFileRejected();
-  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 7} receipt mutations rejected; agent_prompt producer/event binding enforced)`);
+  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 11} receipt mutations rejected; agent_prompt producer/event binding enforced for both arms)`);
 } finally {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));

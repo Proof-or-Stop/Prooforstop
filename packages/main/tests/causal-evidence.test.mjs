@@ -750,7 +750,7 @@ test('B-5a15 F-267/F-273/F-274: non-transport SESSION-like environment mutations
 test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper', async () => {
   const root = mkdtempSync(join(tmpdir(), 'causal-evidence-store-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     }));
     const storyStore = new StoryStore(root);
@@ -981,7 +981,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
 test('B-5a15: an injected index-write failure recovers the orphaned receipt without relaunching', async () => {
   const root = mkdtempSync(join(tmpdir(), 'causal-evidence-index-recovery-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
       scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     }));
     const storyStore = new StoryStore(root);

@@ -226,7 +226,7 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
     resetConfigCache();
     const result = runMemoryBenchmarkRealData({ root });
 
-    assert.equal(result.schemaVersion, 'lattice.memory_benchmark_real_data.v1');
+    assert.equal(result.schemaVersion, 'proof-or-stop.memory_benchmark_real_data.v1');
     assert.equal(result.note, MEMORY_BENCHMARK_REAL_DATA_NOTE);
     assert.equal(result.verdict, 'PASS');
     assert.equal(result.pass, true);

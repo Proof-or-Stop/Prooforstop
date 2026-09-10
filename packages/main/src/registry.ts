@@ -14,7 +14,7 @@ import { createStoryScopeBudgetHandlers } from './handlers/story-scope-budget.js
  * 第三方 bootstrap 脚本可以在此基础上再调用扩展包的 register 函数追加注册。
  *
  * npm 的 executable identity 不在这里注册：`proof-or-stop` 是唯一 active bin，
- * 历史 `lattice` wrapper/path 兼容由各自的 filesystem/read fallback 负责。
+ * Current wrappers and filesystem paths use canonical Proof-or-Stop identities only.
  */
 
 import { StoryStore } from './core/store.js';

@@ -1,28 +1,6 @@
-/**
- * Proves a missing browser client is never silently served as a blank page.
- *
- * Pre-mortem scenario 1 from B-3e16's decision.json is that a command which starts a
- * server but 404s on app.html looks registered and working while rendering nothing, which
- * is worse than failing. That invariant still holds; HOW it is satisfied changed.
- *
- * main commit 3aa57145d8 replaced the refuse-before-listen path with
- * `ensureGraphClientBuilt` (packages/main/src/handlers/graph.ts): a missing client is now
- * REBUILT on demand rather than reported, because packages/graph is not an npm workspace
- * and both its node_modules/ and assets/ are gitignored, so a fresh clone or worktree
- * legitimately has neither. This verifier was still asserting the old contract and so
- * failed against the new handler; it now asserts the new one.
- *
- * What is checked, and why each half matters:
- *   1. RECOVERY — with assets/app.html removed, the command must rebuild it and serve
- *      normally. This is the behavior 3aa57145d8 introduced.
- *   2. NO SILENT BLANK PAGE — the original safety property, unchanged: the command must
- *      never end up listening while the client is still missing. If recovery cannot
- *      produce app.html, the command must fail before binding a port and say so.
- *
- * The asset is moved aside and restored in a finally block, so a failure cannot leave the
- * working tree without its built client.
- */
-import { execFileSync, spawn } from 'node:child_process';
+/** Verify on-demand client recovery through owned live servers, without a fixed wait. */
+import assert from 'node:assert/strict';
+import { spawn, execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -46,6 +24,7 @@ const onSigterm = () => onInterrupt('SIGTERM');
 process.on('SIGINT', onSigint);
 process.on('SIGTERM', onSigterm);
 function checkInterrupted() { if (interrupted) throw new Error(`graph verifier interrupted by ${interrupted}`); }
+assert.ok(!fs.existsSync(stash) && !fs.existsSync(rebuiltStash), 'Refusing to overwrite an interrupted verifier backup');
 fs.renameSync(asset, stash);
 function startOwnedServer() {
   const child = spawn(process.execPath, ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
@@ -100,6 +79,7 @@ async function serveAndFetch() {
     if (status !== 200) return { ok: false, reason: `GET / returned ${status}${tail()}` };
     if (body.length < 1000 || !/<(script|div|body)/i.test(body)) return { ok: false, reason: `GET / returned ${body.length} bytes with no client markup` };
     if (!fs.existsSync(asset)) return { ok: false, reason: 'served a page but assets/app.html was never rebuilt' };
+    if (body !== fs.readFileSync(asset, 'utf8')) return { ok: false, reason: 'GET / does not match the rebuilt app.html bytes' };
     return { ok: true };
   } finally { await owned.stop(); }
 }
@@ -222,4 +202,8 @@ if (failures.length) {
   for (const f of failures) console.error(`  ${f}`);
   process.exit(1);
 }
+assert.deepEqual(fs.readFileSync(asset),original,'Restore the exact original asset');
 console.log('MISSING_ASSETS_HANDLED_OK');
+
+// The refusal branch must run even after normal on-demand recovery succeeds.
+await import('./verify-missing-client-no-listener.mjs');

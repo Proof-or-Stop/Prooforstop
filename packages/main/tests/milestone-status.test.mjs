@@ -765,7 +765,7 @@ function assertEvidenceRefShape(evidenceRef) {
     milestoneLedger: null,
   });
 
-  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(report.schemaVersion, 'proof-or-stop.milestone_status.v1');
   assertReportShape(report);
   assert.equal(report.storyId, 'B-7ba7');
   assert.equal(report.phase, 'DEV');
@@ -842,7 +842,7 @@ function assertEvidenceRefShape(evidenceRef) {
     ]),
   });
 
-  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(report.schemaVersion, 'proof-or-stop.milestone_status.v1');
   assertReportShape(report);
   assert.deepEqual(report.groups.completed, ['M1', 'M4']);
   assert.deepEqual(report.groups.current, ['M2']);
@@ -945,11 +945,11 @@ function assertEvidenceRefShape(evidenceRef) {
     generatedAt: '2026-07-04T12:00:00.000Z',
   });
 
-  assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+  assert.equal(snapshot.schemaVersion, 'proof-or-stop.milestone_closeout.v1');
   assert.equal(snapshot.storyId, 'B-closeout');
   assert.equal(snapshot.phase, 'TEST');
   assert.equal(snapshot.generatedAt, '2026-07-04T12:00:00.000Z');
-  assert.equal(snapshot.sourceReport.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(snapshot.sourceReport.schemaVersion, 'proof-or-stop.milestone_status.v1');
   assert.equal(snapshot.sourceReport.digest, milestoneStatusReportDigest(report));
   assert.deepEqual(snapshot.sourceReport.groups, { completed: ['M-closeout'], current: [], remaining: [] });
   assert.deepEqual(snapshot.bindings, {
@@ -981,7 +981,7 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.match(text, /\| M-closeout \| completed \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \| Users can read the final solved problem \|/);
 
   const snapshotBackedReport = buildMilestoneStatusReportFromCloseoutSnapshot(snapshot, { phase: 'DONE' });
-  assert.equal(snapshotBackedReport.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(snapshotBackedReport.schemaVersion, 'proof-or-stop.milestone_status.v1');
   assertReportShape(snapshotBackedReport);
   assert.equal(snapshotBackedReport.storyId, 'B-closeout');
   assert.equal(snapshotBackedReport.phase, 'DONE');
@@ -1813,7 +1813,7 @@ function assertEvidenceRefShape(evidenceRef) {
   });
 
   const report = handlers.milestone_status({ storyId: 'B-7ba7', json: true });
-  assert.equal(report.schemaVersion, 'proofbound.milestone_status.v1');
+  assert.equal(report.schemaVersion, 'proof-or-stop.milestone_status.v1');
   assert.equal(report.mode.readOnly, true);
   assert.equal(report.mode.runCommands, false);
   assert.equal(report.ledger.present, false);
@@ -2084,7 +2084,7 @@ function assertEvidenceRefShape(evidenceRef) {
     );
     const snapshot = store.readMilestoneCloseout(storyId);
     assert.ok(snapshot);
-    assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(snapshot.schemaVersion, 'proof-or-stop.milestone_closeout.v1');
     assert.equal(snapshot.storyId, storyId);
     assert.equal(snapshot.phase, 'TEST', 'closeout is captured before DONE phase metadata is persisted');
     assert.equal(snapshot.bindings.headHash, doneHead);
@@ -2251,7 +2251,7 @@ function assertEvidenceRefShape(evidenceRef) {
     const mainStore = new StoryStore(mainRoot);
     const snapshot = mainStore.readMilestoneCloseout(storyId);
     assert.ok(snapshot, 'canonical main must retain milestone-closeout.json after worktree cleanup');
-    assert.equal(snapshot.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(snapshot.schemaVersion, 'proof-or-stop.milestone_closeout.v1');
     assert.equal(snapshot.storyId, storyId);
     assert.equal(snapshot.phase, 'TEST', 'closeout is captured before DONE phase metadata is persisted');
     assert.equal(snapshot.bindings.headHash, doneHead);
@@ -2267,7 +2267,7 @@ function assertEvidenceRefShape(evidenceRef) {
       storyId,
       '--format=json',
     ], { cwd: mainRoot, encoding: 'utf8' }));
-    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(closeoutJson.schemaVersion, 'proof-or-stop.milestone_closeout.v1');
     assert.equal(closeoutJson.rows[0].milestone, 'M-done-closeout-worktree');
     assert.equal(
       gitMain(['status', '--porcelain', '--untracked-files=no']),
@@ -3077,7 +3077,7 @@ function assertEvidenceRefShape(evidenceRef) {
       storyId,
       '--json',
     ], { cwd: root, encoding: 'utf8' }));
-    assert.equal(missingCloseoutJson.schemaVersion, 'proofbound.milestone_closeout_missing.v1');
+    assert.equal(missingCloseoutJson.schemaVersion, 'proof-or-stop.milestone_closeout_missing.v1');
     assert.equal(missingCloseoutJson.snapshotPresent, false);
     assert.match(missingCloseoutJson.diagnostic, /No milestone-closeout\.json snapshot exists/);
 
@@ -3115,7 +3115,7 @@ function assertEvidenceRefShape(evidenceRef) {
       storyId,
       '--format=json',
     ], { cwd: root, encoding: 'utf8' }));
-    assert.equal(closeoutJson.schemaVersion, 'proofbound.milestone_closeout.v1');
+    assert.equal(closeoutJson.schemaVersion, 'proof-or-stop.milestone_closeout.v1');
     assert.equal(closeoutJson.sourceReport.digest, milestoneStatusReportDigest(cliReport));
     assert.equal(closeoutJson.rows[0].milestone, 'M-cli');
 
@@ -3391,7 +3391,7 @@ function assertEvidenceRefShape(evidenceRef) {
       doneStoryId,
       '--json',
     ], { cwd: root, encoding: 'utf8' }));
-    assert.equal(doneJson.schemaVersion, 'proofbound.milestone_status.v1');
+    assert.equal(doneJson.schemaVersion, 'proof-or-stop.milestone_status.v1');
     assert.equal(doneJson.phase, 'DONE');
     assert.deepEqual(doneJson.groups, { completed: ['M-done-snapshot'], current: [], remaining: [] });
     assert.equal(doneJson.milestones[0].status, 'completed');

@@ -233,7 +233,7 @@ export function buildAdequacyReport(perPopulation, step = 0.025) {
   const seededPairedPoint = { baseline: seededScan.max.baseline, mde: seededScan.max.mde };
 
   return {
-    schemaVersion: 'proofbound.experience-ablation-adequacy.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-adequacy.v1',
     direction: 'reduction: treatment = baseline - mde',
     seeded: {
       assumptions: { alpha: seeded.alpha, power: seeded.power, baselineBand: seeded.baselineBand, mdeBand: seeded.mdeBand },

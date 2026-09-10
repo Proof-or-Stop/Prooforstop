@@ -3,10 +3,10 @@ import { lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'no
 import { isAbsolute, join, posix, relative, resolve } from 'node:path';
 import type { ReviewerReadManifest } from './types.js';
 
-export const CORPUS_INDEX_SCHEMA = 'proofbound.corpus-index.v1' as const;
-export const KEYWORD_SEEDS_SCHEMA = 'proofbound.keyword-seeds.v1' as const;
-export const HOST_PROPOSAL_SCHEMA = 'proofbound.keyword-proposal.v1' as const;
-export const CANDIDATE_SET_SCHEMA = 'proofbound.candidate-spec-set.v1' as const;
+export const CORPUS_INDEX_SCHEMA = 'proof-or-stop.corpus-index.v1' as const;
+export const KEYWORD_SEEDS_SCHEMA = 'proof-or-stop.keyword-seeds.v1' as const;
+export const HOST_PROPOSAL_SCHEMA = 'proof-or-stop.keyword-proposal.v1' as const;
+export const CANDIDATE_SET_SCHEMA = 'proof-or-stop.candidate-spec-set.v1' as const;
 
 export const DEFAULT_CANDIDATE_BUDGET = 8;
 export const DEFAULT_QUERY_GROUP_BUDGET = 10;

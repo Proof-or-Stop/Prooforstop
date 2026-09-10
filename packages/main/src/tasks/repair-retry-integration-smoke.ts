@@ -145,7 +145,7 @@ const gateStep = (over: JsonObject = {}): JsonObject => ({
 });
 
 const plan = (over: JsonObject): JsonObject => ({
-  schemaVersion: 'lattice.job_plan.v1',
+  schemaVersion: 'proof-or-stop.job_plan.v1',
   plannerRunId: 'run-int',
   storyId: 'B-int',
   mode: 'local',

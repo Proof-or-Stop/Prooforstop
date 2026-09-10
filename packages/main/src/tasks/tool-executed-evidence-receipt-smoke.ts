@@ -10,9 +10,9 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
@@ -24,6 +24,7 @@ import { EVIDENCE_COMMAND_TIMEOUT_CAP_MS } from '../core/validation-executor.js'
 import { resetConfigCache } from '../core/config.js';
 import { runValidationCommand } from '../core/validation-executor.js';
 import { runSingleAllowlistedCommand } from '../core/validation-executor.js';
+import { readArtifact, verifyArtifactDigest, writeArtifact } from '../core/evidence/artifact-store.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
 // Mirror of the private sha256Hex / VERIFICATION_OUTPUT_TAIL_CHARS in
@@ -53,6 +54,43 @@ async function expectRejection(promise: Promise<unknown>, marker: RegExp, label:
     assert.match(msg, marker, `${label}: expected rejection matching ${marker}, got: ${msg}`);
   }
   assert.ok(threw, `${label}: expected the write to be REFUSED but it succeeded`);
+}
+
+interface ChildProcessResult {
+  code: number | null;
+  stdout: string;
+  stderr: string;
+}
+
+function spawnArtifactPublisher(args: string[]): Promise<ChildProcessResult> {
+  return new Promise((resolvePromise) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', args[0], ...args.slice(1)], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    const timeout = setTimeout(() => child.kill('SIGKILL'), 30_000);
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      resolvePromise({ code, stdout, stderr });
+    });
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      resolvePromise({ code: null, stdout, stderr: `${stderr}${String(error)}` });
+    });
+  });
+}
+
+async function waitForPublisherBarrier(readyDir: string, expected: number): Promise<void> {
+  const deadline = Date.now() + 30_000;
+  while (readdirSync(readyDir).length !== expected) {
+    assert.ok(Date.now() < deadline, `F-099 publisher barrier timed out: ${readdirSync(readyDir).length}/${expected} ready`);
+    await new Promise(resolvePromise => setTimeout(resolvePromise, 10));
+  }
 }
 
 interface Env {
@@ -1250,6 +1288,199 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
       'F-012: the carried-forward reason comes from the prior TOOL-OWNED receipt, staying attributable',
     );
   } finally { cleanup(env); }
+}
+
+// ── 19. B-aa5f F-099: identical content-addressed output publication is one
+//        atomic, idempotent operation across independent processes. The child
+//        processes synchronize before publication and force the old
+//        exists-before-write observation to be stale, deterministically exposing
+//        the check-then-overwrite race without adding a production test hook. ──
+{
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-f099-artifacts-'));
+  const readyDir = join(root, 'ready');
+  const releasePath = join(root, 'release');
+  mkdirSync(readyDir);
+  const publisherCount = 16;
+  const output = `F-099 synchronized identical verification output\n${'X'.repeat(256 * 1024)}`;
+  const outputDigest = sha256Hex(output);
+  const artifactStoreModule = new URL('../core/evidence/artifact-store.js', import.meta.url).href;
+  const childProgram = String.raw`
+    import { createHash } from 'node:crypto';
+    import fs, { writeFileSync } from 'node:fs';
+    import { syncBuiltinESMExports } from 'node:module';
+    const [moduleUrl, root, readyPath, releasePath, publisherIndex] = process.argv.slice(1);
+    const originalExistsSync = fs.existsSync.bind(fs);
+    fs.existsSync = (path) => {
+      const normalized = String(path).split('\\').join('/');
+      return normalized.includes('/.proof-or-stop/evidence/objects/sha256/') && normalized.endsWith('.json')
+        ? false
+        : originalExistsSync(path);
+    };
+    syncBuiltinESMExports();
+    const { writeArtifact } = await import(moduleUrl);
+    writeFileSync(readyPath, publisherIndex, { flag: 'wx' });
+    while (!originalExistsSync(releasePath)) await new Promise(resolve => setTimeout(resolve, 5));
+    const output = 'F-099 synchronized identical verification output\n' + 'X'.repeat(256 * 1024);
+    const artifact = writeArtifact(root, {
+      artifactKind: 'verification-output',
+      evidenceScope: 'local-gate-evidence',
+      subjectBinding: { candidateId: 'B-aa5f', storyId: 'B-aa5f' },
+      producer: 'verification-executor',
+      payload: {
+        schemaVersion: 'proof-or-stop.verification-output.v1',
+        captureSemantics: 'combined-stdout-stderr.v1',
+        output,
+        outputDigest: createHash('sha256').update(output).digest('hex'),
+      },
+    });
+    process.stdout.write(JSON.stringify({ artifactId: artifact.artifactId, artifactDigest: artifact.artifactDigest }));
+  `;
+  const publicationOptions = {
+    artifactKind: 'verification-output' as const,
+    evidenceScope: 'local-gate-evidence' as const,
+    subjectBinding: { candidateId: 'B-aa5f', storyId: 'B-aa5f' },
+    producer: 'verification-executor',
+    payload: {
+      schemaVersion: 'proof-or-stop.verification-output.v1',
+      captureSemantics: 'combined-stdout-stderr.v1',
+      output,
+      outputDigest,
+    },
+  };
+
+  try {
+    const publishers = Array.from({ length: publisherCount }, (_, index) => spawnArtifactPublisher([
+      childProgram,
+      artifactStoreModule,
+      root,
+      join(readyDir, `${index}.ready`),
+      releasePath,
+      String(index),
+    ]));
+    await waitForPublisherBarrier(readyDir, publisherCount);
+    writeFileSync(releasePath, 'publish\n', { flag: 'wx' });
+    const childResults = await Promise.all(publishers);
+    const childFailures = childResults.filter(result => result.code !== 0);
+    const returned = childResults.flatMap((result) => {
+      if (result.code !== 0) return [];
+      try {
+        return [JSON.parse(result.stdout) as { artifactId: string; artifactDigest: string }];
+      } catch {
+        return [];
+      }
+    });
+    const parseFailures = childResults.length - childFailures.length - returned.length;
+    const uniqueReturnedArtifactIds = new Set(returned.map(result => result.artifactId));
+    const invalidReturnedRefs = returned.filter((result) => {
+      try {
+        const artifact = readArtifact(root, result.artifactId);
+        return artifact.artifactId !== result.artifactId
+          || artifact.artifactDigest !== result.artifactDigest
+          || !verifyArtifactDigest(artifact, result.artifactDigest);
+      } catch {
+        return true;
+      }
+    }).length;
+    const objectDir = join(root, '.proof-or-stop', 'evidence', 'objects', 'sha256');
+    const refDir = join(root, '.proof-or-stop', 'evidence', 'refs', 'by-id');
+    const observed = {
+      childFailures: childFailures.length + parseFailures,
+      uniqueReturnedArtifactIds: uniqueReturnedArtifactIds.size,
+      invalidReturnedRefs,
+      objectCount: readdirSync(objectDir).filter(name => name.endsWith('.json')).length,
+    };
+    assert.deepEqual(
+      observed,
+      { childFailures: 0, uniqueReturnedArtifactIds: 1, invalidReturnedRefs: 0, objectCount: 1 },
+      `F-099 synchronized same-digest publishers must converge on one readable canonical artifact; observed ${JSON.stringify(observed)}; child stderr=${JSON.stringify(childResults.map(result => result.stderr).filter(Boolean))}`,
+    );
+
+    const canonical = returned[0];
+    assert.ok(canonical, 'F-099 at least one synchronized publisher returns the canonical artifact');
+    assert.equal(returned.length, publisherCount, 'F-099 every synchronized publisher exits successfully and returns an artifact');
+    const canonicalObjectPath = join(objectDir, `${canonical.artifactDigest}.json`);
+    const immutableObjectBytes = readFileSync(canonicalObjectPath);
+    for (const result of returned) {
+      assert.equal(result.artifactId, canonical.artifactId, 'F-099 every publisher returns the one winning artifact id');
+      assert.equal(result.artifactDigest, canonical.artifactDigest, 'F-099 every publisher returns the same content digest');
+      const ref = JSON.parse(readFileSync(join(refDir, `${result.artifactId}.json`), 'utf8')) as {
+        artifactId: string; artifactDigest: string; artifactKind: string;
+      };
+      assert.deepEqual(ref, {
+        artifactId: canonical.artifactId,
+        artifactDigest: canonical.artifactDigest,
+        artifactKind: 'verification-output',
+      }, 'F-099 the canonical by-id ref names the matching object id, digest and kind');
+      const artifact = readArtifact(root, result.artifactId);
+      assert.equal(artifact.artifactId, result.artifactId, 'F-099 every returned id reads its own canonical envelope');
+      assert.equal(artifact.artifactDigest, result.artifactDigest, 'F-099 the returned ref digest matches the canonical object');
+      assert.equal(verifyArtifactDigest(artifact, result.artifactDigest), true, 'F-099 the canonical artifact remains digest-consistent');
+    }
+
+    const republished = writeArtifact(root, publicationOptions);
+    assert.equal(republished.artifactId, canonical.artifactId, 'F-099 a later identical publication returns the canonical id');
+    assert.deepEqual(readFileSync(canonicalObjectPath), immutableObjectBytes, 'F-099 identical publication never overwrites canonical object bytes');
+
+    const distinctOutput = `${output}\ndistinct-digest`;
+    const distinct = writeArtifact(root, {
+      ...publicationOptions,
+      payload: { ...publicationOptions.payload, output: distinctOutput, outputDigest: sha256Hex(distinctOutput) },
+    });
+    assert.notEqual(distinct.artifactDigest, canonical.artifactDigest, 'F-099 distinct output keeps an independent content address');
+    assert.notEqual(distinct.artifactId, canonical.artifactId, 'F-099 distinct output keeps an independent artifact id');
+    assert.equal(readArtifact(root, canonical.artifactId).artifactDigest, canonical.artifactDigest, 'F-099 publishing a distinct digest leaves the first ref valid');
+    assert.equal(readArtifact(root, distinct.artifactId).artifactDigest, distinct.artifactDigest, 'F-099 the distinct digest has its own valid ref');
+    assert.deepEqual(readFileSync(canonicalObjectPath), immutableObjectBytes, 'F-099 distinct-digest publication does not mutate the first object');
+    assert.equal(readdirSync(objectDir).filter(name => name.endsWith('.json')).length, 2, 'F-099 distinct digests remain two independent objects');
+    assert.deepEqual(
+      [...readdirSync(objectDir), ...readdirSync(refDir)].filter(name => name.endsWith('.tmp')),
+      [],
+      'F-099 successful and losing publishers leave no temporary files behind',
+    );
+
+    const tamperedObjectRoot = join(root, 'tampered-object-root');
+    mkdirSync(tamperedObjectRoot);
+    const objectVictim = writeArtifact(tamperedObjectRoot, publicationOptions);
+    const objectVictimPath = join(
+      tamperedObjectRoot, '.proof-or-stop', 'evidence', 'objects', 'sha256', `${objectVictim.artifactDigest}.json`,
+    );
+    const tamperedObject = JSON.parse(readFileSync(objectVictimPath, 'utf8')) as Record<string, unknown>;
+    tamperedObject.payload = { ...publicationOptions.payload, output: 'tampered output' };
+    const tamperedObjectBytes = `${JSON.stringify(tamperedObject, null, 2)}\n`;
+    writeFileSync(objectVictimPath, tamperedObjectBytes, 'utf8');
+    assert.throws(
+      () => writeArtifact(tamperedObjectRoot, publicationOptions),
+      /artifact object integrity mismatch/,
+      'F-099 a tampered pre-existing object fails closed instead of being overwritten',
+    );
+    assert.equal(readFileSync(objectVictimPath, 'utf8'), tamperedObjectBytes, 'F-099 refusal never overwrites tampered object bytes');
+
+    const tamperedRefRoot = join(root, 'tampered-ref-root');
+    mkdirSync(tamperedRefRoot);
+    const refVictim = writeArtifact(tamperedRefRoot, publicationOptions);
+    const refVictimPath = join(
+      tamperedRefRoot, '.proof-or-stop', 'evidence', 'refs', 'by-id', `${refVictim.artifactId}.json`,
+    );
+    const tamperedRefBytes = `${JSON.stringify({
+      artifactId: 'attacker-substituted-id',
+      artifactDigest: refVictim.artifactDigest,
+      artifactKind: refVictim.artifactKind,
+    }, null, 2)}\n`;
+    writeFileSync(refVictimPath, tamperedRefBytes, 'utf8');
+    assert.throws(
+      () => writeArtifact(tamperedRefRoot, publicationOptions),
+      /artifact ref integrity mismatch/,
+      'F-099 a tampered pre-existing canonical ref fails closed instead of being overwritten',
+    );
+    assert.equal(readFileSync(refVictimPath, 'utf8'), tamperedRefBytes, 'F-099 refusal never overwrites tampered ref bytes');
+    assert.deepEqual(
+      readdirSync(dirname(refVictimPath)).filter(name => name.endsWith('.tmp')),
+      [],
+      'F-099 a refused pre-existing ref collision cleans its temporary file',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 console.log('tool-executed-evidence-receipt-smoke: PASS');

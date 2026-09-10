@@ -18,10 +18,6 @@ import {
 import { isStrictManagedReviewFindingProposal } from './host-run.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
 import {
-  PROMPT_ENVELOPE_ROLLOUT_VERSION,
-  resolvePromptRoleBody,
-} from './prompt-role-contract-registry.js';
-import {
   buildProofAdmissibilityDiagnostic,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
@@ -264,20 +260,7 @@ export function resolveManagedReviewerBasePrompt(root: string, run: ReviewRun): 
   const assembledPrompt = new StoryStore(root).readReviewPrompt(run);
   if (assembledPrompt) return assembledPrompt;
   if (run.envelopeId) throw new Error('managed reviewer exact prompt body unavailable');
-  // A no-envelope ReviewRun predates modular prompt assembly. Its signed
-  // promptHash therefore names the frozen legacy role body, regardless of a
-  // later rollout/template-mode change in the live project configuration.
-  // Reconstructing through that current mode turns valid historical evidence
-  // into apparent prompt drift; current envelope runs keep their strict exact
-  // assembled-prompt verification above.
-  const body = resolvePromptRoleBody(run.lane, {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [run.lane]: 'legacy-full-context' },
-  }).body;
-  if (rawSha256(body) !== run.promptHash) {
-    throw new Error('managed reviewer: legacy ReviewRun prompt hash does not match the canonical role body');
-  }
-  return body;
+  throw new Error('managed reviewer requires a current canonical full-envelope ReviewRun; pre-envelope runs must be renewed');
 }
 
 /**

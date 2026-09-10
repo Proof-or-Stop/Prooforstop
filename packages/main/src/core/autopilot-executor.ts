@@ -90,7 +90,7 @@ export interface AutopilotExecuteArgs extends AutopilotArgs {
 }
 
 export interface AutopilotExecuteResult {
-  schemaVersion: 'lattice.autopilot_execute.v1';
+  schemaVersion: 'proof-or-stop.autopilot_execute.v1';
   mode: AutopilotRunResult['mode'];
   status: AutopilotStatus;
   dryRun: boolean;
@@ -616,7 +616,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   }
 
   return {
-    schemaVersion: 'lattice.autopilot_execute.v1',
+    schemaVersion: 'proof-or-stop.autopilot_execute.v1',
     mode: plan.mode,
     status,
     dryRun,

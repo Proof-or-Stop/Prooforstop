@@ -448,7 +448,7 @@ export function evaluateForbiddenEdits(
 // --- Fail-closed stop summary -------------------------------------------------
 
 export interface WorktreeStopSummary {
-  schemaVersion: 'lattice.worktree_stop_summary.v1';
+  schemaVersion: 'proof-or-stop.worktree_stop_summary.v1';
   storyId: string;
   stepId: string;
   stopReason: WorktreeStopReason;
@@ -477,7 +477,7 @@ export function buildWorktreeStopSummary(args: {
   detail: Record<string, unknown>;
 }): WorktreeStopSummary {
   return {
-    schemaVersion: 'lattice.worktree_stop_summary.v1',
+    schemaVersion: 'proof-or-stop.worktree_stop_summary.v1',
     storyId: args.storyId,
     stepId: args.stepId,
     stopReason: args.stopReason,

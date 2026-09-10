@@ -4566,6 +4566,7 @@ export function readManagedAcceptanceReviewReceipt(root: string, runId: string,
     || receipt.state !== 'completed' || !receipt.replacementSafe || !receipt.processCleanup?.reaped || receipt.processCleanup.residualProcessGroup
     || binding.profile !== ACCEPTANCE_REVIEW_PROFILE || binding.phase !== 'DEV' || binding.storyId !== expected.storyId
     || binding.agentType !== ACCEPTANCE_REVIEW_LANE || binding.lane !== ACCEPTANCE_REVIEW_LANE
+    || seal.proposal.schemaVersion !== ACCEPTANCE_REVIEW_FINAL_SCHEMA
     || seal.proposal.storyId !== expected.storyId || seal.proposal.runId !== runId
     || ['amendmentId', 'amendmentDigest', 'baseDigest', 'submitterSessionId'].some(key =>
       seal.proposal[key as keyof AcceptanceReviewBinding] !== expected[key as keyof AcceptanceReviewBinding]

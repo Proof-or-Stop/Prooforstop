@@ -327,6 +327,11 @@ export function assertGraphRuntimeSupported(packageRoot: string): void {
   if (message !== null) throw new Error(message);
 }
 
+interface GraphServer {
+  close: (cb?: () => void) => unknown;
+  address?: () => {port:number} | string | null;
+}
+
 /** Minimal shape of the graph library surface this handler consumes. */
 interface GraphLibrary {
   createApp: (opts: { root: string; onLog?: (m: string) => void; readManagedRuns?: () => ManagedRunDashboard }) => GraphApp;
@@ -335,7 +340,7 @@ interface GraphLibrary {
     port: number;
     assetDir: string;
     vendorDir?: string;
-  }) => Promise<{ close: (cb?: () => void) => unknown }>;
+  }) => Promise<GraphServer>;
   findRoot: (start: string) => { root: string | null; reason: string };
   openBrowser: (url: string) => void;
   /**
@@ -562,7 +567,8 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       const port = args.port ?? GRAPH_DEFAULT_PORT;
       const app = lib.createApp({ root: probe.root, onLog: (m) => log(m), readManagedRuns: () => readManagedRunDashboard(probe.root!) });
 
-      let server: { close: (cb?: () => void) => unknown };
+      let server: GraphServer;
+      let listeningPort = port;
       try {
         const status = app.getStatus();
         log(`graph root: ${app.root}`);
@@ -575,6 +581,12 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
           assetDir: location.assetDir,
           vendorDir: location.vendorDir,
         });
+        const address = server.address?.();
+        if (address && typeof address !== 'string') listeningPort = address.port;
+        if (!Number.isInteger(listeningPort) || listeningPort <= 0 || listeningPort > 65535) {
+          server.close();
+          throw new Error('server did not report a usable bound port');
+        }
       } catch (e) {
         app.close();
         const msg = e instanceof Error ? e.message : String(e);
@@ -593,8 +605,8 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       // query/fragment, opening the browser somewhere other than the named dossier.
       // Without --story the string is byte-identical to what it was before B-9f2c.
       const url = story === null
-        ? `http://localhost:${port}/`
-        : `http://localhost:${port}/story/${encodeURIComponent(story)}`;
+        ? `http://localhost:${listeningPort}/`
+        : `http://localhost:${listeningPort}/story/${encodeURIComponent(story)}`;
       if (args.open !== false) lib.openBrowser(url);
 
       // The handler owns the process from here until a signal arrives. Resolving

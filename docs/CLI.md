@@ -925,7 +925,7 @@ For a command to participate in `shadow` or `enforce-low-risk`, its
 `validate.commands[]` entry must preserve the catalog policy fields
 `assurance`, `riskTier`, `closurePolicy`, `fullBaselineReusePolicy`,
 `cpuWeight`, and `expectedP50Ms`. DYN-5 entries additionally declare an
-in-root `caseRegistryPath`, `env.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER` (deprecated `env.LATTICE_VALIDATION_SHARD_ADAPTER` still read as fallback), and the
+in-root `caseRegistryPath`, `env.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER` (the sole supported adapter key), and the
 allowed `declaredEnvironmentKeys`. Registry rows contain executable case
 `runner` objects and may declare a success marker (the adapter derives a
 deterministic default from the case id when omitted); the registered adapter executes every

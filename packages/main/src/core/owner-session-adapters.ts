@@ -122,7 +122,7 @@ export function deriveAdapterOwnerSessionId(
 ): string {
   const digest = createHash('sha256')
     .update([
-      'lattice.owner-session.host-adapter.v2',
+      'proof-or-stop.owner-session.host-adapter.v2',
       projectRoot,
       provider,
       taskIdentity,

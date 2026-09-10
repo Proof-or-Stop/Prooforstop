@@ -18,7 +18,7 @@
  *   - [CHK-002] Legacy receipt-required intent is represented as local-assurance-required or a blocking local-completion degradation, without requiring remote authority-service behavior.
  *   - [CHK-002] authorityImpact remains a local diagnostic/degradation field, not a release-readiness claim.
  */
-export const CAPABILITY_SCHEMA_VERSION = 'lattice.capability_list.v1' as const;
+export const CAPABILITY_SCHEMA_VERSION = 'proof-or-stop.capability_list.v1' as const;
 
 export const CAPABILITY_CATEGORIES = [
   'file-edit',
@@ -93,7 +93,7 @@ export interface CapabilityList {
 }
 
 export interface CapabilityProbe {
-  schemaVersion: 'lattice.capability_probe.v1';
+  schemaVersion: 'proof-or-stop.capability_probe.v1';
   host: string;
   requestedHost: string;
   matchedFallback: boolean;
@@ -530,7 +530,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
   }
 
   return {
-    schemaVersion: 'lattice.capability_probe.v1',
+    schemaVersion: 'proof-or-stop.capability_probe.v1',
     host: profile.id,
     requestedHost,
     matchedFallback: profile.id !== normalized,

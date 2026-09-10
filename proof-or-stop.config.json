@@ -19,11 +19,11 @@
       "proof-or-stop-review-quality": "full-envelope",
       "proof-or-stop-review-test-coverage": "full-envelope",
       "proof-or-stop-review-topology-critic": "full-envelope",
-      "proof-or-stop-review-story-init": "legacy-full-context",
-      "proof-or-stop-review-scope-plan": "legacy-full-context",
-      "proof-or-stop-implementer": "legacy-full-context",
-      "proof-or-stop-review-delivery": "legacy-full-context",
-      "proof-or-stop-evaluator": "legacy-full-context"
+      "proof-or-stop-review-story-init": "full-envelope",
+      "proof-or-stop-review-scope-plan": "full-envelope",
+      "proof-or-stop-implementer": "full-envelope",
+      "proof-or-stop-review-delivery": "full-envelope",
+      "proof-or-stop-evaluator": "full-envelope"
     }
   },
   "candidateSpecRouting": {
@@ -77,7 +77,24 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-lab-maintenance"
+        "policySource": "explicit-lab-maintenance",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "npm",
@@ -95,7 +112,39 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -146,7 +195,34 @@
         "riskTier": "local",
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -197,7 +273,24 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "label": "review-pass-discard-smoke",
@@ -212,8 +305,109 @@
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
         "declaredEnvironmentKeys": [
+          "PATH",
+          "SystemRoot",
+          "WINDIR",
+          "ComSpec",
+          "PATHEXT",
+          "LANG",
+          "LC_ALL",
+          "TZ",
+          "NODE_OPTIONS",
+          "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
-          "LATTICE_VALIDATION_SHARD_ADAPTER"
+          "CI",
+          "TMPDIR",
+          "TMP",
+          "TEMP",
+          "HOME",
+          "USERPROFILE",
+          "XDG_CONFIG_HOME",
+          "USER",
+          "NODE_ENV",
+          "GIT_CONFIG_NOSYSTEM",
+          "GIT_CONFIG_GLOBAL",
+          "GIT_ATTR_NOSYSTEM",
+          "GIT_TEMPLATE_DIR",
+          "GIT_OPTIONAL_LOCKS",
+          "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_NONCE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FIXTURE_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_RESOURCE_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_OWNED_TEMP_BASE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_RUN_ID",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_KIND",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_CASE_ID",
+          "PROOF_OR_STOP_QUORUM_SMOKE_REPOSITORY_ROOT",
+          "PROOF_OR_STOP_QUORUM_SMOKE_WORKER_PROCESS_MARKER",
+          "PROOF_OR_STOP_DYN5_CASE",
+          "PROOF_OR_STOP_SESSION_ID",
+          "PROOF_OR_STOP_ACTIVITY_SOURCE",
+          "PROOF_OR_STOP_ACTIVITY_SESSION",
+          "PROOF_OR_STOP_AGENT",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED",
+          "CLAUDE_CODE_SESSION_ID",
+          "CLAUDE_SESSION_ID",
+          "CODEX_SESSION_ID",
+          "CODEX_THREAD_ID",
+          "OPENAI_SESSION_ID",
+          "TERM_SESSION_ID",
+          "ANTIGRAVITY_SESSION_ID",
+          "AGY_SESSION_ID",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY",
+          "PROOF_OR_STOP_VALIDATION_SHARD_DIR",
+          "PROOF_OR_STOP_VALIDATION_SHARD_DOMAIN",
+          "PROOF_OR_STOP_VALIDATION_SHARD_ID",
+          "PROOF_OR_STOP_VALIDATION_SHARD_SENTINEL",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER_DIGEST",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_IDS",
+          "PROOF_OR_STOP_VALIDATION_PROJECT_ROOT",
+          "PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS",
+          "PROOF_OR_STOP_PROJECT_ROOT",
+          "PROOF_OR_STOP_IDLE_TIMEOUT_MS",
+          "PROOF_OR_STOP_MAX_TIMEOUT_MS",
+          "PROOF_OR_STOP_ACTIVITY_ROLE",
+          "PROOF_OR_STOP_CODEX_ENTRYPOINT",
+          "PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE",
+          "PROOF_OR_STOP_VALIDATE_JOBS",
+          "PROOF_OR_STOP_VALIDATE_CPU",
+          "PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS",
+          "FORCE_COLOR",
+          "GRACEFUL_FS_PLATFORM",
+          "NODE_DEBUG",
+          "NODE_INSPECTOR_IPC",
+          "NODE_V8_COVERAGE",
+          "TEST_GRACEFUL_FS_GLOBAL_PATCH",
+          "TSC_NONPOLLING_WATCHER",
+          "TSC_WATCHDIRECTORY",
+          "TSC_WATCHFILE",
+          "TSC_WATCH_POLLINGCHUNKSIZE_HIGH",
+          "TSC_WATCH_POLLINGCHUNKSIZE_LOW",
+          "TSC_WATCH_POLLINGCHUNKSIZE_MEDIUM",
+          "TSC_WATCH_POLLINGINTERVAL_HIGH",
+          "TSC_WATCH_POLLINGINTERVAL_LOW",
+          "TSC_WATCH_POLLINGINTERVAL_MEDIUM",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_HIGH",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_LOW",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_MEDIUM",
+          "VSCODE_INSPECTOR_OPTIONS",
+          "WATCH_REPORT_DEPENDENCIES",
+          "__CF_USER_TEXT_ENCODING",
+          "PROOF_OR_STOP_EXPERIMENT_ARM",
+          "PROOF_OR_STOP_EXPERIMENT_ID",
+          "PROOF_OR_STOP_HEALTH_PATH",
+          "PROOF_OR_STOP_REVIEWER_READONLY",
+          "PWD",
+          "QUORUM_CLI_PROBE_COUNTER",
+          "SHLVL",
+          "_"
         ],
         "assurance": "story-selectable",
         "riskTier": "gate",
@@ -248,7 +442,11 @@
         "riskTier": "shared",
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "executionReuse": "exact-inputs",
+        "executionInputs": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ]
       },
       {
         "command": "node",
@@ -256,7 +454,8 @@
           "scripts/run-validation-fixture-suite.mjs",
           "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
         ],
-        "timeoutMs": 180000,
+        "label": "B-aa5f complete live identity, publication, capsule and concurrency regression; bounded CHK-007 audited execution budget",
+        "timeoutMs": 1200000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -269,6 +468,35 @@
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
         "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-process-fact-contract.mjs",
+          "--quiet"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -367,7 +595,19 @@
         "riskTier": "local",
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -444,7 +684,24 @@
         "riskTier": "local",
         "closurePolicy": "static-and-traced",
         "fullBaselineReusePolicy": "not-applicable",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -764,14 +1021,9 @@
         ],
         "resources": [
           {
-            "class": "git-common-dir",
-            "key": ".",
+            "class": "fixed-path",
+            "key": "packages/main/dist",
             "access": "shared"
-          },
-          {
-            "class": "machine-cpu",
-            "key": "heavy",
-            "access": "exclusive"
           }
         ],
         "assurance": "full-only",
@@ -839,7 +1091,20 @@
         "command": "node",
         "args": [
           "scripts/run-validation-fixture-suite.mjs",
-          "packages/main/dist/tasks/quorum-submit-smoke.js"
+          "packages/main/dist/tasks/quorum-submit-smoke.js",
+          "--jobs=2"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
         ],
         "timeoutMs": 1200000,
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
@@ -848,8 +1113,109 @@
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
         "declaredEnvironmentKeys": [
+          "PATH",
+          "SystemRoot",
+          "WINDIR",
+          "ComSpec",
+          "PATHEXT",
+          "LANG",
+          "LC_ALL",
+          "TZ",
+          "NODE_OPTIONS",
+          "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
           "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
-          "LATTICE_VALIDATION_SHARD_ADAPTER"
+          "CI",
+          "TMPDIR",
+          "TMP",
+          "TEMP",
+          "HOME",
+          "USERPROFILE",
+          "XDG_CONFIG_HOME",
+          "USER",
+          "NODE_ENV",
+          "GIT_CONFIG_NOSYSTEM",
+          "GIT_CONFIG_GLOBAL",
+          "GIT_ATTR_NOSYSTEM",
+          "GIT_TEMPLATE_DIR",
+          "GIT_OPTIONAL_LOCKS",
+          "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_CALLBACK_TRACE_NONCE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FIXTURE_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_RESOURCE_TRACE_FILE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_OWNED_TEMP_BASE",
+          "PROOF_OR_STOP_QUORUM_SMOKE_RUN_ID",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_KIND",
+          "PROOF_OR_STOP_QUORUM_SMOKE_FAULT_CASE_ID",
+          "PROOF_OR_STOP_QUORUM_SMOKE_REPOSITORY_ROOT",
+          "PROOF_OR_STOP_QUORUM_SMOKE_WORKER_PROCESS_MARKER",
+          "PROOF_OR_STOP_DYN5_CASE",
+          "PROOF_OR_STOP_SESSION_ID",
+          "PROOF_OR_STOP_ACTIVITY_SOURCE",
+          "PROOF_OR_STOP_ACTIVITY_SESSION",
+          "PROOF_OR_STOP_AGENT",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_SESSION",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY",
+          "PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED",
+          "CLAUDE_CODE_SESSION_ID",
+          "CLAUDE_SESSION_ID",
+          "CODEX_SESSION_ID",
+          "CODEX_THREAD_ID",
+          "OPENAI_SESSION_ID",
+          "TERM_SESSION_ID",
+          "ANTIGRAVITY_SESSION_ID",
+          "AGY_SESSION_ID",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY",
+          "PROOF_OR_STOP_VALIDATION_SHARD_DIR",
+          "PROOF_OR_STOP_VALIDATION_SHARD_DOMAIN",
+          "PROOF_OR_STOP_VALIDATION_SHARD_ID",
+          "PROOF_OR_STOP_VALIDATION_SHARD_SENTINEL",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY_DIGEST",
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER_DIGEST",
+          "PROOF_OR_STOP_VALIDATION_SHARD_CASE_IDS",
+          "PROOF_OR_STOP_VALIDATION_PROJECT_ROOT",
+          "PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS",
+          "PROOF_OR_STOP_PROJECT_ROOT",
+          "PROOF_OR_STOP_IDLE_TIMEOUT_MS",
+          "PROOF_OR_STOP_MAX_TIMEOUT_MS",
+          "PROOF_OR_STOP_ACTIVITY_ROLE",
+          "PROOF_OR_STOP_CODEX_ENTRYPOINT",
+          "PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE",
+          "PROOF_OR_STOP_VALIDATE_JOBS",
+          "PROOF_OR_STOP_VALIDATE_CPU",
+          "PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS",
+          "FORCE_COLOR",
+          "GRACEFUL_FS_PLATFORM",
+          "NODE_DEBUG",
+          "NODE_INSPECTOR_IPC",
+          "NODE_V8_COVERAGE",
+          "TEST_GRACEFUL_FS_GLOBAL_PATCH",
+          "TSC_NONPOLLING_WATCHER",
+          "TSC_WATCHDIRECTORY",
+          "TSC_WATCHFILE",
+          "TSC_WATCH_POLLINGCHUNKSIZE_HIGH",
+          "TSC_WATCH_POLLINGCHUNKSIZE_LOW",
+          "TSC_WATCH_POLLINGCHUNKSIZE_MEDIUM",
+          "TSC_WATCH_POLLINGINTERVAL_HIGH",
+          "TSC_WATCH_POLLINGINTERVAL_LOW",
+          "TSC_WATCH_POLLINGINTERVAL_MEDIUM",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_HIGH",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_LOW",
+          "TSC_WATCH_UNCHANGEDPOLLTHRESHOLDS_MEDIUM",
+          "VSCODE_INSPECTOR_OPTIONS",
+          "WATCH_REPORT_DEPENDENCIES",
+          "__CF_USER_TEXT_ENCODING",
+          "PROOF_OR_STOP_EXPERIMENT_ARM",
+          "PROOF_OR_STOP_EXPERIMENT_ID",
+          "PROOF_OR_STOP_HEALTH_PATH",
+          "PROOF_OR_STOP_REVIEWER_READONLY",
+          "PWD",
+          "QUORUM_CLI_PROBE_COUNTER",
+          "SHLVL",
+          "_"
         ],
         "assurance": "story-selectable",
         "riskTier": "gate",
@@ -857,6 +1223,30 @@
         "fullBaselineReusePolicy": "not-applicable",
         "cpuWeight": 4,
         "expectedP50Ms": 643000,
+        "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "label": "B-e40f CHK-002: quorum-submit executable registrations and manifest remain a lossless 73-case bijection",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+          "--case=inventory-bijection"
+        ],
+        "timeoutMs": 180000,
+        "focus": [
+          "fast"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
@@ -1578,7 +1968,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist/tasks",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/tests/red",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1590,7 +2007,34 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1602,7 +2046,24 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1614,7 +2075,39 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -1622,6 +2115,106 @@
           "packages/main/tests/red/red-1734-reader-race.mjs"
         ],
         "timeoutMs": 300000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"
+        ],
+        "timeoutMs": 300000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "exclusive"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-bcae-admission-coscheduling.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ],
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
@@ -1692,7 +2285,19 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2027,12 +2632,35 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
-          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "--probe-jobs=4"
         ],
         "timeoutMs": 180000,
         "resources": [
@@ -2218,7 +2846,14 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2226,35 +2861,80 @@
           "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
           "--canonical-core"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-w2d-entropy-differential.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2263,7 +2943,29 @@
           "packages/main/tests/red/red-w2d-command-readonly.mjs",
           "--canonical-core"
         ],
-        "timeoutMs": 180000
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
       },
       {
         "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
@@ -2274,7 +2976,14 @@
         "focus": [
           "b8df9-init-check-signature"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       },
       {
         "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
@@ -2285,7 +2994,24 @@
         "focus": [
           "b8df9-init-check-signature"
         ],
-        "timeoutMs": 300000
+        "timeoutMs": 300000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/story/actives",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2297,7 +3023,29 @@
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-dyn1-audit-v1"
+        "policySource": "explicit-dyn1-audit-v1",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/utils/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "bin",
+            "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "npm",
@@ -2307,7 +3055,32 @@
           "run",
           "check"
         ],
-        "timeoutMs": 290000
+        "timeoutMs": 290000,
+        "env": {
+          "GRAPH_VERIFY_PORT": "0"
+        },
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/graph",
+            "access": "exclusive"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2369,6 +3142,11 @@
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
+          },
+          {
+            "class": "runtime-lock",
+            "key": "proof-or-stop-real-root-admission",
+            "access": "exclusive"
           }
         ]
       },
@@ -2449,6 +3227,62 @@
         ]
       },
       {
+        "label": "Canonical identity-cutover public-operation regression: exact active identity inventory, canonical production controls, retired-family rejection, and zero-mutation guarantees",
+        "command": "node",
+        "args": [
+          "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+          "--group=identity-cutover"
+        ],
+        "timeoutMs": 2700000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-b49df-identity-cutover-regression",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "B-aa5f CHK-007: real authenticated inventory observation, reexecution/reuse compatibility, tamper rejection and independent cutoff regression",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-inventory-epoch-smoke.js"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "label": "B-dc2e CHK-001: the validation protocol suite (validation executor, verifier discovery, managed-asset check/apply, runtime footprint, doctor, evidence freshness gates, tasks/ inventory sweep). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
         "command": "node",
         "args": [
@@ -2479,7 +3313,14 @@
         "args": [
           "packages/main/dist/tasks/cross-host-review-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2487,42 +3328,84 @@
           "packages/main/dist/tasks/host-run-usage-smoke.js",
           "--canonical-core"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/managed-host-run-command-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/managed-host-run-e2e-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/managed-host-run-process-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/managed-review-evidence-smoke.js"
         ],
-        "timeoutMs": 900000
+        "timeoutMs": 900000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/proof-admissibility-registry-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2530,14 +3413,28 @@
           "packages/main/dist/tasks/provider-process-registry-smoke.js",
           "--provider-launch-owner-admission-child"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/semantic-scope-guard-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
@@ -2545,21 +3442,42 @@
           "packages/main/dist/tasks/managed-host-run-smoke.js",
           "--canonical-core"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/dispatch-run-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/provider-claude-smoke.js"
         ],
-        "timeoutMs": 600000
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       },
       {
         "label": "agent-dispatch-registry-smoke",
@@ -2645,7 +3563,14 @@
         "args": [
           "scripts/verify-validation-static-edges.mjs"
         ],
-        "timeoutMs": 60000
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [
@@ -2663,7 +3588,9 @@
         ],
         "timeoutMs": 600000
       }
-    ]
+    ],
+    "sharedExecution": true,
+    "reuseFreshRoutinePass": true
   },
   "doneRequiredCommands": [
     {
@@ -2676,7 +3603,29 @@
         "build"
       ],
       "timeoutMs": 290000,
-      "providesBuildProof": "packages-main-build"
+      "providesBuildProof": "packages-main-build",
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        }
+      ]
     },
     {
       "label": "root full test suite",
@@ -2685,7 +3634,39 @@
         "test"
       ],
       "timeoutMs": 7200000,
-      "requiresBuildProof": "packages-main-build"
+      "requiresBuildProof": "packages-main-build",
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-port",
+          "key": "43127",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".",
+          "access": "exclusive"
+        }
+      ]
     }
   ],
   "baselineRiskAcceptedLocalPaths": [

@@ -28,7 +28,7 @@ try {
   let launches = 0;
   const launch = (mutate = value => value, count = 1, exitCode = 0, host = 'codex') => ({ launchWorker: request => {
     launches++;
-    const body = mutate({ schemaVersion: 'proofbound.acceptance_amendment_review_final.v1', runId: request.runId, storyId: args.storyId, ...subject,
+    const body = mutate({ schemaVersion: 'proof-or-stop.acceptance_amendment_review_final.v1', runId: request.runId, storyId: args.storyId, ...subject,
       decision: 'approve', rationale: 'The added negative-input verification is mandatory and preserves the original intent.', readRefs: ['sum.cjs'] });
     const event = host === 'claude' ? { type: 'result', subtype: 'success', structured_output: body } : { type: 'item.completed', item: { type: 'agent_message', text: JSON.stringify(body) } };
     const script = `if(process.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY)throw Error('private capability leaked'); ${Array.from({length:count},()=>`console.log(${JSON.stringify(JSON.stringify(event))});`).join('')} process.exitCode=${exitCode};`;
@@ -57,7 +57,36 @@ try {
     await Promise.all(workers);
     assert.equal(managed.managedHostRunReceipt(root, rejected.runId).state, 'failed', 'mismatch, duplicate final result and nonzero exit cannot approve');
   }
+  const retired = await managed.submitManagedHostRun({ ...args, reviewRunId: 'B-amendment:AMR-retired-schema' },
+    launch(value => ({ ...value, schemaVersion: 'proofbound.acceptance_amendment_review_final.v1' })));
+  await Promise.all(workers);
+  assert.equal(managed.managedHostRunReceipt(root, retired.runId).state, 'failed', 'retired inner schema cannot obtain worker approval');
+  assert.throws(() => managed.readManagedAcceptanceReviewReceipt(root, retired.runId,
+    { ...subject, storyId: args.storyId, promptDigest: sha(prompt), publicKey: managed.managedAcceptanceReviewPublicKey(root, retired.runId) }), /proposal|receipt|signature|binding/);
+  // Test-owned signed container: first prove this exact key/container is readable,
+  // then change only inner schema and sign again under the same explicit key.
+  const fixtureKey = generateEd25519KeyPair();
+  const originalSeal = JSON.parse(bytes);
+  const { signature: originalSignature, ...fixtureClaims } = originalSeal;
+  const fixtureExpected = { ...subject, storyId: args.storyId, promptDigest: sha(prompt), publicKey: fixtureKey.publicKey };
+  const terminalPath = join(managed.managedHostRunDirectory(root, run.runId), 'terminal.json');
+  const terminalBytes = readFileSync(terminalPath);
+  const writeFixtureSeal = claims => {
+    const text = JSON.stringify({ ...claims, signature: signCanonical(claims, fixtureKey.privateKey) });
+    writeFileSync(path, text);
+    writeFileSync(terminalPath, JSON.stringify({ ...JSON.parse(terminalBytes), evidenceProposalDigest: sha(text) }));
+  };
+  try {
+    writeFixtureSeal(fixtureClaims);
+    assert.equal(managed.readManagedAcceptanceReviewReceipt(root, run.runId, fixtureExpected).proposal.schemaVersion, ACCEPTANCE_REVIEW_FINAL_SCHEMA,
+      'test-owned signed canonical inner schema positive control');
+    const retiredClaims = { ...fixtureClaims, proposal: { ...fixtureClaims.proposal, schemaVersion: 'proofbound.acceptance_amendment_review_final.v1' } };
+    writeFixtureSeal(retiredClaims);
+    assert.throws(() => managed.readManagedAcceptanceReviewReceipt(root, run.runId, fixtureExpected), /subject binding invalid/,
+      'authentic signed retired inner schema is not current authority');
+  } finally { writeFileSync(path, bytes); writeFileSync(terminalPath, terminalBytes); }
   const actualResult = managed.readManagedHostRunResult(root, run.runId);
+  assert.throws(() => parseAcceptanceReviewFinal({ ...actualResult, finalAssistantResult: JSON.stringify({ ...accepted.proposal, schemaVersion: 'proofbound.acceptance_amendment_review_final.v1' }) }, { ...subject, runId: run.runId, storyId: args.storyId }), /subject or verdict invalid/);
   for (const change of [{ closeObserved: false }, { processIdentity: null }, { replacementSafe: false }, { finalAssistantResultTruncated: true }, { processCleanup: { reaped: false, residualProcessGroup: true } }]) {
     assert.throws(() => parseAcceptanceReviewFinal({ ...actualResult, ...change }, { ...subject, runId: run.runId, storyId: args.storyId }), /cleanup|final/);
   }

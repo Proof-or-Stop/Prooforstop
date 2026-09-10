@@ -789,7 +789,7 @@ async function run(): Promise<void> {
       });
       assert.ok(runtimeMemoryTopHits(pack).ids.length > 0, 'fixture pack has top hits (non-vacuous)');
       const projection = {
-        schemaVersion: 'lattice.host_dispatch.v1',
+        schemaVersion: 'proof-or-stop.host_dispatch.v1',
         status: 'planned',
         mode: 'supervised',
         storyId: 'B-smoke',

@@ -60,7 +60,7 @@ try {
     const journal = store.readAcceptanceAmendments(storyId);
     const entry = journal.entries.find(e => e.amendmentId === 'AM-1');
     assert.ok(entry.review.publicKey, 'journal pins key before worker launch');
-    const body = { schemaVersion: 'proofbound.acceptance_amendment_review_final.v1', runId: worker.runId, storyId,
+    const body = { schemaVersion: 'proof-or-stop.acceptance_amendment_review_final.v1', runId: worker.runId, storyId,
       amendmentId: 'AM-1', amendmentDigest: entry.amendmentDigest, baseDigest: entry.baseDigest, submitterSessionId: 'owner-1', decision: 'approve',
       rationale: 'The new required intent completes missing acceptance without weakening any original requirement.', readRefs: ['sum.cjs'] };
     const event = { type: 'item.completed', item: { type: 'agent_message', text: JSON.stringify(body) } };

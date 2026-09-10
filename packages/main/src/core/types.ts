@@ -47,23 +47,6 @@ export type AgentDispatchCanonicalType =
   | 'proof-or-stop-review-delivery'
   | 'proof-or-stop-finding-repair'
   | 'proof-or-stop-cluster-repair'
-  // Accepted only as legacy input/read values. Runtime registry rows always
-  // use the proof-or-stop spellings above.
-  | 'lattice-implementer'
-  | 'verification-intent'
-  | 'proof-or-stop-review-story-init'
-  | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery'
-  | 'lattice-finding-repair'
-  | 'lattice-cluster-repair'
   | 'acceptance-rollout-verifier';
 
 export type AgentDispatchRoleClass =
@@ -132,20 +115,7 @@ export type AgentDispatchReviewerLane =
   | 'proof-or-stop-review-docs'
   | 'proof-or-stop-review-channel'
   | 'proof-or-stop-review-delivery'
-  | 'acceptance-rollout-verifier'
-  // Historical spellings are accepted at the input/compatibility boundary;
-  // canonical proof-or-stop lanes remain the runtime authority.
-  | 'lattice-review-story-init'
-  | 'product-reviewer'
-  | 'proof-or-stop-review-scope-plan'
-  | 'proof-or-stop-review-topology-critic'
-  | 'proof-or-stop-review-concept'
-  | 'proof-or-stop-review-quality'
-  | 'proof-or-stop-review-test-coverage'
-  | 'proof-or-stop-review-behavior'
-  | 'proof-or-stop-review-docs'
-  | 'proof-or-stop-review-channel'
-  | 'proof-or-stop-review-delivery';
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -780,7 +750,7 @@ export interface AcceptanceRolloutObservationReceiptV1 {
   gateArtifacts: AcceptanceRolloutGateArtifactV1[];
   hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
   quorumReceipt: {
-    schemaVersion: 'lattice.quorum_submit.v1';
+    schemaVersion: 'proof-or-stop.quorum_submit.v1';
     storyId: string;
     rounds: number;
     emittedCount: number;
@@ -954,7 +924,7 @@ export interface TopologyExclusionApprovalV1 {
   exclusionRef: string;
   scopeRef: string;
   approverIdentity: string;
-  approverRole: 'proof-or-stop-review-scope-plan' | 'lattice-review-scope-plan';
+  approverRole: 'proof-or-stop-review-scope-plan';
   approverProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -978,7 +948,7 @@ export interface TopologyCriticReceiptV1 {
   schemaVersion: 'proofstory.topology_critic_receipt.v1';
   storyId: string;
   criticIdentity: string;
-  criticRole: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
+  criticRole: 'proof-or-stop-review-topology-critic';
   criticProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -1131,6 +1101,250 @@ export interface VerificationExecutionReceipt {
   commandReruns?: 0;
 }
 
+/**
+ * B-aa5f CHK-002: reference to the immutable full-output artifact produced by one
+ * verifier execution. `artifactDigest` protects the canonical envelope while
+ * `outputDigest` independently protects the embedded complete output bytes.
+ */
+export interface VerificationOutputArtifactRef {
+  artifactId: string;
+  artifactDigest: string;
+  outputDigest: string;
+}
+
+/** Tool-owned Ed25519 authentication bound to a repository trusted key. */
+export interface VerificationRecordAuthenticityV1 {
+  schemaVersion: 'proof-or-stop.verification-record-authenticity.v1';
+  domain: 'execution' | 'assertion' | 'reuse' | 'publication';
+  keyId: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+/**
+ * B-aa5f CHK-002: selector-free execution facts. Selector identity and outcome
+ * deliberately do not exist on this object; one execution can support many
+ * independently signed assertions without implying that any selector matched.
+ */
+export interface VerificationExecutionReceiptV2 {
+  schemaVersion: 'proof-or-stop.verification-execution-receipt.v2';
+  command: string;
+  commandDigest: string;
+  executable: string;
+  argv: string[];
+  cwd: string;
+  cwdDigest: string;
+  effectiveTimeoutMs: number;
+  environmentDigest: string;
+  toolchainDigest: string;
+  evidenceInputDigest: string | null;
+  inputClosureComplete: boolean;
+  captureSemantics: 'combined-stdout-stderr.v1';
+  outputArtifact: VerificationOutputArtifactRef;
+  exitCode: number;
+  timedOut: boolean;
+  durationMs: number;
+  executedAt: string;
+  executionReceiptDigest: string;
+}
+
+/**
+ * Legacy caller-authored verifier declaration. It remains readable for audit,
+ * but its completeness/determinism booleans never authorize reuse.
+ */
+export interface VerifierDependencyManifestV1 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v1';
+  fileClosure: 'complete' | 'partial';
+  files: string[];
+  environmentVariables: string[];
+  deterministic: boolean;
+  dynamicFileReads: boolean;
+  networkInputs: boolean;
+  undeclaredEnvironment: boolean;
+  sideEffects: boolean;
+}
+
+/**
+ * Declarative input to the policy-owned reuse capsule. Unlike v1, this schema
+ * contains no caller-authored claims about completeness or determinism: the
+ * fixed capsule semantics are the authority for those properties.
+ */
+export interface VerifierDependencyManifestV2 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2';
+  capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1';
+  files: string[];
+}
+
+export interface VerificationDependencyManifestBindingV1 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest-binding.v1';
+  path: string;
+  manifestDigest: string;
+}
+
+export interface VerificationDependencyManifestBindingV2 {
+  schemaVersion: 'proof-or-stop.verifier-dependency-manifest-binding.v2';
+  path: string;
+  manifestDigest: string;
+  capsulePolicyDigest: string;
+}
+
+/** Current V3 execution component carried by the authoritative V5 bundle. */
+export interface VerificationExecutionReceiptV3 extends Omit<VerificationExecutionReceiptV2,
+  'schemaVersion' | 'executionReceiptDigest'> {
+  schemaVersion: 'proof-or-stop.verification-execution-receipt.v3';
+  dependencyManifest: VerificationDependencyManifestBindingV1 | VerificationDependencyManifestBindingV2 | null;
+  platform: string;
+  architecture: string;
+  nodeVersion: string;
+  executionIdentityDigest: string;
+  reuseDeniedReason: string | null;
+  executionReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/** Legacy V1 assertion: read-only, non-reusable, and non-admissible compatibility. */
+export interface VerificationAssertionReceiptV1 {
+  schemaVersion: 'proof-or-stop.verification-assertion-receipt.v1';
+  intentRef: string;
+  selectorDigest: string;
+  matcherVersion: 'literal-includes.v1';
+  executionReceiptDigest: string;
+  outputDigest: string;
+  matched: boolean;
+  assertionReceiptDigest: string;
+}
+
+/**
+ * CHK-005 assertion whose digest also commits to how the execution was
+ * published.  A reused assertion must name the exact reuse receipt; an
+ * executed assertion must commit to the absence of one.
+ */
+export interface VerificationAssertionReceiptV2 {
+  schemaVersion: 'proof-or-stop.verification-assertion-receipt.v2';
+  intentRef: string;
+  selectorDigest: string;
+  matcherVersion: 'literal-includes.v1';
+  executionReceiptDigest: string;
+  outputDigest: string;
+  publicationMode: 'executed' | 'reused';
+  reuseReceiptDigest: string | null;
+  matched: boolean;
+  assertionReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/** Immutable audit record proving why a prior execution was reused. */
+export interface VerificationReuseReceiptV1 {
+  schemaVersion: 'proof-or-stop.verification-reuse-receipt.v1';
+  priorExecutionReceiptDigest: string;
+  priorOutputArtifactDigest: string;
+  outputDigest: string;
+  dependencyManifestDigest: string;
+  evidenceInputDigest: string;
+  executionIdentityDigest: string;
+  reusedAt: string;
+  reuseReceiptDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+/**
+ * Legacy V2 split bundle. Its top-level fields are a read-only adapter for
+ * existing consumers; the bundle and its V1 assertion are non-reusable,
+ * non-promotable, and cannot satisfy lifecycle admission.
+ */
+export interface VerificationReceiptBundleV2 extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v2';
+  executionReceipt: VerificationExecutionReceiptV2;
+  assertionReceipt: VerificationAssertionReceiptV1;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/**
+ * Legacy V3 split bundle: read-only, non-reusable, non-promotable, and
+ * non-admissible. Its V3 execution component remains the execution component
+ * used by the current V5 bundle and historical V4; the V3 bundle and V1 assertion do not.
+ */
+export interface VerificationReceiptBundleV3 extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v3';
+  executionReceipt: VerificationExecutionReceiptV3;
+  assertionReceipt: VerificationAssertionReceiptV1;
+  reuseReceipt?: VerificationReuseReceiptV1;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/** Canonical component cross-links; V5 additionally signs publication context. */
+export interface VerificationReceiptBundleBindingV1 {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle-binding.v1';
+  publicationMode: 'executed' | 'reused';
+  executionReceiptDigest: string;
+  assertionReceiptDigest: string;
+  reuseReceiptDigest: string | null;
+  outputArtifactDigest: string;
+  outputDigest: string;
+}
+
+interface VerificationReceiptBundleV4Common extends VerificationExecutionReceipt {
+  schemaVersion: 'proof-or-stop.verification-receipt-bundle.v4';
+  executionReceipt: VerificationExecutionReceiptV3;
+  assertionReceipt: VerificationAssertionReceiptV2;
+  bundleBinding: VerificationReceiptBundleBindingV1;
+  bundleReceiptDigest: string;
+  compatibility: {
+    projection: 'legacy-verification-receipt.v1';
+    reusable: false;
+    promotable: false;
+  };
+}
+
+/** Historical V4 bundle: authenticated audit data, not current admission authority. */
+export type VerificationReceiptBundleV4 =
+  | (VerificationReceiptBundleV4Common & {
+      publicationMode: 'executed';
+      reuseReceiptDigest: null;
+      reuseReceipt?: never;
+    })
+  | (VerificationReceiptBundleV4Common & {
+      publicationMode: 'reused';
+      reuseReceiptDigest: string;
+      reuseReceipt: VerificationReuseReceiptV1;
+    });
+
+export interface VerificationFreshnessBinding {
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+}
+
+/** Separately authenticated publication context; never an unsigned hash re-pin. */
+export interface VerificationPublicationBindingV1 extends Omit<VerificationReceiptBundleBindingV1, 'schemaVersion'> {
+  schemaVersion: 'proof-or-stop.verification-publication-binding.v1';
+  storyId: string;
+  freshness: VerificationFreshnessBinding;
+  publicationDigest: string;
+  authenticity: VerificationRecordAuthenticityV1;
+}
+
+type CurrentVerificationBundle<T> = T extends VerificationReceiptBundleV4
+  ? Omit<T, 'schemaVersion'> & {
+      schemaVersion: 'proof-or-stop.verification-receipt-bundle.v5';
+      publicationBinding: VerificationPublicationBindingV1;
+    }
+  : never;
+export type VerificationReceiptBundleV5 = CurrentVerificationBundle<VerificationReceiptBundleV4>;
+
+export type VerificationSplitReceipt = VerificationReceiptBundleV2 | VerificationReceiptBundleV3 | VerificationReceiptBundleV4 | VerificationReceiptBundleV5;
+
+/** Legacy combined receipt or the explicit split-receipt compatibility bundle. */
+export type VerificationEvidenceReceipt = VerificationExecutionReceipt | VerificationSplitReceipt;
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -1144,8 +1358,8 @@ export interface VerificationEvidence {
    * audited escape). Undefined on legacy evidence written before B-ec67 (grandfathered).
    */
   mechanical?: boolean;
-  /** B-ec67: tool-owned execution receipt, present only when mechanical === true. */
-  receipt?: VerificationExecutionReceipt;
+  /** Tool-owned legacy or split receipt, present only when mechanical === true. */
+  receipt?: VerificationEvidenceReceipt;
   /**
    * B-ec67: attributable, gate-visible reason recorded when an executable intent is
    * deliberately covered by a non-mechanical attestation via the audited escape path
@@ -1260,6 +1474,7 @@ export interface ChecklistItem {
    * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
    */
   verificationIntent?: VerificationIntent;
+  verificationIntentAmendments?: import('./verification-intent-amendment.js').IntentAmendment[];
   verificationEvidence?: VerificationEvidence[];
   /**
    * B-2296 (evidence-integrity §5 follow-on, Phase 1): immutable frozen-claim
@@ -1685,7 +1900,7 @@ export interface Finding {
 }
 
 export interface GapLogProvenanceBinding {
-  schemaVersion: 'lattice.gap-log-provenance.v1';
+  schemaVersion: 'proof-or-stop.gap-log-provenance.v1';
   command: 'gap_log';
   storyId: 'B-META-framework-audit';
   artifactPath: string;
@@ -2000,7 +2215,7 @@ export interface ReviewRun {
   materialHash: string;
   storyFilesHash?: string;
   promptHash: string;
-  /** Content-addressed full Prompt Envelope; absent only for bounded legacy-full-context history/rollback. */
+  /** Content-addressed full Prompt Envelope; absent only on frozen historical records. */
   envelopeId?: string;
   /**
    * Exact bytes delivered by review_run_start in full-envelope mode. The
@@ -2065,7 +2280,7 @@ export interface ReviewInventoryWave {
 
 /** Signed frozen-candidate inventory fact. It never certifies remediated material. */
 export interface ReviewInventoryEpoch {
-  schemaVersion: 'proofbound.review_inventory_epoch.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_epoch.v1';
   epochId: string;
   storyId: string;
   reviewRound: string;
@@ -2116,7 +2331,7 @@ export interface ReviewInventoryEpoch {
 }
 
 export interface ReviewInventoryReceipt {
-  schemaVersion: 'proofbound.review_inventory_receipt.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_receipt.v1';
   receiptId: string;
   epochId: string;
   storyId: string;
@@ -2150,7 +2365,7 @@ export interface ReviewInventoryPurposeBinding {
 }
 
 export interface ReviewInventoryCriticReceipt {
-  schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1';
   criticReceiptId: string;
   epochId: string;
   storyId: string;
@@ -2159,7 +2374,7 @@ export interface ReviewInventoryCriticReceipt {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   aggregateFindingSetDigest: string;
   requiredLaneCoverageDigest: string;
-  criticLane: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
+  criticLane: 'proof-or-stop-review-topology-critic';
   reviewRunId: string;
   reviewPurpose?: 'inventory-completeness';
   inventoryBinding?: ReviewInventoryPurposeBinding;
@@ -2179,7 +2394,7 @@ export interface ReviewInventoryFindingDisposition {
 }
 
 export interface ReviewInventoryEpochData {
-  schemaVersion: 'proofbound.review_inventory_epochs.v1';
+  schemaVersion: 'proof-or-stop.review_inventory_epochs.v1';
   epochs: ReviewInventoryEpoch[];
   receipts: ReviewInventoryReceipt[];
   criticReceipts: ReviewInventoryCriticReceipt[];
@@ -2233,6 +2448,11 @@ export interface TestEvidenceData {
   verificationCoverage?: VerificationCoverageReport;
   /** Versioned identity of the commands and policy inputs used by routine validate. */
   routineValidationIdentity?: RoutineValidationIdentity;
+  /** Resolved selection mode and exact admission for a reused complete PASS. */
+  resolvedDynamicMode?: 'off' | 'observe' | 'shadow' | 'enforce-low-risk';
+  reuseAdmission?: 'mode-off' | 'observe-opt-in';
+  /** Signed dynamic revocation state observed when the command PASS was recorded. */
+  dynamicRevocationLedgerDigest?: string;
   /** Project command truth, intentionally independent from overall verification coverage. */
   commandExecution?: RoutineValidationCommandExecution;
   /** Whether this canonical receipt came from command execution or a validated zero-command reuse. */
@@ -2362,7 +2582,7 @@ export interface DecisionDocProposal {
 }
 
 export interface DecisionDocProposalFile {
-  schemaVersion: 'lattice.decision_doc_proposals.v1';
+  schemaVersion: 'proof-or-stop.decision_doc_proposals.v1';
   storyId: string;
   updatedAt: string;
   proposals: DecisionDocProposal[];
@@ -2786,8 +3006,13 @@ export interface StallAdjudicationData {
 
 export type ScopeBoundaryMode = 'correctness_fix' | 'feature' | 'maintenance' | 'custom';
 
+export type ScopeBoundarySchemaVersion =
+  | 'proof-or-stop.scope_boundary.v1.1'
+  | 'lattice.scope_boundary.v1';
+
 export interface ScopeBoundaryData {
-  schemaVersion: 'lattice.scope_boundary.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ScopeBoundarySchemaVersion;
   storyId: string;
   mode: ScopeBoundaryMode;
   /** User-confirmed in-scope semantic directions, normalized and deduplicated by the core evaluator. */
@@ -2802,8 +3027,13 @@ export interface ScopeBoundaryData {
   _hash: string;
 }
 
+export type ExecutionBoundarySchemaVersion =
+  | 'proof-or-stop.execution_boundary.v1.1'
+  | 'lattice.execution_boundary.v1';
+
 export interface ExecutionBoundaryData {
-  schemaVersion: 'lattice.execution_boundary.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ExecutionBoundarySchemaVersion;
   storyId: string;
   /** Commands/tool invocations explicitly allowed for this story's INIT_CHECK/DEV execution envelope. */
   allowedCommands: string[];
@@ -2866,8 +3096,13 @@ export interface ScopeFreezeIssue {
   overlapTerms?: string[];
 }
 
+export type ScopeFreezeCheckSchemaVersion =
+  | 'proof-or-stop.scope_freeze_check.v1.1'
+  | 'lattice.scope_freeze_check.v1';
+
 export interface ScopeFreezeCheckData {
-  schemaVersion: 'lattice.scope_freeze_check.v1';
+  /** Canonical v1.1 for new writes; signed historical v1 remains read-only compatible. */
+  schemaVersion: ScopeFreezeCheckSchemaVersion;
   storyId: string;
   checkedAt: string;
   mode: ScopeBoundaryMode;
@@ -3432,7 +3667,7 @@ export interface ReviewScopeBinding {
  * metadataRoot.
  */
 export interface ReviewRunWorkspaceBinding {
-  schemaVersion: 'lattice.review_run_workspace_binding.v1';
+  schemaVersion: 'proof-or-stop.review_run_workspace_binding.v1';
   metadataRoot: string;
   invocationCwd: string;
   repoRoot: string | null;
@@ -3905,7 +4140,7 @@ export interface ReviewLoopRollbackRef {
 }
 
 export interface ReviewLoopStart {
-  schemaVersion: 'lattice.review_loop_start.v1';
+  schemaVersion: 'proof-or-stop.review_loop_start.v1';
   event: 'start';
   loopId: string;
   storyId: string;
@@ -3918,7 +4153,7 @@ export interface ReviewLoopStart {
 }
 
 export interface ReviewLoopIteration {
-  schemaVersion: 'lattice.review_loop_iteration.v1';
+  schemaVersion: 'proof-or-stop.review_loop_iteration.v1';
   event: 'iteration';
   loopId: string;
   storyId: string;
@@ -3968,7 +4203,7 @@ export interface ReviewLoopIteration {
 }
 
 export interface ReviewLoopClose {
-  schemaVersion: 'lattice.review_loop_close.v1';
+  schemaVersion: 'proof-or-stop.review_loop_close.v1';
   event: 'close';
   loopId: string;
   storyId: string;
@@ -3986,7 +4221,7 @@ export interface ReviewLoopClose {
 export type ReviewLoopRecord = ReviewLoopStart | ReviewLoopIteration | ReviewLoopClose;
 
 export interface ReviewLoopPolicy {
-  schemaVersion: 'lattice.review_loop_policy.v1';
+  schemaVersion: 'proof-or-stop.review_loop_policy.v1';
   maxIterations: number;
   maxNoProgressIterations: number;
   maxRuntimeMinutes: number;
@@ -4012,7 +4247,7 @@ export interface ReviewLoopPolicy {
  * docs/requirements/decisions/dev-memory.md's Non-Goals annotation.
  */
 export interface DevMemoryPreflightAckData {
-  schemaVersion: 'lattice.dev_memory_preflight_ack.v1';
+  schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1';
   storyId: string;
   /** Digest of the preflight pack actually seen, or null on a reasoned downgrade. */
   packDigest: string | null;

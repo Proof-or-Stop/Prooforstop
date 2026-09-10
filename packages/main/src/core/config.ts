@@ -6,6 +6,7 @@ import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './a
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './proof-or-stop-paths.js';
 import { readBrandEnv } from './brand-env.js';
+import { assertCanonicalActiveIdentityBoundary } from './runtime-environment-checks.js';
 import {
   PROOF_OR_STOP_CONFIG_FILENAME as CANONICAL_CONFIG_FILENAME,
   CONFIG_FILENAMES,
@@ -184,9 +185,9 @@ export interface ProofOrStopConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
-  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
+  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles use the canonical full-envelope mode. */
   promptEnvelope?: {
-    version?: 'proof-or-stop.prompt-envelope-rollout.v1' | 'proofbound.prompt-envelope-rollout.v1';
+    version?: 'proof-or-stop.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
       | 'proof-or-stop-review-behavior'
       | 'proof-or-stop-review-concept'
@@ -198,20 +199,8 @@ export interface ProofOrStopConfig {
       | 'proof-or-stop-review-scope-plan'
       | 'proof-or-stop-implementer'
       | 'proof-or-stop-review-delivery'
-      | 'proof-or-stop-evaluator'
-      // Deprecated keys remain readable for pre-migration configurations.
-      | 'lattice-review-behavior'
-      | 'lattice-review-concept'
-      | 'lattice-review-docs'
-      | 'lattice-review-quality'
-      | 'lattice-review-test-coverage'
-      | 'lattice-review-topology-critic'
-      | 'lattice-review-story-init'
-      | 'lattice-review-scope-plan'
-      | 'lattice-implementer'
-      | 'lattice-review-delivery'
-      | 'lattice-evaluator',
-      'legacy-full-context' | 'full-envelope'
+      | 'proof-or-stop-evaluator',
+      'full-envelope'
     >>;
   };
   /** Public trust registrations for external host-adapter review invocation brokers. */
@@ -254,6 +243,10 @@ export interface ProofOrStopConfig {
   };
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
+    /** Exact-input result sharing is independent of dynamic test selection. */
+    sharedExecution?: boolean;
+    /** Opt in to strict whole-PASS reuse while retaining observe-only selection diagnostics. */
+    reuseFreshRoutinePass?: boolean;
     command?: string;
     dynamic?: {
       mode?: DynamicValidationModeConfig;
@@ -503,6 +496,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_resume',  // B-bbaf CHK-003: human-only ack that clears a convergence-breaker freeze; a freeze can occur at story_advance in ANY phase, so the ack must be available in every phase (declared allowedPhases:all storyScopedMutating in command-policy; refused under autopilot/non-interactive)
   ],
   INIT: [
+    'verification_intent_recover',
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
     'init_check_set', // B-e71f CHK-003: proof-or-stop-review-story-init reviewer 在 INIT 阶段写 init-check.json
@@ -514,11 +508,13 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   INIT_CHECK: [
     'scope_budget_approve',
+    'verification_intent_recover',
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
     'scope_budget_approve',
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
@@ -549,9 +545,11 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_budget_approve',
     'acceptance_amendment_propose', 'acceptance_amendment_review', 'acceptance_amendment_approve', 'acceptance_amendment_cancel',
     'review_remediation_close', // Complete inventory-bound repair sets with one atomic ledger publication.
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'verification_intent_append',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
     'light_review',
@@ -582,6 +580,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   REVIEW: [
     'reviewer_batch_admit', // Owner-only shared capability admission for the signed current inventory.
     'scope_budget_approve',
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
     // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
@@ -616,6 +615,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   TEST: [
     'scope_budget_approve',
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',
@@ -960,6 +960,27 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
   }
 }
 
+function assertCurrentPromptEnvelopeConfig(config: unknown, projectRoot: string): void {
+  if (!config || typeof config !== 'object' || !('promptEnvelope' in config)) return;
+  const promptEnvelope = (config as { promptEnvelope?: unknown }).promptEnvelope;
+  if (promptEnvelope === undefined) return;
+  if (!promptEnvelope || typeof promptEnvelope !== 'object') {
+    throw new Error('promptEnvelope must be an object using the current Proof-or-Stop identity');
+  }
+  const version = (promptEnvelope as { version?: unknown }).version;
+  if (version !== undefined && version !== 'proof-or-stop.prompt-envelope-rollout.v1') {
+    // Config loading precedes command dispatch. Diagnose a corrupted validator
+    // here without adding boundary reads to the valid-config fast path.
+    try {
+      assertCanonicalActiveIdentityBoundary({ boundaryId: 'prompt-runtime', projectRoot });
+    } catch (error) {
+      // loadConfig must rethrow this failure, never treat it as malformed JSON.
+      throw new Error(`unsupported promptEnvelope.version: ${String(version)}; ${error instanceof Error ? error.message : String(error)}`);
+    }
+    throw new Error(`unsupported promptEnvelope.version: ${String(version)}`);
+  }
+}
+
 export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
@@ -987,7 +1008,19 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
     assertNoDuplicatePromptEnvelopeRoleKeys(rawConfig);
     try {
       userConfig = JSON.parse(rawConfig);
-    } catch { /* ignore parse errors */ }
+      assertCurrentPromptEnvelopeConfig(userConfig, root);
+    } catch (error) {
+      if (
+        error instanceof Error
+        && (
+          error.message.startsWith('unsupported promptEnvelope.version:')
+          || error.message.startsWith('promptEnvelope must be an object')
+        )
+      ) {
+        throw error;
+      }
+      // Preserve the existing malformed-config fallback for unrelated JSON errors.
+    }
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 

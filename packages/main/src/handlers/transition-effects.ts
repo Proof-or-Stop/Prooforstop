@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * B-56d3 (Lifecycle Phase 2, Story 3a): transition-effects — the non-DONE
  * transition side effects of story_advance.
@@ -165,7 +166,7 @@ export function renderRelatedDocsHint(
         : '📄 Documents associated with this story (verify synchronization before DONE wrap-up):';
       docsHint = `\n\n${header}\n${lines.join('\n')}`;
     }
-  } catch { /* ignore */ }
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* ignore */ }
   return docsHint;
 }
 
@@ -234,7 +235,7 @@ export function buildNextSteps(
         let decision = null;
         try { decision = store.readDecision(storyId); } catch {}
         channel = computeChannel(s, cl, decision);
-      } catch {}
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);}
       if (channel === 'express') {
         return `→ Express channel (${CHANNEL_LABELS.express}, ≤2 items, no riskSignals): the main agent writes code + writes tests itself, only checklist is needed.
 → After completion, story_advance(${storyId}, REVIEW) to enter code review`;
@@ -257,7 +258,7 @@ export function buildNextSteps(
       try {
         const story = store.readStory(storyId);
         let checklistForReview: { items: unknown[] } = { items: [] };
-        try { checklistForReview = store.readChecklist(storyId); } catch { /* none */ }
+        try { checklistForReview = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* none */ }
         let decisionForReview = null;
         try { decisionForReview = store.readDecision(storyId); } catch { /* none */ }
         const understandingForReview = store.readUnderstanding(storyId);
@@ -273,14 +274,14 @@ export function buildNextSteps(
         activeLine = renderActiveReviewersText(active);
         finalReviewLine = renderFinalReviewRoster(roster, storyId);
         agentLines = roster.requiredReviewers.map(r =>
-          `  Agent({ subagent_type: "${r.lane}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
+          `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "${r.lane}", prompt: "<owner-produced standard prompt> (${r.reason})" })`,
         ).join('\n');
-      } catch {
-        agentLines = `  Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}' to get the standard story-level prompt, then follow it" })
-  Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
+        agentLines = `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "<owner-produced standard prompt>" })
+  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "<owner-produced standard prompt>" })`;
       }
       let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
-→ launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
+→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
@@ -310,7 +311,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
         if (roundCount >= 2) {
           const story = store.readStory(storyId);
           let checklistForAdvisory: { items: unknown[] } = { items: [] };
-          try { checklistForAdvisory = store.readChecklist(storyId); } catch { /* none */ }
+          try { checklistForAdvisory = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* none */ }
           let decisionForAdvisory = null;
           try { decisionForAdvisory = store.readDecision(storyId); } catch { /* none */ }
           const understandingForAdvisory = store.readUnderstanding(storyId);
@@ -344,7 +345,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
           );
           base += `\n${advisoryLines.join('\n')}`;
         }
-      } catch { /* advisory-only: never block the transition */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* advisory-only: never block the transition */ }
 
       // B-5a48 CHK-002: surface the A/B-gated advisory Experience-Layer hints in
       // the REVIEW reviewer-launch guidance, right AFTER the Agent({

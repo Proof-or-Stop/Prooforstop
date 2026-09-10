@@ -270,7 +270,7 @@ function checkGateDecision(
   );
   expectNormalizedBlock(
     'unsupported quantum adapter output version',
-    { ...baseOutput, outputVersion: 'lattice.quantum_verifier_adapter_output.v0' },
+    { ...baseOutput, outputVersion: 'proof-or-stop.quantum_verifier_adapter_output.v0' },
     activeIdentity,
     'unsupported_output_version',
   );

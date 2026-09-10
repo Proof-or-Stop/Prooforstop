@@ -1,6 +1,6 @@
 import type { HostRunResult } from './host-run.js';
 
-export const ACCEPTANCE_REVIEW_FINAL_SCHEMA = 'proofbound.acceptance_amendment_review_final.v1';
+export const ACCEPTANCE_REVIEW_FINAL_SCHEMA = 'proof-or-stop.acceptance_amendment_review_final.v1';
 export const ACCEPTANCE_REVIEW_PROFILE = 'acceptance_amendment_reviewer';
 export const ACCEPTANCE_REVIEW_LANE = 'proof-or-stop-acceptance-intent-reviewer';
 export interface AcceptanceReviewBinding {
@@ -10,7 +10,7 @@ export interface AcceptanceReviewBinding {
   submitterSessionId: string;
 }
 export interface AcceptanceReviewFinal extends AcceptanceReviewBinding {
-  schemaVersion: 'proofbound.acceptance_amendment_review_final.v1';
+  schemaVersion: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA;
   runId: string;
   storyId: string;
   decision: 'approve' | 'reject';
@@ -36,7 +36,7 @@ export function parseAcceptanceReviewFinal(result: HostRunResult, expected: Acce
   }
   const proposal = JSON.parse(result.finalAssistantResult) as AcceptanceReviewFinal;
   if (!proposal || typeof proposal !== 'object' || Array.isArray(proposal)
-    || proposal.schemaVersion !== 'proofbound.acceptance_amendment_review_final.v1'
+    || proposal.schemaVersion !== ACCEPTANCE_REVIEW_FINAL_SCHEMA
     || Object.keys(expected).some(key => proposal[key as keyof AcceptanceReviewFinal] !== expected[key as keyof typeof expected])
     || Object.keys(proposal).some(key => !['schemaVersion', 'runId', 'storyId', 'amendmentId', 'amendmentDigest', 'baseDigest', 'submitterSessionId', 'decision', 'rationale', 'readRefs'].includes(key))
     || !['approve', 'reject'].includes(proposal.decision) || typeof proposal.rationale !== 'string' || proposal.rationale.trim().length < 20

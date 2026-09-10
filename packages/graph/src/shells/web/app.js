@@ -97,6 +97,7 @@ function S1(v){
 function SA(a){ return (Array.isArray(a)?a:[]).map(S1).filter(Boolean) }
 function F(d,name){ const f=d.files&&d.files[name]; return f?(f.data!==undefined?f.data:(f.rows!==undefined?f.rows:f.text)):null }
 function arr(v){ return Array.isArray(v)?v:(v&&Array.isArray(v.findings)?v.findings:[]) }
+function shortAgentRole(v){ return String(v||'').replace(/^proof-or-stop-review-|^proof-or-stop-/,'') }
 
 function projectDetail(d,s){
   const c=F(d,'checklist.json')||{}, items=c.items||[];
@@ -132,7 +133,7 @@ function projectDetail(d,s){
       docs:it.relatedDocs||[],lanes,loose});
   }
   for(const f of fs_) O.findings.push({id:f.id,sev:f.severity,status:f.status,cat:f.category,
-    agent:(f.agent||'').replace('lattice-review-',''),desc:S1(f.desc),files:SA(f.files),
+    agent:shortAgentRole(f.agent),desc:S1(f.desc),files:SA(f.files),
     res:S1(f.resolvedReason),rtype:S1(f.resolutionType)||null,cl:f.clusterId,ev:f.evidenceState});
   return O;
 }
@@ -167,7 +168,7 @@ function extractStoryFields(d,s){
   const cnt=a=>{const m={};for(const x of a)m[x]=(m[x]||0)+1;return m};
   const fs_=arr(F(d,'findings.json'));
   const rrRows=(rrF&&rrF.count!=null)?rrF.count:((F(d,'review-runs.json')||{}).runs||[]).length;
-  const lanes=[...new Set(((F(d,'review-runs.json')||{}).runs||[]).map(r=>(r.lane||r.agent||'').replace('lattice-review-','')))].filter(Boolean);
+  const lanes=[...new Set(((F(d,'review-runs.json')||{}).runs||[]).map(r=>shortAgentRole(r.lane||r.agent)))].filter(Boolean);
   const startedAt=i.startedAt||i.createdAt, endedAt=i.endedAt;
   const wall=(startedAt&&endedAt)?(new Date(endedAt)-new Date(startedAt)):null;
   return {
@@ -249,7 +250,7 @@ function extractStoryFields(d,s){
         disp:tcr.implementationProvenance.dispatchId||'',head:tcr.implementationProvenance.headHash||''}:null,
       sig:tcr.signature||'',key:tcr.signerPublicKey||'',basisDig:tcr.basisDigest||'',topoDig:tcr.topologyDigest||''}:null,
     epochs:(rie.epochs||[]).map(e=>({id:e.epochId,st:e.state,rd:e.reviewRound||'',
-      cut:e.cutoff||{},sd:e.scopeDigest||'',lanes:(e.requiredLanes||[]).map(x=>String(x).replace('lattice-review-',''))})),
+      cut:e.cutoff||{},sd:e.scopeDigest||'',lanes:(e.requiredLanes||[]).map(shortAgentRole)})),
     certReceipts:(cw.receipts||[]).map(r=>({id:r.receiptId,w:r.windowId,auth:r.authority,
       heavy:r.authorizesHeavyCertification,h:r._hash||''})),
     certWin:(cw.windows||[]).map(w=>({id:w.windowId,st:w.state,b:w.blockerCode})),
@@ -391,7 +392,7 @@ function buildTimeline(i,pe,fs_){
   for(const e of pe){
     const t=e.type, ts=e.timestamp, hm=fTime(ts);
     if(t==='reviewer_finding'){
-      const ag=(e.agent||'').replace('lattice-review-','');
+      const ag=shortAgentRole(e.agent);
       // A single event may import a batch of findings (importedIds); each one is a
       // real finding and is what explains a REVIEW -> DEV bounce.
       const ids=e.findingId ? [e.findingId]
@@ -406,8 +407,8 @@ function buildTimeline(i,pe,fs_){
       }
       if(!ids.length) put(ts,{k:'revact',t:hm,ag,res:e.result});
     }
-    else if(t==='review_pass') put(ts,{k:'pass',t:hm,id:e.reviewPassId,ag:(e.agent||'').replace('lattice-review-','')});
-    else if(t==='dispatch') put(ts,{k:'dispatch',t:hm,ag:(e.agentType||'').replace('lattice-',''),kind:e.targetKind});
+    else if(t==='review_pass') put(ts,{k:'pass',t:hm,id:e.reviewPassId,ag:shortAgentRole(e.agent)});
+    else if(t==='dispatch') put(ts,{k:'dispatch',t:hm,ag:shortAgentRole(e.agentType),kind:e.targetKind});
     else if(t==='subagent_result') put(ts,{k:'sub',t:hm,item:e.checklistId,ok:e.success});
     else if(t==='validation_terminal') put(ts,{k:'validate',t:hm,res:e.result,n:e.commandExecutions,disp:e.disposition});
     else if(t==='host_verdict') put(ts,{k:'verdict',t:hm,dec:e.decision,host:e.hostId,run:e.runId});
@@ -2236,7 +2237,7 @@ function vProv(s){
        <div class="chaintbl" style="margin-top:9px"><div class="chrow chhead"><span>role</span><span>lane</span><span>run</span><span>assembled prompt</span></div>
        ${(s.envelopes||[]).map(e=>`<div class="chrow">
          <span class="mono" style="color:var(--ink)">${esc(e.role||"")}</span>
-         <span class="mono">${esc((e.lane||"").replace("lattice-review-",""))}</span>
+         <span class="mono">${esc(shortAgentRole(e.lane))}</span>
          <span class="mono">${esc(e.run||"—")}</span>
          <span>${hx((e.dg||{}).assembledPromptDigest||(e.dg||{}).dispatchPromptDigest)}</span>
        </div>`).join("")}</div>`);

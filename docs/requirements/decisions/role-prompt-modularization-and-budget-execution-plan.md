@@ -249,7 +249,7 @@ PromptEnvelope
 
 ```ts
 interface RuntimeContract {
-  schemaVersion: 'proofbound.agent-runtime.v1';
+  schemaVersion: 'proof-or-stop.agent-runtime.v1';
   lifecycleVersion: string;
   ownershipVersion: string;
   evidenceVersion: string;
@@ -274,7 +274,7 @@ Runtime Contract 只保留所有角色都必须知道的事实：
 
 ```ts
 interface RoleContract {
-  schemaVersion: 'proofbound.role-contract.v1';
+  schemaVersion: 'proof-or-stop.role-contract.v1';
   roleId: string;
   status: 'active' | 'compatibility' | 'retired';
   replacementAgentType?: AgentDispatchCanonicalType;
@@ -305,7 +305,7 @@ Story 1 的无 Story 基线使用独立 `PromptMeasurementRecord`，只记录角
 
 ```ts
 interface PromptMeasurementRecord {
-  schemaVersion: 'proofbound.prompt-measurement.v1';
+  schemaVersion: 'proof-or-stop.prompt-measurement.v1';
   roleId: string;
   runtimeContractVersion: string;
   runtimeSemanticDigest: string;
@@ -325,7 +325,7 @@ interface PromptMeasurementRecord {
 
 ```ts
 interface PromptEnvelope {
-  schemaVersion: 'proofbound.prompt-envelope.v1';
+  schemaVersion: 'proof-or-stop.prompt-envelope.v1';
   envelopeId: string;
   roleId: string;
   storyId: string;
@@ -1182,7 +1182,7 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 - docs、私有实现、public API/schema/protocol、authority/permission、
   command/gate policy、dependency/build、dynamic/parse failure、rename/delete、
   未知影响或不完整 fixture closure 全部 fail closed 到 full。扩大支持面必须升级
-  `proofbound.impact-classification.v1` 并同步 process-fact verifier。
+  `proof-or-stop.impact-classification.v1` 并同步 process-fact verifier。
 - prior baseline 必须是同 lane、签名有效的 PASS，且绑定有效 ReviewRun 和精确
   Prompt Envelope；legacy/full-context-only、wrong-lane、缺字段或损坏证据不能
   成为 incremental baseline。

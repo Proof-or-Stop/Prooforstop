@@ -13,35 +13,35 @@ const distRoot = process.env.DONE_PARITY_DIST_ROOT
 const load = (path) => import(pathToFileURL(join(distRoot, path)).href);
 const [
   { resetConfigCache },
-  { currentGitHead, currentMaterialHash, currentStoryFilesHash },
+  { currentGitHead, currentMaterialHash },
   { getGuardFailureReason },
-  { signReviewRun, hashReviewPrompt },
-  { signReviewPass },
-  { computeReviewScopeBinding },
-  { buildScopeDiffPack },
-  { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody },
   { StoryStore },
   { createDeliveryCheckHandlers },
   { createStoryDispatchHandlers },
   { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, withBrokeredNativeDeliveryInvocation },
   { buildDoneClosureRunbook },
   { createPlaybookRuntimeMemoryHandlers },
+  { createStoryDispatchHandlers },
+  { createReviewRunHandlers },
+  { createFindingHandlers },
 ] = await Promise.all([
   load('core/config.js'),
   load('core/evidence-freshness.js'),
   load('core/machine.js'),
-  load('core/review-run.js'),
-  load('core/finding-verify.js'),
-  load('core/review-scope-binding.js'),
-  load('core/scope-diff-pack.js'),
-  load('core/prompt-role-contract-registry.js'),
   load('core/store.js'),
   load('handlers/delivery-check.js'),
   load('handlers/story-dispatch.js'),
   load('tasks/native-review-fixture.js'),
   load('handlers/done-closure.js'),
   load('handlers/playbook-runtime-memory.js'),
+  load('handlers/story-dispatch.js'),
+  load('handlers/review-run.js'),
+  load('handlers/finding.js'),
 ]);
+
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-done-parity';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
 
 const STORY_ID = 'B-done-parity-red';
 const NOW = '2026-09-04T12:00:00.000Z';
@@ -192,63 +192,35 @@ try {
     reason: 'synthetic parity fixture',
   });
   const lane = 'proof-or-stop-review-quality';
-  const reviewRunId = `${STORY_ID}:RR-001`;
-  const reviewedHead = currentGitHead(root);
-  const reviewedMaterial = currentMaterialHash(root, 'HEAD', root);
-  const reviewedStoryFiles = currentStoryFilesHash(root, 'HEAD', root);
-  assert.ok(reviewedHead);
-  assert.ok(reviewedMaterial);
-  assert.ok(reviewedStoryFiles);
-  const reviewedPack = buildScopeDiffPack(root);
-  const scopeBinding = computeReviewScopeBinding({
-    contract: scopeContract,
-    diffPack: reviewedPack,
-    projectRoot: root,
-  });
-  assert.ok(scopeBinding);
-  const promptHash = hashReviewPrompt(resolvePromptRoleBody(lane, {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [lane]: 'legacy-full-context' },
-  }).body);
-  const run = {
-    reviewRunId,
-    storyId: STORY_ID,
-    agent: lane,
-    lane,
-    reviewRound: 'round-1',
-    startedAt: NOW,
-    headHash: reviewedHead,
-    materialHash: reviewedMaterial,
-    storyFilesHash: reviewedStoryFiles,
-    promptHash,
-    scopeBinding,
-  };
-  run._hash = signReviewRun(
-    STORY_ID,
-    reviewRunId,
-    lane,
-    lane,
-    'round-1',
-    NOW,
-    reviewedHead,
-    reviewedMaterial,
-    promptHash,
-    scopeBinding.bindingHash,
-    undefined,
-    reviewedStoryFiles,
-  );
-  store.writeReviewRuns(STORY_ID, { runs: [run] });
-  const passId = 'RP-STALE-DIFF-PACK';
-  const note = 'Signed pass over the pre-closeout material diff pack.';
-  store.writeReviewPasses(STORY_ID, { passes: [{
-    id: passId,
-    agent: lane,
-    note,
-    createdAt: NOW,
-    reviewRound: 'round-1',
-    reviewRunId,
-    _hash: signReviewPass(STORY_ID, passId, lane, note, NOW, 'round-1', reviewRunId),
-  }] });
+  const reviewStory = store.readStory(STORY_ID);
+  store.writeStory(STORY_ID, { ...reviewStory, phase: 'REVIEW' });
+  const priorCwd = process.cwd();
+  try {
+    process.chdir(root);
+    createStoryDispatchHandlers(ctx).dispatch({ storyId: STORY_ID, agentType: lane });
+    const runOutput = createReviewRunHandlers(ctx).review_run_start({ storyId: STORY_ID, agent: lane });
+    const reviewRunId = runOutput.match(/B-[^:\s]+:RR-\d+/)?.[0];
+    assert.ok(reviewRunId, `review_run_start should return a current signed run id: ${runOutput}`);
+    const note = 'Signed pass over the pre-closeout material diff pack.';
+    createFindingHandlers(ctx).review_pass_set({
+      storyId: STORY_ID,
+      agent: lane,
+      note,
+      reviewRunId,
+      readManifest: {
+        filesReadFully: ['packages/main/src/index.ts'],
+        filesTriagedByName: ['docs/requirements/decisions/parity.md'],
+        scanEscalationReason: null,
+      },
+      readEvents: [
+        { path: 'packages/main/src/index.ts', action: 'Read' },
+        { path: 'docs/requirements/decisions/parity.md', mode: 'triage' },
+      ],
+    });
+  } finally {
+    process.chdir(priorCwd);
+  }
+  store.writeStory(STORY_ID, { ...store.readStory(STORY_ID), phase: 'TEST' });
 
   // Change only the live diff pack after the pass was signed. HEAD and its
   // materialHash remain unchanged, isolating scopeBinding.diffPackHash drift.

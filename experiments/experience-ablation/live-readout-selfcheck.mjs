@@ -47,7 +47,7 @@ function check(name, cond, detail = '') {
 
 function stubRecord(overrides) {
   return {
-    schemaVersion: 'proofbound.experience-ablation-score.v1',
+    schemaVersion: 'proof-or-stop.experience-ablation-score.v1',
     experimentId: EXP_ID,
     taskId: 'fx-stub::x',
     pairId: 'fx-stub',
@@ -82,7 +82,7 @@ function stubScoreRecordsText() {
 }
 
 const STUB_N_FREEZE = {
-  schemaVersion: 'proofbound.experience-ablation-n-freeze.v1',
+  schemaVersion: 'proof-or-stop.experience-ablation-n-freeze.v1',
   experimentId: EXP_ID,
   pilotInputs: {
     controlInStoreFaultRuns: 2,
@@ -103,7 +103,7 @@ const STUB_N_FREEZE = {
 };
 
 const STUB_M7_DECISION = {
-  schemaVersion: 'proofbound.experience-ablation-m7-decision.v1',
+  schemaVersion: 'proof-or-stop.experience-ablation-m7-decision.v1',
   experimentId: EXP_ID,
   decision: 'skip_powered_study',
   decidedBy: 'stub user via explicit option selection',
@@ -273,7 +273,7 @@ try {
   // --- no-overclaim block --------------------------------------------------------------
   const noSection = sectionOf(md, NO_OVERCLAIM_HEADING) ?? '';
   check('md: no-overclaim block carries plan-15 disallowed claims + rule',
-    noSection.includes('Proofbound agents became smarter') &&
+    noSection.includes('Proof-or-Stop agents became smarter') &&
     noSection.includes('Memory proves DONE') &&
     noSection.includes('The experience layer eliminates defects') &&
     noSection.includes('generalizes to failure modes it has no lessons for') &&
