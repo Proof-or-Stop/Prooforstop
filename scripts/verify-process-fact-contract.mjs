@@ -8459,6 +8459,16 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(signingText.includes('git-common-dir') && signingText.includes("flag: 'wx'"), 'dynamic validation provenance key must remain Git-common-metadata-rooted and creation-race-safe');
   assert(validationText.includes('signValidationArtifact(value)') && validationText.includes('verifyValidationArtifact(value, signature)'), 'dynamic validation artifacts must delegate signing and verification to the trusted signer');
   assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
+
+  const tierPlannerText = read('packages/main/src/core/validation-tier-planner.ts');
+  const tierPlanHandlerText = read('packages/main/src/handlers/validation-plan.ts');
+  const validationPlanLevel = levels.find((entry) => entry.name === 'validation_plan');
+  assert(validationPlanLevel?.level === 'L0', 'Story-relevance tier planning must remain non-authoritative L0 observation');
+  for (const token of ['selectValidationTiers', 'command_exclusion_unproven', 'snapshotDigest', 'finalAuthority: false']) {
+    assert(tierPlannerText.includes(token), `Story-relevance tier selector must retain fail-closed token ${token}`);
+  }
+  assert(tierPlanHandlerText.includes('dynamic?.impactIndex'), 'validation_plan must read the configured versioned impact index');
+  assert(tierPlanHandlerText.includes('selectorDecisionDigest'), 'validation_plan must expose the snapshot-bound selector decision digest');
 }
 
 function assertPromptMeasurementObservationBoundary() {

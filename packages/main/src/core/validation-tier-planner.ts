@@ -6,18 +6,11 @@
  * sections "Terminology and invariants", "Selection algorithm" (steps 1, 2 and
  * 5) and "Fail-closed widening matrix" (owned by story B-ccf4, not yet on main).
  *
- * THE DEFINING CONSTRAINT OF THIS INCREMENT:
- *
- *   `resolveValidationTierPlan` returns `effectiveTier: 'repository-full'` or a
- *   CLASSIFIED STOP. There is no code path that returns a reduced tier.
- *
- * There is no pruning here, no impact index, no exclusion proof, and no
- * shortcut kept "for later" — those belong to later Rollout Stories and adding
- * a dormant one now would be a narrowing nobody reviewed. The constraint is
- * enforced by the TYPE as well as by the code: `ValidationTierPlan.effectiveTier`
- * is the literal type `'repository-full'`, so an implementation that tried to
- * return `story-fast` would not compile, and neither a stop nor a skip carries
- * an effective tier at all.
+ * The compatibility path remains fail-closed repository-full. A configured,
+ * command-set-bound impact index may now opt into the pure
+ * `selectValidationTiers` path; every omitted command then carries a positive
+ * exclusion proof tied to the current snapshot. Missing, stale, partial or
+ * ambiguous evidence still widens all three memberships to repository-full.
  *
  * Two further rules are load-bearing:
  *
@@ -41,6 +34,7 @@
 
 import { missingEvidenceHashDigests, type StoryRelevanceInput } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
+import { digestCanonicalJson } from './digest.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
 
@@ -60,7 +54,7 @@ export const VALIDATION_TIERS = ['story-fast', 'story-intermediate', 'repository
 
 export type ValidationTier = (typeof VALIDATION_TIERS)[number];
 
-/** The only tier this increment can conclude with. */
+/** Canonical spelling of the full tier and every fail-closed fallback. */
 export const REPOSITORY_FULL_TIER = 'repository-full' as const;
 
 /**
@@ -115,6 +109,291 @@ export function assertValidationTierSelectionSubsetInvariant(selections: Validat
       }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Evidence-backed dynamic tier membership.
+// ---------------------------------------------------------------------------
+
+export const VALIDATION_IMPACT_INDEX_SCHEMA = 'proofOrStop.validation-impact-index.v1' as const;
+
+export type ValidationImpactSelection = ValidationTier | 'always';
+
+/**
+ * One command's complete, reviewable ownership declaration. `coverage` is not
+ * an estimate: `complete` asserts that `inputPatterns` names every material
+ * path capable of affecting the command. A command without that assertion can
+ * be selected, but can never be positively excluded.
+ */
+export interface ValidationImpactIndexEntry {
+  commandId: string;
+  selection: ValidationImpactSelection;
+  inputPatterns: string[];
+  coverage: 'complete' | 'partial';
+  /** Required when a direct match must widen the request to repository-full. */
+  fullReason?: ValidationWideningReasonCode;
+}
+
+export interface ValidationImpactIndex {
+  schema: typeof VALIDATION_IMPACT_INDEX_SCHEMA;
+  version: string;
+  commandSetDigest: string;
+  entries: ValidationImpactIndexEntry[];
+}
+
+export interface SelectValidationTiersInput {
+  storyId: string;
+  requestedTier: ValidationTier;
+  universeCommandIds: string[];
+  changedPaths: string[];
+  pinnedCommandIds: string[];
+  /** Pre-classified fail-closed facts from the change/snapshot collector. */
+  forceFullReasons: ValidationWideningReasonCode[];
+  commandSetDigest: string;
+  snapshotDigest: string;
+  impactIndex: ValidationImpactIndex | null | undefined;
+}
+
+export interface ValidationCommandExclusionProof {
+  commandId: string;
+  reason: 'complete-input-set-does-not-intersect-story-change';
+  indexVersion: string;
+  indexDigest: string;
+  snapshotDigest: string;
+  changedPaths: string[];
+  commandInputPatterns: string[];
+}
+
+export interface ValidationTierSelectionDecision {
+  requestedTier: ValidationTier;
+  effectiveTier: ValidationTier;
+  selectedUnitIds: string[];
+  tierSelections: Record<ValidationTier, string[]>;
+  reductionApplied: boolean;
+  escalationReasonCodes: ValidationWideningReasonCode[];
+  exclusionProofs: ValidationCommandExclusionProof[];
+  impactIndexDigest: string | null;
+  selectionDigest: string;
+  /** Narrow tiers are iteration feedback; this selector never grants DONE authority. */
+  finalAuthority: false;
+}
+
+function normalizedPath(value: string): string {
+  return value.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim();
+}
+
+function uniqueInUniverseOrder(values: Iterable<string>, universe: readonly string[]): string[] {
+  const wanted = new Set(values);
+  return universe.filter((id) => wanted.has(id));
+}
+
+function globPatternToRegExp(pattern: string): RegExp {
+  const escaped = pattern
+    .replace(/[.+^$()|[\]\\{}]/g, '\\$&')
+    .replace(/\*\*/g, '§§')
+    .replace(/\*/g, '[^/]*')
+    .replace(/§§/g, '.*')
+    .replace(/\?/g, '[^/]');
+  return new RegExp(`^${escaped}$`);
+}
+
+function pathMatchesImpactPattern(path: string, pattern: string): boolean {
+  const normalized = normalizedPath(path);
+  const normalizedPattern = normalizedPath(pattern);
+  if (normalizedPattern === '' || normalized === '') return false;
+  return normalized === normalizedPattern
+    || normalized.startsWith(`${normalizedPattern}/`)
+    || globPatternToRegExp(normalizedPattern).test(normalized);
+}
+
+function dynamicFullDecision(
+  input: SelectValidationTiersInput,
+  universe: string[],
+  reasons: Iterable<ValidationWideningReasonCode>,
+  impactIndexDigest: string | null,
+): ValidationTierSelectionDecision {
+  const escalationReasonCodes = [...new Set(reasons)];
+  const tierSelections: Record<ValidationTier, string[]> = {
+    'story-fast': [...universe],
+    'story-intermediate': [...universe],
+    'repository-full': [...universe],
+  };
+  const decisionBody = {
+    storyId: input.storyId,
+    requestedTier: input.requestedTier,
+    effectiveTier: REPOSITORY_FULL_TIER,
+    tierSelections,
+    escalationReasonCodes,
+    commandSetDigest: input.commandSetDigest,
+    snapshotDigest: input.snapshotDigest,
+    impactIndexDigest,
+  };
+  return {
+    requestedTier: input.requestedTier,
+    effectiveTier: REPOSITORY_FULL_TIER,
+    selectedUnitIds: [...universe],
+    tierSelections,
+    reductionApplied: false,
+    escalationReasonCodes,
+    exclusionProofs: [],
+    impactIndexDigest,
+    selectionDigest: digestCanonicalJson(decisionBody),
+    finalAuthority: false,
+  };
+}
+
+/**
+ * Compute all three memberships from current Story facts and a versioned impact
+ * index. This is deliberately fail-closed: a missing/partial/duplicate command
+ * declaration, an unknown changed path, a stale command-set binding, or any
+ * pre-classified sensitive fact makes every tier equal repository-full.
+ */
+export function selectValidationTiers(rawInput: SelectValidationTiersInput): ValidationTierSelectionDecision {
+  const input = rawInput;
+  const requestedTier = assertValidationTier(input?.requestedTier, 'selectValidationTiers');
+  const universe = [...new Set((input?.universeCommandIds ?? []).map((id) => id.trim()).filter(Boolean))];
+  const changedPaths = [...new Set((input?.changedPaths ?? []).map(normalizedPath).filter(Boolean))].sort();
+  const pinnedCommandIds = [...new Set((input?.pinnedCommandIds ?? []).map((id) => id.trim()).filter(Boolean))];
+  const forceFullReasons = (input?.forceFullReasons ?? []).filter(
+    (code): code is ValidationWideningReasonCode => VALIDATION_WIDENING_REASON_CODES.includes(code),
+  );
+  const malformedForceReason = (input?.forceFullReasons ?? []).length !== forceFullReasons.length;
+
+  if (universe.length === 0) {
+    return dynamicFullDecision(input, universe, ['empty_selection_unclassified'], null);
+  }
+
+  const index = input?.impactIndex;
+  if (!index || index.schema !== VALIDATION_IMPACT_INDEX_SCHEMA || typeof index.version !== 'string' || !index.version.trim()) {
+    return dynamicFullDecision(input, universe, ['impact_index_unusable'], null);
+  }
+
+  const impactIndexDigest = digestCanonicalJson(index);
+  const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
+  if (malformedForceReason) reasons.add('impact_index_unusable');
+  if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
+  if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');
+  if (index.commandSetDigest !== input.commandSetDigest) reasons.add('selection_policy_changed');
+  if (changedPaths.length === 0) reasons.add('empty_selection_unclassified');
+
+  const universeSet = new Set(universe);
+  const entriesByCommand = new Map<string, ValidationImpactIndexEntry>();
+  if (!Array.isArray(index.entries)) reasons.add('impact_index_unusable');
+  for (const entry of Array.isArray(index.entries) ? index.entries : []) {
+    if (!entry || typeof entry.commandId !== 'string' || !universeSet.has(entry.commandId)) {
+      reasons.add('impact_index_unusable');
+      continue;
+    }
+    if (entriesByCommand.has(entry.commandId)) {
+      reasons.add('impact_index_unusable');
+      continue;
+    }
+    if (!(VALIDATION_TIERS as readonly string[]).includes(entry.selection) && entry.selection !== 'always') {
+      reasons.add('impact_index_unusable');
+      continue;
+    }
+    if (
+      !Array.isArray(entry.inputPatterns)
+      || entry.inputPatterns.some((pattern) => typeof pattern !== 'string')
+      || !['complete', 'partial'].includes(entry.coverage)
+      || (entry.fullReason !== undefined && !VALIDATION_WIDENING_REASON_CODES.includes(entry.fullReason))
+    ) {
+      reasons.add('impact_index_unusable');
+      continue;
+    }
+    entriesByCommand.set(entry.commandId, {
+      ...entry,
+      inputPatterns: [...new Set(entry.inputPatterns.map(normalizedPath).filter(Boolean))].sort(),
+    });
+  }
+
+  for (const commandId of universe) {
+    const entry = entriesByCommand.get(commandId);
+    if (!entry || entry.coverage !== 'complete') reasons.add('command_exclusion_unproven');
+  }
+
+  for (const pin of pinnedCommandIds) {
+    if (!universeSet.has(pin)) reasons.add('pinned_command_missing');
+  }
+
+  const matchedByPath = new Map<string, ValidationImpactIndexEntry[]>();
+  for (const path of changedPaths) {
+    const matches = [...entriesByCommand.values()].filter(
+      (entry) => entry.selection !== 'always' && entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern)),
+    );
+    matchedByPath.set(path, matches);
+    if (matches.length === 0) reasons.add('unclassified_material_input');
+  }
+
+  const always = universe.filter((id) => entriesByCommand.get(id)?.selection === 'always');
+  const fast = new Set<string>([...always, ...pinnedCommandIds]);
+  const intermediate = new Set<string>([...fast]);
+  for (const matches of matchedByPath.values()) {
+    for (const entry of matches) {
+      if (entry.selection === 'story-fast') {
+        fast.add(entry.commandId);
+        intermediate.add(entry.commandId);
+      } else if (entry.selection === 'story-intermediate') {
+        intermediate.add(entry.commandId);
+      } else if (entry.selection === REPOSITORY_FULL_TIER) {
+        reasons.add(entry.fullReason ?? 'command_exclusion_unproven');
+      }
+    }
+  }
+
+  if (reasons.size > 0) {
+    return dynamicFullDecision(input, universe, reasons, impactIndexDigest);
+  }
+
+  const tierSelections: Record<ValidationTier, string[]> = {
+    'story-fast': uniqueInUniverseOrder(fast, universe),
+    'story-intermediate': uniqueInUniverseOrder(intermediate, universe),
+    'repository-full': [...universe],
+  };
+  assertValidationTierSelectionSubsetInvariant(tierSelections);
+  const selectedUnitIds = [...tierSelections[requestedTier]];
+  if (selectedUnitIds.length === 0) {
+    return dynamicFullDecision(input, universe, ['empty_selection_unclassified'], impactIndexDigest);
+  }
+
+  const selectedSet = new Set(selectedUnitIds);
+  const exclusionProofs: ValidationCommandExclusionProof[] = universe
+    .filter((commandId) => !selectedSet.has(commandId))
+    .map((commandId) => {
+      const entry = entriesByCommand.get(commandId)!;
+      return {
+        commandId,
+        reason: 'complete-input-set-does-not-intersect-story-change' as const,
+        indexVersion: index.version,
+        indexDigest: impactIndexDigest,
+        snapshotDigest: input.snapshotDigest,
+        changedPaths: [...changedPaths],
+        commandInputPatterns: [...entry.inputPatterns],
+      };
+    });
+
+  const decisionBody = {
+    storyId: input.storyId,
+    requestedTier,
+    effectiveTier: requestedTier,
+    tierSelections,
+    exclusionProofs,
+    commandSetDigest: input.commandSetDigest,
+    snapshotDigest: input.snapshotDigest,
+    impactIndexDigest,
+  };
+  return {
+    requestedTier,
+    effectiveTier: requestedTier,
+    selectedUnitIds,
+    tierSelections,
+    reductionApplied: selectedUnitIds.length < universe.length,
+    escalationReasonCodes: [],
+    exclusionProofs,
+    impactIndexDigest,
+    selectionDigest: digestCanonicalJson(decisionBody),
+    finalAuthority: false,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -429,18 +708,16 @@ interface ValidationTierPlanCommon {
 
 export interface ValidationTierPlan extends ValidationTierPlanCommon {
   status: 'plan';
-  /**
-   * The LITERAL type is the guarantee: this increment cannot express a reduced
-   * effective tier, so no reviewer has to trust a comment about it.
-   */
-  effectiveTier: typeof REPOSITORY_FULL_TIER;
+  effectiveTier: ValidationTier;
   executionMode: 'command-set' | 'atomic';
   universe: ValidationPlanUnit[];
-  /** Always the complete universe here, and never empty. */
   selectedUnitIds: string[];
   tierSelections: Record<ValidationTier, string[]>;
-  /** Literal `false`: there is no pruning path to turn it on. */
-  reductionApplied: false;
+  reductionApplied: boolean;
+  /** Present only for an impact-index decision; absent on compatibility-full plans. */
+  exclusionProofs?: ValidationCommandExclusionProof[];
+  /** Decision digest, distinct from the collector's input digest. */
+  selectorDecisionDigest?: string;
 }
 
 /** No plan and no PASS artifact. */
@@ -460,6 +737,8 @@ export type ValidationTierPlanResult = ValidationTierPlan | ValidationTierStop |
 export interface ResolveValidationTierPlanArgs {
   input: StoryRelevanceInput;
   requestedTier: ValidationTier;
+  /** Optional, explicit and command-set-bound. Absence preserves compatibility-full. */
+  impactIndex?: ValidationImpactIndex | null;
 }
 
 const ATOMIC_SOURCE_KINDS: readonly RoutineValidationSourceKind[] = ['fallback', 'validate-file'];
@@ -496,10 +775,9 @@ function assertPlannerInput(input: StoryRelevanceInput): void {
 }
 
 /**
- * Everything the plan could not attribute to a command. In this increment there
- * is no impact index at all, so EVERY material seed path is unclassified — that
- * is not a defect being papered over, it is the honest reason the plan cannot
- * narrow, and listing the paths is what lets a reader check the claim.
+ * Compatibility-path diagnostics when no usable impact index is supplied.
+ * Every material seed remains unclassified on that path, and listing the paths
+ * lets an operator see exactly why the fallback cannot narrow.
  */
 function collectUnclassifiedInputs(input: StoryRelevanceInput): ValidationTierPlanUnclassifiedInput[] {
   const entries: ValidationTierPlanUnclassifiedInput[] = [];
@@ -622,6 +900,60 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     return { ...common, status: 'stop', reason, escalationReasons: [...escalationReasons, reason] };
   }
 
+  // 4b. A configured command-set may narrow only through the canonical pure
+  // selector. Opaque fallback/validate-file sources have no per-command
+  // inventory and therefore retain their atomic full behavior below.
+  if (!atomic && args.impactIndex) {
+    const forceFullReasons: ValidationWideningReasonCode[] = [];
+    for (const escalation of input.escalations) {
+      const code = escalation.code as ValidationWideningReasonCode;
+      if (VALIDATION_WIDENING_REASON_CODES.includes(code) && !isValidationStopReasonCode(code)) {
+        forceFullReasons.push(code);
+      }
+    }
+    if (input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
+    if (input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
+    if (input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');
+
+    const decision = selectValidationTiers({
+      storyId: input.storyId,
+      requestedTier,
+      universeCommandIds: universe.map((unit) => unit.id),
+      changedPaths: input.changedFiles.status === 'available' ? input.changedFiles.paths : [],
+      pinnedCommandIds: input.pinnedCommands.map((pin) => pin.commandId),
+      forceFullReasons,
+      commandSetDigest: input.executionInventory.commandSetDigest,
+      snapshotDigest: digestCanonicalJson({ hashes: input.hashes, selectionDigest: input.selectionDigest }),
+      impactIndex: args.impactIndex,
+    });
+    const dynamicReasons = decision.escalationReasonCodes.map((code) => validationWideningReason(
+      code,
+      `the versioned impact-index decision for story ${input.storyId} classified ${code}; ` +
+      'the requested subset was refused and the repository-full command universe was selected',
+    ));
+    const dynamicStop = dynamicReasons.find((reason) => isValidationStopReasonCode(reason.code));
+    if (dynamicStop) {
+      const reason = assertStopReason(dynamicStop);
+      return { ...common, status: 'stop', reason, escalationReasons: dynamicReasons };
+    }
+    return {
+      ...common,
+      // A successful index decision classified every changed path. On a
+      // fail-closed result retain the diagnostic paths for operator inspection.
+      unclassifiedInputs: decision.escalationReasonCodes.length === 0 ? [] : unclassifiedInputs,
+      status: 'plan',
+      effectiveTier: decision.effectiveTier,
+      executionMode: 'command-set',
+      universe,
+      selectedUnitIds: decision.selectedUnitIds,
+      tierSelections: decision.tierSelections,
+      reductionApplied: decision.reductionApplied,
+      exclusionProofs: decision.exclusionProofs,
+      selectorDecisionDigest: decision.selectionDigest,
+      escalationReasons: dynamicReasons,
+    };
+  }
+
   // 5a. Non-inventory evidence commands. A pin is ADDITIVE, so a pin that names
   //     nothing adds nothing: it cannot subtract a command, and it is reported
   //     rather than made fatal. It widens, which is why not stopping on it omits
@@ -634,9 +966,9 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     }
   }
 
-  // 5. Why nothing was reduced. These two always hold in this increment, and
-  //    saying so every time is the point: silence would read as "narrowing was
-  //    considered and declined", when in fact it is not implemented at all.
+  // 5. Why nothing was reduced on the compatibility path. These two always
+  //    hold when no usable impact index was supplied; a configured index has
+  //    already returned through the canonical selector above.
   escalationReasons.push(
     validationWideningReason(
       'impact_index_unusable',

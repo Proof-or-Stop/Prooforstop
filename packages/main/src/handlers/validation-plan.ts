@@ -53,6 +53,7 @@ import {
   type ValidationTier,
   type ValidationTierPlanResult,
   type ValidationWideningReason,
+  type ValidationImpactIndex,
 } from '../core/validation-tier-planner.js';
 import {
   configuredValidationCommands,
@@ -63,6 +64,7 @@ import type { RoutineValidationSourceKind, ValidationCommand } from '../core/val
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 import { resolveStoryWorkspace } from '../core/story-workspace.js';
+import { loadConfig } from '../core/config.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
 
@@ -402,7 +404,9 @@ export function buildValidationPlanReport(args: {
       basis: historyBasis,
     },
     commandSetDigest: input.executionInventory.commandSetDigest,
-    selectionDigest: input.selectionDigest,
+    selectionDigest: result.status === 'plan'
+      ? result.selectorDecisionDigest ?? input.selectionDigest
+      : input.selectionDigest,
     freshnessBinding: freshnessBindingFor(input),
     inventoryWarnings: [...input.executionInventory.warnings],
     artifact: {
@@ -738,7 +742,14 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         durationHistory: { artifacts },
       });
 
-      const result = resolveValidationTierPlan({ input, requestedTier: request.requestedTier });
+      const projectConfig = loadConfig(projectRoot);
+      const validationConfig = projectConfig.validate ?? projectConfig.validation;
+      const impactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
+      const result = resolveValidationTierPlan({
+        input,
+        requestedTier: request.requestedTier,
+        ...(impactIndex ? { impactIndex } : {}),
+      });
 
       // Display labels, resolved through the SAME canonical inventory builder the
       // ids came from, so a label can never be attached to the wrong unit. A label

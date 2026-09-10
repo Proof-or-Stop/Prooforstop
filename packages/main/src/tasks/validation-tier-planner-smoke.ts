@@ -149,6 +149,7 @@ import {
 import { configuredValidationCommands, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
+  VALIDATION_IMPACT_INDEX_SCHEMA,
   VALIDATION_STOP_REASON_CODES,
   VALIDATION_TIERS,
   VALIDATION_WIDENING_OUTCOMES,
@@ -158,6 +159,7 @@ import {
   assertValidationTierSelectionSubsetInvariant,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
+  selectValidationTiers,
   validationTierIsSubsetOf,
   validationTierRank,
   validationWideningReason,
@@ -2241,6 +2243,39 @@ testCase('a normal configured story plans repository-full over the complete univ
   assert.deepEqual(result.tierSelections['story-fast'], result.selectedUnitIds);
   assert.deepEqual(result.tierSelections['story-intermediate'], result.selectedUnitIds);
   assert.deepEqual(result.tierSelections['repository-full'], result.selectedUnitIds);
+});
+
+testCase('a complete current impact index produces nested Story-relevant tiers with positive exclusions', () => {
+  const universeCommandIds = ['build', 'docs-links', 'docs-contract', 'module-unit', 'repo-sentinel'];
+  const decision = selectValidationTiers({
+    storyId: 'B-dynamic',
+    requestedTier: 'story-fast',
+    universeCommandIds,
+    changedPaths: ['docs/guide.md'],
+    pinnedCommandIds: [],
+    forceFullReasons: [],
+    commandSetDigest: 'command-set-v1',
+    snapshotDigest: 'snapshot-v1',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+      version: 'index-v1',
+      commandSetDigest: 'command-set-v1',
+      entries: [
+        { commandId: 'build', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        { commandId: 'docs-links', selection: 'story-fast', inputPatterns: ['docs/**'], coverage: 'complete' },
+        { commandId: 'docs-contract', selection: 'story-intermediate', inputPatterns: ['docs/**'], coverage: 'complete' },
+        { commandId: 'module-unit', selection: 'story-fast', inputPatterns: ['packages/module/**'], coverage: 'complete' },
+        { commandId: 'repo-sentinel', selection: 'repository-full', inputPatterns: ['proof-or-stop.config.json'], coverage: 'complete' },
+      ],
+    },
+  });
+  assert.equal(decision.effectiveTier, 'story-fast');
+  assert.equal(decision.finalAuthority, false);
+  assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links']);
+  assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract']);
+  assert.deepEqual(decision.tierSelections['repository-full'], universeCommandIds);
+  assert.deepEqual(decision.exclusionProofs.map((proof) => proof.commandId), ['docs-contract', 'module-unit', 'repo-sentinel']);
+  assert.ok(decision.exclusionProofs.every((proof) => proof.snapshotDigest === 'snapshot-v1'));
 });
 
 testCase('no pruning exists: a story that changed nothing still selects the complete universe', () => {

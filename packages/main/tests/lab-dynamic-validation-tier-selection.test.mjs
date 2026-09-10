@@ -75,6 +75,65 @@ try {
     ['docs-contract', 'module-a-unit', 'module-a-integration', 'repo-sentinel'],
   );
 
+  const wiredPlan = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex,
+    input: {
+      schema: 'proofOrStop.story-relevance-input.v1',
+      storyId: 'B-lab1',
+      phase: 'DEV',
+      hashes: {
+        status: 'available',
+        head: {
+          schemaVersion: 'evidence-hash-snapshot.v1',
+          headHash: 'head-v1',
+          materialHash: 'material-v1',
+          storyFilesHash: 'story-v1',
+          gitCwd: '/fixture',
+          metadataRoot: '/fixture',
+          ref: 'HEAD',
+          capturedAt: '2026-09-10T00:00:00.000Z',
+          materialDirtyFiles: [],
+        },
+      },
+      changedFiles: {
+        status: 'available',
+        baseRef: 'main',
+        headRef: 'HEAD',
+        statuses: { 'docs/guide.md': 'M' },
+        paths: ['docs/guide.md'],
+      },
+      seeds: [{
+        kind: 'path',
+        value: 'docs/guide.md',
+        provenance: ['changed-file'],
+        itemIds: [],
+        changeStatus: 'M',
+      }],
+      excludedPaths: [],
+      pinnedCommands: [],
+      commandSeedEdges: [],
+      unclassifiedInputs: [],
+      riskSignals: [],
+      executionInventory: {
+        sourceKind: 'configured',
+        commandSetDigest,
+        commandIds: universeCommandIds,
+        provisionalCommandIds: [],
+        warnings: [],
+      },
+      durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
+      verificationIntentContext: [],
+      escalations: [],
+      selectionDigest: 'collector-selection-v1',
+    },
+  });
+  assert.equal(wiredPlan.status, 'plan');
+  assert.equal(wiredPlan.effectiveTier, 'story-fast');
+  assert.deepEqual(wiredPlan.selectedUnitIds, ['build', 'docs-links']);
+  assert.equal(wiredPlan.finalAuthority, false);
+  assert.ok(wiredPlan.selectorDecisionDigest, 'wired plans expose the selector decision digest');
+
   const intermediate = planner.selectValidationTiers({
     ...base,
     requestedTier: 'story-intermediate',
