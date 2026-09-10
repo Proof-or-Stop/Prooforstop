@@ -186,7 +186,7 @@ recorded in `docs/requirements/decisions/graph-command-migration.md`.
 npm install
 npm run build        # tsc + assemble assets/app.html + vendor d3, mermaid, gsap,
                      #   mediabunny and gifenc into assets/
-npm run check        # build + typecheck + the verify-* guards + audit + bench
+npm run check        # one typechecked build + the verify-* guards + audit + bench
 ```
 
 Run the command itself from the repository root with `proof-or-stop graph`; this package

@@ -13,7 +13,7 @@ assert.equal(pkg.scripts.typecheck,'tsc --noEmit && node scripts/ok.mjs GRAPH_TS
 const compilerSteps=initial.filter(step=>/^tsc(?:\s|$)/.test(step));assert.ok(compilerSteps.every(step=>step==='tsc'||step==='tsc --noEmit'),'no unreviewed compiler options');
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'graph-compile-proof-'));const req=createRequire(path.join(graph,'package.json'));const tsc=req.resolve('typescript/bin/tsc');const rows=[];
 try{
- fs.cpSync(path.join(graph,'src'),path.join(temp,'src'),{recursive:true});fs.copyFileSync(path.join(graph,'tsconfig.json'),path.join(temp,'tsconfig.json'));fs.copyFileSync(path.join(graph,'package.json'),path.join(temp,'package.json'));
+ fs.cpSync(path.join(graph,'src'),path.join(temp,'src'),{recursive:true});fs.copyFileSync(path.join(graph,'tsconfig.json'),path.join(temp,'tsconfig.json'));fs.copyFileSync(path.join(graph,'package.json'),path.join(temp,'package.json'));fs.cpSync(path.join(graph,'scripts'),path.join(temp,'scripts'),{recursive:true});
  fs.symlinkSync(path.join(graph,'node_modules'),path.join(temp,'node_modules'),'dir');
  const run=(args,label)=>{const start=performance.now();const r=spawnSync(process.execPath,[tsc,...args],{cwd:temp,encoding:'utf8',timeout:30000});rows.push({label,args,code:r.status,ms:performance.now()-start});assert.ok(!r.error,String(r.error));return r;};
  // Execute exactly the discovered initial compiler stages on a single source copy.
@@ -22,6 +22,8 @@ try{
  fs.rmSync(path.join(temp,'dist'),{recursive:true});const standalone=run(['--noEmit'],'standalone-noEmit');assert.equal(standalone.status,0,standalone.stdout+standalone.stderr);assert.equal(fs.existsSync(path.join(temp,'dist')),false,'standalone noEmit must not create dist');
  fs.writeFileSync(path.join(temp,'src','single-compile-negative.ts'),"export const mustBeNumber: number = 'real-type-error';\n");
  for(const args of [[],['--noEmit']]){const r=run(args,'type-error-'+(args.length?'noEmit':'build'));assert.notEqual(r.status,0);assert.match(r.stdout+r.stderr,/TS2322/);}
+ const rejectedBuild=spawnSync('npm',['--silent','run','build'],{cwd:temp,encoding:'utf8',timeout:30000,env:{...process.env,PATH:path.dirname(tsc)+path.delimiter+process.env.PATH}});
+ assert.notEqual(rejectedBuild.status,0);assert.match(rejectedBuild.stdout+rejectedBuild.stderr,/TS2322/);assert.doesNotMatch(rejectedBuild.stdout,/^GRAPH_TSC_CLEAN$/m);assert.equal(fs.existsSync(path.join(temp,'assets')),false,'compiler failure must stop before asset build');
  console.log(JSON.stringify({initial,compilerInvocations:compilerSteps.length,realCompiler:path.basename(tsc),rows}));
  assert.equal(compilerSteps.length,1,'GRAPH_CHECK_REDUNDANT_INITIAL_TYPECHECK: same tsconfig must compile once before downstream property guards');
  console.log('GRAPH_SINGLE_INITIAL_COMPILE_REAL_TYPE_ERROR_AND_NOEMIT_PASS');
