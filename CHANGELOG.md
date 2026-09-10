@@ -1,5 +1,13 @@
 # Changelog
 
+## Lab final-162-closure - v0.3.301 - 2026-09-10
+
+The 162-command final validation exposed six failures across identity replay, harness registration, bootstrap mirroring, and an exact consumer binding. This Lab removes dependencies on unavailable historical Git objects while retaining current replay, recount, safety, and mutation proofs; records the duplicate F031 wrapper as an exact delivery-coverage exclusion; updates the bootstrap mirror and identity/U18 bindings; and makes packed external-consumer checks use a self-contained offline dependency cache instead of the user npm cache. Targeted delivery, replay, runtime, pack-boundary, identity-cutover, bootstrap, registration, and U18 controls pass without opening a browser.
+
+Maintenance provenance: codex/lab-final-162-closure, repair d6ac23ebf035e892f6997552cfbb605f21b22ac5.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b49d4-harness-registration.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab final-160-closure - v0.3.298 - 2026-09-10
 
 The exact 160-command final validation completed with 158 passes and two failures.
