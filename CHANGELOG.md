@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab scope-budget-provenance-repair - v0.3.302 - 2026-09-10
+
+# Scope-budget validation provenance repair
+
+## Problem
+
+The enforced Story scope-budget evaluator could not resolve several provisional validation-command IDs retained in `storyScopeBudget.validationGroups` after their commands were wrapped or gained arguments. B-03b7 exposed the first orphan as a blocking `status=unknown` result during REVIEW-to-DEV remediation.
+
+## Fix
+
+Each orphan ID was resolved against Git history to recover its original command identity, then replaced by the unique current provisional ID for that same command. No validation-group member was removed, and no Story-owned implementation was changed.
+
+## Verification
+
+The committed RED guard loads the current validation-command inventory and verifies every scope-budget group ID resolves. It first emitted `SCOPE_BUDGET_PROVENANCE_RED` with the orphan list, then emitted `SCOPE_BUDGET_PROVENANCE_GREEN` after the mappings were refreshed. Lab finish also rebuilds and replays the same check against local main.
+
+## Performance
+
+No performance claim is made. The change restores deterministic scope-budget admission without adding validation commands.
+
+Maintenance provenance: codex/lab-scope-budget-provenance-repair, repair c7d61da275bc0e63174b49a50456826af667b1ad.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-scope-budget-provenance-repair.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab sealed-review-pass-finalization - v0.3.301 - 2026-09-10
 
 # Sealed review pass finalization
