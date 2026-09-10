@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * Machine helpers extracted out of machine.ts to satisfy the "Machine = pure
  * config object, zero function definitions" rule (CLAUDE.md §code-paradigm).
@@ -114,11 +115,11 @@ export function getGuardFailureReason(
             if (cl.items.length > policy.quickPath.maxChecklistItems) {
               reasons.push(`checklist has ${cl.items.length} items (> ${policy.quickPath.maxChecklistItems}), must go through full PLAN`);
             }
-          } catch {
+          } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             reasons.push('No checklist, must first story_advance PLAN');
           }
         }
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         reasons.push('Unable to load config, must go through full PLAN');
       }
       if (reasons.length > 0) {
@@ -204,7 +205,7 @@ export function getGuardFailureReason(
           if (rc <= 1) {
             // Round 1: require findings from every opt-in reviewer (B-e8c8)
             let checklist: { items: unknown[] } = { items: [] };
-            try { checklist = store.readChecklist(storyId); } catch {}
+            try { checklist = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);}
             let decision = null;
             try { decision = store.readDecision(storyId); } catch {}
             const understanding = store.readUnderstanding(storyId);
@@ -239,7 +240,7 @@ export function getGuardFailureReason(
         if (blocking.length > 0) {
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing run finding_resolve, or to confirm not fixing run finding_dismiss (reason must be ≥10 characters)`;
         }
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see proof-or-stop reviewer_list)`;
       }
     }

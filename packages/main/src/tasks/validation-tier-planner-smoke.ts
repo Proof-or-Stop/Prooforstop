@@ -527,7 +527,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
      'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
      'packages/main/tests/canonical-new-story-artifacts.test.mjs',
    ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-   assert.equal(real.commandSetDigest, '13713a76121ba865757900dd635493bdf8c93b4901c5d8dc1ce35ef45fb1565f', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+   // Lab integration preserves the complete current main inventory and its timeouts;
+   // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
+   assert.equal(real.commandSetDigest, 'a01e632023f3a066c76cc92c32ed0796fc2c538b2ea19152418be3b04e08020e', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

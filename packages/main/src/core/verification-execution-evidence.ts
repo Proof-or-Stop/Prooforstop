@@ -1,3 +1,4 @@
+import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'child_process';
 import { createHash, createPublicKey, randomBytes, randomUUID } from 'crypto';
 import { accessSync, constants, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'fs';
@@ -576,6 +577,7 @@ export function prepareVerificationExecutionIdentity(input: {
     throw new Error('verification executable resolution is unprovable [incomplete_toolchain_identity]');
   }
   const toolchainDigest = computeCanonicalDigest({
+    implementationDigest: executionImplementationIdentity().digest,
     executable: parsed.executable,
     executableIdentity,
     nodeExecutable: process.execPath,

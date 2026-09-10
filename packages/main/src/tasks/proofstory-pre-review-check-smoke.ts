@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { assertHistoricalImplementationSource } from './historical-implementation-fixture.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import { resetConfigCache } from '../core/config.js';
 import {
@@ -1034,12 +1035,9 @@ function assertTopologyCriticPhaseContract(): void {
     git(root, ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com']);
     git(root, ['add', '.']); git(root, ['commit', '-m', 'seed isolated critic phase contract']);
     git(root, ['switch', '-c', `story/${storyId}`]);
-    // Explicit, clone-reachable historical prerequisite for the existing author policy.
+    // Explicit archived fixture prerequisite for the existing author policy.
     // Preserve this real object; never manufacture a new implementer-author commit.
-    const historicalImplementation = 'b1a0bee88c2a57e33d3835600db53bb9297f04c1';
-    git(repositoryRoot, ['merge-base', '--is-ancestor', historicalImplementation, 'HEAD']);
-    assert.equal(git(repositoryRoot, ['show', '-s', '--format=%an <%ae>', historicalImplementation]),
-      'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>');
+    const historicalImplementation = assertHistoricalImplementationSource(repositoryRoot);
     git(root, ['fetch', '--no-tags', '--depth=1', repositoryRoot, historicalImplementation]);
     git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historicalImplementation, '-m', 'retain unchanged historical provenance prerequisite']);
     process.chdir(root); resetConfigCache();

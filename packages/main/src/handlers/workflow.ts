@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * Workflow profile commands: set / show / explain.
  */
@@ -108,7 +109,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
         hasDecision = !!decision;
         optionCount = decision && Array.isArray(decision.options) ? decision.options.length : 0;
         channel = computeChannel(story, cl, decision);
-      } catch {}
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);}
 
       const lines: string[] = [];
       lines.push(`Story ${args.storyId} workflow profile:\n`);

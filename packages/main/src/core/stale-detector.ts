@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * Stale state detector — soft warning before each proof-or-stop command runs.
  *
@@ -235,7 +236,7 @@ export function detectStaleState(ctx: HandlerContext): string[] {
       try {
         const checklist = ctx.store.readChecklist(storyId);
         warnings.push(...checkItemStale(checklist, thresholds, now));
-      } catch { /* PROBE: no checklist */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* PROBE: no checklist */ }
 
       try {
         const bugs = ctx.store.readBugs(storyId);
@@ -247,7 +248,7 @@ export function detectStaleState(ctx: HandlerContext): string[] {
     if (w3) warnings.push(w3);
 
     return suppressRecentlyEmittedWarnings(ctx.root, warnings, now);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return [];
   }
 }

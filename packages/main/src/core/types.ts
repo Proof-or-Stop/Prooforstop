@@ -1466,6 +1466,7 @@ export interface ChecklistItem {
    * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
    */
   verificationIntent?: VerificationIntent;
+  verificationIntentAmendments?: import('./verification-intent-amendment.js').IntentAmendment[];
   verificationEvidence?: VerificationEvidence[];
   /**
    * B-2296 (evidence-integrity §5 follow-on, Phase 1): immutable frozen-claim
@@ -2383,6 +2384,11 @@ export interface TestEvidenceData {
   verificationCoverage?: VerificationCoverageReport;
   /** Versioned identity of the commands and policy inputs used by routine validate. */
   routineValidationIdentity?: RoutineValidationIdentity;
+  /** Resolved selection mode and exact admission for a reused complete PASS. */
+  resolvedDynamicMode?: 'off' | 'observe' | 'shadow' | 'enforce-low-risk';
+  reuseAdmission?: 'mode-off' | 'observe-opt-in';
+  /** Signed dynamic revocation state observed when the command PASS was recorded. */
+  dynamicRevocationLedgerDigest?: string;
   /** Project command truth, intentionally independent from overall verification coverage. */
   commandExecution?: RoutineValidationCommandExecution;
   /** Whether this canonical receipt came from command execution or a validated zero-command reuse. */

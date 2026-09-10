@@ -93,3 +93,18 @@ export function verifyValidationArtifact(value: unknown, signature: unknown, git
 export function validationArtifactSigningPublicKey(gitCwd = process.cwd()): string | undefined {
   return readTrustedPublicKey(gitCwd);
 }
+
+/** Verify every envelope against a freshly resolved repository key. The key is
+ * re-read after the synchronous batch, so replacement/deletion during traversal
+ * invalidates the entire result. No memo survives a call or accepts a caller key. */
+export function verifyValidationArtifacts(entries:ReadonlyArray<{value:unknown;signature:unknown}>,gitCwd=process.cwd()):boolean[] {
+  if(entries.length<=1)return entries.map(entry=>verifyValidationArtifact(entry.value,entry.signature,gitCwd));
+  const key=readTrustedPublicKey(gitCwd);
+  if(!key)return entries.map(()=>false);
+  const results=entries.map(({value,signature})=>{
+    if(typeof signature!=='string'||!signature.startsWith(SIGNATURE_PREFIX))return false;
+    const encoded=signature.slice(SIGNATURE_PREFIX.length);
+    return Boolean(encoded&&!encoded.includes(':')&&verifyCanonical(value,encoded,key));
+  });
+  return readTrustedPublicKey(gitCwd)===key?results:entries.map(()=>false);
+}

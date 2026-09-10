@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * proof-or-stop session_brief — cross-session opening brief
  *
@@ -1067,7 +1068,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       try {
         const cl = ctx.store.readChecklist(storyId);
         checklistSummary = summarizeChecklist(cl);
-      } catch { /* no checklist */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* no checklist */ }
 
       if (checklistSummary) {
         lines.push('');
@@ -1113,7 +1114,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           for (const l of renderCapsuleBrief(capsule, issues)) lines.push(l);
         }
-      } catch { /* probe — capsule must never block session_brief */ }
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* probe — capsule must never block session_brief */ }
 
       // B-c55d CHK-004: story owner lease ownership block. B-META containers
       // are shown as shared audit state (no per-story lease, no story_advance);

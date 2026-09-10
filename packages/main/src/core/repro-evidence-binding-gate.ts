@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { listArtifacts, readArtifact, verifyArtifactDigest } from './evidence/artifact-store.js';
 import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
 import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.js';
@@ -411,7 +412,7 @@ export function evaluateStoryEvidenceBindingGate(
   let checklist: ChecklistData | null = null;
   try {
     checklist = store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     checklist = null;
   }
 

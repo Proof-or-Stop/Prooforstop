@@ -1,0 +1,16 @@
+{
+  "historicalOnly": true,
+  "supersededBy": "experiments/five-item-integration/README.md",
+  "schema": "five-item-lab-contract.v1",
+  "baseline": "cf21df09c273074d7aa3227a5f436c6f5badf47a",
+  "scope": "Isolated experiments and candidate fixes, no main integration or version release",
+  "items": [
+    {"id":"P0-1","requires":["independent hash oracle","same-version implementation mismatch refused before command","real output publication and consumer integrity"]},
+    {"id":"P0-2","requires":["complete signed review wave permits repair","repair receipt cannot certify","all findings retained"]},
+    {"id":"P0-3","requires":["actual validation consumers and persisted receipts","coverage unchanged","forbidden/build-proof/failure controls","actual configuration applicability disclosed"]},
+    {"id":"P1","requires":["actual verification_evidence_batch_add survives lease threshold","foreign/released owners fail closed","publication retry does not rerun valid work","additive acceptance retains original and blocks missing new coverage"]},
+    {"id":"P2","requires":["real cross-process worktrees","independent claims overlap, conflicts serialize","complete equivalent delivery scope and all overhead recorded","actual configuration applicability disclosed"]}
+  ],
+  "timing": {"pairedTrials":5,"maxPairedTrials":10,"elapsedMetric":"same final successful outcome","failedBaselineReductionPercent":null,"wholeStorySpeedupClaim":false},
+  "evidence": {"newMeasurements":"raw per-run logs and JSON","historical":"preserved and labeled","syntheticFixture":"not formal Story credentials","unsupportedOrNegative":"must remain visible, never marked fixed"}
+}

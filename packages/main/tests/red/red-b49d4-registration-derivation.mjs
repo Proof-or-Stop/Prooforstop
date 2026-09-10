@@ -196,7 +196,7 @@
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
  */
 import {
-  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync,
+  copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, readdirSync, realpathSync, rmSync, statSync,
   symlinkSync, writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -339,16 +339,21 @@ const sweepLegacyProbeDebris = () => {
  * moment can therefore strand nothing except a directory under `os.tmpdir()`,
  * which is outside every guarded population and cannot make any guard fail.
  */
-function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [], hydrateDirs = [] } = {}) {
-  const root = mkdtempSync(join(tmpdir(), prefix));
+function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [], copyTracked = false, copyTrees = [], hydrateDirs = [] } = {}) {
+  // Canonical argv paths keep nested ESM entrypoint detection faithful on macOS
+  // (/var is a symlink to /private/var); a preserved parent path must not make
+  // the child silently look like an import instead of a CLI invocation.
+  const root = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   const mustBeReal = new Set();
   const copied = new Set(copyDirs);
+  const tracked = new Set(copyTracked ? gitRead(repoRoot,['ls-files','-z']).toString('utf8').split('\0').filter(Boolean) : []);
+  const wholeTrees = new Set(copyTrees);
   const hydrated = new Set(hydrateDirs);
   const addAncestors = (rel) => {
     const parts = rel.split('/');
     for (let i = 1; i < parts.length; i += 1) mustBeReal.add(parts.slice(0, i).join('/'));
   };
-  for (const rel of writableFiles) addAncestors(rel);
+  for (const rel of [...writableFiles,...tracked,...copyTrees]) addAncestors(rel);
   for (const rel of [...materializeDirs, ...copyDirs, ...hydrateDirs]) {
     addAncestors(rel);
     mustBeReal.add(rel);
@@ -361,10 +366,17 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
       if (childRel === '.git' || skip.has(childRel)) continue;
       const src = join(repoRoot, childRel);
       const dest = join(root, childRel);
+      if (wholeTrees.has(childRel)) { cpSync(src,dest,{recursive:true,dereference:true}); continue; }
+      if (tracked.has(childRel)) {
+        if (lstatSync(src).isSymbolicLink()) symlinkSync(readlinkSync(src),dest);
+        else copyFileSync(src,dest);
+        continue;
+      }
       const childHydrating = hydrating || hydrated.has(childRel);
       // Inside a hydrated sub-tree every directory is real and every file is a
       // copy, so `withFileTypes` classification matches the repository exactly.
       if (mustBeReal.has(childRel) || (childHydrating && statSync(src).isDirectory())) {
+
         mkdirSync(dest);
         walk(childRel, childHydrating);
         continue;
@@ -378,6 +390,14 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
   };
   walk('', false);
   initializePrivateGit(root, repoRoot);
+  if (copyTracked && gitText(root,['branch','--show-current']) !== 'main') {
+    // A copied self-host runtime needs a real PRIVATE main authority worktree,
+    // just as the source Lab has. Never borrow the real repository's admin.
+    const mainAuthority=join(root,'.worktrees','mirror-main-authority');
+    mkdirSync(dirname(mainAuthority),{recursive:true});
+    gitRead(root,['worktree','add','--quiet',mainAuthority,'main']);
+    assert.ok(realpathSync(gitText(mainAuthority,['rev-parse','--path-format=absolute','--git-common-dir'])).startsWith(realpathSync(root)+'/'));
+  }
   return root;
 }
 
@@ -616,7 +636,27 @@ const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
 /** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
-const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', join(mirrorRoot, rel)], mirrorRoot, rel);
+// Execute the actual configured argv for registered node harnesses. A selector-only
+// harness must not be misclassified as broken merely because this mirror dropped
+// its required arguments. Multiple registered variants all remain observable.
+function registeredNodeArgs(rel, configuration = config) {
+  const invocations = (configuration.validate?.commands ?? []).map(entryArgv)
+    .filter(argv => argv[0] === 'node' && argv[1] === rel).map(argv => argv.slice(2));
+  return invocations.length ? invocations : [[]];
+}
+assert.deepEqual(registeredNodeArgs('fixture.mjs', {validate:{commands:[
+  {command:'node',args:['fixture.mjs','--case=one']},
+  {command:'node',args:['fixture.mjs','--case=two']},
+]}}), [['--case=one'],['--case=two']], 'every configured selector variant must run');
+assert.deepEqual(registeredNodeArgs('unregistered.mjs',{validate:{commands:[]}}),[[]]);
+const runInMirror = (mirrorRoot, rel) => {
+  const runs = registeredNodeArgs(rel).map(args => ({args,...runNode(['--preserve-symlinks-main', join(mirrorRoot, rel), ...args], mirrorRoot)}));
+  const failed = runs.find(r=>r.status!==0);
+  // Preserve every command and result; any failed variant keeps the aggregate red.
+  return {status:failed ? failed.status : 0,variants:runs,
+    stdout:runs.map(r=>r.stdout).join('\n'),stderr:runs.map(r=>r.stderr).join('\n'),
+    out:runs.map(r=>r.out).join('\n'),ms:runs.reduce((sum,r)=>sum+r.ms,0)};
+};
 
 const gitStatusFor = (paths) => {
   try {
@@ -1188,6 +1228,11 @@ try {
   let byteMismatches = [];
   try {
     newcomerMirror = makeMirror('red-b49d4-newcomer-', {
+      // New selector-driven harnesses inspect the whole Git tree. Real tracked
+      // copies preserve modes and bound git-status output; private dist copies
+      // prevent any nested fixture from writing through a runtime symlink.
+      copyTracked: true,
+      copyTrees: ['packages/main/dist','packages/utils/dist','packages/lab/dist'],
       writableFiles: [NEWCOMER_REL],
       copyDirs: [RED_DIR_REL],
       materializeDirs: [DIST_TASKS_REL],
@@ -1212,10 +1257,9 @@ try {
         return true;
       }
     });
-    targetRuns = targetRels.map((rel) => {
-      const r = runInMirror(newcomerMirror, rel);
-      return { rel, status: r.status, names: r.out.includes(NEWCOMER_BASE), ms: r.ms, out: r.out };
-    });
+    targetRuns = targetRels.flatMap((rel) => runInMirror(newcomerMirror, rel).variants.map(r => ({
+      rel, args:r.args, status:r.status, names:r.out.includes(NEWCOMER_BASE), ms:r.ms, out:r.out,
+    })));
   } finally {
     if (newcomerMirror !== null) rmSync(newcomerMirror, { recursive: true, force: true });
   }

@@ -1,3 +1,8 @@
+import { executionImplementationIdentity } from '../core/execution-implementation.js';
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
+import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
+import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -29,7 +34,7 @@ import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordH
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
-import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
+import { isLeaseStale, readOwnerLease, withOwnerLeaseHeartbeat } from '../core/story-owner-lease.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import {
   isAcceptanceMatrixDerivedEvidence,
@@ -63,6 +68,8 @@ import {
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
   causalCanonical,
+  causalDigest,
+  createCausalPublicationRecovery,
   deriveCausalMetrics,
   effectiveCausalEnvironment,
   executeCausalEvidence,
@@ -832,6 +839,7 @@ function dependencyManifestPath(file: string | undefined): string | undefined {
  * first selector-bearing write.
  */
 interface EnforceAndStampResult {
+  publicationRecoveryKey?: string;
   evidencePatch: {
     result?: 'pass' | 'fail';
     command?: string;
@@ -1304,6 +1312,7 @@ async function enforceAndStampEvidence(
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const launchFreshness = captureVerificationFreshness(deps.cwd, deps.metadataRoot);
   const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs: effectiveTimeoutMs };
+  const implementationDigest = executionImplementationIdentity().digest;
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -1317,6 +1326,7 @@ async function enforceAndStampEvidence(
       materialHash: hashes.materialHash ?? null,
       timeoutMs: effectiveTimeoutMs,
       preflightFacts: initialPreflightFacts,
+      implementationDigest,
       verificationExecutionKey: createVerificationExecutionKey({
         command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs, preparedIdentity: beforeIdentity,
       }),
@@ -1362,7 +1372,7 @@ async function enforceAndStampEvidence(
     receiptStore: deps.receiptStore,
     batch: deps.batch,
     preflight,
-    revalidateBeforeRun: preflightFactsUnchanged,
+    revalidateBeforeRun: () => preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
     // The causal API performs its last-moment check immediately before this
     // actual launch. Preserve the complete result separately for V5; the causal
     // receipt intentionally retains only its bounded diagnostic observation.
@@ -1371,6 +1381,9 @@ async function enforceAndStampEvidence(
         throw new Error('causal evidence shared publication missing its producer receipt [causal_shared_receipt_missing]');
       }
       run = await deps.runCommand(pinCommand, deps.cwd, effectiveTimeoutMs);
+      if (executionImplementationIdentity().digest !== implementationDigest) {
+        throw new Error('Verification implementation changed during execution; no receipt published [execution_implementation_changed]');
+      }
       return {
         code: run.code,
         output: run.output,
@@ -1874,7 +1887,7 @@ type CausalRefreshCommitter = (
   storyId: string,
   gitCwd: string,
   hashes: ReturnType<typeof evidenceHashes>,
-  stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
+  stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>>,
   commit: () => void,
 ) => void;
 
@@ -2090,7 +2103,7 @@ function writeStaleRefresh(
       ...(opts.diagnostics ?? []),
     ];
     let refreshed = 0;
-    const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>> = [];
+    const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>> = [];
     for (const entry of stale) {
       const item = cl.items.find(i => i.id === entry.itemId);
       const existing = item?.verificationEvidence || [];
@@ -2278,15 +2291,63 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           store,
           ...(input.timeoutMs !== undefined ? { timeoutMs: input.timeoutMs } : {}),
         });
+  // Recovery is limited to an uncommitted canonical publication. Ordinary invocations
+  // continue to obtain a fresh observation UUID after every successful write.
+  const enforceWithPublicationRecovery = async (
+    item: ChecklistItem, input: EvidenceWriteInput,
+    deps: Parameters<typeof enforceAndStampEvidence>[2],
+  ): Promise<EnforceAndStampResult> => {
+    const plan = verificationProducerPlan(root, item, input, deps.cwd);
+    if (!plan) return enforceAndStampEvidence(item, input, deps);
+    const freshness = captureVerificationFreshness(deps.cwd, root);
+    const requestKey = causalDigest({ schemaVersion: 'publication-attempt.v1',
+      storyId: deps.storyId, cwd: deps.cwd, itemId: item.id, input,
+      checklist: store.readChecklist(deps.storyId), freshness,
+      ownerGeneration: readOwnerLease(store.storyDirPath(deps.storyId))?.leaseId,
+      executionKey: plan.executionKey,
+      implementationDigest: executionImplementationIdentity().digest,
+    });
+    const pending = store.readPendingPublication(deps.storyId, requestKey, deps.cwd);
+    let publication: SharedVerificationPublication | undefined;
+    if (pending) {
+      const value = pending.publication as { receipt?: VerificationEvidenceReceipt; causalReceipt?: CausalEvidenceReceipt };
+      const receipt = value?.receipt;
+      if (!receipt || !isSplitVerificationReceipt(receipt)
+        || receipt.schemaVersion !== 'proof-or-stop.verification-receipt-bundle.v5'
+        || receipt.executionReceipt.schemaVersion !== 'proof-or-stop.verification-execution-receipt.v3'
+        || !executionMatchesPlan(receipt.executionReceipt, plan)
+        || !value.causalReceipt
+        || !validateVerificationReceipt(root, receipt, { storyId: deps.storyId,
+          intentRef: input.intentRef, selector: plan.selector, command: plan.command, freshness }).ok) {
+        throw new Error('Pending publication no longer proves this request [publication_recovery_invalid]');
+      }
+      publication = { executionReceipt: receipt.executionReceipt, freshness,
+        causalReceipt: value.causalReceipt,
+        ...(receipt.reuseReceipt ? { reuseReceipt: receipt.reuseReceipt } : {}) };
+    }
+    const stamp = await enforceAndStampEvidence(item, input, { ...deps,
+      ...(publication ? { sharedExecutionReceipt: publication.executionReceipt,
+        sharedCausalReceipt: publication.causalReceipt, sharedFreshness: publication.freshness,
+        ...(publication.reuseReceipt ? { sharedReuseReceipt: publication.reuseReceipt } : {}) } : {}),
+    });
+    if (stamp.evidencePatch.result === 'pass' && stamp.evidencePatch.receipt && stamp.causalReceipt) {
+      // Selector validation has already passed; missing selectors never mint a recovery capability.
+      store.writePendingPublication(createCausalPublicationRecovery(deps.storyId, requestKey, deps.cwd,
+        { receipt: stamp.evidencePatch.receipt, causalReceipt: stamp.causalReceipt }));
+      stamp.publicationRecoveryKey = requestKey;
+    }
+    return stamp;
+  };
+
   const commitCanonicalCausalEvidence = (
     storyId: string,
     gitCwd: string,
     hashes: ReturnType<typeof evidenceHashes>,
-    stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
+    stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>>,
     commit: () => void,
     batch?: CausalEvidenceBatch,
   ): void => {
-    const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
+    const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
     if (stamps.some(stamp => Boolean(stamp.causalReceipt) !== Boolean(stamp.causalPreflight))) {
       throw new Error('causal evidence commit refused: receipt/preflight identity pairing is incomplete [causal_commit_identity_missing]');
     }
@@ -2319,6 +2380,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         return { currentHashes, preflightByInput: new Map(), valid: false };
       }
 
+      const currentImplementationDigest = executionImplementationIdentity().digest;
       const preflightByInput = new Map<string, CachedCausalPreflight>();
       for (const { causalPreflight, causalReceipt: sourceReceipt } of usable) {
         if (!causalPreflight || !sourceReceipt) continue;
@@ -2336,6 +2398,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           && !Array.isArray(sourceReceipt.identity.inputs)
           ? sourceReceipt.identity.inputs as Record<string, unknown>
           : {};
+        if (recordedInputs.implementationDigest !== currentImplementationDigest) {
+          return { currentHashes, preflightByInput, valid: false };
+        }
         const identity: CausalExecutionIdentityInput = {
           storyId,
           cwd: input.cwd,
@@ -2410,6 +2475,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     const commitWithCacheInvalidation = (): void => {
       try {
         commit();
+        for (const stamp of usable) if (stamp.publicationRecoveryKey) {
+          store.removePendingPublication(storyId, stamp.publicationRecoveryKey);
+        }
       } catch (error) {
         // importCausalEvidenceReceipt retries the same transaction after a
         // commit failure. The retry must not reuse a pre-failure snapshot.
@@ -2786,6 +2854,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      const beforeIntentRevision = structuredClone(item);
+      if (item.verificationIntentAmendments?.length && args.status && args.status !== 'pending' && [args.title,args.context,args.userSees,args.excludes,args.files,args.verificationIntent].some(value=>value!==undefined)) throw new Error('AMENDMENT_REVISION_STATUS_REFUSED: revise acceptance before updating completion status');
       if (args.verificationIntent !== undefined) {
         const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
         const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
@@ -2905,6 +2975,24 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push(`status → ${args.status}`);
       }
 
+      if (beforeIntentRevision.verificationIntentAmendments?.length && (
+        acceptanceScopeHash(beforeIntentRevision) !== acceptanceScopeHash(item)
+        || acceptanceIntentHash(beforeIntentRevision.verificationIntent!) !== acceptanceIntentHash(item.verificationIntent!)
+      )) {
+        const gitCwd = resolveStoryGitCwd(args.storyId);
+        const lease = readOwnerLease(store.storyDirPath(args.storyId));
+        const owner = probeWriterLease(store.storyDirPath(args.storyId),gitCwd);
+        // The existing dispatched verification-intent role retains its PLAN-only field authority.
+        if (!owner.valid && !isDispatchedVerificationIntentWriter) throw new Error('AMENDMENT_OWNER_REQUIRED');
+        if (!lease?.leaseId || isLeaseStale(lease)) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
+        const revision = createIntentRevision({before:beforeIntentRevision,after:item,storyId:args.storyId,phase:story.phase,
+          reason:args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
+          headHash:currentGitHead(gitCwd) ?? '',gitCwd});
+        (item.verificationIntentAmendments ??= []).push(revision);
+        item.status = 'pending'; item.startTime = null; item.endTime = null;
+        results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
+      }
+
       store.writeChecklist(args.storyId, cl);
 
       // B-3511: append process events on status transitions
@@ -2943,7 +3031,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           `↻ Written and persistence confirmed: ${args.itemId} current status=${persistedStatus}. ` +
           `For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n`,
         );
-      } catch (e) {
+      } catch (e) { rethrowIntentAmendmentIntegrityError(e);
         // Reminder is advisory only — a read-back failure must never change the
         // write result or the stdout conclusion.
         console.warn(`[checklist_update] post-write reload reminder skipped for ${args.storyId}: ${(e as Error).message}`);
@@ -3047,6 +3135,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       resolveEvidenceCommandTimeout('verification_evidence_add', args);
 
       const gitCwd = resolveStoryGitCwd(args.storyId);
+      return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add', cwd: gitCwd }, async () => {
       const evidenceInput: EvidenceWriteInput = {
         storyId: args.storyId, intentRef: args.intentRef, kind, file: args.file, command: args.command, selector: args.selector,
         result: args.result, nonMechanicalReason: args.nonMechanicalReason,
@@ -3072,7 +3161,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
             )
           : undefined;
-        const stamp = await enforceAndStampEvidence(preItem, evidenceInput, {
+        const stamp = await enforceWithPublicationRecovery(preItem, evidenceInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: gitCwd,
@@ -3141,6 +3230,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       return initialPlan
         ? withVerificationExecutionLocks(root, [initialPlan.executionKey], produce)
         : produce();
+      });
     },
 
     async verification_evidence_batch_add(args: {
@@ -3197,6 +3287,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
 
       const gitCwd = resolveStoryGitCwd(args.storyId);
+      return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add', cwd: gitCwd }, async () => {
       const runCommand: SingleCommandRunner = executePinnedCommand;
       const evidenceInputs = args.evidences.map((entry, i): EvidenceWriteInput => ({
         storyId: args.storyId, intentRef: entry.intentRef, kind: normalizedKinds[i], file: entry.file, command: entry.command,
@@ -3233,7 +3324,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 root, args.storyId, currentCl, currentPlan, initialPublicationDigests[i], hashes,
               )
             : undefined;
-          const stamp = await enforceAndStampEvidence(item, evidenceInputs[i], {
+          const stamp = await enforceWithPublicationRecovery(item, evidenceInputs[i], {
             runCommand,
             preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
             cwd: gitCwd,
@@ -3326,6 +3417,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         initialPlans.flatMap(plan => plan ? [plan.executionKey] : []),
         produceBatch,
       );
+      });
     },
 
     /**
@@ -3445,7 +3537,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const sharedPublication = concurrentPublishedExecution(
           root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
         );
-        const stamp = await enforceAndStampEvidence(currentItem, currentInput, {
+        const stamp = await enforceWithPublicationRecovery(currentItem, currentInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: runCwd,
@@ -3568,6 +3660,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       };
 
       if (args.dryRun) return writeStaleRefresh(ctx, args.storyId, initial, { dryRun: true });
+      return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_refresh_stale', cwd: initial.refreshGitCwd }, async () => {
       const initialGroups = buildGroups(initial);
       return withVerificationExecutionLocks(root, initialGroups.keys(), async () => {
         // The lock protects production, not a stale caller snapshot. A waiter MUST
@@ -3625,6 +3718,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               });
               assertVerificationInputUnchanged(reuse.identity, beforeReuseIssue);
             } else {
+              const implementationDigest = executionImplementationIdentity().digest;
               const beforeIdentity = prepareVerificationExecutionIdentity({
                 command, cwd: computed.refreshGitCwd,
                 effectiveTimeoutMs: representative.effectiveTimeoutMs,
@@ -3649,6 +3743,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                   materialHash: computed.materialHash ?? null,
                   timeoutMs: representative.effectiveTimeoutMs,
                   preflightFacts: initialPreflightFacts,
+                  implementationDigest,
                   verificationExecutionKey: executionKey,
                   // Never enters buildGroups or the producer-lock key: this is
                   // the address of one real observation, not physical identity.
@@ -3676,9 +3771,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 receiptStore: store,
                 batch: createCausalEvidenceBatch(),
                 preflight: causalPreflight,
-                revalidateBeforeRun: preflightFactsUnchanged,
+                revalidateBeforeRun: () => preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
                 run: async () => {
                   run = await executePinnedCommand(command, computed.refreshGitCwd, representative.effectiveTimeoutMs);
+                  if (executionImplementationIdentity().digest !== implementationDigest) throw new Error('Verification implementation changed during refresh [execution_implementation_changed]');
                   return run;
                 },
               });
@@ -3758,16 +3854,61 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           commitCanonicalCausalEvidence,
         });
       });
+      });
     },
 
-    /**
-     * B-4e06 CHK-001: audited legacy repair. Reconstructs ONLY missing
-     * verificationIntent lanes from existing PASSING verificationEvidence, for
-     * mid-flight stories adopted after evidence was already recorded. Never
-     * overwrites authored intent; fail-closed on malformed refs; synthesized
-     * intents are priority='should' so the backfill can never retroactively
-     * weaponize the hard coverage gate. Refused in INIT/INIT_CHECK/terminal.
-     */
+    /** Owner-governed restoration of an exact signed acceptance checkpoint.
+     * Inspection writes nothing. Apply repairs retained storage and restores the
+     * signed projection; it synthesizes no intent, coverage, or PASS evidence. */
+    verification_intent_recover(args: {storyId: string; expectedCheckpointDigest?: string; reason?: string; apply?: boolean}): string {
+      return withChecklistLock(ctx,args.storyId,()=>{
+        const story=assertChecklistMutationCwd(store,args.storyId);
+        if(['DONE','DISCARDED'].includes(story.phase))throw new Error('AMENDMENT_RECOVERY_ACTIVE_STORY_REQUIRED');
+        const gitCwd=resolveStoryGitCwd(args.storyId);
+        if(!probeWriterLease(store.storyDirPath(args.storyId),gitCwd).valid || resolveAgentMutationAuthority({command:'checklist_update'}).entry)throw new Error('AMENDMENT_OWNER_REQUIRED');
+        const recovery=inspectIntentCheckpointRecovery(args.storyId,gitCwd);
+        const checkpoint=recovery?.checkpoint;
+        if(!checkpoint)throw new Error('AMENDMENT_CHECKPOINT_MISSING');
+        if(!args.apply)return JSON.stringify({storyId:args.storyId,generation:checkpoint.generation,expectedCheckpointDigest:checkpoint.dataDigest,action:'restore-exact-signed-checklist',storageRepair:recovery!.storageRepair,writes:0});
+        if(!args.reason || args.reason.trim().length<30)throw new Error('AMENDMENT_RECOVERY_REASON_REQUIRED');
+        store.restoreIntentCheckpoint(args.storyId,args.expectedCheckpointDigest??'');
+        return `Signed acceptance checkpoint restored for ${args.storyId}; digest=${checkpoint.dataDigest}; no command executed and no evidence re-attested.`;
+      });
+    },
+
+    verification_intent_append(args: {
+      storyId: string; itemId: string; expectedIntentHash: string; reason: string; addition: Partial<VerificationIntent>;
+    }): string {
+      return withChecklistLock(ctx, args.storyId, () => {
+        const story = assertChecklistMutationCwd(store, args.storyId);
+        if (story.phase !== 'DEV') throw new Error('AMENDMENT_DEV_REQUIRED: return to DEV for repair; final review remains required');
+        const gitCwd = resolveStoryGitCwd(args.storyId);
+        const owner = probeWriterLease(store.storyDirPath(args.storyId), gitCwd);
+        if (!owner.valid) throw new Error('AMENDMENT_OWNER_REQUIRED: ' + owner.reason);
+        if (resolveAgentMutationAuthority({command:'checklist_update'}).entry) throw new Error('AMENDMENT_OWNER_REQUIRED: dispatched agents cannot amend acceptance');
+        const cl = store.readChecklist(args.storyId), item = cl.items.find(i => i.id === args.itemId);
+        if (!item || isWithdrawnChecklistStatus(item.status)) throw new Error('AMENDMENT_ACTIVE_ITEM_REQUIRED');
+        if (item.verificationIntent && args.expectedIntentHash !== acceptanceIntentHash(item.verificationIntent)) throw new Error('AMENDMENT_STALE_INTENT');
+        const occupied = new Set(cl.items.flatMap(collectVerificationIntents).map(row => row.ref));
+        for (const rows of Object.values(args.addition ?? {})) {
+          if (!Array.isArray(rows)) throw new Error('AMENDMENT_INVALID_LANE');
+          for (const row of rows) if (typeof row?.id === 'string' && occupied.has(row.id)) throw new Error('AMENDMENT_DUPLICATE_ID');
+        }
+        const lease = readOwnerLease(store.storyDirPath(args.storyId))!;
+        if (!lease.leaseId) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
+        const headHash = currentGitHead(gitCwd);
+        if (!headHash) throw new Error('AMENDMENT_HEAD_REQUIRED');
+        const {intent, amendment} = createIntentAmendment({...args,item,sessionId:getSessionId(),leaseId:lease.leaseId,headHash,gitCwd});
+        assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
+        assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
+        item.verificationIntent = intent;
+        (item.verificationIntentAmendments ??= []).push(amendment);
+        item.status = 'in_progress'; item.endTime = null;
+        store.writeChecklist(args.storyId,cl);
+        return `Acceptance appended for ${args.itemId}; amendment=${amendment.id}; new intents require tool-executed evidence and fresh review.`;
+      });
+    },
+
     verification_intent_repair(args: {
       storyId: string;
       mode: 'fromEvidence';

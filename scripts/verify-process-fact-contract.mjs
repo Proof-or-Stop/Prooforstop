@@ -220,6 +220,7 @@ const requiredProcessFactSemantics = {
   verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
   verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
+  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
@@ -2161,7 +2162,7 @@ function assertCloseoutTrustBoundary() {
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
     'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5',
-    '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
+    '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
     // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT
@@ -2185,7 +2186,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'b03c095a373bbbad19811ffc40e280800a92dbc67489dcc82e06fe00a57c2473',
+    '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2286,7 +2287,7 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
+    '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0',
     'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
     'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
@@ -4716,8 +4717,11 @@ function assertReviewInventoryRemediationContract() {
     'cross-identity refusal leaves prior receipts and pins unchanged', 'fan-out retains source signed execution time, never publication time',
     'new ordinary executions borrowed an older same-key CAS observation', 'B-aa5f CHK008 causal-import-integration PASS',
     'causal ledger counts every independently evaluated intent, including shared-execution followers',
-    'bounded causal diagnostic honestly misses a middle-of-large-output selector',
-    'only authenticated complete-output V5 assertion controls selector admission']) {
+    'bounded diagnostic probe still omits the middle-of-large-output selector',
+    'causal replay binds durable complete selector output',
+    'complete-output replay does not launch another execution',
+    'authenticated complete causal output finds the middle-of-large-output selector',
+    'authenticated complete-output V5 assertion agrees with causal replay']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(
@@ -8412,6 +8416,14 @@ function assertParentRoadmapTotalityRuntime() {
 // weakening its registry semantics cannot make dynamic validation appear
 // authoritative while the production registry silently loses its evidence.
 function assertStoryAwareDynamicValidationRuntime() {
+  const routineReuseSource = read('packages/main/src/handlers/verifier.ts');
+  for (const token of ['tryReuseRoutinePass', 'reuseFreshRoutinePass', 'readRoutineReuseRevocationBasis', 'preparationHead', 'reusedFromIdentityDigest', "oracleStatus: 'not-run'", "authority: 'observe-only'", 'observe-opt-in']) {
+    assert(routineReuseSource.includes(token), `observe whole-PASS reuse must retain ${token}`);
+  }
+  assert(read('packages/main/src/cli/command-catalog.ts').includes('reuseFreshRoutinePass: z.boolean().optional()'), 'validate must expose the independent whole-PASS reuse option');
+  assert(read('packages/main/src/core/types.ts').includes('dynamicRevocationLedgerDigest?: string'), 'canonical evidence must bind the signed revocation state');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes("'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'execution-evidence'"), 'routine reuse must retain execution evidence semantics');
+
   const levelText = read('packages/main/src/core/process-fact-levels.ts');
   const registryText = read('packages/main/src/core/process-fact-registry.ts');
   const facts = [
@@ -9177,11 +9189,44 @@ function assertFilePatterns(entryName, relPath, patterns) {
 }
 
 const inventory = [
+  {name:'Complete selector output remains receipt-bound',files:[
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['readCausalSelectorOutput','selectorOutput','selectorWitness','CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES','causal_legacy_selector_output_unproven','retryExecutions.get(key.key) ??','causal_selector_output_invalid','redactCausalOutput']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readCausalSelectorOutput','writeCausalSelectorOutput','CAUSAL_OUTPUT_DIRECTORY']},
+    {relPath:'docs/validation-performance.md',patterns:['complete redacted output','12,000','missing or changed']},
+  ]},
+  {name:'DONE admission metadata preserves clean reusable input',files:[
+    {relPath:'packages/main/src/handlers/done-required-validation.ts',patterns:['captureLifecycleMetadataTransaction','readLifecycleMetadataOutputHashes','commitLifecycleMetadataTransaction',"kind: 'certification-running'",'realpathSync(gitCwd)']},
+    {relPath:'packages/main/src/core/auto-commit-metadata.ts',patterns:["'certification-running'","['certification-window.json']"]},
+  ]},
+  {name:'Exact quorum assertion inventory and current main partitioning',files:[
+    {relPath:'packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts',patterns:['validateQuorumSmokeInventory','validateQuorumSmokePartitions','unresolved executable callback','missing canonical quorum smoke shard(s)','partition must contain exactly 73 cases','competing quorum smoke selectors']},
+    {relPath:'packages/main/src/tasks/quorum-submit-smoke.ts',patterns:['runQuorumSmokeCoordinator','QUORUM_SMOKE_RUN_JSON','QUORUM_SMOKE_CASES_JSON']},
+    {relPath:'packages/main/tests/red/red-B-e40f-lab-convergence.mjs',patterns:['MAX_QUORUM_SMOKE_JOBS','validateQuorumSmokeInventory','validateQuorumSmokePartitions','one-process-per-shard']},
+    {relPath:'docs/validation-performance.md',patterns:['73','--jobs=2','modular coordinator']},
+  ]},
+  {name:'Governed acceptance revision and durable recovery',files:[
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['createIntentRevision','verification_intent_recover','restoreIntentCheckpoint','AMENDMENT_RECOVERY_REASON_REQUIRED']},
+    {relPath:'packages/main/src/core/verification-intent-amendment.ts',patterns:['proof-or-stop.intent-revision.v1','AMENDMENT_REPLAN_REQUIRED','IntentAmendmentIntegrityError','beforeScopeHash']},
+    {relPath:'packages/main/src/core/verification-intent-checkpoint.ts',patterns:['proof-or-stop-intent-checkpoints','verifyValidationArtifact','AMENDMENT_CHECKPOINT_HISTORY_GAP','linkSync(temp,path)','AMENDMENT_CHECKPOINT_PROJECTION_MISMATCH','refs/proof-or-stop/intent-checkpoints/','update-ref','commit-tree','AMENDMENT_CHECKPOINT_ANCHOR_INVALID','for-each-ref','cat-file','AMENDMENT_CHECKPOINT_ROLLBACK','AMENDMENT_CHECKPOINT_MIRROR_CONFLICT','AMENDMENT_CHECKPOINT_ANCHOR_WRITE_FAILED','reconcileMirror(directory,records)','inspectIntentCheckpointRecovery','repairIntentCheckpointStorage','AMENDMENT_CHECKPOINT_SIGNED_MIRROR_CONFLICT','validateCheckpoints','assertIntentAmendmentItems',"'.quarantine-'"]},
+    {relPath:'packages/main/src/core/store.ts',patterns:['assertIntentCheckpointProjection','writeIntentCheckpoint','restoreIntentCheckpoint','digestCanonicalJson(prefix ?? null)']},
+    {relPath:'packages/main/src/core/canonical-story.ts',patterns:['rethrowIntentAmendmentIntegrityError(error)']},
+    {relPath:'docs/validation-performance.md',patterns:['verification_intent_recover','INIT/PLAN','checkpoint']},
+  ]},
+  {name:'Pinned implementation and original batch publication',files:[
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:['implementationDigest','currentImplementationDigest','execution_implementation_changed','enforceWithPublicationRecovery','publicationRecoveryKey']},
+    {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['createCausalPublicationRecovery','verifyCausalPublicationRecovery','proof-or-stop.causal-publication-recovery.v1']},
+    {relPath:'packages/main/src/core/store.ts',patterns:['readPendingPublication','writePendingPublication','removePendingPublication','publication_recovery_invalid']},
+    {relPath:'packages/main/src/cli-engine.ts',patterns:['enforceExecutionImplementationPin();','--implementation-identity','enforcedImplementationIdentity ?? executionImplementationIdentity()']},
+    {relPath:'packages/main/src/handlers/checklist.ts',patterns:["withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add'","withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add'",'commitCanonicalCausalEvidence']},
+    {relPath:'docs/validation-performance.md',patterns:['PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN','verification_evidence_batch_add','opt-in']},
+  ]},
   {
     name: 'Production validation sharing and bounded repair authority',
     files: [
+      {relPath:'packages/main/src/handlers/verifier.ts',patterns:['validate?.sharedExecution === true']},
+      {relPath:'packages/main/src/core/causal-evidence.ts',patterns:['dirname(fileURLToPath(import.meta.url))',"'package.json'"]},
       {relPath:'packages/main/src/tasks/validate-execution-lock-smoke.ts',patterns:['scripts/verify-performance-production.mjs']},
-      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt']},
+      {relPath:'packages/main/src/core/shared-validation-execution.ts',patterns:['executeCausalEvidence','preflightCausalEvidence','fullBaselineReusePolicy',"'forbidden'",'unchanged()','executionReceipt','executionImplementationIdentity().digest','implementationDigest']},
       {relPath:'packages/main/src/core/review-inventory-epoch.ts',patterns:['review-remediation-only','remediation-only receipt cannot enter certification','rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount']},
       {relPath:'packages/main/src/handlers/transition-effects.ts',patterns:['--remediation','cannot enter certification or TEST']},
       {relPath:'docs/validation-performance.md',patterns:['exact-inputs','forbidden','--remediation','no Story-wide speedup']},

@@ -1,0 +1,24 @@
+{
+  "mainBase": "ada7eeb9c983cee8c05313b3c372d26e4b9d13c1",
+  "mainCount": 141,
+  "candidateCount": 141,
+  "candidateOnly": [
+    [
+      "node",
+      "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+      "--probe-jobs=4"
+    ]
+  ],
+  "mainOnly": [
+    [
+      "node",
+      "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+    ]
+  ],
+  "resourceCoverage": {
+    "routine": 141,
+    "DONE": 2
+  },
+  "unchangedTimeoutsForIdenticalInvocations": true,
+  "notes": "Only the existing complete acceptance-basis matrix adds --probe-jobs=4. No current command is removed. New bootstrap reader-lock witness conservatively retains the local writer barrier."
+}

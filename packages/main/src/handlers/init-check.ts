@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * Init Check handler — proof-or-stop init_check_set command shell + metadata lock.
  *
@@ -133,7 +134,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       try {
         const checklist = store.readChecklist(args.storyId);
         items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
       const checklistHash = computeChecklistHash(items);
@@ -334,7 +335,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         try {
           const checklist = store.readChecklist(args.storyId);
           items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-        } catch {
+        } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
           // checklist absent → empty array hash (matches recomputeInitCheckHash).
         }
         const checklistHash = computeChecklistHash(items);

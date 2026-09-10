@@ -137,7 +137,9 @@ function readablePathFor(rel) {
     const original = rel.replace('/dist/tasks/', '/src/tasks/').replace(/\.js$/, '.ts');
     if (existsSync(join(repoRoot, original))) return original;
   }
-  return existsSync(join(repoRoot, rel)) ? rel : null;
+  if (existsSync(join(repoRoot, rel))) return rel;
+  const source = rel.replace(/\.js$/, '.ts');
+  return source !== rel && existsSync(join(repoRoot, source)) ? source : null;
 }
 
 /** The file a row executes when it names one directly in its own argv. */
@@ -210,6 +212,18 @@ function npmScriptChain(pkgDirRel, script) {
   };
 
   walk(pkgDirRel, script, 1);
+  // A registered script may reach the real wrapper through a local helper.
+  // Follow literal relative imports as well as npm links; never depend on the
+  // wrapper spelling remaining inside the top-level verifier source.
+  for (let index = 0; index < sources.length; index += 1) {
+    if (index >= 256) { unresolved ??= 'relative import graph exceeds 256 sources'; break; }
+    const source = sources[index];
+    for (const match of source.text.matchAll(/\b(?:import|export)\s+(?:[^'";]*?\s+from\s*)?['"](\.[^'"]+)['"]/g)) {
+      const rel = readablePathFor(repoRelative(dirname(source.rel), match[1]));
+      if (!rel) { unresolved ??= `${source.rel} imports missing ${match[1]}`; continue; }
+      if (!sources.some(entry => entry.rel === rel)) sources.push({ rel, text: readRepoFile(rel) });
+    }
+  }
   return { sources, commandText: commands.join('\n'), maxDepth, unresolved };
 }
 
@@ -301,8 +315,8 @@ const CLASSIFICATION = new Map([
   ['npm --prefix packages/graph run check', {
     role: 'real-root-admission',
     reason: 'F-067\'s counterexample: its script chain reaches verify-serves, verify-json-no-listener and verify-missing-assets-fail, each of which spawns the real bin/proof-or-stop.js with cwd set to the real repository root, so each run takes real reader admission before any argv dispatch',
-    evidenceIn: 'packages/graph/scripts/verify-serves.mjs',
-    evidence: /spawn\('node', \['bin\/proof-or-stop\.js', 'graph'/,
+    evidenceIn: 'packages/graph/scripts/graph-process.mjs',
+    evidence: /spawn\(process\.execPath,\['bin\/proof-or-stop\.js','graph'/,
   }],
   ['node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs', {
     role: 'real-root-admission',
@@ -545,33 +559,31 @@ if (memberEntries.length < 2) {
   }
 }
 
-// NON-VACUITY, and the direct answer to the cluster's recommendation: take the
-// expensive holder, add exactly the exclusive runtime-lock claim F-064 asks for,
-// and the invariant BREAKS — because declaring anything downgrades that row's
-// barrier claim from exclusive to shared, so it stops conflicting with the
-// declared member it conflicts with today.
+// Retain the original F-064 counterexample against the shipped resolver,
+// independently of whether today's real rows use explicit safe declarations.
 const HOLDER_KEY = 'node packages/main/tests/red/red-1734-reader-race.mjs';
 const DECLARED_MEMBER_KEY = 'node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs';
 if (candidates.has(HOLDER_KEY) && candidates.has(DECLARED_MEMBER_KEY)) {
-  const holderRow = candidates.get(HOLDER_KEY).row;
-  const mutantRow = {
-    ...holderRow,
-    resources: [...(holderRow.resources ?? []), { class: 'runtime-lock', key: 'packages/main/dist', access: 'exclusive' }],
-  };
-  const mutantEntries = [
-    entryFor(HOLDER_KEY, mutantRow),
-    entryFor(DECLARED_MEMBER_KEY, candidates.get(DECLARED_MEMBER_KEY).row),
-  ];
-  const broken = coschedulablePairs(mutantEntries);
-  if (broken.length === 0) {
-    fail('mutation',
-      'adding the recommended exclusive runtime-lock claim to the expensive holder did NOT make it co-schedulable with a declared member, '
-      + 'so either the barrier default changed or this guard is no longer measuring what it claims');
+  const holder = candidates.get(HOLDER_KEY).row;
+  const declared = candidates.get(DECLARED_MEMBER_KEY).row;
+  const baselineHolder = { ...holder, resources: undefined };
+  const baselineDeclared = { ...declared, resources: [{ class: 'runtime-lock', key: 'counterexample-reader', access: 'exclusive' }] };
+  if (coschedulablePairs([entryFor(HOLDER_KEY, baselineHolder), entryFor(DECLARED_MEMBER_KEY, baselineDeclared)]).length !== 0) {
+    fail('mutation', 'the missing-declaration baseline must retain the exclusive barrier');
   }
-  const holderClaims = resolveValidationCommandResourceClaims(holderRow, HOLDER_KEY);
-  if (holderClaims.exclusiveByDefault !== true) {
-    fail('mutation', `${HOLDER_KEY} no longer holds the fail-closed exclusive default, so the pair above is protected by something this guard has not checked`);
+  const misleadingFix = { ...holder, resources: [{ class: 'runtime-lock', key: 'packages/main/dist', access: 'exclusive' }] };
+  if (coschedulablePairs([entryFor(HOLDER_KEY, misleadingFix), entryFor(DECLARED_MEMBER_KEY, baselineDeclared)]).length !== 1) {
+    fail('mutation', 'the old runtime-lock-only recommendation must still expose the unsafe pair');
   }
+  // Removing the explicit admission lock from two otherwise independently safe
+  // readers must reintroduce a pair; this prevents an inert coordination claim.
+  const readerKeys = ['node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js', 'node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs'];
+  const unlocked = readerKeys.map(key => {
+    const row = candidates.get(key)?.row;
+    if (!row) { fail('mutation', `missing reader control ${key}`); return null; }
+    return entryFor(key, { ...row, resources: row.resources.filter(claim => claim.key !== 'proof-or-stop-real-root-admission') });
+  }).filter(Boolean);
+  if (unlocked.length === 2 && coschedulablePairs(unlocked).length !== 1) fail('mutation', 'removing both reader admission claims must expose the real reader pair');
 } else {
   fail('mutation', 'the mutation subjects are not both registered, so non-vacuity was not demonstrated');
 }
@@ -654,21 +666,20 @@ if (!candidates.has(NPM_MEMBER_KEY)) {
   fail('npm-chain', `${NPM_MEMBER_KEY} is registered but is no longer derived as a candidate; F-067's live counterexample must stay decided`);
 } else if (memberKeys.includes(NPM_MEMBER_KEY) && candidates.has(DECLARED_MEMBER_KEY)) {
   const npmRow = candidates.get(NPM_MEMBER_KEY).row;
-  if (resolveValidationCommandResourceClaims(npmRow, NPM_MEMBER_KEY).exclusiveByDefault !== true) {
-    fail('npm-mutation', `${NPM_MEMBER_KEY} no longer holds the fail-closed exclusive default, so its serialization is protected by something this guard has not checked`);
+  const baselineDeclared = { ...candidates.get(DECLARED_MEMBER_KEY).row, resources: [{ class: 'runtime-lock', key: 'counterexample-reader', access: 'exclusive' }] };
+  if (coschedulablePairs([entryFor(NPM_MEMBER_KEY, { ...npmRow, resources: undefined }), entryFor(DECLARED_MEMBER_KEY, baselineDeclared)]).length !== 0) {
+    fail('npm-mutation', 'the undeclared npm baseline must retain its exclusive barrier');
   }
   const mutantEntries = [
-    entryFor(NPM_MEMBER_KEY, { ...npmRow, resources: [...(npmRow.resources ?? []), { class: 'runtime-lock', key: 'packages/main/dist', access: 'exclusive' }] }),
-    entryFor(DECLARED_MEMBER_KEY, candidates.get(DECLARED_MEMBER_KEY).row),
+    entryFor(NPM_MEMBER_KEY, { ...npmRow, resources: [{ class: 'runtime-lock', key: 'packages/main/dist', access: 'exclusive' }] }),
+    entryFor(DECLARED_MEMBER_KEY, baselineDeclared),
   ];
-  if (coschedulablePairs(mutantEntries).length === 0) {
-    fail('npm-mutation',
-      `declaring an exclusive runtime-lock claim on ${NPM_MEMBER_KEY} did NOT make it co-schedulable with a declared member, `
-      + 'so either the barrier default changed or BLOCK D is no longer the thing standing between this row and an overlap');
+  if (coschedulablePairs(mutantEntries).length !== 1) {
+    fail('npm-mutation', 'the old runtime-lock-only npm recommendation must expose the unsafe pair');
   }
 }
 // If it were reclassified static-reference-only instead, BLOCK C would catch it:
-// verify-serves.mjs names the wrapper as a literal inside its own spawn call.
+// graph-process.mjs names the wrapper as a literal inside its own spawn call.
 
 if (failures.length > 0) {
   console.error(`\nred-bcae-admission-coscheduling: ${failures.length} check(s) failed`);

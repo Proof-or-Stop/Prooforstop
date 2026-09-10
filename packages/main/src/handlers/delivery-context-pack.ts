@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -204,7 +205,7 @@ function assertSafeStoryId(storyId: unknown): asserts storyId is string {
 function readChecklist(ctx: HandlerContext, storyId: string): ChecklistData {
   try {
     return ctx.store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return { items: [] };
   }
 }

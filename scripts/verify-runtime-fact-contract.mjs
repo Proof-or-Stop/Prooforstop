@@ -74,10 +74,16 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  check(registrySource.includes("duplicateResourceClaims: 'one-per-exact-normalized-claim'"), 'exact normalized capacity claim semantics must be registered');
+  const { declaredValidationCapacity } = await import(pathToFileURL(join(root, 'packages/main/dist/core/validation-execution-lock.js')).href);
+  const duplicateClaim = { class: 'fixed-path', key: 'runtime-contract-probe', access: 'shared' };
+  const capacity = declaredValidationCapacity([{ label: 'duplicate probe', resources: [duplicateClaim, duplicateClaim] }], root);
+  check(capacity.resources.length === 2 && capacity.maxConcurrent === 2, 'duplicate capacity claims must collapse without changing invocation capacity');
   for (const file of ['packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/story-owner-lease.ts']) {
     check(read(root,file).includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), `${file} must consume validation runtime defaults`);
   }
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
+  check(checksSource.includes('ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS') && checksSource.includes('assertIdentityExecutableSource'), 'identity decoys must not replace reviewed producer/consumer executable bindings');
   const configSource = read(root, 'packages/main/src/core/config.ts');
   const promptPolicySource = read(root, 'packages/main/src/core/prompt-role-contract-registry.ts');
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
@@ -104,6 +110,9 @@ async function main() {
     check(checksSource.includes(outputKey), `missing runtime checker output key reference: ${outputKey}`);
   }
 
+  check(registrySource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY'), 'runtime registry must define optional implementation pin policy');
+  const pinSource=readFileSync(join(root,'packages/main/src/core/execution-implementation.ts'),'utf8');
+  check(pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.schema') && pinSource.includes('IMPLEMENTATION_PIN_MISMATCH'), 'implementation pin must consume registry and refuse mismatch');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');
@@ -304,6 +313,25 @@ async function main() {
 
   const registryModule = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
+  for (const canonical of ['proof-or-stop.verifier-dependency-manifest.v1', 'proof-or-stop.verifier-dependency-manifest-binding.v1', 'proof-or-stop.inventory-verification-observation.v1', 'proof-or-stop.verification-receipt-bundle.v5']) {
+    const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.identitySites.some(site => site.canonical === canonical));
+    const site = boundary?.identitySites.find(row => row.canonical === canonical);
+    check(Boolean(site && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `current schema lacks coupled runtime identity control: ${canonical}`);
+    check(Boolean(site.valueBinding), `current schema must bind its actual declaration/producer/comparison value: ${canonical}`);
+  }
+  for (const [boundaryId, sourcePath, canonical] of [
+    ['review-incremental-context', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-execution-receipt.v3'],
+    ['review-inventory-epoch', 'packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop-verification-receipt-signer-v1.key'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-execution-receipt.v3'],
+    ['review-inventory-epoch', 'packages/main/src/handlers/checklist.ts', 'proof-or-stop-review-story-init'],
+  ]) {
+    const boundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === boundaryId);
+    const site = boundary?.identitySites.find(row => row.sourcePath === sourcePath && row.canonical === canonical);
+    check(Boolean(site && boundary.paths.some(row => row.sourcePath === sourcePath) && boundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), `live schema producer/consumer must be registered with its negative control: ${sourcePath}`);
+  }
   const doctorModule = await importDist(root, 'packages/main/dist/handlers/doctor.js');
   const storeModule = await importDist(root, 'packages/main/dist/core/store.js');
   const configModule = await importDist(root, 'packages/main/dist/core/config.js');

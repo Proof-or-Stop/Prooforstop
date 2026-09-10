@@ -363,7 +363,7 @@ const EXPECTED_CASES = [
   ["qsm-011", "shared derivation fails closed on every required envelope field", "pure"],
   ["qsm-012", "shared derivation binds every replay-sensitive input", "pure"],
   ["qsm-013", "worktree-local CLI commits the exact quorum batch through the production entrypoint", "integration"],
-  ["qsm-014", "mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission", "integration"],
+  ["qsm-014", "explicit full-envelope reviewer evidence crosses collector, REVIEW gate, and quorum admission", "integration"],
   ["qsm-015", "production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt", "integration"],
   ["qsm-016", "historical RED dirty baseline makes CLI validation refuse canonical PASS persistence", "integration"],
   ["qsm-017", "refuses when required reviewer passes are absent and writes no verdicts", "integration"],
@@ -928,7 +928,7 @@ function boundProcessTerminal(state, identity) {
 const HARNESS_CHILD_ENV_KEYS = [
   "PATH", "SystemRoot", "WINDIR", "ComSpec", "PATHEXT", "LANG", "LC_ALL", "TZ",
   "NODE_OPTIONS", "PROOF_OR_STOP_RUNTIME_TRACE_FILE",
-  "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER", "LATTICE_VALIDATION_SHARD_ADAPTER", "CI",
+  "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER", "CI",
   "TMPDIR", "TMP", "TEMP", "PROOF_OR_STOP_DYN5_CASE",
   "PROOF_OR_STOP_SESSION_ID", "PROOF_OR_STOP_ACTIVITY_SOURCE",
   "PROOF_OR_STOP_ACTIVITY_SESSION", "PROOF_OR_STOP_AGENT",

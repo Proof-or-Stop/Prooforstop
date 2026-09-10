@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * evidence-stale-hint — single source of truth for stale verificationEvidence UX.
  *
@@ -48,7 +49,7 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
   let checklist: { items?: Array<{ id: string; verificationEvidence?: Array<{ intentRef: string; headHash?: string; materialHash?: string; storyFilesHash?: string }> }> } | null = null;
   try {
     checklist = store.readChecklist(storyId);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return [];
   }
   if (!checklist || !Array.isArray(checklist.items)) return [];

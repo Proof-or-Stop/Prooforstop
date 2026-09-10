@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { assertChecklistAddAllowed, createChecklistHandlers } from './checklist.js';
 import { createUnderstandingHandlers } from './understanding.js';
@@ -239,7 +240,7 @@ function preflightSkeletonWrite(ctx: HandlerContext, story: StoryInfo, skeleton:
   let existingTitles: Set<string>;
   try {
     existingTitles = new Set(ctx.store.readChecklist(story.storyId).items.map((item) => normalizedTitle(item.title)));
-  } catch (err) {
+  } catch (err) { rethrowIntentAmendmentIntegrityError(err);
     throw new Error(
       `plan_skeleton --write cannot proceed: checklist for ${story.storyId} is unreadable ` +
         `(${err instanceof Error ? err.message : String(err)}). ` +

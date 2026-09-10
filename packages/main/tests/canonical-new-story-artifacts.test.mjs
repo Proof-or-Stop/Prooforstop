@@ -15,6 +15,8 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { identityCutoverReviewedContexts } from '../../../scripts/verify-proof-or-stop-identity-cutover.mjs';
 import ts from 'typescript';
+import { assertActiveIdentityOperationOwnership } from './support/active-identity-operation-ownership.mjs';
+import { assertHistoricalImplementationSource } from '../dist/tasks/historical-implementation-fixture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..');
@@ -22,7 +24,7 @@ const repoRoot = resolve(packageRoot, '..', '..');
 const commonGitDir = resolve(repoRoot, execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' }).trim());
 const mainRoot = dirname(commonGitDir);
 const distRoot = join(packageRoot, 'dist');
-const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
+const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'reviewer-read', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
 const groupArgs = process.argv.slice(2);
 if (groupArgs.length > 1 || (groupArgs[0] && !groupArgs[0].startsWith('--group='))) {
   throw new Error(`usage: ${process.argv[1]} [--group=${GROUPS.join('|')}]`);
@@ -137,12 +139,10 @@ function initRepo(root, selfProject = false) {
 
 function retainHistoricalImplementationPrerequisite(root) {
   assert.ok(fixtureRoots.includes(root), 'historical prerequisite may only be imported into a generated test repository');
-  const historical = 'b1a0bee88c2a57e33d3835600db53bb9297f04c1';
-  git(repoRoot, ['merge-base', '--is-ancestor', historical, 'HEAD']);
-  assert.equal(git(repoRoot, ['show', '-s', '--format=%an <%ae>', historical]), 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>');
+  const historical = assertHistoricalImplementationSource(repoRoot);
   if (spawnSync('git', ['merge-base', '--is-ancestor', historical, 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0) return;
   git(root, ['fetch', '--no-tags', '--depth=1', repoRoot, historical]);
-  // Preserve a real, reachable object unchanged. The new merge and all fixture
+  // Preserve the exact archived object unchanged; it need not be main ancestry. The fixture
   // commits keep the real configured author; no synthetic role-author commit.
   git(root, ['merge', '--allow-unrelated-histories', '-s', 'ours', historical, '-m', 'retain unchanged historical implementation prerequisite']);
 }
@@ -1019,14 +1019,15 @@ function snapshotPublicOperationState(root, storyIds = []) {
 
 const INERT_PUBLIC_FIXTURE_LOG_SUBTREE = '.remember/logs/autonomous/';
 
-function createPublicOperationClone(prefix, copyFindingTrust = true) {
+function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot = repoRoot) {
   const root = mkdtempSync(join(tmpdir(), prefix));
   fixtureRoots.push(root);
   assert.ok(root !== repoRoot && root !== mainRoot && fixtureRoots.includes(root), 'sparse setup is restricted to a new disposable clone');
-  const cloned = spawnSync('git', ['clone', '--shared', '--quiet', '--no-checkout', repoRoot, root], { encoding: 'utf8' });
+  assert.ok(sourceRoot === repoRoot || fixtureRoots.includes(sourceRoot), 'clone source must be the repository or a registered private producer');
+  const cloned = spawnSync('git', ['clone', '--shared', '--quiet', '--no-checkout', sourceRoot, root], { encoding: 'utf8' });
   assert.equal(cloned.status, 0, `${cloned.stdout}${cloned.stderr}`);
   if (spawnSync('git', ['show-ref', '--verify', '--quiet', 'refs/heads/main'], { cwd: root }).status !== 0) {
-    git(root, ['branch', 'main', git(repoRoot, ['rev-parse', 'refs/heads/main'])]);
+    git(root, ['branch', 'main', git(sourceRoot, ['rev-parse', 'refs/heads/main'])]);
   }
   const head = git(root, ['rev-parse', 'HEAD']);
   const refs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
@@ -1368,21 +1369,37 @@ await check(['runtime'], 'F-016 active-worktree reviewer role-only agent_prompt 
   assert.equal(git(repoRoot, ['status', '--porcelain=v1', '--untracked-files=all']), statusBefore);
 });
 
-await check(['runtime'], 'F-018 active-worktree reviewer read paths remain available', () => {
-  for (const [command, payload] of [
-    ['finding_list', { storyId: 'B-49df' }],
-    ['certification_window_status', { storyId: 'B-49df' }],
-  ]) {
-    const result = runCli(
-      repoRoot,
-      command,
-      payload,
-      { PROOF_OR_STOP_REVIEWER_READONLY: '1', PROOF_OR_STOP_AGENT: 'proof-or-stop-review-quality' },
-      { cwd: repoRoot },
-    );
+await check(['runtime', 'reviewer-read'], 'F-018 active-worktree reviewer read paths remain available', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-read-worktree-'));
+  fixtureRoots.push(root);
+  initRepo(root, false);
+  const storyId = 'B-f018', worktree = join(root, 'worktree');
+  const store = new StoryStore(root);
+  store.writeStory(storyId, {
+    storyId, name: 'reviewer-read-fixture', title: 'Reviewer reads remain available',
+    description: 'Private active-worktree read boundary fixture.', type: 'chore',
+    phase: 'DEV', priority: 'medium', createdAt: NOW, startedAt: NOW, endedAt: null,
+    worktree: { path: worktree, branch: `story/${storyId}`, createdAt: NOW },
+  });
+  store.writeChecklist(storyId, { items: [] });
+  git(root, ['add', '-f', '.proof-or-stop']);
+  git(root, ['commit', '-m', 'seed private reviewer read fixture']);
+  git(root, ['worktree', 'add', '-b', `story/${storyId}`, worktree]);
+  const before = snapshotGitMaterial(worktree);
+  for (const command of ['finding_list', 'certification_window_status']) {
+    const env = { PROOF_OR_STOP_REVIEWER_READONLY: '1', PROOF_OR_STOP_AGENT: 'proof-or-stop-review-quality' };
+    const result = runCli(worktree, command, { storyId }, env, { cwd: worktree });
     assert.equal(result.status, 0, `${command}: ${result.stdout}${result.stderr}`);
     assert.doesNotMatch(`${result.stdout}${result.stderr}`, /not allowed in read-only reviewer mode/i, command);
+    const misplaced = runCli(root, command, { storyId }, env, { cwd: root });
+    if (command === 'finding_list') {
+      assert.notEqual(misplaced.status, 0, `${command}: foreign cwd must still refuse`);
+      assert.match(`${misplaced.stdout}${misplaced.stderr}`, /must execute.*inside the worktree/i);
+    } else {
+      assert.equal(misplaced.status, 0, 'read-only certification diagnostics remain available from the repository root');
+    }
   }
+  assert.deepEqual(snapshotGitMaterial(worktree), before, 'reviewer reads must preserve material bytes');
 });
 
 await check(['inventory'], 'F-018 standard guidance assigns dispatch persistence to the Story owner', () => {
@@ -1446,8 +1463,10 @@ const IDENTITY_CUTOVER_REQUIRED_PATHS = Object.freeze([
   'packages/main/src/core/review-inventory-epoch.ts',
   'packages/main/src/core/review-run.ts',
   'packages/main/src/core/source-lineage-audit.ts',
+  'packages/main/src/core/verification-execution-evidence.ts',
   'packages/main/src/handlers/agent-prompt.ts',
   'packages/main/src/handlers/candidate-spec-routing.ts',
+  'packages/main/src/handlers/checklist.ts',
   'packages/main/src/handlers/done-effects.ts',
   'packages/main/src/handlers/playbook-runtime-memory.ts',
   'packages/main/src/handlers/playbook.ts',
@@ -1714,7 +1733,7 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
   assert.equal(verifierLines.length, 116, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '119a5c354afebc7ea70d208a5c41df138217a6ac82ef54b2699c7a1b40d790de', 'retired protocol identity verifier data context drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '3682dd57ad8b01787bcf8af06734b10ce37935c6b7cd093dc8d0cf8b46181a77', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -2411,6 +2430,7 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
 // Exact non-protocol classifications are obligations, never file exemptions.
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
+  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "a2e7b336fef8f59efd6d2b1955685b2b440059b7d74a08f291b4ad36aebed5f2", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
   {
     sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     canonical: 'proof-or-stop-finish-decision-boundary-',
@@ -2515,6 +2535,34 @@ const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
 // Each observed use is bound as well as its value: an existing role/path value
 // cannot silently authorize a new schema producer or a moved acceptance branch.
 const OWNED_IDENTITY_SITE_CONTEXTS = [
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",2,"b2272c84d648eadbca1dfa2c1d2629361ac2e5ca967740a7b76223ccb30d4047"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v1",3,"4c05dc6a06dda209a6b3c012a5695335f6fec81c6d728d482457206fe7d0267f"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v2",3,"7a26aa6c00db0c5ac11494b858642fa2015f4aab088ee4331a6c6494624eb1b8"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-identity.v1",2,"7ea346cece80347dedf317a977b42205c3c6dd96fafe7168cbb5c4c560a92b9d"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-key.v1",2,"899e8342d5ed31bb56ec93189f25410125c7863b9fdc16da5aa50aa944fc7076"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-lock.v1",2,"82693e17f4e5bf028726abb6d044ecc2c831474a728b698927fbe5f59518e47e"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-receipt.v2",2,"32871cbf8170d65116a38bdbfea7f7a5a4565de03654bd86c017b97231603e52"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-receipt.v3",6,"f997451030218b33fb575301382da97e9b9dadeda39b258f95bd6cb8d82a5dbc"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-ticket.v1",5,"c3398d425712a4a815118c367820018c48c8676d1198eda57b9ec2ee0c9c7fb7"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-output.v1",3,"17bc9c63c4bd06609b4470471ad0fba671befc9e4609c42a1367b17fd1829bf1"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-publication-binding.v1",4,"70bb9b1a24d4881689f1c1b2a3a26806b73d29434d66f1aefe70c3f799e2e6d0"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle-binding.v1",3,"57f8f93b0e30f6f104aa6dfcc6aa27e2af020c684d793a27558d7c9ac6645e27"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v2",3,"d8be8a1cf699ef5e0abca828258a8b033e547a6cbd1b5c05841ea108a6d98e3a"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v3",4,"1d1f0f652b610bf61289c8a9cf4a10357822f71c997b618ad02e0b122dbda2ec"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v4",6,"b76f8c79fa2371090e44678cfdf5eff00f3890a93b8e4522a51757217628a7f2"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-receipt-bundle.v5",9,"023d286de9552a42c4d3e71167481a9dfda47033892eb0ea74402e97f546da53"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record-authenticity.v1",3,"dd54d6ddceebf4f0266af639ba1b5c2d5e72785331b6cf70ca81929c3a952a4c"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record.v1",2,"467bd70741396cce3c7ff4133b8503c1ea1728fad55372540a5126e95046efa8"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-reuse-receipt.v1",2,"49cb86dacf51a745bcb97d13e2f1af5f67ed5387959d86063ab1590fbf9f6484"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",1,"6cdbe616948e4595c15ece6c9a50cb22bd41e5c6c186ed82c421e020c2d70849"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-product-reviewer",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-review-story-init",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-execution-receipt.v3",4,"90bcf066b48695e791b83bc4ecd7f810814367e614337f98be5421f819a40cdb"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-receipt-bundle.v5",8,"383c91ad3d84d8fcf33cb22dddf299c839556694309da73c5875ffa08a1456df"],
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",2,"594d7d8d86c1ee7608582e7da9cdaebb3a74646fccdff5abcb919f8ee763883b"],
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest.v1",3,"423fc8479e6108678ade451817d7b1d72fe6365fbfe9ade221c8978f6a72965d"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.inventory-verification-observation.v1",1,"22fe5b4a457d314f5fd429adbcb557fef1905cbf99649f531c3bed5d5321152b"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.verification-receipt-bundle.v5",1,"51aa57007901d8f5efb5f5afa2ae61410409a92432c562c6229916dc3c2aa72a"],
   ['packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1', 1, '5cd694d61af425589349b4cdcf96b38c2f9c975fb5208d5a9e40cf00c3ff523a'],
   ["docs/requirements/baselines/role-prompt-measurement-baseline.json","proof-or-stop-evaluator",1,"3ae040c8146a54c17e0d8374e9a03657bc5423ae0ab0cdc58c62785b623f93cc"],
   ["docs/requirements/baselines/role-prompt-measurement-baseline.json","proof-or-stop-evaluator-cli",1,"ef41eb8e08326223b08cfaf3106c314378a1ae95355134fae0ac849378eb8a41"],
@@ -2722,7 +2770,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",6,"f9a7abc6d2baef060529545da7cb3feca915d3dd979f8c7e0de567fd59f0d35b"],
+  ["proof-or-stop.config.json","proof-or-stop.config.json",12,"0d70f2d94210d2f879af7d3594f7bb9049796a98283af29dec47bd6c4738c04e"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2830,8 +2878,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/evidence-freshness.ts",
-    "occurrences": 41,
-    "contextSha256": "7aa3be99e6234277016fb035bc3c4c3af24436edc69e2c5cb69f72248994db7a"
+    "occurrences": 144,
+    "contextSha256": "04e24fb31a52eab5950edeb871d4b356cd579028bc8466c92fb60c2a90bd303f"
   },
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
@@ -2930,8 +2978,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/review-inventory-epoch.ts",
-    "occurrences": 43,
-    "contextSha256": "8d071f150b17fe33ac7d257a60cc6688d5823b23c1d6edf9ddc26780db97a624"
+    "occurrences": 56,
+    "contextSha256": "8eb9f73605d06fd23d4f24aaa3d45d2bc7d663fa3d5c30204a7768e326468610"
   },
   {
     "sourcePath": "packages/main/src/core/review-run.ts",
@@ -2944,6 +2992,11 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "contextSha256": "ee2d591e1f0fad9b2de7d1cde798eb873dd6e1fc743e6190109d8b6255debade"
   },
   {
+    "sourcePath": "packages/main/src/core/verification-execution-evidence.ts",
+    "occurrences": 281,
+    "contextSha256": "3b3d7d7febdc6d4b49d1e38eb7cbc5b74b442bc6c2fb1dad1db632d80739662e"
+  },
+  {
     "sourcePath": "packages/main/src/handlers/agent-prompt.ts",
     "occurrences": 114,
     "contextSha256": "14192ecc1400d34d2270633da2d887036b956df85fccf9046bac95a011e08ee7"
@@ -2952,6 +3005,11 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts",
     "occurrences": 88,
     "contextSha256": "6b97ed40a3168a4dbdcc1ff9ea84cc841d0c94cd6a34df55bab300a0f1940cf6"
+  },
+  {
+    "sourcePath": "packages/main/src/handlers/checklist.ts",
+    "occurrences": 775,
+    "contextSha256": "9c3d39556e11621ec95f771bd034e37d058b97fc6ce924e61a935681911dd393"
   },
   {
     "sourcePath": "packages/main/src/handlers/done-effects.ts",
@@ -2970,8 +3028,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/handlers/review-run.ts",
-    "occurrences": 185,
-    "contextSha256": "9b19c3ef707d8d9632c728237ebf10e69f99f0d675e83dcdf57be6047ad4463d"
+    "occurrences": 191,
+    "contextSha256": "8e87a07e632b094c6cc1b46b6ffe4a3e638584f1ec1fc409d1c5adc523e543bc"
   },
   {
     "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
@@ -2990,8 +3048,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 408,
-    "contextSha256": "8222b748248262e67f91c2344ba79d292998d6f8c84f54f4c4d49c5ab104aea9"
+    "occurrences": 434,
+    "contextSha256": "da1b1d6f45675f6ab6e773ab5b466f05773a4a1a43a595c9fbbc01271db1bf23"
   }
 ];
 
@@ -3402,11 +3460,7 @@ await check(['identity-cutover', 'identity-policy', 'identity-policy-boundary', 
 await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-boundary', 'f050', 'round24'], 'CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation', () => {
   const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
     .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
-  assert.equal(
-    new Set(registeredOperationPaths).size,
-    registeredOperationPaths.length,
-    'each active identity source path must have exactly one public-operation owner',
-  );
+  assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
   assert.deepEqual(
     [...IDENTITY_CUTOVER_REQUIRED_PATHS].filter((path) => !registeredOperationPaths.includes(path)),
     [],
@@ -4678,14 +4732,27 @@ function cleanupFixtureFindingKeys() {
   fixtureFindingKeyTargets.clear();
 }
 
-await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts require the actual fixture trust and reject missing or different keys', () => {
-  const sourceKey = join(commonGitDir, 'proof-or-stop-finding-ledger-v1.key');
+await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts require the private producer trust and reject missing or different keys', async () => {
+  // The test owns its producer, signed ledger and Git commit. An unrelated
+  // active Story need not have a committed ledger in main or a Lab checkout.
+  const producerRoot = createPublicOperationClone('proof-or-stop-finding-producer-', false);
+  const sourceStore = new StoryStore(producerRoot);
+  const { createAuthoritativeFindingMutation } = await import(join(distRoot, 'handlers/finding-ledger.js'));
+  createAuthoritativeFindingMutation({root: producerRoot, scanRoot: producerRoot, store: sourceStore})(
+    'B-49df', 'isolated-finding-trust-fixture', data => {
+      data.findings.push({id:'B-49df:F-lab-trust',desc:'Private fixture receipt authentication',status:'open',severity:'low',category:'missing'});
+      return {result: undefined};
+    });
+  const sourceKey = fixtureFindingKeyPath(producerRoot);
+  fixtureFindingKeyTargets.set(producerRoot, sourceKey);
   const sourceKeyBytes = readFileSync(sourceKey);
-  const sourceStore = new StoryStore(repoRoot);
   const sourceLedger = sourceStore.findingLedgerPath('B-49df');
   const sourceLedgerBytes = readFileSync(sourceLedger);
-  const sourceHead = git(repoRoot, ['rev-parse', 'HEAD']);
-  const root = createPublicOperationClone('proof-or-stop-finding-trust-', false);
+  git(producerRoot, ['add', '.proof-or-stop/story/actives/B-49df']);
+  git(producerRoot, ['-c','user.name=Lab fixture','-c','user.email=lab@example.test','commit','-qm','Record private signed Finding fixture']);
+  const sourceHead = git(producerRoot, ['rev-parse', 'HEAD']);
+  const realHead = git(repoRoot, ['rev-parse', 'HEAD']);
+  const root = createPublicOperationClone('proof-or-stop-finding-trust-', false, producerRoot);
   const fixtureRefs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
   const assertFixtureRefsUnchanged = () => assert.equal(
     git(root, ['for-each-ref', '--format=%(refname) %(objectname)']), fixtureRefs,
@@ -4704,23 +4771,25 @@ await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts r
     process.stdout.write(`PASS Finding fixture trust rejection: ${label}\n`);
   };
   assertRefused('missing key before repair');
-  const target = installFixtureFindingLedgerPrivateKey(root);
-  assert.throws(() => installFixtureFindingLedgerPrivateKey(root), { code: 'EEXIST' }, 'Never overwrite an existing fixture key');
-  assert.ok(store.readFindings('B-49df').findings.length > 0, 'Real authenticated Finding projection must be nonempty');
+  const target = writeFixtureFindingPrivateKey(root, sourceKeyBytes);
+  assert.throws(() => writeFixtureFindingPrivateKey(root, sourceKeyBytes), { code: 'EEXIST' }, 'Never overwrite an existing fixture key');
+  assert.ok(store.readFindings('B-49df').findings.length > 0, 'Production-authenticated private Finding projection must be nonempty');
   const admitted = readContext();
   assert.equal(admitted.status, 0, `${admitted.stdout}${admitted.stderr}`);
   assertCanonicalOperationResponse('review_incremental_context', payload, root, admitted.stdout);
-  process.stdout.write('PASS Finding fixture trust: original receipts authenticate with the real repository key\n');
+  process.stdout.write('PASS Finding fixture trust: original committed receipts authenticate with the private producer key\n');
   rmSync(target);
   assertRefused('removed copied key');
   writeFixtureFindingPrivateKey(root, `${randomBytes(32).toString('base64')}\n`);
   assertRefused('different fixture key');
+  assert.ok(ledgerBytes.equals(sourceLedgerBytes), 'Clone must preserve the original committed signed ledger bytes');
   assert.ok(readFileSync(ledger).equals(ledgerBytes), 'Fixture original receipt bytes must remain untouched');
   assert.ok(readFileSync(sourceLedger).equals(sourceLedgerBytes), 'Source Finding ledger bytes must remain untouched');
   assert.ok(readFileSync(sourceKey).equals(sourceKeyBytes), 'Source private-key bytes must remain untouched');
   // Other active worktrees and the host may change unrelated shared refs. The
   // helper only reads the source key; only the disposable clone receives writes.
-  assert.equal(git(repoRoot, ['rev-parse', 'HEAD']), sourceHead, 'Fixture trust must not alter the current Story HEAD');
+  assert.equal(git(producerRoot, ['rev-parse', 'HEAD']), sourceHead, 'Fixture trust must not alter the signed producer commit');
+  assert.equal(git(repoRoot, ['rev-parse', 'HEAD']), realHead, 'Fixture trust must not alter the repository HEAD');
   assertFixtureRefsUnchanged();
   fixtureFindingKeyPath(root); // Revalidate the private repository before its controlled ref mutation.
   const mutationRef = 'refs/proof-or-stop-fixture/finding-trust-negative';

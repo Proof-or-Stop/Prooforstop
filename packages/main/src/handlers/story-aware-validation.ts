@@ -404,6 +404,16 @@ function artifactDir(projectRoot: string, storyId: string): string {
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
 }
 
+/** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */
+export function readRoutineReuseRevocationBasis(projectRoot: string, storyId: string): string | null {
+  const path = join(artifactDir(projectRoot, storyId), 'revocation-ledger.json');
+  if (!existsSync(path)) return buildRevocationLedger([], []).digest;
+  try {
+    const ledger = JSON.parse(readFileSync(path, 'utf8')) as ReceiptRevocationLedger;
+    return verifyRevocationLedger(ledger) ? ledger.digest : null;
+  } catch { return null; }
+}
+
 /** Runtime state only; this path is covered by the runtime artifact registry. */
 export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: string): DynamicValidationArtifacts {
   const dir = artifactDir(projectRoot, storyId);

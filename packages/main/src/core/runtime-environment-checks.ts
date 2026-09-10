@@ -18,6 +18,7 @@ import {
 import { readBrandEnv } from './brand-env.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import { findBrandExport } from './version-bump.js';
+import ts from 'typescript';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -258,6 +259,10 @@ export interface ActiveIdentityOperationIdentitySite {
   };
   sourceOccurrences?: { canonical: number; retired: number };
   identityOrigin?: { sourcePath: string; exportName: string };
+  valueBinding?:
+    | { kind: 'export-const'; name: string }
+    | { kind: 'property'; name: string; functionName: string }
+    | { kind: 'comparison'; expression: string; functionName: string };
 }
 
 export interface ActiveIdentityOperationIdentityCase extends ActiveIdentityOperationIdentitySite {
@@ -439,12 +444,16 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     commands: Object.freeze(['review_incremental_context', 'review_run_start']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/evidence-freshness.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
       runtimeSource('packages/main/src/core/impact-classification-policy.ts'),
       runtimeSource('packages/main/src/core/review-incremental-context.ts'),
       runtimeSource('packages/main/src/handlers/review-run.ts'),
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
+      { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION' } },
+      identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
       identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identitySite(
@@ -464,6 +473,9 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     mutationCases: Object.freeze([
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1'),
       identityMutationCase('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identityMutationCase('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop.incremental-review-basis.v1'),
@@ -477,9 +489,36 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     commands: Object.freeze(['review_inventory_finalize', 'certification_window_begin', 'certification_window_status']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
+      runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/handlers/checklist.ts'),
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'comparison', expression: 'evidence.receipt.schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
+      { ...identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'), valueBinding: { kind: 'export-const', name: 'VERIFICATION_RECEIPT_BUNDLE_V5' } },
+      identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5', undefined, undefined, undefined, undefined, { canonical: 8, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop-verification-receipt-signer-v1.key", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-identity.v1", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-key.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-lock.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-ticket.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-output.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-publication-binding.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle-binding.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v2", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v3", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v4", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 4, retired: 0 }),
       identitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1", "proofbound.review-inventory-critic-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1", "proofbound.review-inventory-epoch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
@@ -490,6 +529,31 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     mutationCases: Object.freeze([
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop-verification-receipt-signer-v1.key"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-identity.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-key.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-lock.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-receipt.v3"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-execution-ticket.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-output.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-publication-binding.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle-binding.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v2"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v3"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-receipt-bundle.v4"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1"),
+      identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1"),
@@ -844,7 +908,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 1, retired: 0 }),
       identitySite("proof-or-stop.config.json", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json"),
+      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json", undefined, { canonical: 12, retired: 0 }),
       identitySite('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
       identitySite('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
       identitySite('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),
@@ -1042,7 +1106,7 @@ const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
-  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '9613a96140720f33a86a22029933a07857fee9513c2bb087295ad9f7bf1c3b61' },
+  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: 'cea5810c94b181ad7bf1dcf78daa178c7438c724b1cf877fb24874bf58145d8c' },
   { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
 ] as const;
 function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {
@@ -1093,6 +1157,67 @@ export function assertCanonicalActiveIdentityRuntime(input: {
  * CLI preflight, so a retired mutation can only be rejected here or by the
  * consumer's own parser/verifier.
  */
+// These reviewed executable modules own the declarations AND their producers/
+// consumers. A local syntactic decoy cannot authorize a different live dataflow.
+// Intentional implementation changes require explicit review and re-pinning;
+// the runtime never computes a new expected digest from the candidate itself.
+const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/evidence-freshness.ts': '2d02cb9a87a9059ad126c3715935a67d73b62d43102e7287b929211a64b5bdf6',
+  'packages/main/src/core/review-inventory-epoch.ts': 'b3aad15f12f3058cbb5118a92a02da599ea0d80092006165d32edae22cde8635',
+  'packages/main/src/core/verification-execution-evidence.ts': 'b3f8ccac871af23b30b2406467ed9731aa60a7ab9bab32436ab2d6ab42c600c8',
+  'packages/main/src/handlers/checklist.ts': '37796c83e6256e37945463cef2ddd457cae46dcc2858298b3d77eac346018bc9',
+});
+
+function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
+  const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
+  if (!expected) return;
+  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
+  const actual = createHash('sha256').update(canonical).digest('hex');
+  if (actual !== expected) throw new Error(`${label}/${sourcePath} consumer rejected active identity bytes; executable declaration/producer/consumer binding changed`);
+}
+
+function assertIdentitySiteValueBinding(site: ActiveIdentityOperationIdentitySite, text: string, label: string): void {
+  const binding = site.valueBinding;
+  if (!binding) return;
+  const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const values: Array<ts.Expression | undefined> = [];
+  if (binding.kind === 'export-const') {
+    for (const statement of source.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== binding.name) continue;
+        const isExportedConst = Boolean(statement.declarationList.flags & ts.NodeFlags.Const)
+          && statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+        values.push(isExportedConst ? declaration.initializer : undefined);
+      }
+    }
+  } else {
+    const functions = source.statements.filter((node): node is ts.FunctionDeclaration =>
+      ts.isFunctionDeclaration(node) && node.name?.text === binding.functionName);
+    if (functions.length === 1 && functions[0].body) {
+      const visit = (node: ts.Node): void => {
+        if (binding.kind === 'property' && ts.isPropertyAssignment(node)
+          && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && node.name.text === binding.name) {
+          values.push(node.initializer);
+        }
+        if (binding.kind === 'comparison' && ts.isBinaryExpression(node)
+          && node.left.getText(source).replace(/\s/g, '') === binding.expression) {
+          values.push(node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken ? node.right : undefined);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(functions[0].body);
+    }
+  }
+  // Comments, unrelated literals, computed expressions and duplicate selectors
+  // cannot satisfy the live declaration/producer/comparison contract.
+  if (values.length !== 1 || !values[0] || !ts.isStringLiteral(values[0]) || values[0].text !== site.canonical) {
+    const observed = values.map(value => value ? value.getText(source).slice(0, 256) : '<unsupported declaration>').join(', ') || '<missing binding>';
+    throw new Error(`${label}/${site.siteId} consumer rejected active identity value; expected exact ${site.canonical}; observed ${observed}`);
+  }
+}
+
 export function assertCanonicalActiveIdentityBoundary(input: {
   boundaryId: string;
   projectRoot?: string;
@@ -1105,6 +1230,8 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   if (!boundary) throw new Error(`unregistered active identity operation boundary: ${input.boundaryId}`);
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
+  const sourceSnapshots = new Map<string, string>();
+  const executableSources = new Map<string, string>();
   for (const site of boundary.identitySites) {
     const registeredPath = boundary.paths.find((candidate) => candidate.sourcePath === site.sourcePath);
     if (!registeredPath) throw new Error(`${boundary.id}/${site.siteId}: identity-site owner is not registered`);
@@ -1114,7 +1241,14 @@ export function assertCanonicalActiveIdentityBoundary(input: {
       if (registeredPath.scope === 'project') continue;
       throw new Error(`${boundary.id}/${site.siteId}: registered runtime identity-site bytes are missing`);
     }
-    const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, readFileSync(absolute, 'utf8'));
+    let sourceBytes = sourceSnapshots.get(absolute);
+    if (sourceBytes === undefined) {
+      sourceBytes = readFileSync(absolute, 'utf8');
+      executableSources.set(registeredPath.sourcePath, sourceBytes);
+      sourceSnapshots.set(absolute, sourceBytes);
+    }
+    const bytes = activeIdentitySourceBytes(registeredPath.sourcePath, sourceBytes);
+    assertIdentitySiteValueBinding(site, sourceBytes, boundary.id);
     if (site.identityOrigin) {
       // Only the five explicitly bound imported authorities are inspected; this
       // is not recursive dependency discovery or generic legacy admission.
@@ -1145,6 +1279,11 @@ export function assertCanonicalActiveIdentityBoundary(input: {
         `expected exact ${site.canonical} and no ${site.retired}`,
       );
     }
+  }
+  // Exact value checks remain independently operative; the final syntax guard
+  // then catches live rewiring and decoys that keep those values unchanged.
+  for (const [sourcePath, sourceBytes] of executableSources) {
+    assertIdentityExecutableSource(sourcePath, sourceBytes, boundary.id);
   }
 }
 // B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.

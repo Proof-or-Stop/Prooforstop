@@ -48,7 +48,7 @@ export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
   {
     id: 'verification-lifecycle-admissibility',
     owner: 'proof-admissibility',
-    semantics: 'Lifecycle coverage validates the V5 bundle, V3 execution, V2 assertion, required mode-specific V1 reuse lineage, immutable selector, bundle cross-links, and full-output artifact integrity; prose, legacy, malformed, or caller-shaped records cannot satisfy executable gates.',
+    semantics: 'Lifecycle coverage validates the V5 bundle, V3 execution, V2 assertion, required mode-specific V1 reuse lineage, immutable selector, bundle cross-links, and full-output artifact integrity; prose, legacy, malformed, or caller-shaped records cannot satisfy executable gates. Shared producer paths retain distinct public-operation identity sites and complete independent literal/import inventory; signer-key filenames and reviewer-role identities remain bound alongside receipt schemas.',
   },
   {
     id: 'verification-current-execution-identity',
@@ -110,7 +110,7 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'advisory',
     checker: 'resolveEntrypointAuthority',
     outputKey: 'runtimeEntrypointAuthority',
-    rationale: 'Every command in the command-policy-derived actual Story-write capability registry must execute the runtime belonging to the target self-project checkout, independent of owner/reviewer/dangerous/shared ownership class. Admitted extensions with intrinsic effective storyScopedMutating or reviewerWrite ownership share the same raw and final admission predicate without requiring a built-in command name. The command-bound active identity registry also rejects retired protocol bytes in each corresponding loaded producer/consumer before handlers or writes. An invalid prompt-envelope version checks its loaded boundary before the early config error, preserves the unsupported-version rejection prefix, and never falls back to defaults; valid config keeps its fast path. Eager role-policy rejection preserves unknown-role ordering and derives only missing canonical source sites from the independent package snapshot, never alias normalization. Argument-aware read-only variants remain diagnostic-only.',
+    rationale: 'Every command in the command-policy-derived actual Story-write capability registry must execute the runtime belonging to the target self-project checkout, independent of owner/reviewer/dangerous/shared ownership class. Admitted extensions with intrinsic effective storyScopedMutating or reviewerWrite ownership share the same raw and final admission predicate without requiring a built-in command name. The command-bound active identity registry also rejects retired protocol bytes in each corresponding loaded producer/consumer before handlers or writes. An invalid prompt-envelope version checks its loaded boundary before the early config error, preserves the unsupported-version rejection prefix, and never falls back to defaults; valid config keeps its fast path. Eager role-policy rejection preserves unknown-role ordering and derives only missing canonical source sites from the independent package snapshot, never alias normalization. The dependency manifest, manifest binding, inventory observation and receipt bundle are registered as exact active identity sites with coupled negative controls. The four registered executable modules include the actual verification receipt producer and checklist consumers, with independently reviewed syntax fingerprints binding their declaration, producer, consumer and neighbouring identity behavior against decoys and rewiring. Exact value checks execute before the syntax guard. One byte snapshot supplies all checks in each invocation. Root configuration references retain an exact occurrence binding. Argument-aware read-only variants remain diagnostic-only.',
     driftMessage: 'The active CLI runtime is not authoritative for the target self-project checkout.',
     repairHint: 'From the target checkout, retry the same command with `node bin/proof-or-stop.js`.',
   },
@@ -220,7 +220,16 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
 /** Conservative defaults consumed by official validation, independent of Lab. */
 export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   declaredInvocationCapacity: 2,
+  duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
+} as const;
+
+/** Optional explicit host transport pin; no package-version equality fallback. */
+export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
+  schema: 'execution-implementation.v1',
+  mismatch: 'refuse-before-dispatch',
+  missingWhenRequired: 'refuse',
+  scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;

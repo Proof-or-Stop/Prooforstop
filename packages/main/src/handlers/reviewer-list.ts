@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * B-fdcf CHK-001: proof-or-stop reviewer_list CLI
  *
@@ -280,7 +281,7 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
       let checklist: { items: unknown[] } = { items: [] };
       try {
         checklist = store.readChecklist(args.storyId);
-      } catch {
+      } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         /* no checklist yet — items.length = 0 → express */
       }
 

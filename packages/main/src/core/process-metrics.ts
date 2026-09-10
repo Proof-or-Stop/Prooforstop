@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * B-abd8 CHK-002: Six-dimension process metrics aggregator.
  * Computes StoryProcessMetrics from existing story artifacts.
@@ -600,7 +601,7 @@ export function computeProcessMetrics(
 
   let checklist: ChecklistData;
   try { checklist = store.readChecklist(storyId); }
-  catch { checklist = { items: [] }; }
+  catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); checklist = { items: [] }; }
 
   let review: ReviewData;
   try { review = store.readReview(storyId); }

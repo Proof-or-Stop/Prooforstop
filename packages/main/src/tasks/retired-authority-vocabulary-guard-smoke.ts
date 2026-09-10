@@ -288,7 +288,9 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/proof-admissibility-smoke.ts',
   'packages/main/src/tasks/provider-claude-smoke.ts',
   'packages/main/src/tasks/provider-codex-smoke.ts',
-  'packages/main/src/tasks/quorum-submit-smoke.ts',
+  // B-e40f moved the existing negative compatibility assertions into this module.
+  // Transfer the exact structural quarantine; the coordinator wrapper is no longer exempt.
+  'packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts',
   'packages/main/src/tasks/repair-retry-integration-smoke.ts',
   'packages/main/src/tasks/repair-retry-loop-smoke.ts',
   'packages/main/src/tasks/review-assurance-floor-smoke.ts',
@@ -366,7 +368,8 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   ['packages/main/src/core/closeout-trust.ts', 'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
-  ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
+  // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
+  ['packages/main/src/handlers/delivery-context-pack.ts', '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9'],
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.
@@ -475,7 +478,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', 'b03c095a373bbbad19811ffc40e280800a92dbc67489dcc82e06fe00a57c2473'],
+  ['packages/main/src/cli-engine.ts', '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -564,7 +567,12 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -1739,7 +1747,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-7abb's bounded reference witnesses and B-49df's active-identity mutation
   // controls are both present. The fixed producer, loader relation, anchor,
   // argument and node:url provenance remain protected.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '202e04839a3e2eac0ef6b9ec93ff00052f55047a8d0d39575c72396ad9d56399'],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '03a0f5091afb52ae230d43227b93d8b87b1a0fcef836f7589aa32b817525f0a2'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -1814,7 +1822,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
+  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
+  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
+  // The change reads address() on the same returned GraphServer and closes that
+  // server if its reported port is invalid; it adds no loader or caller-chosen
+  // module path. Keep the exact-source, drift and producer-provenance controls.
+  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -5413,8 +5426,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
  * refreshed the digest to make the guard green. That is the whole point: if these controls
  * relied on fingerprint drift they would prove nothing about the provenance check.
  */
-function assertLoaderArgumentProvenance(): void {
+function assertLoaderArgumentProvenance(onlyFile?: string): { filesChecked: number; mutantsChecked: number } {
+  if (onlyFile !== undefined) assert.ok(APPROVED_LOADER_ARGUMENT_PROVENANCE.has(onlyFile), 'selected loader proof must exist');
+  let filesChecked = 0;
+  let mutantsChecked = 0;
   for (const [file, pin] of APPROVED_LOADER_ARGUMENT_PROVENANCE) {
+    if (onlyFile !== undefined && file !== onlyFile) continue;
+    filesChecked += 1;
     const original = readRel(file);
     assert.ok(original.includes(pin.argument), `provenance pin argument must exist verbatim in ${file}`);
     assert.deepEqual(
@@ -5584,6 +5602,7 @@ function assertLoaderArgumentProvenance(): void {
     ];
 
     for (const [label, mutated] of mutants) {
+      mutantsChecked += 1;
       assert.notEqual(mutated, original, `${label} control must actually mutate ${file}`);
       assert.ok(mutated.includes(pin.argument), `${label} control must keep the pinned argument text byte-identical`);
       const mutantFingerprint = canonicalAstFingerprint(file, mutated);
@@ -5595,6 +5614,7 @@ function assertLoaderArgumentProvenance(): void {
       );
     }
   }
+  return { filesChecked, mutantsChecked };
 }
 
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
@@ -5960,6 +5980,18 @@ function assertGeneratedHelp(): Violation[] {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+// Explicit Lab proof scope. The configured no-argument entry below still runs
+// every original guard, including unrelated baseline failures. Its PASS marker
+// is never emitted by this focused maintenance proof.
+if (process.argv.includes('--lab-graph-loader-proof')) {
+  assert.deepEqual(process.argv.slice(2), ['--lab-graph-loader-proof'], 'Lab proof does not accept combined or ambiguous selection');
+  assertDynamicCodeGenerationPositiveControls();
+  const coverage = assertLoaderArgumentProvenance('packages/main/src/handlers/graph.ts');
+  assert.deepEqual(coverage, { filesChecked: 1, mutantsChecked: 14 }, 'Graph proof retains every current provenance mutant');
+  process.stdout.write(`LAB_GRAPH_LOADER_PROOF_GREEN ${JSON.stringify(coverage)}\n`);
+  process.exit(0);
 }
 
 const violations: Violation[] = [];

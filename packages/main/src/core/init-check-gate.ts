@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * Init Check gate/hash primitives — core signature + gate helpers for init-check.json.
  *
@@ -379,7 +380,7 @@ export function recomputeInitCheckHash(
   try {
     const checklist = store.readChecklist(storyId);
     items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     // checklist.json does not exist → compute hash with empty array; semantically equivalent to "uninitialized checklist" on the gate side.
   }
   const checklistHash = computeChecklistHash(items);

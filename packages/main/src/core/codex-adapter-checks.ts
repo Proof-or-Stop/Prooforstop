@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
@@ -1133,7 +1134,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
     return codexTouchpointPattern().test(haystack);
-  } catch {
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return false;
   }
 }

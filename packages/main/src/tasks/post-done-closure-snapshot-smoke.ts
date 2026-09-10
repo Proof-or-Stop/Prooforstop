@@ -38,6 +38,10 @@ import { createReviewRunHandlers } from '../handlers/review-run.js';
 import { createFindingHandlers } from '../handlers/finding.js';
 import type { HandlerContext } from '../handlers/context.js';
 
+// This standalone fixture must also run after validation strips host identity.
+process.env.PROOF_OR_STOP_SESSION_ID = 'fixture-post-done-closure';
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+
 const STORY_ID = 'B-postdone';
 const NOW = '2026-06-29T19:30:00.000Z';
 

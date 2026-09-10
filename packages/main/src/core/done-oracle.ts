@@ -1,3 +1,4 @@
+import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 /**
  * B-37e9 DONE Oracle Extraction: buildDoneChecklist + DONE row assembly.
  *
@@ -684,7 +685,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         }));
       }
     }
-  } catch { /* ignore */ }
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* ignore */ }
 
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
   const deliveryCheckFreshness = donePredicates ? donePredicateValue<ReturnType<typeof evaluateDeliveryCheckFreshness>>(donePredicates, 'delivery-presence') : evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
@@ -789,7 +790,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       }));
     } else {
       let checklistData: ChecklistData | null = null;
-      try { checklistData = store.readChecklist(storyId); } catch { /* no checklist */ }
+      try { checklistData = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* no checklist */ }
       const refResult = evaluateDeclaredArtifactReferences(declared, checklistData, deliveryCheck);
       const referenced = refResult.total - refResult.unreferenced.length;
       if (refResult.unreferenced.length > 0) {

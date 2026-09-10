@@ -50,12 +50,12 @@ const expectedRuntimePrunes = [
   '.proof-or-stop/story/actives/B-7abb/activity.jsonl',
   '.proof-or-stop/story/actives/B-7abb/owner-lease.json',
   '.proof-or-stop/story/actives/B-7abb/breaker-state.json',
-  '.lattice/story/actives/B-7abb/gate-failure-counts.json',
+  '.proof-or-stop/story/actives/B-7abb/gate-failure-counts.json',
   '.proof-or-stop/runtime/validation-traces/B-aa5f.jsonl',
   '.proof-or-stop/story/actives/B-aa5f/activity.jsonl',
   '.proof-or-stop/story/actives/B-aa5f/owner-lease.json',
   '.proof-or-stop/story/actives/B-aa5f/breaker-state.json',
-  '.lattice/story/actives/B-aa5f/gate-failure-counts.json',
+  '.proof-or-stop/story/actives/B-aa5f/gate-failure-counts.json',
 ];
 const expectedMeasuredPaths = [
   '.proof-or-stop/story/actives/B-7abb/index.json',

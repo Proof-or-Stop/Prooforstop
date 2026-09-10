@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -50,6 +51,10 @@ import { signScopeCheck } from '../handlers/scope-check.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
+const probeOptions=process.argv.slice(2);
+assert.ok(probeOptions.length<=1&&probeOptions.every(arg=>/^--probe-jobs=[1-4]$/.test(arg)),'INVALID_ACCEPTANCE_PROBE_JOBS');
+const probeJobs=Number(probeOptions[0]?.slice('--probe-jobs='.length)??'1');
+const execFileAsync=promisify(execFile);
 const storyId = 'B-basis-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 
@@ -1643,15 +1648,39 @@ try {
     adapterResults: [], discoveryMethods: [], discoveryProfileRef: 'forged', discoveryProfileDigest: 'forged',
     sourceInventoryRefs: [], plannedPathRecords: [], receipt: {}, binding: {}, evidence: {}, verdict: 'pass', authority: 'forged',
   };
-  for (const command of ['acceptance_basis', 'acceptance_basis_generate']) {
-    for (const [field, value] of Object.entries(forbiddenFields)) {
-      const forged = run(root, command, { storyId, [field]: value }, true);
-      assert.match(forged, /Forbidden|never|invalid|expected|unsupported caller fields/i, `${command} rejects caller ${field}`);
-      assert.deepEqual(fullSnapshot(), snapshot, `${command} ${field} rejection is atomic`);
-      assert.throws(() => directHandlers[command]({ storyId, [field]: value }), /unsupported caller fields/, `direct ${command} rejects caller ${field}`);
-      assert.deepEqual(fullSnapshot(), snapshot, `direct ${command} ${field} rejection is atomic`);
+  // Every row is an immutable rejection probe; actual CLI and direct-handler
+  // assertions remain per row. The matrix shares the frozen fixture only while
+  // all calls must refuse before writing; each completion rechecks atomicity.
+  const probes=['acceptance_basis','acceptance_basis_generate'].flatMap(command=>Object.entries(forbiddenFields).map(([field,value])=>({command,field,value})));
+  assert.equal(probes.length,58,'all forbidden fields and both consumers must remain covered');
+  const probeHead=git(root,['rev-parse','HEAD']);
+  let nextProbe=0,activeProbes=0,peakProbes=0;
+  const completedProbes:string[]=[],probeFailures:unknown[]=[];
+  await Promise.all(Array.from({length:probeJobs},async()=>{
+    while(nextProbe<probes.length){
+      const {command,field,value}=probes[nextProbe++];
+      try{
+        let forged='';activeProbes++;peakProbes=Math.max(peakProbes,activeProbes);
+        try{const result=await execFileAsync(process.execPath,[cliPath,'--root',root,command,JSON.stringify({storyId,[field]:value})],{
+          cwd:root,env:{...process.env,PROOF_OR_STOP_SESSION_ID:'acceptance-basis-smoke',PROOF_OR_STOP_AGENT:'proof-or-stop-implementer'},encoding:'utf8',timeout:30000,maxBuffer:1024*1024,
+        });throw new Error('FORBIDDEN_PROBE_UNEXPECTED_SUCCESS: '+result.stdout);}
+        catch(error:any){
+          if(error.killed||error.signal||typeof error.code!=='number'||error.code===0)throw error;
+          forged=`${String(error.stdout||'')}${String(error.stderr||'')}${String(error.message||'')}`;}
+        finally{activeProbes--;}
+        assert.match(forged,/Forbidden|never|invalid|expected|unsupported caller fields/i,`${command} rejects caller ${field}`);
+        assert.deepEqual(fullSnapshot(),snapshot,`${command} ${field} rejection is atomic`);
+        assert.throws(()=>directHandlers[command]({storyId,[field]:value}),/unsupported caller fields/,`direct ${command} rejects caller ${field}`);
+        assert.deepEqual(fullSnapshot(),snapshot,`direct ${command} ${field} rejection is atomic`);
+        assert.equal(git(root,['rev-parse','HEAD']),probeHead,'rejected probes must not commit shared state');
+        completedProbes.push(`${command}:${field}`);
+      }catch(error){probeFailures.push(error);}
     }
-  }
+  }));
+  assert.equal(probeFailures.length,0,probeFailures.map(String).join('\n'));
+  assert.deepEqual(completedProbes.sort(),probes.map(({command,field})=>`${command}:${field}`).sort(),'every forbidden field must run exactly once');
+  assert.ok(peakProbes<=probeJobs&&(probeJobs===1||peakProbes>1),'requested bounded concurrency must actually execute');
+  console.log('ACCEPTANCE_FORBIDDEN_FIELD_COVERAGE '+JSON.stringify({count:completedProbes.length,jobs:probeJobs,peak:peakProbes,ids:completedProbes}));
   const replayedOutput = run(root, 'acceptance_basis_generate', { storyId, evidence: JSON.parse(readOne) }, true);
   assert.match(replayedOutput, /Forbidden|never|invalid|unsupported caller fields/i, 'rendered diagnostic output cannot be replayed as authority');
   assert.deepEqual(fullSnapshot(), snapshot, 'output replay rejection is atomic');

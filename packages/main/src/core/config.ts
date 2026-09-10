@@ -216,6 +216,10 @@ export interface ProofOrStopConfig {
   };
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
+    /** Exact-input result sharing is independent of dynamic test selection. */
+    sharedExecution?: boolean;
+    /** Opt in to strict whole-PASS reuse while retaining observe-only selection diagnostics. */
+    reuseFreshRoutinePass?: boolean;
     command?: string;
     dynamic?: {
       mode?: DynamicValidationModeConfig;
@@ -458,6 +462,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_resume',  // B-bbaf CHK-003: human-only ack that clears a convergence-breaker freeze; a freeze can occur at story_advance in ANY phase, so the ack must be available in every phase (declared allowedPhases:all storyScopedMutating in command-policy; refused under autopilot/non-interactive)
   ],
   INIT: [
+    'verification_intent_recover',
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
     'story_update', 'checklist_update',
     'init_check_set', // B-e71f CHK-003: proof-or-stop-review-story-init reviewer 在 INIT 阶段写 init-check.json
@@ -468,10 +473,12 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'original_intent_snapshot_set',
   ],
   INIT_CHECK: [
+    'verification_intent_recover',
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
@@ -499,9 +506,11 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'verification_intent_append',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
     'light_review',
@@ -530,6 +539,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
     // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
@@ -562,6 +572,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   TEST: [
+    'verification_intent_recover',
     'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',
