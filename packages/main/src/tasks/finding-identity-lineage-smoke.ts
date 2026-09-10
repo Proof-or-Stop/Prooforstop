@@ -147,7 +147,23 @@ try {
         uncertaintyReason: 'Unverified candidate for target review, no current Finding authority.', evidenceRefs: ['source.mjs:1'], severity: 'low', recheckTriggers: ['owner_invalid', 'expiry_reached'] });
       assert.equal(route.rows.length, 1); assert.equal(route.rows[0].envelope.payload.gateEvidence, false);
       invoke(from, sourceSession, 'finding_add', { storyId: sourceId, desc: 'Independent durable source observation from linked worktree: observedDefect returns two, not the required three.', severity: 'high', category: 'edge', files: ['source.mjs'], evidenceState: 'verified', idempotencyKey: 'linked-finding' });
-      const sourceStore = new StoryStore(from); const before = sourceStore.readFindingLedger(sourceId);
+      const sourceStore = new StoryStore(from);
+      const ledgerPath = sourceStore.storyFilePath(sourceId, 'finding-ledger.json');
+      const ledgerBeforeContributorProbe = readFileSync(ledgerPath, 'utf8');
+      const sourceSigner = findingLedgerSignerFromWorkspace(from);
+      const sourceLock = sourceStore.runtimeLockDirPath(sourceId, 'finding', 'findings');
+      withMkdirLock(sourceLock, () => {
+        const fence = captureMkdirLockFence(sourceLock);
+        appendFindingLedger({ storyId: sourceId, store: sourceStore, operation: 'append_canonical_defect', idempotencyKey: 'foreign-active-canonical-probe',
+          records: [{ recordType: 'canonical_defect', payload: { fixture: 'foreign-active-canonical-probe' } }],
+          writerSessionId: sourceSession, writerLeaseId: sourceSession, writerFenceToken: fence.writerFenceToken, fence, signer: sourceSigner });
+      }, { requireHolderToken: true });
+      const targetContext = { root: to, scanRoot: to, store: new StoryStore(to) };
+      const foreignContributor = identityCatalogContributor(targetContext, sourceId, ['canonical_defect']);
+      assert.ok(foreignContributor, 'F028_FOREIGN_ACTIVE_CATALOG missing signed contributor that exists only in another active Story worktree');
+      assert.equal(realpathSync(foreignContributor.root), realpathSync(from), 'F028_FOREIGN_ACTIVE_CATALOG resolved the wrong signed Story workspace');
+      writeFileSync(ledgerPath, ledgerBeforeContributorProbe);
+      const before = sourceStore.readFindingLedger(sourceId);
       const key = join(main, '.git', 'proof-or-stop-finding-ledger-v1.key'); const keyBytes = readFileSync(key);
       // Fixture-only terminal transition and real Git merge/removal. This proves
       // durable history transport, not that this fixture passed lifecycle gates.
