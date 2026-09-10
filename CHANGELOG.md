@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab b03b7-progress-transition-coverage - v0.3.309 - 2026-09-10
+
+# B-03b7 progress-transition coverage
+
+This bounded Lab closes finding B-03b7:F-047 without changing production behavior. It adds executable positive controls and one-axis negative checks proving that a signed failed target-test result, a regressive target-status transition, and independently substituted predecessor baseline or projection digests cannot count as semantic progress. Each refusal also proves that the target finding ledger remains unchanged.
+
+RED was recorded by `red-b03b7-progress-transition-coverage.mjs` before the cases existed. GREEN replays the same check after the test additions. The complete `finding-identity-lineage-smoke --section=routes` run reports 57 passing and 0 failed cases.
+
+The Lab was synchronized with local main at Proof-or-Stop 0.3.308 before the final GREEN. The replay exited with status 0 and emitted `B03B7_PROGRESS_TRANSITION_COVERAGE PASS`; `npm run test:process-fact-contract` also passed with the current 539-entry process-fact registry. A bounded read-only Claude CLI audit independently reviewed only the two changed test files and returned `APPROVE`, confirming that all three F-047 transition classes are exercised through the intended production branches. No production source behavior was changed.
+
+Maintenance provenance: codex/lab-b03b7-progress-transition-coverage, repair c72086ee86aedba4c490f3e38579e6ac53fc8b44.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-progress-transition-coverage.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab repro-first-plan-integration-0306 - v0.3.308 - 2026-09-10
 
 # Repro-first lifecycle-entry maintenance
