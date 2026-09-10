@@ -13,3 +13,12 @@ GREEN: same exact test command, no change to holder duration, heartbeat20ms, pol
 Audit: Claude independently reviews source delta, raw RED/GREEN output, original activity calculations and scope. The original expensive250-case identity test is unchanged and need not be rerun to compare this queue repair. Existing targeted runtime/ownership regressions run when relevant.
 
 Completion statements: claim only measured refusal latency/launch prevention, current observed timing coverage and enrolled probe scope. Full Story end-to-end benefit and migration of foreign owner/reviewer processes still require actual deployment/follow-up evidence; Lab cannot invent those records.
+
+Second bounded measurement repair, after queue repair3b0b8530: the frozen24-hour
+activity cohort has897 rows with session/entrypoint labels and no implementation
+digest. This does not prove non-adoption. Test actual ordinary/Codex CLI commands
+in a private Git root with the existing read-only-recording opt-in. RED must show
+that successful pinned entry checks fail to persist their actual digest/entry/PID
+in those records. GREEN reuses the already checked in-memory identity, marks
+unbound calls unverified, retains default read-only behavior and rejects wrong
+pins before any success record. It does not migrate foreign running sessions.
