@@ -442,6 +442,19 @@ async function main() {
       check(Boolean(entry?.externalSeverity), `runtime fact ${id} missing externalSeverity`);
       check(checksSource.includes(`case '${entry?.checker}'`), `runtime checker not wired: ${entry?.checker} for ${id}`);
     }
+    check(typeof registryModule.projectRuntimeFactRegistry === 'function', 'runtime registry must export its whole-registry projection');
+    check(typeof registryModule.projectComponentRuntimeFactMapping === 'function', 'runtime registry must export its component-filtered projection');
+    if (typeof registryModule.projectRuntimeFactRegistry === 'function') {
+      const projection = registryModule.projectRuntimeFactRegistry();
+      check(projection.length === registry.length && projection.length > 0, 'runtime registry component mapping must be total');
+      check(projection.every(entry => !Object.hasOwn(entry, 'generatedFrom')), 'whole runtime registry projection must omit generatedFrom');
+      try {
+        registryModule.projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]);
+        fail('runtime registry verifier accepted a missing mapping');
+      } catch (error) {
+        check(error?.code === 'registry-component-mapping-unavailable', 'runtime registry missing mapping must use the typed unavailable diagnostic');
+      }
+    }
   }
 
   if (verificationEvidenceModule) {

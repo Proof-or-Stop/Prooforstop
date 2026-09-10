@@ -102,8 +102,15 @@ export const RUNTIME_FACT_OUTPUT_KEYS = {
 
 export type RuntimeFactOutputKey = typeof RUNTIME_FACT_OUTPUT_KEYS[RuntimeFactId];
 
+export type RuntimeFactKind = 'environment-check';
+
 export interface RuntimeFactRegistryEntry {
   id: RuntimeFactId;
+  runtimeFactId: string;
+  kind: RuntimeFactKind;
+  paths: readonly string[];
+  componentId?: string;
+  generatedFrom?: string;
   scope: RuntimeFactScope;
   selfSeverity: RuntimeFactSeverity;
   externalSeverity: RuntimeFactSeverity;
@@ -117,6 +124,9 @@ export interface RuntimeFactRegistryEntry {
 export const RUNTIME_FACT_REGISTRY = [
   {
     id: 'entrypoint-authority',
+    runtimeFactId: 'entrypoint-authority',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'hard',
     externalSeverity: 'advisory',
@@ -128,6 +138,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'cli-entrypoint',
+    runtimeFactId: 'cli-entrypoint',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'hard',
     externalSeverity: 'warn',
@@ -139,6 +152,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'global-core-realpath',
+    runtimeFactId: 'global-core-realpath',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'hard',
     externalSeverity: 'warn',
@@ -150,6 +166,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'project-local-bin',
+    runtimeFactId: 'project-local-bin',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'warn',
     externalSeverity: 'warn',
@@ -161,6 +180,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'node-version',
+    runtimeFactId: 'node-version',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'warn',
     externalSeverity: 'advisory',
@@ -172,6 +194,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'package-version',
+    runtimeFactId: 'package-version',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'hard',
     externalSeverity: 'advisory',
@@ -183,6 +208,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'validate-source',
+    runtimeFactId: 'validate-source',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'warn',
     externalSeverity: 'warn',
@@ -194,6 +222,9 @@ export const RUNTIME_FACT_REGISTRY = [
   },
   {
     id: 'external-reference-policy',
+    runtimeFactId: 'external-reference-policy',
+    kind: 'environment-check',
+    paths: ['packages/main/src/core/runtime-environment-checks.ts'],
     scope: 'all',
     selfSeverity: 'warn',
     externalSeverity: 'warn',
@@ -204,6 +235,146 @@ export const RUNTIME_FACT_REGISTRY = [
     repairHint: 'Document the owning health command or mark the reference as policy-only; localhost examples are treated as internal.',
   },
 ] as const satisfies readonly RuntimeFactRegistryEntry[];
+
+export interface RuntimeFactRegistryProjectionEntry {
+  runtimeFactId: string;
+  kind: RuntimeFactKind;
+  paths: string[];
+  componentId?: string;
+}
+
+export interface ComponentRuntimeFactMappingEntry {
+  runtimeFactId: string;
+  componentId: string;
+  path: string;
+  generatedFrom?: string;
+}
+
+export type RuntimeFactRegistryMappingFailure =
+  | 'runtime-missing'
+  | 'runtime-ambiguous'
+  | 'runtime-non-total'
+  | 'runtime-generated-without-lineage';
+
+export class RuntimeFactRegistryMappingError extends Error {
+  readonly code = 'registry-component-mapping-unavailable' as const;
+
+  constructor(readonly reason: RuntimeFactRegistryMappingFailure, detail: string) {
+    super(`registry-component-mapping-unavailable: ${reason}: ${detail}`);
+    this.name = 'RuntimeFactRegistryMappingError';
+  }
+}
+
+const GENERATED_RUNTIME_FACT_PATH_PREFIXES = [
+  '.claude/agents/',
+  '.proof-or-stop-codex/agents/',
+  'packages/main/dist/',
+] as const;
+
+function compareRuntimeFactUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'));
+}
+
+function normalizeRuntimeFactPath(value: unknown, reason: RuntimeFactRegistryMappingFailure): string {
+  if (typeof value !== 'string' || value.length === 0 || value.trim() !== value || value.includes('\0')) {
+    throw new RuntimeFactRegistryMappingError(reason, 'path must be a non-empty exact string');
+  }
+  const slashPath = value.replaceAll('\\', '/');
+  if (pathPosix.isAbsolute(slashPath)) {
+    throw new RuntimeFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
+  }
+  const normalized = pathPosix.normalize(slashPath).replace(/^\.\//u, '');
+  if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
+    throw new RuntimeFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
+  }
+  return normalized;
+}
+
+function normalizeRuntimeFactMappingEntry(entry: Partial<RuntimeFactRegistryEntry>): {
+  runtimeFactId: string;
+  kind: RuntimeFactKind;
+  paths: string[];
+  componentId?: string;
+  generatedFrom?: string;
+} {
+  if (typeof entry?.runtimeFactId !== 'string' || entry.runtimeFactId.length === 0
+    || entry.runtimeFactId.trim() !== entry.runtimeFactId || entry.kind !== 'environment-check'
+    || !Array.isArray(entry.paths)) {
+    throw new RuntimeFactRegistryMappingError('runtime-missing', 'runtimeFactId, kind, and paths are required');
+  }
+  if (entry.paths.length === 0) {
+    throw new RuntimeFactRegistryMappingError('runtime-non-total', `${entry.runtimeFactId} has no mapped path`);
+  }
+  const paths = entry.paths.map(path => normalizeRuntimeFactPath(path, 'runtime-non-total')).sort(compareRuntimeFactUtf8);
+  if (new Set(paths).size !== paths.length) {
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', `${entry.runtimeFactId} maps the same normalized path more than once`);
+  }
+  const componentId = entry.componentId;
+  if (componentId !== undefined && (typeof componentId !== 'string' || componentId.length === 0 || componentId.trim() !== componentId)) {
+    throw new RuntimeFactRegistryMappingError('runtime-non-total', 'componentId must be a non-empty exact string');
+  }
+  const generatedFrom = entry.generatedFrom === undefined
+    ? undefined
+    : normalizeRuntimeFactPath(entry.generatedFrom, 'runtime-non-total');
+  if (componentId && paths.some(path => GENERATED_RUNTIME_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix)))
+    && generatedFrom === undefined) {
+    throw new RuntimeFactRegistryMappingError(
+      'runtime-generated-without-lineage',
+      `${entry.runtimeFactId} maps a generated component path without generatedFrom`,
+    );
+  }
+  return { runtimeFactId: entry.runtimeFactId, kind: entry.kind, paths, componentId, generatedFrom };
+}
+
+/** Complete §4 projection. It deliberately omits generatedFrom. */
+export function projectRuntimeFactRegistry(
+  entries: readonly Partial<RuntimeFactRegistryEntry>[] = RUNTIME_FACT_REGISTRY,
+): RuntimeFactRegistryProjectionEntry[] {
+  const normalized = entries.map(normalizeRuntimeFactMappingEntry);
+  const ids = normalized.map(entry => entry.runtimeFactId);
+  if (new Set(ids).size !== ids.length) {
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', 'runtimeFactId values must be unique');
+  }
+  return normalized
+    .map(({ runtimeFactId, kind, paths, componentId }) => ({
+      runtimeFactId,
+      kind,
+      paths,
+      ...(componentId === undefined ? {} : { componentId }),
+    }))
+    .sort((left, right) => compareRuntimeFactUtf8(left.runtimeFactId, right.runtimeFactId));
+}
+
+/** Complete §12 component projection. It never consults checker/output/rationale hints. */
+export function projectComponentRuntimeFactMapping(
+  componentId: string,
+  entries: readonly Partial<RuntimeFactRegistryEntry>[] = RUNTIME_FACT_REGISTRY,
+): ComponentRuntimeFactMappingEntry[] {
+  if (typeof componentId !== 'string' || componentId.length === 0 || componentId.trim() !== componentId) {
+    throw new RuntimeFactRegistryMappingError('runtime-non-total', 'componentId is required');
+  }
+  const normalized = entries.map(normalizeRuntimeFactMappingEntry);
+  const ids = normalized.map(entry => entry.runtimeFactId);
+  if (new Set(ids).size !== ids.length) {
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', 'runtimeFactId values must be unique');
+  }
+  const tuples = normalized
+    .filter(entry => entry.componentId === componentId)
+    .flatMap(entry => entry.paths.map(path => ({
+      runtimeFactId: entry.runtimeFactId,
+      componentId,
+      path,
+      ...(entry.generatedFrom === undefined ? {} : { generatedFrom: entry.generatedFrom }),
+    })))
+    .sort((left, right) => compareRuntimeFactUtf8(left.runtimeFactId, right.runtimeFactId)
+      || compareRuntimeFactUtf8(left.path, right.path)
+      || compareRuntimeFactUtf8(left.generatedFrom ?? '', right.generatedFrom ?? ''));
+  const tupleKeys = tuples.map(tuple => `${tuple.runtimeFactId}\0${tuple.componentId}\0${tuple.path}\0${tuple.generatedFrom ?? ''}`);
+  if (new Set(tupleKeys).size !== tupleKeys.length) {
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', `duplicate component tuple for ${componentId}`);
+  }
+  return tuples;
+}
 
 export function runtimeFactIds(): RuntimeFactId[] {
   return RUNTIME_FACT_REGISTRY.map((entry) => entry.id);
@@ -339,3 +510,4 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;
+import { posix as pathPosix } from 'node:path';

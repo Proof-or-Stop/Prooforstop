@@ -10807,6 +10807,39 @@ assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunSt
 
 assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicValidationPreflightFallbackReasons(projectRoot, dynamic)'), 'dynamic rejection preflight must guard real validation launch');
 assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('storedDynamicReceiptIntegrityReasons'), 'TEST admissibility must recheck stored dynamic receipt integrity');
+
+// P0m: the source parser above remains authoritative for declared semantics,
+// while the compiled projection proves the complete runtime registry is
+// deterministic and refuses an unavailable mapping instead of dropping it.
+{
+  const mappingSource = read(processFactRegistryPath);
+  for (const token of [
+    'projectProcessFactRegistry',
+    'projectComponentProcessFactMapping',
+    'registry-component-mapping-unavailable',
+    'process-generated-without-lineage',
+    'runtime:registry_component_mapping_projection',
+  ]) assert(mappingSource.includes(token), `${processFactRegistryPath}: P0m mapping contract missing ${token}`);
+  const mappingModule = await importBuiltModule('packages/main/dist/core/process-fact-registry.js');
+  assert(Boolean(mappingModule), 'compiled process fact registry mapping should exist; run npm run build first');
+  if (mappingModule) {
+    const projection = mappingModule.projectProcessFactRegistry();
+    assert(projection.length === mappingModule.PROCESS_FACT_REGISTRY.length && projection.length > 0,
+      'process registry component mapping must be total');
+    assert(projection.every(entry => !Object.hasOwn(entry, 'generatedFrom')),
+      'whole process registry projection must omit generatedFrom');
+    const p0m = mappingModule.projectComponentProcessFactMapping('P0m');
+    assert(p0m.length > 0 && p0m.every(entry => entry.componentId === 'P0m'),
+      'P0m component-filtered process mapping must be explicit and non-empty');
+    try {
+      mappingModule.projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]);
+      fail('process registry verifier accepted a missing mapping');
+    } catch (error) {
+      assert(error?.code === 'registry-component-mapping-unavailable',
+        'process registry missing mapping must use the typed unavailable diagnostic');
+    }
+  }
+}
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

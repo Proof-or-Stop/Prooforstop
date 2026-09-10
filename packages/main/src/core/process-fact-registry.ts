@@ -1,3 +1,4 @@
+import { posix as pathPosix } from 'node:path';
 import {
   COMMAND_POLICIES,
   type CommandPolicy,
@@ -69,6 +70,14 @@ export interface ProcessFactArtifactRef {
 }
 
 export interface ProcessFactRegistryEntry {
+  /** Stable identity used by registry digests. Final registry entries always carry it. */
+  factId: string;
+  /** Explicit repository paths governed by this fact. Final registry entries always carry it. */
+  paths: readonly string[];
+  componentId?: string;
+  serializationBoundaryId?: string;
+  /** Source path for a generated path in `paths`; omitted for source paths. */
+  generatedFrom?: string;
   name: string;
   kind: ProcessFactKind;
   semantics: readonly ProcessFactSemantic[];
@@ -88,6 +97,170 @@ export interface ProcessFactRegistryEntry {
   artifact?: ProcessFactArtifactRef;
   reviewerLane?: string;
   rationale: string;
+}
+
+type ProcessFactRegistryDeclaration = Omit<ProcessFactRegistryEntry, 'factId' | 'paths'>
+  & Partial<Pick<ProcessFactRegistryEntry, 'factId' | 'paths'>>;
+
+export interface ProcessFactRegistryProjectionEntry {
+  factId: string;
+  kind: ProcessFactKind;
+  paths: string[];
+  componentId?: string;
+  serializationBoundaryId?: string;
+}
+
+export interface ComponentProcessFactMappingEntry {
+  factId: string;
+  componentId: string;
+  path: string;
+  generatedFrom?: string;
+}
+
+export type ProcessFactRegistryMappingFailure =
+  | 'process-missing'
+  | 'process-ambiguous'
+  | 'process-non-total'
+  | 'process-generated-without-lineage';
+
+export class ProcessFactRegistryMappingError extends Error {
+  readonly code = 'registry-component-mapping-unavailable' as const;
+
+  constructor(readonly reason: ProcessFactRegistryMappingFailure, detail: string) {
+    super(`registry-component-mapping-unavailable: ${reason}: ${detail}`);
+    this.name = 'ProcessFactRegistryMappingError';
+  }
+}
+
+const PROCESS_FACT_REGISTRY_DECLARATION_PATH = 'packages/main/src/core/process-fact-registry.ts';
+const GENERATED_PROCESS_FACT_PATH_PREFIXES = [
+  '.claude/agents/',
+  '.proof-or-stop-codex/agents/',
+  'packages/main/dist/',
+] as const;
+
+function compareUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'));
+}
+
+function normalizeProcessFactPath(value: unknown, reason: ProcessFactRegistryMappingFailure): string {
+  if (typeof value !== 'string' || value.length === 0 || value.trim() !== value || value.includes('\0')) {
+    throw new ProcessFactRegistryMappingError(reason, 'path must be a non-empty exact string');
+  }
+  const slashPath = value.replaceAll('\\', '/');
+  if (pathPosix.isAbsolute(slashPath)) {
+    throw new ProcessFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
+  }
+  const normalized = pathPosix.normalize(slashPath).replace(/^\.\//u, '');
+  if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
+    throw new ProcessFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
+  }
+  return normalized;
+}
+
+function isGeneratedProcessFactPath(path: string): boolean {
+  return GENERATED_PROCESS_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix));
+}
+
+function validateOptionalProcessFactIdentity(value: unknown, label: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || value.length === 0 || value.trim() !== value) {
+    throw new ProcessFactRegistryMappingError('process-non-total', `${label} must be a non-empty exact string`);
+  }
+  return value;
+}
+
+function normalizeProcessFactMappingEntry(entry: Partial<ProcessFactRegistryEntry>): {
+  factId: string;
+  kind: ProcessFactKind;
+  paths: string[];
+  componentId?: string;
+  serializationBoundaryId?: string;
+  generatedFrom?: string;
+} {
+  if (typeof entry?.factId !== 'string' || entry.factId.length === 0 || entry.factId.trim() !== entry.factId
+    || typeof entry.kind !== 'string' || !Array.isArray(entry.paths)) {
+    throw new ProcessFactRegistryMappingError('process-missing', 'factId, kind, and paths are required');
+  }
+  if (entry.paths.length === 0) {
+    throw new ProcessFactRegistryMappingError('process-non-total', `${entry.factId} has no mapped path`);
+  }
+  const paths = entry.paths.map(path => normalizeProcessFactPath(path, 'process-non-total')).sort(compareUtf8);
+  if (new Set(paths).size !== paths.length) {
+    throw new ProcessFactRegistryMappingError('process-ambiguous', `${entry.factId} maps the same normalized path more than once`);
+  }
+  const componentId = validateOptionalProcessFactIdentity(entry.componentId, 'componentId');
+  const serializationBoundaryId = validateOptionalProcessFactIdentity(entry.serializationBoundaryId, 'serializationBoundaryId');
+  const generatedFrom = entry.generatedFrom === undefined
+    ? undefined
+    : normalizeProcessFactPath(entry.generatedFrom, 'process-non-total');
+  if (componentId && paths.some(isGeneratedProcessFactPath) && generatedFrom === undefined) {
+    throw new ProcessFactRegistryMappingError(
+      'process-generated-without-lineage',
+      `${entry.factId} maps a generated component path without generatedFrom`,
+    );
+  }
+  return { factId: entry.factId, kind: entry.kind, paths, componentId, serializationBoundaryId, generatedFrom };
+}
+
+/** Complete §4 projection. It deliberately omits generatedFrom. */
+export function projectProcessFactRegistry(
+  entries: readonly Partial<ProcessFactRegistryEntry>[] = PROCESS_FACT_REGISTRY,
+): ProcessFactRegistryProjectionEntry[] {
+  const normalized = entries.map(normalizeProcessFactMappingEntry);
+  const ids = normalized.map(entry => entry.factId);
+  if (new Set(ids).size !== ids.length) {
+    throw new ProcessFactRegistryMappingError('process-ambiguous', 'factId values must be unique');
+  }
+  return normalized
+    .map(({ factId, kind, paths, componentId, serializationBoundaryId }) => ({
+      factId,
+      kind,
+      paths,
+      ...(componentId === undefined ? {} : { componentId }),
+      ...(serializationBoundaryId === undefined ? {} : { serializationBoundaryId }),
+    }))
+    .sort((left, right) => compareUtf8(left.factId, right.factId));
+}
+
+/** Complete §12 component projection. It never consults producer/source/artifact hints. */
+export function projectComponentProcessFactMapping(
+  componentId: string,
+  entries: readonly Partial<ProcessFactRegistryEntry>[] = PROCESS_FACT_REGISTRY,
+): ComponentProcessFactMappingEntry[] {
+  const requested = validateOptionalProcessFactIdentity(componentId, 'componentId');
+  if (!requested) {
+    throw new ProcessFactRegistryMappingError('process-non-total', 'componentId is required');
+  }
+  const normalized = entries.map(normalizeProcessFactMappingEntry);
+  const ids = normalized.map(entry => entry.factId);
+  if (new Set(ids).size !== ids.length) {
+    throw new ProcessFactRegistryMappingError('process-ambiguous', 'factId values must be unique');
+  }
+  const tuples = normalized
+    .filter(entry => entry.componentId === requested)
+    .flatMap(entry => entry.paths.map(path => ({
+      factId: entry.factId,
+      componentId: requested,
+      path,
+      ...(entry.generatedFrom === undefined ? {} : { generatedFrom: entry.generatedFrom }),
+    })))
+    .sort((left, right) => compareUtf8(left.factId, right.factId)
+      || compareUtf8(left.path, right.path)
+      || compareUtf8(left.generatedFrom ?? '', right.generatedFrom ?? ''));
+  const tupleKeys = tuples.map(tuple => `${tuple.factId}\0${tuple.componentId}\0${tuple.path}\0${tuple.generatedFrom ?? ''}`);
+  if (new Set(tupleKeys).size !== tupleKeys.length) {
+    throw new ProcessFactRegistryMappingError('process-ambiguous', `duplicate component tuple for ${requested}`);
+  }
+  return tuples;
+}
+
+function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+  return {
+    ...entry,
+    factId: entry.factId ?? entry.name,
+    paths: entry.paths ?? [PROCESS_FACT_REGISTRY_DECLARATION_PATH],
+  };
 }
 
 export interface Story3PersistenceOnlyRecordPolicy {
@@ -1247,7 +1420,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   },
 };
 
-const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
+const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
   .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
   .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
@@ -1294,14 +1467,14 @@ export const PROCESS_FACT_FLOW_POLICIES = FLOW_FACT_POLICIES.map((policy) => ({
     ? PROCESS_FACT_ARTIFACT_BY_COMMAND[policy.artifactCommand]
     : undefined,
   rationale: policy.rationale,
-})) as readonly ProcessFactRegistryEntry[];
+})) as readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_REVIEWER_LANES = PROCESS_FACT_REVIEWER_LANE_DEFINITIONS.map((entry) => ({
   ...entry,
   kind: 'reviewer-lane' as const,
   semantics: ['reviewer-lane', 'gate-evidence'] as const,
   level: 'L4' as const,
-})) as readonly ProcessFactRegistryEntry[];
+})) as readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_ARTIFACTS = [
   {
@@ -1894,11 +2067,11 @@ export const PROCESS_FACT_ARTIFACTS = [
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.story_create_from_repro,
     rationale: 'Story evidence binding artifacts bind accepted repro candidate evidence to a story before material-code bug/feature stories may enter PLAN or DEV.',
   },
-] as const satisfies readonly ProcessFactRegistryEntry[];
+] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
-) as readonly ProcessFactRegistryEntry[];
+) as readonly ProcessFactRegistryDeclaration[];
 
 /**
  * L4 predicates shared by the real TEST→DONE guard and the read-only
@@ -1934,7 +2107,7 @@ export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
     rationale: 'DONE and its read-only preflight projection call the same phase-agnostic evaluateReviewVerdict predicate. Dynamic reviewer verdict codes use the shared review-verdict row; only review_evidence_invalid is presented through the established stale_closeout_review compatibility code, and reviewer evidence is never rebound or rewritten.',
   },
-] as const satisfies readonly ProcessFactRegistryEntry[];
+] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export interface DonePreflightPredicateInventoryEntry {
   blockerCode: string;
@@ -2032,11 +2205,11 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     consumerGate: 'done_prepare convergence acceptance',
     rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
   },
-] as const satisfies readonly ProcessFactRegistryEntry[];
+] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_REQUIRED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact && PROCESS_FACT_REQUIRED_ARTIFACT_NAMES.includes(entry.artifact.path as typeof PROCESS_FACT_REQUIRED_ARTIFACT_NAMES[number]),
-) as readonly ProcessFactRegistryEntry[];
+) as readonly ProcessFactRegistryDeclaration[];
 
 // Lab maintenance is an explicit local integration exception, never Story evidence.
 export const PROCESS_FACT_LAB_MAINTENANCE = [{
@@ -2047,7 +2220,7 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
   producer: 'scripts/lab-worktree.mjs',
   consumerGate: 'Lab finish only; never Story REVIEW/TEST/DONE',
   rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The optional one-Story carry-forward rule accepts only a clean registered REVIEW/TEST worktree with every checklist item done, no open Finding, recomputed material and Story-files hashes, strict authoritative receipt admission for every required intent, a fully executed validation result, and at most five failed commands whose exact executable and argv initially fail with the same exit code on built current main. A supplemental witness may add an exact source-PASS command that newly fails on built main with an explicit marker; invented, duplicate, main-mutating, or source-failing commands are refused. It stores source/evidence/material/Story-files/patch hashes, pass-command trace profiles, and failure-output digests. Finish rebuilds latest main, reruns baseline commands, then requires the built candidate and post-merge main to preserve each latest-main exit code and normalized failure identity. PASS commands whose repository trace intersects latest-main changes are replayed on candidate and post-merge main; incomplete or unknown trace closure fails closed by replaying that command. No .proof-or-stop Story state is imported. Ordinary Lab finish requires clean main; carry-forward alone may preserve non-overlapping pre-existing dirty paths under a content/index fingerprint checked before and after main-side operations, without stash, restore, commit, or copy. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
-}] as const satisfies readonly ProcessFactRegistryEntry[];
+}] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   name: 'runtime:quorum_assertion_inventory', kind: 'runtime-behavior',
@@ -2072,7 +2245,7 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/handlers/verifier.ts', 'packages/main/src/core/causal-evidence.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts', 'packages/main/src/handlers/checklist.ts', 'packages/main/src/handlers/done-required-validation.ts', 'packages/main/src/core/auto-commit-metadata.ts'],
   consumerGate: 'Default Story routine validate and explicit full validate require PRE_CERT, including full combined with focus; focused preparation and isolated CLI gates remain available. validate and done_required_validate retain their independent acceptance and build-proof predicates; exact verified CAS output paths are excluded from workspace input comparison, while invalid receipts, unknown files and explicit input bytes remain checked',
   rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Complete executor capture supplies the receipt digest; output exceeding the bounded selector window is partial and never reusable. The v2 capture identity refuses prior display-derived receipts. Forbidden reuse and build proof always execute. Canonical provider and liveness core variants schedule every former nested member independently, including the fixed seven-member liveness union. The registered whole-command-array static guard rejects unresolved nested launches and stale reviewed exceptions bound to command configuration, exact call source and traversed caller/helper/package dependencies; paired property controls remain explicit exceptions. Provider F-181 retains a real sanitized child CLI mutation and an unsanitized negative control; standalone pinned invocations retain their combined proof and selector. Declared nonconflicting resources share a machine admission barrier, including explicitly classified empty full-suite footprints. Missing or empty validation claims acquire globally exclusive same-user machine capacity; cancellation and deadline refusal launch no child. Ancestor conflicts fail closed rather than waiting on their own caller. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. DONE-required validates current PRE_CERT admission without consuming or committing the routine execution allocation; explicitly shared commands require a clean workspace, and only DONE-specific evidence belongs to its metadata writer. Dirty source and adjacent staged changes remain untrusted. Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable, loaded implementation digest and policy identity. The actual loaded tool package supplies the tool version; target-project package versions cannot substitute for it. The explicit validate.sharedExecution option enables execution sharing independently of dynamic selection mode, while per-command exclusions still apply. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. Single and batch checklist evidence commands renew the existing owner generation through actual command execution and canonical publication, preserving zero-command receipt import recovery. Only a signed pending-publication capability binds the exact pre-write checklist, owner generation, request and current physical execution identity to an unpublished V5 bundle and causal receipt. Canonical publication retires that capability; a later ordinary request still executes a new observation. Signature, subject, output and current implementation checks precede recovery; recovery never relaxes selector or freshness checks.',
-}] as const satisfies readonly ProcessFactRegistryEntry[];
+}] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
   name:'runtime:causal_complete_selector_output',kind:'runtime-behavior',semantics:['runtime-behavior','signed-artifact','gate-evidence','verification-policy'],level:'L4',producer:'core/causal-evidence',producerSourceRefs:['packages/main/src/core/causal-evidence.ts','packages/main/src/core/store.ts','packages/main/src/handlers/checklist.ts'],consumerGate:'Fresh and reused verification execution selector verdicts',rationale:'Complete redacted output is content-addressed and bound by the signed receipt, separately from bounded display probes. Independent processes verify its digest and length before selecting; missing or changed bytes refuse without rerunning or rewriting evidence. Legacy complete plain probes remain compatible; legacy truncated or redacted display text refuses selector authority. Existing secret redaction is preserved; NUL matching boundaries cannot synthesize selector text. Complete objects are bounded to 1 MiB, with a non-reusable signed selector witness for larger output or legacy stores. Exit-only checks do not read selector objects and retain reuse when durable output fits the bound. Completed output and receipt publication each retry at most twice without rerunning the command; permanent storage faults refuse. Late batch subscribers join the active retry; single-selector fallback witnesses never decide another selector.',
@@ -2083,7 +2256,7 @@ export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
   producerSourceRefs: ['packages/main/src/core/material-path-policy.ts', 'packages/main/src/core/story-aware-validation.ts', 'packages/main/src/core/evidence-freshness.ts'],
   consumerGate: 'Shared material and Story hashes used by review, validation and evidence freshness consumers',
   rationale: 'Store objects/sha256, refs/by-id and ledger/observed.jsonl are process outputs excluded from material inputs, not disposable runtime artifacts. Unknown evidence paths and policy remain material. Output digest and subject bindings require independent consumer verification; hash stability grants no artifact acceptance. NUL-delimited Git paths retain literal names and target blobs; missing objects fail closed. Existing evidence is never rewritten or automatically re-attested after this correction.',
-}] as const satisfies readonly ProcessFactRegistryEntry[];
+}] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_MANAGED_SUPERVISION = [
   {
@@ -2104,7 +2277,7 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
     consumerGate: 'managed_review_evidence_import successful-terminal intake only',
     rationale: 'An independent detached supervisor is ready before provider-worker launch. Worker death triggers fingerprint-bound provider cleanup and one failed terminal without status polling. A continuously missing, zombie, unverifiable or changed provider identity produces a bounded actionable diagnostic and semantic generation change, never replacement authority. Provider close is persisted before asynchronous result cleanup and is distinct from worker heartbeat and provider output progress. Status and aggregate wait are read-only observations, including interrupted journal diagnostics; explicit recovery owns transaction replay and terminal cleanup. Existing launch fencing and exclusive terminal digests remain authoritative; an orphan failure cannot grant review PASS or replacement safety without proven reap.',
   },
-] as const satisfies readonly ProcessFactRegistryEntry[];
+] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   {
@@ -2144,6 +2317,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     rationale: 'Project configuration cannot raise the machine pool. Machine refusal releases the local reservation. Identity-aware launchers transfer both tokens to provider groups; release attempts both and unsafe provider results retain capacity. Synchronous launchers transfer both tokens before provider execution and release only after an independent control result and observed group exit; unknown cleanup forbids retry. Capability readiness probes use that same synchronous supervisor before returning READY, retaining auth/timeout classification and refusing unproven cleanup. Ordinary same-group descendants are covered, not daemon process-group escape.',
   },
   {
+    factId: 'runtime:story_scope_budget:implementation-contract',
     name: 'runtime:story_scope_budget', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state', 'gate-evidence'],
     producer: 'core/story-scope-budget',
@@ -2151,6 +2325,26 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/core/acceptance-amendment-journal.ts', 'packages/main/src/handlers/story-review.ts'],
     consumerGate: 'Every DEV entry and additive acceptance application consume the same configured semantic budget, including APPLYING recovery',
     rationale: 'Explicit responsibility mappings, registered process facts and commands, topology nodes and edges, canonical validation command IDs and semantic DEV delta determine scope cost. Legacy command labels must resolve uniquely; deleted or ambiguous command mappings fail closed. Files are not the budget unit. Unknown enforced mappings and malformed opted-in policy block; rollback cannot swallow the budget failure. Read-only diagnostic output cannot grant scope approval. Live declared decompositions require complete real child assignments, independent budgets and acceptance mappings; they never exempt parent implementation scope or prove child delivery. Unconfigured legacy projects retain compatibility. Explicit project-governance manifests preserve only exact versioned subjects captured in DEV/REVIEW/TEST with the same creation identity; read-only snapshots are not signed approvals. Reentry may consume the exact capture, but changed current, proposed or base subjects cannot. Other phase guards, filesystem safety, malformed policy and incomplete decomposition remain blocking.',
+  },
+  {
+    factId: 'runtime:registry_component_mapping_projection',
+    name: 'runtime:registry_component_mapping_projection',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'schema-contract', 'normalization-policy', 'gate-evidence'],
+    level: 'L4',
+    componentId: 'P0m',
+    serializationBoundaryId: 'registry-component-mapping-projection',
+    paths: [
+      'packages/main/package.json',
+      'packages/main/src/core/process-fact-registry.ts',
+      'packages/main/src/core/runtime-fact-registry.ts',
+      'packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs',
+      'scripts/verify-process-fact-contract.mjs',
+      'scripts/verify-runtime-fact-contract.mjs',
+    ],
+    producer: 'core/process-fact-registry + core/runtime-fact-registry',
+    consumerGate: 'P1 classification and P2r bootstrap component manifest projection',
+    rationale: 'P0m owns explicit complete registry mappings and deterministic whole-registry and component-filtered projections. Consumers fail closed with registry-component-mapping-unavailable and never infer paths or components from producer, producerSourceRefs, consumerSourceRefs, or artifact.path.',
   },
   ...PROCESS_FACT_MANAGED_SUPERVISION,
   {
@@ -2170,7 +2364,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...PROCESS_FACT_FLOW_POLICIES,
   ...PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS,
   ...PROCESS_FACT_CLOSEOUT_TELEMETRY,
-];
+].map(entry => declareProcessFactMapping(entry as ProcessFactRegistryDeclaration));
 
 export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEntry> = Object.fromEntries(
   PROCESS_FACT_REGISTRY.map((entry) => [entry.name, entry]),
