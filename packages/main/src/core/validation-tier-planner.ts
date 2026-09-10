@@ -1018,6 +1018,20 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     return { ...common, status: 'stop', reason, escalationReasons: [...escalationReasons, reason] };
   }
 
+  // Story seeds cover committed diff plus declared checklist paths. The hash
+  // snapshot additionally names uncommitted material overlay paths; omitting
+  // those could manufacture a false non-intersection proof against the very
+  // snapshot the decision claims to bind.
+  const materialSeedPaths = [...new Set([
+    ...input.seeds
+      .filter((seed) => seed.kind === 'path')
+      .map((seed) => normalizedPath(seed.value))
+      .filter(Boolean),
+    ...(input.hashes.status === 'available'
+      ? input.hashes.head.materialDirtyFiles.map(normalizedPath).filter(Boolean)
+      : []),
+  ])].sort();
+
   // 4b. A configured command-set may narrow only through the canonical pure
   // selector. Opaque fallback/validate-file sources have no per-command
   // inventory and therefore retain their atomic full behavior below.
@@ -1031,10 +1045,6 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     if (input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
     if (input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
     if (input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');
-    const materialSeedPaths = [...new Set(input.seeds
-      .filter((seed) => seed.kind === 'path')
-      .map((seed) => normalizedPath(seed.value))
-      .filter(Boolean))].sort();
     forceFullReasons.push(...classifySensitiveStoryPaths(materialSeedPaths));
     if (input.riskSignals.length > 0) forceFullReasons.push('validation_framework_sensitive_change');
 
@@ -1101,21 +1111,23 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
     }
   }
 
-  // 5. Why nothing was reduced on the compatibility path. These two always
-  //    hold when no usable impact index was supplied; a configured index has
-  //    already returned through the canonical selector above.
-  escalationReasons.push(
-    validationWideningReason(
-      'impact_index_unusable',
-      'no versioned impact index exists yet, so no changed file can be attributed to a validation command ' +
-      'and there is no basis on which to run a smaller set',
-    ),
-    validationWideningReason(
-      'command_exclusion_unproven',
-      `none of the ${universe.length} executable unit(s) carries a positive current-head exclusion proof, so ` +
-      'none of them may be left out',
-    ),
-  );
+  // 5. Why nothing was reduced on the compatibility path. A configured index
+  // cannot decompose an atomic source, but it does exist and must never be
+  // reported as missing.
+  if (!args.impactIndex) {
+    escalationReasons.push(
+      validationWideningReason(
+        'impact_index_unusable',
+        'no versioned impact index exists yet, so no changed file can be attributed to a validation command ' +
+        'and there is no basis on which to run a smaller set',
+      ),
+      validationWideningReason(
+        'command_exclusion_unproven',
+        `none of the ${universe.length} executable unit(s) carries a positive current-head exclusion proof, so ` +
+        'none of them may be left out',
+      ),
+    );
+  }
 
   if (input.changedFiles.status === 'changed_files_unavailable') {
     // B-a745 F-016: render the collector's BOUNDED classification, never
@@ -1170,6 +1182,9 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
 
   return {
     ...common,
+    ...(atomic && args.impactIndex
+      ? { unclassifiedInputs: collectIndexedUnclassifiedInputs(input, args.impactIndex, materialSeedPaths) }
+      : {}),
     status: 'plan',
     effectiveTier: REPOSITORY_FULL_TIER,
     executionMode: atomic ? 'atomic' : 'command-set',

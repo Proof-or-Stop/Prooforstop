@@ -300,6 +300,54 @@ try {
   assert.equal(checklistSeed.status, 'plan');
   assert.deepEqual(checklistSeed.tierSelections['story-fast'], ['build', 'docs-links', 'module-a-unit']);
 
+  const dirtyMaterialSeed = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex,
+    input: {
+      ...wiredInput,
+      hashes: {
+        ...wiredInput.hashes,
+        head: {
+          ...wiredInput.hashes.head,
+          materialDirtyFiles: ['packages/module-a/src/index.ts'],
+        },
+      },
+    },
+  });
+  assert.equal(dirtyMaterialSeed.status, 'plan');
+  assert.deepEqual(dirtyMaterialSeed.tierSelections['story-fast'], ['build', 'docs-links', 'module-a-unit']);
+  assert.ok(!dirtyMaterialSeed.exclusionProofs.some((proof) => proof.commandId === 'module-a-unit'));
+
+  const atomicWithIndex = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex: {
+      schema: 'proofOrStop.validation-impact-index.v1',
+      version: 'atomic-index-v1',
+      commandSetDigest: 'atomic-command-set',
+      entries: [{
+        commandId: 'atomic:validate-file',
+        selection: 'always',
+        inputPatterns: ['docs/**'],
+        coverage: 'complete',
+      }],
+    },
+    input: {
+      ...wiredInput,
+      executionInventory: {
+        sourceKind: 'validate-file',
+        commandSetDigest: 'atomic-command-set',
+        commandIds: [],
+        provisionalCommandIds: [],
+        warnings: [],
+      },
+    },
+  });
+  assert.equal(atomicWithIndex.status, 'plan');
+  assert.equal(atomicWithIndex.effectiveTier, 'repository-full');
+  assert.ok(atomicWithIndex.escalationReasons.some((reason) => reason.code === 'source_kind_atomic'));
+  assert.ok(!atomicWithIndex.escalationReasons.some((reason) => reason.code === 'impact_index_unusable'));
+  assert.deepEqual(atomicWithIndex.unclassifiedInputs, []);
+
   console.log(GREEN);
 } catch (error) {
   console.error(RED);

@@ -2385,6 +2385,65 @@ for (const atomicKind of ['fallback', 'validate-file'] as const) {
   });
 }
 
+testCase('an atomic source with a configured index reports atomicity rather than claiming the index is absent', () => {
+  const input = planInput({
+    routine: { sourceKind: 'validate-file', commands: RELEVANCE_COMMANDS },
+    readers: { changedFileStatuses: statusReader({ 'docs/guide.md': 'M' }), hashSnapshot: fixtureHashSnapshot },
+  });
+  const result = resolveValidationTierPlan({
+    input,
+    requestedTier: 'story-fast',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+      version: 'atomic-index-v1',
+      commandSetDigest: input.executionInventory.commandSetDigest,
+      entries: RELEVANCE_COMMANDS.map((entry) => ({
+        commandId: entry.id!,
+        selection: 'story-fast' as const,
+        inputPatterns: ['docs/**'],
+        coverage: 'complete' as const,
+      })),
+    },
+  });
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.equal(result.effectiveTier, 'repository-full');
+  assert.ok(reasonCodes(result).includes('source_kind_atomic'));
+  assert.ok(!reasonCodes(result).includes('impact_index_unusable'));
+  assert.ok(!reasonCodes(result).includes('command_exclusion_unproven'));
+  assert.deepEqual(result.unclassifiedInputs, []);
+});
+
+testCase('material dirty paths participate in indexed selection and cannot receive false non-intersection proofs', () => {
+  const dirtyPath = 'packages/module-a/src/index.ts';
+  const dirtySnapshot = (): EvidenceHashSnapshot => ({
+    ...FIXTURE_HEAD_SNAPSHOT,
+    materialHash: 'dirty-material-hash',
+    materialDirtyFiles: [dirtyPath],
+  });
+  const input = planInput({
+    readers: { changedFileStatuses: statusReader({}), hashSnapshot: dirtySnapshot },
+  });
+  const result = resolveValidationTierPlan({
+    input,
+    requestedTier: 'story-fast',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+      version: 'dirty-index-v1',
+      commandSetDigest: input.executionInventory.commandSetDigest,
+      entries: [
+        { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: ['packages/module-a/**'], coverage: 'complete' },
+        { commandId: 'lint-suite', selection: 'repository-full', inputPatterns: ['docs/**'], coverage: 'complete' },
+      ],
+    },
+  });
+  assert.equal(result.status, 'plan');
+  if (result.status !== 'plan') return;
+  assert.equal(result.effectiveTier, 'story-fast');
+  assert.deepEqual(result.selectedUnitIds, ['unit-suite']);
+  assert.ok(!(result.exclusionProofs ?? []).some((proof) => proof.commandId === 'unit-suite'));
+});
+
 testCase('no-validator preserves the existing skip/warn and produces NO tier pass', () => {
   const result = planFor('story-fast', { routine: { sourceKind: 'no-validator', commands: [] } });
   assert.equal(result.status, 'no-tier-pass');
