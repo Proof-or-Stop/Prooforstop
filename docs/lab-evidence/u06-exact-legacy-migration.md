@@ -35,3 +35,30 @@ isolated fixture. Its fixed `U06_LEGACY_GLOB_CLI_REQUIRED` assertion failed with
 real-guard assertions passed. Independent static review found no blocker. The
 first build exposed an overloaded fs type inference issue, corrected by using
 the actual non-optional `Stats` type; the subsequent build passed.
+
+## Reviewed repository policy
+
+The repository configuration now enables `enforce` with functional responsibility
+domains. The reproducible inputs and validators are in `scripts/lab/u06-policy/`.
+The current inventory contains 35,230 material paths and 147 canonical validation
+commands, with no unknown or ambiguous assignment. Twenty-eight bounded family
+patterns preserve every existing domain set; the proposed `usage-ledger/**`
+family was rejected because it would change an existing file's responsibility.
+Unregistered new capabilities remain blocked. The root regression permits one
+scope capability across core, handler, test and documentation, while rejecting a
+second capability and an unknown new source path.
+
+Limits are explicit governance choices: responsibility domains 1, host adapters
+3, process facts 62, public commands 46, acceptance topology 13, DEV delta 129,
+and validation groups 1. They are not empirically optimal limits or P95 evidence.
+
+Fresh read-only CLI captures at policy source commit `554f298499` found five
+eligible subjects: B-0208, B-137a, B-14ae and B-dc83 in their registered REVIEW
+worktrees, and B-1734 in main TEST with no registered worktree. Creation identity,
+phase and v2 subject digests are retained in the configuration's explicit
+`legacySubjects` manifest. Current main B-0208 was still REVIEW; no terminal
+Story was revived. The Lab's actual `scope_budget_check` for B-1734 returned
+`legacy_subject_preserved` after activation. This is local Lab configuration;
+other checkouts are not silently reconfigured, and no Story metadata, approval
+signature or DONE state was written. Later changed scope or glob membership must
+fail the old capture and requires explicit handling.
