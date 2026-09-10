@@ -169,6 +169,41 @@ try {
   assert.equal(intermediate.effectiveTier, 'story-intermediate');
   assert.deepEqual(intermediate.selectedUnitIds, ['build', 'module-a-unit', 'module-a-integration']);
 
+  const fullWithoutMaterialSeeds = planner.selectValidationTiers({
+    ...base,
+    requestedTier: 'repository-full',
+    changedPaths: [],
+  });
+  assert.equal(fullWithoutMaterialSeeds.effectiveTier, 'repository-full');
+  assert.deepEqual(fullWithoutMaterialSeeds.selectedUnitIds, universeCommandIds);
+  assert.deepEqual(fullWithoutMaterialSeeds.escalationReasonCodes, []);
+
+  const mappedStop = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex: {
+      schema: 'proofOrStop.validation-impact-index.v1',
+      version: 'stop-index-v1',
+      commandSetDigest: 'stop-command-set',
+      entries: [{
+        commandId: 'docs-contract',
+        selection: 'story-intermediate',
+        inputPatterns: ['docs/**'],
+        coverage: 'complete',
+      }],
+    },
+    input: {
+      ...wiredInput,
+      executionInventory: {
+        ...wiredInput.executionInventory,
+        commandSetDigest: 'stop-command-set',
+        commandIds: ['docs-contract'],
+      },
+    },
+  });
+  assert.equal(mappedStop.status, 'stop');
+  assert.equal(mappedStop.reason.code, 'empty_selection_unclassified');
+  assert.deepEqual(mappedStop.unclassifiedInputs, [], 'the configured index mapped the Story path');
+
   const unknown = planner.selectValidationTiers({
     ...base,
     requestedTier: 'story-fast',

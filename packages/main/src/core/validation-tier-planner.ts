@@ -336,7 +336,6 @@ export function selectValidationTiers(rawInput: SelectValidationTiersInput): Val
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
   if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');
   if (index.commandSetDigest !== input.commandSetDigest) reasons.add('selection_policy_changed');
-  if (changedPaths.length === 0) reasons.add('empty_selection_unclassified');
 
   const universeSet = new Set(universe);
   const entriesByCommand = new Map<string, ValidationImpactIndexEntry>();
@@ -1057,14 +1056,25 @@ export function resolveValidationTierPlan(args: ResolveValidationTierPlanArgs): 
         : `the versioned impact-index decision for story ${input.storyId} classified ${code}; ` +
           'the requested subset was refused and the repository-full command universe was selected',
     ));
+    const indexedUnclassifiedInputs = collectIndexedUnclassifiedInputs(
+      input,
+      args.impactIndex,
+      materialSeedPaths,
+    );
     const dynamicStop = dynamicReasons.find((reason) => isValidationStopReasonCode(reason.code));
     if (dynamicStop) {
       const reason = assertStopReason(dynamicStop);
-      return { ...common, status: 'stop', reason, escalationReasons: dynamicReasons };
+      return {
+        ...common,
+        unclassifiedInputs: indexedUnclassifiedInputs,
+        status: 'stop',
+        reason,
+        escalationReasons: dynamicReasons,
+      };
     }
     return {
       ...common,
-      unclassifiedInputs: collectIndexedUnclassifiedInputs(input, args.impactIndex, materialSeedPaths),
+      unclassifiedInputs: indexedUnclassifiedInputs,
       status: 'plan',
       effectiveTier: decision.effectiveTier,
       executionMode: 'command-set',

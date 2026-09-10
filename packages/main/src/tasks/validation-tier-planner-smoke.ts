@@ -2318,6 +2318,34 @@ testCase('the wired resolver widens every validation and gate machinery surface 
   }
 });
 
+testCase('an indexed repository-full request always selects the non-empty universe with or without material seeds', () => {
+  const impactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'full-index-v1',
+    commandSetDigest: 'full-command-set-v1',
+    entries: [
+      { commandId: 'docs-fast', selection: 'story-fast' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
+      { commandId: 'docs-wide', selection: 'story-intermediate' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
+    ],
+  };
+  for (const changedPaths of [[], ['docs/guide.md']]) {
+    const decision = selectValidationTiers({
+      storyId: 'B-full',
+      requestedTier: 'repository-full',
+      universeCommandIds: ['docs-fast', 'docs-wide'],
+      changedPaths,
+      pinnedCommandIds: [],
+      forceFullReasons: [],
+      commandSetDigest: 'full-command-set-v1',
+      snapshotDigest: 'full-snapshot-v1',
+      impactIndex,
+    });
+    assert.equal(decision.effectiveTier, 'repository-full');
+    assert.deepEqual(decision.selectedUnitIds, ['docs-fast', 'docs-wide']);
+    assert.deepEqual(decision.escalationReasonCodes, []);
+  }
+});
+
 testCase('no pruning exists: a story that changed nothing still selects the complete universe', () => {
   const result = planFor('story-intermediate');
   assert.equal(result.status, 'plan');
