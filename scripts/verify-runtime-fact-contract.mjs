@@ -67,6 +67,8 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');
+  check(registrySource.includes('REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY') && batchAdmission.includes('policy.readyTtlMs') && batchAdmission.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName'), 'batch admission timing and storage must use registered runtime policy');
   const admission = read(root, 'packages/main/src/core/provider-process-admission.ts');
   check(registrySource.includes('MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY') && admission.includes('machineProviderProcessSlotsDir()') && admission.includes('admission.machineSlot'), 'provider admission must acquire, transfer and release canonical machine sidecar slots');
   const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');

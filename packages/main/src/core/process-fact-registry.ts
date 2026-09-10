@@ -1954,6 +1954,15 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   },
 
   {
+    name: 'runtime:reviewer_batch_admission', kind: 'runtime-behavior', level: 'L4',
+    semantics: ['runtime-behavior', 'host-readiness', 'freshness-policy', 'blocker-state'],
+    producer: 'core/reviewer-batch-admission',
+    producerSourceRefs: ['packages/main/src/core/reviewer-batch-admission.ts'],
+    consumerSourceRefs: ['scripts/verify-u08-batch-admission.mjs'],
+    consumerGate: 'Operational shared admission controller; managed launch wiring remains separate',
+    rationale: 'Trusted subject and exact roster inputs select one signed generation. Concurrent callers share one probe per host before any admitted verdict. Unchanged failures, expired readiness and interrupted controllers do not automatically reprobe. Read-only queries verify without writing, and cancelled waiters launch no probe. This controller alone is not a managed launch gate, reviewer PASS or account-health assurance.',
+  },
+  {
     name: 'runtime:machine_provider_admission', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'blocker-state'], producer: 'core/provider-process-admission',
     producerSourceRefs: ['packages/main/src/core/provider-process-admission.ts', 'packages/main/src/core/provider-process-registry.ts'],

@@ -76,3 +76,12 @@ Bounded no-follow reads reject malformed and symlink inputs. Existing direct
 creation uses capture then materialization and retains per-lane writable caches.
 Batch admission and post-probe credential refresh still require their dedicated
 producer/consumer wiring; this API alone does not establish shared admission.
+
+The shared batch-admission controller now stores signed operational generations
+under the registered canonical runtime directory. Concurrent callers with the
+same trusted subject/input identity share one probe per managed host. It waits
+for all hosts before an admitted verdict, keeps unchanged failures sticky, and
+turns an interrupted controller into a blocked generation. Read-only status
+performs no writes or probes; cancellation while queued starts no probe.
+This controller is not yet a managed-launch prerequisite: the complete roster,
+execution-input producer and managed consumer wiring remain separate work.

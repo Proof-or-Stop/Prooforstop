@@ -5592,6 +5592,7 @@
           "packages/main/src/core/provider-process-admission.ts",
           "packages/main/src/core/provider-process-registry*.ts",
           "packages/main/src/core/provider-process-registry.ts",
+          "packages/main/src/core/reviewer-batch-admission.ts",
           "packages/main/src/core/runtime-environment-checks.ts",
           "packages/main/src/handlers/cross-host-review.ts",
           "packages/main/src/handlers/host-run.ts",
@@ -5643,6 +5644,7 @@
           "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
           "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "scripts/lab/u08-batch-admission/worker.mjs",
           "scripts/verify-crosshost-preflight-handler.mjs",
           "scripts/verify-crosshost-readonly-lane.mjs",
           "scripts/verify-host-live-usage.mjs",
@@ -5671,6 +5673,7 @@
           "scripts/verify-supervised-provider-boundaries.mjs",
           "scripts/verify-supervised-provider-control.mjs",
           "scripts/verify-supervised-provider-worker-exit.mjs",
+          "scripts/verify-u08-batch-admission.mjs",
           "scripts/verify-u08-private-state-capture.mjs",
           "scripts/verify-u08-supervised-readiness.mjs"
         ],
