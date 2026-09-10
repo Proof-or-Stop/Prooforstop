@@ -82,6 +82,17 @@ try {
   assert.equal(status(brokenPlan, 'path:CHK-001:modify:.'), 'BLOCKED');
   assert.equal(status(brokenPlan, 'path:CHK-001:modify:broken-link/future.ts'), 'BLOCKED');
   assert.equal(status(brokenPlan, 'touchpoint_uncovered'), 'BLOCKED');
+  const mixed = structuredClone(checklist);
+  mixed.items.unshift({id:'CHK-MALFORMED',files:{modify:[123, 'src/also-missing.ts'],create:'invalid'}});
+  store.writeChecklist(storyId, mixed);
+  const mixedPlan = run(script, project, storyId);
+  assert.equal(status(mixedPlan, 'checklist-shape'), 'BLOCKED');
+  assert.equal(status(mixedPlan, 'path:CHK-001:modify:src/missing.ts'), 'BLOCKED',
+    'U14 malformed sibling must not hide independent path blockers');
+  assert.equal(status(mixedPlan, 'path:CHK-001:modify:../escape.ts'), 'BLOCKED');
+  assert.equal(status(mixedPlan, 'path:CHK-MALFORMED:modify:src/also-missing.ts'), 'BLOCKED');
+  assert.equal(status(mixedPlan, 'touchpoint_uncovered'), 'BLOCKED');
+  store.writeChecklist(storyId, checklist);
   const gitProject = join(root, 'git-project'), worktree = join(gitProject, 'worktree');
   write(join(gitProject, 'proof-or-stop.config.json'), { storyDir: '.proof-or-stop/story/actives' });
   write(join(gitProject, 'seed.txt'), 'worktree fixture');
