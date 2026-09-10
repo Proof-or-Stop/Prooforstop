@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab inventory-critic-managed-admission - v0.3.305 - 2026-09-10
+
+Fix managed admission for the inventory-completeness critic.
+
+The review lifecycle required an independent completeness critic after all ordinary reviewer lanes terminated, but the native evidence path required a host-adapter attestation while the managed path admitted only the ordinary required-lane roster. This left a valid purpose-bound critic ReviewRun with no formal execution path and blocked REVIEW remediation.
+
+The repair keeps the ordinary reviewer roster unchanged. Once a valid signed inventory-completeness critic ReviewRun is bound to the same open epoch, review round, head, material hash, and Story-files hash, the critic lane is included exactly once in a distinct managed-admission subject. Topology-purpose runs and stale or mismatched critic runs do not receive this admission.
+
+Verification includes a focused RED/GREEN regression, an integration assertion in the review-inventory handler smoke, and the process-fact contract verifier.
+
+Maintenance provenance: codex/lab-inventory-critic-managed-admission, repair 91fc32b3d45996d9bda620166ca62ba7da2d1ec6.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-managed-admission-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-codex-nested-sandbox - v0.3.304 - 2026-09-10
 
 # Managed Codex Nested Sandbox Repair
