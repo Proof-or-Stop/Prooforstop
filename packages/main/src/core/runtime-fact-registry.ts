@@ -232,6 +232,7 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   schema: 'execution-implementation.v1',
   sessionSchema: 'execution-session.v1',
   witnessSchema: 'execution-session-witness.v1',
+  activityWitness: 'existing-records-only-entry-admission-or-unverified',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',

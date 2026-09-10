@@ -429,3 +429,12 @@ refusal latency after private lease revocation under identical capacity contenti
 Healthy owners still wait and execute; caller aborts keep their original reason.
 This mechanism result does not measure overall Story delivery time or establish
 that other running hosts have adopted this runtime.
+
+Existing activity records now include `implementation.status`: `verified-at-entry`
+with the checked digest, actual entry path and PID, or `unverified` when no pin
+was required. The CLI reuses its admission result; publishing this field performs
+no additional implementation scan and does not enable read-only logging. This
+runtime observation is unsigned diagnostic data, not continuous code attestation,
+Story role authority or proof that every live host has enrolled. Historical rows
+without this field remain unknown. Collection must distinguish observed session
+labels from actual live host counts.

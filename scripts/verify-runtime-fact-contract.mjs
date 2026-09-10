@@ -74,6 +74,8 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
+  check(registrySource.includes("activityWitness: 'existing-records-only-entry-admission-or-unverified'"), 'activity implementation witness scope must be registered');
+  check(read(root, 'packages/main/src/cli-engine.ts').includes('implementation: enforcedImplementationIdentity ? {'), 'activity records must reuse actual entry admission identity');
   check(registrySource.includes("ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation'"), 'lease-loss queue cancellation must be registered');
   check(read(root, 'packages/main/src/core/story-owner-lease.ts').includes('leaseLost.abort(error)'), 'failed owner renewal must signal queued consumers');
   check(read(root, 'packages/main/src/core/validation-execution-lock.ts').includes('AbortSignal.any([options.abortSignal, leaseLostSignal])'), 'capacity wait must retain both caller and lease cancellation');
