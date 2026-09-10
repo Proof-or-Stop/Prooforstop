@@ -169,6 +169,33 @@ async function authenticatedInventoryRegression(): Promise<void> {
     writeFileSync(artifactPath, artifactBytes.replace('INVENTORY_OK', 'INVENTORY_NO'));
     assert.throws(() => reviewInventoryAcceptanceSubjectDigestForStore(store, sid), /artifact|digest|integrity|invalid/i, 'F063 full artifact tamper rejected before projection');
     writeFileSync(artifactPath, artifactBytes);
+
+    // A PLAN-authorized intent correction may retire an earlier intentRef while
+    // retaining its immutable evidence history. Inventory authentication must
+    // evaluate the current acceptance basis, not require retired evidence to
+    // resolve against a current pin. The current replacement receipt remains
+    // fully authenticated and tamper-sensitive.
+    const renamedChecklist = store.readChecklist(sid);
+    renamedChecklist.items[0].verificationIntent!.happy[0].id = 'OBS-V2';
+    store.writeChecklist(sid, renamedChecklist);
+    await handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS-V2', kind: 'integration_test', command,
+      selector: 'INVENTORY_OK', result: 'pass', note: 'replacement observation contract' });
+    assert.doesNotThrow(
+      () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      'RETIRED_EVIDENCE_MUST_NOT_BLOCK_CURRENT_INVENTORY',
+    );
+    const renamedAuthentic = store.readChecklist(sid);
+    const tamperedCurrent = structuredClone(renamedAuthentic);
+    const currentEvidence = tamperedCurrent.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS-V2')!;
+    (currentEvidence.receipt as unknown as Record<string, any>).executionReceipt.authenticity.signature = 'invalid-signature';
+    store.writeChecklist(sid, tamperedCurrent);
+    assert.throws(
+      () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      /invalid|signature|authentication/i,
+      'current replacement evidence remains authenticated',
+    );
+    store.writeChecklist(sid, authenticChecklist);
+
     process.env[semanticKey] = 'real-environment-change-with-identical-output';
     await record();
     const changedInput = row();
