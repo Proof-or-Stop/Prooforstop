@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { collectReviewerEvidenceState } from '../core/review-run.js';
-import { resolveManagedReviewerBasePrompt } from '../core/managed-review-evidence.js';
+import { buildManagedReviewerPrompt, resolveManagedReviewerBasePrompt } from '../core/managed-review-evidence.js';
 import { runManagedBurnFixture } from './managed-burn-fixture.js';
 import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
 import { enforceConvergenceBreakerGate } from '../core/convergence-breaker.js';
@@ -786,6 +786,11 @@ assert.ok(
   deriveReviewerBatchSubject(reloaded, first.root, { storyId }).requiredLanes.includes('proof-or-stop-review-topology-critic'),
   'inventory completeness critic is admitted through the managed reviewer batch after its purpose-bound run starts',
 );
+const criticRunForManagedPrompt = reloaded.readReviewRuns(storyId).runs.find(row => row.reviewRunId === criticReviewRunId)!;
+const criticManagedPrompt = buildManagedReviewerPrompt(first.root, criticRunForManagedPrompt);
+assert.match(criticManagedPrompt, /BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK/);
+assert.match(criticManagedPrompt, new RegExp(realFindingId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  'managed critic prompt carries the current uncommitted Finding batch');
 await fixtureReviewCli(first, 'review_pass_set', {
   storyId,
   agent: 'proof-or-stop-review-topology-critic',

@@ -7226,6 +7226,9 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['proposalArtifacts.length === 1', 'exactEvidenceMatches', 'processCleanup?.reaped === true']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
   }
+  for (const token of ['buildManagedInventoryCriticEvidencePack', "run.reviewPurpose !== 'inventory-completeness'", 'BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK', 'sealed by the managedPromptDigest', 'do not report that expected lag as missing canonical evidence', 'Do not infer topology, TEST, DONE, or implementation authority from this pack.']) {
+    assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required inventory critic live metadata projection token missing: ${token}`);
+  }
   const managedHostRunText = read('packages/main/src/core/managed-host-run.ts');
   for (const token of ['submissionDigest', 'idempotency input conflict', 'idempotent submission pending or interrupted']) {
     assert(managedHostRunText.includes(token), `managed submission must retain durable duplicate-dispatch protection: ${token}`);
@@ -9746,6 +9749,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed integrity mismatch') && read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed binding mismatch'), 'cross-process seeds must verify keyed integrity and exact expected binding');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('verifyReviewInventoryEpoch(epoch)') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_SUBJECT_CUTOFF_DRIFT') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_ASSIGNMENT_MISSING_LANES'), 'batch subject must verify signed current epoch, material cutoff and complete assignments');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('reviewerBatchAdmissionLanes') && read('packages/main/src/core/reviewer-batch-subject.ts').includes("run.reviewPurpose === 'inventory-completeness'") && read('packages/main/src/core/reviewer-batch-subject.ts').includes('admissionLanesDigest'), 'managed batch admission must include only a current purpose-bound inventory critic in a distinct admission subject');
+  assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
   assert(read('scripts/verify-u08-batch-admission.mjs').includes('U08_BATCH_CONTROLLER_CONCURRENT_PASS'), 'shared admission requires actual multi-process regression');
