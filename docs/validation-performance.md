@@ -438,3 +438,6 @@ runtime observation is unsigned diagnostic data, not continuous code attestation
 Story role authority or proof that every live host has enrolled. Historical rows
 without this field remain unknown. Collection must distinguish observed session
 labels from actual live host counts.
+Nested capacity reuse also checks cancellation before entering its callback.
+Signal forwarding uses base AbortController methods and removes listeners on
+success, refusal and callback failure, retaining the existing Node runtime floor.

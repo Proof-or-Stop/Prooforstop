@@ -78,7 +78,8 @@ async function main() {
   check(read(root, 'packages/main/src/cli-engine.ts').includes('implementation: enforcedImplementationIdentity ? {'), 'activity records must reuse actual entry admission identity');
   check(registrySource.includes("ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation'"), 'lease-loss queue cancellation must be registered');
   check(read(root, 'packages/main/src/core/story-owner-lease.ts').includes('leaseLost.abort(error)'), 'failed owner renewal must signal queued consumers');
-  check(read(root, 'packages/main/src/core/validation-execution-lock.ts').includes('AbortSignal.any([options.abortSignal, leaseLostSignal])'), 'capacity wait must retain both caller and lease cancellation');
+  const validationCancellationSource = read(root, 'packages/main/src/core/validation-execution-lock.ts');
+  check(validationCancellationSource.includes('[options.abortSignal, leaseLostSignal]') && validationCancellationSource.includes("source.removeEventListener('abort', forward)"), 'capacity wait must retain both cancellation sources and clean up forwarding listeners');
   check(registrySource.includes("duplicateResourceClaims: 'one-per-exact-normalized-claim'"), 'exact normalized capacity claim semantics must be registered');
   const { declaredValidationCapacity } = await import(pathToFileURL(join(root, 'packages/main/dist/core/validation-execution-lock.js')).href);
   const duplicateClaim = { class: 'fixed-path', key: 'runtime-contract-probe', access: 'shared' };
