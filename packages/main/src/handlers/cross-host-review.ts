@@ -1,6 +1,6 @@
+import { prepareManagedSingletonAdmission, bindManagedSingletonSubmission, type ManagedSingletonAdmission } from '../core/managed-launch-admission.js';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { resolveManagedReviewIsolation, preflightManagedReadonlyHost } from '../core/managed-review-lane-policy.js';
-import { preflightManagedProviderState } from '../core/managed-review-provider-state.js';
+import { resolveManagedReviewIsolation } from '../core/managed-review-lane-policy.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
@@ -39,6 +39,7 @@ import {
   runManagedHostRunWorker,
   submitManagedHostRun,
   type ManagedHostRunWorkerLauncher,
+  type ManagedHostRunSubmitArgs,
 } from '../core/managed-host-run.js';
 import type { HostRunRunner } from '../core/host-run.js';
 import {
@@ -740,6 +741,7 @@ async function runManagedCodexReview(
     timeoutMs: number;
     environment: NodeJS.ProcessEnv;
     managedRunId?: string;
+    executionAdmission?: ManagedSingletonAdmission;
     detach?: boolean;
     /** Called synchronously once a fresh managed run has been durably submitted. */
     onManagedRunSubmitted?: (managedRunId: string) => void;
@@ -792,7 +794,7 @@ async function runManagedCodexReview(
     }
     submitted = (await getManagedHostRunStatus({ root: ctx.root, runId: opts.managedRunId })).run;
   } else {
-    submitted = await submitManagedHostRun({
+    const submitArgs: ManagedHostRunSubmitArgs = {
       root: ctx.root,
       cwd: opts.storyWorktree,
       host: 'codex',
@@ -805,7 +807,9 @@ async function runManagedCodexReview(
       projectRootHash: projectRootHashFor(ctx.root),
       profile: 'cross_host_review_codex',
       environment: opts.environment,
-    }, { launchWorker: options.launchWorker ?? injectedLauncher });
+    };
+    if (opts.executionAdmission) bindManagedSingletonSubmission(submitArgs,opts.executionAdmission);
+    submitted = await submitManagedHostRun(submitArgs, { launchWorker: options.launchWorker ?? injectedLauncher });
     // Submission durable-writes the run binding before any controller-local
     // bookkeeping. Capture its identity before appendProcessEvent (or any later
     // setup) can throw so the caller's finally block never treats this provider
@@ -1140,12 +1144,21 @@ export function createCrossHostReviewHandlers(
       // or clean HEAD move after the snapshot cannot influence what Codex reviewed,
       // and we refuse to bind/record the verdict if either drift is still present.
       const requestedManagedRunId = normalizeString(args.managedRunId);
+      let executionAdmission: ManagedSingletonAdmission | undefined;
       if (!requestedManagedRunId && resolveManagedReviewIsolation(ctx.root)) {
-        // Credentials are selected by the trusted controller, before provider
-        // environment redaction; only the derived private cache reaches Codex.
-        const preflightEnvironment = {...process.env,...redactedEnv};
-        preflightManagedReadonlyHost('codex', gitCwd, preflightEnvironment);
-        preflightManagedProviderState('codex', preflightEnvironment);
+        const deriveSubjectIdentity = () => {
+          assertMaterialCleanForReview(gitCwd);
+          assertReviewHeadStillCurrent(gitCwd, headHash);
+          const currentStory = ctx.store.readStory(storyId);
+          return canonicalDigest({schema:'cross-host-execution-subject.v1',root:realpathSync(gitCwd),storyId,runId,
+            phase:currentStory.phase,reviewRound:currentStory.currentReviewRound??null,headHash,
+            materialHash:currentMaterialHash(gitCwd,headHash,metadataRoot),storyFilesHash:currentStoryFilesHash(gitCwd,headHash,metadataRoot),
+            policy:authorizeReviewPolicy(metadataRoot,args.policy),hostAIdentity,hostBIdentity,
+            hostAFindings:args.hostAFindingsFile?loadHostAFindings(normalizeString(args.hostAFindingsFile)):[],timeoutMinutes});
+        };
+        executionAdmission = await prepareManagedSingletonAdmission({root:ctx.root,storyId,profile:'cross_host_review_codex',
+          lane:'cross-host-review:codex',host:'codex',subjectIdentity:deriveSubjectIdentity(),deriveSubjectIdentity,
+          effectiveBaseEnvironment:{...process.env,...redactedEnv}});
       }
       const resumedBinding = requestedManagedRunId
         ? readManagedHostRunBinding(ctx.root, requestedManagedRunId)
@@ -1192,6 +1205,7 @@ export function createCrossHostReviewHandlers(
                 prompt: runnerOptions.prompt,
                 timeoutMs: runnerOptions.timeoutMs,
                 environment: runnerOptions.env ?? redactedEnv,
+                ...(executionAdmission ? {executionAdmission} : {}),
                 ...(requestedManagedRunId ? { managedRunId: requestedManagedRunId } : {}),
                 ...(args.detach === true ? { detach: true } : {}),
                 onManagedRunSubmitted: submittedRunId => { managedRunId = submittedRunId; },

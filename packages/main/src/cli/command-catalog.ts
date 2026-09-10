@@ -1,3 +1,4 @@
+import { ReviewerBatchAdmitArgsSchema } from '../core/reviewer-batch-admit-schema.js';
 import { z } from 'zod';
 import { publicToolCatalog, type ToolDef } from './main-tools.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
@@ -1194,6 +1195,7 @@ Behavior:
     execute: z.never().optional().describe('Not a flag; init_preflight is read-only. Passing --execute is rejected by CLI validation.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
+  { name: 'reviewer_batch_admit', description: 'Owner-only shared capability admission for an explicit complete reviewer roster in the current signed REVIEW inventory wave. Does not launch a reviewer or issue review evidence.', schema: ReviewerBatchAdmitArgsSchema.shape },
   { name: 'reviewer_batch', description: 'Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking) from existing facts, emits the Agent(...) launch instruction (the orchestrator subagent-spawn form, not a dispatch CLI command) for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),

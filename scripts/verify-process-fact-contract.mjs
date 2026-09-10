@@ -19,7 +19,7 @@ const readonlyManagedSource=readFileSync(join(root,'packages/main/src/core/manag
 const crossHostReadonlySource=readFileSync(join(root,'packages/main/src/handlers/cross-host-review.ts'),'utf8');
 if (!readonlyManagedSource.includes('verifyManagedReviewLane(spec.crossHostReadonlyLane, expected)')
   || !readonlyManagedSource.includes('crossHostReadonlyLane = await createManagedReviewLane')
-  || !crossHostReadonlySource.includes('preflightManagedProviderState')
+  || !crossHostReadonlySource.includes('prepareManagedSingletonAdmission')
   || !crossHostReadonlySource.includes('!requestedManagedRunId')) failures.push('Cross-host readonly lane requires sealed worker verification and fresh-run pre-snapshot preflight');
 if (!readonlyManagedSource.includes('verifyManagedReviewLane(scratch.readonlyLane, scratch)')
   || !readonlyManagedSource.includes('readonlyLane: await createManagedReviewLane')) failures.push('Managed readonly source/build binding must be sealed and consumed');
@@ -7397,7 +7397,7 @@ function assertCrossHostReviewManagedDelegationContract(levelRegistry, policyByN
   );
 
   const handlerText = read('packages/main/src/handlers/cross-host-review.ts');
-  for (const token of ['authorizeReviewPolicy', 'allowReviewOnlyRealHostSubprocess === true', "includes('codex')", 'submitManagedHostRun({', 'managedHostRunReceipt(']) {
+  for (const token of ['authorizeReviewPolicy', 'allowReviewOnlyRealHostSubprocess === true', "includes('codex')", 'submitManagedHostRun(submitArgs,', 'bindManagedSingletonSubmission(submitArgs,', 'managedHostRunReceipt(']) {
     assert(handlerText.includes(token), `packages/main/src/handlers/cross-host-review.ts: ${commandName} managed delegation contract missing ${token}`);
   }
 }
@@ -8686,6 +8686,9 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/story-scope-budget.ts').includes('readScopeDecomposition(store, subject'), 'scope budget must consume live decomposition coverage');
   assert(registrySource.includes("name: 'runtime:machine_provider_admission'"), 'machine provider admission must be a registered process fact');
   assert(read('packages/main/src/core/reviewer-batch-admission.ts').includes('controller-interrupted'), 'shared admission must refuse interrupted controller recovery');
+  assert(read('packages/main/src/core/managed-host-run.ts').includes('consumeManagedLaunchAdmission(args, sealedEnvironment, {runId,deadlineAt})') && read('packages/main/src/core/managed-host-run.ts').includes('await verifyManagedLaunchAdmission'), 'managed admission must gate fresh scratch creation and actual provider launch');
+  assert(read('packages/main/src/core/managed-launch-admission.ts').includes('withVerifiedExecutionBatchLaunch') && read('packages/main/src/core/reviewer-batch-producer.ts').includes('withReviewerBatchLaunchLock') && read('packages/main/src/core/managed-host-run.ts').includes("result.failureKind === 'auth'"), 'batch current-generation verification and grant must serialize with auth revocation');
+  assert(read('packages/main/src/core/reviewer-batch-producer.ts').includes('probeHostExecutionReadiness') && read('packages/main/src/core/reviewer-batch-producer.ts').includes('identifyManagedExecutionRuntimeInputs') && read('packages/main/src/core/reviewer-batch-admit-schema.ts').includes('retryFromGeneration'), 'owner admission requires real supervised probes, current runtime checks and explicit retry identity');
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed integrity mismatch') && read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed binding mismatch'), 'cross-process seeds must verify keyed integrity and exact expected binding');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('verifyReviewInventoryEpoch(epoch)') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_SUBJECT_CUTOFF_DRIFT') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_ASSIGNMENT_MISSING_LANES'), 'batch subject must verify signed current epoch, material cutoff and complete assignments');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');

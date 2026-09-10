@@ -26,3 +26,10 @@ await withSignedReviewerBatchFixture(repo,async({root,store,storyId,begin,git})=
  assert.equal(scratches,0,'U08_MANAGED_ADMISSION_REQUIRED_BEFORE_SCRATCH');assert.equal(workers,0);assert.match(String(refusal),/admission|reviewer_batch_admit/i);
  console.log('U08_MANAGED_MISSING_ADMISSION_ZERO_SCRATCH_ZERO_WORKER_PASS');
 });
+await import('./verify-u08-singleton-admission.mjs');
+await import('./verify-u08-batch-producer.mjs');
+await import('./verify-u08-batch-retry.mjs');
+await import('./verify-u08-batch-auth-revocation.mjs');
+await import('./verify-u08-batch-launch-race.mjs');
+await import('./verify-u08-batch-cli.mjs');
+await import('./verify-u08-admitted-worker.mjs');

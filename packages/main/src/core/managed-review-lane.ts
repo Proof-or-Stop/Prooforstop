@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
-import { createManagedProviderState, managedProviderStateEnvironment, type ManagedReviewProviderState } from './managed-review-provider-state.js';
+import { materializeManagedProviderState, managedProviderStateEnvironment, type ManagedReviewProviderState, type ManagedProviderStateSnapshot } from './managed-review-provider-state.js';
 import { runValidationCommand } from './validation-executor.js';
 import { MANAGED_REVIEW_LANE_ARTIFACT } from './runtime-artifact-registry.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -17,7 +17,7 @@ export interface ManagedReviewLane {
   providerState: ManagedReviewProviderState;
   binding: {schema: string; headHash: string; sourceDigest: string; outputDigest: string; compilerPath: string; compilerFiles:Array<{path:string;digest:string}>; deniedSharedDist: string[]; sourceRuntimeLinks:Array<{path:string;target:string}>; launcherDigest:string};
 }
-export async function createManagedReviewLane(scratch: {parent:string; cwd:string; root:string; headHash:string},host:string,environment:NodeJS.ProcessEnv): Promise<ManagedReviewLane> {
+export async function createManagedReviewLane(scratch: {parent:string; cwd:string; root:string; headHash:string},host:string,environment:NodeJS.ProcessEnv,providerSeed:ManagedProviderStateSnapshot): Promise<ManagedReviewLane> {
   if (process.platform !== 'darwin') throw new Error('managed readonly platform capability unavailable');
   const lane = join(scratch.parent, MANAGED_REVIEW_LANE_ARTIFACT.directoryName);
   mkdirSync(lane, {mode:0o700});
@@ -35,7 +35,8 @@ export async function createManagedReviewLane(scratch: {parent:string; cwd:strin
     catch(error) {if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;mkdirSync(parent,{mode:0o700});}
   }
   directories.output=realpathSync(output);
-  const providerState=createManagedProviderState(directories.cache!,host,environment);
+  const providerState=materializeManagedProviderState(directories.cache!,providerSeed);
+  if(providerState.host!==host)throw new Error('managed lane seed host mismatch');
   writeFileSync(join(directories.probe!,'.managed-readonly-capability'),'immutable capability probe\n',{flag:'wx',mode:0o400});
   const common=await exec('git',['rev-parse','--git-common-dir'],{cwd:scratch.cwd,encoding:'utf8'});
   const layout: ManagedReadonlyLayout={source:scratch.cwd,buildSource:directories['build-source']!,

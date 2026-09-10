@@ -17,9 +17,17 @@ function executable(path:string) {
  }finally{closeSync(fd);}
 }
 /** Full effective env is caller-resolved once; no transport keys or private paths excluded. */
-export function identifyManagedExecutionInputs(args:{key:ManagedExecutionIdentityKey;host:CanonicalReviewHost;providerState:ManagedProviderStateSnapshot;executablePath:string;cwd:string;environment:NodeJS.ProcessEnv;reviewProfile:string;reviewArgv:readonly string[]}) {
+interface RuntimeInputs {key:ManagedExecutionIdentityKey;host:CanonicalReviewHost;executablePath:string;cwd:string;environment:NodeJS.ProcessEnv;reviewProfile:string;reviewArgv:readonly string[]}
+export function identifyManagedExecutionRuntimeInputs(args:RuntimeInputs) {
  if(!args.reviewProfile.trim())throw new Error('review profile identity required');
  const environment=Object.keys(args.environment).sort().map(name=>[name,args.environment[name]===undefined?{absent:true}:{value:args.environment[name]}]);
- const projection={schema:'managed-execution-inputs.v1',host:args.host,launcher:canonicalReviewHostLauncherSpec(args.host),reviewProfile:args.reviewProfile,reviewArgv:[...args.reviewArgv],cwd:realpathSync(args.cwd),environment,executable:executable(args.executablePath),providerState:fingerprintCapturedManagedProviderState(args.providerState,args.key,args.host),runtime:{node:process.version,platform:process.platform,arch:process.arch,probeAndRunner:['./host-execution-readiness.js','../providers/supervised-process.js','../providers/supervised-process-worker.js','./runtime-fact-registry.js'].map(path=>[path,createHash('sha256').update(readFileSync(new URL(path,import.meta.url))).digest('hex')])}};
+ const projection={schema:'managed-execution-runtime-inputs.v1',host:args.host,launcher:canonicalReviewHostLauncherSpec(args.host),reviewProfile:args.reviewProfile,reviewArgv:[...args.reviewArgv],cwd:realpathSync(args.cwd),environment,executable:executable(args.executablePath),runtime:{node:process.version,platform:process.platform,arch:process.arch,probeAndRunner:['./host-execution-readiness.js','../providers/supervised-process.js','../providers/supervised-process-worker.js','./runtime-fact-registry.js'].map(path=>[path,createHash('sha256').update(readFileSync(new URL(path,import.meta.url))).digest('hex')])}};
  return Object.freeze({schema:projection.schema,digest:managedExecutionKeyedDigest(args.key,projection.schema,[Buffer.from(JSON.stringify(projection))])});
+}
+
+/** Original credential state remains bound at admission, independently of refreshed seeds. */
+export function identifyManagedExecutionInputs(args:RuntimeInputs & {providerState:ManagedProviderStateSnapshot}) {
+ const runtime=identifyManagedExecutionRuntimeInputs(args);
+ const projection={schema:'managed-execution-inputs.v2',runtimeDigest:runtime.digest,providerState:fingerprintCapturedManagedProviderState(args.providerState,args.key,args.host)};
+ return Object.freeze({schema:projection.schema,runtimeDigest:runtime.digest,digest:managedExecutionKeyedDigest(args.key,projection.schema,[Buffer.from(JSON.stringify(projection))])});
 }

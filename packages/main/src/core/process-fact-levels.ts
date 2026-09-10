@@ -44,6 +44,7 @@ export const PROCESS_FACT_LEVEL_DEFINITIONS = [
 ] as const satisfies readonly ProcessFactLevelDefinition[];
 
 export const PROCESS_FACT_LEVELS = [
+  { name: 'reviewer_batch_admit', level: 'L4', category: 'managed-admission', owner: 'handlers/reviewer-batch-admit', rationale: 'Owner freezes a complete signed review roster and records supervised batch capability admission with explicit idempotent retry generations.', gateConsumer: 'Configured managed reviewer submit before scratch/build and worker before provider launch' },
   { name: 'story_create', level: 'L1', category: 'story', owner: 'handlers/story-create', rationale: 'Creates the initial story envelope and schema-normalized inputs before gate evidence exists.' },
   { name: 'story_advance', level: 'L4', category: 'lifecycle', owner: 'handlers/story-advance', rationale: 'Moves lifecycle phase and invokes phase guards before writing the transition.', gateConsumer: 'storyMachine phase guards and story_advance preflight gates' },
   { name: 'story_update', level: 'L2', category: 'story', owner: 'handlers/story', rationale: 'Mutates story metadata under CLI schema control without serving as gate evidence.' },

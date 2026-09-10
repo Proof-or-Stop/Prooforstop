@@ -211,6 +211,62 @@
     {
       "path": "scripts/verify-u08-private-provider-seed.mjs",
       "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/managed-launch-admission.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-admit-schema.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/core/reviewer-batch-producer.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "packages/main/src/handlers/reviewer-batch-admit.ts",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/provider-fixture.c",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-producer.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-auth-revocation.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-cli.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-launch-race.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-admitted-worker.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/lab/u08-batch-admission/worker-ready-fixture.c",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-batch-retry.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-singleton-admission.mjs",
+      "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-managed-admission-gate.mjs",
+      "domain": "provider-execution"
     }
   ],
   "basis": "Root explicitly authorized prospective U08 readonly lane files and dedicated tests as provider-execution. AGENTS.override.md is local instruction material outside this policy activation. Pending tests must be explicitly added when their final paths exist."

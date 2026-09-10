@@ -1,3 +1,6 @@
+import { createReviewerBatchAdmitHandlers } from './handlers/reviewer-batch-admit.js';
+// Required production service supplied by the parent integration; this patch is not standalone.
+import { admitReviewerBatch } from './core/reviewer-batch-producer.js';
 import { createAcceptanceAmendmentHandlers } from './handlers/acceptance-amendment.js';
 import { createStoryScopeBudgetHandlers } from './handlers/story-scope-budget.js';
 /**
@@ -314,6 +317,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // orchestrator subagent-spawn form, not a dispatch CLI command) + REVIEW gate
   // status. Launches no reviewer, runs no review_run_start, writes no evidence.
   registry.registerBatch(createReviewerBatchHandlers(ctx));
+  registry.registerBatch(createReviewerBatchAdmitHandlers(ctx, admitReviewerBatch));
   // B-4896 (P4): evidence_refresh — opt-in one-pass refresh-only orchestrator.
   // Dry default previews the refresh-only bucket (read-only). --apply performs
   // AT MOST ONE re-stamp pass via the existing verification_evidence_refresh_stale

@@ -1,5 +1,6 @@
-import { preflightManagedProviderState } from './managed-review-provider-state.js';
-import { resolveManagedReviewIsolation, preflightManagedReadonlyHost } from './managed-review-lane-policy.js';
+import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
+import { consumeManagedLaunchAdmission, verifyManagedLaunchAdmission, type ManagedLaunchAdmission } from './managed-launch-admission.js';
+import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 import { createManagedReviewLane, managedReviewLaneEnvironment, verifyManagedReviewLane, type ManagedReviewLane } from './managed-review-lane.js';
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
@@ -505,6 +506,8 @@ export interface ManagedReviewScratchCleanupDiagnostic {
 }
 
 interface ManagedHostRunSpec {
+  /** Absent only on historical specs; fresh isolated submits always emit it. */
+  executionAdmission?: { version: 1; binding: ManagedLaunchAdmission['binding'] };
   /** Sampled once at submission; sealed by the existing immutable spec binding. */
   durationEstimate?: ManagedRunDurationEstimate;
   /** Immutable supervisor cost limit; absent only for older managed specs. */
@@ -2315,10 +2318,6 @@ export async function submitManagedHostRun(
 
   const requestedReadonlyLane = args.isolateManagedReview === true || args.profile === 'cross_host_review_codex'
     ? resolveManagedReviewIsolation(args.root) : null;
-  if (requestedReadonlyLane) {
-    preflightManagedReadonlyHost(args.host, args.cwd, {...process.env,...args.environment});
-    preflightManagedProviderState(args.host, {...process.env,...args.environment});
-  }
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
@@ -2369,9 +2368,18 @@ export async function submitManagedHostRun(
     throw new Error(`managed host run ${runId}: idempotent submission pending or interrupted; inspect this run, never redispatch`);
   }
 
+  let admission: ManagedLaunchAdmission | undefined;
+  let sealedEnvironment = args.environment;
   let managedReviewScratch: ManagedReviewScratchWorktree | null = null;
   let crossHostReadonlyLane: ManagedReviewLane | undefined;
   try {
+    if (requestedReadonlyLane) {
+      // New claims only. Existing spec/archive recovery above never probes.
+      // Dispatcher verifies signed ordinary roster or trusted singleton subject.
+      sealedEnvironment = normalizeExecutionBatchEnvironment({...process.env,...args.environment});
+      admission = await consumeManagedLaunchAdmission(args, sealedEnvironment, {runId,deadlineAt});
+      if (!admission) throw new Error('managed launch requires execution admission');
+    }
     if (args.isolateManagedReview === true) {
       managedReviewScratch = createManagedReviewScratchWorktree({
         gitCwd: args.root,
@@ -2380,14 +2388,14 @@ export async function submitManagedHostRun(
         parentFactory: deps.managedReviewScratchParentFactory,
       });
       if (requestedReadonlyLane) {
-        const sealedScratch = {...managedReviewScratch, readonlyLane: await createManagedReviewLane(managedReviewScratch, args.host, {...process.env,...args.environment})};
+        const sealedScratch = {...managedReviewScratch, readonlyLane: await createManagedReviewLane(managedReviewScratch, args.host, {...process.env,...args.environment}, admission!.providerState)};
         atomicWrite(managedReviewScratchRegistrationPath(managedReviewScratch), sealedScratch);
         managedReviewScratch = sealedScratch;
       }
     }
     if (requestedReadonlyLane && args.profile === 'cross_host_review_codex') {
       if (args.host !== 'codex') throw new Error('cross-host readonly profile requires Codex');
-      crossHostReadonlyLane = await createManagedReviewLane(crossHostReadonlySnapshot(args.root, args.cwd), args.host, {...process.env,...args.environment});
+      crossHostReadonlyLane = await createManagedReviewLane(crossHostReadonlySnapshot(args.root, args.cwd), args.host, {...process.env,...args.environment}, admission!.providerState);
     }
   } catch (error) {
     if (managedReviewScratch) cleanupManagedReviewScratchWorktree(args.root, managedReviewScratch);
@@ -2401,6 +2409,7 @@ export async function submitManagedHostRun(
   const proposalInvocationKeys = isIsolatedReviewerProfile(args.profile) ? generateEd25519KeyPair() : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
+    ...(admission ? { executionAdmission: { version: 1 as const, binding: admission.binding } } : {}),
     durationEstimate: captureManagedRunDurationEstimate(args, createdAt),
     burnTokenLimit,
     ...(submissionDigest ? { submissionDigest } : {}),
@@ -2433,7 +2442,7 @@ export async function submitManagedHostRun(
       proposalInvocationPublicKey: proposalInvocationKeys?.publicKey ?? null,
       specDigest: sha256(readManagedHostRunSpec(paths).text),
       promptDigest: sha256(args.promptText),
-      environmentDigest: args.environment ? sha256(canonicalJson(args.environment)) : null,
+      environmentDigest: sealedEnvironment ? sha256(canonicalJson(sealedEnvironment)) : null,
       createdAt,
     };
     atomicWrite(paths.owner, owner);
@@ -2488,8 +2497,8 @@ export async function submitManagedHostRun(
       writeFileSync(paths.capability, capability, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
     }
     writeFileSync(paths.prompt, args.promptText, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
-    if (args.environment) {
-      writeFileSync(paths.environment, `${canonicalJson(args.environment)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+    if (sealedEnvironment) {
+      writeFileSync(paths.environment, `${canonicalJson(sealedEnvironment)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
     }
   } catch (error) {
     unlinkIfPresent(paths.capability);
@@ -2564,8 +2573,11 @@ export async function runManagedHostRunWorker(
   const paths = pathsFor(request.root, request.runId);
   const existing = readTerminal(paths);
   if (existing) return existing;
-  const spec = readManagedHostRunSpec(paths).value;
+  const sealedSpec = readManagedHostRunSpec(paths);
+  const spec = sealedSpec.value;
   const owner = readManagedHostRunOwner(paths);
+  // Protect even removal of the admission-version field; old immutable specs still match.
+  if (owner.specDigest !== sha256(sealedSpec.text)) throw new Error('managed worker immutable spec mismatch');
   const proposalInvocationPrivateKey = request.proposalInvocationPrivateKey
     ?? readWorkerProposalInvocationPrivateKey(deps.env ?? process.env);
   const now = deps.now ?? Date.now;
@@ -2763,27 +2775,6 @@ export async function runManagedHostRunWorker(
 
   let result: HostRunResult | null = null;
   try {
-    const launchRefusal = withTerminalAuthorityLock(paths, () => {
-      const terminal = readTerminal(paths);
-      if (terminal) return terminal.state === 'timed_out' ? 'absolute_deadline_exceeded' : terminal.reason;
-      const current = readManagedHostRunSnapshot(paths);
-      const cancel = readCancelRequest(paths);
-      const deadlineExceeded = now() >= Date.parse(spec.deadlineAt);
-      if (cancel || deadlineExceeded || current.providerLaunchState === 'revoked') {
-        updateSnapshotUnlocked(paths, snapshot => ({ ...snapshot, providerLaunchState: 'revoked' }));
-        return cancel?.reason ?? (deadlineExceeded ? 'absolute_deadline_exceeded' : 'provider_launch_authority_revoked');
-      }
-      updateSnapshotUnlocked(paths, snapshot => ({ ...snapshot, providerLaunchState: 'granted' }));
-      return null;
-    });
-    if (launchRefusal) {
-      if (launchRefusal === 'absolute_deadline_exceeded') {
-        deadlineTriggered = true;
-        return writeTerminal(paths, 'timed_out', launchRefusal, true, null, now());
-      }
-      cancelTriggered = readCancelRequest(paths) !== null;
-      return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed', launchRefusal, true, null, now());
-    }
     const providerEnvironment: NodeJS.ProcessEnv = {
       ...(oneShotEnvironment ?? deps.env ?? process.env),
       ...managedReviewTemporaryEnvironment(spec),
@@ -2803,6 +2794,45 @@ export async function runManagedHostRunWorker(
     delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;
     const readonlyLane = spec.managedReviewScratch?.readonlyLane ?? spec.crossHostReadonlyLane;
     if(readonlyLane) providerEnvironment.PATH = join(dirname(readonlyLane.layout.buildSource),MANAGED_REVIEW_LANE_ARTIFACT.launchers)+':'+(providerEnvironment.PATH ?? process.env.PATH ?? '');
+    const grantLaunch = () => withTerminalAuthorityLock(paths, () => {
+      const terminal = readTerminal(paths);
+      if (terminal) return terminal.state === 'timed_out' ? 'absolute_deadline_exceeded' : terminal.reason;
+      const current = readManagedHostRunSnapshot(paths);
+      const cancel = readCancelRequest(paths);
+      const deadlineExceeded = now() >= Date.parse(spec.deadlineAt);
+      if (cancel || deadlineExceeded || current.providerLaunchState === 'revoked') {
+        updateSnapshotUnlocked(paths, snapshot => ({ ...snapshot, providerLaunchState: 'revoked' }));
+        return cancel?.reason ?? (deadlineExceeded ? 'absolute_deadline_exceeded' : 'provider_launch_authority_revoked');
+      }
+      updateSnapshotUnlocked(paths, snapshot => ({ ...snapshot, providerLaunchState: 'granted' }));
+      return null;
+    });
+    let launchRefusal: string | null | void;
+    if (spec.executionAdmission) {
+      if (spec.executionAdmission.version !== 1 || !spec.executionAdmission.binding || !readonlyLane) {
+        throw new Error('managed execution admission spec invalid');
+      }
+      const currentSpec = readManagedHostRunSpec(paths);
+      if (owner.specDigest !== sha256(currentSpec.text)) throw new Error('managed execution admission spec digest mismatch');
+      if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
+      // Controller verification and the terminal grant form one launch decision.
+      // The callback releases both locks before runHostRun begins.
+      launchRefusal = await verifyManagedLaunchAdmission({
+        spec, binding: spec.executionAdmission.binding,
+        effectiveBaseEnvironment: oneShotEnvironment, providerEnvironment, readonlyLane,
+        ...(spec.profile === 'managed_reviewer' && deps.runner ? {injectedCapability:capability} : {}),
+      }, grantLaunch);
+    } else {
+      launchRefusal = grantLaunch();
+    }
+    if (launchRefusal) {
+      if (launchRefusal === 'absolute_deadline_exceeded') {
+        deadlineTriggered = true;
+        return writeTerminal(paths, 'timed_out', launchRefusal, true, null, now());
+      }
+      cancelTriggered = readCancelRequest(paths) !== null;
+      return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed', launchRefusal, true, null, now());
+    }
     result = await runHostRun(
       {
         host: spec.host,
@@ -2914,6 +2944,21 @@ export async function runManagedHostRunWorker(
         },
       },
     );
+
+    // Authentication failure invalidates the shared seed before any other
+    // result/terminal branch can return. A late old worker cannot revoke a new generation.
+    if (result.failureKind === 'auth' && spec.executionAdmission) {
+      if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
+      const revoked = await revokeExecutionBatchBinding({
+        root: spec.root,
+        binding: spec.executionAdmission.binding.execution,
+        effectiveBaseEnvironment: oneShotEnvironment,
+      });
+      if (!(revoked.state === 'BLOCKED' && revoked.reason === 'provider-auth-revoked')
+        && !(revoked.state === 'UNKNOWN' && revoked.reason === 'revocation-generation-not-current')) {
+        throw new Error(`managed batch auth revocation failed: ${revoked.reason ?? revoked.state}`);
+      }
+    }
 
     if (supervisorFailure) throw supervisorFailure;
 

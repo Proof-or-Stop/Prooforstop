@@ -1,3 +1,5 @@
+import { prepareManagedSingletonAdmission, bindManagedSingletonSubmission } from './managed-launch-admission.js';
+import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 /** Acceptance owns proposal derivation and recoverable application; reviewers own only their verdict. */
 import { createHash } from 'node:crypto';
 import { storyScopeBudgetBlocker } from './story-scope-budget.js';
@@ -10,7 +12,7 @@ import { canonicalDigest } from './authority-signing.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, captureEvidenceHashSnapshot } from './evidence-freshness.js';
 import { withReviewInventoryMutationLock } from './review-inventory-epoch.js';
-import { submitManagedHostRun, readManagedAcceptanceReviewReceipt, type ManagedHostRunSubmitDeps } from './managed-host-run.js';
+import { submitManagedHostRun, readManagedAcceptanceReviewReceipt, type ManagedHostRunSubmitDeps, type ManagedHostRunSubmitArgs } from './managed-host-run.js';
 
 export interface AcceptanceAmendmentEntry {
   schemaVersion: 'proofbound.acceptance_amendment.v1';
@@ -132,13 +134,30 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         return { entry, binding, promptText, headHash, materialHash, storyFilesHash };
       });
       if ('existing' in prepared) return { runId: prepared.existing!, recoveryHint: 'Inspect this exact run with host_run_status. For a terminal failure, rejection or stale source, cancel the amendment with a reason and propose a new amendment ID; never replace its pinned key.' };
-      return submitManagedHostRun({ root, cwd: root, host: args.host, storyId: args.storyId, phase: 'DEV',
+      const submitArgs: ManagedHostRunSubmitArgs = { root, cwd: root, host: args.host, storyId: args.storyId, phase: 'DEV',
         agentType: ACCEPTANCE_REVIEW_LANE, lane: ACCEPTANCE_REVIEW_LANE, reviewRunId: `${args.storyId}:AMR-${args.amendmentId}`,
         profile: ACCEPTANCE_REVIEW_PROFILE, acceptanceReviewBinding: prepared.binding, isolateManagedReview: true,
         promptText: prepared.promptText, projectRootHash: hashText(realpathSync(root)),
         reviewBinding: { headHash: prepared.headHash, materialHash: prepared.materialHash, storyFilesHash: prepared.storyFilesHash,
           promptHash: hashText(prepared.promptText), managedPromptDigest: hashText(prepared.promptText), envelopeId: null },
-      }, { ...deps, onAcceptanceReviewKeyCreated: ({ runId, publicKey }) => locked(args.storyId, () => {
+      };
+      if (resolveManagedReviewIsolation(root)) {
+        const deriveSubjectIdentity = () => locked(args.storyId, () => {
+          requireDev(args.storyId);
+          const { entry } = entryFor(args.storyId, args.amendmentId);
+          if (entry.state !== 'PROPOSED') throw new Error('Acceptance admission subject is no longer proposed');
+          assertBase(entry);
+          if (captureEvidenceHashSnapshot({ gitCwd: root }).materialDirtyFiles.length) throw new Error('Acceptance admission material drift');
+          return canonicalDigest({schema:'acceptance-execution-subject.v1',root:realpathSync(root),storyId:args.storyId,
+            amendmentId:entry.amendmentId,amendmentDigest:entry.amendmentDigest,baseDigest:entry.baseDigest,
+            headHash:currentGitHead(root),materialHash:currentMaterialHash(root),storyFilesHash:currentStoryFilesHash(root)});
+        });
+        const token = await prepareManagedSingletonAdmission({root,storyId:args.storyId,profile:ACCEPTANCE_REVIEW_PROFILE,
+          lane:ACCEPTANCE_REVIEW_LANE,host:args.host,subjectIdentity:deriveSubjectIdentity(),deriveSubjectIdentity,
+          effectiveBaseEnvironment:{...process.env}});
+        bindManagedSingletonSubmission(submitArgs,token);
+      }
+      return submitManagedHostRun(submitArgs, { ...deps, onAcceptanceReviewKeyCreated: ({ runId, publicKey }) => locked(args.storyId, () => {
         requireDev(args.storyId);
         const { journal, entry } = entryFor(args.storyId, args.amendmentId);
         if (entry.state !== 'PROPOSED') throw new Error('Acceptance review attempt changed before key pin');

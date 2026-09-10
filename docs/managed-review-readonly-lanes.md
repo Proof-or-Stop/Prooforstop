@@ -66,53 +66,61 @@ its machine/project admission and ordinary process-group cleanup. An actual
 provider auth failure or timeout remains non-ready; unproven cleanup also cannot
 produce READY. The readiness classifier retains its 256 KiB per-stream failure
 threshold, while the supervisor bounds total captured output at its shared limit.
-This lifetime repair does not yet establish batch-wide shared readiness admission.
+Readiness feeds the shared admission protocol described below.
 
-Provider file inputs can now be captured once as an opaque controller-local token.
-Materialization copies those captured bytes into each private lane, so changing
-the original auth file after capture cannot silently change that lane's input.
-The token serializes no credential data and cannot be reconstructed from JSON.
-Bounded no-follow reads reject malformed and symlink inputs. Existing direct
-creation uses capture then materialization and retains per-lane writable caches.
-Batch admission and post-probe credential refresh still require their dedicated
-producer/consumer wiring; this API alone does not establish shared admission.
+## Shared readiness admission
 
-The shared batch-admission controller now stores signed operational generations
-under the registered canonical runtime directory. Concurrent callers with the
-same trusted subject/input identity share one probe per managed host. It waits
-for all hosts before an admitted verdict, keeps unchanged failures sticky, and
-turns an interrupted controller into a blocked generation. Read-only status
-performs no writes or probes; cancellation while queued starts no probe.
-This controller is not yet a managed-launch prerequisite: the complete roster,
-execution-input producer and managed consumer wiring remain separate work.
+For ordinary managed REVIEW lanes, the owner runs `reviewer_batch_admit` with
+`storyId` and the complete `assignments` array. Each required lane appears once
+as `{lane, kind: "native"}` or `{lane, kind: "managed", host: "codex" | "claude"}`.
+The command requires the current signed OPEN inventory epoch and committed
+material cutoff. It freezes that explicit roster under coordination locks;
+callers cannot supply READY or their own execution identity. `reviewer_batch`
+continues to be a read-only launch plan.
 
-The execution-input helper uses an opaque controller HMAC key to bind captured
-file credentials, full effective environment, resolved native executable bytes
-and permissions, physical paths, launcher/profile and probe runtime identity.
-Its public result contains only a schema and keyed digest. Read-only key lookup
-creates no files. Nonregular inputs and FIFO replacements fail without blocking;
-shebang interpreter chains are currently unsupported and refused. The helper
-does not infer equivalence between different private cache or working paths.
-The Darwin reviewer sandbox denies reads of the canonical controller admission
-subtree, derived from the original worktree. This includes directory listings and
-symlink aliases, while source reads and private provider cache refresh remain
-available. Actual managed admission consumption remains necessary before this
-can authorize shared preflight reuse.
+Concurrent callers with the same subject and inputs share one supervised probe
+per managed host. Admission waits for every host. Unchanged failures remain
+blocked; an owner can request a deliberate retry with `retryFromGeneration`.
+Concurrent retries of the same generation reuse one successor. Interrupted
+publication is recovered as blocked without an implicit probe.
 
-The read-only batch subject helper validates the current signed OPEN REVIEW epoch,
-committed material cutoff, scope and candidate digests. Assignments must cover
-every required lane exactly once with an explicit native or managed kind and a
-managed host; a consumer can check its actual host and kind against that roster.
-Missing or stale epochs are refused without rewriting inventory state. This
-helper must be used within the producer/consumer coordination boundary; it does
-not itself freeze future writes or install the managed launch gate.
+The execution identity binds the complete effective base environment, captured
+file credentials, resolved native executable bytes and permissions, physical
+paths, launcher/profile and probe runtime through a private HMAC key. Undefined
+environment values mean absent OS variables; defined values are all included.
+Shebang interpreter chains are currently unsupported. The probe runs with a
+private credential copy. Its refreshed state is persisted with keyed integrity
+under the registered provider-seeds directory, bound to subject, generation and
+host. Every lane materializes an independent writable cache from that seed.
+Workers do not reread original credentials after admission.
 
-Trusted producer code can now persist a captured refreshed file-cache seed with
-controller-keyed integrity and exact subject, generation and host binding. A
-read-only consumer loads an opaque snapshot and materializes independent lane
-caches without opening the original credentials. Publication is exclusive;
-missing, tampered, nonregular or mismatched seeds are refused. A crash during
-hardlink publication may conservatively leave an unreadable seed rather than
-allow partially published state. The future producer must use the registered
-provider-seeds subtree, outside the controller generation-history directory.
-This storage API does not create READY or verify a successful provider probe.
+New configured readonly managed submissions require admission before scratch
+creation or compilation. Acceptance amendment and cross-host review controllers
+use their own trusted singleton subjects before creating scratch or snapshots;
+their internal authorization tokens cannot be reconstructed from caller JSON.
+Existing idempotent runs attach their original sealed spec without new probes or
+builds. Legacy specs are not retroactively certified as admitted.
+
+The readiness lifetime bounds new lane consumption. A fresh consumption records
+an immutable signed launch reservation for the exact run and deadline before
+building. That reservation permits the same worker to start after the readiness
+TTL if its own deadline has not passed. It does not permit new runs after expiry
+or bypass current-generation checks. A deterministic provider auth failure
+revokes its current generation with a signed immutable record. Queued workers
+refuse it even if publishing the updated active record was interrupted. A late
+failure from an older generation cannot revoke its successor. Final current-batch
+verification and the per-run launch grant share the controller lock. The grant
+is the launch ordering point; provider execution happens after releasing both
+controller and run locks. Workers verify the sealed spec, full base
+environment, refreshed private seed, current native executable/runtime and the
+actual executable resolved through the lane PATH before granting launch.
+
+The Darwin sandbox denies provider reads of the canonical admission subtree,
+including keys, seeds, directory listings and symlink aliases. Original source
+and Git remain readable; private lane cache refresh remains writable. Bounded
+no-follow file reads reject malformed, nonregular and FIFO inputs. Read-only
+admission inspection writes no state and performs no probes.
+
+These checks establish local admission, isolation and launch behavior. Native
+fixture readiness is not evidence of a real external login, review PASS, or
+population-wide performance and reliability targets.

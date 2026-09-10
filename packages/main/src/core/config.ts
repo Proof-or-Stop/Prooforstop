@@ -580,6 +580,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
+    'reviewer_batch_admit', // Owner-only shared capability admission for the signed current inventory.
     'scope_budget_approve',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
