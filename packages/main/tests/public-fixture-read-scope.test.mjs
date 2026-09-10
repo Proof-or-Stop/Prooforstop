@@ -20,16 +20,17 @@ const declarations = ast.statements.filter(node =>
 for (const name of ['git', 'snapshotGitMaterial', 'createPublicOperationClone']) assert.ok(declarations.includes(`function ${name}(`));
 const seed = fs.mkdtempSync(path.join(tmpdir(), 'proof-or-stop-fixture-read-scope-seed-'));
 const fixtureRoots = [];
+const retiredRoot = RUNTIME_ARTIFACT_REGISTRY.find(row => row.id === 'retired-generated-cache-deny-only').matchers.find(row => row.kind === 'prefix').value.split('/')[0];
 const seedFiles = {
   '.remember/logs/autonomous/old.txt': 'old inert log',
-  '.lattice/runtime/host-runs/old.jsonl': 'R'.repeat(65536),
-  '.lattice/learning/runtime-memory-pack-cache/old.txt': 'C'.repeat(65536),
-  '.lattice/runtime/framework-audit/state.json': '{}\n',
-  '.lattice/learning/finding-signals.json': '{}\n',
-  '.lattice/learning/playbook-promotion-health.jsonl': '{}\n',
-  '.lattice/learning/playbooks.json': '{}\n',
-  '.lattice/learning/signature-registry.json': '{}\n',
-  '.lattice/runtime/not-declared/protected.txt': 'keep unknown runtime bytes',
+  [`${retiredRoot}/runtime/host-runs/old.jsonl`]: 'R'.repeat(65536),
+  [`${retiredRoot}/learning/runtime-memory-pack-cache/old.txt`]: 'C'.repeat(65536),
+  [`${retiredRoot}/runtime/framework-audit/state.json`]: '{}\n',
+  [`${retiredRoot}/learning/finding-signals.json`]: '{}\n',
+  [`${retiredRoot}/learning/playbook-promotion-health.jsonl`]: '{}\n',
+  [`${retiredRoot}/learning/playbooks.json`]: '{}\n',
+  [`${retiredRoot}/learning/signature-registry.json`]: '{}\n',
+  [`${retiredRoot}/runtime/not-declared/protected.txt`]: 'keep unknown runtime bytes',
   '.proof-or-stop/story/actives/B-49df/protected.txt': 'keep target evidence',
   '.proof-or-stop/story/actives/B-022e/protected.txt': 'keep historical sample',
   '.proof-or-stop/story/actives/B-unrelated/history.txt': 'H'.repeat(65536),
