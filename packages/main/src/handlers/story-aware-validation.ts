@@ -1,3 +1,12 @@
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
+import { loadConfig } from '../core/config.js';
+import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
+function projectSigningRoot(projectRoot: string): string {
+ const configured=loadConfig(projectRoot).gitRoot;
+ const resolved=resolveProjectGitRoot(projectRoot, configured);
+ if (configured && !resolved) throw new Error('VALIDATION_SIGNING_GIT_ROOT_UNRESOLVED');
+ return resolved ?? projectRoot;
+}
 /**
  * Runtime adapter for story-aware validation.
  *
@@ -126,13 +135,19 @@ function canonicalBaselinePath(projectRoot: string): string {
 }
 
 export function readCanonicalFullBaseline(projectRoot: string): CanonicalFullBaseline | undefined {
+  return withValidationSigningRoot(projectSigningRoot(projectRoot), () => {
   try {
     if (!existsSync(canonicalBaselinePath(projectRoot))) return undefined;
     const parsed = JSON.parse(readFileSync(canonicalBaselinePath(projectRoot), 'utf8')) as CanonicalFullBaseline;
-    return verifyCanonicalFullBaseline(parsed) ? parsed : undefined;
+    if (verifyCanonicalFullBaseline(parsed)) return parsed;
+    process.stderr.write('CANONICAL_BASELINE_INVALID: signature or content does not match target repository\n');
+    return undefined;
   } catch {
+    process.stderr.write('CANONICAL_BASELINE_UNREADABLE: existing baseline could not be verified\n');
     return undefined;
   }
+
+  });
 }
 
 function sourceAuthorityPath(value: string): string | undefined {
@@ -215,7 +230,10 @@ export function persistCanonicalFullBaseline(args: {
   toolchainDigest?: string;
   commands?: ValidationCommand[];
 }): CanonicalFullBaseline | undefined {
+  return withValidationSigningRoot(projectSigningRoot(args.projectRoot), () => {
   if (!args.result.allPass) return undefined;
+  // A headless execution has no Git epoch and cannot produce reusable authority.
+  if (!String(args.sourceHead ?? '').trim()) return undefined;
   const injected = args.commands?.map((row, index) => ({ ...row, id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`, originalIndex: index }));
   const inventory = discoverValidationInventory(args.projectRoot, injected);
   const catalog = compileValidationCatalog(inventory);
@@ -262,6 +280,8 @@ export function persistCanonicalFullBaseline(args: {
   mkdirSync(dir, { recursive: true });
   writeFileSync(canonicalBaselinePath(args.projectRoot), JSON.stringify(baseline, null, 2) + '\n', 'utf8');
   return baseline;
+
+  });
 }
 
 function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValidation {
@@ -368,7 +388,10 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
 }
 
 export function prepareStoryAwareValidation(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValidation {
+  return withValidationSigningRoot(args.gitCwd ?? projectSigningRoot(args.projectRoot), () => {
   return prepare(args);
+
+  });
 }
 
 export interface DynamicValidationArtifacts {
@@ -406,16 +429,20 @@ function artifactDir(projectRoot: string, storyId: string): string {
 
 /** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */
 export function readRoutineReuseRevocationBasis(projectRoot: string, storyId: string): string | null {
+  return withValidationSigningRoot(projectSigningRoot(projectRoot), () => {
   const path = join(artifactDir(projectRoot, storyId), 'revocation-ledger.json');
   if (!existsSync(path)) return buildRevocationLedger([], []).digest;
   try {
     const ledger = JSON.parse(readFileSync(path, 'utf8')) as ReceiptRevocationLedger;
     return verifyRevocationLedger(ledger) ? ledger.digest : null;
   } catch { return null; }
+
+  });
 }
 
 /** Runtime state only; this path is covered by the runtime artifact registry. */
 export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: string): DynamicValidationArtifacts {
+  return withValidationSigningRoot(projectSigningRoot(projectRoot), () => {
   const dir = artifactDir(projectRoot, storyId);
   let receipts: ValidationCommandReceipt[] = [];
   let revocationLedger = buildRevocationLedger([], []);
@@ -428,6 +455,8 @@ export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: 
     if (verifyRevocationLedger(parsed)) revocationLedger = parsed;
   } catch { /* first run / invalid ledger -> empty signed ledger */ }
   return { receipts, revocationLedger };
+
+  });
 }
 
 export function persistStoryAwareValidationArtifacts(args: {
@@ -440,6 +469,7 @@ export function persistStoryAwareValidationArtifacts(args: {
   shardArtifacts?: DynamicShardArtifact[];
   preserveExistingReceipts?: boolean;
 }): void {
+  return withValidationSigningRoot(projectSigningRoot(args.projectRoot), () => {
   const dir = artifactDir(args.projectRoot, args.storyId);
   mkdirSync(join(dir, 'receipts'), { recursive: true });
   writeFileSync(join(dir, 'selection.json'), JSON.stringify(args.manifest, null, 2) + '\n', 'utf8');
@@ -463,6 +493,8 @@ export function persistStoryAwareValidationArtifacts(args: {
       writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-cleanup.json`), JSON.stringify({ residue: artifact.residue, residueCount: artifact.residue.length }, null, 2) + '\n', 'utf8');
     }
   }
+
+  });
 }
 
 function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationCommand[]): ValidationCommand {
@@ -501,8 +533,8 @@ function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-
 
 const DYN5_ADAPTER_ENTRYPOINT = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
 const DYN5_CHILD_ENVIRONMENT_SOURCE = 'packages/main/src/tasks/validation-child-environment.mjs';
-const DYN5_ADAPTER_SOURCE_DIGEST = 'aba94221b6358344cb8edb86fdb98c407937584fdd1336082432f4fc9990c38d';
-const DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST = '6abb8962e63fedd9c63de0117f8c43350ea23adca9fe5e29439dfd9e8d594ff8';
+const DYN5_ADAPTER_SOURCE_DIGEST = '6de0a88aea6964edb5d69ae696610f62c10d5b1f6046b56f36fdc9549efe03a4';
+const DYN5_CHILD_ENVIRONMENT_SOURCE_DIGEST = '9ae7fb6a13031dc5d68b0d715bdc28a187c5dccb7ce8d84cbf370d7305906068';
 const DYN5_ADAPTER_REGISTRY: Record<string, {
   digest: string;
   entrypoint: string;
@@ -962,6 +994,7 @@ function deriveGateOwnedPrerequisites(args: {
 
 /** Execute the actual Wave-0 + selected path and persist its signed receipts. */
 export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidationArgs): Promise<StoryAwareDynamicRun> {
+  return withValidationSigningRoot(args.gitCwd ?? projectSigningRoot(args.projectRoot), async () => {
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
@@ -1093,4 +1126,6 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
   return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
+
+  });
 }

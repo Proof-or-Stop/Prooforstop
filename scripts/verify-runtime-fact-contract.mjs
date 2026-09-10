@@ -532,6 +532,11 @@ async function main() {
     rmSync(tmp, { recursive: true, force: true });
   }
 
+  // Real CLI scan refusal and bounded cache migration share the default runtime contract.
+  for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {
+    execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});
+  }
+
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');
     for (const failure of failures) console.error(`- ${failure}`);
@@ -547,3 +552,11 @@ main().catch((error) => {
   console.error(`- ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').includes('validation-git-routing-observation'), 'Git routing observation must remain registered');
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').includes('validation-signing-target-root'));
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-reuse-economics'));
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-git-tree-observation'));

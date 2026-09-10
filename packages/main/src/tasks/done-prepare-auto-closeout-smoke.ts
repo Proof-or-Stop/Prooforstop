@@ -22,6 +22,11 @@ import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease, getSessionId } from '../core/story-owner-lease.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
+import { RUNTIME_ARTIFACT_REGISTRY } from '../core/runtime-artifact-registry.js';
 import {
   buildDonePrepareGeneratedMetadataManifest,
   captureDonePrepareGeneratedMetadataBaseline,
@@ -46,6 +51,7 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
+const repoRoot = join(here, '../../../..');
 const NOW = '2026-07-09T00:00:00.000Z';
 const STORY_ID = 'B-done-prepare-auto-closeout';
 const AUTO_CLOSE_MESSAGE = `proof-or-stop: auto-close ${STORY_ID} generated DONE metadata`;
@@ -56,6 +62,7 @@ interface Fixture {
 }
 
 interface FixtureOptions {
+  counterPath?: string;
   unsafeDoneRequiredSideEffect?: boolean;
 }
 
@@ -110,7 +117,7 @@ function mkCtx(root: string, log?: (msg: string) => void): HandlerContext {
 function runCli(root: string, args: string[], env: Record<string, string> = {}): CliResult {
   const result = spawnSync(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    env: { ...process.env, ...gitIdentityEnv(), ...env },
+    env: { ...process.env, PROOF_OR_STOP_SESSION_ID: getSessionId(), ...gitIdentityEnv(), ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 15_000,
@@ -203,14 +210,14 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       commands: [{
         label: 'smoke validate',
         command: process.execPath,
-        args: ['-e', 'process.exit(0)'],
+        args: ['-e', options.counterPath ? `require('fs').appendFileSync(${JSON.stringify(options.counterPath)}, 'start\\n')` : 'process.exit(0)'],
         timeoutMs: 2000,
       }],
     },
     doneRequiredCommands: [{
       label: options.unsafeDoneRequiredSideEffect ? 'unsafe side-effect DONE-required validation' : 'smoke DONE-required validation',
       command: process.execPath,
-      args: ['-e', options.unsafeDoneRequiredSideEffect ? unsafeScript : 'process.exit(0)'],
+      args: ['-e', options.unsafeDoneRequiredSideEffect ? unsafeScript : options.counterPath ? `require('fs').appendFileSync(${JSON.stringify(options.counterPath)}, 'start\\n')` : 'process.exit(0)'],
       timeoutMs: 2000,
     }],
     staleThresholds: {
@@ -227,6 +234,7 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
   // BLOCKED'). Both spellings are covered, derived from the resolver.
   write(root, '.gitignore', [
     ...stateDirCandidates('activity.jsonl'),
+    ...RUNTIME_ARTIFACT_REGISTRY.filter(entry => ['runtime-story-owner-lease', 'runtime-cache'].includes(entry.id)).flatMap(entry => entry.ignorePatterns ?? []),
     ...stateDirCandidates('learning/runtime-memory-pack-cache').map((rel) => `${rel}/`),
     ...stateDirCandidates('locks').map((rel) => `${rel}/`),
     '',
@@ -280,8 +288,15 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'REVIEW', toPhase: 'TEST',
     materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
   });
+  createPlaybookRuntimeMemoryHandlers(mkCtx(root)).dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'Disposable closeout integration fixture has no implementation lesson to capture.' });
   seedDoneGateEvidence(root, STORY_ID);
   commitAll(root, 'seed done_prepare auto-closeout story metadata');
+  acquireOwnerLease(store.storyDirPath(STORY_ID), { command: 'done_prepare', cwd: root });
+  // Synthetic admission only: this fixture does not prove real review inventory completion.
+  const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+  assert.ok(causalInputHashes);
+  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root, causalInputHashes });
+  commitAll(root, 'seed synthetic certification admission');
   assert.equal(git(root, ['status', '--porcelain']), '', 'fixture must start clean');
   return { root, storyId: STORY_ID };
 }
@@ -350,6 +365,70 @@ function installCommandSpy(observed: string[]): () => void {
   };
 }
 
+async function assertForeignIndexSurvivesOuterCloseout(mode: 'foreign' | 'owned' = 'foreign'): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const previousCwd = process.cwd();
+  const original = childProcess.execFileSync;
+  let prepared = false;
+  let injected = false;
+  let reuseReached = false;
+  let foreignPath = '';
+  let headBeforeFailure = '';
+  let baselineDoneBytes = '';
+  let baselineStatus = '';
+  try {
+    process.chdir(root);
+    childProcess.execFileSync = ((command: string, argsOrOptions?: readonly string[] | childProcess.ExecFileSyncOptions, options?: childProcess.ExecFileSyncOptions) => {
+      const argv = Array.isArray(argsOrOptions) ? argsOrOptions.map(String) : [];
+      if (prepared && !injected && String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--cacheinfo')) {
+        const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
+        if (evidence?.donePrepareValidationReuse) {
+          reuseReached = true;
+          injected = true;
+          foreignPath = argv[argv.length - 1];
+          headBeforeFailure = git(root, ['rev-parse', 'HEAD^']);
+          if (mode === 'foreign') {
+            write(root, foreignPath, 'FOREIGN');
+            git(root, ['add', '--', foreignPath]);
+          }
+          throw new Error('outer closeout injected refresh failure after foreign stage');
+        }
+      }
+      return (original as any)(command, argsOrOptions as any, options);
+    }) as typeof childProcess.execFileSync;
+    syncBuiltinESMExports();
+    const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root, message => {
+      if (!prepared && message === 'done_prepare progress: checking clean tree') {
+        const path = `.proof-or-stop/story/actives/${storyId}/test-evidence.json`;
+        write(root, path, readFileSync(join(root, path), 'utf8') + '\n');
+        baselineDoneBytes = readFileSync(join(root, `.proof-or-stop/story/actives/${storyId}/done-required-evidence.json`), 'utf8');
+        baselineStatus = git(root, ['status', '--porcelain']);
+        prepared = true;
+      }
+    })).done_prepare({ storyId, mergeMain: false, refreshStale: false, validate: true,
+      autoCloseGeneratedMetadata: true, reuseFreshValidation: true })));
+    assert.equal(prepared, true, 'Control must create a current-window safe output delta');
+    assert.equal(reuseReached, true, `Control must reach the actual reuse/auto-closeout branch: ${transcript}`);
+    assert.equal(injected, true);
+    assert.match(transcript, /auto-closeout refused/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), headBeforeFailure);
+    if (mode === 'foreign') {
+      assert.equal(git(root, ['show', `:${foreignPath}`]), 'FOREIGN', 'Outer rollback must preserve foreign staging');
+      assert.equal(readFileSync(join(root, foreignPath), 'utf8'), 'FOREIGN', 'Outer rollback must preserve foreign worktree bytes');
+      console.log('DONE_PREPARE_OUTER_FOREIGN_INDEX_GREEN');
+    } else {
+      assert.equal(readFileSync(join(root, `.proof-or-stop/story/actives/${storyId}/done-required-evidence.json`), 'utf8'), baselineDoneBytes, 'Ordinary refusal restores its own reuse write');
+      assert.equal(git(root, ['status', '--porcelain']), baselineStatus, 'Ordinary refusal adds no dirty residue to the captured boundary');
+      console.log('DONE_PREPARE_OUTER_OWNED_ROLLBACK_GREEN');
+    }
+  } finally {
+    childProcess.execFileSync = original;
+    syncBuiltinESMExports();
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertManifestOnlyAutoCloseout(): Promise<void> {
   const { root, storyId } = setupFixture();
   const oldCwd = process.cwd();
@@ -392,6 +471,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
       .filter(Boolean)
       .sort();
     assert.deepEqual(committedFiles, [
+      `.proof-or-stop/story/actives/${storyId}/certification-window.json`,
       `.proof-or-stop/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.proof-or-stop/story/actives/${storyId}/done-required-evidence.json`,
       `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`,
@@ -939,16 +1019,18 @@ function assertHeadRollbackSurvivesRefreshAndRestoreFailures(): void {
   const { root, storyId, baseline, expected } = candidate;
   const originalExecFileSync = childProcess.execFileSync;
   let refreshFailed = false;
+  let refreshCalls = 0;
+  write(root, `.proof-or-stop/story/actives/${storyId}/test-evidence.json`, JSON.stringify({ result: "PASS" }) + "\n");
   let restoreFailed = false;
   try {
     const parent = git(root, ['rev-parse', 'HEAD']);
     childProcess.execFileSync = ((command: string, argsOrOptions?: readonly string[] | childProcess.ExecFileSyncOptions, options?: childProcess.ExecFileSyncOptions) => {
       const argv = Array.isArray(argsOrOptions) ? argsOrOptions.map(String) : [];
-      if (String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--cacheinfo')) {
+      if (String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--cacheinfo') && ++refreshCalls === 2) {
         refreshFailed = true;
         throw new Error('injected real-index refresh failure');
       }
-      if (refreshFailed && String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--force-remove')) {
+      if (refreshFailed && String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--index-info') && argv.includes('-z')) {
         restoreFailed = true;
         throw new Error('injected real-index restore failure');
       }
@@ -966,6 +1048,8 @@ function assertHeadRollbackSurvivesRefreshAndRestoreFailures(): void {
     }));
 
     assert.equal(result.ok, false, 'post-CAS cleanup failure remains fail-closed');
+    assert.equal(result.files[0], `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`, 'First safe path is the successfully staged owned entry');
+    assert.equal(refreshCalls, 2);
     assert.equal(refreshFailed, true, 'production real-index refresh path was exercised');
     assert.equal(restoreFailed, true, 'production real-index restore path was exercised');
     assert.match(result.reason ?? '', /real index refresh.*injected real-index refresh failure/);
@@ -1275,8 +1359,61 @@ function assertJsonStdoutClean(): void {
   }
 }
 
+async function assertDryRunScopeReportsBlocked(): Promise<void> {
+  const {root,storyId}=setupFixture();
+  try {
+    const store=new StoryStore(root);
+    const ready=runCli(root,donePrepareAutoCloseArgs(storyId,true));
+    assert.equal(JSON.parse(ready.stdout).status,'pass',ready.stdout+ready.stderr);
+    writeFileSync(store.storyFilePath(storyId,'scope-contract.json'),'{corrupt\n');
+    commitAll(root,'arrange invalid scope for dry-run diagnosis');
+    const result=runCli(root,['done_prepare','--storyId',storyId,'--mergeMain=false','--refreshStale=false','--validate=false','--dryRun','--json']);
+    const parsed=JSON.parse(result.stdout);
+    console.log('DRY_RUN_SCOPE_V7 '+result.stdout);
+    assert.notEqual(parsed.status,'pass','DRY_RUN_SCOPE_MUST_NOT_REPORT_PASS');
+    assert.equal(parsed.blockedAt,'lifecycleReadiness','DRY_RUN_MUST_PRESERVE_UPSTREAM_DIAGNOSIS');
+  } finally {rmSync(root,{recursive:true,force:true});}
+}
+
+async function assertUpstreamReviewRefusesBeforeExecution(): Promise<void> {
+  const outside = mkdtempSync(join(tmpdir(), 'closeout-upstream-count-'));
+  const counter = join(outside, 'starts');
+  const { root, storyId } = setupFixture({ counterPath: counter });
+  try {
+    const store = new StoryStore(root);
+    writeFileSync(store.storyFilePath(storyId, 'review-loops.jsonl'), '{corrupt\n');
+    commitAll(root, 'arrange unreadable review prerequisite');
+    // Synthetic admission isolates review-readiness from certification freshness;
+    // this is not proof of real inventory completion or reviewer authorization.
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+    commitAll(root, 'bind synthetic fixture admission to current inputs');
+    const result = runCli(root, donePrepareAutoCloseArgs(storyId, true));
+    const starts = existsSync(counter) ? readFileSync(counter, 'utf8').split('start').length - 1 : 0;
+    console.log('CLOSEOUT_UPSTREAM ' + JSON.stringify({ starts, ...result }));
+    assert.equal(starts, 0, 'UPSTREAM_REVIEW_MUST_REFUSE_BEFORE_COMMANDS');
+    assert.match(result.stdout + result.stderr, /review_loop_record_error|review loop records unreadable/);
+    assert.notEqual(JSON.parse(result.stdout).status, 'pass');
+  } finally { rmSync(root, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }
+}
+
 void (async () => {
   try {
+    if (process.argv.includes('--dry-run-scope-only')) { await assertDryRunScopeReportsBlocked(); return; }
+    if (process.argv.includes('--upstream-only')) { await assertUpstreamReviewRefusesBeforeExecution(); return; }
+    await assertUpstreamReviewRefusesBeforeExecution();
+    await assertDryRunScopeReportsBlocked();
+    execFileSync(process.execPath, [join(repoRoot, 'scripts/verify-closeout-certification-order.mjs')], { cwd: repoRoot, stdio: 'inherit', timeout: 30000 });
+    execFileSync(process.execPath, [join(repoRoot, 'scripts/verify-closeout-late-drift-v3.mjs')], { cwd: repoRoot, stdio: 'inherit', timeout: 30000 });
+    for (const scenario of ['preexisting', 'status-error', 'clean', 'concurrent', 'source-drift', 'event-tamper', 'evidence-tamper', 'terminal-read-failure', 'owner-fence']) {
+      execFileSync(process.execPath, [join(repoRoot, 'scripts/probe-validation-publication-integrity.mjs'), `--scenario=${scenario}`], { cwd: repoRoot, stdio: 'pipe', timeout: 30000 });
+    }
+    for (const probe of ['probe-index-refresh-foreign.mjs', 'probe-index-refresh-unreadable.mjs', 'probe-index-refresh-owned.mjs', 'probe-closeout-rollback-root.mjs', 'probe-index-intended-read.mjs', 'probe-index-refresh-sha256.mjs']) {
+      execFileSync(process.execPath, [join(repoRoot, 'scripts', probe)], { cwd: repoRoot, stdio: 'inherit', timeout: 30000 });
+    }
+    await assertForeignIndexSurvivesOuterCloseout();
+    await assertForeignIndexSurvivesOuterCloseout('owned');
     await assertManifestOnlyAutoCloseout();
     await assertPreexistingProcessEventsRemainFailClosed();
     await assertUnsafePathRefusesBeforeReuseRecord();

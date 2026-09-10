@@ -1,3 +1,4 @@
+import { withValidationMetadataWrite } from './validation-execution-lock.js';
 import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
 import { digestCanonicalJson } from './digest.js';
@@ -667,8 +668,10 @@ export class StoryStore {
   }
 
   private writeJson<T>(storyId: string, file: string, data: T): void {
-    this.ensureDir(storyId);
-    this.writeJsonFile(join(this.storyDir(storyId), file), data);
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      this.ensureDir(storyId);
+      this.writeJsonFile(join(this.storyDir(storyId), file), data);
+    });
   }
 
   private writeJsonFile<T>(filePath: string, data: T): void {
@@ -773,27 +776,31 @@ export class StoryStore {
   }
 
   writeChecklist(storyId: string, data: ChecklistData): void {
-    // Canonical writers cannot erase an existing signed amendment by dropping
-    // its field, its item, or a prefix of its history on a later metadata write.
-    if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
-      const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
-      assertIntentCheckpointProjection(previous,readIntentCheckpoint(storyId,this.storyDirPath(storyId)));
-      for (const old of previous.items) {
-        if (!old.verificationIntentAmendments?.length) continue;
-        const next = data.items.find(item => item.id === old.id);
-        const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
-        if (digestCanonicalJson(prefix ?? null) !== digestCanonicalJson(old.verificationIntentAmendments)) throw new IntentAmendmentIntegrityError('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      // Canonical writers cannot erase an existing signed amendment by dropping
+      // its field, its item, or a prefix of its history on a later metadata write.
+      if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
+        const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
+        assertIntentCheckpointProjection(previous,readIntentCheckpoint(storyId,this.storyDirPath(storyId)));
+        for (const old of previous.items) {
+          if (!old.verificationIntentAmendments?.length) continue;
+          const next = data.items.find(item => item.id === old.id);
+          const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
+          if (digestCanonicalJson(prefix ?? null) !== digestCanonicalJson(old.verificationIntentAmendments)) throw new IntentAmendmentIntegrityError('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+        }
       }
-    }
-    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
-    writeIntentCheckpoint(storyId,data,this.storyDirPath(storyId));
-    this.writeJson(storyId, 'checklist.json', data);
+      for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+      writeIntentCheckpoint(storyId,data,this.storyDirPath(storyId));
+      this.writeJson(storyId, 'checklist.json', data);
+    });
   }
 
   restoreIntentCheckpoint(storyId: string, expectedDigest: string): void {
-    const checkpoint=repairIntentCheckpointStorage(storyId,this.storyDirPath(storyId),expectedDigest);
-    // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
-    this.writeJson(storyId,'checklist.json',checkpoint.data);
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      const checkpoint=repairIntentCheckpointStorage(storyId,this.storyDirPath(storyId),expectedDigest);
+      // Restore exactly the signed snapshot; this method does not manufacture a new PASS.
+      this.writeJson(storyId,'checklist.json',checkpoint.data);
+    });
   }
 
   // ── Bug ──
@@ -883,15 +890,17 @@ export class StoryStore {
   }
 
   writeCausalSelectorOutput(storyId: string, digest: string, output: string): void {
-    if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
-    const outputPath = this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`);
-    // The execution-key lock serializes producers; equal content addresses can
-    // also be produced by different keys, where identical bytes are harmless.
-    if (existsSync(outputPath)) {
-      if (this.readCausalSelectorOutput(storyId, digest) !== output) throw new Error('Output address collision [causal_selector_output_invalid]');
-      return;
-    }
-    this.writeJsonFile(outputPath, { output });
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      if (!/^[a-f0-9]{64}$/.test(digest)) throw new Error('Invalid output address [causal_selector_output_invalid]');
+      const outputPath = this.storyFilePath(storyId, `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`);
+      // The execution-key lock serializes producers; equal content addresses can
+      // also be produced by different keys, where identical bytes are harmless.
+      if (existsSync(outputPath)) {
+        if (this.readCausalSelectorOutput(storyId, digest) !== output) throw new Error('Output address collision [causal_selector_output_invalid]');
+        return;
+      }
+      this.writeJsonFile(outputPath, { output });
+    });
   }
 
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
@@ -974,50 +983,56 @@ export class StoryStore {
   }
 
   writePendingPublication(value: CausalPublicationRecovery): void {
-    if (!verifyCausalPublicationRecovery(value, value.storyId, value.requestKey, value.cwd)) {
-      throw new Error('Pending publication signature invalid [publication_recovery_invalid]');
-    }
-    this.writeJsonFile(this.pendingPublicationPath(value.storyId, value.requestKey), value);
+    return withValidationMetadataWrite(this.projectRootValue, value.storyId, () => {
+      if (!verifyCausalPublicationRecovery(value, value.storyId, value.requestKey, value.cwd)) {
+        throw new Error('Pending publication signature invalid [publication_recovery_invalid]');
+      }
+      this.writeJsonFile(this.pendingPublicationPath(value.storyId, value.requestKey), value);
+    });
   }
 
   removePendingPublication(storyId: string, requestKey: string): void {
-    rmSync(this.pendingPublicationPath(storyId, requestKey), { force: true });
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      rmSync(this.pendingPublicationPath(storyId, requestKey), { force: true });
+    });
   }
 
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void {
-    if (!verifyCausalEvidenceReceipt(receipt)) {
-      throw new Error('CausalEvidence receipt refused: invalid or partial receipt [causal_receipt_invalid]');
-    }
-    const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
-    withMkdirLock(indexLockPath, () => {
-      const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-      let index: { schemaVersion: 'proof-or-stop.causal-evidence-index.v1'; receipts: Record<string, string> } = {
-        schemaVersion: 'proof-or-stop.causal-evidence-index.v1',
-        receipts: {},
-      };
-      if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
-      const priorHash = index.receipts[receipt.executionKey];
-      if (priorHash && priorHash !== receipt.receiptHash) {
-        throw new Error(`CausalEvidence execution key ${receipt.executionKey} already points to ${priorHash}; refusing overwrite [causal_receipt_overwrite]`);
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      if (!verifyCausalEvidenceReceipt(receipt)) {
+        throw new Error('CausalEvidence receipt refused: invalid or partial receipt [causal_receipt_invalid]');
       }
-      const receiptPath = this.causalEvidenceReceiptPath(storyId, receipt.receiptHash);
-      const serialized = JSON.stringify(receipt, null, 2) + '\n';
-      if (existsSync(receiptPath)) {
-        const priorBytes = readFileSync(receiptPath, 'utf8');
-        if (priorBytes !== serialized) {
-          throw new Error(`CausalEvidence CAS address ${receipt.receiptHash} contains different bytes [causal_receipt_collision]`);
+      const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
+      withMkdirLock(indexLockPath, () => {
+        const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+        let index: { schemaVersion: 'proof-or-stop.causal-evidence-index.v1'; receipts: Record<string, string> } = {
+          schemaVersion: 'proof-or-stop.causal-evidence-index.v1',
+          receipts: {},
+        };
+        if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
+        const priorHash = index.receipts[receipt.executionKey];
+        if (priorHash && priorHash !== receipt.receiptHash) {
+          throw new Error(`CausalEvidence execution key ${receipt.executionKey} already points to ${priorHash}; refusing overwrite [causal_receipt_overwrite]`);
         }
-      } else {
-        this.writeJsonFile(receiptPath, receipt);
-      }
-      index.receipts[receipt.executionKey] = receipt.receiptHash;
-      this.writeJsonFile(indexPath, index);
-      // Defensive check: the in-memory receipt hash is the same address that was
-      // written, and future callers cannot accidentally persist a re-hashed row.
-      if (computeCausalReceiptHash(receipt) !== receipt.receiptHash) {
-        throw new Error('CausalEvidence receipt hash changed during persistence [causal_receipt_hash_drift]');
-      }
-    }, { label: `causal evidence index ${storyId}` });
+        const receiptPath = this.causalEvidenceReceiptPath(storyId, receipt.receiptHash);
+        const serialized = JSON.stringify(receipt, null, 2) + '\n';
+        if (existsSync(receiptPath)) {
+          const priorBytes = readFileSync(receiptPath, 'utf8');
+          if (priorBytes !== serialized) {
+            throw new Error(`CausalEvidence CAS address ${receipt.receiptHash} contains different bytes [causal_receipt_collision]`);
+          }
+        } else {
+          this.writeJsonFile(receiptPath, receipt);
+        }
+        index.receipts[receipt.executionKey] = receipt.receiptHash;
+        this.writeJsonFile(indexPath, index);
+        // Defensive check: the in-memory receipt hash is the same address that was
+        // written, and future callers cannot accidentally persist a re-hashed row.
+        if (computeCausalReceiptHash(receipt) !== receipt.receiptHash) {
+          throw new Error('CausalEvidence receipt hash changed during persistence [causal_receipt_hash_drift]');
+        }
+      }, { label: `causal evidence index ${storyId}` });
+    });
   }
 
   readDoneRequiredEvidence(storyId: string): DoneRequiredEvidenceData | null {
@@ -2096,11 +2111,13 @@ export class StoryStore {
   // ── Process Events (B-aa48: Phase 3 append-only event log) ──
 
   appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>) {
-    const dir = this.storyDir(storyId);
-    // B-d877 R3 FIX B: serialize the append on a RELOCATED lock under the
-    // gitignored shared `.proof-or-stop/locks/process-events/` prefix (not inside the
-    // git-tracked story dir) so a transient holder.json can never be committed.
-    return appendProcessEventFn(dir, event, this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'));
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      const dir = this.storyDir(storyId);
+      // B-d877 R3 FIX B: serialize the append on a RELOCATED lock under the
+      // gitignored shared `.proof-or-stop/locks/process-events/` prefix (not inside the
+      // git-tracked story dir) so a transient holder.json can never be committed.
+      return appendProcessEventFn(dir, event, this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'));
+    });
   }
 
   readProcessEvents(storyId: string): ProcessEvent[] {

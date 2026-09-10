@@ -1,3 +1,4 @@
+import { readObservedGitTree } from './git-tree-observation.js';
 /**
  * Story-aware dynamic validation.
  *
@@ -137,7 +138,7 @@ function git(args: string[], cwd: string): string {
 function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
   const result = new Map<string, string>();
   try {
-    for (const row of git(['ls-tree', '-r', '-z', ref], gitCwd).split('\0')) {
+    for (const row of readObservedGitTree(gitCwd, ref).split('\0')) {
       if (!row) continue;
       const tab = row.indexOf('\t');
       if (tab < 0) continue;

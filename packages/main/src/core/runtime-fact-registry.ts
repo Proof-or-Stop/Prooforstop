@@ -15,6 +15,14 @@ export const REQUIRED_RUNTIME_FACT_IDS = [
  * alongside (but never inserted into) REQUIRED_RUNTIME_FACT_IDS.
  */
 export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
+  { id: 'validation-git-tree-observation', owner: 'git-tree-observation + evidence-freshness + verifier', semantics: 'One synchronous observation projects material and Story hashes from one resolved Git object. Only the identical standard NUL-framed successful tree read shares bytes within that observation, bound to cwd and Git environment. Independent launch/publication observations reread; symbolic refs, errors and other tree formats are not cached. No execution result or policy authorization is shared.' },
+  {id:'validation-reuse-economics',owner:'shared-validation-execution',semantics:'Measured uneconomic commands execute fresh instead of consuming a receipt. Bounded six-hour runtime cost observations may inform later invocations; they never grant reuse. Corrupt records fall back, unignored paths and symlinks refuse writes, failure or slower execution clears the observation. First-ever observation cost remains.'},
+  {id: 'validation-signing-target-root', owner: 'validation-signing-context', semantics: 'Target-aware signing and reading share an async-local repository root; explicit root arguments retain precedence and wrong-root verification never creates a key.'},
+  {
+    id: 'validation-git-routing-observation',
+    owner: 'validation-child-environment + validation-execution-lock',
+    semantics: 'GIT_DIR, GIT_COMMON_DIR and GIT_WORK_TREE reads bind the lock-cache guard in the finite environment declaration; all GIT_ keys remain excluded from child forwarding and rejected as overrides. Declaring an observed dependency grants no routing authority.',
+  },
   {
     id: 'verification-output-integrity',
     owner: 'verification-execution-evidence',
@@ -58,7 +66,7 @@ export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
   {
     id: 'verification-inventory-observation-projection',
     owner: 'review-inventory-epoch',
-    semantics: 'The store-backed inventory consumer authenticates the complete receipt and artifact before applying a versioned observation/input whitelist; genuine same-output same-input re-execution and authorized reuse preserve semantics, while changed inputs/output, tamper, and independent epoch material/scope cutoffs remain enforced.',
+    semantics: 'The store-backed inventory consumer authenticates the complete receipt and artifact before applying a versioned observation/input whitelist; genuine same-output same-input re-execution and authorized reuse preserve semantics, while changed inputs/output, tamper, and independent epoch material/scope cutoffs remain enforced. Reviewed inventory executable binding covers the explicit unlocked consumption implementation; its expected digest is pinned only after source review, never derived from a live candidate at runtime.',
   },
 ] as const;
 
@@ -219,6 +227,8 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
 
 /** Conservative defaults consumed by official validation, independent of Lab. */
 export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
+  metadataWriteWaitMs: 250,
+  metadataValidationGraceMs: 500,
   declaredInvocationCapacity: 2,
   duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,

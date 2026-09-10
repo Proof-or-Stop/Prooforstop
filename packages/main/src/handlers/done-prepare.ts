@@ -1,3 +1,6 @@
+import { evaluateReviewVerdict } from '../core/machine.js';
+import { rollbackValidationPublication } from '../core/auto-commit-metadata.js';
+import { isCertificationRunningOnlyAdvance } from '../core/certification-window.js';
 import childProcess, { type ExecFileSyncOptions, type ExecSyncOptions } from 'child_process';
 import { createHash } from 'crypto';
 import { existsSync, readFileSync, statSync } from 'fs';
@@ -8,7 +11,8 @@ import { assertCwdInWorktree } from './context.js';
 import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { buildDoneClosureRunbook, type DoneClosureRunbook } from './done-closure.js';
 import { createDoneRequiredValidationHandlers } from './done-required-validation.js';
-import { createVerifierHandlers } from './verifier.js';
+import { validationScopePrerequisite, createVerifierHandlers, configuredValidationCommands, findValidateFile } from './verifier.js';
+import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { loadConfig } from '../core/config.js';
 import { isStateDirPath } from '../core/brand-paths.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
@@ -42,7 +46,6 @@ import {
   captureDonePrepareGeneratedMetadataTransaction,
   commitDonePrepareGeneratedMetadata,
   gitStatusRowsForDonePrepareGeneratedMetadata,
-  rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedMetadataBaseline,
   type DonePrepareGeneratedMetadataCommitResult,
   type DonePrepareGeneratedMetadataManifest,
@@ -71,6 +74,7 @@ type StepId =
   | 'preflight'
   | 'mergeMain'
   | 'staleEvidenceRefresh'
+  | 'lifecycleReadiness'
   | 'validate'
   | 'doneClosure'
   | 'worktreeVersionCheck'
@@ -1270,6 +1274,13 @@ export function validationCloseoutAdvancePaths(
       continue;
     }
     const relativePath = path.slice(storyPrefix.length);
+    if (relativePath === 'certification-window.json') {
+      const before = gitMaybe(gitCwd, ['show', `${beforeHead}:${path}`]);
+      const after = gitMaybe(gitCwd, ['show', `${afterHead}:${path}`]);
+      try {
+        if (before.ok && after.ok && isCertificationRunningOnlyAdvance(JSON.parse(before.output), JSON.parse(after.output), storyId)) continue;
+      } catch { /* unreadable or malformed certification metadata remains blocked */ }
+    }
     const policy = closeoutArtifactPolicyFor(relativePath);
     if (policy?.artifactClass === 'closeout-evidence') continue;
     if (VALIDATION_CLOSEOUT_PROTOCOL_PATHS.has(relativePath)) continue;
@@ -1729,6 +1740,7 @@ function renderPass(args: {
     ...(args.dryRun ? ['dryRun: no files will be written'] : []),
     `mergeMain: ${ensureStep(args.steps, 'mergeMain').status.toUpperCase()}`,
     `staleEvidenceRefresh: ${ensureStep(args.steps, 'staleEvidenceRefresh').status.toUpperCase()}`,
+    `lifecycleReadiness: ${ensureStep(args.steps, 'lifecycleReadiness').status.toUpperCase()}`,
     `validate: ${ensureStep(args.steps, 'validate').status.toUpperCase()}`,
     `doneClosure: ${ensureStep(args.steps, 'doneClosure').status.toUpperCase()}`,
     `worktreeClean: ${ensureStep(args.steps, 'cleanTree').status.toUpperCase()}`,
@@ -1792,6 +1804,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     { id: 'preflight', status: 'pending' },
     { id: 'mergeMain', status: 'pending' },
     { id: 'staleEvidenceRefresh', status: 'pending' },
+    { id: 'lifecycleReadiness', status: 'pending' },
     { id: 'validate', status: 'pending' },
     { id: 'doneClosure', status: 'pending' },
     { id: 'runtimeChange', status: 'pending' },
@@ -1993,6 +2006,19 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const refreshed = asText(refreshStaleEvidenceMetadataOnly(ctx, storyId));
     setStep(steps, 'staleEvidenceRefresh', 'pass', refreshed.split('\n').find((line) => line.trim()) || stalePlan.dryRunTranscript);
   }
+
+  // Refuse-only upstream snapshot, not a lock-protected certification. The
+  // in-lock validate check and final DONE oracle remain authoritative.
+  const prerequisite = validationScopePrerequisite(ctx, storyId, gitCwd);
+  const reviewPrerequisite = prerequisite ? undefined : evaluateReviewVerdict({
+    storyId, store: ctx.store, projectRoot: ctx.root, gitCwd,
+  });
+  const upstreamFailure = prerequisite ?? (reviewPrerequisite && !reviewPrerequisite.ok
+    ? `[${reviewPrerequisite.code}] ${reviewPrerequisite.message}` : undefined);
+  setStep(steps, 'lifecycleReadiness', upstreamFailure ? 'blocked' : 'pass', upstreamFailure
+    ?? 'Upstream scope and review checks passed; final DONE checks remain required');
+  if (upstreamFailure && !args.dryRun) return blocked({ blockedAt: 'lifecycleReadiness', reason: upstreamFailure,
+    next: `proof-or-stop lifecycle_check --storyId=${storyId} --target=DONE --json`, steps });
 
   if (!args.validate) {
     const existing = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
@@ -2377,6 +2403,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           steps,
         });
       }
+      const expectedCloseoutOutputs = new Map(autoCloseoutTransaction.states.map(state => [state.path,
+        state.worktreeContent === null ? null : createHash('sha256').update(state.worktreeContent).digest('hex'),
+      ]));
+      const rollbackOwnedCloseout = () => rollbackValidationPublication({
+        root: ctx.root, gitCwd, transaction: autoCloseoutTransaction, expectedHashes: expectedCloseoutOutputs,
+      }, 'auto-closeout refused');
       const reuse = writeDonePrepareValidationReuseRecord({
         root: ctx.root,
         gitCwd,
@@ -2385,7 +2417,10 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         basis: validationReuseBasis,
         generatedMetadataPaths: manifestPreflight.safePaths,
       });
+      if (reuse.expectedOutputDigest) expectedCloseoutOutputs.set(reuseRecordPath, reuse.expectedOutputDigest);
       if (!reuse.ok) {
+        const cleanup = rollbackOwnedCloseout();
+        if (cleanup.rollbackConflicts?.length) reuse.reasons.push(...cleanup.rollbackConflicts);
         setStep(steps, 'validate', 'blocked', `validation reuse not eligible: ${reuse.reasons.join('; ')}`);
         return blocked({
           blockedAt: 'validate',
@@ -2406,12 +2441,9 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         ignoredPaths: [ownerLeaseRelPath(ctx, storyId)],
       });
       if (!autoCommit.ok) {
-        const rollback = rollbackDonePrepareGeneratedMetadataTransaction({
-          root: ctx.root,
-          gitCwd,
-          transaction: autoCloseoutTransaction,
-        });
-        const rollbackSuffix = rollback.ok ? '' : `; rollback failed: ${rollback.errors.join('; ')}`;
+        const rollback = rollbackOwnedCloseout();
+        const rollbackSuffix = rollback.rollbackConflicts?.length
+          ? `; rollback conflicts: ${rollback.rollbackConflicts.join('; ')}` : '';
         setStep(steps, 'cleanTree', 'blocked', `${autoCommit.reason || 'auto-closeout refused'}${rollbackSuffix}`);
         return blocked({
           blockedAt: 'cleanTree',
@@ -2460,6 +2492,9 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proof-or-Stop story lifecycle metadata remains dirty' : undefined,
   );
 
+  if (upstreamFailure) return blocked({ blockedAt: 'lifecycleReadiness', reason: upstreamFailure,
+    next: `proof-or-stop lifecycle_check --storyId=${storyId} --target=DONE --json`, steps });
+
   try {
     return await runCloseoutPhase(ctx, CLOSEOUT_PHASES.produceCommand, () => renderPass({
       storyId,
@@ -2484,7 +2519,24 @@ export function createDonePrepareHandlers(ctx: HandlerContext): Record<string, (
     async done_prepare(args: DonePrepareArgs) {
       let transcript: string;
       try {
-        transcript = await runDonePrepare(ctx, args);
+        if (args.validate !== false && !args.dryRun && args.storyId?.trim()) {
+          const storyId = args.storyId.trim();
+          const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+          const commands = [...configuredValidationCommands(ctx.root), ...resolveDoneRequiredPolicy(ctx.root).commands];
+          // Hold worktree/Story ownership across both child plans; configured
+          // subprocesses acquire individual stages. Custom validators retain
+          // the conservative whole-invocation reservation.
+          transcript = await withOfficialValidationExecution({
+            commandStages: !findValidateFile(ctx.root),
+            root: ctx.root, storyId, workspaceRoot: gitCwd, requireGitIdentity: true,
+            command: 'done_prepare', ownerLeaseDir: ctx.store.storyDirPath(storyId),
+            ...(!findValidateFile(ctx.root) ? declaredValidationCapacity(commands, gitCwd) : {}),
+            abortSignal: args.abortSignal, deadlineAt: args.deadlineAt, deadlineError: args.deadlineError,
+            onWaitProgress: message => ctx.log?.(message),
+          }, () => runDonePrepare(ctx, args));
+        } else {
+          transcript = await runDonePrepare(ctx, args);
+        }
       } catch (error) {
         const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
         const reason = error instanceof Error ? error.message : String(error);

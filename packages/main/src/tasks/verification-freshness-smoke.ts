@@ -2,9 +2,9 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   captureEvidenceHashSnapshot,
@@ -28,7 +28,12 @@ import {
   RECOVER_EVIDENCE_ALLOWED_CATEGORIES,
 } from '../handlers/recover-evidence.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { createVerifierHandlers } from '../handlers/verifier.js';
 import { resetConfigCache } from '../core/config.js';
+import { acquireOwnerLease, readOwnerLease, releaseOwnerLease, getSessionId } from '../core/story-owner-lease.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -123,8 +128,39 @@ function coverageStatusWithMaterialHash(afterPath: string): string {
   }
 }
 
+const isolatedFreshnessRoots = new Set<string>();
 function mkdtempRoot(): string {
-  return mkdtempSync(join(tmpdir(), 'proof-or-stop-freshness-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-freshness-'));
+  isolatedFreshnessRoots.add(root);
+  return root;
+}
+
+// Direct handler tests bypass the CLI owner gate. Supply its real precondition
+// without weakening the heartbeat; never acquire/release outside our fixtures.
+async function withFixtureRecoveryOwner<T>(root: string, store: StoryStore, storyId: string, run: () => Promise<T>): Promise<T> {
+  assert.ok(isolatedFreshnessRoots.has(root), 'recovery owner belongs to an isolated fixture');
+  const cwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  const storyDir = store.storyDirPath(storyId);
+  const assertInsideFixture = (path: string): void => {
+    const child = relative(realpathSync(root), realpathSync(path));
+    assert.ok(!isAbsolute(child) && child !== '..' && !child.startsWith(`..${sep}`),
+      'resolved recovery path must stay inside its isolated fixture');
+  };
+  assertInsideFixture(cwd);
+  assertInsideFixture(storyDir);
+  const exclude = resolve(cwd, git(cwd, ['rev-parse', '--git-path', 'info/exclude']));
+  assertInsideFixture(exclude);
+  const existing = readFileSync(exclude, 'utf8');
+  writeFileSync(exclude, existing + '\n' + listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+  assert.equal(readOwnerLease(storyDir), null, 'fixture must not take over an existing owner');
+  const lease = acquireOwnerLease(storyDir, { command: 'recover_evidence', cwd });
+  try { return await run(); }
+  finally {
+    const current = readOwnerLease(storyDir);
+    if (current && current.leaseId === lease.leaseId && current.sessionId === getSessionId()) {
+      assert.equal(releaseOwnerLease(storyDir), true);
+    }
+  }
 }
 
 function assertEvidenceHashSnapshotReusePreflight(): void {
@@ -745,10 +781,48 @@ function extractStaleBlock(output: string): string {
 
 assertStaleEvidenceHintCrossSurface();
 
+// Recovery cannot mint proof for code it did not execute. These fixtures deliberately
+// retain legacy narrative evidence as a negative, then earn a current tool receipt.
+function assertRecoveryRejectsNarrative(result: { status: string; validateTranscript?: string }): void {
+  assert.equal(result.status, 'fail', 'Narrative evidence cannot satisfy an executable intent');
+  const validation = JSON.parse(result.validateTranscript!);
+  assert.equal(validation.allPass, false);
+  assert.equal(validation.verificationCoverage.missingRequired, 1);
+  assert.equal(validation.verificationCoverage.entries[0].status, 'non_mechanical');
+  assert.match(result.validateTranscript!, /verification_receipt_missing/);
+}
+
+async function assertRecoveryAfterRealExecution(root: string, store: StoryStore, storyId: string): Promise<void> {
+  await withFixtureRecoveryOwner(root, store, storyId, async () => {
+    const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    await handlers.verification_evidence_add({
+      storyId, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test',
+      command: `node -e "const fs=require('node:fs');require('node:assert/strict').equal(fs.readFileSync('packages/main/src/base.ts','utf8').trim(),'export const base = false;');console.log('FRESHNESS_CURRENT_SOURCE_OK')"`,
+      selector: 'FRESHNESS_CURRENT_SOURCE_OK',
+      note: 'Execute and assert the current source after material drift before recovering evidence.',
+    });
+    const evidence = store.readChecklist(storyId).items[0].verificationEvidence![0];
+    assert.equal(evidence.mechanical, true);
+    assert.equal(evidence.receipt?.exitCode, 0);
+    assert.equal(evidence.receipt?.selectorMatched, true);
+    assert.match(evidence.receipt!.outputTail, /FRESHNESS_CURRENT_SOURCE_OK/);
+    const recovered = await createRecoverEvidenceHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .recover_evidence({ storyId });
+    assert.equal(recovered.status, 'pass', JSON.stringify(recovered));
+    assert.match(recovered.refreshTranscript, /No stale verification evidence/);
+    const validation = JSON.parse(recovered.validateTranscript);
+    assert.equal(validation.allPass, true);
+    assert.equal(validation.verificationCoverage.covered, 1);
+    assert.equal(validation.verificationCoverage.missingRequired, 0);
+    console.log('FRESHNESS_REAL_RECEIPT_GREEN ' + JSON.stringify({ storyId, mechanical: evidence.mechanical,
+      exitCode: evidence.receipt!.exitCode, covered: validation.verificationCoverage.covered }));
+  });
+}
+
 // ── B-a2f1 CHK-003: recover_evidence single-shot ──
 // Verifies:
 //   (1) Allowlist invariant — only 3 categories pass through (preMortem #1).
-//   (2) Happy path — stale fixture with no non-metadata dirt → refresh + validate.
+//   (2) Narrative receipt refusal, followed by real execution and successful recovery.
 //   (3) Refuse path (material) — material_source_changes blocks recover.
 //   (4) Refuse path (unexpected) — unexpected_dirty_files blocks recover.
 async function assertRecoverEvidenceCommand(): Promise<void> {
@@ -779,6 +853,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
         storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
       }, null, 2));
+      write(root, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }));
       write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
       const baseSha = commit(root, 'base');
       const baseMaterialHash = currentMaterialHash(root);
@@ -849,23 +924,23 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
   // exit-code escalation in cli-engine.ts. Smoke asserts the in-process shape.
   function runHandler(root: string, storyId: string, store: StoryStore): Promise<RecoverResult> {
     const handlers = createRecoverEvidenceHandlers({ store, root, scanRoot: join(root, 'packages/main') });
-    return Promise.resolve(handlers.recover_evidence({ storyId })) as Promise<RecoverResult>;
+    return withFixtureRecoveryOwner(root, store, storyId, () => Promise.resolve(handlers.recover_evidence({ storyId })) as Promise<RecoverResult>);
   }
 
-  // (2) Happy path — no non-metadata dirt; refresh + validate must run, status=pass.
+  // (2) Clean material drift: narrative recovery fails; real execution then permits recovery.
   {
     const fx = makeFixture();
     try {
       const result = await runHandler(fx.root, fx.storyId, fx.store);
-      assert.equal(result.status, 'pass',
-        `recover_evidence happy path must return status=pass. Got: ${JSON.stringify(result)}`);
+      assertRecoveryRejectsNarrative(result);
       assert.ok(result.refreshTranscript && /Refreshed 1\/1 stale evidence/.test(result.refreshTranscript),
         `refreshTranscript must contain "Refreshed 1/1 stale evidence". Got:\n${result.refreshTranscript}`);
       assert.ok(result.validateTranscript && result.validateTranscript.length > 0,
         `validateTranscript must be non-empty. Got:\n${result.validateTranscript}`);
       // Refresh must come before validate in the result object (refresh first, validate second).
       assert.ok(result.refreshTranscript && result.validateTranscript,
-        'both transcripts must be populated in happy path');
+        'both transcripts must be populated for rejected narrative recovery');
+      await assertRecoveryAfterRealExecution(fx.root, fx.store, fx.storyId);
     } finally {
       fx.cleanup();
     }
@@ -942,18 +1017,18 @@ await assertRecoverEvidenceCommand();
 // ── B-a2f1 CHK-004: end-to-end main-merge regression ──
 // Simulate the real B-c9f5 failure: a user finishes DEV with evidence pinned
 // at baseSha/baseMaterialHash, then merges main (which drifts materialHash),
-// then runs session_brief / story_advance --phase=REVIEW / proof-or-stop validate.
-// All three surfaces must surface the EVIDENCE STALE marker with a
-// byte-identical recovery block that uses the real storyId (no placeholders),
-// and the recover_evidence single-shot must (a) succeed when only stale
-// evidence exists, (b) refuse when unexpected_dirty_files appear.
+// then exercises mandatory REVIEW refusal and real-receipt recovery. A separate
+// advisory-only variant preserves the successful-transition stale-hint renderer;
+// it never relaxes the required-intent variant. The validate formatter input is
+// explicitly a rendering fixture; mandatory coverage is also checked by the real
+// verifier. Unexpected dirty files must still refuse recovery.
 //
 // Ties together CHK-001/002 (cross-surface marker) and CHK-003 (recover_evidence)
 // covering all three preMortem anti-regression anchors from decision.json:
 //   #1 allowlist invariant (recover_evidence refuses unknown categories)
 //   #2 marker no-drift across surfaces (byte-identical block)
 //   #3 no placeholder leakage (literal storyId, no <storyId> / <B-...>)
-async function assertSimulatedMainMergeRegression(): Promise<void> {
+async function assertSimulatedMainMergeRegression(advisoryHint = false): Promise<void> {
   const root = mkdtempRoot();
   const originalCwd = process.cwd();
   try {
@@ -971,6 +1046,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       workflow: { profile: 'balanced' },
     }, null, 2));
     resetConfigCache();
+    write(root, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
     git(root, ['checkout', '-B', 'main']);
     const baseSha = commit(root, 'base');
@@ -983,7 +1059,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     const storyId = 'B-a2f1mm';
     git(root, ['checkout', '-b', `story/${storyId}`]);
 
-    // ── 2. Set up a story in DEV with checklist all-done + pinned evidence ─
+    // ── 2. Arrange PLAN input, then earn its basis before DEV and the merge ─
     const store = new StoryStore(root);
     const now = '2026-05-15T11:00:00.000Z';
     const reviewRound = '2026-05-15T11:01:00.000Z';
@@ -993,14 +1069,14 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       title: 'Simulated main-merge regression',
       description: 'End-to-end stale evidence UX regression smoke.',
       type: 'chore',
-      phase: 'DEV',
+      phase: 'PLAN',
       priority: 'medium',
       createdAt: now,
       startedAt: now,
       endedAt: null,
       // Important: do NOT set `worktree` — keeps CWD gating off in fixture.
       currentReviewRound: reviewRound,
-      events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
+      events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
     };
     const checklist: ChecklistData = {
       items: [{
@@ -1011,7 +1087,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
         startTime: now,
         endTime: now,
         verificationIntent: {
-          happy: [{ desc: 'evidence pinned at baseSha', type: 'logic', priority: 'must' }],
+          happy: [{ desc: 'evidence pinned at baseSha', type: 'logic', priority: advisoryHint ? 'should' : 'must' }],
           edge: [],
           adversarial: [],
         },
@@ -1050,12 +1126,43 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       timestamp: now,
     } as any);
 
-    // ── 3. Simulate the main merge: change material file + commit ──────────
-    // (This drifts both headHash and materialHash relative to the pinned
-    //  evidence; freshness check should report stale.)
+    // Earn the original PLAN basis through its real producer before implementation
+    // drift; the DEV->REVIEW consumer must not be bypassed for this fixture.
+    process.chdir(root);
+    assert.equal(store.readAcceptanceBasis(storyId), null);
+    assert.throws(() => createProofStoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .pre_review_check({ storyId }), /requires the verifier-owned PLAN acceptance basis/);
+    assert.equal(store.readAcceptanceBasis(storyId), null, 'Rejected consumption cannot synthesize PLAN authority');
+    assert.equal(store.readPreReviewCheck(storyId), null, 'Rejected consumption cannot create pre-review authority');
+    console.log('FRESHNESS_MISSING_PLAN_REJECTED');
+    const basisOutput = createProofStoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .acceptance_basis_generate({ storyId, json: true });
+    assert.equal(JSON.parse(basisOutput).verification.ok, true, basisOutput);
+    const generatedBasis = store.readAcceptanceBasis(storyId);
+    assert.ok(generatedBasis, 'The PLAN basis must come from the real acceptance_basis_generate producer');
+    const originalPlanDigest = generatedBasis.basis.basisDigest;
+    const devFixture = store.readStory(storyId);
+    devFixture.phase = 'DEV';
+    store.writeStory(storyId, devFixture);
+
+    // ── 3. Merge a real incoming main commit into the fixture Story ────────
+    // Commit PLAN metadata on the Story branch. Never sweep it onto main.
+    const storyParent = commit(root, 'fixture original PLAN and DEV arrangement');
+    git(root, ['checkout', 'main']);
     write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
-    const driftHead = commit(root, 'simulated main merge drifts material');
+    git(root, ['add', 'packages/main/src/base.ts']);
+    git(root, ['commit', '-m', 'incoming main changes material']);
+    const mainParent = currentGitHead(root)!;
+    git(root, ['checkout', `story/${storyId}`]);
+    git(root, ['merge', '--no-ff', 'main', '-m', 'merge incoming main into fixture Story']);
+    const driftHead = currentGitHead(root);
     assert.ok(driftHead, 'drift head should be available');
+    assert.equal(git(root, ['show', '-s', '--format=%P', 'HEAD']), `${storyParent} ${mainParent}`,
+      'The regression must exercise a two-parent merge of the actual main ref');
+    assert.equal(git(root, ['merge-base', 'main', 'HEAD']), mainParent);
+    assert.equal(store.readAcceptanceBasis(storyId)!.basis.basisDigest, originalPlanDigest,
+      'Incoming main cannot replace the original PLAN basis');
+    console.log('FRESHNESS_REAL_MAIN_MERGE_CONFIRMED');
 
     // chdir into root so autoCommitStoryMetadata + git-probe paths resolve.
     process.chdir(root);
@@ -1067,28 +1174,37 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       assert.equal(preStale[0].intentRef, 'CHK-001:happy:0');
     }
 
-    // ── 4. Surface #1: story_advance DEV→REVIEW pre-check ──────────────────
-    // story_advance for DEV→REVIEW only requires checklistAllDone guard, which
-    // is satisfied by our fixture. transition-orchestrator.ts appends the stale
-    // hint (via transition-effects.ts renderRelatedDocsHint) when
-    // newState ∈ {REVIEW, TEST, DONE}.
-    //
-    // story_advance is called FIRST because autoCommitStoryMetadata creates a
-    // metadata commit (advancing HEAD by one), and we want all three surfaces
-    // to render against the SAME HEAD so byte-identicality is verifiable. If
-    // session_brief / decorateResult ran first they would see the pre-advance
-    // HEAD and produce a block that differs by 7 chars (the `(materialHash
-    // drift after <sha7>)` segment) — defeating preMortem #2 cross-surface
-    // byte-identity coverage. See driftHead vs post-advance currentGitHead.
-    const advanceOutput = await createStoryAdvanceHandlers({
-      store,
-      root,
-      scanRoot: join(root, 'packages/main'),
-    }).story_advance({ storyId, phase: 'REVIEW' });
+    // ── 4. The real transition: required evidence blocks; advisory evidence warns.
+    // Both variants use the producer-owned original PLAN. No evidence is invented
+    // to admit the mandatory variant; that admission is checked only after execution.
+    const advance = () => createStoryAdvanceHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+      .story_advance({ storyId, phase: 'REVIEW' });
+    let advanceOutput = '';
+    let realValidation: string | undefined;
+    if (advisoryHint) {
+      advanceOutput = await advance();
+      assert.equal(store.readStory(storyId).phase, 'REVIEW');
+    } else {
+      await assert.rejects(advance, (error: Error) => {
+        assert.doesNotMatch(error.message, /requires the verifier-owned PLAN acceptance basis/,
+          'Missing PLAN production must not be mistaken for the expected missing-receipt refusal');
+        assert.match(error.message, /verification_receipt_missing/);
+        return true;
+      });
+      assert.equal(store.readStory(storyId).phase, 'DEV', 'Missing mechanical proof cannot enter REVIEW');
+      realValidation = await withFixtureRecoveryOwner(root, store, storyId, async () =>
+        createVerifierHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+          .validate({ story: storyId, json: true, noSync: true }));
+      assert.equal(typeof realValidation, 'string', 'The real verifier must return its JSON report');
+      assert.ok(realValidation);
+      const report = JSON.parse(realValidation);
+      assert.equal(report.allPass, false);
+      assert.equal(report.verificationCoverage.missingRequired, 1);
+      assert.match(realValidation, /verification_receipt_missing/);
+      console.log('FRESHNESS_REQUIRED_GATE_RED_CONFIRMED');
+    }
 
-    // After story_advance, HEAD has advanced by one (autoCommitStoryMetadata).
-    // Compute the canonical block against post-advance HEAD — same input as
-    // the other surfaces will see for the rest of this fixture's lifetime.
+    // Read the actual HEAD after either outcome; never infer a metadata commit.
     const postAdvanceHead = currentGitHead(root);
     assert.ok(postAdvanceHead, 'post-advance HEAD should be available');
     const staleEntries = findStaleEvidence(root, storyId);
@@ -1104,22 +1220,25 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     assert.ok(!canonicalBlock.includes('<B-'),
       'canonical block must not contain <B-...> placeholder (preMortem #3)');
 
-    assert.ok(advanceOutput.includes(EVIDENCE_STALE_MARKER),
-      `story_advance surface must include EVIDENCE STALE marker.\nActual:\n${advanceOutput}`);
-    const advanceBlock = extractStaleBlock(advanceOutput);
-    assert.equal(advanceBlock, canonicalBlock,
-      `story_advance block must be byte-identical to renderer (preMortem #2).\nGot:\n${advanceBlock}\nExpected:\n${canonicalBlock}`);
-    assert.ok(advanceOutput.includes(storyId),
-      'story_advance output must include literal storyId');
-    assert.ok(!advanceOutput.includes('<storyId>'),
-      'story_advance output must not leak <storyId> placeholder (preMortem #3)');
-    assert.ok(!advanceOutput.includes('<B-a2f1mm>'),
-      'story_advance output must not leak <B-a2f1mm> placeholder (preMortem #3)');
+    let advanceBlock: string | undefined;
+    if (advisoryHint) {
+      assert.ok(advanceOutput.includes(EVIDENCE_STALE_MARKER),
+        `story_advance surface must include EVIDENCE STALE marker.\nActual:\n${advanceOutput}`);
+      advanceBlock = extractStaleBlock(advanceOutput);
+      assert.equal(advanceBlock, canonicalBlock,
+        `story_advance block must be byte-identical to renderer (preMortem #2).\nGot:\n${advanceBlock}\nExpected:\n${canonicalBlock}`);
+      assert.ok(advanceOutput.includes(storyId),
+        'story_advance output must include literal storyId');
+      assert.ok(!advanceOutput.includes('<storyId>'),
+        'story_advance output must not leak <storyId> placeholder (preMortem #3)');
+      assert.ok(!advanceOutput.includes('<B-a2f1mm>'),
+        'story_advance output must not leak <B-a2f1mm> placeholder (preMortem #3)');
+
+    }
 
     // ── 5. Surface #2: session_brief (post-advance HEAD) ───────────────────
-    // Phase is now REVIEW. session_brief on REVIEW reads the same stale
-    // evidence and uses the same currentGitHead, so its block must match
-    // the canonical block byte-for-byte.
+    // The phase depends on required/advisory mode; the stale input and HEAD
+    // remain common to these renderer comparisons.
     const briefOutput = createSessionHandlers({
       store,
       root,
@@ -1145,6 +1264,8 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     store.writeStory(storyId, updatedStory);
 
     // ── 6. Surface #3: proof-or-stop validate (via decorateResult hint) ──────────
+    // Formatter-only negative input: not an executed validation or gate receipt.
+    // The mandatory variant above separately executes and checks the real verifier.
     const fakeValidateJson = JSON.stringify({
       provider: 'proof-or-stop-verifier',
       allPass: false,
@@ -1163,7 +1284,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     const decorated = decorateResult({
       cmd: 'validate',
       args: { storyId, story: storyId, json: true },
-      result: fakeValidateJson,
+      result: advisoryHint ? fakeValidateJson : realValidation!,
       store,
       root,
       activeStory: { storyId, phase: 'DEV' },
@@ -1181,18 +1302,20 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     assert.ok(!validateText.includes('<B-a2f1mm>'),
       'validate output must not leak <B-a2f1mm> placeholder (preMortem #3)');
 
-    // ── 7. Three-way byte-identity proof (preMortem #2 anchor) ─────────────
+    // ── 7. Three-way renderer parity in advisory mode; required mode stays blocked ─────────────
     // Already asserted each block == canonicalBlock above; double-check
     // pairwise to make the regression intent explicit in the failure trace.
-    assert.equal(briefBlock, advanceBlock,
-      'session_brief and story_advance blocks must be byte-identical');
-    assert.equal(advanceBlock, validateBlock,
-      'story_advance and validate blocks must be byte-identical');
+    if (advisoryHint) {
+      assert.equal(briefBlock, advanceBlock,
+        'session_brief and story_advance blocks must be byte-identical');
+      assert.equal(advanceBlock, validateBlock,
+        'story_advance and validate blocks must be byte-identical');
+    }
     assert.equal(briefBlock, validateBlock,
       'session_brief and validate blocks must be byte-identical');
 
-    // ── 8. End-to-end recover_evidence happy path ──────────────────────────
-    // No non-metadata dirt in worktree → recover must refresh + revalidate.
+    // ── 8. Recovery refuses unexecuted evidence, then accepts a real receipt ──────────────────────────
+    // No material dirt: refresh runs, but only required mechanical proof admits.
     type RecoverResult = {
       status: 'pass' | 'fail' | 'refused';
       refused?: { reason: string; categories: string[]; paths: string[] };
@@ -1204,11 +1327,14 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       root,
       scanRoot: join(root, 'packages/main'),
     });
-    const recoverResult = (await Promise.resolve(
-      recoverHandlers.recover_evidence({ storyId }),
-    )) as RecoverResult;
-    assert.equal(recoverResult.status, 'pass',
-      `recover_evidence after main-merge must succeed. Got: ${JSON.stringify(recoverResult)}`);
+    const recoverResult = await withFixtureRecoveryOwner(root, store, storyId,
+      () => Promise.resolve(recoverHandlers.recover_evidence({ storyId })) as Promise<RecoverResult>);
+    if (!advisoryHint) assertRecoveryRejectsNarrative(recoverResult);
+    else {
+      assert.equal(recoverResult.status, 'pass');
+      assert.equal(JSON.parse(recoverResult.validateTranscript!).verificationCoverage.covered, 0,
+        'An optional missing receipt is not counted as covered');
+    }
     assert.ok(recoverResult.refreshTranscript,
       'recover_evidence happy path must populate refreshTranscript');
     // Refresh transcript should reflect actually-refreshed evidence; case
@@ -1220,10 +1346,18 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       `refreshTranscript must report 1/1 refreshed. Got:\n${recoverResult.refreshTranscript}`);
     assert.ok(recoverResult.validateTranscript && recoverResult.validateTranscript.length > 0,
       'recover_evidence happy path must populate validateTranscript');
-    // After recover, evidence should be re-pinned to drift head — no longer stale.
+    // Metadata freshness is distinct from coverage: the required negative still failed.
     const postRecoverStale = findStaleEvidence(root, storyId);
     assert.equal(postRecoverStale.length, 0,
-      'after recover_evidence pass, findStaleEvidence must return empty (evidence refreshed)');
+      'metadata refresh updates hashes but does not restore mechanical coverage');
+    await assertRecoveryAfterRealExecution(root, store, storyId);
+    if (!advisoryHint) {
+      await advance();
+      assert.equal(store.readStory(storyId).phase, 'REVIEW', 'Real current receipt permits REVIEW with the original PLAN');
+      assert.equal(store.readAcceptanceBasis(storyId)!.basis.basisDigest, originalPlanDigest,
+        'Recovery and admission retain the original PLAN basis');
+      console.log('FRESHNESS_PLAN_AND_RECEIPT_ADMISSION_GREEN');
+    }
   } finally {
     process.chdir(originalCwd);
     resetConfigCache();
@@ -1345,6 +1479,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
 }
 
 await assertSimulatedMainMergeRegression();
+await assertSimulatedMainMergeRegression(true);
 
 // ── B-edca: test-evidence.json is metadata-only; custom storyDir exclusion ──
 {
@@ -1397,4 +1532,6 @@ await assertSimulatedMainMergeRegression();
   assert.equal(materialFreshAfterChanging(materialPath), false, `${materialPath} should make material-hash evidence stale`);
 }
 
+const scopeProbeRepo = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
+for (const flags of [[], ['--valid'], ['--text', '--codex']]) execFileSync(process.execPath, ['scripts/probe-validation-scope-readiness.mjs', ...flags], { cwd: scopeProbeRepo, stdio: 'inherit', timeout: 120_000 });
 console.log('✓ verification freshness smoke passed');

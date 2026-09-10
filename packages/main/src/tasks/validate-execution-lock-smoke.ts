@@ -13,8 +13,8 @@ import { deriveCertificationDomainInputHashes } from '../handlers/certification-
  *    validation command exits, so an overlapping newer validate cannot enter
  *    and then be overwritten by older post-command persistence;
  *  - different story worktrees: validates can still run at the same time;
- *  - reviewer and delivery metadata writes are not blocked while validate holds
- *    its lock;
+ *  - reviewer and delivery metadata writes refuse explicitly during validation,
+ *    then persist on retry without another validation execution;
  *  - story_advance REVIEW→TEST can run its internal validate gate without
  *    self-deadlocking;
  *  - done_required_validate shares the same story execution lock with validate;
@@ -53,6 +53,9 @@ import {
   withValidationExecutionLock,
   withWorkspaceValidationCapacity,
 } from '../core/validation-execution-lock.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
+import { isValidationMetadataBusy } from '../core/validation-execution-lock.js';
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 // B-cc10 CHK-007 (F-001 tail): fixture paths come from the resolver, never from a
 // hardcoded brand literal. Hardcoding the NEW literal would just move the problem;
@@ -88,6 +91,7 @@ type FixtureOptions = {
   priority?: StoryInfo['priority'];
   workflowProfile?: 'light' | 'balanced' | 'strict';
   doneRequired?: boolean;
+  admitCertification?: boolean;
 };
 
 function repoRoot(): string {
@@ -187,7 +191,7 @@ async function waitForOutput(proc: SpawnedChild, pattern: RegExp, timeoutMs: num
   return pattern.test(proc.output());
 }
 
-function spawnCommand(root: string, args: string[], label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
+function spawnCommand(root: string, args: string[], label: string, extraEnv: Record<string, string | undefined> = {}): SpawnedChild {
   const child = spawn(process.execPath, [cliPath(), ...args], {
     cwd: root,
     env: {
@@ -210,7 +214,7 @@ function spawnCommand(root: string, args: string[], label: string, extraEnv: Rec
   return { child, done, output: () => stdout + stderr, stdout: () => stdout, stderr: () => stderr };
 }
 
-function spawnValidate(root: string, storyId: string, label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
+function spawnValidate(root: string, storyId: string, label: string, extraEnv: Record<string, string | undefined> = {}): SpawnedChild {
   return spawnCommand(root, ['validate', `--story=${storyId}`, '--json'], label, extraEnv);
 }
 
@@ -237,23 +241,44 @@ function extractReviewRunId(output: string): string {
   return match![0];
 }
 
-function reviewerReadManifest(agent: string): Record<string, unknown> {
-  return {
-    filesReadFully: [`docs/requirements/decisions/${agent}.md`],
-    filesTriagedByName: [],
-    scanEscalationReason: null,
-  };
+const fixtureRoots = new Set<string>();
+async function reviewerFixtureCli(root: string, storyId: string, command: string, args: Record<string, unknown>): Promise<string> {
+  assert.ok(fixtureRoots.has(root), 'reviewer operations stay in disposable fixtures');
+  const lane = 'proof-or-stop-review-quality', task = 'validation-lock-reviewer';
+  try {
+    const proc = spawnCommand(root, [command, JSON.stringify(args)], command, {
+      ...adapterSessionEnv(task, lane), PROOF_OR_STOP_AGENT: lane,
+    });
+    const result = await waitChild(proc, 10000);
+    if (result.code !== 0) throw new Error(`${command} exited ${result.code}:\n${result.output}`);
+    return result.output;
+  } finally {
+    const directory = new StoryStore(root).storyDirPath(storyId);
+    if (readOwnerLease(directory)?.sessionId === adapterSessionId(root, task, lane)) releaseOwnerLease(directory);
+  }
+}
+function guardedSnapshot(root: string, storyId: string): string {
+  const store = new StoryStore(root);
+  return JSON.stringify({ head: git(root, ['rev-parse', 'HEAD']), files: ['review-passes.json', 'review-runs.json', 'delivery-check.json', 'process-events.jsonl'].map(file => {
+    const path = store.storyFilePath(storyId, file);
+    return [file, existsSync(path) ? readFileSync(path, 'utf8') : null];
+  }) });
+}
+function assertBusyRefusal(error: unknown): boolean {
+  assert.ok(isValidationMetadataBusy(error), String(error));
+  assert.doesNotMatch(String(error), /no trusted story-review dispatch|live_smoke_transcript|must be in REVIEW/);
+  return true;
 }
 
 function setupFixture(options: FixtureOptions = {}): { root: string; storyId: string } {
   const storyId = options.storyId ?? DEFAULT_STORY_ID;
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-'));
+  fixtureRoots.add(root);
   write(root, '.gitignore', [
     'entered.log',
     'bare-entered.log',
     'release',
-    PROOF_OR_STOP_ACTIVITY_LOG,
-    `${PROOF_OR_STOP_DIR}/locks/`,
+    ...listRuntimeArtifactIgnorePatterns(),
     '',
   ].join('\n'));
   const validateCommand = {
@@ -293,7 +318,7 @@ console.log('probe ' + label + ' passed');
   store.writeStory(storyId, story(storyId, options.phase ?? 'TEST', options.priority ?? 'high'));
   store.writeChecklist(storyId, checklist());
   commitAll(root, 'seed story metadata');
-  if (options.doneRequired) {
+  if (options.doneRequired && options.admitCertification !== false) {
     const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
     assert.ok(causalInputHashes, 'capacity fixture must bind real certification inputs');
     persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
@@ -475,42 +500,51 @@ async function assertDifferentWorktreesCanValidateConcurrently(): Promise<void> 
   }
 }
 
-async function assertReviewerWritesAreNotBlocked(): Promise<void> {
+async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
   const { root, storyId } = setupFixture({ storyId: 'B-validate-review', phase: 'REVIEW' });
+  let validate: SpawnedChild | undefined;
   try {
-    const validate = spawnValidate(root, storyId, 'review-holder');
+    const lane = 'proof-or-stop-review-quality';
+    const observedFiles = ['packages/main/src/index.ts'];
+    for (const path of observedFiles) assert.ok(readFileSync(join(root, path), 'utf8').length > 0);
+    await reviewerFixtureCli(root, storyId, 'dispatch', { storyId, agentType: lane });
+    const started = await reviewerFixtureCli(root, storyId, 'review_run_start', { storyId, agent: lane });
+    const reviewRunId = extractReviewRunId(started);
+    // Dispatch/run producers append canonical process events. Commit those
+    // fixture-owned outputs before validation; the real PASS writer below must
+    // still accept this signed run across the metadata-only HEAD advance.
+    commitAll(root, 'persist fixture reviewer preparation before validation');
+    const args = { storyId, agent: lane, reviewRunId,
+      note: 'The disposable fixture review found no additional blocker.',
+      readManifest: { filesReadFully: observedFiles, filesTriagedByName: [], scanEscalationReason: null },
+      readEvents: observedFiles.map(path => ({ path, mode: 'full', action: 'Read', tokenCount: 8 })),
+    };
+    validate = spawnValidate(root, storyId, 'review-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
-
-    const reviewRunOutput = await runProofOrStop(root, 'review_run_start', {
-      storyId,
-      agent: 'proof-or-stop-review-quality',
-    });
-    const reviewRunId = extractReviewRunId(reviewRunOutput);
-    await runProofOrStop(root, 'review_pass_set', {
-      storyId,
-      agent: 'proof-or-stop-review-quality',
-      reviewRunId,
-      note: 'proof-or-stop-review-quality checked validate lock scope and found no blocker.',
-      readManifest: reviewerReadManifest('proof-or-stop-review-quality'),
-    });
-
-    const passes = new StoryStore(root).readReviewPasses(storyId).passes;
-    assert.equal(passes.length, 1, 'review_pass_set should persist while validate lock is held');
-
+    const before = guardedSnapshot(root, storyId);
+    await assert.rejects(reviewerFixtureCli(root, storyId, 'review_pass_set', args), assertBusyRefusal);
+    assert.equal(guardedSnapshot(root, storyId), before, 'busy review attempt preserves guarded artifacts and HEAD');
     release(root);
-    await waitChild(validate, 12000);
+    const result = await waitChild(validate, 12000);
+    assert.equal(result.code, 0, result.output);
+    assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result, 'PASS', 'review fixture validate must publish PASS: ' + result.output);
+    await reviewerFixtureCli(root, storyId, 'review_pass_set', args);
+    assert.equal(new StoryStore(root).readReviewPasses(storyId).passes.length, 1);
+    assert.equal(enteredCount(root), 1, 'review retry does not launch validation again');
+    console.log('REVIEW_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, PASS publication, retry, one execution');
   } finally {
+    if (validate && validate.child.exitCode === null) { release(root); await waitChild(validate, 12000); }
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
+async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
   const { root, storyId } = setupFixture({ storyId: 'B-validate-delivery', phase: 'TEST' });
   try {
     const validate = spawnValidate(root, storyId, 'delivery-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
 
-    await runProofOrStop(root, 'delivery_check_set', {
+    const deliveryArgs = {
       storyId,
       agentId: 'proof-or-stop-review-delivery',
       docsPromises: [{
@@ -518,7 +552,7 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
         promise: 'Synthetic delivery promise is checked by this smoke.',
         status: 'verified',
         verifiedBy: 'validate-execution-lock-smoke',
-        evidence: 'delivery_check_set completed while validate was still waiting on release',
+        evidence: 'delivery_check_set persists only after validation completes',
       }],
       realMachineTests: [{
         featureId: 'CHK-001',
@@ -528,17 +562,20 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
         hasRealMachineTest: true,
         hasEdgeCaseCoverage: true,
         hasUnresolvedTodos: false,
-        summary: 'Delivery check metadata write is independent from validate execution lock.',
+        summary: 'Delivery check metadata write retries after validation releases its lock.',
       },
-    });
-
-    const delivery = new StoryStore(root).readDeliveryCheck(storyId);
-    assert.ok(delivery, 'delivery_check_set should persist while validate lock is held');
-    assert.equal(delivery?.agentId, 'proof-or-stop-review-delivery');
-
+    };
+    const before = guardedSnapshot(root, storyId);
+    await assert.rejects(runProofOrStop(root, 'delivery_check_set', deliveryArgs), assertBusyRefusal);
+    assert.equal(guardedSnapshot(root, storyId), before, 'busy delivery attempt preserves guarded artifacts and HEAD');
     release(root);
     const validateResult = await waitChild(validate, 12000);
     assert.equal(validateResult.code, 0, validateResult.output);
+    assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result, 'PASS', 'delivery fixture validate must publish PASS: ' + validateResult.output);
+    await runProofOrStop(root, 'delivery_check_set', deliveryArgs);
+    assert.equal(new StoryStore(root).readDeliveryCheck(storyId)?.agentId, 'proof-or-stop-review-delivery');
+    assert.equal(enteredCount(root), 1, 'delivery retry does not launch validation again');
+    console.log('DELIVERY_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, PASS publication, retry, one execution');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -578,6 +615,52 @@ async function assertStoryAdvanceInternalValidateDoesNotSelfLock(): Promise<void
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-required-policy-drift', doneRequired: true });
+  let releaseCapacity!: () => void, ready!: () => void;
+  const entered = new Promise<void>(resolve => { ready = resolve; });
+  const releasePromise = new Promise<void>(resolve => { releaseCapacity = resolve; });
+  const holder = withWorkspaceValidationCapacity({ root, workspaceRoot: root, command: 'policy-drift-holder' }, async () => { ready(); await releasePromise; });
+  let proc: SpawnedChild | undefined;
+  try {
+    await entered;
+    proc = spawnCommand(root, ['done_required_validate', JSON.stringify({ storyId, json: true })], 'policy-drift-contender');
+    assert.equal(await waitForOutput(proc, /waiting for workspace validation capacity/, 4000), true, proc.output());
+    const path = join(root, PROOF_OR_STOP_CONFIG_FILENAME);
+    const config = JSON.parse(readFileSync(path, 'utf8'));
+    config.doneRequiredCommands[0].args = ['-e', 'console.log("changed-policy-command")'];
+    writeFileSync(path, JSON.stringify(config));
+    releaseCapacity(); await holder;
+    const result = await waitChild(proc, 12000);
+    assert.notEqual(result.code, 0, result.output);
+    assert.match(result.output, /DONE_REQUIRED_POLICY_CHANGED/);
+    assert.equal(enteredCount(root), 0);
+    const store = new StoryStore(root);
+    assert.equal(store.readDoneRequiredEvidence(storyId), null);
+    assert.equal(store.readCertificationWindows(storyId).windows.some(window => window.state === 'RUNNING'), false);
+    console.log('QUEUED_POLICY_DRIFT_GREEN: changed physical config refuses stale cached policy before zero command starts');
+  } finally {
+    releaseCapacity(); await holder;
+    if (proc && proc.child.exitCode === null) await waitChild(proc, 12000);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-required-unadmitted', doneRequired: true, admitCertification: false });
+  try {
+    const proc = spawnCommand(root, ['done_required_validate', JSON.stringify({ storyId, json: true })], 'unadmitted-required');
+    const result = await waitChild(proc, 12000);
+    assert.notEqual(result.code, 0, result.output);
+    assert.match(result.output, /PRE_CERT_[A-Z_]+/i);
+    assert.equal(enteredCount(root), 0, 'unadmitted refusal must precede actual test launch');
+    const store = new StoryStore(root);
+    assert.equal(store.readDoneRequiredEvidence(storyId), null, 'unadmitted refusal must not publish execution evidence');
+    assert.equal(store.readCertificationWindows(storyId).windows.some(window => window.state === 'RUNNING'), false);
+    console.log('UNADMITTED_DONE_REQUIRED_GREEN: nonzero PRE_CERT refusal, zero starts, no execution evidence or RUNNING window');
+  } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
 async function assertDoneRequiredSharesValidateLock(): Promise<void> {
@@ -1103,7 +1186,7 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     const owner = withOfficialValidationExecution(options, async () => {
       ownerEntered = true;
       assert.equal(existsSync(validationExecutionLockPath(root, 'B-owner')), true,
-        'official owner must acquire the inner story lock after capacity');
+        'official callback must own the Story lock');
       await withOfficialValidationExecution(options, () => { nestedEntered = true; });
       await new Promise<void>((resolveOwner) => { releaseOwner = resolveOwner; });
     });
@@ -1559,8 +1642,8 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
       'real validate CLI must publish one queued ticket behind the active workspace owner');
     assert.equal(enteredCount(cliFixture.root), 0,
       'queued validate CLI must not enter the configured validation callback');
-    assert.equal(existsSync(validationExecutionLockPath(cliFixture.root, cliFixture.storyId)), false,
-      'queued validate CLI must not enter the inner story lock before capacity');
+    assert.equal(existsSync(validationExecutionLockPath(cliFixture.root, cliFixture.storyId)), true,
+      'queued validate CLI protects Story inputs before waiting for capacity');
     const result = await waitChild(waiter, 5000);
     assert.equal(result.code, 1, result.output);
     assert.match(waiter.stderr(), /validate failed: CLI max timeout exceeded 250ms/,
@@ -1652,7 +1735,7 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
     const verifierSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verifier.ts'), 'utf8');
     const doneSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
     const verdictSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verdict.ts'), 'utf8');
-    assert.match(verifierSource, /return await withOfficialValidationExecution[\s\S]*if \(args\.channel \|\| args\.concept \|\| args\.lint\)/,
+    assert.match(verifierSource, /return await withValidationSigningRoot\(handlerGitCwd, \(\) => withOfficialValidationExecution[\s\S]*if \(args\.channel \|\| args\.concept \|\| args\.lint\)/,
       'all selective validate returns must be below the official capacity boundary');
     assert.match(doneSource, /return await withOfficialValidationExecution/,
       'done_required_validate must use the same official capacity boundary');
@@ -1797,14 +1880,18 @@ void (async () => {
     await assertPostCommandPersistenceHoldsLock();
     await assertRetiredRaceSeamIsProductionUnreachable();
     await assertDifferentWorktreesCanValidateConcurrently();
-    await assertReviewerWritesAreNotBlocked();
-    await assertDeliveryCheckSetIsNotBlocked();
+    await assertReviewerWritesCoordinateWithValidation();
+    await assertDeliveryCheckCoordinatesWithValidation();
     await assertStoryAdvanceInternalValidateDoesNotSelfLock();
+    await assertQueuedDonePolicyDriftRefuses();
+    await assertUnadmittedDoneRequiredNeverExecutes();
     await assertDoneRequiredSharesValidateLock();
     await assertStaleLockReclaimed();
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
+    execFileSync(process.execPath, [join(repoRoot(), 'scripts/probe-validation-stages-v6.mjs')], { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
+    execFileSync(process.execPath, [join(repoRoot(), 'scripts/probe-validation-key-race-v6.mjs')], { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
     execFileSync(process.execPath, [join(repoRoot(), 'scripts/verify-performance-production.mjs')], {
       cwd: repoRoot(), stdio: 'inherit', timeout: 180000,
     });
@@ -1815,7 +1902,7 @@ void (async () => {
   }
 })();
 
-import { acquireOwnerLease, readOwnerLease } from '../core/story-owner-lease.js';
+import { acquireOwnerLease, readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 // Direct handler tests bypass the CLI ownership gate. Establish its prerequisite
 // only in these disposable fixtures; production heartbeat never acquires leases.
 function createVerifierHandlers(ctx: Parameters<typeof unownedcreateVerifierHandlers>[0]) {

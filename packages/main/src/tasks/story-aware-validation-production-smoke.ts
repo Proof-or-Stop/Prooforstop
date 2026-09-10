@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
 import { createValidationClosureCertificate, verifyValidationShardReceipt, verifyValidationClosureCertificate } from '../core/story-aware-validation.js';
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = mkdtempSync(join(tmpdir(), 'proof-story-aware-production-'));
@@ -18,7 +19,7 @@ try {
   writeFileSync(join(root, 'packages/main/src/.keep'), '\n');
   const caseRegistryPath = 'packages/main/src/review-pass-cases.json';
   const adapterPath = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
-  const adapterSource = readFileSync(new URL('./story-aware-validation-case-adapter.mjs', import.meta.url), 'utf8');
+  const adapterSource = readFileSync(new URL('../../src/tasks/story-aware-validation-case-adapter.mjs', import.meta.url), 'utf8');
   const runtimeNode = execFileSync('node', ['-p', 'process.execPath'], { encoding: 'utf8' }).trim();
   const runner = (caseId: string) => ({
     command: runtimeNode,
@@ -37,6 +38,7 @@ try {
   ]) + '\n');
   mkdirSync(join(root, 'packages/main/src/tasks'), { recursive: true });
   writeFileSync(join(root, adapterPath), adapterSource);
+  writeFileSync(join(root, 'packages/main/src/tasks/validation-child-environment.mjs'), readFileSync(new URL('../../src/tasks/validation-child-environment.mjs', import.meta.url), 'utf8'));
   // Synthetic retired-only caller: a current adapter must reject it before
   // creating even a shard directory or any case-evidence file.
   const retiredShardDir = join(root, 'retired-env-rejection');
@@ -154,10 +156,10 @@ try {
   const shardFiles = readFileSync(join(shardRoot, readdirSync(shardRoot).find(name => name.endsWith('aggregate.json'))!), 'utf8');
   assert.match(shardFiles, /coveredCaseIds/);
   const receiptFiles = readdirSync(shardRoot).filter(name => name.startsWith('shard-receipt-') && name.endsWith('.json'));
-  assert.equal(receiptFiles.length, 7, 'registered adapter must emit one receipt per review-pass and quorum shard');
+  assert.equal(receiptFiles.length, 7, 'registered adapter must emit one receipt per review-pass and quorum shard: ' + JSON.stringify(run));
   for (const name of receiptFiles) {
     const receipt = JSON.parse(readFileSync(join(shardRoot, name), 'utf8'));
-    assert.equal(verifyValidationShardReceipt(receipt), true, `invalid persisted shard receipt ${name}`);
+    assert.equal(withValidationSigningRoot(root, () => verifyValidationShardReceipt(receipt)), true, `invalid persisted shard receipt ${name}`);
     assert.equal(receipt.registryObserved, true);
     assert.equal(receipt.sentinelObserved, true);
     assert.equal(receipt.residue.length, 0);
@@ -195,6 +197,30 @@ try {
   } finally {
     writeFileSync(join(root, adapterPath), adapterSource);
   }
+  const environmentPath = 'packages/main/src/tasks/validation-child-environment.mjs';
+  const environmentSource = readFileSync(join(root, environmentPath), 'utf8');
+  writeFileSync(join(root, environmentPath), `${environmentSource}\n// synthetic adapter tamper\n`);
+  try {
+    const tampered = await runStoryAwareDynamicValidation({
+      projectRoot: root, gitCwd: root, storyId: 'B-production-environment-tamper',
+      baseHead: head, head, changedFiles: [], mode: 'enforce-low-risk', commands: configured,
+    });
+    assert.equal(tampered.authority.authoritative, false, 'tampered adapter must not grant dynamic authority');
+    const tamperedShardRoot = join(root, '.proof-or-stop/runtime/dynamic-validation/B-production-environment-tamper/shards');
+    const tamperedFiles = readdirSync(tamperedShardRoot);
+    assert.equal(tamperedFiles.filter(name => name.startsWith('shard-receipt-')).length, 0,
+      'tampered adapter must create no shard receipt');
+    const tamperedAggregates = tamperedFiles.filter(name => name.endsWith('-aggregate.json'))
+      .map(name => JSON.parse(readFileSync(join(tamperedShardRoot, name), 'utf8')));
+    assert.equal(tamperedAggregates.length, 2);
+    assert.equal(tamperedAggregates.every(row => row.ok === false && row.errors.length > 0), true,
+      'both domains must reject unexecuted shard evidence');
+    assert.match(JSON.stringify(tampered.selectedResult), /registered case-aware adapter/,
+      'the public production result must identify the rejected adapter binding');
+    console.log('canonical dynamic environment source tamper rejects all shard receipts PASS');
+  } finally {
+    writeFileSync(join(root, environmentPath), environmentSource);
+  }
 
   // A minimal local command with an explicit closure/environment declaration
   // proves the positive DYN-3 boundary as well as the fail-closed sharding
@@ -223,6 +249,14 @@ try {
     const authorityCommands = configuredValidationCommands(authorityRoot);
     const authorityFull = await executeValidationPlan({ provider: 'authority-baseline-full', commands: authorityCommands, warnings: [] }, authorityRoot, authorityHead, 'B-authority');
     assert.equal(authorityFull.allPass, true);
+    const headlessRoot = mkdtempSync(join(tmpdir(), 'proof-headless-baseline-'));
+    try {
+      for (const sourceHead of ['', '   ']) {
+        assert.equal(persistCanonicalFullBaseline({ projectRoot: headlessRoot, sourceHead, result: authorityFull, commands: authorityCommands }), undefined);
+        assert.equal(existsSync(join(headlessRoot, '.proof-or-stop/runtime/dynamic-validation/canonical-baseline.json')), false);
+      }
+      console.log('HEADLESS_BASELINE_REFUSED');
+    } finally { rmSync(headlessRoot, { recursive: true, force: true }); }
     const baseline = persistCanonicalFullBaseline({ projectRoot: authorityRoot, sourceHead: authorityHead, result: authorityFull, commands: authorityCommands });
     assert.ok(baseline, 'positive authority fixture must persist a canonical baseline');
     const admitted = await runStoryAwareDynamicValidation({ projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk', commands: authorityCommands });
@@ -235,3 +269,15 @@ try {
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
+
+const headlessMatrix = spawnSync(process.execPath, [new URL('../../tests/validation-headless.mjs', import.meta.url).pathname], { encoding: 'utf8', timeout: 120000 });
+assert.equal(headlessMatrix.status, 0, headlessMatrix.stdout + headlessMatrix.stderr);
+console.log(headlessMatrix.stdout);
+
+const routingLock = spawnSync(process.execPath, [new URL('../../tests/validation-routing-lock.mjs', import.meta.url).pathname], { encoding: 'utf8', timeout: 30000 });
+assert.equal(routingLock.status, 0, routingLock.stdout + routingLock.stderr);
+console.log(routingLock.stdout);
+
+const signingRootMatrix = spawnSync(process.execPath, [new URL('../../tests/validation-signing-root.mjs', import.meta.url).pathname], { encoding: 'utf8', timeout: 120000 });
+assert.equal(signingRootMatrix.status, 0, signingRootMatrix.stdout + signingRootMatrix.stderr);
+console.log(signingRootMatrix.stdout);

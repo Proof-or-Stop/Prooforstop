@@ -174,6 +174,19 @@ try {
   await check('complete signed review wave enables repair without certification authority', async () => {
     execFileSync(process.execPath,['packages/main/dist/tasks/review-inventory-epoch-smoke.js'],{cwd:root,stdio:'pipe'});
   });
+  for (const test of ['validation-stage-entry-count.mjs', 'validation-wait-ledger.mjs']) {
+    execFileSync(process.execPath, ['packages/main/tests/' + test], {cwd: root, stdio: 'inherit'});
+  }
+  for (const mode of ['abort', 'deadline']) {
+    execFileSync(process.execPath, ['packages/main/tests/validation-stage-entry-count.mjs'], {cwd: root, stdio: 'inherit', env: {...process.env, LAB_SAFETY_MODE: mode}});
+  }
 } finally { rmSync(dir,{recursive:true,force:true}); }
 if(failures.length){console.error(failures.join('\n'));process.exitCode=1;}
-else console.log('Performance production regressions passed');
+else {
+execFileSync(process.execPath, ['packages/main/tests/validation-reuse-economics.mjs'], {cwd: root, stdio:'inherit', timeout:120000});
+
+execFileSync(process.execPath, ['packages/main/tests/validation-reuse-cost-process.mjs'], {cwd:root,stdio:'inherit',timeout:120000});
+execFileSync(process.execPath, ['packages/main/tests/validation-reuse-cost-store.mjs'], {cwd:root,stdio:'inherit',timeout:120000});
+execFileSync(process.execPath, ['packages/main/tests/validation-reuse-cost-close.mjs'], {cwd:root,stdio:'inherit',timeout:30000});
+console.log('Performance production regressions passed');
+}

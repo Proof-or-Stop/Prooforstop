@@ -85,6 +85,7 @@ export interface DonePrepareValidationReuseRecord {
 
 export interface DonePrepareValidationReuseResult {
   ok: boolean;
+  expectedOutputDigest?: string;
   record?: DonePrepareValidationReuseRecord;
   reasons: string[];
 }
@@ -404,12 +405,19 @@ export function writeDonePrepareValidationReuseRecord(args: {
     testEvidence,
     doneRequiredEvidence,
   });
-  args.store.writeDoneRequiredEvidence(args.storyId, {
+  const output = {
     ...doneRequiredEvidence,
     donePrepareValidationReuse: record,
-  } as DoneRequiredEvidenceData & { donePrepareValidationReuse: DonePrepareValidationReuseRecord });
-
-  return { ok: true, record, reasons: [] };
+  } as DoneRequiredEvidenceData & { donePrepareValidationReuse: DonePrepareValidationReuseRecord };
+  const expectedOutputDigest = createHash('sha256').update(JSON.stringify(output, null, 2) + '\n').digest('hex');
+  try {
+    args.store.writeDoneRequiredEvidence(args.storyId, output);
+    const actual = createHash('sha256').update(readFileSync(args.store.storyFilePath(args.storyId, 'done-required-evidence.json'))).digest('hex');
+    if (actual !== expectedOutputDigest) throw new Error('reuse output differs from intended serialized bytes');
+  } catch (error) {
+    return { ok: false, expectedOutputDigest, reasons: [String(error)] };
+  }
+  return { ok: true, record, expectedOutputDigest, reasons: [] };
 }
 
 const GIT_EXEC = { encoding: 'utf-8' as const, stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'] };

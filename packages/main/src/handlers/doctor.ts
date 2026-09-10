@@ -22,6 +22,8 @@ import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from
 import {
   AGENT_ASSET_MODE_RUNTIME_OWNED,
   mergeRuntimeGitignore,
+  mergeCausalReceiptGitignore,
+  assertRuntimeGitignoreRegularFile,
   runtimeIgnoreMissing,
   scanProjectLocalManagedAgents,
 } from '../core/managed-assets.js';
@@ -72,7 +74,20 @@ export function createDoctorHandlers(ctx: HandlerContext) {
   return {
     // B-623a x B-7c05 merge: async (host burn scan awaits the store sweeps) AND
     // the brief/full render-only flags from main.
-    async doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean; full?: boolean; brief?: boolean }): Promise<string | object> {
+    async doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean; runtimeArtifact?: string; full?: boolean; brief?: boolean }): Promise<string | object> {
+      if (args?.runtimeArtifact !== undefined) {
+        if (args.repair !== true) throw new Error('RUNTIME_ARTIFACT_REPAIR_REQUIRED');
+        if (args.runtimeArtifact !== 'runtime-causal-evidence-receipts') throw new Error('RUNTIME_ARTIFACT_REPAIR_SCOPE_UNSUPPORTED');
+        const result = repairCausalRuntimeArtifacts(root, resolveDoctorGitCwd(root));
+        return args.format === 'json' ? {runtimeArtifacts: result, focused: true} : JSON.stringify(result);
+      }
+      const gitProbeCwd = resolveDoctorGitCwd(root);
+      if (args?.repair) assertRuntimeGitignoreRegularFile(join(gitProbeCwd, '.gitignore'));
+      let runtimeArtifactScan = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
+      if (args?.repair && runtimeArtifactScan.state !== 'ok') {
+        throw new Error('TRACKED_RUNTIME_SCAN_UNAVAILABLE: ' + runtimeArtifactScan.state + ': ' + runtimeArtifactScan.error);
+      }
+      let trackedRuntimeArtifacts = runtimeArtifactScan.artifacts;
       const limit = args?.limit ?? 1000;
       // B-7c05 CHK-004: RENDER-ONLY brief text mode, active ONLY on explicit
       // brief:true (injected by the CLI seam for bare invocations after
@@ -102,8 +117,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // probe below, so wrapper-root projects (metadataRoot != gitRoot) no longer
       // print leading `fatal: not a git repository` lines. Falls back to `root`
       // when no gitRoot resolves → byte-identical for plain repos.
-      const gitProbeCwd = resolveDoctorGitCwd(root);
-      let trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
+
       const runtimeArtifactsRepaired: string[] = [];
       const runtimeArtifactsRepairFailed: Array<{ path: string; error: string }> = [];
 
@@ -246,7 +260,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             runtimeArtifactsRepairFailed.push({ path: artifact.path, error: e.message || String(e) });
           }
         }
-        trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
+        runtimeArtifactScan = scanTrackedRuntimeArtifacts(root, gitProbeCwd);
+        trackedRuntimeArtifacts = runtimeArtifactScan.artifacts;
       }
 
       // B-854c CHK-003: --repair installs the managed ignore-volatile/track-metadata
@@ -347,8 +362,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           runtime,
           redEvidencePolicy,
           runtimeArtifacts: {
-            tracked: trackedRuntimeArtifacts,
-            needsRepair: trackedRuntimeArtifacts.some((artifact) => artifact.repairable),
+            scanState: runtimeArtifactScan.state,
+            scanError: runtimeArtifactScan.error ?? null,
+            tracked: runtimeArtifactScan.state === 'ok' ? trackedRuntimeArtifacts : null,
+            needsRepair: runtimeArtifactScan.state === 'ok' ? trackedRuntimeArtifacts.some((artifact) => artifact.repairable) : null,
             repaired: runtimeArtifactsRepaired,
             repairFailed: runtimeArtifactsRepairFailed,
             repairRequested: !!args?.repair,
@@ -380,7 +397,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
-      if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
+      if (runtimeArtifactScan.state !== 'ok') {
+        lines.push('⚠ Runtime artifact scan ' + runtimeArtifactScan.state + ': ' + runtimeArtifactScan.error);
+      } else if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
         lines.push('✓ No health issues recorded. Proof-or-Stop is healthy.');
       } else if (summary.total === 0 && (cleanupTargets.length > 0 || auxiliaryWorktrees.length > 0)) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
@@ -426,7 +445,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       }
 
       lines.push('Runtime artifacts:');
-      if (trackedRuntimeArtifacts.length === 0) {
+      if (runtimeArtifactScan.state !== 'ok') {
+        lines.push('  ✗ scan ' + runtimeArtifactScan.state + ': ' + runtimeArtifactScan.error);
+      } else if (trackedRuntimeArtifacts.length === 0) {
         lines.push('  ✓ no tracked runtime artifacts found');
         if (args?.repair) {
           for (const path of runtimeArtifactsRepaired) lines.push(`  ✓ untracked ${path}`);
@@ -716,16 +737,60 @@ export function resolveDoctorGitCwd(root: string): string {
   return evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root }).gitRootAbs ?? root;
 }
 
-function scanTrackedRuntimeArtifacts(root: string, gitCwd: string = root): TrackedRuntimeArtifact[] {
-  let raw = '';
+/** Exact focused scope; broad doctor repair compatibility remains unchanged. */
+export function repairCausalRuntimeArtifacts(root: string, gitCwd: string = root,
+  runGit = runtimeArtifactGitRunner(gitCwd)) {
+  const before = scanTrackedRuntimeArtifacts(root, gitCwd, runGit);
+  if (before.state !== 'ok') throw new Error('TRACKED_RUNTIME_SCAN_UNAVAILABLE: ' + before.state + ': ' + before.error);
+  const selected = before.artifacts.filter(artifact => artifact.entryId === 'runtime-causal-evidence-receipts'
+    && artifact.repairable && /\/causal-evidence\/(?:index\.json$|receipts\/)/.test(artifact.path));
+  const path = join(gitCwd, '.gitignore');
+  assertRuntimeGitignoreRegularFile(path);
+  const original = existsSync(path) ? readFileSync(path, 'utf8') : '';
+  const content = mergeCausalReceiptGitignore(original);
+  if (content !== original) writeFileSync(path, content);
+  const repaired: string[] = [];
+  const repairFailed: Array<{path: string; error: string}> = [];
+  for (const artifact of selected) {
+    if (!isRepairableTrackedRuntimeArtifactPath(artifact.path)) throw new Error('RUNTIME_ARTIFACT_REPAIR_SCOPE_CHANGED');
+    try { runGit(['rm', '--cached', '--', artifact.path]); repaired.push(artifact.path); }
+    catch (error: any) { repairFailed.push({path: artifact.path, error: String(error?.message ?? error)}); }
+  }
+  if (repairFailed.length) throw new Error('RUNTIME_ARTIFACT_REPAIR_PARTIAL: ' + JSON.stringify({repaired, repairFailed}));
+  const after = scanTrackedRuntimeArtifacts(root, gitCwd, runGit);
+  if (after.state !== 'ok') throw new Error('TRACKED_RUNTIME_SCAN_UNAVAILABLE_AFTER_REPAIR: ' + after.error);
+  return {scanState: after.state, scanError: null, tracked: after.artifacts, repaired, repairFailed, repairRequested: true,
+    scope: 'runtime-causal-evidence-receipts', needsRepair: after.artifacts.some(artifact => artifact.entryId === 'runtime-causal-evidence-receipts' && artifact.repairable && /\/causal-evidence\/(?:index\.json$|receipts\/)/.test(artifact.path))};
+}
+
+export interface TrackedRuntimeArtifactScan {
+  state: 'ok' | 'not-evaluated' | 'failed';
+  artifacts: TrackedRuntimeArtifact[];
+  error?: string;
+}
+
+function runtimeArtifactGitRunner(gitCwd: string): (args: string[]) => string {
+  return args => execFileSync('git', args, {
+    cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 32 * 1024 * 1024,
+  });
+}
+
+export function scanTrackedRuntimeArtifacts(root: string, gitCwd: string = root,
+  runGit = runtimeArtifactGitRunner(gitCwd)): TrackedRuntimeArtifactScan {
   try {
-    raw = execFileSync('git', ['ls-files', '-z'], {
-      cwd: gitCwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-  } catch {
-    return [];
+    if (runGit(['rev-parse', '--is-inside-work-tree']).trim() !== 'true') {
+      return {state: 'not-evaluated', artifacts: [], error: 'No Git working tree'};
+    }
+  } catch (error: any) {
+    const unavailable = error?.code === 'ENOENT' || /fatal: not a git repository/i.test(String(error?.stderr ?? ''));
+    return {state: unavailable ? 'not-evaluated' : 'failed', artifacts: [], error: String(error?.message ?? error)};
+  }
+  let raw: string;
+  try {
+    raw = runGit(['ls-files', '-z']);
+    if (raw && !raw.endsWith('\0')) throw new Error('Incomplete NUL-delimited Git index output');
+  } catch (error: any) {
+    return {state: 'failed', artifacts: [], error: String(error?.message ?? error)};
   }
   const seen = new Set<string>();
   const tracked: TrackedRuntimeArtifact[] = [];
@@ -746,7 +811,7 @@ function scanTrackedRuntimeArtifacts(root: string, gitCwd: string = root): Track
     });
   }
   tracked.sort((a, b) => a.path.localeCompare(b.path));
-  return tracked;
+  return {state: 'ok', artifacts: tracked};
 }
 
 /**
@@ -1154,6 +1219,7 @@ function repairStoryMetadataAllowlist(root: string, gitCwd: string = root): { wr
   }
   const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
   const gitignorePath = join(canonicalRepoRoot, '.gitignore');
+  assertRuntimeGitignoreRegularFile(gitignorePath);
   let existing: string | null = null;
   try {
     existing = readFileSync(gitignorePath, 'utf-8');

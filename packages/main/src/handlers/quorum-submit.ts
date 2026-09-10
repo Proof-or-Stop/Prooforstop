@@ -20,7 +20,7 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { canonicalReviewerLane } from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
-import { computeActiveReviewers } from './reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster } from './reviewer-list.js';
 import { readGitBlobAt } from '../core/git-blob-reader.js';
 
 const REFUSAL = 'quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.';
@@ -135,22 +135,22 @@ function safeReadTestEvidence(ctx: HandlerContext, storyId: string): unknown {
   }
 }
 
-function requiredReviewerLanes(ctx: HandlerContext, storyId: string, projectRoot: string): string[] {
+function requiredReviewRoster(ctx: HandlerContext, storyId: string, projectRoot: string) {
   const story = ctx.store.readStory(storyId);
   const checklist = safeReadChecklist(ctx, storyId);
   const decision = safeReadDecision(ctx, storyId);
   const understanding = ctx.store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(projectRoot);
-  return computeActiveReviewers(story, checklist, decision, touchpoints)
-    .map(reviewer => toLane(reviewer.name));
+  const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+  return computeFinalReviewRoster(ctx.store, projectRoot, storyId, active);
 }
 
-function assertCurrentReviewerPasses(ctx: HandlerContext, storyId: string, projectRoot: string): RequiredReviewerPass[] {
+function assertCurrentReviewerPasses(ctx: HandlerContext, storyId: string, projectRoot: string, roster: ReturnType<typeof requiredReviewRoster>): RequiredReviewerPass[] {
   const story = ctx.store.readStory(storyId);
   if (!story.currentReviewRound) {
     throw new Error(`${REFUSAL}\nDetails: story has no currentReviewRound, so no current signed reviewer pass can be proven.`);
   }
-  const requiredLanes = requiredReviewerLanes(ctx, storyId, projectRoot);
+  const requiredLanes = roster.requiredReviewers.map(reviewer => toLane(reviewer.name));
   const state = collectReviewerEvidenceState(ctx.store, storyId, projectRoot);
   const validPasses = state.valid.filter(evidence => evidence.kind === 'pass');
   const passByLane = new Map(validPasses.map(evidence => [canonicalReviewerLane(evidence.agent) ?? evidence.agent, evidence]));
@@ -184,7 +184,8 @@ function formatResult(result: QuorumSubmitResult): string {
     `metadataCommitSha: ${result.metadataCommitSha}`,
     `promptDigestA: ${result.promptDigests.hostA}`,
     `promptDigestB: ${result.promptDigests.hostB}`,
-    `reviewerPasses: ${result.reviewerPasses.length}/${result.requiredReviewerLanes.length} lanes current`,
+    `reviewerPasses: ${result.reviewerPasses.length}/${result.requiredReviewerLanes.length} required lanes current; ${result.reviewSelection.activeLanes.length} active lanes`,
+    `reviewSelection: ${result.reviewSelection.reason}; digest=${result.reviewSelection.digest}; excluded=${result.reviewSelection.activeLanes.filter(lane => !result.reviewSelection.requiredLanes.includes(lane)).join(',') || 'none'}`,
     `voluntaryLocalRounds: ${result.reviewEscalationStatus.voluntaryLocalRounds.validRoundCount}/${result.reviewEscalationStatus.voluntaryLocalRounds.requiredRounds} rounds x ${result.reviewEscalationStatus.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (complete=${result.reviewEscalationStatus.voluntaryLocalRounds.complete})`,
     'admissibilityStatus: local-quorum-recorded',
     `assuranceLevel: ${result.reviewEscalationStatus.assuranceLevel}`,
@@ -212,6 +213,7 @@ interface QuorumSubmitResult {
     hostB: QuorumHostInput;
   };
   requiredReviewerLanes: string[];
+  reviewSelection: { activeLanes: string[]; requiredLanes: string[]; reason: string; digest: string };
   reviewerPasses: RequiredReviewerPass[];
   verdicts: Array<{
     verdictId: string;
@@ -442,7 +444,8 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       const projectRoot = workspace.signedWorkspaceRoot;
       const gitCwd = ctx.root;
 
-      const reviewerPasses = assertCurrentReviewerPasses(ctx, storyId, projectRoot);
+      const reviewRoster = requiredReviewRoster(ctx, storyId, projectRoot);
+      const reviewerPasses = assertCurrentReviewerPasses(ctx, storyId, projectRoot, reviewRoster);
 
       const materialDigest = currentMaterialHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
       if (!materialDigest) {
@@ -688,6 +691,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
           },
           hosts: { hostA, hostB },
           requiredReviewerLanes: reviewerPasses.map(pass => pass.lane),
+          reviewSelection: { activeLanes: reviewRoster.selection.activeLanes, requiredLanes: reviewerPasses.map(pass => pass.lane), reason: reviewRoster.selection.reason, digest: reviewRoster.selection._hash },
           reviewerPasses,
           verdicts: emitted,
           reviewEscalationStatus,

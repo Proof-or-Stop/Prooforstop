@@ -258,6 +258,27 @@ export function computeFinalReviewRoster(
   };
 }
 
+export function finalReviewRosterForStory(store: HandlerContext['store'], projectRoot: string, storyId: string): FinalReviewRoster {
+  const story = store.readStory(storyId);
+  const checklist = store.readChecklist(storyId);
+  const decision = store.readDecision(storyId);
+  const touchpoints = store.readUnderstanding(storyId)?.touchpoints ?? detectMdTouchpointsFromGit(projectRoot);
+  return computeFinalReviewRoster(store, projectRoot, storyId, computeActiveReviewers(story, checklist, decision, touchpoints));
+}
+
+/** Read-only degradation. Authoritative consumers keep the throwing function above. */
+export function projectFinalReviewRoster(store: HandlerContext['store'], root: string, storyId: string, activeReviewers: ActiveReviewer[]) {
+  try { return { ...computeFinalReviewRoster(store, root, storyId, activeReviewers), error: undefined }; }
+  catch (error) { return { activeReviewers, requiredReviewers: activeReviewers, selection: null, error: String(error) }; }
+}
+
+/** Stable epoch binding: metadata-only HEAD changes do not invalidate this basis. */
+export function finalReviewRosterBasis(roster: FinalReviewRoster): string | undefined {
+  if (roster.selection.selection !== 'dependency-closure') return undefined;
+  const { policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest } = roster.selection;
+  return JSON.stringify({ policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest });
+}
+
 export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: string): string {
   const lanes = roster.requiredReviewers.map(row => row.lane);
   const reason = roster.selection.selection === 'dependency-closure'

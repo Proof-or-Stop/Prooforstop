@@ -1,3 +1,4 @@
+import { resolveValidationSigningRoot } from './validation-signing-context.js';
 /**
  * Trust boundary for story-aware validation artifacts.
  *
@@ -13,8 +14,8 @@
  * wrong-key, or legacy digest signatures fail closed.
  */
 import { execFileSync } from 'node:child_process';
-import { createPublicKey, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createPublicKey, randomBytes, randomUUID } from 'node:crypto';
+import { closeSync, existsSync, linkSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import {
   exportPublicKeyRaw,
@@ -37,7 +38,7 @@ function gitCommonDir(gitCwd: string): string {
   return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
-function keyPath(gitCwd = process.cwd()): string {
+function keyPath(gitCwd = resolveValidationSigningRoot()): string {
   return join(gitCommonDir(gitCwd), KEY_FILENAME);
 }
 
@@ -45,15 +46,28 @@ function publicKeyForPrivate(privateKey: string): string {
   return exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
 }
 
-function readPrivateKeyForSigning(gitCwd = process.cwd()): string {
+function readPrivateKeyForSigning(gitCwd = resolveValidationSigningRoot()): string {
   const path = keyPath(gitCwd);
   if (!existsSync(path)) {
     mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, randomBytes(32).toString('base64'), {
-      encoding: 'utf8',
-      mode: 0o600,
-      flag: 'wx',
-    });
+    // Publish complete bytes without replacing a competing initializer's key.
+    // Creating the canonical file with wx exposes both EEXIST races and a
+    // partially written key. A hard link is an atomic no-replace publication.
+    const temporary = `${path}.${randomUUID()}.tmp`;
+    let descriptor: number | undefined = openSync(temporary, 'wx', 0o600);
+    try {
+      writeFileSync(descriptor, randomBytes(32).toString('base64'), 'utf8');
+      closeSync(descriptor);
+      descriptor = undefined;
+      try { linkSync(temporary, path); }
+      catch (error: any) { if (error?.code !== 'EEXIST') throw error; }
+    } finally {
+      try { if (descriptor !== undefined) closeSync(descriptor); }
+      finally {
+        try { unlinkSync(temporary); }
+        catch (error: any) { if (error?.code !== 'ENOENT') throw error; }
+      }
+    }
   }
   const privateKey = readFileSync(path, 'utf8').trim();
   // Validate the stored secret before signing rather than emitting a receipt
@@ -62,7 +76,7 @@ function readPrivateKeyForSigning(gitCwd = process.cwd()): string {
   return privateKey;
 }
 
-function readTrustedPublicKey(gitCwd = process.cwd()): string | undefined {
+function readTrustedPublicKey(gitCwd = resolveValidationSigningRoot()): string | undefined {
   try {
     const path = keyPath(gitCwd);
     if (!existsSync(path)) return undefined;
@@ -73,7 +87,7 @@ function readTrustedPublicKey(gitCwd = process.cwd()): string | undefined {
 }
 
 /** Sign a canonical validation artifact with the repository-local Ed25519 key. */
-export function signValidationArtifact(value: unknown, gitCwd = process.cwd()): string {
+export function signValidationArtifact(value: unknown, gitCwd = resolveValidationSigningRoot()): string {
   return SIGNATURE_PREFIX + signCanonical(value, readPrivateKeyForSigning(gitCwd));
 }
 
@@ -81,7 +95,7 @@ export function signValidationArtifact(value: unknown, gitCwd = process.cwd()): 
  * Verify a validation artifact against the trusted key in Git metadata.
  * No compatibility path accepts the old `sha256:<digest>` spelling.
  */
-export function verifyValidationArtifact(value: unknown, signature: unknown, gitCwd = process.cwd()): boolean {
+export function verifyValidationArtifact(value: unknown, signature: unknown, gitCwd = resolveValidationSigningRoot()): boolean {
   if (typeof signature !== 'string' || !signature.startsWith(SIGNATURE_PREFIX)) return false;
   const encoded = signature.slice(SIGNATURE_PREFIX.length);
   if (!encoded || encoded.includes(':')) return false;
@@ -90,14 +104,14 @@ export function verifyValidationArtifact(value: unknown, signature: unknown, git
 }
 
 /** Exposed for focused diagnostics; never returns private material. */
-export function validationArtifactSigningPublicKey(gitCwd = process.cwd()): string | undefined {
+export function validationArtifactSigningPublicKey(gitCwd = resolveValidationSigningRoot()): string | undefined {
   return readTrustedPublicKey(gitCwd);
 }
 
 /** Verify every envelope against a freshly resolved repository key. The key is
  * re-read after the synchronous batch, so replacement/deletion during traversal
  * invalidates the entire result. No memo survives a call or accepts a caller key. */
-export function verifyValidationArtifacts(entries:ReadonlyArray<{value:unknown;signature:unknown}>,gitCwd=process.cwd()):boolean[] {
+export function verifyValidationArtifacts(entries:ReadonlyArray<{value:unknown;signature:unknown}>,gitCwd= resolveValidationSigningRoot()):boolean[] {
   if(entries.length<=1)return entries.map(entry=>verifyValidationArtifact(entry.value,entry.signature,gitCwd));
   const key=readTrustedPublicKey(gitCwd);
   if(!key)return entries.map(()=>false);

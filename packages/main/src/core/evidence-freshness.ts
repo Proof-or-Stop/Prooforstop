@@ -1,3 +1,4 @@
+import { readObservedGitTree, withGitTreeObservation } from './git-tree-observation.js';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { lstatSync, readFileSync, realpathSync } from 'fs';
@@ -469,24 +470,27 @@ function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: 
 }
 
 export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArgs): EvidenceHashSnapshot {
-  const gitCwd = normalizeSnapshotRoot(args.gitCwd);
-  const metadataRoot = normalizeSnapshotRoot(args.metadataRoot ?? args.gitCwd);
-  const ref = args.ref ?? 'HEAD';
-  const dirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
-  const headHash = gitCommitAtRef(gitCwd, ref);
-  const materialHash = currentMaterialHash(gitCwd, ref, metadataRoot);
-  const storyFilesHash = currentStoryFilesHash(gitCwd, ref, metadataRoot);
-  return {
-    schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
-    ...(headHash ? { headHash } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    gitCwd,
-    metadataRoot,
-    ref,
-    capturedAt: new Date().toISOString(),
-    materialDirtyFiles: dirty.files,
-  };
+  return withGitTreeObservation(() => {
+    const gitCwd = normalizeSnapshotRoot(args.gitCwd);
+    const metadataRoot = normalizeSnapshotRoot(args.metadataRoot ?? args.gitCwd);
+    const ref = args.ref ?? 'HEAD';
+    const dirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+    const headHash = gitCommitAtRef(gitCwd, ref);
+    const observedRef = isCanonicalGitHeadHash(headHash) ? headHash as string : ref;
+    const materialHash = currentMaterialHash(gitCwd, observedRef, metadataRoot);
+    const storyFilesHash = currentStoryFilesHash(gitCwd, observedRef, metadataRoot);
+    return {
+      schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
+      ...(headHash ? { headHash } : {}),
+      ...(materialHash ? { materialHash } : {}),
+      ...(storyFilesHash ? { storyFilesHash } : {}),
+      gitCwd,
+      metadataRoot,
+      ref,
+      capturedAt: new Date().toISOString(),
+      materialDirtyFiles: dirty.files,
+    };
+  });
 }
 
 export function tryCaptureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArgs): EvidenceHashSnapshot | undefined {
@@ -753,8 +757,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    if (!resolveStoryMergeBase(gitCwd, ref)) return undefined;
-    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+    const mergeBase = resolveStoryMergeBase(gitCwd, ref);
+    if (!mergeBase) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot, mergeBase)
       .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
       .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
@@ -778,10 +783,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 // byte-identical.
 export function currentMaterialHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
-      cwd: gitCwd,
-      ...GIT_EXEC_OPTS,
-    });
+    const raw = readObservedGitTree(gitCwd, ref);
     const entries = raw.split('\0').filter(Boolean);
     const materialEntries: string[] = [];
     for (const entry of entries) {
@@ -819,120 +821,122 @@ export function checkEvidenceFreshnessForGit(
   metadataRoot: string = gitCwd,
   evidenceStoryFilesHash?: string,
 ): EvidenceFreshness {
-  if (!evidenceHash) {
-    return {
-      fresh: true,
-      reason: 'evidence has no headHash (legacy format, skipping freshness check)',
-      changedFiles: [],
-      materialFiles: [],
-    };
-  }
+  return withGitTreeObservation(() => {
+    if (!evidenceHash) {
+      return {
+        fresh: true,
+        reason: 'evidence has no headHash (legacy format, skipping freshness check)',
+        changedFiles: [],
+        materialFiles: [],
+      };
+    }
 
-  const currentHead = currentGitHead(gitCwd);
-  if (!currentHead) {
-    return {
-      fresh: true,
-      reason: 'Unable to get git HEAD, skipping freshness check',
-      changedFiles: [],
-      materialFiles: [],
-    };
-  }
+    const currentHead = currentGitHead(gitCwd);
+    if (!currentHead) {
+      return {
+        fresh: true,
+        reason: 'Unable to get git HEAD, skipping freshness check',
+        changedFiles: [],
+        materialFiles: [],
+      };
+    }
 
-  if (evidenceMaterialHash) {
-    const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
-    if (materialHash) {
-      if (materialHash === evidenceMaterialHash) {
-        return {
-          fresh: true,
-          reason: 'evidence materialHash matches current entity file state',
-          currentHead,
-          currentMaterialHash: materialHash,
-          changedFiles: [],
-          materialFiles: [],
-        };
-      }
-      // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
-      // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
-      // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
-      // (else a stale-material record whose story diff is empty on both sides would ride
-      // the downgrade). Skip the advisory when either side is the empty-set value; control
-      // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
-      // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
-      if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
-        const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
-        if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
+    if (evidenceMaterialHash) {
+      const materialHash = currentMaterialHash(gitCwd, isCanonicalGitHeadHash(currentHead) ? currentHead as string : 'HEAD', metadataRoot);
+      if (materialHash) {
+        if (materialHash === evidenceMaterialHash) {
           return {
             fresh: true,
-            reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
-            warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
+            reason: 'evidence materialHash matches current entity file state',
             currentHead,
             currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: ['<material-tree-changed>'],
+            changedFiles: [],
             materialFiles: [],
           };
         }
-        if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
-          return {
-            fresh: false,
-            reason: 'evidence storyFilesHash does not match current story-owned file state',
-            currentHead,
-            currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: [],
-            materialFiles: ['<story-files-changed>'],
-          };
+        // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
+        // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
+        // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
+        // (else a stale-material record whose story diff is empty on both sides would ride
+        // the downgrade). Skip the advisory when either side is the empty-set value; control
+        // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
+        // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
+        if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
+          const storyFilesHash = currentStoryFilesHash(gitCwd, isCanonicalGitHeadHash(currentHead) ? currentHead as string : 'HEAD', metadataRoot);
+          if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
+            return {
+              fresh: true,
+              reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
+              warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
+              currentHead,
+              currentMaterialHash: materialHash,
+              currentStoryFilesHash: storyFilesHash,
+              changedFiles: ['<material-tree-changed>'],
+              materialFiles: [],
+            };
+          }
+          if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
+            return {
+              fresh: false,
+              reason: 'evidence storyFilesHash does not match current story-owned file state',
+              currentHead,
+              currentMaterialHash: materialHash,
+              currentStoryFilesHash: storyFilesHash,
+              changedFiles: [],
+              materialFiles: ['<story-files-changed>'],
+            };
+          }
         }
+        return {
+          fresh: false,
+          reason: `evidence materialHash does not match current entity file state`,
+          currentHead,
+          currentMaterialHash: materialHash,
+          changedFiles: [],
+          materialFiles: ['<material-tree-changed>'],
+        };
+      }
+    }
+
+    if (headMatches(evidenceHash, currentHead)) {
+      return {
+        fresh: true,
+        reason: 'evidence corresponds to current HEAD',
+        currentHead,
+        changedFiles: [],
+        materialFiles: [],
+      };
+    }
+
+    try {
+      const changedFiles = changedFilesBetween(gitCwd, evidenceHash, 'HEAD');
+      const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f, metadataRoot));
+      if (materialFiles.length === 0) {
+        return {
+          fresh: true,
+          reason: `evidence followed by ${changedFiles.length} metadata-only changes, not invalidated`,
+          currentHead,
+          changedFiles,
+          materialFiles,
+        };
       }
       return {
         fresh: false,
-        reason: `evidence materialHash does not match current entity file state`,
-        currentHead,
-        currentMaterialHash: materialHash,
-        changedFiles: [],
-        materialFiles: ['<material-tree-changed>'],
-      };
-    }
-  }
-
-  if (headMatches(evidenceHash, currentHead)) {
-    return {
-      fresh: true,
-      reason: 'evidence corresponds to current HEAD',
-      currentHead,
-      changedFiles: [],
-      materialFiles: [],
-    };
-  }
-
-  try {
-    const changedFiles = changedFilesBetween(gitCwd, evidenceHash, 'HEAD');
-    const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f, metadataRoot));
-    if (materialFiles.length === 0) {
-      return {
-        fresh: true,
-        reason: `evidence followed by ${changedFiles.length} metadata-only changes, not invalidated`,
+        reason: `evidence based on ${evidenceHash.slice(0, 7)}, but HEAD is ${currentHead.slice(0, 7)}, has code changes: ${materialFiles.slice(0, 5).join(', ')}`,
         currentHead,
         changedFiles,
         materialFiles,
       };
+    } catch {
+      return {
+        fresh: false,
+        reason: `evidence hash ${evidenceHash.slice(0, 7)} does not match HEAD ${currentHead.slice(0, 7)}, and unable to compare git diff`,
+        currentHead,
+        changedFiles: [],
+        materialFiles: [],
+      };
     }
-    return {
-      fresh: false,
-      reason: `evidence based on ${evidenceHash.slice(0, 7)}, but HEAD is ${currentHead.slice(0, 7)}, has code changes: ${materialFiles.slice(0, 5).join(', ')}`,
-      currentHead,
-      changedFiles,
-      materialFiles,
-    };
-  } catch {
-    return {
-      fresh: false,
-      reason: `evidence hash ${evidenceHash.slice(0, 7)} does not match HEAD ${currentHead.slice(0, 7)}, and unable to compare git diff`,
-      currentHead,
-      changedFiles: [],
-      materialFiles: [],
-    };
-  }
+  });
 }
 
 /**
@@ -947,54 +951,56 @@ export function checkStrictVerificationEvidenceFreshnessForGit(
   metadataRoot: string = gitCwd,
   evidenceStoryFilesHash: string | undefined,
 ): EvidenceFreshness {
-  const malformed = !isCanonicalGitHeadHash(evidenceHeadHash)
-    || !isCanonicalSha256Hash(evidenceMaterialHash)
-    || !isCanonicalSha256Hash(evidenceStoryFilesHash);
-  if (malformed) {
+  return withGitTreeObservation(() => {
+    const malformed = !isCanonicalGitHeadHash(evidenceHeadHash)
+      || !isCanonicalSha256Hash(evidenceMaterialHash)
+      || !isCanonicalSha256Hash(evidenceStoryFilesHash);
+    if (malformed) {
+      return {
+        fresh: false,
+        reason: 'strict verification freshness requires canonical full headHash, materialHash, and storyFilesHash bindings',
+        changedFiles: [],
+        materialFiles: ['<malformed-or-partial-hash-binding>'],
+      };
+    }
+    const currentHead = currentGitHead(gitCwd);
+    const currentMaterial = currentMaterialHash(gitCwd, isCanonicalGitHeadHash(currentHead) ? currentHead as string : 'HEAD', metadataRoot);
+    const currentStoryFiles = currentStoryFilesHash(gitCwd, isCanonicalGitHeadHash(currentHead) ? currentHead as string : 'HEAD', metadataRoot);
+    if (
+      !isCanonicalGitHeadHash(currentHead)
+      || !isCanonicalSha256Hash(currentMaterial)
+      || !isCanonicalSha256Hash(currentStoryFiles)
+    ) {
+      return {
+        fresh: false,
+        reason: 'strict verification freshness could not resolve canonical current git/material/story hashes',
+        changedFiles: [],
+        materialFiles: ['<freshness-runtime-unavailable>'],
+      };
+    }
+    if (currentMaterial !== evidenceMaterialHash || currentStoryFiles !== evidenceStoryFilesHash) {
+      return {
+        fresh: false,
+        reason: currentMaterial !== evidenceMaterialHash
+          ? 'strict verification freshness materialHash does not match current material state'
+          : 'strict verification freshness storyFilesHash does not match current story-owned state',
+        currentHead,
+        currentMaterialHash: currentMaterial,
+        currentStoryFilesHash: currentStoryFiles,
+        changedFiles: [],
+        materialFiles: [currentMaterial !== evidenceMaterialHash ? '<material-tree-changed>' : '<story-files-changed>'],
+      };
+    }
     return {
-      fresh: false,
-      reason: 'strict verification freshness requires canonical full headHash, materialHash, and storyFilesHash bindings',
-      changedFiles: [],
-      materialFiles: ['<malformed-or-partial-hash-binding>'],
-    };
-  }
-  const currentHead = currentGitHead(gitCwd);
-  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
-  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
-  if (
-    !isCanonicalGitHeadHash(currentHead)
-    || !isCanonicalSha256Hash(currentMaterial)
-    || !isCanonicalSha256Hash(currentStoryFiles)
-  ) {
-    return {
-      fresh: false,
-      reason: 'strict verification freshness could not resolve canonical current git/material/story hashes',
-      changedFiles: [],
-      materialFiles: ['<freshness-runtime-unavailable>'],
-    };
-  }
-  if (currentMaterial !== evidenceMaterialHash || currentStoryFiles !== evidenceStoryFilesHash) {
-    return {
-      fresh: false,
-      reason: currentMaterial !== evidenceMaterialHash
-        ? 'strict verification freshness materialHash does not match current material state'
-        : 'strict verification freshness storyFilesHash does not match current story-owned state',
+      fresh: true,
+      reason: currentHead === evidenceHeadHash
+        ? 'strict verification freshness full hash tuple matches current state'
+        : 'strict verification freshness material/story hashes match; metadata-only HEAD drift accepted',
       currentHead,
       currentMaterialHash: currentMaterial,
       currentStoryFilesHash: currentStoryFiles,
-      changedFiles: [],
-      materialFiles: [currentMaterial !== evidenceMaterialHash ? '<material-tree-changed>' : '<story-files-changed>'],
+      changedFiles: currentHead === evidenceHeadHash ? [] : ['<metadata-only-head-drift>'],
+      materialFiles: [],
     };
-  }
-  return {
-    fresh: true,
-    reason: currentHead === evidenceHeadHash
-      ? 'strict verification freshness full hash tuple matches current state'
-      : 'strict verification freshness material/story hashes match; metadata-only HEAD drift accepted',
-    currentHead,
-    currentMaterialHash: currentMaterial,
-    currentStoryFilesHash: currentStoryFiles,
-    changedFiles: currentHead === evidenceHeadHash ? [] : ['<metadata-only-head-drift>'],
-    materialFiles: [],
-  };
+  });
 }

@@ -1183,7 +1183,7 @@ Behavior:
     execute: z.never().optional().describe('Not a flag; init_preflight is read-only. Passing --execute is rejected by CLI validation.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
-  { name: 'reviewer_batch', description: 'Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking) from existing facts, emits the Agent(...) launch instruction (the orchestrator subagent-spawn form, not a dispatch CLI command) for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
+  { name: 'reviewer_batch', description: 'Awaiting-repair suppresses repeat launch plans only for valid blocking observations with unchanged committed material or metadata-only head drift; it proves no repair, applicability or gate readiness. Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking / awaiting-repair) from existing facts, emits the Agent(...) launch instruction (the orchestrator subagent-spawn form, not a dispatch CLI command) for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -2043,6 +2043,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
+    runtimeArtifact: z.enum(['runtime-causal-evidence-receipts']).optional().describe('With repair:true, only migrate causal cache ignore rules and untrack index/receipt cache files; preserves bytes and skips all other repair operations.'),
     ...BRIEF_OUTPUT_FLAGS,
   }},
   { name: 'done_recover', description: 'Recover a partial-DONE story (phase DONE but branch not yet merged into main)', schema: {

@@ -1,6 +1,6 @@
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
-import { computeActiveReviewers } from './reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster, finalReviewRosterBasis } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
@@ -71,6 +71,7 @@ function capture(ctx: HandlerContext, storyId: string) {
 export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string): {
   scopeDigest: string;
   requiredLanes: string[];
+  rosterBasis?: string;
   candidateSpecSetDigest?: string;
   corpusDigest?: string;
   candidateArtifactInvalid: boolean;
@@ -81,12 +82,13 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   try { decision = ctx.store.readDecision(storyId); } catch { decision = null; }
   const understanding = ctx.store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
+  const roster = computeFinalReviewRoster(ctx.store, ctx.root, storyId, computeActiveReviewers(story, checklist, decision, touchpoints));
   const candidate = ctx.store.readCandidateSpecSet(storyId);
   const candidateArtifactInvalid = candidate !== null && !verifyCandidateSpecSet(candidate);
   const validCandidate = candidateArtifactInvalid ? null : candidate;
   return {
-    requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
-      .map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+    requiredLanes: roster.requiredReviewers.map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+    rosterBasis: finalReviewRosterBasis(roster),
     scopeDigest: reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId),
     // B-3f3d F-103: bind the candidate set's SEMANTICS, not its identity digest.
     // artifactDigest is the artifact's tamper-detection identity and deliberately
@@ -146,7 +148,8 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
   const materialChanged = current.materialHash !== epoch.cutoff.materialHash
     || (current.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '');
   const scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest
-    || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes);
+    || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)
+    || currentScope.rosterBasis !== epoch.rosterBasis;
   const candidateChanged = currentScope.candidateArtifactInvalid
     || (currentScope.candidateSpecSetDigest ?? '') !== (epoch.candidateSpecSetDigest ?? '')
     || (currentScope.corpusDigest ?? '') !== (epoch.corpusDigest ?? '');
@@ -416,6 +419,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         }
         const {
           requiredLanes,
+          rosterBasis,
           scopeDigest,
           candidateSpecSetDigest,
           corpusDigest,
@@ -446,6 +450,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           ...(candidateSpecSetDigest ? { candidateSpecSetDigest } : {}),
           ...(corpusDigest ? { corpusDigest } : {}),
           requiredLanes,
+          ...(rosterBasis ? { rosterBasis } : {}),
           initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
@@ -639,6 +644,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           cutoff: epoch.cutoff,
           scopeDigest: epoch.scopeDigest,
           requiredLanes: epoch.requiredLanes,
+          ...(epoch.rosterBasis ? { rosterBasis: epoch.rosterBasis } : {}),
           waveCount: epoch.waves.length + 1,
           findingSetDigest: reviewInventoryDigest(aggregateFamilies),
           coverageDigest: reviewInventoryDigest([...epoch.waves, wave].flatMap(row => row.lanes.map(lane => lane.coverageDigest))),

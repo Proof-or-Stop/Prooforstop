@@ -15,7 +15,7 @@ import type { StoryStore } from './store.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isFindingBlocking } from './advisory.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, projectFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { resolveEffectiveBlockingSeverities } from './guard-utils.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { loadConfig } from './config.js';
@@ -104,7 +104,9 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   try { checklist = store.readChecklist(storyId); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); /* probe: no checklist yet */ }
   const decision = store.readDecision(storyId);
   const touchpoints = resolveReviewerTouchpoints(store, storyId, projectRoot);
-  const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
+  const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+  const roster = projectFinalReviewRoster(store, projectRoot ?? store.projectRoot, storyId, active);
+  const reviewers = roster.requiredReviewers;
 
   // F-001: align the reviewer-status display path with the REVIEW->TEST gate.
   // The gate (machine.ts canPassReview / guard-utils.ts) uses isFindingBlocking,
@@ -155,7 +157,8 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
     };
   });
 
-  const entries = [storyReviewEntry, ...reviewerEntries];
+  const entries: ReviewerStatusEntry[] = [storyReviewEntry, ...reviewerEntries];
+  if (roster.error) entries.push({ name: 'review-roster', required: true, present: false, verdict: 'pending', blockerCount: 1, detail: roster.error });
   const totalBlockers = entries.reduce((sum, e) => sum + e.blockerCount, 0);
   const allPassed = entries.every(e => e.verdict === 'pass');
 

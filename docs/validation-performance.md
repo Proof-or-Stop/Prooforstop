@@ -29,13 +29,25 @@ producers always execute. This change does not relax existing forbidden policies
 
 ## Capacity and long commands
 
-An official invocation whose entire command inventory declares resources can
-share the repository capacity with one other invocation. Resource conflicts,
-unknown declarations, and legacy tickets remain serialized. The invocation also
-claims its own workspace exclusively to protect local preparation and metadata.
-Canonical Git/common-directory, path and port claims retain their existing meaning.
-Nested calls cannot widen a resource reservation. Capacity state remains in the
-existing shared runtime lock directory, including across worktrees and processes.
+In this Lab, configured official validation plans hold their workspace guard
+and Story lock for the entire invocation. Shared repository capacity is acquired
+for preparation/publication and separately for each command. Safe commands in
+different worktrees may overlap; an undeclared command retains conservative
+global exclusion for its execution stage. Custom/selective validators retain the
+whole-invocation fallback. Nested DONE preparation retains the workspace/Story
+protection across routine and DONE-required validation.
+
+Command claims are normalized and deduplicated independently of the invocation's
+workspace claim. This avoids dropping a command's only claim when it matches the
+workspace. Conflicts remain exclusive, at most two invocation groups share
+capacity, and legacy readers fail conservatively on newer ticket declarations.
+Cancellation and exceptional plan exits cannot publish with a lost capacity token.
+
+Cooperating StoryStore metadata writers receive `VALIDATION_METADATA_BUSY` while
+another validation owns the Story lock. They may retry after it releases; the
+refusal does not automatically commit their data. Checkpoint, durable output and
+pending-publication methods retain their existing identity checks inside this
+guard. This does not provide atomicity for arbitrary external filesystem writes.
 
 Official Story validation renews an existing same-owner lease every 30 seconds,
 including capacity wait time. Acquire, refresh, release and takeover use one
@@ -384,3 +396,198 @@ Failed-command diagnostics preserve both the output prefix and terminal failure
 context within the existing character budget. Successful commands retain their
 existing bounded prefix presentation. Execution receipts continue to consume the
 complete captured output.
+
+
+## Runtime cache publication and focused diagnostics
+
+Doctor reports runtime index discovery as `ok`, `not-evaluated`, or `failed`.
+Unavailable scans have `tracked: null` and cannot authorize repair; they never
+mean a healthy or empty index. Discovery bounds Git output at 32 MiB and rejects
+failed or incomplete scans. Non-Git roots remain readable diagnostic targets.
+
+`doctor --repair --runtimeArtifact=runtime-causal-evidence-receipts` is a focused
+maintenance operation: it migrates only the known causal ignore policy and
+untracks only registry-classified `index.json` and `receipts/` cache paths. It
+retains file bytes, refuses force removal, and skips owner/worktree/branch cleanup.
+Already-tracked files require this explicit migration; adding ignore rules alone
+does not remove them from Git history or the index. Partial failures are errors.
+
+The registry retains legacy causal path classification. Managed sync and init
+replace the historical whole-directory ignore with index, receipt, and pending
+publication rules. Complete selector outputs remain durable evidence; unknown
+siblings remain visible. Pending publication capabilities stay on disk for signed
+recovery and are never selected by focused untracking. This does not claim
+recovery after loss of the local trust root or arbitrary external writes.
+
+### Certification transitions during closeout
+
+The Lab closeout classifier accepts only a signed, previously authorized
+`ADMITTED` to `RUNNING` transition with unchanged receipts, history and frozen
+identity. Other changes to the same file remain untrusted. This delta check does
+not replace current-input certification or final DONE gates. DONE-required
+admission runs inside validation ownership and before command execution. A
+changed physical policy file while waiting refuses the queued plan; a missing
+admission exits nonzero without executing commands or claiming an executed result.
+
+### Lab publication readiness and intended output binding
+
+Full Story validation refuses existing canonical publication-path changes before cluster synchronization, reuse or command execution. Resolve the pending change explicitly before retrying; focused and non-Story checks keep their existing behavior. Final publication checks remain necessary for non-cooperating filesystem writers. Both execution and reuse bind evidence bytes predicted before writing, the exact terminal append and receipt-chain bytes, and current validation ownership. A mismatch rejects publication and preserves foreign bytes, leaving operator-visible dirt until resolved; it does not adopt or erase them. The registered closeout regression runs the dirty-entry, status-error, clean, cooperative writer, source drift, foreign event, foreign evidence, terminal-read failure and injected publication-owner refusal scenarios. Missing terminal receipts refuse directly; the owner fault injection checks the real verifier error path, while lock drift semantics are exercised by the separate lock controls. This is not a complete recovery scheduler or real Story performance claim.
+
+### Lab index recovery and outer closeout
+
+After a real-index refresh failure, HEAD rollback is attempted independently. Per-path index recovery skips unchanged baseline entries, restores only the expected owned entry with one index-info write, and preserves unexpected or unreadable entries. Outer auto-closeout uses the captured metadata root and intended reuse-output digest for selective worktree rollback; it does not reset the shared index or adopt changed/deleted foreign bytes. The reuse writer checks serialized output against its predicted digest and reports write failures as blocked outcomes. Regression controls reach the actual auto-closeout fallback branch as well as the exported primitive. This narrows a read/compare/write window; it is not an index CAS or OS-wide atomicity. A foreign actor staging identical mode/object bytes is indistinguishable from the owned partial write.
+
+The selective worktree rollback also has read/compare/write and path-classification/open windows against non-cooperating filesystem writers; its tests do not prove OS-wide exclusion. Index restoration derives the zero object ID width from the owned entry, with SHA-1 and SHA-256 fixture controls. Ordinary outer refusal is checked to restore the owned reuse write without adding dirt to its capture boundary; this does not delete legitimate pre-existing generated outputs.
+
+
+### Bounded scope-withdrawal compensation and persistence contention
+
+The scope withdrawal handler holds the cooperative validation metadata guard for
+its three-artifact application. Intended output bytes are predicted before each
+writer; a failure restores only matching owned bytes. Unchanged bytes are a no-op,
+foreign bytes are preserved, and a moved HEAD requires reconciliation. This is
+not OS-level atomicity: uncooperative writes can race the compare/restore window.
+
+A completed checklist checkpoint is compensated by the canonical writer, adding
+a signed generation rather than deleting history. This is valid only for scope
+withdrawal, which leaves amendment arrays unchanged. An interruption between
+checkpoint advance and file publication preserves the checkpoint and refuses with
+SCOPE_WITHDRAWAL_RECOVERY_REQUIRED; use verification_intent_recover and reconcile
+the withdrawal before retrying. This branch is a detected recovery requirement,
+not automatic restoration of all state.
+
+Scope persistence contention propagates and triggers the same compensation.
+Certification contention also propagates, but reports the already-recorded window
+state; inspect certification_window_status and retry the original request. Other
+legacy best-effort persistence errors retain their behavior. These controls do not
+claim to implement complete certification inventory-consumption recovery.
+
+
+### Routine validation scope readiness
+
+Routine Story validation in REVIEW, TEST and DONE projects the existing transition
+scope policy before publication preflight, cluster sync, certification and reuse.
+Declared files without a contract, unreadable contracts and enforcing violations
+refuse with zero commands and no PASS. Use scope_contract_init_from_plan or
+scope_contract_set, inspect scope_contract_check, then retry. Scope takes priority
+when both scope and canonical publication paths are not ready. DEV, legacy Stories
+without file declarations, focus/channel/concept/lint and no-Story calls keep their
+existing boundaries. Shadow mode retains its warn-only behavior.
+
+This also affects validate consumers in done_prepare, phase gates and evidence
+recovery. It produces neither a scope contract nor acceptance evidence and cannot
+replace the final DONE oracle. Two real CLI controls are registered in freshness;
+the wider matrix is a targeted integration run, not a reason to run all quorum.
+
+
+The separate done_prepare lifecycleReadiness step diagnoses scope and review before
+expensive validation. This early snapshot is not protected by the later execution
+lock and cannot certify readiness: in-lock validation and final DONE checks still
+run. Dry runs collect downstream planning but must retain a blocked upstream
+status. Direct done_required_validate scope admission remains a separate flow;
+this change does not claim that its newer commit/admission path was audited for
+this additional prerequisite.
+
+
+### Interrupted certification admission
+
+Begin records a signed ADMITTING attempt before consuming finalized inventory.
+It holds one inventory lock and the cooperative metadata guard; consumption uses
+the explicitly unlocked internal entry, while existing callers retain their locked
+entry. Epoch and receipt record the same window owner in their signed content.
+Recovery re-reads the pending attempt inside the lock, checks complete frozen input
+identity and current non-inventory prerequisites, and promotes that same window.
+Already consumed inventory is never consumed again or adopted without its owner.
+ADMITTING carries no PRECERT receipt and cannot authorize heavy validation.
+
+Interrupted or ambiguous consumption remains pending for explicit retry. Foreign
+identity, partial consumption, missing legacy ownership, timestamp or signature
+failures remain blocked. Cancellation never unconsumes inventory. A fully written
+ADMITTED result can be returned idempotently after a caller-visible write error.
+This does not establish arbitrary publication/commit failure recovery, OS-level
+atomicity, or permission to refresh a stale identity. Registered protocol controls
+add regression cost; their elapsed time is not a Story speedup measurement.
+
+### Validation CLI outcome
+
+Top-level `validate` returns nonzero for a typed failure in either JSON or text mode. Its exit, activity and terminal event agree; validator prose cannot override execution/coverage failure. Warning/skip without an explicit failure stays successful. Internal validation calls retain their outer handler's outcome policy; only the top-level CLI receives the private per-call outcome sink. Structured TEST refusals no longer reset the gate-failure counter; the existing throw-only increment rule is unchanged. Autopilot's existing shell-exit consumer now observes failed text validation as failure; its repair-spawn policy is unchanged.
+
+### Declared directory inputs
+
+Explicit `executionInputs` may name files or complete directory trees, including resolved symbolic-link targets. Each currentness check rereads bytes; metadata is only a race detector. The entire snapshot is refused for cycles, unsupported nodes or limits (4096 entries, depth64,64MiB). Initial refusal executes without reuse and reports `input_unreadable` in context-local diagnostics. Drift after snapshot refuses stale publication. No partial tree grants reuse.
+
+`executionDecision` is diagnostic only, absent without a shared execution context. The existing reuse predicate is unchanged; build/gate/forbidden policies still execute. A same-process follower keeps the leader receipt timestamp while reporting reused, because only its local run callback proves a physical start. Directory support does not enable production caches or imply short commands benefit.
+
+
+Declared input directories must be read-only for the duration of shared execution,
+including writes by the command itself. Put generated outputs outside those trees.
+If a command succeeds but changes a declared input, the validation call raises an
+input-drift error and does not publish reusable PASS evidence; it does not silently
+return that successful child result. The self-writer regression pins this behavior.
+An empty executionInputs array retains the pre-existing policy meaning: no additional
+paths beyond the workspace, command, environment and implementation identity. It is
+not proof that a command has no other dependencies; opt-in still needs input auditing.
+The input walker rejects non-regular descriptors before reading. Opening a path
+raced into a device is not claimed to be preventable on every operating system.
+
+Ordinary unscoped validation without a resolvable Git HEAD preserves the actual
+command result, but does not create a canonical full baseline. The CLI logs why
+that baseline was not produced; successful command execution alone cannot supply
+a reusable Git epoch. Existing Story gates still require their own evidence.
+
+## Measured reuse admission
+
+Official routine and DONE-required invocations measure the first eligible execution,
+including framework overhead. If overhead exceeds twice actual command wall time,
+subsequent identical commands in that same context execute freshly with current
+execution admission before and after the command, without scanning implementation
+identity or consuming reuse evidence. This never consumes a cached PASS; normal execution, locks and caller
+gates remain active. At most 128 hints live in a weak context map. Failure or an
+execution now as expensive as the observed overhead removes the hint. A fresh
+invocation may use the bounded six-hour advisory runtime cost file. A missing or
+invalid observation falls back to full checks; the first-ever observation cost
+is not eliminated. The file stores hashed keys and costs, never output or PASS.
+Only ignored runtime directories are written; symlink paths are refused. Lost
+updates may lose an optimization, never authorize reuse. Long commands
+retain the complete existing identity and receipt checks. This is a measured
+execution choice, not a claim that receipt verification itself became cheap.
+
+
+## Command entry and wait diagnostics
+
+Routine commands not declaring exact-input reuse enter their resource stage once.
+Exact-input reuse declarations retain the nested stage recheck around the actual child. Independent complete-output evidence execution keeps
+its own stage. Immediately before spawning, cancellation and expired invocation
+deadlines refuse without starting a child, including commands ineligible for reuse.
+
+Per-command `schedulerWaitMs` reports the keyed scheduler's observed resource-conflict
+wait. It excludes worker-slot queue time, cross-process capacity wait and execution;
+it is diagnostic only, not a gate input or a full-overhead measurement. The existing
+`durationMs` retains its meaning. Local command-entry measurements do not establish
+full-configuration throughput or complete Story latency.
+
+
+### Synchronous Git tree observations (Lab)
+
+The causal preflight, evidence hash snapshot, ordinary freshness reader, and
+strict freshness reader now bind both material and Story projections to the
+full object name already resolved at that entry. The persisted snapshot `ref`
+retains its original value. A synchronous observation shares only successful
+`git ls-tree -r -z <full-object-name>` output with the same absolute cwd and
+sorted inherited environment (including `GIT_*`, `PATH`, and `HOME`). The fixed 1 GiB reader limit is unchanged; other
+formats/limits and symbolic refs use their existing independent reads. Nested
+synchronous helpers share the observation; the outer `finally` clears it.
+No observation survives an await or a later launch/publication check.
+
+This also prevents mixed-HEAD hash tuples when HEAD advances between the two
+projections. The next observation detects the newer HEAD; receipt admission,
+policy, working-tree drift and publication checks remain independent. This is
+not cross-invocation caching and grants no new PASS reuse authority.
+
+Reproduce the bounded contracts with
+`node packages/main/tests/validation-git-tree-batch.mjs`,
+`node packages/main/tests/validation-git-tree-safety.mjs`, and
+`node packages/main/tests/validation-git-tree-head-drift.mjs` after building.
+The default 141-command identity diagnostic found repeated executable reads but
+only about 14 ms total on this host; no executable memo was added. These local
+measurements do not establish full Story throughput or default lifecycle gains.
