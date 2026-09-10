@@ -2,7 +2,7 @@ import { assertIntentAmendments, IntentAmendmentIntegrityError } from './verific
 import { assertIntentCheckpointProjection, readIntentCheckpoint, writeIntentCheckpoint, repairIntentCheckpointStorage } from './verification-intent-checkpoint.js';
 import { digestCanonicalJson } from './digest.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
-import { dirname, join } from 'path';
+import { dirname, isAbsolute, join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData,
@@ -559,11 +559,15 @@ export class StoryStore {
   private storyDirRelValue: string;
   private projectRootValue: string;
 
-  constructor(projectRoot: string) {
-    const config = loadConfig(projectRoot);
+  constructor(projectRoot: string, options: { trustedStoryDir?: string } = {}) {
+    const trustedStoryDir = options.trustedStoryDir?.replace(/\\/g, '/');
+    if (trustedStoryDir && (isAbsolute(trustedStoryDir) || trustedStoryDir.split('/').includes('..'))) {
+      throw new Error('StoryStore trustedStoryDir must remain repository-relative');
+    }
+    const storyDir = trustedStoryDir || loadConfig(projectRoot).storyDir;
     this.projectRootValue = projectRoot;
-    this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
-    this.baseDir = join(projectRoot, config.storyDir);
+    this.storyDirRelValue = storyDir.replace(/\\/g, '/');
+    this.baseDir = join(projectRoot, storyDir);
     // B-cc10 F-006 (critical): the read-both fallback must include EVERY accepted
     // state-dir spelling, not just the older docs/ migration. PROOF_OR_STOP_STORY_DIR_NAMES
     // is the canonical read-side list (it already gates hash exclusion in
@@ -582,6 +586,11 @@ export class StoryStore {
   /** Repository root this store was constructed against (absolute path). */
   get projectRoot(): string {
     return this.projectRootValue;
+  }
+
+  /** Reuse the metadata authority's bounded Story directory in a signed worktree. */
+  get trustedStoryDir(): string {
+    return this.storyDirRelValue;
   }
 
   /**

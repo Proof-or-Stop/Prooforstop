@@ -54,10 +54,21 @@ export function identityCatalogContributor(ctx: HandlerContext, storyId: string,
     validateEnvelope(ledger);
     return ledger.records.some(row => kinds.includes(row.recordType));
   });
-  // Do not parse or otherwise activate an unrelated workspace merely to prove
-  // that its canonical ledger contributes nothing to this catalog.
-  if (!contributes) return undefined;
+  if (!contributes) {
+    // Probe the resolved home through the same workspace-resolution and Store
+    // ports without loading that workspace's unrelated runtime configuration.
+    // This distinguishes an empty foreign worktree from the only live catalog
+    // contributor while preserving the fail-closed path for relevant homes.
+    const resolution = resolveStorySignedWorkspace({ store: metadata, storyId, metadataRoot: metadata.projectRoot, cwd: ctx.root });
+    if (!resolution.resolved || !resolution.signedWorkspaceRoot) return undefined;
+    const resolvedStore = new StoryStore(realpathSync(resolution.signedWorkspaceRoot), { trustedStoryDir: metadata.trustedStoryDir });
+    const resolvedLedger = resolvedStore.readFindingLedger<JsonValue>(storyId); validateEnvelope(resolvedLedger);
+    if (!resolvedLedger.records.some(row => kinds.includes(row.recordType))) return undefined;
+  }
   try {
+    // Resolve the signed Story workspace even when the main/current mirrors are
+    // empty: another active worktree may be the only current contributor. This
+    // still reads exclusively through StoryStore and signed-workspace ports.
     const source = historicalStoryContext(ctx, storyId);
     const current = source.store.readFindingLedger<JsonValue>(storyId); validateEnvelope(current);
     return current.records.some(row => kinds.includes(row.recordType)) ? source : undefined;
