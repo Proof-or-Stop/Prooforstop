@@ -1,4 +1,5 @@
-import { MANAGED_REVIEW_LANE_ARTIFACT } from './runtime-artifact-registry.js';
+import { MANAGED_REVIEW_LANE_ARTIFACT, REVIEWER_BATCH_ADMISSION_ARTIFACT, resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 /** Bounded macOS write isolation for registered managed reviewer lanes. */
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -51,7 +52,11 @@ function validated(layout: ManagedReadonlyLayout): { protectedRoots: string[]; w
 }
 export function managedReadonlyPolicy(layout: ManagedReadonlyLayout): string {
   const { writableRoots } = validated(layout);
+  // Controller-only admission keys, seeds and records are never provider inputs.
+  // Derive from the trusted original worktree; no optional caller deny-list.
+  const admissionRoot = join(realpathSync(resolveCanonicalRuntimeProjectRoot(layout.originalWorktree)), PROOF_OR_STOP_DIR, 'runtime', REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName);
   return ['(version 1)', '(allow default)', '(deny file-write*)','(allow file-write* (literal "/dev/null"))',
+    `(deny file-read* (subpath ${JSON.stringify(admissionRoot)}))`,
     ...writableRoots.map(root => `(allow file-write* (subpath ${JSON.stringify(root)}))`),
     ...(layout.deniedSharedDist ?? []).map(root => {if(!isAbsolute(root))throw new Error('shared dist deny path must be absolute');return `(deny file-read* (subpath ${JSON.stringify(root)}))`;})].join('\n');
 }

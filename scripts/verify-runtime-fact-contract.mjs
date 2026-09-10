@@ -70,6 +70,8 @@ async function main() {
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
   const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');
   check(registrySource.includes('REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY') && batchAdmission.includes('policy.readyTtlMs') && batchAdmission.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName'), 'batch admission timing and storage must use registered runtime policy');
+  const admissionSandboxPolicy = read(root, 'packages/main/src/core/managed-review-readonly.ts');
+  check(admissionSandboxPolicy.includes('resolveCanonicalRuntimeProjectRoot(layout.originalWorktree)') && admissionSandboxPolicy.includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName') && admissionSandboxPolicy.includes('(deny file-read* (subpath ${JSON.stringify(admissionRoot)}))'), 'reviewer sandbox must deny reads of the canonical controller admission subtree');
   const admission = read(root, 'packages/main/src/core/provider-process-admission.ts');
   check(registrySource.includes('MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY') && admission.includes('machineProviderProcessSlotsDir()') && admission.includes('admission.machineSlot'), 'provider admission must acquire, transfer and release canonical machine sidecar slots');
   const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');

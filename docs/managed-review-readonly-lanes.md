@@ -93,5 +93,8 @@ Its public result contains only a schema and keyed digest. Read-only key lookup
 creates no files. Nonregular inputs and FIFO replacements fail without blocking;
 shebang interpreter chains are currently unsupported and refused. The helper
 does not infer equivalence between different private cache or working paths.
-Controller-directory read protection and actual managed admission consumption
-remain necessary before this can authorize shared preflight reuse.
+The Darwin reviewer sandbox denies reads of the canonical controller admission
+subtree, derived from the original worktree. This includes directory listings and
+symlink aliases, while source reads and private provider cache refresh remain
+available. Actual managed admission consumption remains necessary before this
+can authorize shared preflight reuse.

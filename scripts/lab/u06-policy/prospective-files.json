@@ -191,6 +191,10 @@
     {
       "path": "scripts/verify-u08-execution-identity-io.mjs",
       "domain": "provider-execution"
+    },
+    {
+      "path": "scripts/verify-u08-admission-read-deny.mjs",
+      "domain": "provider-execution"
     }
   ],
   "basis": "Root explicitly authorized prospective U08 readonly lane files and dedicated tests as provider-execution. AGENTS.override.md is local instruction material outside this policy activation. Pending tests must be explicitly added when their final paths exist."
