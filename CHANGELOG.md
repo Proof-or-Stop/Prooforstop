@@ -1,5 +1,27 @@
 # Changelog
 
+## Lab five-item-reuse-closure-20260909 - v0.3.296 - 2026-09-10
+
+# Five-item Lab maintenance closure
+
+Problem: inconsistent runtime identity bindings, redundant review and validation work, stale long-task publication authority, blocked acceptance-history repair, and conservative scheduling prevented bounded completion. This Lab carries the earlier isolated repairs and completes the remaining finite maintenance acceptance without creating or advancing a real Story.
+
+The candidate is c0e576036111aa8ae5973e583a9ac93bb06958eb at package0.3.295, compared with local-main base e7ec7f831ea32bc5d560d428c440ba74778db24e. It binds enrolled owner/reviewer entrypoints to the complete implementation, retains final certification after first-wave remediation entry, enables valid complete-routine-PASS reuse in observe, renews/fences publication authority and recovers a pending publication without another test child, supports signed PLAN/acceptance-history recovery, and declares all141routine plus2DONE resource claims. Conflicting writers remain exclusive. The measured scheduler setting is jobs2, not the unmeasured default4.
+
+Native RED/GREEN uses exactly: node experiments/five-item-closure/complete-closure-entry.mjs. The current native GREEN is bound to the accepted committed HEAD. The final targeted campaign passed25/25; current hash oracles passed27/27. The historical19/27->27/27 hash repair already shipped at0.3.284 and is not new performance credit. Native diagnostic controls prove the actual observed invalid value is reported while the refusal predicate remains unchanged; all10 controls pass. The full identity-cutover command retains245registered cases plus5origin-only mutations and passed in both complete runs.
+
+Measured outcomes: identical141-command full workloads both passed141/141 with unchanged argv/timeouts. Total serial 3378.644923s versus parallel 2716.129657s, a 19.608905% observed reduction. Common runtime and scheduler preparation are charged to both arms; execution and postchecks are measured per arm. Three heavy complete-PASS reuse pairs had median 175.207205s -> 81.423298s,2->1actual command executions, both consumers passing. Seven pinned direct-dist identity-output pairs had median 0.540010s -> 0.447956s; RED reconstructs the old duplicate-scan policy inside a private current runtime. The finite real-repository Claude review corpus retains first and final review,7registered defects and2clean controls: wave walltime 1947.473251s -> 1361.127268s,18real processes with12shared between policy arms. Shared subsequent implementation/audit work is outside that wave clock. Historical unscaled51-minute publication changes failure to success; no speed percentage is inferred for a failed endpoint. Current restart/fencing/history controls are separately retained.
+
+Independent Claude CLI final verdict: PASS-FOR-BOUNDED-FIVE-ITEM-LAB-ACCEPTANCE, fivePASS rows and no remaining finite acceptance. Source and complete2122-file identity match before/after the audit. Its O-1/O-2 wording observations are resolved without changing measurements or source. The transient build-owned binding removal correctly refused the old pin; quiescent identity checks match once per arm, with no hidden retries.
+
+Evidence and reproducibility: /Users/jek/.codex/artifacts/proof-or-stop-five-item-missing-closure-20260909/report.md, acceptance-results.json, claude-final-data-audit/audit.json, final-c0e5/full-workload-comparison.json, current-full-pair-c0e5/results.json, native-value-diagnostic-red.log, native-value-diagnostic-green.log, and REPRODUCE.md. The evidence package contains the patch, incremental Git bundle, candidate source archive, raw current and historical logs, original failed campaigns and independent audit reports, plus SHA256/extraction checks. Lab proof is local maintenance provenance, not formal Story DONE or product-release evidence.
+
+Applicability: enrolled Lab participants and the specified finite corpus/workload/fault model. Do not add percentages, infer Story-wide lead time or arbitrary Story-splitting benefit, extend reuse to different excluded commands, or claim hostile-host attestation. One full shared-workstation pair is an observed result, not a population estimate. No remote push or global installation update is authorized by these notes. Preserve foreign uncommitted main files and the original experimental Labs. Native integration must enforce its ordinary prerequisites; the Lab remains on failure.
+
+Maintenance provenance: codex/lab-five-item-reuse-closure-20260909, repair c0e576036111aa8ae5973e583a9ac93bb06958eb.
+Verification command (replayed before integration and on main): `["node","experiments/five-item-closure/complete-closure-entry.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b03b7-review-context-trigger-intent - v0.3.295 - 2026-09-09
 
 # B-03b7 historical-recall verification-intent repair
