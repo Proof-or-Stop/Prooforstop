@@ -1,0 +1,37 @@
+{
+  "candidateHead": "af32eb6b0b",
+  "baselineHead": "a385e46e60ff096344d4cec39e5d0fd0b6b1bca3",
+  "mainBase": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "issue1": {
+    "rootCause": "ACTIVE_PHASES omitted REVIEW although active promises nonterminal lifecycle phases",
+    "fixedSampleBefore": {
+      "expectedActive": 9,
+      "actualActive": 7
+    },
+    "fixedSampleAfter": {
+      "expectedActive": 9,
+      "actualActive": 9
+    }
+  },
+  "issue2": {
+    "rootCause": "Detailed checklist/bug/test-evidence/metrics hydration executed before explicit phase/active filter",
+    "fixedSampleBefore": {
+      "activeDetailCalls": 1248,
+      "reviewDetailCalls": 1248
+    },
+    "fixedSampleAfter": {
+      "activeDetailCalls": 36,
+      "reviewDetailCalls": 8
+    }
+  },
+  "scope": "L0 read-only query selection and detail cost; no phase/gate/signature mutation",
+  "limits": [
+    "No proof that these query bugs are the dominant cause of hours-long Stories.",
+    "Baseline setup relocation failed first; failed attempts are retained and excluded from RED/timing.",
+    "active timing pair1 overlapped the independent native GREEN check; it is not used for a percentage speedup.",
+    "The REVIEW performance case starts after native GREEN ended; three pairs only support exploratory latency observations.",
+    "Real data probes use production handlers and stores but omit CLI startup; old worktrees are not migrated or admitted.",
+    "Synthetic selection test substitutes in-memory Store data; real-data witness verifies actual file-backed reads separately.",
+    "Initial timing campaign invalidated by another owner changing B-de09 config; preserve all rows, make no causal percentage claim for that attempt, and repeat the fixed REVIEW design in a new input epoch."
+  ]
+}

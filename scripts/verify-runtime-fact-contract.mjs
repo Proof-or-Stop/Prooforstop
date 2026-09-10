@@ -119,6 +119,12 @@ async function main() {
   check(registrySource.includes('KEYED_SCHEDULER_RUNTIME_POLICY')
     && read(root, 'packages/main/src/core/keyed-scheduler.ts').includes('KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs'),
   'scheduler coordination scope and cancellable wait cadence must be registered and consumed');
+  check(registrySource.includes("activityWitness: 'existing-records-only-entry-admission-or-unverified'"), 'activity implementation witness scope must be registered');
+  check(read(root, 'packages/main/src/cli-engine.ts').includes('implementation: enforcedImplementationIdentity ? {'), 'activity records must reuse actual entry admission identity');
+  check(registrySource.includes("ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation'"), 'lease-loss queue cancellation must be registered');
+  check(read(root, 'packages/main/src/core/story-owner-lease.ts').includes('leaseLost.abort(error)'), 'failed owner renewal must signal queued consumers');
+  const validationCancellationSource = read(root, 'packages/main/src/core/validation-execution-lock.ts');
+  check(validationCancellationSource.includes('[options.abortSignal, leaseLostSignal]') && validationCancellationSource.includes("source.removeEventListener('abort', forward)"), 'capacity wait must retain both cancellation sources and clean up forwarding listeners');
   check(registrySource.includes("duplicateResourceClaims: 'one-per-exact-normalized-claim'"), 'exact normalized capacity claim semantics must be registered');
   const { declaredValidationCapacity } = await import(pathToFileURL(join(root, 'packages/main/dist/core/validation-execution-lock.js')).href);
   const duplicateClaim = { class: 'fixed-path', key: 'runtime-contract-probe', access: 'shared' };
@@ -190,6 +196,15 @@ async function main() {
   check(registrySource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY'), 'runtime registry must define optional implementation pin policy');
   const pinSource=readFileSync(join(root,'packages/main/src/core/execution-implementation.ts'),'utf8');
   check(pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.schema') && pinSource.includes('IMPLEMENTATION_PIN_MISMATCH'), 'implementation pin must consume registry and refuse mismatch');
+  check(pinSource.includes('PROOF_OR_STOP_IMPLEMENTATION_MANIFEST') && pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.sessionSchema') && pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.witnessSchema'), 'session transport must enforce its manifest and report actual admitted runtime');
+  const sessionLauncher = read(root, 'scripts/implementation-session.mjs');
+  const sessionPreload = read(root, 'bin/implementation-session-preload.cjs');
+  check(sessionLauncher.includes('env.NODE_OPTIONS=transportOptions') && sessionLauncher.includes('nodeOptionsDigest') && sessionPreload.includes('IMPLEMENTATION_SESSION_ENTRY_REFUSED'), 'inherited Node session transport must reject unaware old CLI entries');
+  const hostRunner = read(root, 'packages/main/src/core/host-run.ts');
+  check(hostRunner.includes('detached: true') && hostRunner.includes('signalIsolatedProcessGroup(processIdentity,') && hostRunner.includes('bindLateStartFingerprint()'), 'host timeout cleanup must bind its owned process group');
+  check(hostRunner.includes('!plan.onSpawn && !plan.reviewInvocationPayload') && hostRunner.includes("descriptor.end(plan.reviewInvocationPayload(processIdentity))"), 'anchor integration must preserve actual-PID managed launches and signed invocation descriptors');
+  check(hostRunner.includes('host-run-group-anchor.js') && hostRunner.includes('host-group-anchor.v1'), 'owned leader must outlive provider exit while descendant pipes remain open');
+  check(hostRunner.includes('HOST_GROUP_CLEANUP_UNVERIFIED') && hostRunner.includes('signalOwnedGroup()'), 'normal completion must clean its owned group or refuse success');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');

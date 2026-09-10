@@ -1,0 +1,495 @@
+{
+  "schema": "lab.remaining-delivery.verification-plan.v1",
+  "baseHead": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "stage": "PLAN_ONLY",
+  "previousIntegration": "CLOSED_ON_MAIN",
+  "newProductGreenClaim": false,
+  "mainIntegrationRequestedForThisLab": false,
+  "planSha256": "ee06342bf21b67aee1fd9abd0ab2f522e3fd2c5ab00225afde2a2811fe66210f",
+  "items": [
+    {
+      "id": "V1",
+      "claim": "Actual delivery time and attribution",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V1.1",
+          "name": "Lab replay",
+          "claimScope": "Independent Lab delivery replay and a separate real Story observational cohort; neither substitutes for the other. Subclaim: Lab replay.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V1.2",
+          "name": "real Story cohort",
+          "claimScope": "Independent Lab delivery replay and a separate real Story observational cohort; neither substitutes for the other. Subclaim: real Story cohort.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Independent Lab delivery replay and a separate real Story observational cohort; neither substitutes for the other.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    },
+    {
+      "id": "V2",
+      "claim": "Execution identity adoption",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V2.1",
+          "name": "enrolled cohort",
+          "claimScope": "Frozen enrolled runtime cohort plus a separately evidenced live adoption census; per-epoch provenance. Subclaim: enrolled cohort.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V2.2",
+          "name": "live census",
+          "claimScope": "Frozen enrolled runtime cohort plus a separately evidenced live adoption census; per-epoch provenance. Subclaim: live census.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Frozen enrolled runtime cohort plus a separately evidenced live adoption census; per-epoch provenance.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    },
+    {
+      "id": "V3",
+      "claim": "Review convergence and detection",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V3.1",
+          "name": "known defect corpus",
+          "claimScope": "Finite known-defect completeness and a separately sampled held-out review loss-rate claim. Subclaim: known defect corpus.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V3.2",
+          "name": "held-out sample",
+          "claimScope": "Finite known-defect completeness and a separately sampled held-out review loss-rate claim. Subclaim: held-out sample.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Finite known-defect completeness and a separately sampled held-out review loss-rate claim.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    },
+    {
+      "id": "V4",
+      "claim": "Reuse and decomposition",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V4.1",
+          "name": "eligible executions",
+          "claimScope": "Net benefit of genuinely eligible reuse and a separately tested decomposition scope. Subclaim: eligible executions.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V4.2",
+          "name": "net split benefit",
+          "claimScope": "Net benefit of genuinely eligible reuse and a separately tested decomposition scope. Subclaim: net split benefit.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Net benefit of genuinely eligible reuse and a separately tested decomposition scope.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    },
+    {
+      "id": "V5",
+      "claim": "Publication/output/history recovery",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V5.1",
+          "name": "supported recoverable faults",
+          "claimScope": "Post-receipt recoverable faults with retained authority; separately report pre-receipt and irrecoverable safe refusals. Subclaim: supported recoverable faults.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V5.2",
+          "name": "expected refusal boundary",
+          "claimScope": "Post-receipt recoverable faults with retained authority; separately report pre-receipt and irrecoverable safe refusals. Subclaim: expected refusal boundary.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Post-receipt recoverable faults with retained authority; separately report pre-receipt and irrecoverable safe refusals.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    },
+    {
+      "id": "V6",
+      "claim": "Concurrency and stability",
+      "subclaims": [
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V6.1",
+          "name": "current-host full workload",
+          "claimScope": "Measured current-host full workload plus separate second-host and finite soak claims. Subclaim: current-host full workload.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V6.2",
+          "name": "second host",
+          "claimScope": "Measured current-host full workload plus separate second-host and finite soak claims. Subclaim: second host.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        },
+        {
+          "redEvidence": null,
+          "greenEvidence": null,
+          "before": null,
+          "after": null,
+          "unit": "seconds unless criterion is correctness/adoption",
+          "coverage": null,
+          "completionCounts": null,
+          "cost": null,
+          "uncertainty": "unmeasured",
+          "remainingPrerequisites": [
+            "measurement readiness",
+            "frozen case manifest",
+            "actual target RED or baseline characterization"
+          ],
+          "id": "V6.3",
+          "name": "soak",
+          "claimScope": "Measured current-host full workload plus separate second-host and finite soak claims. Subclaim: soak.",
+          "status": "NOT_RUN",
+          "limitations": [
+            "Not measured or executed; a different subclaim PASS does not establish this claim."
+          ],
+          "evidence": []
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": [],
+      "claimScope": "Measured current-host full workload plus separate second-host and finite soak claims.",
+      "limitations": [
+        "No new target RED, repair, GREEN or performance/adoption run in this planning stage.",
+        "Broader subclaims remain unproven until their own acceptance and evidence are complete."
+      ]
+    }
+  ],
+  "gateEvidence": false,
+  "amendments": [
+    {
+      "previousPlanSha256": "181a260a1cf846cc5e9fe30f49738e0c58b33def642213a65d2cc0204d6fa086",
+      "previousPlanPath": "revisions/v1/PLAN.md",
+      "previousLedgerSha256": "50fd0bca35fe4786b5d1f6d8f86a4546b90da5609a5ac74283b7f8e7e12dfafb",
+      "previousLedgerPath": "revisions/v1/acceptance.json",
+      "reason": "Resolve Claude plan audit F1-F5 and the achievable part of F6: conservative ledger, receipt fault partition, held-out V1 design, fixed V3 scoring, revision provenance and output predicate boundaries. The reverse byte/character straddle is impossible and is documented instead of fabricated. Add observed resolver-phase and legacy-bootstrap census limitations to measurement readiness."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910/output/story-list-red-green/baseline-dist/core/prompt-role-contract-registry.js:389
+            throw new PromptRoleContractRegistryError(`unknown prompt role policy "${roleId}"${detail}`);
+                  ^
+
+PromptRoleContractRegistryError: unknown prompt role policy "proof-or-stop-implementation-reviewer"
+    at validatePromptRolePolicyDefinition (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910/output/story-list-red-green/baseline-dist/core/prompt-role-contract-registry.js:389:19)
+    at buildPromptRoleContracts (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910/output/story-list-red-green/baseline-dist/core/prompt-role-contract-registry.js:348:5)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910/output/story-list-red-green/baseline-dist/core/prompt-role-contract-registry.js:476:52
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910/experiments/remaining-delivery-verification/query-read-probe.mjs:12:20
+
+Node.js v26.8.1

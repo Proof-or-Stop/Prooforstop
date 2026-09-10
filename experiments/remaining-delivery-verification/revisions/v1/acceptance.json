@@ -1,0 +1,195 @@
+{
+  "schema": "lab.remaining-delivery.verification-plan.v1",
+  "baseHead": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "stage": "PLAN_ONLY",
+  "previousIntegration": "CLOSED_ON_MAIN",
+  "newProductGreenClaim": false,
+  "mainIntegrationRequestedForThisLab": false,
+  "planSha256": "181a260a1cf846cc5e9fe30f49738e0c58b33def642213a65d2cc0204d6fa086",
+  "items": [
+    {
+      "id": "V1",
+      "claim": "Actual delivery time and attribution",
+      "subclaims": [
+        {
+          "name": "Lab replay",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "real Story cohort",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "V2",
+      "claim": "Execution identity adoption",
+      "subclaims": [
+        {
+          "name": "enrolled cohort",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "live census",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "V3",
+      "claim": "Review convergence and detection",
+      "subclaims": [
+        {
+          "name": "known defect corpus",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "held-out sample",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "V4",
+      "claim": "Reuse and decomposition",
+      "subclaims": [
+        {
+          "name": "eligible executions",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "net split benefit",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "V5",
+      "claim": "Publication/output/history recovery",
+      "subclaims": [
+        {
+          "name": "supported recoverable faults",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "expected refusal boundary",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "V6",
+      "claim": "Concurrency and stability",
+      "subclaims": [
+        {
+          "name": "current-host full workload",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "second host",
+          "status": "NOT_RUN"
+        },
+        {
+          "name": "soak",
+          "status": "NOT_RUN"
+        }
+      ],
+      "status": "NOT_RUN",
+      "redEvidence": null,
+      "greenEvidence": null,
+      "before": null,
+      "after": null,
+      "unit": "seconds unless criterion is correctness/adoption",
+      "uncertainty": "unmeasured",
+      "coverage": null,
+      "completionCounts": null,
+      "cost": null,
+      "remainingPrerequisites": [
+        "measurement readiness",
+        "frozen case manifest",
+        "actual target RED or baseline characterization"
+      ],
+      "evidence": []
+    }
+  ]
+}

@@ -732,6 +732,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
       existing.canonicalKey === claim.canonicalKey && (existing.access === 'exclusive' || claim.access === 'shared'))))) {
       throw new Error('nested validation cannot expand held capacity resources');
     }
+    assertCapacityWaitActive(options);
     return await fn();
   }
 
@@ -843,17 +844,35 @@ export async function withOfficialValidationExecution<T>(
   options: OfficialValidationExecutionOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  const execute = () => withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity(options, async () => {
-    const storyId = String(options.storyId ?? '').trim();
-    if (!storyId) return await fn();
-    return await withValidationExecutionLock({
-      root: options.root,
-      storyId,
-      workspaceRoot: options.workspaceRoot,
-      command: options.command,
-      staleMs: options.staleMs,
-    }, fn);
-  }));
+  const execute = async (leaseLostSignal?: AbortSignal) => {
+    // Preserve caller cancellation while also stopping an obsolete owner from
+    // waiting for capacity and entering a callback after failed renewal.
+    // Use the base AbortController API supported by the existing Node floor.
+    // Remove forwarding listeners after success, refusal, and callback failure.
+    const signals = [...new Set([options.abortSignal, leaseLostSignal].filter((value): value is AbortSignal => value !== undefined))];
+    const combined = signals.length ? new AbortController() : undefined;
+    const subscriptions = signals.map(source => {
+      const forward = () => combined!.abort(source.reason);
+      if (source.aborted) forward();
+      else source.addEventListener('abort', forward, { once: true });
+      return { source, forward };
+    });
+    try {
+      return await withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity({ ...options, abortSignal: combined?.signal }, async () => {
+        const storyId = String(options.storyId ?? '').trim();
+        if (!storyId) return await fn();
+        return await withValidationExecutionLock({
+          root: options.root,
+          storyId,
+          workspaceRoot: options.workspaceRoot,
+          command: options.command,
+          staleMs: options.staleMs,
+        }, fn);
+      }));
+    } finally {
+      for (const { source, forward } of subscriptions) source.removeEventListener('abort', forward);
+    }
+  };
   return options.ownerLeaseDir
     ? withOwnerLeaseHeartbeat(options.ownerLeaseDir, { command: options.command, cwd: options.workspaceRoot, ...options.ownerLeaseHeartbeat }, execute)
     : execute();
