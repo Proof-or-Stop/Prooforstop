@@ -647,6 +647,11 @@ function buildOfflineCache(cacheRoot, cacheDir, input, graph) {
       delete stagedManifest.devDependencies;
       delete stagedManifest.bundleDependencies;
       delete stagedManifest.bundledDependencies;
+      // The cache repacks installed dependencies for offline consumer tests; it
+      // does not develop them. A dependency may require a different package
+      // manager through npm's devEngines field (smol-toml requires pnpm), which
+      // must not block this deterministic, script-disabled repack operation.
+      delete stagedManifest.devEngines;
       writeFileSync(join(sourceStage, 'package.json'), `${JSON.stringify(stagedManifest, null, 2)}\n`);
       const stdout = execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', packDir, '.'], {
         cwd: sourceStage,

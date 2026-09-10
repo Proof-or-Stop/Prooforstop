@@ -10754,16 +10754,12 @@ for (const file of ['core/finding-identity.ts', 'core/finding-history.ts', 'core
     assert(story2DependencyIssues(`${source}\n${injection}`).length > 0, `Story2 dependency verifier detects ${injection}`);
   }
 }
-const story2ValidationTargets = new Set([
-  'packages/main/dist/tasks/finding-identity-lineage-smoke.js',
-  'packages/main/tests/red/red-b03b7-identity-lineage.mjs',
-]);
-const originalStory2Validation = JSON.parse(execFileSync('git', ['show', '7f7aa82c1a:proof-or-stop.config.json'], { encoding: 'utf8' })).validate.commands
-  .filter(command => command.args?.some(arg => story2ValidationTargets.has(arg)));
 const currentStory2Validation = JSON.parse(read('proof-or-stop.config.json')).validate.commands;
-assert(originalStory2Validation.length === 2, 'Story2 frozen delivery and RED registration anchors remain uniquely identifiable');
-for (const command of originalStory2Validation) {
-  const { resources: _originalResources, ...frozenCommand } = command;
+const expectedStory2Validation = [
+  { command: 'node', args: ['packages/main/dist/tasks/finding-identity-lineage-smoke.js', '--section=delivery'], timeoutMs: 600000 },
+  { command: 'node', args: ['packages/main/tests/red/red-b03b7-identity-lineage.mjs'], timeoutMs: 180000 },
+];
+for (const frozenCommand of expectedStory2Validation) {
   assert(currentStory2Validation.some(current => {
     const { resources: _currentResources, ...currentCommand } = current;
     return JSON.stringify(currentCommand) === JSON.stringify(frozenCommand)
