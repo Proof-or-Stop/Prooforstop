@@ -222,6 +222,7 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   declaredInvocationCapacity: 2,
   duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,
+  ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation',
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
 } as const;

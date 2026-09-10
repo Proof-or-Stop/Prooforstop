@@ -413,3 +413,19 @@ Failed-command diagnostics preserve both the output prefix and terminal failure
 context within the existing character budget. Successful commands retain their
 existing bounded prefix presentation. Execution receipts continue to consume the
 complete captured output.
+
+### Losing ownership while queued
+
+Official validation passes the lease heartbeat's cancellation signal into capacity
+acquisition and combines it with caller cancellation. A failed renewal removes the
+waiting invocation's own capacity ticket and refuses before entering its callback.
+The default heartbeat interval remains 30 seconds; this is the detection bound, not
+a promise of instantaneous revocation. Already-running child commands retain their
+existing launch and publication checks; this change does not terminate arbitrary
+subprocesses. Missing or expired ownership at entry still refuses immediately.
+
+The incremental Lab regression keeps prior repairs in its baseline and compares
+refusal latency after private lease revocation under identical capacity contention.
+Healthy owners still wait and execute; caller aborts keep their original reason.
+This mechanism result does not measure overall Story delivery time or establish
+that other running hosts have adopted this runtime.

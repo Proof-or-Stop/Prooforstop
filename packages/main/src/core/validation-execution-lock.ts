@@ -752,7 +752,13 @@ export async function withOfficialValidationExecution<T>(
   options: OfficialValidationExecutionOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  const execute = () => withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity(options, async () => {
+  const execute = (leaseLostSignal?: AbortSignal) => {
+    // Preserve caller cancellation while also stopping an obsolete owner from
+    // waiting for capacity and entering a callback after failed renewal.
+    const abortSignal = leaseLostSignal
+      ? (options.abortSignal ? AbortSignal.any([options.abortSignal, leaseLostSignal]) : leaseLostSignal)
+      : options.abortSignal;
+    return withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity({ ...options, abortSignal }, async () => {
     const storyId = String(options.storyId ?? '').trim();
     if (!storyId) return await fn();
     return await withValidationExecutionLock({
@@ -762,7 +768,8 @@ export async function withOfficialValidationExecution<T>(
       command: options.command,
       staleMs: options.staleMs,
     }, fn);
-  }));
+    }));
+  };
   return options.ownerLeaseDir
     ? withOwnerLeaseHeartbeat(options.ownerLeaseDir, { command: options.command, cwd: options.workspaceRoot, ...options.ownerLeaseHeartbeat }, execute)
     : execute();
