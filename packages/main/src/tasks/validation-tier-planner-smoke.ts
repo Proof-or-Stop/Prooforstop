@@ -2275,6 +2275,14 @@ testCase('a complete current impact index produces nested Story-relevant tiers w
   assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract']);
   assert.deepEqual(decision.tierSelections['repository-full'], universeCommandIds);
   assert.deepEqual(decision.exclusionProofs.map((proof) => proof.commandId), ['docs-contract', 'module-unit', 'repo-sentinel']);
+  assert.deepEqual(
+    decision.exclusionProofs.map((proof) => proof.reason),
+    [
+      'selected-tier-excludes-wider-tier-command',
+      'complete-input-set-does-not-intersect-story-change',
+      'complete-input-set-does-not-intersect-story-change',
+    ],
+  );
   assert.ok(decision.exclusionProofs.every((proof) => proof.snapshotDigest === 'snapshot-v1'));
 });
 

@@ -5,6 +5,7 @@ const GREEN = 'DYNAMIC_VALIDATION_TIER_SELECTION_GREEN';
 
 try {
   const planner = await import('../dist/core/validation-tier-planner.js');
+  const planHandler = await import('../dist/handlers/validation-plan.js');
   assert.equal(typeof planner.selectValidationTiers, 'function', 'selectValidationTiers must be exported');
 
   const universeCommandIds = [
@@ -74,11 +75,14 @@ try {
     docs.exclusionProofs.map((proof) => proof.commandId),
     ['docs-contract', 'module-a-unit', 'module-a-integration', 'repo-sentinel'],
   );
+  assert.equal(docs.exclusionProofs[0].reason, 'selected-tier-excludes-wider-tier-command');
+  assert.ok(
+    docs.exclusionProofs.slice(1).every(
+      (proof) => proof.reason === 'complete-input-set-does-not-intersect-story-change',
+    ),
+  );
 
-  const wiredPlan = planner.resolveValidationTierPlan({
-    requestedTier: 'story-fast',
-    impactIndex,
-    input: {
+  const wiredInput = {
       schema: 'proofOrStop.story-relevance-input.v1',
       storyId: 'B-lab1',
       phase: 'DEV',
@@ -126,13 +130,36 @@ try {
       verificationIntentContext: [],
       escalations: [],
       selectionDigest: 'collector-selection-v1',
-    },
+  };
+  const wiredPlan = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex,
+    input: wiredInput,
   });
   assert.equal(wiredPlan.status, 'plan');
   assert.equal(wiredPlan.effectiveTier, 'story-fast');
   assert.deepEqual(wiredPlan.selectedUnitIds, ['build', 'docs-links']);
   assert.equal(wiredPlan.finalAuthority, false);
   assert.ok(wiredPlan.selectorDecisionDigest, 'wired plans expose the selector decision digest');
+  const wiredReport = planHandler.buildValidationPlanReport({
+    request: {
+      storyId: 'B-lab1',
+      tierInput: 'fast',
+      requestedTier: 'story-fast',
+      explain: true,
+      json: false,
+    },
+    storyPhase: 'DEV',
+    input: wiredInput,
+    result: wiredPlan,
+  });
+  assert.equal(wiredReport.selectionDigest, 'collector-selection-v1');
+  assert.equal(wiredReport.selectorDecisionDigest, wiredPlan.selectorDecisionDigest);
+  assert.equal(wiredReport.exclusionProofs.length, 4);
+  assert.ok(wiredReport.units.every((unit) => unit.inclusionReasons.length > 0));
+  const wiredText = planHandler.renderValidationPlanText(wiredReport, true);
+  assert.match(wiredText, /exclusion proofs \(4\):/);
+  assert.match(wiredText, /selectorDecisionDigest:/);
 
   const intermediate = planner.selectValidationTiers({
     ...base,
@@ -177,6 +204,59 @@ try {
   });
   assert.equal(sensitive.effectiveTier, 'repository-full');
   assert.ok(sensitive.escalationReasonCodes.includes('validation_framework_sensitive_change'));
+
+  const maliciouslyNarrowSensitiveIndex = {
+    ...impactIndex,
+    entries: impactIndex.entries.map((entry) => entry.commandId === 'docs-links'
+      ? {
+          ...entry,
+          inputPatterns: [...entry.inputPatterns, 'packages/main/src/core/validation-tier-planner.ts'],
+        }
+      : entry),
+  };
+  const wiredSensitive = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex: maliciouslyNarrowSensitiveIndex,
+    input: {
+      ...wiredInput,
+      changedFiles: {
+        ...wiredInput.changedFiles,
+        statuses: { 'packages/main/src/core/validation-tier-planner.ts': 'M' },
+        paths: ['packages/main/src/core/validation-tier-planner.ts'],
+      },
+      seeds: [{
+        kind: 'path',
+        value: 'packages/main/src/core/validation-tier-planner.ts',
+        provenance: ['changed-file'],
+        itemIds: [],
+        changeStatus: 'M',
+      }],
+    },
+  });
+  assert.equal(wiredSensitive.status, 'plan');
+  assert.equal(wiredSensitive.effectiveTier, 'repository-full');
+  assert.ok(wiredSensitive.escalationReasons.some(
+    (reason) => reason.code === 'validation_framework_sensitive_change',
+  ));
+
+  const checklistSeed = planner.resolveValidationTierPlan({
+    requestedTier: 'story-fast',
+    impactIndex,
+    input: {
+      ...wiredInput,
+      seeds: [
+        ...wiredInput.seeds,
+        {
+          kind: 'path',
+          value: 'packages/module-a/src/index.ts',
+          provenance: ['checklist-modify'],
+          itemIds: ['CHK-001'],
+        },
+      ],
+    },
+  });
+  assert.equal(checklistSeed.status, 'plan');
+  assert.deepEqual(checklistSeed.tierSelections['story-fast'], ['build', 'docs-links', 'module-a-unit']);
 
   console.log(GREEN);
 } catch (error) {
