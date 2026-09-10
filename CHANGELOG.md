@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab sealed-review-pass-finalization - v0.3.301 - 2026-09-10
+
+# Sealed review pass finalization
+
+## Problem
+
+B-03b7 reached REVIEW with a finalized, unconsumed review inventory receipt, but REVIEW-to-TEST rejected previously valid passes after a metadata-only commit. Prompt-envelope verification recomputed historical incremental-review eligibility against the live HEAD instead of the ReviewRun HEAD, so unchanged review facts appeared stale.
+
+## Fix
+
+Latest local main already contained the focused production repair: historical eligibility and review-basis reconstruction now use the signed `ReviewRun.headHash`, while current material freshness remains an independent live admission check. This Lab retained a focused regression wrapper and did not duplicate or broaden the production change.
+
+## Verification
+
+The Lab first recorded `SEALED_REVIEW_PASS_FINALIZATION_RED` against the affected B-03b7 state. After synchronizing the repaired main, the same Lab check runs the bounded `--asof-run-only` regression and records `SEALED_REVIEW_PASS_FINALIZATION_GREEN`. The regression proves that a metadata-only commit preserves the H1 envelope, while a later material change still fails the live HEAD contract.
+
+## Scope and performance
+
+No B-03b7 implementation file was edited in the Story worktree. An unrelated deterministic lock-reclaim timing failure observed in the full smoke was excluded from this bounded Lab because the focused target passes independently. No performance improvement is claimed.
+
+Maintenance provenance: codex/lab-sealed-review-pass-finalization, repair 11e7b4e9e23228ed896c9ea9e9012d70bbd55fab.
+Verification command (replayed before integration and on main): `["node","--import","tsx","packages/main/tests/red/red-sealed-review-pass-finalization.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated Finding lineage and session-performance maintenance - v0.3.300 - 2026-09-10
 
 This release reconciles the independently integrated Finding identity/historical-lineage maintenance and session-performance maintenance on their complete shared ancestry. The normal merge preserves both histories; no remote work is overwritten and neither branch's validation, resource, identity, or lifecycle registrations are discarded.
