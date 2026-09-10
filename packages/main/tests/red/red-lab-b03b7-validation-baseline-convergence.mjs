@@ -71,7 +71,12 @@ checks.push({
 });
 checks.push({
   label: 'public-prompt-fixture-builds-utils',
-  ok: /measurementRoot[\s\S]{0,1600}packages\/utils[\s\S]{0,400}test:proof-or-stop-prompt-baseline/u.test(identitySource),
+  ok: (() => {
+    const measurement = identitySource.indexOf("const measurementRoot = createPublicOperationClone('proof-or-stop-b49df-measurement-public-');");
+    const utilsBuild = identitySource.indexOf("execFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build']", measurement);
+    const promptBaseline = identitySource.indexOf("'test:proof-or-stop-prompt-baseline'", measurement);
+    return measurement >= 0 && utilsBuild > measurement && promptBaseline > utilsBuild;
+  })(),
   status: null,
   signal: null,
   error: null,

@@ -3151,14 +3151,14 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"4a509dc3449554c3b53289e28d12daac50fe16c9fb7dee335aa63597de708217"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"09ffbf389f4d5edcd603429ebef2ceff4d67f1c5199f954f3d3e4b3f15f3b980"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "23db6d5e896552fae206dc318a930a295262d6a7b4bd4fe409b2ea300dc60187"
   },
   {
     "path": "packages/main/src/tasks/certification-window-smoke.ts",
-    "sha256": "50c34aa6fd1e711b799ab862077677c88086a8fadc69966c5f03cf785490f4c4"
+    "sha256": "0c8f3d1297d2baf0ebebc79735681f5f66137907634da6fcaf082a55b97157de"
   },
   {
     "path": "packages/main/src/tasks/command-ownership-contract.ts",
@@ -3166,7 +3166,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "sha256": "1bbfa269c36320ccdad4b6ce0aa89fd48e84ba5d67ac72d0b68a8be69ce801e9"
+    "sha256": "d6f5433b29cdd92cb49b1f067e8f0cef4eba45b8c34a2b695c6f78485baf2264"
   },
   {
     "path": "packages/main/src/tasks/global-agents-unit-smoke.ts",
@@ -3194,11 +3194,11 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-    "sha256": "dba2da2e375dfe48beca39e1aaab7f38ba5e24c1ea15784cc9f74e8fa267ae35"
+    "sha256": "87f8534efc504b051571706c273052bbb2185670eb60f6eaf8a6f6ec882ec348"
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "4284a628b9ae05e53b156f7335d67b5da29ceb0d7e76d13c031e713a04857273"
+    "sha256": "21c325a8487d02f339e99480218090b708379fa26b2a025a2821c8fd19ba172f"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
@@ -3230,7 +3230,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "fbae10cb8a339f37bb3971d624e78632572f5df5a2d920cd74911ca6879822a1"
+    "sha256": "af82c58fcc2d70d0e9694cd543ae6589e1cf73c43e5317d3a7499087ba642e67"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3282,7 +3282,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "35f59c8e9720f3eddf2bdd8a9b14db708e1c81f3dc2b0b41ef368aec6369a033"
+    "sha256": "494b33edafaf4d724864abc247f370491f6d14486d704b381530892cc35a6cef"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3294,7 +3294,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "7d596bb02458045d8fdda07d5b3def216fd44906dd61bb1194b5509401d6d9ae"
+    "sha256": "9381c65ba9736bf2ce0bb708835ef450282a52488176d2aed52fbe08375c7d1f"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3469,7 +3469,7 @@ const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [
   ["proofbound.capability-release-backfill.v1",1,"ff285bfe39f28fee13d95d40178f4402f4c989180c114ba6f30f84c50f9df0e7"],
   ["proofbound.certification-window.v1",1,"104d245388e0fcde08b4e31a548c9b7beb4604749eaf41f1592db80fdf675350"],
   ["proofbound.certification_windows.v1",1,"bb748e61b7ecb23753a4723d326640fd94e77f70e3c34637d4e9a8d6143e160c"],
-  ["proofbound.config.json",2,"44cee7f8af7ea7cac6ab24c4537f59f59e4535a8c866781f3c3e8bcdc3a78e99"],
+  ["proofbound.config.json",2,"58d524ec44e0f1143df7da82525e2a343884dbca0b7d2769766dacb5254beda5"],
   ["proofbound.dev-memory-finish-decision.v1",1,"1bc6c4fc894935eff145db24a1766ea2b65178d6b04863d52fd0472a142bbae8"],
   ["proofbound.evidence-activated-advisory-playbook.v1",1,"66b288858677c5c9e9f5ac36f38ece2d9d2cf8ac5b7b8c9c16a68f132f8c1344"],
   ["proofbound.final-response-check.v1",1,"3b0cde1d6cb515c6e258f284749d67d3c1989b8f5df02df874a56b45eac96b63"],
@@ -3526,6 +3526,8 @@ const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [
 EXACT_ALLOWLIST.push(...OWNED_IDENTITY_MUTATION_CONTEXT_ROWS);
 
 const BOTH_FAMILY_CONTEXT_ROWS = [
+  ["packages/main/src/tasks/prompt-full-context-envelope-smoke.ts","proofbound.impact-classification.v1",1,"d72e99ccdaa1292b4b081f8f330190d4ac47eb13f694ac8121552b721c92841e","compatibility_fixture","Exact rejected policy-schema input used to prove bounded B-7abb reference recovery; never an active runtime identity."],
+  ["packages/main/src/tasks/prompt-full-context-envelope-smoke.ts","proofbound-reference-recovery-",1,"b9ae3463c1fa24a0f6ea4ef2451c047d73df2c9912af617050615b61b56dfd84","compatibility_fixture","Exact disposable-directory prefix for a retired-reference recovery fixture; never a product protocol or runtime identity."],
   ["packages/main/tests/brand-role-migration.test.mjs","proofbound-review-quality",2,"ce5548010842c37dd9329abdaadbfd8d1a13af87eef7fa51dc294fdc641c6308","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["docs/story/drafts/codex-hook-assets-drift-from-generator/checklist.json","; .codex/hooks.json is neither, which is why Proofbound survived. Add JSON host assets under .codex/ and .claude/ to the scan roots with the same deprecate",1,"a4633d374ab9e70e0de04f4e38a81b81bc1228b22b7818763a75a26781f7e7f9","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
   ["docs/story/drafts/codex-hook-assets-drift-from-generator/index.json","ed ROOT_MARKERS, deprecated alias fallbacks, Proofbound statusMessage strings). Regenerate them fully on main, and add a smoke that renders the generator o",1,"33dfd134a02450393ce20678f9820d168b5441f7fe7cc14c307be5748b4c3a08","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
@@ -4308,7 +4310,7 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
   ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[6776]],
 ].concat([["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[6961]],["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[6962]],["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[6963]],["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[6964]],["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[6965]],["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[6966]],["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[6967]]]);
 
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 676;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 678;
 
 // Historical artifact bytes can contain retired salts, but active source may not.
 const FROZEN_SALTS = [];

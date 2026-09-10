@@ -116,6 +116,10 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-lab-b03b7-validation-baseline-convergence.mjs`,
+    'Lab-only aggregate witness for restoring the latest-main validation baseline that blocked B-03b7. It is pinned '
+    + 'by the local Lab RED/GREEN record and deliberately excluded from standing validate because it recursively '
+    + 'executes registered guards, including the B49d4 derivation guard itself.'],
   [`${POPULATION_DIR_REL}/red-B-e40f-lab-convergence.mjs`,
     'Lab-only maintenance harness for the completed B-e40f convergence experiment. It intentionally measures the '
     + 'full 73-case coordinator against built dist and records Lab RED/GREEN evidence; running it inside every canonical '

@@ -375,7 +375,7 @@ function criticEvidence(
   criticRun.inventoryBinding = reviewInventoryPurposeBinding(subjectEpoch);
   criticRun._hash = signReviewRun(criticRun.storyId, criticRun.reviewRunId, criticRun.agent, criticRun.lane,
     criticRun.reviewRound, criticRun.startedAt, criticRun.headHash, criticRun.materialHash, criticRun.promptHash,
-    undefined, undefined, criticRun.storyFilesHash, undefined, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
+    undefined, undefined, criticRun.storyFilesHash, criticRun.envelopeId, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
   const criticPass = pass(criticRun, id);
   const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
     schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
@@ -502,7 +502,7 @@ for (const [label, check] of [
     const canonical = { ...critic.run, lane: 'proof-or-stop-review-topology-critic', agent: 'proof-or-stop-review-topology-critic' };
     canonical._hash = signReviewRun(canonical.storyId, canonical.reviewRunId, canonical.agent, canonical.lane,
       canonical.reviewRound, canonical.startedAt, canonical.headHash, canonical.materialHash, canonical.promptHash,
-      undefined, undefined, canonical.storyFilesHash, undefined, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
+      undefined, undefined, canonical.storyFilesHash, canonical.envelopeId, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
     assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, canonical] }).rawFindingIds, [discovered.id],
       'canonical and registered critic alias share the exact purpose contract');
     const tampered = { ...critic.run, _hash: 'tampered' };

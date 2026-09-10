@@ -137,9 +137,9 @@ function initRepo(root, selfProject = false) {
 
 function retainHistoricalImplementationPrerequisite(root) {
   assert.ok(fixtureRoots.includes(root), 'historical prerequisite may only be imported into a generated test repository');
-  const historical = 'b1a0bee88c2a57e33d3835600db53bb9297f04c1';
+  const historical = '0cb738d3f6c7a0aa3cf98faf271ade437e281d13';
   git(repoRoot, ['merge-base', '--is-ancestor', historical, 'HEAD']);
-  assert.equal(git(repoRoot, ['show', '-s', '--format=%an <%ae>', historical]), 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>');
+  assert.equal(git(repoRoot, ['show', '-s', '--format=%an <%ae>', historical]), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
   if (spawnSync('git', ['merge-base', '--is-ancestor', historical, 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0) return;
   git(root, ['fetch', '--no-tags', '--depth=1', repoRoot, historical]);
   // Preserve a real, reachable object unchanged. The new merge and all fixture
@@ -1713,8 +1713,8 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   // altered row or relocated literal must fail, even in the verifier itself.
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
-  assert.equal(verifierLines.length, 116, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '119a5c354afebc7ea70d208a5c41df138217a6ac82ef54b2699c7a1b40d790de', 'retired protocol identity verifier data context drift');
+  assert.equal(verifierLines.length, 118, 'retired protocol identity verifier data row count drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '148250673b2dfdb04602ec125ba4c94bf5da5e78ba609219a05a590a294a1fea', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -2108,6 +2108,11 @@ await check(['identity-cutover'], 'CHK-007:adversarial:0 proofbound injection at
   assert.equal(measured.status, 0, `${measured.stdout}${measured.stderr}`);
   assertRuntimeAuthoritativeStateUnchanged(fixture, measurementBefore);
   const measurementRoot = createPublicOperationClone('proof-or-stop-b49df-measurement-public-');
+  execFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build'], {
+    cwd: measurementRoot,
+    env: process.env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
   const measurementConfigPath = join(measurementRoot, 'proof-or-stop.config.json');
   const measurementConfig = JSON.parse(readFileSync(measurementConfigPath, 'utf8'));
   measurementConfig.storyDir = '.proof-or-stop-test/story/actives';
@@ -2558,6 +2563,8 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/config.ts","proof-or-stop.prompt-envelope-rollout.v1",1,"dc2889324578f66914eba65d50ebc1839180e25e7ea22367b584b18df28a32c0"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.evidence-freshness-classifier.v1",1,"f1d951fdc4ce3c3d1fcb8ffb355d4ecb69695755185adb135729d922de162fc9"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.evidence_hash_snapshot.v1",1,"8ce5a7590a66f586e072d6739063d445915757c2241c7db3fe2dcee938632c9c"],
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest.v1",3,"423fc8479e6108678ade451817d7b1d72fe6365fbfe9ade221c8978f6a72965d"],
+  ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",2,"594d7d8d86c1ee7608582e7da9cdaebb3a74646fccdff5abcb919f8ee763883b"],
   ["packages/main/src/core/impact-classification-policy.ts","proof-or-stop.impact-classification.v1",2,"44d3864291a1830fdacdbb4f3c8b8e374d1cb5975a9abe08d0476a09beec5e28"],
   ["packages/main/src/core/learning-store.ts","proof-or-stop.non-deducible-source.v1",5,"a8f299dd9d289b9a54fde559113c32ef18da859e61ef6ee1328ada76a2c00210"],
   ["packages/main/src/core/learning-store.ts","proof-or-stop.non-deducible-sources.v1",5,"5f3a719e2f47e5ceb92d14e11cf3171b29e1a01b53f3c5a436a1bebf986e35f1"],
@@ -2667,6 +2674,8 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review-inventory-critic-receipt.v1",2,"57f069c4d6c987e29e5b037c5cb08cb38390bc3bf2086bb9e14e772c222cb061"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review-inventory-epoch.v1",2,"8370fb367e9815835f99d509213ead0da671604308300f5be150d4710f4b6dd2"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review-inventory-receipt.v1",2,"faa983d2230868758c7bda51f93b01958aa5ec9a23fd611491b9d2be060cbe63"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.verification-receipt-bundle.v5",1,"51aa57007901d8f5efb5f5afa2ae61410409a92432c562c6229916dc3c2aa72a"],
+  ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.inventory-verification-observation.v1",1,"22fe5b4a457d314f5fd429adbcb557fef1905cbf99649f531c3bed5d5321152b"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review_inventory_critic_receipt.v1",1,"dbf7750a5ea4399754c9c621a6378c798ee42112d88331595f454b91f5f7166c"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review_inventory_epoch.v1",3,"1575de0d7ab62c9893ef8dc572430fd7aa3f034fc6d65c1f1632534cb7e6bda2"],
   ["packages/main/src/core/review-inventory-epoch.ts","proof-or-stop.review_inventory_epochs.v1",2,"5f3a059ce11b6cf1b599115d22fc96a87433d4b4a0d68dba49c04a25e6c1edcd"],
@@ -2722,7 +2731,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",6,"f9a7abc6d2baef060529545da7cb3feca915d3dd979f8c7e0de567fd59f0d35b"],
+  ["proof-or-stop.config.json","proof-or-stop.config.json",8,"e674d94ed28573e78222a5e63cc757a62d6e1e32a7150e3aa2978acdaa37a9f4"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2830,8 +2839,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/evidence-freshness.ts",
-    "occurrences": 41,
-    "contextSha256": "7aa3be99e6234277016fb035bc3c4c3af24436edc69e2c5cb69f72248994db7a"
+    "occurrences": 144,
+    "contextSha256": "04e24fb31a52eab5950edeb871d4b356cd579028bc8466c92fb60c2a90bd303f"
   },
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
@@ -2930,8 +2939,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/review-inventory-epoch.ts",
-    "occurrences": 43,
-    "contextSha256": "8d071f150b17fe33ac7d257a60cc6688d5823b23c1d6edf9ddc26780db97a624"
+    "occurrences": 56,
+    "contextSha256": "8eb9f73605d06fd23d4f24aaa3d45d2bc7d663fa3d5c30204a7768e326468610"
   },
   {
     "sourcePath": "packages/main/src/core/review-run.ts",
@@ -2970,8 +2979,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/handlers/review-run.ts",
-    "occurrences": 185,
-    "contextSha256": "9b19c3ef707d8d9632c728237ebf10e69f99f0d675e83dcdf57be6047ad4463d"
+    "occurrences": 191,
+    "contextSha256": "8e87a07e632b094c6cc1b46b6ffe4a3e638584f1ec1fc409d1c5adc523e543bc"
   },
   {
     "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
@@ -4679,10 +4688,11 @@ function cleanupFixtureFindingKeys() {
 }
 
 await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts require the actual fixture trust and reject missing or different keys', () => {
+  const trustStoryId = 'B-29bc';
   const sourceKey = join(commonGitDir, 'proof-or-stop-finding-ledger-v1.key');
   const sourceKeyBytes = readFileSync(sourceKey);
   const sourceStore = new StoryStore(repoRoot);
-  const sourceLedger = sourceStore.findingLedgerPath('B-49df');
+  const sourceLedger = sourceStore.findingLedgerPath(trustStoryId);
   const sourceLedgerBytes = readFileSync(sourceLedger);
   const sourceHead = git(repoRoot, ['rev-parse', 'HEAD']);
   const root = createPublicOperationClone('proof-or-stop-finding-trust-', false);
@@ -4692,12 +4702,12 @@ await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts r
     'Private fixture refs must remain unchanged',
   );
   const store = new StoryStore(root);
-  const ledger = store.findingLedgerPath('B-49df');
+  const ledger = store.findingLedgerPath(trustStoryId);
   const ledgerBytes = readFileSync(ledger);
-  const payload = { storyId: 'B-49df', role: 'proof-or-stop-review-quality', json: true };
+  const payload = { storyId: trustStoryId, role: 'proof-or-stop-review-quality', json: true };
   const readContext = () => runCli(root, 'review_incremental_context', payload, {}, { entrypoint: join(root, 'packages/main/dist/cli.js') });
   const assertRefused = label => {
-    assert.throws(() => store.readFindings('B-49df'), /FINDING_LEDGER_AUTHORITY_INVALID/, `${label}: production reader must authenticate the original receipt`);
+    assert.throws(() => store.readFindings(trustStoryId), /FINDING_LEDGER_AUTHORITY_INVALID/, `${label}: production reader must authenticate the original receipt`);
     const result = readContext();
     assert.notEqual(result.status, 0, `${label}: public CLI must reject unauthenticated receipts`);
     assert.match(`${result.stdout}${result.stderr}`, /FINDING_LEDGER_AUTHORITY_INVALID/);
@@ -4706,7 +4716,7 @@ await check(['finding-trust', 'identity-cutover'], 'committed Finding receipts r
   assertRefused('missing key before repair');
   const target = installFixtureFindingLedgerPrivateKey(root);
   assert.throws(() => installFixtureFindingLedgerPrivateKey(root), { code: 'EEXIST' }, 'Never overwrite an existing fixture key');
-  assert.ok(store.readFindings('B-49df').findings.length > 0, 'Real authenticated Finding projection must be nonempty');
+  assert.ok(store.readFindings(trustStoryId).findings.length > 0, 'Real authenticated Finding projection must be nonempty');
   const admitted = readContext();
   assert.equal(admitted.status, 0, `${admitted.stdout}${admitted.stderr}`);
   assertCanonicalOperationResponse('review_incremental_context', payload, root, admitted.stdout);

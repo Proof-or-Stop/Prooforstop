@@ -209,6 +209,10 @@ import { tmpdir } from 'node:os';
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');            // packages/main
 const repoRoot = join(pkgRoot, '..', '..');        // repository root
+const sharedCheckoutRoot = dirname(resolve(repoRoot, execFileSync('git', ['rev-parse', '--git-common-dir'], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+}).trim()));
 const SELF = basename(fileURLToPath(import.meta.url));
 
 const RED_DIR_REL = 'packages/main/tests/red';
@@ -362,6 +366,10 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
       const src = join(repoRoot, childRel);
       const dest = join(root, childRel);
       const childHydrating = hydrating || hydrated.has(childRel);
+      if (childRel === '.gitignore' || childRel === '.gitattributes') {
+        copyFileSync(src, dest);
+        continue;
+      }
       // Inside a hydrated sub-tree every directory is real and every file is a
       // copy, so `withFileTypes` classification matches the repository exactly.
       if (mustBeReal.has(childRel) || (childHydrating && statSync(src).isDirectory())) {
@@ -377,6 +385,11 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
     }
   };
   walk('', false);
+  const sharedNodeModules = join(sharedCheckoutRoot, 'node_modules');
+  const mirrorNodeModules = join(root, 'node_modules');
+  if (!existsSync(mirrorNodeModules) && existsSync(sharedNodeModules)) {
+    symlinkSync(sharedNodeModules, mirrorNodeModules);
+  }
   initializePrivateGit(root, repoRoot);
   return root;
 }
@@ -616,7 +629,13 @@ const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
 /** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
-const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', join(mirrorRoot, rel)], mirrorRoot, rel);
+const runInMirror = (mirrorRoot, rel) => {
+  const registeredArgv = entryArgv(registeredRowFor(rel));
+  const targetArgs = registeredArgv[0] === 'node'
+    ? registeredArgv.slice(1).map(token => token === rel ? join(mirrorRoot, rel) : token)
+    : [join(mirrorRoot, rel)];
+  return runNode(['--preserve-symlinks-main', ...targetArgs], mirrorRoot, rel);
+};
 
 const gitStatusFor = (paths) => {
   try {
@@ -1193,6 +1212,14 @@ try {
       materializeDirs: [DIST_TASKS_REL],
       hydrateDirs: [MAIN_DIST_REL],
     });
+    // The private mirror deliberately represents unchanged tracked files outside
+    // hydrated/copy directories as read-only symlinks. Mark those private-index
+    // entries assume-unchanged so whole-tree `git status` probes observe the
+    // semantic tree instead of emitting every representation-only mode change.
+    // Untracked newcomers remain visible, and the source worktree index is never
+    // touched because makeMirror created private Git administration above.
+    const trackedMirrorPaths = gitRead(newcomerMirror, ['ls-files', '-z']);
+    gitRead(newcomerMirror, ['update-index', '--assume-unchanged', '-z', '--stdin'], trackedMirrorPaths);
 
     // The mirror is faithful: EVERY guard that will be spawned passes BEFORE the
     // newcomer is planted, so a catch below is attributable to the newcomer alone.

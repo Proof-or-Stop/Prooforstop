@@ -446,6 +446,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
+      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
+      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identitySite(
         'packages/main/src/core/review-incremental-context.ts',
@@ -465,6 +467,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     mutationCases: Object.freeze([
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
+      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identityMutationCase('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop.incremental-review-basis.v1'),
       identityMutationCase("packages/main/src/core/review-incremental-context.ts", "proof-or-stop.post-remediation-review-selection.v1"),
@@ -480,6 +484,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
       identitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 2, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1", "proofbound.review-inventory-critic-receipt.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1", "proofbound.review-inventory-epoch.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
@@ -490,6 +496,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
     mutationCases: Object.freeze([
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop-review-topology-critic"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-critic-receipt.v1"),
       identityMutationCase("packages/main/src/core/review-inventory-epoch.ts", "proof-or-stop.review-inventory-epoch.v1"),
@@ -1042,8 +1050,8 @@ const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
-  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '9613a96140720f33a86a22029933a07857fee9513c2bb087295ad9f7bf1c3b61' },
-  { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
+  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: 'e3fd3a4dee0157a4c3d001cbf1a2aabf37608eab26b5e44c1efcb7eb38803e0f' },
+  { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'e71df41210425ffb4f9f757b048fcc757be6069873f6b62920ab836cb3e3b271' },
 ] as const;
 function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {
   if (sourcePath !== 'scripts/verify-proof-or-stop-identity-cutover.mjs') return bytes;

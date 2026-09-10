@@ -363,7 +363,7 @@ const EXPECTED_CASES = [
   ["qsm-011", "shared derivation fails closed on every required envelope field", "pure"],
   ["qsm-012", "shared derivation binds every replay-sensitive input", "pure"],
   ["qsm-013", "worktree-local CLI commits the exact quorum batch through the production entrypoint", "integration"],
-  ["qsm-014", "mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission", "integration"],
+  ["qsm-014", "explicit full-envelope reviewer evidence crosses collector, REVIEW gate, and quorum admission", "integration"],
   ["qsm-015", "production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt", "integration"],
   ["qsm-016", "historical RED dirty baseline makes CLI validation refuse canonical PASS persistence", "integration"],
   ["qsm-017", "refuses when required reviewer passes are absent and writes no verdicts", "integration"],
@@ -3514,10 +3514,13 @@ function assertCoordinatorExecutionWiring(entryFile, registryCall) {
   );
   const resolveBinding = namedImportBinding(entryFile, "node:path", "resolve", "quorum smoke entrypoint");
   const fileUrlBinding = namedImportBinding(entryFile, "node:url", "fileURLToPath", "quorum smoke entrypoint");
-  const resolvedArgv = resolveBinding.localName + "(process.argv[1])";
-  const currentModule = fileUrlBinding.localName + "(import.meta.url)";
+  const realpathBinding = namedImportBinding(entryFile, "node:fs", "realpathSync", "quorum smoke entrypoint");
+  const existsBinding = namedImportBinding(entryFile, "node:fs", "existsSync", "quorum smoke entrypoint");
+  const resolvedArgv = realpathBinding.localName + "(" + resolveBinding.localName + "(process.argv[1]))";
+  const currentModule = realpathBinding.localName + "(" + fileUrlBinding.localName + "(import.meta.url))";
   const directModuleGuard = (node) => node.getText(entryFile).replace(/\s+/g, "")
-    === "process.argv[1]&&" + resolvedArgv + "===" + currentModule;
+    === "process.argv[1]&&" + existsBinding.localName + "(" + resolveBinding.localName + "(process.argv[1]))&&"
+      + resolvedArgv + "===" + currentModule;
   const launchAwait = mainCall.parent;
   const launchStatement = launchAwait?.parent;
   const launchBlock = launchStatement?.parent;
@@ -3709,7 +3712,7 @@ function assertInvalidSelection(execution, label, errorPattern) {
 
 function parseExecutableCases(output) {
   const line = output.split(/\r?\n/).find((candidate) => candidate.startsWith("QUORUM_SMOKE_CASES_JSON "));
-  contract(Boolean(line), "--list-cases=json did not emit QUORUM_SMOKE_CASES_JSON");
+  contract(Boolean(line), "--list-cases=json did not emit QUORUM_SMOKE_CASES_JSON; output=" + json(output));
   try {
     const rows = JSON.parse(line.slice("QUORUM_SMOKE_CASES_JSON ".length));
     contract(Array.isArray(rows), "--list-cases=json payload must be an array");
