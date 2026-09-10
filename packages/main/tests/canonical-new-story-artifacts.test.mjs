@@ -104,12 +104,13 @@ const cliPath = join(distRoot, 'cli.js');
 const retiredInitActor = ['lat', 'tice-review-story-init'].join('');
 
 function git(cwd, args) {
-  return execFileSync('git', args, {
+  const output = execFileSync('git', args, {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     maxBuffer: 64 * 1024 * 1024,
-  }).trim();
+  });
+  return args.includes('-z') ? output : output.trim();
 }
 
 function runCli(root, command, payload, env = {}, options = {}) {
@@ -1009,8 +1010,8 @@ function snapshotPublicOperationState(root, storyIds = []) {
   const runtimePath = (name) => snapshotTree(join(root, '.proof-or-stop', name));
   return {
     head: git(root, ['rev-parse', 'HEAD']),
-    gitIndex: git(root, ['ls-files', '--stage']),
-    status: git(root, ['status', '--porcelain=v1', '--untracked-files=all']),
+    gitIndex: git(root, ['ls-files', '--stage', '-z']),
+    status: git(root, ['status', '--porcelain=v1', '--untracked-files=all', '-z']),
     refs: git(root, ['for-each-ref', '--format=%(refname) %(objectname)']),
     gitMaterial: snapshotGitMaterial(root),
     locks: runtimePath('locks'),
