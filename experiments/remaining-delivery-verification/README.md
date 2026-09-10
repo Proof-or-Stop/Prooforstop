@@ -1,5 +1,12 @@
 # 当前进展：首个局部 RED/GREEN 已完成
 
+原始提供方记录和查询 stdout 中的历史术语会被当前源码身份扫描器当作
+活动命令/角色。六个原始文件已逐字节封装到
+[历史原始记录归档](historical-raw-transcripts.tar.gz)，路径和 SHA-256 见
+[归档清单](historical-raw-transcripts.json)。可解包到独立临时目录后读取原路径；
+原 `files.sha256.json` 对这些成员的摘要仍然有效。没有改写原始记录或放宽扫描规则。
+其他报告与代码保持可直接读取。
+
 在 main **0.3.296 / 442f6f38** 创建的 Lab 中，已确认并修复查询层的两个具体原因：
 
 - `story_list --active` 漏掉 REVIEW 阶段。

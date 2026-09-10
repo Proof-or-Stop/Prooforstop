@@ -229,6 +229,8 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
 /** Optional explicit host transport pin; no package-version equality fallback. */
 export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   schema: 'execution-implementation.v1',
+  sessionSchema: 'execution-session.v1',
+  witnessSchema: 'execution-session-witness.v1',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',

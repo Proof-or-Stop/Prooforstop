@@ -92,6 +92,34 @@ mismatched required pins before dispatch. This is opt-in: it does not silently
 upgrade old worktrees or assert that unpinned sessions have uniform provenance.
 It does not authenticate a hostile host or replace signed evidence/freshness.
 
+For an explicitly enrolled local owner/reviewer cohort, capture one approved
+runtime epoch, then launch both hosts through the same transport:
+
+```sh
+node scripts/implementation-session.mjs capture /absolute/path/new-epoch.json
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- proof-or-stop --version
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- claude
+```
+
+Capture records both ordinary and canonical Codex entrypoints with their own
+exact pins and requires identical implementation file inventories. Their entry
+wrapper bytes differ, so their complete entry-specific digests need not be equal.
+Capture refuses to overwrite an existing epoch. Exec validates the bound runtime,
+sets a private PATH shim for the selected absolute CLI, and carries the manifest
+and required pin through child environments. The CLI itself rejects missing,
+malformed, conflicting or mismatched manifests before dispatch. Each admitted CLI
+process emits `IMPLEMENTATION_SESSION_WITNESS` on stderr with its actual digest,
+entrypoint, PID and argument digest (no raw argument values). The argument digest
+is a correlation token, not confidentiality: guessable arguments can be tested
+against it. These are unsigned
+runtime diagnostics, not role authority or Story acceptance evidence. Inspect
+actual command witnesses, not just the launcher's admission check. A runtime
+change requires a deliberate new captured epoch; it is never silently re-pinned.
+An already-running host must explicitly adopt this transport. Unenrolled hosts,
+environment-stripping callers and hostile local administrators are not made
+uniform or sandboxed by this opt-in mechanism. Lab adoption does not migrate
+other live Story worktrees or change the global installation.
+
 The candidate also renews an existing same-owner lease through the actual
 `verification_evidence_add` and `verification_evidence_batch_add` execution and
 canonical publication paths. A missing, expired or transferred generation remains

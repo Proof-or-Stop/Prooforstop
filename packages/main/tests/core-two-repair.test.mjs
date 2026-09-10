@@ -60,6 +60,21 @@ try {
     for(let i=0;i<2;i++) { fs.writeFileSync(path,'intended-'+i); const before=o.before(path);o.after(before,'unchanged');fs.writeFileSync(path,bytes); }
     assert.equal(o.stats.snapshots,4);
   });
+  await check('baseline reuse detects between-operation drift instead of blessing it',()=>{
+    const o=observer(),first=o.before(injection);o.after(first,'unchanged');
+    const path=join(root,'material.txt'),bytes=fs.readFileSync(path);
+    try {
+      fs.writeFileSync(path,'unexpected between-case write');
+      const second=o.before(injection);assert.throws(()=>o.after(second,'drift escaped'));
+    } finally {fs.writeFileSync(path,bytes);}
+  });
+  for(const target of ['../../../material.txt','missing-target']) await check('ignored compiled symlink falls back: '+target,()=>{
+    fs.rmSync(injection);fs.symlinkSync(target,injection);
+    try {
+      const o=observer();for(let i=0;i<2;i++){const before=o.before(injection);o.after(before,'unchanged');}
+      assert.equal(o.stats.snapshots,4);
+    } finally {fs.rmSync(injection);fs.writeFileSync(injection,'canonical');}
+  });
   for(const kind of ['file','symlink','index','ref','runtime']) await check('detect '+kind+' mutation after ignored injection',()=>{
     const o=observer(),before=o.before(injection),created=join(root,'new-'+kind);
     try {
@@ -86,6 +101,61 @@ try {
   await check('matching session manifest admits the actual owner command',()=>{
     const result=run(['--version'],{PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifest});
     assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/0\.3\./);
+    const witness=JSON.parse(result.stderr.split('\n').find(s=>s.startsWith('IMPLEMENTATION_SESSION_WITNESS ')).slice('IMPLEMENTATION_SESSION_WITNESS '.length));
+    assert.equal(witness.digest,identity.digest);assert.equal(witness.entrypoint,entry);
+    assert.equal(witness.argvDigest,createHash('sha256').update(JSON.stringify(['--version'])).digest('hex'));
+    assert.equal(witness.pid,result.pid);
+  });
+  await check('inherited session wrapper binds a nested owner process',()=>{
+    const result=spawnSync(process.execPath,[join(repo,'scripts/implementation-session.mjs'),'exec',manifest,'--','proof-or-stop','--version'],{cwd:root,env,encoding:'utf8'});
+    assert.equal(result.status,0,result.stderr);assert.match(result.stderr,/IMPLEMENTATION_SESSION_WITNESS/);
+    assert.match(result.stdout,/0\.3\./);
+  });
+  await check('direct alternative entry and conflicting pins refuse',()=>{
+    const direct=spawnSync(process.execPath,[join(repo,'packages/main/dist/cli.js'),'--version'],{cwd:repo,env:{...env,PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifest},encoding:'utf8'});
+    assert.notEqual(direct.status,0);assert.match(direct.stderr,/IMPLEMENTATION_MANIFEST_ENTRYPOINT_MISMATCH/);
+    const conflict=run(['--version'],{PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifest,PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST:'0'.repeat(64)});
+    assert.notEqual(conflict.status,0);assert.match(conflict.stderr,/IMPLEMENTATION_MANIFEST_PIN_CONFLICT/);
+  });
+  await check('capture admits both canonical host entries and never overwrites an epoch',()=>{
+    const path=join(temporary,'cohort.json'),script=join(repo,'scripts/implementation-session.mjs');
+    const capture=()=>spawnSync(process.execPath,[script,'capture',path],{cwd:repo,env,encoding:'utf8'});
+    const first=capture();assert.equal(first.status,0,first.stderr);
+    const bytes=fs.readFileSync(path),cohort=JSON.parse(bytes);
+    assert.equal(cohort.entrypoints.length,2);
+    const codex=spawnSync(process.execPath,[script,'exec',path,'--','proof-or-stop-codex','--version'],{cwd:root,env,encoding:'utf8'});
+    assert.equal(codex.status,0,codex.stderr);
+    const witness=JSON.parse(codex.stderr.split('\n').find(s=>s.startsWith('IMPLEMENTATION_SESSION_WITNESS ')).slice('IMPLEMENTATION_SESSION_WITNESS '.length));
+    assert.equal(witness.entrypoint,join(repo,'bin/proof-or-stop-codex.js'));
+    assert.equal(witness.digest,cohort.entrypoints.find(e=>e.entrypoint===witness.entrypoint).digest);
+    const second=capture();assert.notEqual(second.status,0);assert.deepEqual(fs.readFileSync(path),bytes);
+  });
+  await check('malformed and ambiguous manifest entries refuse',()=>{
+    for(const entrypoints of [[],[null],[{entrypoint:entry,digest:identity.digest},{entrypoint:entry,digest:identity.digest}],[{entrypoint:entry,digest:'wrong'}]]) {
+      fs.writeFileSync(manifest,JSON.stringify({schema:'execution-session.v1',entrypoint:entry,digest:identity.digest,entrypoints}));
+      const result=run(['--version'],{PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:manifest});
+      assert.notEqual(result.status,0);assert.match(result.stderr,/IMPLEMENTATION_MANIFEST_INVALID/);
+    }
+  });
+  await check('same-version helper change invalidates an actual private runtime manifest',()=>{
+    const copy=join(temporary,'runtime');fs.mkdirSync(copy);
+    const paths=['package.json','bin','scripts/build-lock.mjs','scripts/build-lock-target.mjs',
+      ...['main','utils','lab'].flatMap(name=>['dist','package.json','templates'].map(part=>'packages/'+name+'/'+part))];
+    for(const path of paths) if(fs.existsSync(join(repo,path))) {fs.mkdirSync(dirname(join(copy,path)),{recursive:true});fs.cpSync(join(repo,path),join(copy,path),{recursive:true});}
+    fs.symlinkSync(join(repo,'node_modules'),join(copy,'node_modules'),'dir');
+    fs.symlinkSync(join(repo,'packages/main/node_modules'),join(copy,'packages/main/node_modules'),'dir');
+    const entry=join(copy,'bin/proof-or-stop.js');
+    const invoke=(args,extra={})=>spawnSync(process.execPath,[entry,...args],{cwd:copy,env:{...env,...extra},encoding:'utf8',maxBuffer:4*1024*1024});
+    const first=invoke(['--implementation-identity']);assert.equal(first.status,0,first.stderr);
+    const identity=JSON.parse(first.stdout),path=join(copy,'manifest.json');
+    fs.writeFileSync(path,JSON.stringify({schema:'execution-session.v1',entrypoint:identity.entrypoint,digest:identity.digest}));
+    const clean=invoke(['--version'],{PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:path});assert.equal(clean.status,0,clean.stderr);
+    const helper=join(copy,'scripts/build-lock-target.mjs');fs.appendFileSync(helper,'\n// private same-version drift control\n');
+    const changed=invoke(['--version'],{PROOF_OR_STOP_IMPLEMENTATION_MANIFEST:path});
+    assert.notEqual(changed.status,0);assert.match(changed.stderr,/IMPLEMENTATION_PIN_MISMATCH/);
+    const next=invoke(['--implementation-identity']);assert.equal(next.status,0,next.stderr);
+    assert.equal(JSON.parse(next.stdout).packageVersion,identity.packageVersion);
+    assert.notEqual(JSON.parse(next.stdout).digest,identity.digest);
   });
   await check('SESSION_BINDING: wrong manifest must refuse without separately supplied pin variables',()=>{
     fs.writeFileSync(manifest,JSON.stringify({schema:'execution-session.v1',entrypoint:entry,digest:'0'.repeat(64)}));

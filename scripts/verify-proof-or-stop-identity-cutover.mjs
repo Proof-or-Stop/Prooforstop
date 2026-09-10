@@ -3231,7 +3231,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "0b1d9842c164ecfa6e350aac7a5367118f8bbd612c49580e76099538815e701b"
+    "sha256": "6f412cf872148a5240a6bc9c8a7b4b6066b5fcd9767794acf0e5bb902d85c308"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3295,7 +3295,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "db345d23bd5d5f885c82520844369292b5125c34edcb220cc36fa6191fd57a7a"
+    "sha256": "9c75b05474114449e293c0eeb6aafa230e1e24046809f8932d93a43ad428aee4"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3616,7 +3616,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"83f4250e9cf0ff0cd77a04e5e105df03117fa1ee9c5b6c12a409f04a6f4eed0a"],
-  [4,"0b1d9842c164ecfa6e350aac7a5367118f8bbd612c49580e76099538815e701b"],
+  [4,"6f412cf872148a5240a6bc9c8a7b4b6066b5fcd9767794acf0e5bb902d85c308"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
