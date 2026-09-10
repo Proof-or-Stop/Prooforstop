@@ -16,7 +16,8 @@ import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { resetConfigCache } from '../core/config.js';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
@@ -422,7 +423,7 @@ await check('story_create enforce blocks file-declaring story without binding be
   });
 });
 
-await check('story_create direct lifecycle phase rejects repro-first bypass before persistence', async () => {
+await check('story_create direct DEV with a repro-first bypass is rejected by lifecycle admission before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
     assert.throws(
@@ -441,7 +442,7 @@ await check('story_create direct lifecycle phase rejects repro-first bypass befo
           files: { modify: ['src/feature.ts'] },
         }],
       }),
-      /repro_first_bypass_direct_phase_forbidden/,
+      /story_create_direct_lifecycle_phase_forbidden/,
     );
     assert.deepEqual(store.listStoryIds(), [], 'blocked direct phase bypass must not persist story metadata');
   });
@@ -450,7 +451,7 @@ await check('story_create direct lifecycle phase rejects repro-first bypass befo
 await check('story_create cannot directly persist post-INIT lifecycle phases without a repro-first bypass', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
-    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'DISCARDED', 'TEST_CASE', 'TEST_CASE_REVIEW', 'META'];
     for (const phase of blockedPhases) {
       let observedError: unknown;
       try {
@@ -466,7 +467,7 @@ await check('story_create cannot directly persist post-INIT lifecycle phases wit
             title: 'Record a non-code lifecycle item',
             context: 'No material files are declared so this assertion isolates the lifecycle creation gate.',
           }],
-        });
+        } as any);
       } catch (error) {
         observedError = error;
       }
@@ -481,11 +482,50 @@ await check('story_create cannot directly persist post-INIT lifecycle phases wit
   }, 'warn');
 });
 
+await check('story_create keeps explicit IDEA and INIT compatibility while INIT_CHECK stays forbidden', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    for (const phase of ['IDEA', 'INIT'] as const) {
+      const output = handlers.story_create({
+        name: `explicit-${phase.toLowerCase()}-compatibility`,
+        title: `Explicit ${phase} compatibility`,
+        description: 'Explicit pre-lifecycle creation remains a supported compatibility surface.',
+        type: 'chore',
+        phase,
+        priority: 'medium',
+        background: validBackground,
+        checklist: [{
+          title: 'Preserve pre-lifecycle intake',
+          context: 'The lifecycle admission allowlist must retain IDEA and INIT creation.',
+        }],
+      });
+      const storyId = output.match(/B-[a-z0-9]+/i)?.[0];
+      assert.ok(storyId, `explicit ${phase} creation must return a Story id`);
+      assert.equal(store.readStory(storyId).phase, phase);
+    }
+    assert.throws(
+      () => handlers.story_create({
+        name: 'explicit-init-check-forbidden',
+        title: 'Explicit INIT_CHECK forbidden',
+        description: 'INIT_CHECK must still be entered through story_advance after signed intake artifacts exist.',
+        type: 'chore',
+        phase: 'INIT_CHECK',
+        priority: 'medium',
+        background: validBackground,
+        checklist: [{ title: 'Reject INIT_CHECK', context: 'Preserve the existing dedicated diagnostic.' }],
+      }),
+      /story_create_direct_init_check_forbidden/,
+    );
+    assert.equal(store.listStoryIds().length, 2, 'rejected INIT_CHECK must not add a third Story');
+  }, 'warn');
+});
+
 await check('concurrent story_create attempts cannot race post-INIT lifecycle phases into persistence', async () => {
   await withRoot(async (root, store) => {
-    const cli = join(process.cwd(), 'packages', 'main', 'dist', 'cli.js');
-    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
-    const results = await Promise.all(blockedPhases.map(phase => new Promise<{
+    const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
+    const cli = join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js');
+    const attemptedPhases: StoryPhase[] = ['INIT', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    const results = await Promise.all(attemptedPhases.map(phase => new Promise<{
       phase: StoryPhase;
       code: number | null;
       signal: NodeJS.Signals | null;
@@ -517,11 +557,19 @@ await check('concurrent story_create attempts cannot race post-INIT lifecycle ph
     })));
 
     for (const result of results) {
+      if (result.phase === 'INIT') {
+        assert.equal(result.code, 0, 'concurrent INIT control must prove the shared store is writable');
+        assert.equal(result.signal, null, 'concurrent INIT control must exit normally');
+        assert.match(result.output, /created \(INIT\)/);
+        continue;
+      }
       assert.notEqual(result.code, 0, `concurrent ${result.phase} creation must fail`);
       assert.equal(result.signal, null, `concurrent ${result.phase} creation must exit normally`);
       assert.match(result.output, /story_create_direct_lifecycle_phase_forbidden/);
     }
-    assert.deepEqual(store.listStoryIds(), [], 'concurrent rejected phases must leave the story store empty');
+    const persistedIds = store.listStoryIds();
+    assert.equal(persistedIds.length, 1, 'only the allowed concurrent INIT control may persist');
+    assert.equal(store.readStory(persistedIds[0]).phase, 'INIT');
   }, 'warn');
 });
 
@@ -640,7 +688,7 @@ await check('story_create fromDraft supports explicit repro-first bypass reason'
   });
 });
 
-await check('story_create blocks direct lifecycle phase with repro-first bypass before persistence', async () => {
+await check('story_create lifecycle admission takes precedence over a repro-first bypass across all CLI post-INIT phases', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
     const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -661,7 +709,7 @@ await check('story_create blocks direct lifecycle phase with repro-first bypass 
             files: { modify: ['src/feature.ts'], test: ['tests/feature.test.ts'] },
           }],
         }),
-        /repro_first_bypass_direct_phase_forbidden/,
+        /story_create_direct_lifecycle_phase_forbidden/,
       );
     }
     assert.deepEqual(store.listStoryIds(), [], 'blocked direct-phase bypass must not persist story metadata');

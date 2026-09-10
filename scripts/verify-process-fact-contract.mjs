@@ -8921,7 +8921,7 @@ function assertProcessFactCommandInventory() {
   }
   const storyCreateText = read('packages/main/src/handlers/story-create.ts');
   for (const token of [
-    "['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'].includes(args.phase)",
+    '!isPreLifecycleStoryCreatePhase(args.phase)',
     'story_create_direct_lifecycle_phase_forbidden',
     'Create the story in INIT and use story_advance to traverse the complete lifecycle',
   ]) {

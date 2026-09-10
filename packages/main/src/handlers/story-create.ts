@@ -173,14 +173,6 @@ export function renderReproFirstStoryCreatePreflight(args: {
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {
-    if (!isPreLifecycleStoryCreatePhase(args.phase)) {
-      throw new Error(
-        `reproFirstBypassReason cannot create repro-first-required story ${args.storyId} directly in phase ${args.phase}. ` +
-        `Create it in IDEA/INIT, then satisfy the normal lifecycle gates with a valid story-evidence-binding. ` +
-        `[repro_first_bypass_direct_phase_forbidden]\n` +
-        `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
-      );
-    }
     return [
       '⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]',
       `  reason: ${bypassReason}`,
@@ -1059,20 +1051,17 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // Later lifecycle phases must be reached through story_advance so their
       // transition gates and evidence cannot be bypassed during creation.
       if (args.phase) {
-        if (args.phase === 'INIT_CHECK') {
-          throw new Error(
-            'story_create cannot directly create INIT_CHECK stories. ' +
-            'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
-          );
-        }
-        if (['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'].includes(args.phase)) {
-          const reproFirstBypassMarker = args.reproFirstBypassReason
-            ? ' [repro_first_bypass_direct_phase_forbidden]'
-            : '';
+        if (!isPreLifecycleStoryCreatePhase(args.phase)) {
+          if (args.phase === 'INIT_CHECK') {
+            throw new Error(
+              'story_create cannot directly create INIT_CHECK stories. ' +
+              'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
+            );
+          }
           throw new Error(
             `story_create cannot directly create ${args.phase} stories. ` +
             'Create the story in INIT and use story_advance to traverse the complete lifecycle. ' +
-            `[story_create_direct_lifecycle_phase_forbidden]${reproFirstBypassMarker}`,
+            '[story_create_direct_lifecycle_phase_forbidden]',
           );
         }
         reproFirstHint = renderReproFirstStoryCreatePreflight({

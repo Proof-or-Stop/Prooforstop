@@ -519,6 +519,46 @@ async function assertDirectReviewStoryCreateIsBlocked(): Promise<void> {
     assert.notEqual(rejected.code, 0);
     assert.match(rejected.stdout + rejected.stderr, /story_create_direct_lifecycle_phase_forbidden/);
     assert.deepEqual(store.listStoryIds(), [], 'direct REVIEW rejection must happen before Story persistence');
+
+    const reviewStoryId = 'B-direct-review-round';
+    writeReviewStory(store, reviewStoryId);
+    const reviewRun = await runProofOrStop(root, 'review_run_start', {
+      storyId: reviewStoryId,
+      agent: 'proof-or-stop-review-quality',
+      prompt: 'normal REVIEW story after direct creation rejection',
+    });
+    assert.match(reviewRun, /Review run .* started/);
+
+    const reviewLoop = await runProofOrStop(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [`${reviewStoryId}:F-001`] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.match(reviewLoop, /Review loop .* started/);
+
+    const emptyTriggerLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.notEqual(emptyTriggerLoop.code, 0);
+    assert.match(
+      emptyTriggerLoop.stdout + emptyTriggerLoop.stderr,
+      /trigger|findingId|bugId|validationFailureRef|scopeViolationRef/,
+      'review_loop_start must reject empty trigger refs at parameter validation',
+    );
+
+    const placeholderLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [`${reviewStoryId}:F-002`] },
+      rollbackRef: placeholderRollbackRef,
+    });
+    assert.notEqual(placeholderLoop.code, 0);
+    assert.match(
+      placeholderLoop.stdout + placeholderLoop.stderr,
+      /rollbackRef|headHash|diffHash|materialHash|placeholder/,
+      'review_loop_start must reject placeholder rollbackRef hashes',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
