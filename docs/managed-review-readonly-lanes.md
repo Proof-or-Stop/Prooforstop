@@ -98,3 +98,11 @@ subtree, derived from the original worktree. This includes directory listings an
 symlink aliases, while source reads and private provider cache refresh remain
 available. Actual managed admission consumption remains necessary before this
 can authorize shared preflight reuse.
+
+The read-only batch subject helper validates the current signed OPEN REVIEW epoch,
+committed material cutoff, scope and candidate digests. Assignments must cover
+every required lane exactly once with an explicit native or managed kind and a
+managed host; a consumer can check its actual host and kind against that roster.
+Missing or stale epochs are refused without rewriting inventory state. This
+helper must be used within the producer/consumer coordination boundary; it does
+not itself freeze future writes or install the managed launch gate.
