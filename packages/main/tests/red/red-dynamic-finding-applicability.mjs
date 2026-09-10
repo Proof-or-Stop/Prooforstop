@@ -8,17 +8,22 @@
  * executable baseline witness until the dynamic module exists.
  */
 import assert from 'node:assert/strict';
-import { pathToFileURL } from 'node:url';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '../../../..');
-const load = path => import(pathToFileURL(resolve(root, path)).href);
-const advisory = await load('packages/main/dist/core/advisory.js');
-let dynamic;
-try { dynamic = await load('packages/main/dist/core/finding-applicability.js'); }
-catch (error) {
-  if (error?.code !== 'ERR_MODULE_NOT_FOUND') throw error;
+const { default: ts } = await import('typescript');
+async function loadSource(path) {
+  const source = readFileSync(resolve(root, path), 'utf8');
+  const output = ts.transpileModule(source, {
+    fileName: path,
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
+  }).outputText;
+  return import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
 }
+const advisory = await loadSource('packages/main/src/core/advisory.ts');
+const dynamicPath = 'packages/main/src/core/finding-applicability.ts';
+const dynamic = existsSync(resolve(root, dynamicPath)) ? await loadSource(dynamicPath) : undefined;
 
 const finding = (id, severity = 'high') => ({ id, status: 'open', severity, evidenceState: 'verified' });
 const fresh = {
