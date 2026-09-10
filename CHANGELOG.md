@@ -1,5 +1,13 @@
 # Changelog
 
+## Lab final-remote-0310-registration - v0.3.311 - 2026-09-10
+
+Remote v0.3.310 added the B-03b7 progress-transition RED wrapper and extended the finding identity lineage source, making the exact F031 source digest and total RED-harness registration stale. The repair binds the Lab-only wrapper exclusion to the registered delivery command, the exact routes branch, all three shipped cases, the PASS marker, and four mutation controls. It also refreshes the U18 dependency closure for the registration guard and finding source. The registration harness, B-03b7 wrapper, identity boundary-only verifier, U18 static-edge verifier, rollout/mode/selector controls, builds, and diff checks pass.
+
+Maintenance provenance: codex/lab-final-remote-0310-registration, repair 69a405f4f565486b455bc6b416cdf943eda4817d.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b49d4-harness-registration.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.310 — Progress Evidence and Final Validation Integration — 2026-09-10
 
 ### Release context
