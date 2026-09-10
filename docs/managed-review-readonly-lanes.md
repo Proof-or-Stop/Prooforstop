@@ -67,3 +67,12 @@ provider auth failure or timeout remains non-ready; unproven cleanup also cannot
 produce READY. The readiness classifier retains its 256 KiB per-stream failure
 threshold, while the supervisor bounds total captured output at its shared limit.
 This lifetime repair does not yet establish batch-wide shared readiness admission.
+
+Provider file inputs can now be captured once as an opaque controller-local token.
+Materialization copies those captured bytes into each private lane, so changing
+the original auth file after capture cannot silently change that lane's input.
+The token serializes no credential data and cannot be reconstructed from JSON.
+Bounded no-follow reads reject malformed and symlink inputs. Existing direct
+creation uses capture then materialization and retains per-lane writable caches.
+Batch admission and post-probe credential refresh still require their dedicated
+producer/consumer wiring; this API alone does not establish shared admission.

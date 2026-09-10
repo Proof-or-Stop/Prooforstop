@@ -8688,6 +8688,8 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(registrySource.includes('packages/main/src/providers/supervised-process-worker.ts'), 'synchronous provider lifecycle must be registered');
   assert(read('packages/main/src/core/host-execution-readiness.ts').includes('runSupervisedProviderProcess(args.executablePath'), 'readiness probes must share supervised provider lifetime');
   assert(read('scripts/verify-u08-supervised-readiness.mjs').includes('readiness probe must reap its live descendant before returning'), 'readiness has an actual descendant regression');
+  assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('materializeManagedProviderState(cache,captureManagedProviderState(host,env))'), 'provider state creation must use the captured input seam');
+  assert(read('scripts/verify-u08-private-state-capture.mjs').includes('capture must prevent source credential drift'), 'provider input drift has a real file regression');
   assert(registrySource.includes('canonical validation command IDs'), 'scope budget canonical validation identities must be registered');
   const legacyBudget = read('packages/main/src/core/story-scope-budget-legacy.ts');
   for (const invariant of ['SCOPE_BUDGET_SUBJECT_SCHEMA', 'capturedPhase', 'row.createdAt === snapshot.createdAt', '[next, base].every', 'subjectDigest !== snapshot.subjectDigest']) {
