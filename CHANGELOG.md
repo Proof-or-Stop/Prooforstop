@@ -1,5 +1,33 @@
 # Changelog
 
+## Lab inventory-critic-live-metadata-projection - v0.3.306 - 2026-09-10
+
+# Inventory Critic Live Metadata Projection
+
+## Trigger
+
+The purpose-bound managed inventory-completeness critic ran in a detached committed scratch checkout. The required-lane review runs and their terminal Findings were intentionally batched as current signed Story metadata and had not yet been committed, so the critic could not inspect the current inventory and incorrectly reported that evidence as missing.
+
+## RED evidence
+
+The focused RED command asserted that the managed inventory critic must receive the current signed uncommitted inventory metadata in its sealed prompt. It failed because no projection builder existed.
+
+## Repair
+
+The controller now builds a purpose-bound evidence pack from the current canonical Story store for the exact open inventory epoch. It includes only required-lane ReviewRuns after the epoch boundary and before the critic run, plus Findings and passes bound to those runs. The prompt projection exposes signature verification results, is sealed by the managed prompt digest, and explicitly grants no topology, TEST, DONE, or implementation authority.
+
+## GREEN evidence
+
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`
+- `node scripts/verify-process-fact-contract.mjs --quiet` passed.
+- `git diff --check` passed.
+
+The process-fact registry and verifier now protect the projection boundary and its focused RED/GREEN regression.
+
+Maintenance provenance: codex/lab-inventory-critic-live-metadata-projection, repair 13d530b0d563411be849ddf44176250793a43efd.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-live-metadata-projection-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-critic-managed-admission - v0.3.305 - 2026-09-10
 
 Fix managed admission for the inventory-completeness critic.
