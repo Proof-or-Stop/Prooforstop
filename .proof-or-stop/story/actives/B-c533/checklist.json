@@ -1,0 +1,155 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Expose explicit component mapping metadata in both fact registries",
+      "context": "Implement approved-plan P0m fields and normalized paths without changing the existing whole-registry digest preimages.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#12-workstreams-and-delivery-order",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "AGENTS.md#two-layer-process-fact-contract"
+      ],
+      "userSees": "Registry inspection exposes deterministic fact IDs, normalized paths, component IDs, serialization boundaries, and generated-from lineage needed by later RED/GREEN classification.",
+      "files": {
+        "modify": [
+          "src/core/process-fact-registry.ts",
+          "src/core/runtime-fact-registry.ts",
+          "src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "../../scripts/verify-process-fact-contract.mjs",
+          "../../scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "P0M-PROJECTIONS",
+            "desc": "Component-filtered process and runtime registry projections are deterministic and include the approved mapping fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "P0M-WHOLE-DIGEST",
+            "desc": "Existing whole-registry projection preimages remain byte-compatible and exclude generatedFrom.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "P0M-NO-INFERENCE",
+            "desc": "No mapping is inferred from producer, source references, consumer references, or artifact paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fail closed on incomplete or ambiguous component mappings",
+      "context": "Both contract verifiers must reject missing, ambiguous, non-total, and generated-path-without-generatedFrom cases with the approved typed diagnostic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#12-workstreams-and-delivery-order",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+      ],
+      "userSees": "Invalid registry mappings stop downstream RED/GREEN classification instead of silently selecting a component.",
+      "files": {
+        "modify": [
+          "../../scripts/verify-process-fact-contract.mjs",
+          "../../scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "tests/red/red-repro-first-p0m-component-mapping.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "P0M-TOTAL",
+            "desc": "The complete current registry resolves every required component mapping with zero unavailable results.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "P0M-MISSING",
+            "desc": "A required mapping with missing or non-total metadata is rejected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "P0M-AMBIGUOUS",
+            "desc": "Ambiguous mappings and generated paths lacking generatedFrom lineage are rejected without fallback inference.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind the P0m contract into regression and process-fact verification",
+      "context": "Add a focused pre-fix RED reproducer, same-command GREEN coverage, mutation checks, and registry verification so later edits cannot remove or weaken P0m unnoticed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#13-acceptance-matrix",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "The P0m prerequisite is protected by executable RED/GREEN, adversarial mutation, and process/runtime contract checks.",
+      "files": {
+        "modify": [
+          "../../scripts/verify-process-fact-contract.mjs",
+          "../../scripts/verify-runtime-fact-contract.mjs",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "tests/red/red-repro-first-p0m-component-mapping.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "P0M-RED-GREEN",
+            "desc": "The committed reproducer fails on the baseline and passes after the component-mapping implementation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "P0M-MUTATION",
+            "desc": "Mutation of each required mapping field causes the focused verification to fail.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "P0M-CONCURRENT-READ",
+            "desc": "Concurrent registry projection reads remain deterministic while verification runs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
