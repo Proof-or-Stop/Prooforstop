@@ -899,11 +899,12 @@ try {
     });
     process.env.PROOF_OR_STOP_AGENT = 'main'; switchSession(targetSession);
     const targetMarker = `defect-progress:${canonical.canonicalDefectId}:${targetItemId}`;
-    const targetCommand = { executable: process.execPath, args: ['--input-type=module', '-e', `import {observedDefect} from './source.mjs'; if(observedDefect()!==2) process.exit(1); console.log(${JSON.stringify(targetMarker)}); console.log('TARGET_TEST_PASS');`], shell: false };
-    async function runTargetTest(attempt: string) {
+    const targetCommand = { executable: process.execPath, args: ['--input-type=module', '-e', `import {observedDefect} from './source.mjs'; if(observedDefect()!==2) process.exit(1); console.log(${JSON.stringify(targetMarker)}); console.log('TARGET_TEST_PASS'); if(process.env.B03B7_FORCE_TARGET_TEST_FAILURE==='1') process.exitCode=1;`], shell: false };
+    async function runTargetTest(attempt: string, forceFailure = false) {
       const snap = identitySourceSnapshot(ctx); const filesHash = currentStoryFilesHash(scratch, 'HEAD', scratch)!;
+      const effectiveEnvironment: Record<string, string> = forceFailure ? { B03B7_FORCE_TARGET_TEST_FAILURE: '1' } : {};
       const identity = { storyId: targetId, cwd: scratch, command: targetCommand, bootstrap: null, inputs: { materialHash: snap.materialHash, attempt }, storyFilesHash: filesHash,
-        effectiveEnvironment: {}, runtimeVersion: process.version, toolVersion: 'route-smoke-v1', selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY };
+        effectiveEnvironment, runtimeVersion: process.version, toolVersion: 'route-smoke-v1', selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY };
       const indexPath = join(scratch, '.git', 'index');
       const revalidate = () => identitySourceSnapshot(ctx).materialHash === snap.materialHash;
       const preflight = preflightCausalEvidence({ cli: { available: true, path: process.execPath }, worktree: { expected: scratch, actual: process.cwd() },
@@ -911,7 +912,7 @@ try {
         writerLease: { available: true, valid: true }, providerCapability: { required: ['node'], available: ['node'] }, resources: { required: {}, available: {} },
         evidenceTarget: { writable: true, path: store.storyDirPath(targetId) }, sideChannel: { available: true, maxOutputChars: 10000, maxProgressEvents: 10 } }, revalidate, identity);
       return executeCausalEvidence({ identity, selector: 'TARGET_TEST_PASS', preflight, revalidateBeforeRun: revalidate, receiptStore: store, run: async () => {
-        const child = spawnSync(targetCommand.executable, targetCommand.args, { cwd: scratch, encoding: 'utf8' }); return { code: child.status ?? 2, output: child.stdout + child.stderr };
+        const child = spawnSync(targetCommand.executable, targetCommand.args, { cwd: scratch, encoding: 'utf8', env: { ...process.env, ...effectiveEnvironment } }); return { code: child.status ?? 2, output: child.stdout + child.stderr };
       } });
     }
     const oldTargetTest = await runTargetTest('before-baseline');
@@ -1054,6 +1055,7 @@ try {
       sourceRecord: { storyId, recordId: proposalRecord.recordId, recordHash: exactLedgerRecordHash(proposalRecord) }, routeReceiptRef: findingConsentRef, baselineSetRef: setRef });
     const neutralRef = refOf(neutral.rows[0]!);
     switchSession(targetSession);
+    const failedTargetTest = await runTargetTest('failed-after-baseline', true);
     test('historical source review remains verifiable in TEST and DONE without material drift', () => {
       const live = store.readStory(storyId);
       for (const phase of ['TEST', 'DONE'] as const) {
@@ -1143,44 +1145,50 @@ try {
       const ledgerBefore = store.readFindingLedger(targetId).records.length;
       const before = (initialSetRow.envelope.payload as BaselineSet).baselines
         .find(row => (row.payload as ProgressBaseline).kind === 'target_test_result')!.payload as ProgressBaseline;
-      const common = {
+      const passingProjection = {
         kind: 'target_test_result' as const,
         commandDigest: identityHash({ executable: targetCommand.executable, args: targetCommand.args, shell: false }),
         selectorDigest: identityHash('TARGET_TEST_PASS'),
+        outcome: 'pass' as const,
         executionKey: 'signed-test-outcome-control',
         receiptHash: sha('signed-test-outcome-control'),
       };
-      const passing = resignProgressMutation({ ...common, outcome: 'pass' }, before);
+      const passing = resignProgressMutation(passingProjection, before);
       validateProgress(passing, routeTrust);
       assert.doesNotThrow(() => assertProgressTransition(before, passing));
-      const failing = resignProgressMutation({ ...common, outcome: 'fail', executionKey: 'signed-test-outcome-failure', receiptHash: sha('signed-test-outcome-failure') }, before);
+      const failing = resignProgressMutation({ ...passingProjection, outcome: 'fail' }, before);
       validateProgress(failing, routeTrust);
       assert.throws(() => assertProgressTransition(before, failing), /test regression/);
+      assert.equal(failedTargetTest.receipt.status, 'fail');
+      assert.equal(failedTargetTest.receipt.exitCode, 1);
+      assert.throws(() => routes.finding_progress_capture({ ...progressInput, idempotencyKey: 'failed-test-outcome',
+        kind: 'target_test_result', executionKey: failedTargetTest.key.key }), /invalid current defect-bound execution/);
       assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
     });
     test('status regression from a signed present predecessor is refused', () => {
-      const ledgerBefore = store.readFindingLedger(targetId).records.length;
       const absent = (initialSetRow.envelope.payload as BaselineSet).baselines
         .find(row => (row.payload as ProgressBaseline).kind === 'target_status_transition')!.payload as ProgressBaseline;
-      const priorProjection = { kind: 'target_status_transition' as const, itemId: targetItemId, state: 'in_progress' as const,
-        transitionPolicyDigest: identityHash(['pending', 'in_progress', 'done']) };
-      const { baselineHash: _baselineHash, absenceDigest: _absenceDigest, ...baselineBase } = {
-        ...absent,
-        projectionState: 'present' as const,
-        projection: priorProjection,
-        projectionDigest: identityHash(semanticProjection(priorProjection)),
+      const makePresentBaseline = (state: 'in_progress' | 'done') => {
+        const projection = { kind: 'target_status_transition' as const, itemId: targetItemId, state,
+          transitionPolicyDigest: identityHash(['pending', 'in_progress', 'done']) };
+        const { baselineHash: _baselineHash, absenceDigest: _absenceDigest, ...base } = {
+          ...absent, projectionState: 'present' as const, projection, projectionDigest: identityHash(semanticProjection(projection)),
+        };
+        return { ...base, baselineHash: identityHash(base) } as ProgressBaseline;
       };
-      const before = { ...baselineBase, baselineHash: identityHash(baselineBase) } as ProgressBaseline;
-      validateBaseline(before);
-      const forwardProjection = { ...priorProjection, state: 'done' as const };
-      const forward = resignProgressMutation(forwardProjection, before);
+      const inProgress = makePresentBaseline('in_progress');
+      validateBaseline(inProgress);
+      const forwardProjection = { kind: 'target_status_transition' as const, itemId: targetItemId, state: 'done' as const,
+        transitionPolicyDigest: identityHash(['pending', 'in_progress', 'done']) };
+      const forward = resignProgressMutation(forwardProjection, inProgress);
       validateProgress(forward, routeTrust);
-      assert.doesNotThrow(() => assertProgressTransition(before, forward));
-      const regressiveProjection = { ...priorProjection, state: 'pending' as const };
-      const regressive = resignProgressMutation(regressiveProjection, before);
+      assert.doesNotThrow(() => assertProgressTransition(inProgress, forward));
+      const done = makePresentBaseline('done');
+      validateBaseline(done);
+      const regressiveProjection = { ...forwardProjection, state: 'in_progress' as const };
+      const regressive = resignProgressMutation(regressiveProjection, done);
       validateProgress(regressive, routeTrust);
-      assert.throws(() => assertProgressTransition(before, regressive), /status regression\/no-op/);
-      assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
+      assert.throws(() => assertProgressTransition(done, regressive), /progress: status regression\/no-op$/);
     });
     test('predecessor digest substitutions refuse without ledger mutation', () => {
       const ledgerBefore = store.readFindingLedger(targetId).records.length;
@@ -1197,6 +1205,12 @@ try {
         const mutant = { ...base, tupleDigest: identityHash(base) } as ProgressBinding;
         validateProgress(mutant, routeTrust);
         assert.throws(() => assertProgressTransition(before, mutant), /wrong\/stale same-kind predecessor/);
+      }
+      for (const forbidden of [
+        { predecessorBaselineDigest: sha('caller-substituted-predecessor-baseline') },
+        { predecessorProjectionDigest: sha('caller-substituted-predecessor-projection') },
+      ]) {
+        assert.throws(() => routes.finding_progress_capture({ ...progressInput, idempotencyKey: `caller-${Object.keys(forbidden)[0]}`, ...forbidden }), /Unrecognized key|unrecognized/i);
       }
       assert.equal(store.readFindingLedger(targetId).records.length, ledgerBefore);
     });
