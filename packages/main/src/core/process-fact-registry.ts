@@ -59,6 +59,9 @@ export type ProcessFactSemantic =
   | 'verification-policy'
   | 'workspace-binding';
 
+export const REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 'P2b'] as const;
+export type ReproBootstrapComponentId = typeof REPRO_BOOTSTRAP_COMPONENT_IDS[number];
+
 export interface ProcessFactArtifactRef {
   name: string;
   path: string;
@@ -72,9 +75,9 @@ export interface ProcessFactArtifactRef {
 export interface ProcessFactRegistryEntry {
   /** Stable identity used by registry digests. Final registry entries always carry it. */
   factId: string;
-  /** Explicit repository paths governed by this fact. Final registry entries always carry it. */
+  /** Authoritative declaration paths; component-owned entries author their exact governed paths. */
   paths: readonly string[];
-  componentId?: string;
+  componentId?: ReproBootstrapComponentId;
   serializationBoundaryId?: string;
   /** Source path for a generated path in `paths`; omitted for source paths. */
   generatedFrom?: string;
@@ -106,13 +109,13 @@ export interface ProcessFactRegistryProjectionEntry {
   factId: string;
   kind: ProcessFactKind;
   paths: string[];
-  componentId?: string;
+  componentId?: ReproBootstrapComponentId;
   serializationBoundaryId?: string;
 }
 
 export interface ComponentProcessFactMappingEntry {
   factId: string;
-  componentId: string;
+  componentId: ReproBootstrapComponentId;
   path: string;
   generatedFrom?: string;
 }
@@ -152,12 +155,13 @@ const PROCESS_FACT_DECLARATION_PATHS_BY_KIND: Record<ProcessFactKind, readonly s
   'validation-status': ['packages/main/src/core/process-fact-levels.ts', 'packages/main/src/handlers/verifier.ts'],
 };
 const GENERATED_PROCESS_FACT_PATH_PREFIXES = [
-  '.claude/agents/',
-  '.proof-or-stop-codex/agents/',
+  '.claude/',
+  '.proof-or-stop-codex/',
   'dist/',
   'packages/graph/assets/',
   'tests/output/',
 ] as const;
+const GENERATED_PROCESS_FACT_EXACT_PATHS = new Set(['AGENTS.md', 'CLAUDE.md']);
 
 function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'));
@@ -171,14 +175,15 @@ function normalizeProcessFactPath(value: unknown, reason: ProcessFactRegistryMap
     throw new ProcessFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
   }
   const normalized = pathPosix.normalize(value).replace(/^\.\//u, '').replace(/\/+$/u, '');
-  if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
+  if (normalized === '' || normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
     throw new ProcessFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
   }
   return normalized;
 }
 
 function isGeneratedProcessFactPath(path: string): boolean {
-  return GENERATED_PROCESS_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
+  return GENERATED_PROCESS_FACT_EXACT_PATHS.has(path)
+    || GENERATED_PROCESS_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
     || path.includes('/dist/')
     || path.includes('/generated/');
 }
@@ -191,11 +196,20 @@ function validateOptionalProcessFactIdentity(value: unknown, label: string): str
   return value;
 }
 
+function validateProcessFactComponentId(value: unknown): ReproBootstrapComponentId | undefined {
+  const componentId = validateOptionalProcessFactIdentity(value, 'componentId');
+  if (componentId === undefined) return undefined;
+  if (!(REPRO_BOOTSTRAP_COMPONENT_IDS as readonly string[]).includes(componentId)) {
+    throw new ProcessFactRegistryMappingError('process-non-total', `unknown componentId: ${componentId}`);
+  }
+  return componentId as ReproBootstrapComponentId;
+}
+
 function normalizeProcessFactMappingEntry(entry: Partial<ProcessFactRegistryEntry>): {
   factId: string;
   kind: ProcessFactKind;
   paths: string[];
-  componentId?: string;
+  componentId?: ReproBootstrapComponentId;
   serializationBoundaryId?: string;
   generatedFrom?: string;
 } {
@@ -210,7 +224,7 @@ function normalizeProcessFactMappingEntry(entry: Partial<ProcessFactRegistryEntr
   if (new Set(paths).size !== paths.length) {
     throw new ProcessFactRegistryMappingError('process-ambiguous', `${entry.factId} maps the same normalized path more than once`);
   }
-  const componentId = validateOptionalProcessFactIdentity(entry.componentId, 'componentId');
+  const componentId = validateProcessFactComponentId(entry.componentId);
   const serializationBoundaryId = validateOptionalProcessFactIdentity(entry.serializationBoundaryId, 'serializationBoundaryId');
   const generatedFrom = entry.generatedFrom === undefined
     ? undefined
@@ -256,15 +270,11 @@ export function projectComponentProcessFactMapping(
   componentId: string,
   entries: readonly Partial<ProcessFactRegistryEntry>[] = PROCESS_FACT_REGISTRY,
 ): ComponentProcessFactMappingEntry[] {
-  const requested = validateOptionalProcessFactIdentity(componentId, 'componentId');
+  const requested = validateProcessFactComponentId(componentId);
   if (!requested) {
     throw new ProcessFactRegistryMappingError('process-non-total', 'componentId is required');
   }
   const normalized = entries.map(normalizeProcessFactMappingEntry);
-  const ids = normalized.map(entry => entry.factId);
-  if (new Set(ids).size !== ids.length) {
-    throw new ProcessFactRegistryMappingError('process-ambiguous', 'factId values must be unique');
-  }
   const tuples = normalized
     .filter(entry => entry.componentId === requested)
     .flatMap(entry => entry.paths.map(path => ({
@@ -279,6 +289,10 @@ export function projectComponentProcessFactMapping(
   const tupleKeys = tuples.map(tuple => `${tuple.factId}\0${tuple.componentId}\0${tuple.path}\0${tuple.generatedFrom ?? ''}`);
   if (new Set(tupleKeys).size !== tupleKeys.length) {
     throw new ProcessFactRegistryMappingError('process-ambiguous', `duplicate component tuple for ${requested}`);
+  }
+  const ids = normalized.map(entry => entry.factId);
+  if (new Set(ids).size !== ids.length) {
+    throw new ProcessFactRegistryMappingError('process-ambiguous', 'factId values must be unique');
   }
   return tuples;
 }
@@ -1411,19 +1425,6 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   producerSourceRefs: readonly string[];
   consumerSourceRefs: readonly string[];
 }> = {
-  'runtime:story_scope_budget': {
-    producerSourceRefs: [
-      'packages/main/src/core/story-scope-budget.ts',
-      'packages/main/src/core/story-scope-budget-decisions.ts',
-      'packages/main/src/core/story-scope-decomposition.ts',
-      'packages/main/src/core/story-scope-budget-legacy.ts',
-    ],
-    consumerSourceRefs: [
-      'packages/main/src/core/acceptance-amendment-journal.ts',
-      'packages/main/src/core/machine.ts',
-      'packages/main/src/handlers/story-review.ts',
-    ],
-  },
   'verification_pin_narrow': {
     producerSourceRefs: [
       'packages/main/src/core/verification-execution-evidence.ts',
@@ -2324,7 +2325,7 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
   },
 ] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
-export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
   {
     name: 'runtime:full_task_scope_authority', kind: 'runtime-behavior', level: 'L4',
     semantics: ['schema-contract', 'gate-evidence'], gateEvidence: true,
@@ -2383,6 +2384,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
       'packages/main/src/core/process-fact-registry.ts',
       'packages/main/src/core/runtime-fact-registry.ts',
       'packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs',
+      'proof-or-stop.config.json',
       'scripts/verify-process-fact-contract.mjs',
       'scripts/verify-runtime-fact-contract.mjs',
     ],
@@ -2408,7 +2410,8 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...PROCESS_FACT_FLOW_POLICIES,
   ...PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS,
   ...PROCESS_FACT_CLOSEOUT_TELEMETRY,
-].map(entry => declareProcessFactMapping(entry as ProcessFactRegistryDeclaration));
+] satisfies readonly ProcessFactRegistryDeclaration[])
+  .map(entry => declareProcessFactMapping(entry));
 
 export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEntry> = Object.fromEntries(
   PROCESS_FACT_REGISTRY.map((entry) => [entry.name, entry]),

@@ -545,6 +545,20 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/dist/tasks/init-window-data-loss-smoke.js"
         ],
         "timeoutMs": 180000,

@@ -4591,7 +4591,7 @@ function assertSyntheticAdversarialChecks() {
 }
 
 function extractExportedArrayBody(text, exportName) {
-  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\[`).exec(text);
+  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*(?:\\(\\s*)?\\[`).exec(text);
   assert(Boolean(match), `source should export ${exportName}`);
   if (!match) return '';
 

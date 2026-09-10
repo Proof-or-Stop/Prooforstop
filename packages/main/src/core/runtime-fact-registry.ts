@@ -105,13 +105,15 @@ export const RUNTIME_FACT_OUTPUT_KEYS = {
 export type RuntimeFactOutputKey = typeof RUNTIME_FACT_OUTPUT_KEYS[RuntimeFactId];
 
 export type RuntimeFactKind = 'environment-check';
+export const RUNTIME_REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 'P2b'] as const;
+export type RuntimeReproBootstrapComponentId = typeof RUNTIME_REPRO_BOOTSTRAP_COMPONENT_IDS[number];
 
 export interface RuntimeFactRegistryEntry {
   id: RuntimeFactId;
   runtimeFactId: string;
   kind: RuntimeFactKind;
   paths: readonly string[];
-  componentId?: string;
+  componentId?: RuntimeReproBootstrapComponentId;
   generatedFrom?: string;
   scope: RuntimeFactScope;
   selfSeverity: RuntimeFactSeverity;
@@ -242,12 +244,12 @@ export interface RuntimeFactRegistryProjectionEntry {
   runtimeFactId: string;
   kind: RuntimeFactKind;
   paths: string[];
-  componentId?: string;
+  componentId?: RuntimeReproBootstrapComponentId;
 }
 
 export interface ComponentRuntimeFactMappingEntry {
   runtimeFactId: string;
-  componentId: string;
+  componentId: RuntimeReproBootstrapComponentId;
   path: string;
   generatedFrom?: string;
 }
@@ -270,12 +272,13 @@ export class RuntimeFactRegistryMappingError extends Error {
 }
 
 const GENERATED_RUNTIME_FACT_PATH_PREFIXES = [
-  '.claude/agents/',
-  '.proof-or-stop-codex/agents/',
+  '.claude/',
+  '.proof-or-stop-codex/',
   'dist/',
   'packages/graph/assets/',
   'tests/output/',
 ] as const;
+const GENERATED_RUNTIME_FACT_EXACT_PATHS = new Set(['AGENTS.md', 'CLAUDE.md']);
 
 function compareRuntimeFactUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'));
@@ -289,7 +292,7 @@ function normalizeRuntimeFactPath(value: unknown, reason: RuntimeFactRegistryMap
     throw new RuntimeFactRegistryMappingError(reason, `absolute path is forbidden: ${value}`);
   }
   const normalized = pathPosix.normalize(value).replace(/^\.\//u, '').replace(/\/+$/u, '');
-  if (normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
+  if (normalized === '' || normalized === '.' || normalized === '..' || normalized.startsWith('../')) {
     throw new RuntimeFactRegistryMappingError(reason, `path escapes the repository: ${value}`);
   }
   return normalized;
@@ -299,7 +302,7 @@ function normalizeRuntimeFactMappingEntry(entry: Partial<RuntimeFactRegistryEntr
   runtimeFactId: string;
   kind: RuntimeFactKind;
   paths: string[];
-  componentId?: string;
+  componentId?: RuntimeReproBootstrapComponentId;
   generatedFrom?: string;
 } {
   if (typeof entry?.runtimeFactId !== 'string' || entry.runtimeFactId.length === 0
@@ -318,10 +321,14 @@ function normalizeRuntimeFactMappingEntry(entry: Partial<RuntimeFactRegistryEntr
   if (componentId !== undefined && (typeof componentId !== 'string' || componentId.length === 0 || componentId.trim() !== componentId)) {
     throw new RuntimeFactRegistryMappingError('runtime-non-total', 'componentId must be a non-empty exact string');
   }
+  if (componentId !== undefined && !(RUNTIME_REPRO_BOOTSTRAP_COMPONENT_IDS as readonly string[]).includes(componentId)) {
+    throw new RuntimeFactRegistryMappingError('runtime-non-total', `unknown componentId: ${componentId}`);
+  }
   const generatedFrom = entry.generatedFrom === undefined
     ? undefined
     : normalizeRuntimeFactPath(entry.generatedFrom, 'runtime-non-total');
-  const generatedPath = (path: string) => GENERATED_RUNTIME_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
+  const generatedPath = (path: string) => GENERATED_RUNTIME_FACT_EXACT_PATHS.has(path)
+    || GENERATED_RUNTIME_FACT_PATH_PREFIXES.some(prefix => path.startsWith(prefix))
     || path.includes('/dist/')
     || path.includes('/generated/');
   if (componentId && paths.some(generatedPath)
@@ -368,16 +375,16 @@ export function projectComponentRuntimeFactMapping(
   if (typeof componentId !== 'string' || componentId.length === 0 || componentId.trim() !== componentId) {
     throw new RuntimeFactRegistryMappingError('runtime-non-total', 'componentId is required');
   }
-  const normalized = entries.map(normalizeRuntimeFactMappingEntry);
-  const ids = normalized.map(entry => entry.runtimeFactId);
-  if (new Set(ids).size !== ids.length) {
-    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', 'runtimeFactId values must be unique');
+  if (!(RUNTIME_REPRO_BOOTSTRAP_COMPONENT_IDS as readonly string[]).includes(componentId)) {
+    throw new RuntimeFactRegistryMappingError('runtime-non-total', `unknown componentId: ${componentId}`);
   }
+  const requested = componentId as RuntimeReproBootstrapComponentId;
+  const normalized = entries.map(normalizeRuntimeFactMappingEntry);
   const tuples = normalized
-    .filter(entry => entry.componentId === componentId)
+    .filter(entry => entry.componentId === requested)
     .flatMap(entry => entry.paths.map(path => ({
       runtimeFactId: entry.runtimeFactId,
-      componentId,
+      componentId: requested,
       path,
       ...(entry.generatedFrom === undefined ? {} : { generatedFrom: entry.generatedFrom }),
     })))
@@ -386,7 +393,11 @@ export function projectComponentRuntimeFactMapping(
       || compareRuntimeFactUtf8(left.generatedFrom ?? '', right.generatedFrom ?? ''));
   const tupleKeys = tuples.map(tuple => `${tuple.runtimeFactId}\0${tuple.componentId}\0${tuple.path}\0${tuple.generatedFrom ?? ''}`);
   if (new Set(tupleKeys).size !== tupleKeys.length) {
-    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', `duplicate component tuple for ${componentId}`);
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', `duplicate component tuple for ${requested}`);
+  }
+  const ids = normalized.map(entry => entry.runtimeFactId);
+  if (new Set(ids).size !== ids.length) {
+    throw new RuntimeFactRegistryMappingError('runtime-ambiguous', 'runtimeFactId values must be unique');
   }
   return tuples;
 }

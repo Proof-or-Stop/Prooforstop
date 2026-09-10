@@ -465,6 +465,25 @@ async function main() {
     }
   }
 
+  const runtimeMappingSourceProbe = execFileSync(process.execPath, [
+    '--import', join(root, 'scripts/lab-source-loader.mjs'),
+    '--input-type=module',
+    '--eval',
+    `import { RUNTIME_FACT_REGISTRY, projectRuntimeFactRegistry, projectComponentRuntimeFactMapping } from './packages/main/src/core/runtime-fact-registry.ts';
+const projection = projectRuntimeFactRegistry();
+const component = projectComponentRuntimeFactMapping('P0m', [{ runtimeFactId: 'source-probe', kind: 'environment-check', paths: ['source.ts'], componentId: 'P0m' }]);
+let refusal = null;
+try { projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }
+process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), component: component.length, refusal }));`,
+  ], { cwd: root, encoding: 'utf8' });
+  const runtimeMappingSource = JSON.parse(runtimeMappingSourceProbe);
+  check(runtimeMappingSource.registry > 0 && runtimeMappingSource.projection === runtimeMappingSource.registry,
+    'current source runtime registry component mapping must be total');
+  check(runtimeMappingSource.generatedInWhole === false, 'current source whole runtime projection must omit generatedFrom');
+  check(runtimeMappingSource.component === 1, 'current source runtime component projection must consume explicit mappings');
+  check(runtimeMappingSource.refusal === 'registry-component-mapping-unavailable',
+    'current source runtime missing mapping must use the typed unavailable diagnostic');
+
   if (verificationEvidenceModule) {
     check(
       verificationEvidenceModule.VERIFICATION_EXECUTION_RECEIPT_VERSION === 'proof-or-stop.verification-execution-receipt.v2',
