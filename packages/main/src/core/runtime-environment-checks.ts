@@ -1213,7 +1213,8 @@ function assertIdentitySiteValueBinding(site: ActiveIdentityOperationIdentitySit
   // Comments, unrelated literals, computed expressions and duplicate selectors
   // cannot satisfy the live declaration/producer/comparison contract.
   if (values.length !== 1 || !values[0] || !ts.isStringLiteral(values[0]) || values[0].text !== site.canonical) {
-    throw new Error(`${label}/${site.siteId} consumer rejected active identity value; expected exact ${site.canonical}`);
+    const observed = values.map(value => value ? value.getText(source).slice(0, 256) : '<unsupported declaration>').join(', ') || '<missing binding>';
+    throw new Error(`${label}/${site.siteId} consumer rejected active identity value; expected exact ${site.canonical}; observed ${observed}`);
   }
 }
 
