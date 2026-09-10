@@ -1,0 +1,161 @@
+{
+  "schema": "u18-static-exceptions.v1",
+  "status": "DRAFT_REQUIRES_OWNER_REVIEW",
+  "configDigest": "56310e2303c2f1f6b9d441c6eda3e2e5dc5f3e991e7d8e05295ec971e6cc7e57",
+  "entries": [
+    {
+      "id": "draft-01",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:300:spawn",
+      "callDigest": "ecae8cc4b2ab96bd63e73957ff83e309ded3747b9fc19954507b91e101f8ab3a",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-02",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:301:spawn",
+      "callDigest": "92245fce778108d4f86b89b27c71bc5b1efdc2ee4b33d640131801280a3b92f8",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-03",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:312:spawn",
+      "callDigest": "2bf883710da91b9c9530f3e99854ca1927323387701f49b2eea0ae9985246593",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-04",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:322:spawn",
+      "callDigest": "166b35960d6b5b4f669ba1514c785addc73808437e6f08172a6337cdfeb2c50a",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-05",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:434:spawn",
+      "callDigest": "2169f182b681d4c566a010e7942377771e4bc5c7a96c7e6a2dfefa18f49e7b22",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-06",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:435:spawn",
+      "callDigest": "b2db655f32915992cc523f39e3c21a376f6bccde499c60a591473029575de409",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-07",
+      "key": "packages/main/src/tasks/provider-process-registry-smoke.ts:597:spawn",
+      "callDigest": "f798d661e8a926b6f85532e87bfbd3b3884c75ae358888040c6dcf629af19585",
+      "sourceDigest": "36c99e15df9ebe7a22f34a1578bf31cdffb80102d1a1acf68d9b6db46d011db3",
+      "configIndexes": [
+        142
+      ],
+      "kind": "self-worker-mode",
+      "reason": "Exact self invocation enters --child mode for registry contention/leak/orphan/lock witness; it does not execute the parent smoke suite.",
+      "requiredEvidence": [
+        "self binding is current module filename",
+        "--child dispatch selects worker and avoids suite body",
+        "worker result and parent lifecycle assertions remain source-digest pinned"
+      ]
+    },
+    {
+      "id": "draft-08",
+      "key": "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs:97:spawnSync",
+      "callDigest": "5542aa0654c5abf7e05bd9a281f5f907eb6bec9af7bf4cdbab8d8a6340b31732",
+      "sourceDigest": "b576bbf2c89d6a0c8d40f41d14f64a48698cb92e02166d3ce98979e831d6862f",
+      "configIndexes": [
+        69
+      ],
+      "kind": "artifact-property-witness",
+      "reason": "Three artifact executions establish same-seed determinism and changed-seed sensitivity; removing repeated runs erases the property under test.",
+      "requiredEvidence": [
+        "runA and runB use null seed; runC uses SECOND_SEED (141-143)",
+        "fullyGreen verifies all three complete executions",
+        "blockD/digest equality and changed-seed digest inequality (146-151)"
+      ]
+    },
+    {
+      "id": "draft-09",
+      "key": "scripts/run-validation-fixture-suite.mjs:24:spawnSync",
+      "callDigest": "adfc365bfc8faa7761708a51f25619e6e4e47c64647eb2299a53db97c767a7e7",
+      "sourceDigest": "6460a66aab1169675ee86c46b33db2a44371f6c84336dab299c407948af4f4f0",
+      "configIndexes": [
+        9,
+        12,
+        14,
+        21,
+        111,
+        112,
+        114,
+        115,
+        122,
+        134,
+        148
+      ],
+      "kind": "initial-wrapper-dispatch",
+      "reason": "Exact configured member receives initial dispatch; member itself is separately scanned under its configured arguments, not a replay exemption.",
+      "requiredEvidence": [
+        "FIXTURE_ENTRIES.has(entry) assertion",
+        "rest exact assertion at line 22",
+        "scanner separately expands selected wrapper entry"
+      ]
+    }
+  ]
+}
