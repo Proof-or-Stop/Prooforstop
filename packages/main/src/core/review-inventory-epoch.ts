@@ -113,7 +113,13 @@ export function reviewInventoryAcceptanceSubjectDigest(
   // (a changed result, command, selector or captured output) remains bound.
   const evidenceSemantics = (value: unknown, item: ChecklistData['items'][number]): unknown => {
     if (!Array.isArray(value)) return value;
-    return value.map(row => {
+    const currentIntents = item.verificationIntent ? collectVerificationIntents(item) : [];
+    return value.filter(row => {
+      if (!item.verificationIntent) return true;
+      if (!row || typeof row !== 'object') return true;
+      const intentRef = (row as Record<string, unknown>).intentRef;
+      return typeof intentRef !== 'string' || currentIntents.some(intent => intent.ref === intentRef);
+    }).map(row => {
       if (!row || typeof row !== 'object') return row;
       const {
         headHash: _headHash, materialHash: _materialHash, storyFilesHash: _storyFilesHash,
@@ -122,7 +128,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
       if (!receipt || typeof receipt !== 'object') return semantic;
       const evidence = row as VerificationEvidence;
       if (authentication && isSplitVerificationReceipt(evidence.receipt)) {
-        const pin = collectVerificationIntents(item).find(intent => intent.ref === evidence.intentRef)?.intent.verification;
+        const pin = currentIntents.find(intent => intent.ref === evidence.intentRef)?.intent.verification;
         if (!pin || evidence.command !== pin.command) throw new Error('inventory authenticated command binding mismatch');
         const validation = validateVerificationReceipt(authentication.projectRoot, evidence.receipt, {
           storyId: authentication.storyId, intentRef: evidence.intentRef,

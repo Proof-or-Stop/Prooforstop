@@ -13,6 +13,94 @@ Maintenance provenance: codex/lab-final-160-closure, repair a84c5f6091724b4f86da
 Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Integrated Finding lineage and session-performance maintenance - v0.3.300 - 2026-09-10
+
+This release reconciles the independently integrated Finding identity/historical-lineage maintenance and session-performance maintenance on their complete shared ancestry. The normal merge preserves both histories; no remote work is overwritten and neither branch's validation, resource, identity, or lifecycle registrations are discarded.
+
+The merged candidate retains retired-evidence review-inventory correctness, the signed non-gate Finding candidate/identity/history/route/progress command set, foreign active-worktree canonical discovery, story-aware validation selection and exact reuse, material and implementation identity binding, watchdog and cancellation propagation, provider and fixture isolation, static execution-edge audits, Graph no-browser behavior, managed-run notification controls, and the complete reviewed validation inventory.
+
+The two independent lines both used patch number 0.3.297 before reconciliation. Version 0.3.300 is the first unambiguous combined version and is the only release tag created for this merged candidate.
+
+Verification and exact merged pins are recorded by the integration commit and the corresponding GitHub Release. This engineering integration does not mint Story REVIEW, TEST, DONE, or product-certification evidence.
+
+## Lab b03b7-public-foreign-canonical - v0.3.299 - 2026-09-10
+
+# B-03b7 public foreign canonical coverage
+
+## Problem
+
+Independent test-coverage review recorded B-03b7:F-031 after the 0.3.298 identity-catalog repair. The existing linked-worktree regression proved internal contributor discovery with a temporary placeholder record, but removed that record before the public history and scorecard commands ran. It therefore did not prove that a valid signed canonical identity stored only in another active Story worktree appears in public history projection and in the global catalog dependency digest.
+
+## Change
+
+The linked-worktree fixture now builds a valid reviewer-confirmed CanonicalDefect over a real signed Finding reference, signs its semantic envelope with the shared ledger trust, and atomically appends it only to the foreign active Story worktree. Before that Story is merged, a distinct target worktree calls `finding_history_query` and `finding_identity_scorecard`. The assertions require the canonical ID in the history projection, the exact canonical row in the scorecard, and a stable repeated input digest. The fixture then merges and removes the source worktree and verifies that the same signed history remains readable.
+
+A focused wrapper is retained as a standing regression. It runs the real multi-worktree smoke and requires the public-chain marker rather than accepting internal contributor coverage alone.
+
+## RED and GREEN
+
+RED used `node packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs`. The existing 30 internal multi-worktree checks passed, but the command exited non-zero with `F031_PUBLIC_FOREIGN_CANONICAL_MISSING` because the public signed-canonical chain was absent.
+
+GREEN replayed the exact command after the committed test repair. It reported `PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS`, 30/30 multi-worktree checks passed, and `F031_PUBLIC_FOREIGN_CANONICAL_GREEN PASS`.
+
+## Scope and provenance
+
+This Lab changes only B-03b7 regression coverage and adds no new product authority or lifecycle behavior. It does not import or claim Story REVIEW, TEST, or DONE metadata. The earlier 0.3.298 Lab established the product repair and passed the complete 91/91 identity delivery suite plus the process-fact contract; this Lab closes the independently identified public-boundary coverage gap with the focused affected-path test.
+
+Maintenance provenance: codex/lab-b03b7-public-foreign-canonical, repair 91c8f1f1f50d26c2651c1ab833a873da6855cc4e.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-identity-lineage-review-gaps - v0.3.298 - 2026-09-10
+
+# B-03b7 identity and historical-lineage integration
+
+## Problem
+
+The latest local main did not contain the B-03b7 Finding Identity and Historical Lineage commands or implementation. During independent review of the completed candidate, F-028 and its test-coverage duplicate F-029 identified a critical catalog omission: a canonical identity contribution that existed only in another active Story's signed Git worktree was ignored when the main and caller mirrors were empty. The prior F-026 repair correctly removed direct parsing of protected ledger files, but its mirror-only precheck made the foreign active contributor invisible.
+
+## Change
+
+This Lab integrates the bounded non-metadata B-03b7 implementation candidate and adds a regression that creates distinct real linked worktrees, writes a signed canonical-defect probe only in the foreign active Story worktree, and queries it from another worktree. `StoryStore` now supports a repository-relative trusted Story-directory override sourced from existing metadata authority. Identity catalog discovery uses the signed-workspace resolver plus this Store port to inspect the resolved ledger without directly parsing protected storage or loading unrelated runtime configuration. Full workspace context is loaded only after the Store probe proves that the foreign worktree contributes a requested identity record kind.
+
+The Lab integration is engineering provenance, not formal Story DONE evidence. B-03b7 lifecycle metadata, review credentials, findings, receipts, and other `.proof-or-stop` Story artifacts are not imported into main by this release.
+
+## RED and GREEN
+
+The Lab RED replay used the committed multi-worktree smoke and required the marker `F028_FOREIGN_ACTIVE_CATALOG`. Before the repair, 29 controls passed and the single target assertion failed because the foreign signed contributor was absent. The Lab GREEN replay executed the exact same command and reported 30 passing, 0 failed.
+
+## Verification
+
+- `npm --prefix packages/main run build` passed.
+- The exact Lab GREEN command passed with 30/30 multi-worktree candidate checks.
+- `node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery` passed 91/91 candidate, route, progress, scorecard, supersession, historical query, recall, and linked-worktree checks.
+- `node scripts/verify-process-fact-contract.mjs` passed.
+- The frozen benchmark remains a fixture measurement: 64 baseline manual operations versus 51 grouped operations. It is not an elapsed-time or production-workload claim; joint grouping-plus-batch qualification remains assigned to B-e6d9.
+
+## Scope
+
+The repair is limited to B-03b7 identity/history code, its existing CLI/docs/config registration, and the new active-worktree regression. The unrelated low-severity unused-import/local-variable cleanup reported as F-030 remains separately traceable and is not included merely to make the repository cosmetically green.
+
+Maintenance provenance: codex/lab-b03b7-identity-lineage-review-gaps, repair 5eeb957d3b37fd767e782095d844eb7eb2c5aefc.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/finding-identity-lineage-smoke.js","--section=worktrees"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-inventory-retired-evidence-0296 - v0.3.297 - 2026-09-10
+
+# Review inventory retired-evidence repair
+
+Problem: review inventory authentication inspected immutable historical evidence for verification intents that had been replaced. Those retired rows no longer had a current command pin, so `reviewer_list` and `review_inventory_begin` failed with `inventory authenticated command binding mismatch` and blocked the Story lifecycle.
+
+Behavior change: the inventory acceptance-subject projection now includes evidence only for currently declared verification intents. Items with no declared legacy intent retain their existing evidence semantics. Explicitly empty intent sets retire prior rows. Current replacement receipts remain authenticated against their command, selector, signature, artifact, and freshness bindings.
+
+Verification: the managed Lab RED captured the historical failure using `node packages/main/dist/tasks/review-inventory-epoch-smoke.js`. GREEN replayed the exact executable and arguments successfully at the final repair commit. The smoke covers retired-row exclusion, explicit-empty behavior, legacy absent/null compatibility, current replacement signature/command/freshness tampering, artifact tampering, OPEN inventory mutation behavior, reviewer lane/host invariants, and zero critical/high escapes. An independent Claude CLI final static audit returned APPROVE with FINDINGS: NONE.
+
+Performance: this is a correctness repair, not a performance optimization; no performance improvement is claimed.
+
+Maintenance provenance: codex/lab-review-inventory-retired-evidence-0296, repair f6df7239a227d21a5f6064c11fe9e7a6198e2f42.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/review-inventory-epoch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab session-performance-plan - v0.3.297 - 2026-09-10
 
 Integrate the session-performance Lab maintenance work and the validation repairs into local main.

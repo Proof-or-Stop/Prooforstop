@@ -331,6 +331,17 @@ const CLASSIFICATION = new Map([
   }],
 
   // ── static references ─────────────────────────────────────────────────────
+  ['node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery', {
+    role: 'real-root-admission',
+    reason: 'the delivery campaign resolves the repository-local bin/proof-or-stop.js wrapper and repeatedly spawns it; bootstrap admission is therefore taken against this real worktree even when individual CLI fixtures use a scratch cwd',
+    evidence: /const cliPath = fileURLToPath\(new URL\('\.\.\/\.\.\/\.\.\/\.\.\/bin\/proof-or-stop\.js'/,
+  }],
+  ['node packages/main/tests/red/red-b03b7-identity-lineage.mjs', {
+    role: 'real-root-admission',
+    reason: 'the GREEN replay invokes bin/proof-or-stop.js from its derived real repository root, so the registered command takes real reader admission rather than merely mentioning the wrapper as text',
+    evidence: /run\(process\.execPath, \['bin\/proof-or-stop\.js', 'finding_list'/,
+  }],
+
   ['node scripts/verify-lab-worktree.mjs', {
     role: 'static-reference-only',
     reason: 'writes a fixture wrapper and a fixture ensure-dist into scratch repositories under a mkdtemp root and drives those; the real root is never built and the real wrapper is never spawned',

@@ -482,20 +482,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-// Merge audit: fixed loader/provenance and compatibility call shapes retained; see merge pin audit.
+  // v0.3.300 merge audit: the session watchdog/static-import work and the
+  // Finding identity command registrations are both retained. The runCli
+  // initPath producer and non-literal loader relation remain unchanged.
   //
-  // B-137a main-merge repin (same audit, re-run after the merge). Checked BEFORE
-  // repinning: `git diff main -- packages/main/src/cli-engine.ts` grepped for
-  // import(/require(/initPath reports NO matching +/- line, so the approved
-  // non-literal loader call site, its argument, and the initPath producer are all
-  // byte-identical to main. The only change is the structured watchdog command
-  // list plus the evidence-writer abort/deadline injection, so this whole-file
-  // structural fingerprint simply moves with that edit.
-  // fc33a89782: the pre-side-effect canonical identity consumer check added one
-  // static import and one ordinary call before Story reads. The complete dynamic
-  // load surface remains the same two expressions, and the runCli initPath
-  // producer plus import argument are unchanged. Repin the whole-file AST digest.
-  ['packages/main/src/cli-engine.ts', 'f0d2a8788e893db2620378b346b4b6ac7d130fff4f9f14d90769313e500ed5e9'],
+  // The exact merged AST fingerprint is independently mirrored in the process
+  // fact verifier and is replaced only after the merged-source audit runs.
+  ['packages/main/src/cli-engine.ts', 'b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -841,8 +834,10 @@ const typeProgramInstrumentation = {
 // prior split was synthetic=419 plus repo=393, total 812.
 // B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
 // Evidence Integrity sources. Retaining both source sets gives a ceiling of 817.
-const DYNAMIC_BINDING_BUILD_CEILING = 817;
-const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
+// Subsequent main work measures 844. B-03b7 adds nine independently scanned
+// identity/history/route modules, so its latest-main integration is exactly 853.
+const DYNAMIC_BINDING_BUILD_CEILING = 853;
+const MAX_DYNAMIC_BINDING_BUILD_CEILING = 860;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
   assert.ok(

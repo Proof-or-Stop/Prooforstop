@@ -71,6 +71,16 @@ if(ts.isFunctionDeclaration(n)&&n.name)mutable.add(n.name.text);if(ts.isVariable
  for(const h of helpers)scan(h,index,entry,argv,seen,depth+1);const identityData={'scripts/identity-reviewed-json-contexts.mjs':'scripts/identity-reviewed-json-data.json','scripts/identity-reviewed-fixture-contexts.mjs':'scripts/identity-reviewed-fixture-data.json','scripts/identity-reviewed-source-contexts.mjs':'scripts/identity-reviewed-source-data.json'}[file];if(identityData)coverage.push({index,file:identityData,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,identityData)))});
  // Exact data inputs consumed by PACKAGE_ROWS/verifyLocks/offlineCacheInput; never executable traversal.
  if(file==='scripts/verify-proof-or-stop-pack-boundary.mjs')for(const dir of ['','packages/main/','packages/lab/','packages/utils/'])for(const name of ['package.json','package-lock.json']){const input=dir+name;coverage.push({index,file:input,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,input)))});}
+ // Exact delivery replay supplies the real benchmark for fifteen mutation controls.
+ if(file==='packages/main/src/tasks/finding-identity-lineage-smoke.ts'){
+  const child=rows.find(row=>row.index===index&&row.file===file&&row.callDigest==='eba14075e94e41f8cf4553f6089338b6c3deb5945d5aacb040a559e1765b10ab');
+  if(!child)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'Reviewed finding benchmark child launch changed'});
+  else scan('packages/main/tests/red/red-b03b7-identity-lineage.mjs',index,'packages/main/tests/red/red-b03b7-identity-lineage.mjs',[],seen,depth+1);
+ }
+ if(file==='packages/main/tests/red/red-b03b7-identity-lineage.mjs'){
+  const input='packages/main/tests/data/finding-identity-gold-set.mjs';
+  coverage.push({index,file:input,state:'SCANNED',sourceDigest:hash(fs.readFileSync(path.join(root,input)))});
+ }
  if(file==='packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts'){
   const reviewedChild=rows.find(row=>row.index===index&&row.file===file&&row.callDigest==='a050f567ab789cdef1fc3c225620903d57e7aa9fc2f28f9a8daedf8f9de6b7e6');
   if(!reviewedChild)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'Reviewed rollout cohort child launch changed; exact selector and argv require review'});

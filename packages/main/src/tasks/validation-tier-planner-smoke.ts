@@ -523,6 +523,8 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // Derived through configuredValidationCommands -> buildValidationCommandInventory.
   // B-aa5f timeout remediation keeps that inventory intact while raising only
   // verification-run-and-guard-smoke from 600000ms to its audited 1200000ms budget.
+  // B-03b7 CHK-001 registers the identity-lineage delivery campaign and frozen
+  // RED/GREEN replay without dropping any predecessor, yielding 143 commands.
   for (const required of [
     'packages/main/tests/red/red-done-prepare-done-parity.mjs',
     'packages/main/tests/red/red-done-shared-predicates.mjs',
@@ -534,10 +536,10 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
      'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
      'packages/main/tests/canonical-new-story-artifacts.test.mjs',
    ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
-   // Lab integration preserves the complete current main inventory and its timeouts;
-   // the complete acceptance-basis matrix explicitly uses its audited four-worker mode.
-   // Merged 160-command inventory; recomputed with the actual configured-command normalizer.
-   assert.equal(real.commandSetDigest, '4e798199f1a1337c4a567c2977a161eb4d48c6e8582fc6c9a76fbc6c0821ae84', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // v0.3.300 retains the session-performance inventory and adds the Finding
+  // identity delivery and RED commands. Recompute from the merged normalized
+  // inventory before replacing this deliberate merge-time sentinel.
+  assert.equal(real.commandSetDigest, 'dc42ca76e140345b7273565216f7cd3054781423e3d8312f051a8f94b377087b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

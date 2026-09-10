@@ -169,6 +169,61 @@ async function authenticatedInventoryRegression(): Promise<void> {
     writeFileSync(artifactPath, artifactBytes.replace('INVENTORY_OK', 'INVENTORY_NO'));
     assert.throws(() => reviewInventoryAcceptanceSubjectDigestForStore(store, sid), /artifact|digest|integrity|invalid/i, 'F063 full artifact tamper rejected before projection');
     writeFileSync(artifactPath, artifactBytes);
+
+    // A persisted intent correction may retire an earlier intentRef while
+    // retaining its immutable evidence history. Inventory authentication must
+    // evaluate the current acceptance basis, not require retired evidence to
+    // resolve against a current pin. The current replacement receipt remains
+    // fully authenticated and tamper-sensitive.
+    const renamedChecklist = store.readChecklist(sid);
+    renamedChecklist.items[0].verificationIntent!.happy[0].id = 'OBS-V2';
+    store.writeChecklist(sid, renamedChecklist);
+    await handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS-V2', kind: 'integration_test', command,
+      selector: 'INVENTORY_OK', result: 'pass', note: 'replacement observation contract' });
+    const renamedAuthentic = store.readChecklist(sid);
+    let renamedSubject = '';
+    assert.doesNotThrow(
+      () => { renamedSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid); },
+      'RETIRED_EVIDENCE_MUST_NOT_BLOCK_CURRENT_INVENTORY',
+    );
+    const changedRetired = structuredClone(renamedAuthentic);
+    const retiredEvidence = changedRetired.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS')!;
+    retiredEvidence.command = 'node retired-history-does-not-define-current-acceptance.js';
+    (retiredEvidence.receipt as unknown as Record<string, any>).executionReceipt.authenticity.signature = 'invalid-retired-signature';
+    store.writeChecklist(sid, changedRetired);
+    assert.equal(
+      reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      renamedSubject,
+      'retired evidence is excluded from the current acceptance subject',
+    );
+    for (const attack of ['signature', 'command', 'freshness'] as const) {
+      const tamperedCurrent = structuredClone(renamedAuthentic);
+      const currentEvidence = tamperedCurrent.items[0].verificationEvidence!.find(value => value.intentRef === 'OBS-V2')!;
+      const receipt = currentEvidence.receipt as unknown as Record<string, any>;
+      if (attack === 'signature') receipt.executionReceipt.authenticity.signature = 'invalid-signature';
+      if (attack === 'command') currentEvidence.command = 'node never-executed-replacement.js';
+      if (attack === 'freshness') currentEvidence.materialHash = 'f'.repeat(64);
+      store.writeChecklist(sid, tamperedCurrent);
+      assert.throws(
+        () => reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+        /invalid|mismatch|signature|command|freshness|binding|authentication/i,
+        `current replacement ${attack} remains authenticated`,
+      );
+    }
+    const emptyIntents = structuredClone(renamedAuthentic);
+    emptyIntents.items[0].verificationIntent = { happy: [], edge: [], adversarial: [] };
+    store.writeChecklist(sid, emptyIntents);
+    const emptyIntentSubject = reviewInventoryAcceptanceSubjectDigestForStore(store, sid);
+    const emptyIntentsWithoutHistory = structuredClone(emptyIntents);
+    emptyIntentsWithoutHistory.items[0].verificationEvidence = [];
+    store.writeChecklist(sid, emptyIntentsWithoutHistory);
+    assert.equal(
+      reviewInventoryAcceptanceSubjectDigestForStore(store, sid),
+      emptyIntentSubject,
+      'an explicitly empty current intent set retires all prior evidence rows',
+    );
+    store.writeChecklist(sid, authenticChecklist);
+
     process.env[semanticKey] = 'real-environment-change-with-identical-output';
     await record();
     const changedInput = row();
@@ -1123,6 +1178,20 @@ const evidenceRow = (overrides: Record<string, unknown>): ChecklistData => ({
   }],
 });
 const digestBaseline = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({}));
+const nullLegacyRow = evidenceRow({});
+(nullLegacyRow.items[0] as unknown as { verificationIntent: null }).verificationIntent = null;
+const nullLegacyChanged = evidenceRow({ result: 'fail' });
+(nullLegacyChanged.items[0] as unknown as { verificationIntent: null }).verificationIntent = null;
+assert.notEqual(
+  reviewInventoryAcceptanceSubjectDigest(null, nullLegacyChanged),
+  reviewInventoryAcceptanceSubjectDigest(null, nullLegacyRow),
+  'legacy evidence semantics remain bound when verificationIntent is null',
+);
+assert.notEqual(
+  reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({ result: 'fail' })),
+  digestBaseline,
+  'legacy evidence semantics remain in the acceptance subject when verificationIntent is absent',
+);
 const digestRepinned = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({
   headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1', timestamp: '2026-09-09T09:09:09.000Z',
   receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: true, executedAt: '2026-09-09T09:09:09.000Z' },

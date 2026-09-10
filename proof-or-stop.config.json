@@ -67,6 +67,45 @@
       {
         "command": "node",
         "args": [
+          "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
+          "--section=delivery"
+        ],
+        "timeoutMs": 600000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b03b7-identity-lineage.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          },
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "scripts/verify-lab-worktree.mjs"
         ],
         "timeoutMs": 180000,
