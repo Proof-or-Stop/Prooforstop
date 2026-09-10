@@ -23,7 +23,7 @@ const env = { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFI
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN']) delete env[key];
 function command(repo, args) {
   const row = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: 'utf8', env, timeout: 15000 });
-  return { status: row.status, signal: row.signal, error: row.error?.message, output: (row.stdout || '') + (row.stderr || '') };
+  return { status: row.status, signal: row.signal, error: row.error?.message, stdout: row.stdout || '', output: (row.stdout || '') + (row.stderr || '') };
 }
 function start(repo, args) {
   const child = spawn(process.execPath, [script, ...args], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -60,7 +60,7 @@ function fixture(name) {
   const repo = join(temp, name); mkdirSync(repo);
   git(repo, 'init', '-qb', 'main'); git(repo, 'config', 'user.name', 'Lab lock regression'); git(repo, 'config', 'user.email', 'lab@example.invalid');
   write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/\n');
-  for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0' }));
+  for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', type: 'module' }));
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   for (const name of ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']) {
     write(repo, `packages/main/src/core/${name}.ts`, readFileSync(join(root, `packages/main/src/core/${name}.ts`)));
@@ -79,7 +79,7 @@ const notes = join(temp, 'notes.md'); writeFileSync(notes, 'Verify the bounded L
 const lab = (repo, name) => join(repo, '.worktrees', `Lab-${name}`);
 const red = (name, events, ms = 1800) => ['red', name, '--expect', 'INNER_TARGET_RED', '--', process.execPath, 'check.mjs', events, String(ms)];
 const eventsAt = path => existsSync(path) ? readFileSync(path, 'utf8').trim().split('\n').filter(Boolean).map(x => JSON.parse(x)) : [];
-const state = (repo, name) => JSON.parse(command(repo, ['status', name]).output);
+const state = (repo, name) => JSON.parse(command(repo, ['status', name]).stdout);
 
 try {
   const virgin = fixture('virgin'); const pristine = tree(virgin);
