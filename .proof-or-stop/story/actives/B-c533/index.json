@@ -4,7 +4,7 @@
   "title": "Build the RED-to-GREEN registry component-mapping gate foundation",
   "description": "Implement P0m, the registry component-mapping foundation from the approved trusted RED-to-GREEN plan, as a fail-closed gate prerequisite so process and runtime facts cannot bypass deterministic tri-class classification.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "repro-first",
@@ -24,6 +24,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-7a7bdf26a84911a33c17c2ea73e653b6",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-10T22:57:25.210Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7a7bdf26a84911a33c17c2ea73e653b6",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c533",
+    "branch": "story/B-c533",
+    "createdAt": "2026-09-10T22:57:16.929Z"
+  }
 }
