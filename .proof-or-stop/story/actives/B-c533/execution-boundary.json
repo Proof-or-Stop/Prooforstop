@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-c533",
+  "allowedCommands": [
+    "claude read-only audit invocation",
+    "git status diff log add commit merge",
+    "node focused verification scripts",
+    "npm build and test scripts",
+    "proof-or-stop Story lifecycle and evidence commands"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Claude CLI read-only audit",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-c533",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/tests/red",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "direct Story JSON mutation",
+    "force branch deletion",
+    "git clean -fd",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives except B-c533",
+    "other active worktrees"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "All implementation remains inside the B-c533 worktree. Claude audits are read-only except for the reviewer-owned init_check_set/review commands explicitly required by the lifecycle.",
+  "createdAt": "2026-09-10T22:25:07.128Z",
+  "updatedAt": "2026-09-10T22:25:07.128Z",
+  "_hash": "8f16a332923f3ea7251b1ad672686bfdc6b7e2858c479144e4691559b8f8b36b"
+}
