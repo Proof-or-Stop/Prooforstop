@@ -1088,7 +1088,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
         writeBackground();
         writeInitialScopeArtifacts();
-        // Note: direct phase specification path is for onboard etc. scenarios; normally riskHint is unnecessary, but kept consistent
+        // Explicit phase selection is an intake-only compatibility surface.
         if (hasChecklist) {
           const checklist = {
             items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),

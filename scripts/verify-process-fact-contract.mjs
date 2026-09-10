@@ -10285,6 +10285,14 @@ const inventory = [
         ],
       },
       {
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          "phase: z.enum(['IDEA','INIT']",
+          'story_create_direct_lifecycle_phase_forbidden',
+          'post-intake lifecycle phases require story_advance',
+        ],
+      },
+      {
         relPath: 'packages/main/src/handlers/checklist.ts',
         patterns: [
           'assertChecklistScopeChangeAllowed',

@@ -591,6 +591,30 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     });
     assert.equal(repairedLoop.code, 0);
     assert.match(repairedLoop.stdout + repairedLoop.stderr, /Review loop .* started/);
+
+    const emptyTriggerLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: mainStoryId,
+      trigger: { findingIds: [] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.notEqual(emptyTriggerLoop.code, 0);
+    assert.match(
+      emptyTriggerLoop.stdout + emptyTriggerLoop.stderr,
+      /trigger|findingId|bugId|validationFailureRef|scopeViolationRef/,
+      'review_loop_start must reject empty trigger refs at parameter validation',
+    );
+
+    const placeholderLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: mainStoryId,
+      trigger: { findingIds: [`${mainStoryId}:F-002`] },
+      rollbackRef: placeholderRollbackRef,
+    });
+    assert.notEqual(placeholderLoop.code, 0);
+    assert.match(
+      placeholderLoop.stdout + placeholderLoop.stderr,
+      /rollbackRef|headHash|diffHash|materialHash|placeholder/,
+      'review_loop_start must reject placeholder rollbackRef hashes',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -483,7 +483,7 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
 }
 
 /** Fixture-only state setup. Production Story creation must never mint this phase. */
-function setFixtureStoryPhase(storyDirAbs: string, storyId: string, phase: 'DONE' | 'PLAN'): void {
+function setFixtureStoryPhase(storyDirAbs: string, storyId: string, phase: 'DONE'): void {
   const idxPath = join(storyDirAbs, storyId, 'index.json');
   const idx = JSON.parse(readFileSync(idxPath, 'utf8'));
   idx.phase = phase;
