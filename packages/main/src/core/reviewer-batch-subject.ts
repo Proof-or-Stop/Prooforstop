@@ -2,11 +2,19 @@ import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
-import { captureReviewRunSnapshot } from './review-run.js';
-import { currentOpenReviewInventory, reviewInventoryPurposeBinding, reviewInventoryDigest, verifyReviewInventoryEpoch } from './review-inventory-epoch.js';
+import { captureReviewRunSnapshot, verifyReviewRun } from './review-run.js';
+import { currentOpenReviewInventory, inventoryPurposeMatchesEpoch, reviewInventoryPurposeBinding, reviewInventoryDigest, verifyReviewInventoryEpoch } from './review-inventory-epoch.js';
 import { resolveStoryCommandWorkspace } from '../handlers/context.js';
 import { captureReviewInventoryScope } from '../handlers/review-inventory.js';
 import type { ReviewerBatchAssignment } from './reviewer-batch-admission.js';
+
+const INVENTORY_CRITIC_LANE = 'proof-or-stop-review-topology-critic';
+
+export function reviewerBatchAdmissionLanes(requiredLanes: readonly string[], includeInventoryCritic: boolean): string[] {
+  const lanes = [...requiredLanes];
+  if (includeInventoryCritic && !lanes.includes(INVENTORY_CRITIC_LANE)) lanes.push(INVENTORY_CRITIC_LANE);
+  return lanes;
+}
 
 /** Read-only: never call assertReviewInventoryCutoff or refresh...Locked, which persist invalidation. */
 export function deriveReviewerBatchSubject(store: StoryStore, root: string, args: { storyId: string; epochId?: string; wave?: number }) {
@@ -32,9 +40,22 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   const after = currentOpenReviewInventory(store, args.storyId);
   const afterStory = store.readStory(args.storyId);
   if (!after || after._hash !== epoch._hash || afterStory.phase !== 'REVIEW' || afterStory.currentReviewRound !== story.currentReviewRound) fail('BATCH_SUBJECT_CHANGED_DURING_CAPTURE');
+  const includeInventoryCritic = store.readReviewRuns(args.storyId).runs.some(run =>
+    verifyReviewRun(run, store)
+    && run.lane === INVENTORY_CRITIC_LANE
+    && run.agent === INVENTORY_CRITIC_LANE
+    && run.reviewPurpose === 'inventory-completeness'
+    && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
+    && run.reviewRound === epoch.reviewRound
+    && run.headHash === epoch.cutoff.headHash
+    && run.materialHash === epoch.cutoff.materialHash
+    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
+  );
+  const requiredLanes = reviewerBatchAdmissionLanes(epoch.requiredLanes, includeInventoryCritic);
   const subject = { schema: 'reviewer-batch-subject.v1', worktreeRoot: realpathSync(signedRoot!), metadataRoot: realpathSync(metadataRoot), binding,
-    candidateSpecSetDigest: scope.candidateSpecSetDigest ?? '', corpusDigest: scope.corpusDigest ?? '' };
-  return { subjectIdentity: reviewInventoryDigest(subject), subject, requiredLanes: [...epoch.requiredLanes] };
+    candidateSpecSetDigest: scope.candidateSpecSetDigest ?? '', corpusDigest: scope.corpusDigest ?? '',
+    admissionLanesDigest: reviewInventoryDigest(requiredLanes) };
+  return { subjectIdentity: reviewInventoryDigest(subject), subject, requiredLanes };
 }
 
 export function validateReviewerBatchAssignments(requiredLanes: readonly string[], assignments: readonly ReviewerBatchAssignment[]): ReviewerBatchAssignment[] {

@@ -131,9 +131,6 @@ const storyCreateHint: HintFn = (ctx) => {
   if (result.includes('(IDEA)')) {
     return `→ Story 停在 IDEA（无 checklist）。下一步：proof-or-stop checklist_add 追加，或重新 proof-or-stop story_create 带 checklist`;
   }
-  if (result.includes('(DONE)')) {
-    return `→ Story 直接创建在 DONE（onboard 模式）。已无后续步骤`;
-  }
   return null;
 };
 

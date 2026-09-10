@@ -370,7 +370,7 @@ withTempContext('story_create refuses direct INIT_CHECK creation', (root, store)
     checklist: [{ title: 'Reject direct INIT_CHECK', context: 'Use normal INIT gates instead.' }],
     phase: 'INIT_CHECK',
     forceNew: true,
-  }), /story_create cannot directly create INIT_CHECK stories/);
+  }), /story_create_direct_lifecycle_phase_forbidden/);
   assert.equal(store.listStoryIds().length, 0, 'direct INIT_CHECK rejection must not write a story');
 });
 

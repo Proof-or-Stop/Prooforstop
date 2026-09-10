@@ -117,6 +117,22 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-b03b7-scope-budget-legacy-migration.mjs`,
+    'Lab-only migration witness that requires the historical B-03b7 worktree path as argv[2]. The permanent scope-budget '
+    + 'configuration and process-fact validations cover the shipped policy; invoking this pathless wrapper in canonical '
+    + 'validate would terminate as BROKEN before exercising its intended historical subject.'],
+  [`${POPULATION_DIR_REL}/red-scope-budget-provenance-repair.mjs`,
+    'Lab-only focused witness for the completed scope-budget provenance repair. The registered process-fact contract '
+    + 'and scope-budget configuration checks consume the same current validation-command inventory, so retaining this '
+    + 'one-shot repair probe as another canonical command would duplicate standing coverage.'],
+  [`${POPULATION_DIR_REL}/red-sealed-review-pass-finalization.mjs`,
+    'Lab-only wrapper around the permanent review-incremental-context as-of-run acceptance branch. The registered review '
+    + 'validation surface and verify-review-asof-boundary source coverage retain that assertion; replaying this wrapper '
+    + 'would only execute the same focused branch again.'],
+  [`${POPULATION_DIR_REL}/red-story-create-direct-done-bypass.mjs`,
+    'Lab-only reproduction for the completed lifecycle-entry repair. The permanent field-regression CLI smoke, Story '
+    + 'creation concurrency smoke, and process-fact contract now enforce refusal of post-intake phases, so this disposable '
+    + 'direct-handler reproduction is not a separate canonical validation command.'],
   [`${POPULATION_DIR_REL}/red-b03b7-f031-public-foreign-canonical.mjs`,
     'The registered finding-identity-lineage-smoke.js --section=delivery executes the same worktrees branch and '
     + 'PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS assertion as this on-demand wrapper. Its signed foreign canonical row, '

@@ -8,6 +8,219 @@ Maintenance provenance: codex/lab-final-162-closure, repair d6ac23ebf035e892f699
 Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b49d4-harness-registration.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab repro-first-plan-integration-0306 - v0.3.308 - 2026-09-10
+
+# Repro-first lifecycle-entry maintenance
+
+Problem: `story_create` could persist a Story directly in post-intake lifecycle phases, including `DONE`, bypassing transition-owned DEV, REVIEW, TEST, and DONE facts.
+
+Fix: restrict the public CLI schema and the internal handler to explicit `IDEA` or `INIT` intake. Refuse `INIT_CHECK`, `PLAN`, `DEV`, `REVIEW`, `TEST`, and `DONE` before persistence with a stable error code. Remove unreachable terminal/review initialization and stale onboarding guidance. Preserve synthetic terminal-state tests through fixture-only setup.
+
+Documentation: import the Claude-approved trusted RED-to-GREEN v37 execution plan, companion RED-evidence decision spec rev14, their matching audit fence, and a separate Lab implementation audit log. No Story metadata or signed Story evidence is carried.
+
+Verification: the Lab runner recorded a target RED showing direct DONE persistence, then replayed the same command as GREEN. Additional checks passed for package build, 37 repro binding cases, scope anti-expansion, six CLI refusal phases, positive IDEA/INIT intake, real-process concurrency, dedup/adversarial paths, and the process-fact contract. Claude CLI 2.1.268 returned final code verdict APPROVE with REQUIRED_CHANGES NONE.
+
+Known baseline: field-regression-cli-smoke has an unrelated pre-existing cluster-finding assertion failure on both untouched local main and the Lab. It is not caused by this change; collateral review-loop assertions remain preserved.
+
+Maintenance provenance: codex/lab-repro-first-plan-integration-0306, repair 08374c89c404ef56ff19460e4da48bade2e3b8b8.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-story-create-direct-done-bypass.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## v0.3.307 — Integrated Validation Closure — 2026-09-10
+
+### Release context
+
+The local `v0.3.306` line already contained every maintenance increment from `v0.3.301` through `v0.3.306` on top of `v0.3.300`. Remote `main` had independently added three commits from the same `v0.3.300` lineage to close the final validation-identity and package-boundary gaps. This release merges those two lines once and assigns a new version to the combined result; it does not replay or duplicate any earlier release.
+
+### Problem before the merge
+
+- The local line contained the sealed-review finalization, scope-budget provenance and legacy migration repairs, managed nested-sandbox repair, inventory-critic managed admission, and live metadata projection.
+- The remote line contained the final validation-identity closure, dependency-aware offline package verification, and its maintenance record.
+- Each line had valid evidence for its own source bytes, but the combined tree changed reviewed source and fixture inventories, executable identity bindings, dependency locks, and static-edge dependency digests. Keeping either branch's old pins would make the merged product fail closed even though the underlying behavior was preserved.
+- The remote package metadata still identified the older release line, so publishing the merge without a new version would make the integrated artifact indistinguishable from either parent.
+
+### Resolution
+
+- Merged the remote validation-closure commits into the complete local `v0.3.306` history while preserving all local `v0.3.301`–`v0.3.306` behavior and changelog records.
+- Advanced the root CLI and Core package identity to `0.3.307`, including lockfile and runtime brand metadata.
+- Preserved the exact `smol-toml` and `ws` dependency closure used by the validation and clean-install boundaries.
+- Recomputed the reviewed source, fixture, and executable-structure bindings from the actual merged bytes. The active review-inventory epoch consumer is now pinned to the built runtime representation used by production checks.
+- Refreshed only the exact dependency digests for existing static-edge exceptions. No exception reason, invocation, command coverage, or authority boundary was widened.
+- Preserved the remote final-validation checks and the local inventory-critic regressions in one buildable, packageable release line.
+
+### Before and after
+
+- **Before:** local and remote `main` each contained work absent from the other; the merged working tree initially reported stale identity and static-edge evidence, and a cold offline package test lacked the newly required dependency cache entries.
+- **After:** `main` contains both parent histories under `v0.3.307`; all reviewed bindings describe the combined bytes, the static-edge inventory reports zero unresolved or nested calls, and all four product tarballs install and verify with networking disabled.
+
+### Verification evidence
+
+- `npm run build` passed for Core, Utils, Graph, and the full-suite build binding.
+- `npm --prefix packages/lab run build` passed.
+- Runtime Story command coverage passed, including active-worktree reviewer reads, foreign-runtime write refusal, matching-runtime writes, and external installed-package consumers.
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`.
+- `INVENTORY_CRITIC_MANAGED_ADMISSION PASS`.
+- The process-fact contract passed with 539 registered entries.
+- The retired-authority vocabulary guard passed with 890 builds, 4 cache hits, 1,436 full analyses, 580 AST candidates, and 34 reachability checks.
+- The validation static-edge verifier passed with `needsReview=0`, `nested=0`, and `unexpandedCommands=0`.
+- The identity-cutover verifier passed all active identity, frozen-history, persisted-schema, consumer-runtime, and package-boundary checks.
+- The packed clean-install boundary passed for `proof-or-stop`, `@proof-or-stop/core`, `@proof-or-stop/lab`, and `@proof-or-stop/utils`, including canonical package, binary, and role identities with no retired-scope or local-file dependencies.
+- `git diff --check` passed before commit.
+
+## Lab inventory-critic-live-metadata-projection - v0.3.306 - 2026-09-10
+
+# Inventory Critic Live Metadata Projection
+
+## Trigger
+
+The purpose-bound managed inventory-completeness critic ran in a detached committed scratch checkout. The required-lane review runs and their terminal Findings were intentionally batched as current signed Story metadata and had not yet been committed, so the critic could not inspect the current inventory and incorrectly reported that evidence as missing.
+
+## RED evidence
+
+The focused RED command asserted that the managed inventory critic must receive the current signed uncommitted inventory metadata in its sealed prompt. It failed because no projection builder existed.
+
+## Repair
+
+The controller now builds a purpose-bound evidence pack from the current canonical Story store for the exact open inventory epoch. It includes only required-lane ReviewRuns after the epoch boundary and before the critic run, plus Findings and passes bound to those runs. The prompt projection exposes signature verification results, is sealed by the managed prompt digest, and explicitly grants no topology, TEST, DONE, or implementation authority.
+
+## GREEN evidence
+
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`
+- `node scripts/verify-process-fact-contract.mjs --quiet` passed.
+- `git diff --check` passed.
+
+The process-fact registry and verifier now protect the projection boundary and its focused RED/GREEN regression.
+
+Maintenance provenance: codex/lab-inventory-critic-live-metadata-projection, repair 13d530b0d563411be849ddf44176250793a43efd.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-live-metadata-projection-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab inventory-critic-managed-admission - v0.3.305 - 2026-09-10
+
+Fix managed admission for the inventory-completeness critic.
+
+The review lifecycle required an independent completeness critic after all ordinary reviewer lanes terminated, but the native evidence path required a host-adapter attestation while the managed path admitted only the ordinary required-lane roster. This left a valid purpose-bound critic ReviewRun with no formal execution path and blocked REVIEW remediation.
+
+The repair keeps the ordinary reviewer roster unchanged. Once a valid signed inventory-completeness critic ReviewRun is bound to the same open epoch, review round, head, material hash, and Story-files hash, the critic lane is included exactly once in a distinct managed-admission subject. Topology-purpose runs and stale or mismatched critic runs do not receive this admission.
+
+Verification includes a focused RED/GREEN regression, an integration assertion in the review-inventory handler smoke, and the process-fact contract verifier.
+
+Maintenance provenance: codex/lab-inventory-critic-managed-admission, repair 91fc32b3d45996d9bda620166ca62ba7da2d1ec6.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-managed-admission-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-codex-nested-sandbox - v0.3.304 - 2026-09-10
+
+# Managed Codex Nested Sandbox Repair
+
+## Problem
+
+Formal managed Codex reviewers already execute inside Proof-or-Stop's signed,
+isolated, read-only Darwin lane. The provider launcher additionally requested
+Codex `-s read-only`, causing Codex to install a second macOS seatbelt profile.
+Live B-03b7 review runs reproduced `sandbox_apply: Operation not permitted`;
+reviewers could not read any required artifact and their proposals were rejected
+as malformed.
+
+## Fix
+
+For the `managed_reviewer` Codex launch profile only, request
+`danger-full-access` from the nested provider process. The outer signed lane
+remains the filesystem enforcement boundary. The separate
+`cross_host_review_codex` profile remains `read-only`.
+
+## Verification
+
+- RED: `managed-host-run-process-smoke` expected the managed reviewer launcher
+  to delegate isolation to the outer lane and failed on the old `read-only`
+  argument.
+- GREEN: `managed-host-run-process-smoke` passes with the corrected launcher.
+- Isolation regression: `managed-review-scratch-isolation-smoke` passes and
+  still proves detached scratch registration, immutable binding, cleanup, and
+  preservation of the canonical worktree.
+
+## Measured impact
+
+The failing live reviewers completed zero required file reads. Removing the
+nested seatbelt failure restores read-only evidence collection without adding a
+second repository checkout or weakening the outer managed-review boundary.
+
+Maintenance provenance: codex/lab-managed-codex-nested-sandbox, repair 7a5c5369697a18cb324231d461d7ece5b97f21a5.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-host-run-process-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-scope-budget-legacy-migration - v0.3.303 - 2026-09-10
+
+# B-03b7 scope-budget legacy migration
+
+## Problem
+
+B-03b7 was created and reached REVIEW before the enforced Story scope-budget policy was activated. Its Story metadata lives on its worktree branch, so it was absent when main captured the initial legacy-subject manifest. After the current command-provenance repair, the budget evaluator correctly exposed the omission and blocked REVIEW-to-DEV as unknown scope.
+
+## Fix
+
+The project policy now includes one exact B-03b7 legacy-subject entry bound to the Story's immutable creation timestamp, captured REVIEW phase, and current canonical subject digest. This preserves the historical Story without inventing topology, relaxing global policy, or changing Story implementation scope.
+
+## Verification
+
+The Lab RED demonstrated that the eligible B-03b7 snapshot had no exact manifest binding. GREEN verifies the manifest entry matches the live Story's tool-derived timestamp and subject digest. After local integration, the Story worktree will rerun `scope_budget_check` to prove the production gate returns nonblocking legacy preservation.
+
+## Performance
+
+No performance claim is made. The change is a bounded migration record for one pre-policy Story.
+
+Maintenance provenance: codex/lab-b03b7-scope-budget-legacy-migration, repair 474895bc257e3395d833e6bf20789e49cf72b85a.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-scope-budget-legacy-migration.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab scope-budget-provenance-repair - v0.3.302 - 2026-09-10
+
+# Scope-budget validation provenance repair
+
+## Problem
+
+The enforced Story scope-budget evaluator could not resolve several provisional validation-command IDs retained in `storyScopeBudget.validationGroups` after their commands were wrapped or gained arguments. B-03b7 exposed the first orphan as a blocking `status=unknown` result during REVIEW-to-DEV remediation.
+
+## Fix
+
+Each orphan ID was resolved against Git history to recover its original command identity, then replaced by the unique current provisional ID for that same command. No validation-group member was removed, and no Story-owned implementation was changed.
+
+## Verification
+
+The committed RED guard loads the current validation-command inventory and verifies every scope-budget group ID resolves. It first emitted `SCOPE_BUDGET_PROVENANCE_RED` with the orphan list, then emitted `SCOPE_BUDGET_PROVENANCE_GREEN` after the mappings were refreshed. Lab finish also rebuilds and replays the same check against local main.
+
+## Performance
+
+No performance claim is made. The change restores deterministic scope-budget admission without adding validation commands.
+
+Maintenance provenance: codex/lab-scope-budget-provenance-repair, repair c7d61da275bc0e63174b49a50456826af667b1ad.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-scope-budget-provenance-repair.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab sealed-review-pass-finalization - v0.3.301 - 2026-09-10
+
+# Sealed review pass finalization
+
+## Problem
+
+B-03b7 reached REVIEW with a finalized, unconsumed review inventory receipt, but REVIEW-to-TEST rejected previously valid passes after a metadata-only commit. Prompt-envelope verification recomputed historical incremental-review eligibility against the live HEAD instead of the ReviewRun HEAD, so unchanged review facts appeared stale.
+
+## Fix
+
+Latest local main already contained the focused production repair: historical eligibility and review-basis reconstruction now use the signed `ReviewRun.headHash`, while current material freshness remains an independent live admission check. This Lab retained a focused regression wrapper and did not duplicate or broaden the production change.
+
+## Verification
+
+The Lab first recorded `SEALED_REVIEW_PASS_FINALIZATION_RED` against the affected B-03b7 state. After synchronizing the repaired main, the same Lab check runs the bounded `--asof-run-only` regression and records `SEALED_REVIEW_PASS_FINALIZATION_GREEN`. The regression proves that a metadata-only commit preserves the H1 envelope, while a later material change still fails the live HEAD contract.
+
+## Scope and performance
+
+No B-03b7 implementation file was edited in the Story worktree. An unrelated deterministic lock-reclaim timing failure observed in the full smoke was excluded from this bounded Lab because the focused target passes independently. No performance improvement is claimed.
+
+Maintenance provenance: codex/lab-sealed-review-pass-finalization, repair 11e7b4e9e23228ed896c9ea9e9012d70bbd55fab.
+Verification command (replayed before integration and on main): `["node","--import","tsx","packages/main/tests/red/red-sealed-review-pass-finalization.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab final-160-closure - v0.3.298 - 2026-09-10
 
 The exact 160-command final validation completed with 158 passes and two failures.

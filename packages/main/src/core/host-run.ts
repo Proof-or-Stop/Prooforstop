@@ -1981,12 +1981,20 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
   if (args.launchProfile === 'cross_host_review_codex'
     || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')) {
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
+    // The managed-review worker already runs the provider inside the signed
+    // Darwin read-only lane. Asking Codex to install a second seatbelt profile
+    // inside that lane fails with sandbox_apply: Operation not permitted and
+    // prevents even read-only evidence collection. Disable only the nested
+    // provider sandbox; the outer lane remains the enforcement boundary.
+    const sandboxMode = args.launchProfile === 'managed_reviewer'
+      ? 'danger-full-access'
+      : 'read-only';
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:
       // final proposal and usage/progress parsing require the terminal event,
       // not ordinary rendered final prose.
-      argv: ['exec', '--json', '-s', 'read-only', '-C', args.cwd, '-'],
+      argv: ['exec', '--json', '-s', sandboxMode, '-C', args.cwd, '-'],
       stdinText: args.promptText,
       cleanup: () => {},
     };

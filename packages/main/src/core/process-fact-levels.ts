@@ -45,7 +45,7 @@ export const PROCESS_FACT_LEVEL_DEFINITIONS = [
 
 export const PROCESS_FACT_LEVELS = [
   { name: 'reviewer_batch_admit', level: 'L4', category: 'managed-admission', owner: 'handlers/reviewer-batch-admit', rationale: 'Owner freezes a complete signed review roster and records supervised batch capability admission with explicit idempotent retry generations.', gateConsumer: 'Configured managed reviewer submit before scratch/build and worker before provider launch' },
-  { name: 'story_create', level: 'L1', category: 'story', owner: 'handlers/story-create', rationale: 'Creates the initial story envelope and schema-normalized inputs before gate evidence exists.' },
+  { name: 'story_create', level: 'L1', category: 'story', owner: 'handlers/story-create', rationale: 'Creates only an IDEA or INIT intake envelope with schema-normalized inputs; post-intake lifecycle phases require story_advance and its gates.' },
   { name: 'story_advance', level: 'L4', category: 'lifecycle', owner: 'handlers/story-advance', rationale: 'Moves lifecycle phase and invokes phase guards before writing the transition.', gateConsumer: 'storyMachine phase guards and story_advance preflight gates' },
   { name: 'story_update', level: 'L2', category: 'story', owner: 'handlers/story', rationale: 'Mutates story metadata under CLI schema control without serving as gate evidence.' },
   { name: 'story_resume', level: 'L4', category: 'review-convergence', owner: 'handlers/story', rationale: 'Appends a signed human decision and resets the verified completed-epoch progress boundary after interactive acknowledgement; preserves completion and decision history.', gateConsumer: 'Shared convergence progress gate at CLI advance and machine REVIEW mint' },

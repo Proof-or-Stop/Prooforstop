@@ -25,6 +25,9 @@ import type { Finding, ManagedReviewEvidenceBinding, ReviewPass, ReviewRun } fro
 import { digestCanonicalJson } from './digest.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
+import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { verifyReviewInventoryEpoch } from './review-inventory-epoch.js';
+import { verifyReviewRun } from './review-run.js';
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -329,6 +332,89 @@ function renderManagedReviewerFullScanBinding(binding: ManagedReviewFullScanBind
   ];
 }
 
+function reviewRunSequence(reviewRunId: string): number | null {
+  const match = /:RR-(\d+)$/.exec(reviewRunId);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isSafeInteger(value) ? value : null;
+}
+
+export function buildManagedInventoryCriticEvidencePack(args: {
+  criticRun: Pick<ReviewRun, 'reviewRunId' | 'storyId' | 'reviewRound' | 'headHash' | 'materialHash' | 'storyFilesHash' | 'reviewPurpose' | 'inventoryBinding'>;
+  epoch: { epochId: string; storyId: string; state: string; reviewRound: string; cutoff: { headHash: string; materialHash: string; storyFilesHash?: string }; requiredLanes: string[] };
+  reviewRuns: ReviewRun[];
+  findings: Finding[];
+  passes: ReviewPass[];
+}) {
+  const binding = args.criticRun.inventoryBinding;
+  if (args.criticRun.reviewPurpose !== 'inventory-completeness' || !binding
+    || args.epoch.state !== 'OPEN' || args.epoch.storyId !== args.criticRun.storyId
+    || args.epoch.epochId !== binding.epochId || args.epoch.reviewRound !== binding.reviewRound
+    || args.epoch.cutoff.headHash !== binding.cutoff.headHash
+    || args.epoch.cutoff.materialHash !== binding.cutoff.materialHash
+    || (args.epoch.cutoff.storyFilesHash ?? '') !== (binding.cutoff.storyFilesHash ?? '')) {
+    throw new Error('managed reviewer: inventory critic evidence pack subject mismatch');
+  }
+  const requiredLanes = new Set(args.epoch.requiredLanes);
+  const criticSequence = reviewRunSequence(args.criticRun.reviewRunId);
+  const reviewRuns = args.reviewRuns.filter(run => {
+    const sequence = reviewRunSequence(run.reviewRunId);
+    return requiredLanes.has(run.lane)
+      && sequence !== null && sequence > binding.runSequenceBoundary
+      && (criticSequence === null || sequence < criticSequence)
+      && run.storyId === args.criticRun.storyId
+      && run.reviewRound === binding.reviewRound
+      && run.headHash === binding.cutoff.headHash
+      && run.materialHash === binding.cutoff.materialHash
+      && (run.storyFilesHash ?? '') === (binding.cutoff.storyFilesHash ?? '');
+  });
+  const runIds = new Set(reviewRuns.map(run => run.reviewRunId));
+  return {
+    schemaVersion: 'proof-or-stop.managed_inventory_critic_evidence_pack.v1' as const,
+    subject: binding,
+    epoch: args.epoch,
+    reviewRuns,
+    findings: args.findings.filter(row => Boolean(row.reviewRunId && runIds.has(row.reviewRunId))),
+    passes: args.passes.filter(row => Boolean(row.reviewRunId && runIds.has(row.reviewRunId))),
+  };
+}
+
+function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {
+  if (run.reviewPurpose !== 'inventory-completeness') return [];
+  const store = new StoryStore(root);
+  const epoch = store.readReviewInventoryEpochs(run.storyId).epochs
+    .find(row => row.epochId === run.inventoryBinding?.epochId);
+  if (!epoch) throw new Error('managed reviewer: inventory critic evidence pack epoch missing');
+  const pack = buildManagedInventoryCriticEvidencePack({
+    criticRun: run,
+    epoch,
+    reviewRuns: store.readReviewRuns(run.storyId).runs,
+    findings: store.readFindings(run.storyId).findings,
+    passes: store.readReviewPasses(run.storyId).passes,
+  });
+  const projected = {
+    ...pack,
+    epochSignatureValid: verifyReviewInventoryEpoch(epoch),
+    reviewRuns: pack.reviewRuns.map(row => ({
+      reviewRunId: row.reviewRunId, storyId: row.storyId, agent: row.agent, lane: row.lane,
+      reviewRound: row.reviewRound, startedAt: row.startedAt, headHash: row.headHash,
+      materialHash: row.materialHash, storyFilesHash: row.storyFilesHash,
+      promptHash: row.promptHash, envelopeId: row.envelopeId, _hash: row._hash,
+      signatureValid: verifyReviewRun(row, store),
+    })),
+    findings: pack.findings.map(row => ({ ...row, signatureValid: verifyFinding(run.storyId, row) })),
+    passes: pack.passes.map(row => ({ ...row, signatureValid: verifyReviewPass(run.storyId, row) })),
+  };
+  return [
+    '--- BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
+    'This exact JSON was captured from the canonical Story metadata after the required lanes terminated and is sealed by the managedPromptDigest.',
+    'For inventory-completeness duties, this pack is the current epoch/run/terminal source. The detached scratch intentionally reflects committed HEAD and may predate the batched current inventory metadata; do not report that expected lag as missing canonical evidence.',
+    'Independently inspect every required-lane terminal, signatureValid flag, readManifest/readLog, and exact Finding family. Do not infer topology, TEST, DONE, or implementation authority from this pack.',
+    JSON.stringify(projected),
+    '--- END CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
+  ];
+}
+
 export function buildManagedReviewerPrompt(
   root: string,
   run: ReviewRun,
@@ -376,6 +462,7 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
+    ...(run.reviewPurpose === 'inventory-completeness' ? ['', ...renderManagedInventoryCriticEvidencePack(root, run)] : []),
   ].join('\n');
 }
 
