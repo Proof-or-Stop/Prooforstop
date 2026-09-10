@@ -115,7 +115,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
     if (!Array.isArray(value)) return value;
     const currentIntents = collectVerificationIntents(item);
     return value.filter(row => {
-      if (item.verificationIntent === undefined || item.verificationIntent === null) return true;
+      if (!item.verificationIntent) return true;
       if (!row || typeof row !== 'object') return true;
       const intentRef = (row as Record<string, unknown>).intentRef;
       return typeof intentRef !== 'string' || currentIntents.some(intent => intent.ref === intentRef);

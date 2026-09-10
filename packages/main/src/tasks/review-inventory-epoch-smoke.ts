@@ -170,7 +170,7 @@ async function authenticatedInventoryRegression(): Promise<void> {
     assert.throws(() => reviewInventoryAcceptanceSubjectDigestForStore(store, sid), /artifact|digest|integrity|invalid/i, 'F063 full artifact tamper rejected before projection');
     writeFileSync(artifactPath, artifactBytes);
 
-    // A PLAN-authorized intent correction may retire an earlier intentRef while
+    // A persisted intent correction may retire an earlier intentRef while
     // retaining its immutable evidence history. Inventory authentication must
     // evaluate the current acceptance basis, not require retired evidence to
     // resolve against a current pin. The current replacement receipt remains
