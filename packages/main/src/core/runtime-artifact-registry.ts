@@ -680,12 +680,24 @@ export function normalizeRuntimeArtifactPath(path: string): string {
     .replace(/\/+$/, '');
 }
 
-function matchesRuntimeArtifact(entry: RuntimeArtifactRegistryEntry, path: string): boolean {
-  const normalized = normalizeRuntimeArtifactPath(path);
+// Cache only pure string normalization, never a path classification. Registry
+// order, matcher replacement/value changes and stateful regexes remain live.
+const normalizedMatcherValues = new WeakMap<RuntimeArtifactPathMatcher, { value: string; normalized: string }>();
+
+function normalizedMatcherValue(matcher: RuntimeArtifactPathMatcher & { value: string }): string {
+  const value = matcher.value;
+  const cached = normalizedMatcherValues.get(matcher);
+  if (cached?.value === value) return cached.normalized;
+  const normalized = normalizeRuntimeArtifactPath(value);
+  normalizedMatcherValues.set(matcher, { value, normalized });
+  return normalized;
+}
+
+function matchesRuntimeArtifact(entry: RuntimeArtifactRegistryEntry, normalized: string): boolean {
   return entry.matchers.some((matcher) => {
-    if (matcher.kind === 'exact') return normalized === normalizeRuntimeArtifactPath(matcher.value);
+    if (matcher.kind === 'exact') return normalized === normalizedMatcherValue(matcher);
     if (matcher.kind === 'prefix') {
-      const base = normalizeRuntimeArtifactPath(matcher.value);
+      const base = normalizedMatcherValue(matcher);
       return normalized === base || normalized.startsWith(`${base}/`);
     }
     return matcher.value.test(normalized);
@@ -693,7 +705,9 @@ function matchesRuntimeArtifact(entry: RuntimeArtifactRegistryEntry, path: strin
 }
 
 export function findRuntimeArtifactEntry(path: string): RuntimeArtifactRegistryEntry | undefined {
-  const normalized = normalizeRuntimeArtifactPath(path);
+  // Keep the former two passes: each removes only one leading './'. Hoist the
+  // per-entry pass without changing this deliberately non-idempotent behavior.
+  const normalized = normalizeRuntimeArtifactPath(normalizeRuntimeArtifactPath(path));
   return RUNTIME_ARTIFACT_REGISTRY.find((entry) => entry.matchers.length > 0 && matchesRuntimeArtifact(entry, normalized));
 }
 

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-0980",
+  "allowedCommands": [
+    "git *",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "python3 *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-0980",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only exact benchmark M0 responsibility registration. Preserve enforce mode, limits and existing rows.",
+  "createdAt": "2026-09-11T21:43:50.361Z",
+  "updatedAt": "2026-09-11T21:43:50.361Z",
+  "_hash": "4606fe8b5b4a5fb0459159350dc8e06270f892de7b885de457fe3ab60caf7cca"
+}

@@ -68,6 +68,8 @@ async function importDist(root, relPath) {
 
 async function main() {
   const root = findRepoRoot(process.cwd());
+  execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
+    { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
   check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
   const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
