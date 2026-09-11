@@ -737,8 +737,8 @@ function formatParallelDecompositionBlock(
 }
 
 export function canStartDevGuard(context: StoryMachineContext): boolean {
-  if (planOwnerCoverageFailure(context.store, context.projectRoot, context.storyId)) return false;
   if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
+  if (planOwnerCoverageFailure(context.store, context.projectRoot, context.storyId)) return false;
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
     const config = loadConfig(context.projectRoot);
@@ -1309,10 +1309,6 @@ export function getGuardFailureReason(
   projectRoot?: string,
   gitCwd?: string,
 ): string | null {
-  if (targetPhase === 'DEV' && store.readStory(storyId).phase === 'PLAN') {
-    const ownerFailure = planOwnerCoverageFailure(store, projectRoot ?? process.cwd(), storyId);
-    if (ownerFailure) return ownerFailure;
-  }
   // B-e71f CHK-005: INIT→INIT_CHECK hard gate.
   // Only enabled when story.phase === 'INIT'; other sources such as IDEA→INIT_CHECK are not gated.
   // Missing init-check.json → missing_init_check; _hash mismatch → init_check_tampered.
@@ -1366,6 +1362,10 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'DEV') {
+    if (store.readStory(storyId).phase === 'PLAN') {
+      const ownerFailure = planOwnerCoverageFailure(store, projectRoot ?? process.cwd(), storyId);
+      if (ownerFailure) return ownerFailure;
+    }
     const budgetBlocker = storyScopeBudgetBlocker(store, projectRoot ?? process.cwd(), storyId);
     if (budgetBlocker) return budgetBlocker;
     // First check whether taking the express channel from INIT_CHECK
