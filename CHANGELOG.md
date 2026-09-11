@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab amendment-review-flat-output - v0.3.319 - 2026-09-11
+
+Clarify the independent DEV acceptance review response contract after two B-e6d9 managed Codex runs emitted an approving verdict with nested binding fields that the strict parser correctly rejected. The trusted prompt now explicitly requires top-level subject fields, rejects a nested binding object, and renders the existing parser transport JSON Schema directly. Parser acceptance and signing rules are unchanged.
+
+The focused source-runtime regression first failed with AMENDMENT_PROMPT_FLAT_SCHEMA_MISSING after flat-accept/nested-reject/mismatch-reject controls passed. The exact pinned command now passes for both Codex and Claude prompt projections and verifies schema equality plus preserved task data. Official Lab RED and GREEN were recorded. This is deterministic prompt/protocol regression evidence, not a claim that the subsequent real provider review has succeeded. No measured lifecycle speedup is claimed. B-e6d9 command timing logs retain the execution measurements and failed launches.
+
+Maintenance provenance: codex/lab-amendment-review-flat-output, repair 84ee44f2709f5ebaefe45880f9da343ce36b154d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-amendment-prompt-output-shape.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab external-untracked-config-master-base - v0.3.318 - 2026-09-11
 
 Problem: An untracked controller configuration was absent from a linked Story worktree. Bootstrap lstat failed on the missing target, while a manual copy was later classified as an out-of-scope business change. Master-only repositories also lacked a consistent integration baseline.
