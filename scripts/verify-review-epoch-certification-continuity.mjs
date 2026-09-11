@@ -49,7 +49,7 @@ function cli(root, command, payload, env = {}) {
     }
     finally {
         // The child has completed. Release only its own verified fixture lease.
-        releaseCompletedFixtureOwner(root, adapterSessionId(root, task, actor));
+        releaseCompletedFixtureOwner(root, adapterSessionId(root.split('/.worktrees/')[0], task, actor));
     }
 }
 function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }, fullEnvelope = false) {
