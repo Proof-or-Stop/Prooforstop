@@ -1,7 +1,7 @@
 import { createPublicKey, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import type {
   AcceptanceBasisArtifactV1,
   ChecklistData,
@@ -29,6 +29,10 @@ import {
   preReviewExecutableProvenanceIsCurrent,
 } from './pre-review-live-proof.js';
 import { readBrandEnv } from './brand-env.js';
+import { collectVerificationIntents, isExecutableIntentType } from './verification.js';
+import { isSplitVerificationReceipt, validateVerificationReceipt } from './verification-execution-evidence.js';
+import type { AcceptanceVerificationProfile } from './acceptance-discovery-adapters.js';
+import { checkEvidenceFreshnessForGit } from './evidence-freshness.js';
 
 const KEY_FILE = 'proof-or-stop-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
@@ -51,20 +55,22 @@ export interface PreReviewCheckInput {
   topologyDiagnosticCodes: string[];
   criticVerification?: { ok: boolean; code: string };
   criticReceiptDigest?: string;
+  verificationProfile?: AcceptanceVerificationProfile;
 }
 
 export interface PreReviewCheckReport {
   storyId: string;
   mode: AcceptanceTopologyGateMode;
   readOnly: true;
+  verificationProfile: AcceptanceVerificationProfile;
   status: 'pass' | 'fail' | 'inconclusive';
   ok: boolean;
   blocking: boolean;
   codes: PreReviewCheckCodeV1[];
   plannedActual: 'complete' | 'incomplete';
   executableEvidence: 'current' | 'missing';
-  mutations: 'biting' | 'missing';
-  transcript: 'related' | 'missing';
+  mutations: 'biting' | 'missing' | 'not_required';
+  transcript: 'related' | 'missing' | 'not_required';
   authority: 'admissible' | 'inadmissible';
   criticReattestation: 'current' | 'missing' | 'not_required';
   remediation: string[];
@@ -129,6 +135,89 @@ function evidenceState(checklist: ChecklistData, cutoffAt: string, storyFilesHas
   const currentRefs = new Set(current.map(row => row.evidence.intentRef));
   const missingIntents = mustIntents.filter(ref => !currentRefs.has(ref));
   return { evidenceRefs, missingIntents, afterCutoff: afterCutoff.length, stale: stale.length };
+}
+
+/** Verify generic command admission from the same signed receipts used by checklist gates. */
+export function evaluateRegisteredCommandEvidence(input: {
+  gitCwd: string;
+  metadataRoot: string;
+  storyId: string;
+  checklist: ChecklistData;
+  cutoffAt: string;
+  freshness: { headHash: string; materialHash: string; storyFilesHash: string };
+}): { ok: boolean; codes: PreReviewCheckCodeV1[]; goTestReceiptCount: number; evidenceRefs: PreReviewEvidenceRefV1[] } {
+  const freshness = {
+    headHash: input.freshness.headHash,
+    materialHash: input.freshness.materialHash,
+    storyFilesHash: input.freshness.storyFilesHash,
+  };
+  const codes = new Set<PreReviewCheckCodeV1>();
+  const evidenceRefs: PreReviewEvidenceRefV1[] = [];
+  let goTestReceiptCount = 0;
+  const cutoff = Date.parse(input.cutoffAt);
+  const must = input.checklist.items.flatMap(item => collectVerificationIntents(item)
+    .filter(entry => (entry.intent.priority ?? 'must') === 'must' && isExecutableIntentType(entry.intent.type))
+    .map(entry => ({ item, entry })));
+  for (const { item, entry } of must) {
+    const pin = entry.intent.verification;
+    const candidates = (item.verificationEvidence ?? []).map((evidence, index) => ({ evidence, index }))
+      .filter(row => row.evidence.intentRef === entry.ref);
+    const passing = candidates.filter(row => row.evidence.result === 'pass');
+    if (!pin || passing.length === 0) {
+      codes.add('PR_POSITIVE_EVIDENCE_MISSING');
+      continue;
+    }
+    let accepted = false;
+    const candidateFailures = new Set<PreReviewCheckCodeV1>();
+    for (const { evidence, index } of passing) {
+      if (evidence.materialHash !== freshness.materialHash
+        || evidence.storyFilesHash !== freshness.storyFilesHash) {
+        candidateFailures.add('PR_EVIDENCE_STALE');
+        continue;
+      }
+      const liveFreshness = checkEvidenceFreshnessForGit(input.gitCwd, evidence.headHash, evidence.materialHash, input.metadataRoot, evidence.storyFilesHash);
+      if (!liveFreshness.fresh) {
+        candidateFailures.add('PR_EVIDENCE_STALE');
+        continue;
+      }
+      if (typeof evidence.timestamp !== 'string' || !Number.isFinite(Date.parse(evidence.timestamp)) || Date.parse(evidence.timestamp) >= cutoff) {
+        candidateFailures.add('PR_CUTOFF_UNBOUND');
+        continue;
+      }
+      if (evidence.mechanical !== true || !evidence.receipt || evidence.command !== pin.command) {
+        candidateFailures.add('PR_AUTHORITY_INADMISSIBLE');
+        continue;
+      }
+      const evidenceFreshness = { headHash: evidence.headHash!, materialHash: evidence.materialHash!, storyFilesHash: evidence.storyFilesHash! };
+      const validation = validateVerificationReceipt(input.metadataRoot, evidence.receipt, {
+        storyId: input.storyId,
+        intentRef: entry.ref,
+        selector: pin.selector,
+        command: pin.command,
+        freshness: evidenceFreshness,
+      });
+      if (!validation.ok || !isSplitVerificationReceipt(evidence.receipt)) {
+        candidateFailures.add('PR_AUTHORITY_INADMISSIBLE');
+        continue;
+      }
+      const execution = evidence.receipt.executionReceipt;
+      if (execution.exitCode !== 0 || execution.timedOut || evidence.receipt.assertionReceipt.matched !== true) {
+        candidateFailures.add('PR_POSITIVE_EVIDENCE_MISSING');
+        continue;
+      }
+      if (basename(execution.executable) === 'go' && execution.argv[0] === 'test') goTestReceiptCount += 1;
+      evidenceRefs.push({ intentRef: entry.ref, itemId: item.id, evidenceIndex: index, kind: evidence.kind, evidenceDigest: digest(evidence) });
+      accepted = true;
+      break;
+    }
+    if (!accepted) {
+      if (candidateFailures.size === 0) codes.add('PR_POSITIVE_EVIDENCE_MISSING');
+      else for (const code of candidateFailures) codes.add(code);
+    }
+  }
+  if (must.length === 0 || goTestReceiptCount === 0) codes.add('PR_PRODUCTION_PATH_UNPROVEN');
+  const ordered = orderedCodes([...codes]);
+  return { ok: ordered.length === 0, codes: ordered, goTestReceiptCount, evidenceRefs };
 }
 
 export function loadVerifiedPreReviewExecutableProof(input: {
@@ -347,37 +436,52 @@ function remediationFor(codes: readonly PreReviewCheckCodeV1[]): string[] {
 export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreReviewCheckArtifactV1 {
   const basis = input.currentArtifact.basis;
   const codes: PreReviewCheckCodeV1[] = [];
+  const commandProfile = input.verificationProfile === 'go-command';
   if (!input.planArtifact || basis.priorPlanBasisDigest !== input.planArtifact.basis.basisDigest) codes.push('PR_COVERAGE_BASIS_CHANGED');
-  if (basis.status !== 'complete') codes.push('PR_COVERAGE_INCONCLUSIVE');
+  if (!commandProfile && basis.status !== 'complete') codes.push('PR_COVERAGE_INCONCLUSIVE');
   const basisVerification = verifyAcceptanceCoverageBasis(basis);
   for (const diagnostic of basisVerification.diagnostics) {
     const code = diagnostic.code.startsWith('PR_') ? diagnostic.code as PreReviewCheckCodeV1 : 'PR_ADAPTER_RESULT_INVALID';
     codes.push(code);
   }
-  if (basis.plannedActualReconciliations.length !== basis.plannedPathRecords.length) codes.push('PR_PLANNED_PATH_UNRESOLVED');
-  if (input.topologyDiagnosticCodes.some(code => code === 'AT_UNMAPPED_SCOPE_REF')) codes.push('PR_NEW_PATH_UNMAPPED');
-  if (input.topologyDiagnosticCodes.length > 0) codes.push('PR_COVERAGE_BASIS_CHANGED');
+  if (!commandProfile && basis.plannedActualReconciliations.length !== basis.plannedPathRecords.length) codes.push('PR_PLANNED_PATH_UNRESOLVED');
+  if (!commandProfile && input.topologyDiagnosticCodes.some(code => code === 'AT_UNMAPPED_SCOPE_REF')) codes.push('PR_NEW_PATH_UNMAPPED');
+  if (!commandProfile && input.topologyDiagnosticCodes.length > 0) codes.push('PR_COVERAGE_BASIS_CHANGED');
   const evidence = evidenceState(input.checklist, input.cutoffAt, basis.binding.storyFilesHash);
   const proof = executableProofState(input.contract, input.executableProof);
-  if (evidence.stale > 0) codes.push('PR_EVIDENCE_STALE');
-  if (evidence.afterCutoff > 0) codes.push('PR_CUTOFF_UNBOUND');
-  if (evidence.missingIntents.length > 0) codes.push('PR_POSITIVE_EVIDENCE_MISSING');
-  if (!proof.positives) codes.push('PR_PRODUCTION_PATH_UNPROVEN');
-  if (!proof.mutationsPresent) codes.push('PR_MUTATION_EVIDENCE_MISSING');
-  if (!proof.mutationsBite) codes.push('PR_MUTATION_DID_NOT_BITE');
-  if (!proof.controlsRestored) codes.push('PR_CONTROL_NOT_RESTORED');
-  if (!proof.transcriptsPresent) codes.push('PR_TRANSCRIPT_MISSING');
-  else if (!proof.transcriptsRelated) codes.push('PR_TRANSCRIPT_UNRELATED');
-  if (!proof.authority) codes.push('PR_AUTHORITY_INADMISSIBLE');
-  if (input.mode === 'enforce' && !input.criticVerification?.ok) codes.push('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED');
+  const commandEvidence = commandProfile ? evaluateRegisteredCommandEvidence({
+    gitCwd: input.gitCwd,
+    metadataRoot: input.metadataRoot,
+    storyId: input.storyId,
+    checklist: input.checklist,
+    cutoffAt: input.cutoffAt,
+    freshness: basis.binding,
+  }) : null;
+  if (commandProfile) {
+    codes.push(...(commandEvidence?.codes ?? ['PR_AUTHORITY_INADMISSIBLE']));
+    if (evidence.missingIntents.length > 0) codes.push('PR_POSITIVE_EVIDENCE_MISSING');
+  } else {
+    if (evidence.stale > 0) codes.push('PR_EVIDENCE_STALE');
+    if (evidence.afterCutoff > 0) codes.push('PR_CUTOFF_UNBOUND');
+    if (evidence.missingIntents.length > 0) codes.push('PR_POSITIVE_EVIDENCE_MISSING');
+    if (!proof.positives) codes.push('PR_PRODUCTION_PATH_UNPROVEN');
+    if (!proof.mutationsPresent) codes.push('PR_MUTATION_EVIDENCE_MISSING');
+    if (!proof.mutationsBite) codes.push('PR_MUTATION_DID_NOT_BITE');
+    if (!proof.controlsRestored) codes.push('PR_CONTROL_NOT_RESTORED');
+    if (!proof.transcriptsPresent) codes.push('PR_TRANSCRIPT_MISSING');
+    else if (!proof.transcriptsRelated) codes.push('PR_TRANSCRIPT_UNRELATED');
+    if (!proof.authority) codes.push('PR_AUTHORITY_INADMISSIBLE');
+    if (input.mode === 'enforce' && !input.criticVerification?.ok) codes.push('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED');
+  }
   const emittedCodes = orderedCodes(codes);
-  const status = emittedCodes.length === 0 ? 'pass' : basis.status === 'complete' ? 'fail' : 'inconclusive';
+  const status = emittedCodes.length === 0 ? 'pass' : commandProfile || basis.status === 'complete' ? 'fail' : 'inconclusive';
   const key = privateKey(input.gitCwd);
   const signerPublicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(key)));
   const unsigned: Omit<PreReviewCheckArtifactV1, 'signature'> = {
     schemaVersion: 'proofstory.pre_review_check.v1',
     storyId: input.storyId,
     mode: input.mode,
+    ...(commandProfile ? { verificationProfile: 'go-command' as const } : {}),
     cutoffAt: input.cutoffAt,
     planBasisDigest: input.planArtifact?.basis.basisDigest ?? '<missing>',
     preReviewBasisArtifact: input.currentArtifact,
@@ -386,7 +490,7 @@ export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreRevi
     ...(basis.binding.scopeContractDigest ? { scopeContractDigest: basis.binding.scopeContractDigest } : {}),
     storyFilesHash: basis.binding.storyFilesHash,
     closureFilesHash: basis.binding.closureFilesHash,
-    evidenceRefs: evidence.evidenceRefs,
+    evidenceRefs: commandEvidence?.evidenceRefs ?? evidence.evidenceRefs,
     executableProof: input.executableProof ?? {
       schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: input.storyId,
       producer: 'registered-verification-command', verifier: 'pre-review-check-command-runner', commandDigests: [], caseRecordsEncoding: 'gzip-base64', caseRecords: '',
@@ -403,10 +507,13 @@ export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreRevi
 
 export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { artifact: PreReviewCheckArtifactV1 | null }): PreReviewCheckReport {
   const artifact = input.artifact;
+  const verificationProfile = input.verificationProfile ?? 'unsupported';
+  const commandProfile = verificationProfile === 'go-command';
   if (!artifact) return {
-    storyId: input.storyId, mode: input.mode, readOnly: true, status: 'fail', ok: false, blocking: input.mode === 'enforce',
-    codes: ['PR_ARTIFACT_MISSING'], plannedActual: 'incomplete', executableEvidence: 'missing', mutations: 'missing', transcript: 'missing', authority: 'inadmissible',
-    criticReattestation: input.mode === 'enforce' ? 'missing' : 'not_required', remediation: remediationFor(['PR_ARTIFACT_MISSING']), artifact: null,
+    storyId: input.storyId, mode: input.mode, readOnly: true, verificationProfile, status: 'fail', ok: false, blocking: input.mode === 'enforce',
+    codes: ['PR_ARTIFACT_MISSING'], plannedActual: 'incomplete', executableEvidence: 'missing',
+    mutations: commandProfile ? 'not_required' : 'missing', transcript: commandProfile ? 'not_required' : 'missing', authority: 'inadmissible',
+    criticReattestation: commandProfile || input.mode !== 'enforce' ? 'not_required' : 'missing', remediation: remediationFor(['PR_ARTIFACT_MISSING']), artifact: null,
   };
   // Metadata auto-commit advances HEAD after the producer writes the artifact.
   // Re-evaluate semantic evidence against the signed basis while the canonical
@@ -424,8 +531,10 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   };
   const expected = issuePreReviewCheckArtifact(expectedInput);
   const codes: PreReviewCheckCodeV1[] = [...expected.codes];
-  const executableProvenanceCurrent = preReviewExecutableProvenanceIsCurrent(realpathSync(input.gitCwd), artifact.executableProof?.provenance);
-  if (!executableProvenanceCurrent) codes.push('PR_AUTHORITY_INADMISSIBLE');
+  const executableProvenanceCurrent = commandProfile
+    ? true
+    : preReviewExecutableProvenanceIsCurrent(realpathSync(input.gitCwd), artifact.executableProof?.provenance);
+  if (!commandProfile && !executableProvenanceCurrent) codes.push('PR_AUTHORITY_INADMISSIBLE');
   const trusted = trustedPublicKey(input.gitCwd);
   if (!artifact || !trusted || artifact.signerPublicKey !== trusted
     || !verifyCanonical(unsignedArtifact(artifact), artifact.signature, trusted)
@@ -460,13 +569,24 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   const ordered = orderedCodes(codes);
   const ok = ordered.length === 0 && artifact?.status === 'pass';
   const proof = executableProofState(input.contract, artifact.executableProof);
+  const commandEvidence = commandProfile ? evaluateRegisteredCommandEvidence({
+    gitCwd: input.gitCwd,
+    metadataRoot: input.metadataRoot,
+    storyId: input.storyId,
+    checklist: input.checklist,
+    cutoffAt: input.cutoffAt,
+    freshness: artifact.preReviewBasisArtifact.basis.binding,
+  }) : null;
   return {
-    storyId: input.storyId, mode: input.mode, readOnly: true, status: ok ? 'pass' : input.currentArtifact.basis.status === 'complete' ? 'fail' : 'inconclusive',
+    storyId: input.storyId, mode: input.mode, readOnly: true, verificationProfile,
+    status: ok ? 'pass' : commandProfile || input.currentArtifact.basis.status === 'complete' ? 'fail' : 'inconclusive',
     ok, blocking: input.mode === 'enforce' && !ok, codes: ordered,
-    plannedActual: input.currentArtifact.basis.plannedActualReconciliations.length === input.currentArtifact.basis.plannedPathRecords.length ? 'complete' : 'incomplete',
-    executableEvidence: proof.positives ? 'current' : 'missing', mutations: proof.mutationsBite && proof.controlsRestored ? 'biting' : 'missing',
-    transcript: proof.transcriptsPresent && proof.transcriptsRelated ? 'related' : 'missing', authority: proof.authority && executableProvenanceCurrent ? 'admissible' : 'inadmissible',
-    criticReattestation: input.mode !== 'enforce' ? 'not_required' : input.criticVerification?.ok ? 'current' : 'missing', artifact,
+    plannedActual: commandProfile || input.currentArtifact.basis.plannedActualReconciliations.length === input.currentArtifact.basis.plannedPathRecords.length ? 'complete' : 'incomplete',
+    executableEvidence: commandProfile ? commandEvidence?.ok ? 'current' : 'missing' : proof.positives ? 'current' : 'missing',
+    mutations: commandProfile ? 'not_required' : proof.mutationsBite && proof.controlsRestored ? 'biting' : 'missing',
+    transcript: commandProfile ? 'not_required' : proof.transcriptsPresent && proof.transcriptsRelated ? 'related' : 'missing',
+    authority: commandProfile ? commandEvidence?.ok ? 'admissible' : 'inadmissible' : proof.authority && executableProvenanceCurrent ? 'admissible' : 'inadmissible',
+    criticReattestation: commandProfile || input.mode !== 'enforce' ? 'not_required' : input.criticVerification?.ok ? 'current' : 'missing', artifact,
     remediation: remediationFor(ordered),
   };
 }

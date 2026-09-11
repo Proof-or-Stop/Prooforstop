@@ -1,4 +1,4 @@
-import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
+import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readdirSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import type {
@@ -19,6 +19,52 @@ export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
   methods: ['scope_contract', 'process_fact_registry', 'handler_dispatch_inventory', 'static_call_graph', 'runtime_trace'] as CoverageDiscoveryMethodV1[],
 } as const;
+
+export const ACCEPTANCE_GO_COMMAND_PROFILE = {
+  ref: 'profile:go-command:v1',
+  methods: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods,
+} as const;
+
+export type AcceptanceVerificationProfile = 'typescript-topology' | 'go-command' | 'unsupported';
+
+type NestedTypeScriptScan = 'found' | 'exhaustively_absent' | 'inconclusive';
+
+/** Strict TypeScript discovery wins for mixed workspaces; pure Go gets command-receipt admission. */
+export function resolveAcceptanceVerificationProfile(workspaceRoot: string): AcceptanceVerificationProfile {
+  if (detectAcceptanceDiscoverySupport(workspaceRoot)) return 'typescript-topology';
+  const ignored = new Set(['.git', '.worktrees', 'node_modules', 'vendor', 'dist', 'build']);
+  let visited = 0;
+  const nestedTypeScript = (directory: string, depth: number): NestedTypeScriptScan => {
+    if (depth > 6 || visited >= 4_096) return 'inconclusive';
+    let entries: Dirent[];
+    try { entries = readdirSync(directory, { withFileTypes: true }); } catch { return 'inconclusive'; }
+    let incomplete = false;
+    for (const entry of entries) {
+      visited += 1;
+      if (visited > 4_096) return 'inconclusive';
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isFile() && entry.name === 'tsconfig.json') return 'found';
+      if (entry.isDirectory() && !ignored.has(entry.name)) {
+        const nested = nestedTypeScript(join(directory, entry.name), depth + 1);
+        if (nested === 'found') return 'found';
+        if (nested === 'inconclusive') incomplete = true;
+      }
+    }
+    return incomplete ? 'inconclusive' : 'exhaustively_absent';
+  };
+  const typeScriptScan = nestedTypeScript(workspaceRoot, 0);
+  if (typeScriptScan === 'found') return 'typescript-topology';
+  if (typeScriptScan === 'inconclusive') return 'unsupported';
+  try {
+    const goMod = lstatSync(resolve(workspaceRoot, 'go.mod'));
+    if (goMod.isFile() && !goMod.isSymbolicLink()) return 'go-command';
+  } catch { /* no bounded Go capability */ }
+  return 'unsupported';
+}
+
+export function acceptanceDiscoveryProfile(profile: AcceptanceVerificationProfile) {
+  return profile === 'go-command' ? ACCEPTANCE_GO_COMMAND_PROFILE : ACCEPTANCE_PLAN_DISCOVERY_PROFILE;
+}
 
 const PLAN_CONTROL_FACT_NAMES = ['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json'] as const;
 const PRE_REVIEW_CONTROL_FACT_NAMES = ['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json'] as const;
@@ -2065,6 +2111,6 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
     status: unsupported ? 'unsupported' : partial ? 'partial' : 'complete' };
 }
 
-export function discoveryProfileDigest(): string {
-  return `sha256:${digestCanonicalJson(ACCEPTANCE_PLAN_DISCOVERY_PROFILE)}`;
+export function discoveryProfileDigest(profile: AcceptanceVerificationProfile = 'typescript-topology'): string {
+  return `sha256:${digestCanonicalJson(acceptanceDiscoveryProfile(profile))}`;
 }

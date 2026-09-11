@@ -832,7 +832,7 @@ void (async () => {
     //     SCOPE: this pins ONE constant and ONE rejection path. It is not, and does not restore,
     //     the removed byte-pin's incidental whole-file coverage of validation-executor.ts and
     //     verifier.ts (see section 12).
-    const EXPECTED_ALLOWLIST = ['bun', 'node', 'npm', 'npx', 'pnpm', 'tsx', 'yarn'];
+    const EXPECTED_ALLOWLIST = ['bun', 'go', 'node', 'npm', 'npx', 'pnpm', 'tsx', 'yarn'];
     const actualAllowlist = [...VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST].sort();
     check(
       `VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST membership is exactly [${EXPECTED_ALLOWLIST.join(', ')}] ` +

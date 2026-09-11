@@ -1066,6 +1066,38 @@ retrofitted as gate evidence.
 Purpose: answer “Is there current, admissible evidence that the planned proof
 topology is executable and bites before reviewers spend a round?”
 
+The verifier selects one workspace profile before applying those requirements.
+A TypeScript workspace, including a mixed TypeScript/Go repository, keeps the
+strict topology profile described below. A pure Go workspace uses the
+`go-command` profile because the TypeScript call-graph adapters cannot describe
+its production graph. That profile does not invent topology, mutation, or
+transcript evidence. It requires every executable `must` intent to have its
+immutable command and selector pin, a current tool-owned signed execution
+receipt bound to the exact Story and publication HEAD, current material and
+Story-files hashes, and pre-review cutoff, plus at least one argv-structured
+`go test` execution. A later metadata-only auto-commit may advance HEAD when
+the material and Story-files bindings remain current.
+Missing, failed, stale, cutoff-invalid, command-mismatched, selector-mismatched,
+unsigned, and non-Go-only evidence still blocks. Other unsupported languages do
+not inherit this profile.
+
+For a linked Story worktree created by an external harness, the primary checkout
+may initially contain the controller config and Story metadata while the Story
+branch does not. Before the first Story-scoped mutation, the CLI checks the
+owner lease and verifies the exact registered `story/<StoryId>` worktree,
+symbolic branch, shared Git common directory, canonical containment, no-follow
+file types, matching config bytes, and bounded snapshot size. It then projects
+only the config and exact Story directory into the linked worktree. All later
+Story writes and metadata commits use that worktree copy; the controller copy
+is not mutated. A foreign lease, nested repository, symlink, mismatched config,
+or oversized snapshot is rejected before projection.
+
+The signed Go profile also makes the topology-specific PLAN check
+not-applicable: a valid verifier-issued basis and receipt may pass that check
+without claiming TypeScript topology was discovered. All ordinary scope, Story
+review, ownership, and lifecycle gates still apply, so the command-evidence
+gate is reachable under enforce mode without weakening those controls.
+
 For every applicable required binding, it verifies:
 
 - coverage basis is independently recomputed from the actual current diff,

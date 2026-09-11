@@ -2760,6 +2760,30 @@
       {
         "command": "node",
         "args": [
+          "scripts/verify-external-worktree-go-pre-review.mjs"
+        ],
+        "timeoutMs": 120000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "exclusive"
+          }
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "external-worktree-go-pre-review-v1"
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
         ],
         "timeoutMs": 180000,
@@ -7466,6 +7490,7 @@
           "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
           "packages/main/src/tasks/concept-gate-scope-smoke.ts",
           "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/external-worktree-go-pre-review-smoke.ts",
           "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
           "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts",
           "packages/main/src/tasks/narrowing-repin-smoke.ts",
