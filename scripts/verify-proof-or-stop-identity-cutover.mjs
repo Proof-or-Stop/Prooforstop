@@ -7415,7 +7415,7 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "8e7e56b2b35de0bb65baf92af9670d133ab137879acda5b4cb0489f49e221a27"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "afd6330de997eeb1b970125dc458c057599c5624d19c0e9ad296583e919e8ff2"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"

@@ -75,6 +75,11 @@ async function main() {
   check(registrySource.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS'), 'Lab optional runtime requirements must be registered');
   const labLoader = read(root, 'scripts/lab-source-loader.mjs');
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
+  const labWorktree = read(root, 'scripts/lab-worktree.mjs');
+  check(registrySource.includes("worktreeOnlyActions: ['red', 'green']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
+  check(registrySource.includes("statusAccess: 'read-only-without-lock-or-trust-initialization'") && labWorktree.indexOf("if (action === 'status')") < labWorktree.indexOf('labLock = acquireMkdirLock'), 'Lab status must not acquire a write lock');
+  check(registrySource.includes("mutationLockOrder: 'lab-then-main'") && labWorktree.includes('heartbeatMs: labPolicy.operationHeartbeatMs') && labWorktree.includes('!labLock.isCurrent()'), 'Lab operations must retain registered heartbeat and ownership checks');
+  check(labWorktree.includes('labPolicy.readableRecordSchemas.includes(state.schema)') && labWorktree.includes('lab record upgrade') && labWorktree.includes('schema: labPolicy.recordSchema'), 'Lab record schema migration must fence older main-only writers');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');

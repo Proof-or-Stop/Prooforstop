@@ -21,12 +21,12 @@ const write = (cwd, path, value) => { mkdirSync(dirname(join(cwd, path)), { recu
 const commit = (cwd, message) => { git(cwd, 'add', '-A', '--', '.', ':!AGENTS.override.md'); git(cwd, 'commit', '-qm', message); };
 const env = { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') };
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN']) delete env[key];
-function command(repo, args) {
-  const row = spawnSync(process.execPath, [script, ...args], { cwd: repo, encoding: 'utf8', env, timeout: 15000 });
+function command(repo, args, entry = script) {
+  const row = spawnSync(process.execPath, [entry, ...args], { cwd: repo, encoding: 'utf8', env, timeout: 15000 });
   return { status: row.status, signal: row.signal, error: row.error?.message, stdout: row.stdout || '', output: (row.stdout || '') + (row.stderr || '') };
 }
-function start(repo, args) {
-  const child = spawn(process.execPath, [script, ...args], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'] });
+function start(repo, args, entry = script) {
+  const child = spawn(process.execPath, [entry, ...args], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'] });
   children.add(child);
   const row = { child, done: false, output: '', startedAt: performance.now() };
   child.stdout.on('data', x => { row.output += x; }); child.stderr.on('data', x => { row.output += x; });
@@ -154,6 +154,44 @@ try {
   const keyBefore = tree(repo), missing = command(repo, ['status', 'alpha']);
   expect('missing signing key refuses without replacing trust', missing.status === 1 && tree(repo) === keyBefore && !existsSync(key));
   renameSync(savedKey, key);
+
+  // Actual pre-repair 0.3.311 Lab CLI, frozen in Git, not a simulated legacy
+  // writer. Old scripts know only the main lock and schema 1. Migration must
+  // coordinate with them once, then make them refuse the new signed schema.
+  const legacyRoot = join(temp, 'legacy-tools');
+  const legacyRef = '33e7408c580d174329f71b977b73bab00a569262';
+  for (const rel of ['scripts/lab-worktree.mjs', 'scripts/lab-source-loader.mjs', 'packages/main/src/core/runtime-fact-registry.ts']) {
+    write(legacyRoot, rel, git(root, 'show', `${legacyRef}:${rel}`));
+  }
+  const legacyScript = join(legacyRoot, 'scripts/lab-worktree.mjs');
+  const migration = fixture('migration'); assert.equal(command(migration, ['create', 'old'], legacyScript).status, 0);
+  const migrationBefore = tree(migration);
+  expect('schema-1 status stays read-only before migration', state(migration, 'old').schema === 1 && tree(migration) === migrationBefore);
+  const migrationEvents = join(temp, 'migration-events');
+  const oldRun = start(migration, red('old', migrationEvents, 1000), legacyScript);
+  await until(() => oldRun.done || eventsAt(migrationEvents).length > 0, 'legacy RED start');
+  assert.equal(oldRun.done, false, oldRun.output);
+  const overlapping = command(migration, red('old', migrationEvents, 1));
+  expect('schema migration refuses a still-running old main-lock writer', overlapping.status === 1 && eventsAt(migrationEvents).filter(e => e.event === 'start').length === 1);
+  await oldRun.promise; assert.equal(oldRun.status, 0, oldRun.output);
+  assert.equal(command(migration, red('old', migrationEvents, 20)).status, 0);
+  const adopted = state(migration, 'old'); const eventCount = eventsAt(migrationEvents).length;
+  const legacyRetry = command(migration, red('old', migrationEvents, 1), legacyScript);
+  expect('old CLI cannot mutate or execute after signed schema migration', adopted.schema === 2 && legacyRetry.status === 1 && /Invalid Lab record/.test(legacyRetry.output) && eventsAt(migrationEvents).length === eventCount);
+
+  for (const fault of ['key', 'ownership']) {
+    const fenced = fixture(`fence-${fault}`); assert.equal(command(fenced, ['create', 'fence']).status, 0);
+    assert.equal(command(fenced, red('fence', join(temp, `fence-${fault}-events`), 1)).status, 0);
+    write(lab(fenced, 'fence'), 'check.mjs', `import fs from 'node:fs'; import path from 'node:path'; import {execFileSync} from 'node:child_process';
+const common=execFileSync('git',['rev-parse','--path-format=absolute','--git-common-dir'],{encoding:'utf8'}).trim();
+${fault === 'key' ? "fs.writeFileSync(path.join(common,'lab-maintenance/local.key'),Buffer.alloc(32,7));" : "const p=path.join(common,'lab-maintenance/locks/fence.lock/holder.json');const h=JSON.parse(fs.readFileSync(p));h.lockId='controlled-replacement-owner';fs.writeFileSync(p,JSON.stringify(h));"}
+console.log('child succeeded but publication must fail');\n`);
+    commit(lab(fenced, 'fence'), 'controlled publication fault');
+    const rejected = command(fenced, ['green', 'fence']);
+    const durable = JSON.parse(readFileSync(join(fenced, '.git/lab-maintenance/fence.json'))).payload;
+    expect(`successful child cannot publish GREEN after ${fault} changes`, rejected.status === 1 && /ownership or signing key changed/.test(rejected.output) && !durable.green);
+    if (fault === 'ownership') expect('release preserves replacement operation ownership', JSON.parse(readFileSync(join(fenced, '.git/lab-maintenance/locks/fence.lock/holder.json'))).lockId === 'controlled-replacement-owner');
+  }
 
   console.log('LAB_LOCK_RESULTS ' + JSON.stringify({ results, failures, timeline }, null, 2));
   if (failures.length) { console.error('LAB_LOCK_SCOPE_RED ' + failures.join('; ')); process.exitCode = 1; }

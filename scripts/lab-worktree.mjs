@@ -5,6 +5,7 @@ import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFileSync, renameSync, unlinkSync, realpathSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
   node scripts/lab-worktree.mjs create NAME
@@ -212,22 +213,49 @@ async function main() {
   if (!mainRoot) fail('A local main checkout is required.');
   const core = rel => import(pathToFileURL(join(mainRoot, 'packages/main/src/core', rel + '.ts')).href);
   const { acquireMainWriteLock } = await core('main-write-lock');
+  const { acquireMkdirLock } = await core('mkdir-lock');
   const { LAB_MAINTENANCE_GIT_DIR } = await core('runtime-artifact-registry');
   const common = git(cwd, 'rev-parse', '--path-format=absolute', '--git-common-dir');
   const dir = join(common, LAB_MAINTENANCE_GIT_DIR);
   const statePath = join(dir, name + '.json');
-  const lock = acquireMainWriteLock(mainRoot, { label: `lab ${action} ${name}` });
+  const keyPath = join(dir, 'local.key');
+  const mac = (payload, key) => createHmac('sha256', key).update(JSON.stringify(payload)).digest('hex');
+  const readState = key => {
+    if (!existsSync(statePath)) fail('Unknown Lab. Use create NAME first; legacy/manual worktrees are not automatically adopted.');
+    const envelope = JSON.parse(read(statePath)), state = envelope.payload;
+    if (envelope.hmac !== mac(state, key) || !labPolicy.readableRecordSchemas.includes(state.schema) || state.name !== name || state.mainRoot !== mainRoot) fail('Invalid Lab record; refusing mutation.');
+    return state;
+  };
+  // Atomic record replacement lets a reader observe the previous or next signed
+  // state without participating in either write lock. Never initialize trust or
+  // directories on status, including the unknown-Lab path.
+  if (action === 'status') {
+    if (!existsSync(statePath)) fail('Unknown Lab. Use create NAME first.');
+    if (!existsSync(keyPath)) fail('Local Lab signing key is missing; preserve records for recovery.');
+    console.log(JSON.stringify(readState(readFileSync(keyPath)), null, 2)); return;
+  }
+  if (action !== 'create' && !existsSync(keyPath)) fail('Local Lab signing key is missing; preserve records for recovery.');
+  let labLock, mainLock;
   try {
+    // All mutators acquire in this order. A long RED/GREEN owns only its Lab;
+    // finish/sync cannot touch that worktree or record until it has completed.
+    labLock = acquireMkdirLock(join(dir, 'locks', name + '.lock'), {
+      label: `Lab ${name} operation`, failFastIfHeld: true, requireHolderToken: true,
+      heartbeatMs: labPolicy.operationHeartbeatMs,
+    });
+    if (!labPolicy.worktreeOnlyActions.includes(action)) {
+      mainLock = acquireMainWriteLock(mainRoot, { label: `lab ${action} ${name}` });
+    }
     if (git(mainRoot, 'branch', '--show-current') !== 'main') fail('The main checkout changed branches.');
-    mkdirSync(dir, { recursive: true });
-    const keyPath = join(dir, 'local.key');
     if (!existsSync(keyPath)) {
-      if (existsSync(statePath)) fail('Local Lab signing key is missing; preserve records for recovery.');
+      if (action !== 'create' || existsSync(statePath)) fail('Local Lab signing key is missing; preserve records for recovery.');
       writeFileSync(keyPath, randomBytes(32), { mode: 0o600, flag: 'wx' });
     }
     const key = readFileSync(keyPath);
-    const mac = payload => createHmac('sha256', key).update(JSON.stringify(payload)).digest('hex');
-    const save = state => atomic(statePath, JSON.stringify({ payload: state, hmac: mac(state) }, null, 2) + '\n');
+    const save = state => {
+      if (!labLock.isCurrent() || !readFileSync(keyPath).equals(key)) fail('Lab operation ownership or signing key changed; no result recorded.');
+      atomic(statePath, JSON.stringify({ payload: state, hmac: mac(state, key) }, null, 2) + '\n');
+    };
     if (action === 'create') {
       if (existsSync(statePath)) fail('This Lab name already has a record; use a new name or inspect status.');
       const path = join(mainRoot, '.worktrees', `Lab-${name}`), branch = `codex/lab-${name}`;
@@ -237,14 +265,29 @@ async function main() {
       // No force, reset or fallback adoption: a partially created directory stays recoverable.
       if (existsSync(join(path, 'AGENTS.override.md'))) fail('Tracked override exists; workspace retained for inspection.');
       writeFileSync(join(path, 'AGENTS.override.md'), body, { flag: 'wx' });
-      save({ schema: 1, name, path, branch, mainRoot, base: sha(mainRoot), override: hash(body), phase: 'active', history: [] });
+      save({ schema: labPolicy.recordSchema, name, path, branch, mainRoot, base: sha(mainRoot), override: hash(body), phase: 'active', history: [] });
       console.log(`Created ${path}\nBranch: ${branch}\nNext: reproduce RED; commit repair; green; manually finish.`); return;
     }
-    if (!existsSync(statePath)) fail('Unknown Lab. Use create NAME first; legacy/manual worktrees are not automatically adopted.');
-    const envelope = JSON.parse(read(statePath)), s = envelope.payload;
-    if (envelope.hmac !== mac(s) || s.schema !== 1 || s.name !== name || s.mainRoot !== mainRoot) fail('Invalid Lab record; refusing mutation.');
-    if (action === 'status') { console.log(JSON.stringify(s, null, 2)); return; }
+    let s = readState(key);
     if (s.phase === 'closed') fail('Lab is already integrated and cleaned up.');
+    if (s.schema !== labPolicy.recordSchema) {
+      // Older CLI versions hold only the main lock and accept only schema 1.
+      // Join that lock once before upgrading, so no old in-flight writer can
+      // later overwrite the new record. Once upgraded, old scripts fail closed.
+      const alreadyMainLocked = Boolean(mainLock);
+      if (!mainLock) mainLock = acquireMainWriteLock(mainRoot, { label: `lab record upgrade ${name}` });
+      try {
+        s = readState(key);
+        if (s.phase === 'closed') fail('Lab is already integrated and cleaned up.');
+        if (s.schema !== labPolicy.recordSchema) {
+          const from = s.schema; s.schema = labPolicy.recordSchema;
+          s.history.push({ kind: 'operation-lock-upgrade', from, to: s.schema, at: new Date().toISOString() });
+          save(s);
+        }
+      } finally {
+        if (!alreadyMainLocked) { mainLock.release(); mainLock = undefined; }
+      }
+    }
     const entry = worktrees(mainRoot).find(w => w.worktree === s.path);
     // A crash after worktree removal can still be recovered by finish.
     if (!entry && !(action === 'finish' && s.phase === 'verified')) fail('Recorded Lab worktree is missing.');
@@ -690,6 +733,6 @@ async function main() {
       s.phase = 'closed'; save(s);
       console.log(`Integrated Lab ${name} locally at ${s.version}; checks passed; worktree and branch removed.\nAudit record: ${statePath}\nNo remote push performed.`);
     }
-  } finally { lock.release(); }
+  } finally { mainLock?.release(); labLock?.release(); }
 }
 main().catch(error => { console.error(`Lab stopped: ${error.message}`); process.exitCode = 1; });

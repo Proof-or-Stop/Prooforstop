@@ -146,8 +146,24 @@ command replayed before a fast-forward-only main update. Main is then built and
 checked again. Only after post-merge verification and reachability checks does the
 command remove the generated override, clean worktree and merged branch. It never
 uses force removal, a hard reset, a forced branch deletion or a push. Existing
-mechanical restrictions are not disabled. Long checks hold the main write lock;
-other writers must wait or retry. The default command timeout is 15 minutes per process. Long regression commands
+mechanical restrictions are not disabled. `status` only reads the existing signed
+record; it never acquires a write lock or initializes a signing key. RED and GREEN
+hold a per-Lab operation lock, allowing different Labs to verify concurrently and
+unrelated main writers to proceed. All Lab mutators take that same per-Lab lock
+first; sync, creation and finish additionally take the main write lock. Therefore
+finish cannot merge or delete a Lab while its verification is running. Finish's
+integration/build/recheck section still holds the main lock; this change does not
+make concurrent main releases safe. A conflicting operation on the same Lab fails
+with the holder's operation lock. Long synchronous checks retain a heartbeat and
+must still own their lock and original signing key before publishing a result.
+New records use signed schema 2. An existing schema-1 Lab first takes the main
+lock briefly to record its upgrade, waiting for operator retry if an old writer
+is active. The long test runs after this upgrade releases the main lock. Older
+Lab scripts reject schema 2 instead of bypassing its operation lock; use the
+updated checkout command for subsequent operations. Status can read either
+schema without upgrading it. This adoption is per Lab, not a migration of every
+existing worktree or running session.
+The default command timeout is 15 minutes per process. Long regression commands
 may declare `--timeout-ms MS` between the RED marker and `--` (1–3600000 ms).
 The signed RED record binds that budget; GREEN and integration checks replay it
 unchanged. Existing records retain the 15-minute default. A timeout never counts
