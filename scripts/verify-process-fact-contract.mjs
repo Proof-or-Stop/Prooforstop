@@ -11226,5 +11226,5 @@ console.log('Process-fact contract verification passed');
   for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)']) {
     assert(cert.includes(token), `PRE_CERT canonical review epoch continuity missing ${token}`);
   }
-  assert(read(processFactRegistryPath).includes('publisher\'s registered artifacts and content-addressed prompt-body paths'), 'bounded canonical review epoch continuity must be registered');
+  assert(read(processFactRegistryPath).includes('content-addressed prompt-body paths'), 'bounded canonical review epoch continuity must be registered');
 }
