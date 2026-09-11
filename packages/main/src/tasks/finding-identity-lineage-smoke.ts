@@ -45,8 +45,10 @@ import { nativeReviewFixtureBrokers, withBrokeredNativeReviewInvocation } from '
 import { buildVerifiedDeferral, deferralPolicyForWrite, verifyDeferralProjection } from '../handlers/finding-deferral-proof.js';
 import { signApplicabilityAssessment, type FindingApplicabilityAssessment } from '../core/finding-applicability.js';
 import { reconcileFindingDeferralRecalls } from '../handlers/finding-deferral-recall.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
 
 const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=')[1] ?? 'candidates';
+if (section === 'routes' && await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const smokeStarted = performance.now();
 assert.ok(['candidates', 'routes', 'history', 'scorecard', 'worktrees', 'delivery'].includes(section), 'only implemented smoke sections are supported');
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-identity-')));

@@ -12,7 +12,8 @@ const MARKER = '--isolated-finding-fixture-worker';
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);
-  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js'].some(name => file.endsWith('/' + name))) {
+  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js',
+    'finding-qualification-independence-smoke.js', 'finding-identity-lineage-smoke.js'].some(name => file.endsWith('/' + name))) {
     throw new Error('isolated Finding fixture entry is not allowlisted');
   }
   const scratch = mkdtempSync(join(tmpdir(), 'dfec-native-worker-'));
@@ -22,7 +23,7 @@ export async function runIsolatedFindingFixture(entry: string): Promise<boolean>
   const code = `import {writeFileSync,renameSync} from 'node:fs';
 const launcher = Number(process.argv[1]);
 while (process.ppid === launcher) await new Promise(resolve => setTimeout(resolve, 10));
-process.argv.push(${JSON.stringify(MARKER)});
+process.argv.push(...${JSON.stringify(process.argv.slice(2))}, ${JSON.stringify(MARKER)});
 let code = 0;
 try { await import(${JSON.stringify(entry)}); code = Number(process.exitCode || 0); }
 catch (error) { console.error(error); code = 1; }

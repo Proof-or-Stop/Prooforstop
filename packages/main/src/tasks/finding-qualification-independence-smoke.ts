@@ -12,6 +12,8 @@ import { appendFindingLedger, findingLedgerSignerFromWorkspace, exactLedgerRecor
 import { collectQualificationSubjectAdjudications, qualificationSubjectProjection } from '../handlers/finding-qualification-adjudication.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers } from './native-review-fixture.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const root = mkdtempSync(join(tmpdir(), 'finding-independent-gold-')); const cwd = process.cwd();
 let failures = 0;
 try {
