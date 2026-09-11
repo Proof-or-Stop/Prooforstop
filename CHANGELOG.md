@@ -1,19 +1,5 @@
 # Changelog
 
-## Lab cross-host-audit - v0.3.323 - 2026-09-11
-
-Require at least one independent CLI audit from a vendor different from the Lab developer before local integration. Built-in adapters identify Codex/OpenAI and Claude/Anthropic, while trusted main configuration can register other stdin/JSON adapters such as an operator-provided Grok/xAI bridge. The policy is vendor-based, not a fixed two-CLI pairing. A candidate cannot select its own auditor through an unreviewed configuration change.
-
-The command launches the provider through shared admission and process supervision, gives it the committed diff and complete changed-file snapshots, validates the exact structured verdict and subject/configuration bindings, and records process identity, cleanup, output digests, duration and findings in local HMAC-bound provenance. Missing, failed, rejected, duplicate, malformed or stale audit results block integration. An unchanged rejected candidate cannot be rerolled. Schema 3 prevents older Lab writers from bypassing the new gate after adoption. Host/vendor attribution remains trusted local configuration rather than cryptographic vendor attestation, and no local Lab audit grants Story evidence.
-
-A real Claude CLI audit of 0.3.321 reported fixture exclusions that depended on global Git configuration, dependency-scan gaps, a missing late-upgrade refusal case and unclear release-policy provenance. This repair preserves node_modules exclusions without relying on global ignores, parses runtime imports structurally, rejects unresolved or escaping dependencies, tests the late prepared-release upgrade refusal, and makes both version/build policies explicitly owned by the executing trusted Lab tool.
-
-Verification: target RED reproduced integration without an independent audit. The exact pinned GREEN command now passes 95 real command checks in temporary Git repositories, including both built-in directions and a synthetic third-vendor adapter, same-vendor/unavailable-provider rejection, malformed/stale/duplicate verdicts, rejection retention, version synchronization/retry, cleanup and carry-forward. Contract and fixture-closure controls run within that command. Additional process-fact, runtime-fact and Lab-lock verification passed. Fixture provider outputs are explicitly synthetic and do not count as independent audit of this repair; finish must run a real provider against its final candidate.
-
-Maintenance provenance: codex/lab-cross-host-audit, repair ffa8148da2dfa1abc174d4c7ad21c69118ea4476.
-Verification command (replayed before integration and on main): `["node","scripts/verify-lab-worktree.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab plan-owner-coverage - v0.3.322 - 2026-09-11
 
 # PLAN canonical owner coverage Lab
