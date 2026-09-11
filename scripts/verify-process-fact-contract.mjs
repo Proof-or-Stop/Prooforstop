@@ -578,6 +578,13 @@ const requiredRuntimeEntries = [
     line: '- runtime:repro_first_story_intake_preflight [L4] owner=core/repro-evidence-binding-gate gate=story_create STORY_INTAKE preflight and storyMachine.canEnterPlan/canStartDev/canSkipPlan gates',
   },
   {
+    name: 'runtime:story_create_phase_admission_gate',
+    level: 'L4',
+    owner: 'handlers/story-create',
+    line: '- runtime:story_create_phase_admission_gate [L4] owner=handlers/story-create gate=story_create pre-persistence lifecycle admission gate',
+    rationaleTokens: ['IDEA/INIT', 'PLAN/DEV/REVIEW/TEST/DONE', 'before persistence', 'story_advance'],
+  },
+  {
     name: 'runtime:review_escalation_done_gate',
     level: 'L4',
     owner: 'core/review-escalation',
@@ -9599,6 +9606,21 @@ function assertProcessFactCommandInventory() {
     }
   }
   assertReviewExecutionAuthorityContract(registry, levelRegistry);
+  const storyCreateText = read('packages/main/src/handlers/story-create.ts');
+  for (const token of [
+    'args.phase !== 'IDEA' && args.phase !== 'INIT'',
+    'story_create_direct_lifecycle_phase_forbidden',
+    'story_advance through INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE',
+  ]) {
+    assert(
+      storyCreateText.includes(token),
+      `packages/main/src/handlers/story-create.ts: story_create lifecycle admission gate missing ${JSON.stringify(token)}`,
+    );
+  }
+  assert(
+    read('packages/main/src/cli/command-catalog.ts').includes('Post-intake lifecycle phases require story_advance'),
+    'packages/main/src/cli/command-catalog.ts: story_create phase help must disclose lifecycle admission policy',
+  );
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
   assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);
