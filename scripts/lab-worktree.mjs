@@ -11,7 +11,7 @@ import { auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-
 import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
-  node scripts/lab-worktree.mjs create NAME
+  node scripts/lab-worktree.mjs create NAME [--developer PROVIDER]
   node scripts/lab-worktree.mjs sync NAME
   node scripts/lab-worktree.mjs status NAME
   node scripts/lab-worktree.mjs reopen NAME --confirm

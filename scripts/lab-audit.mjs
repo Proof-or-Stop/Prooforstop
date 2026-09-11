@@ -7,7 +7,15 @@ import { selectAuditor } from './lab-audit-providers.mjs';
 
 export const LAB_AUDIT_SCHEMA = 'proof-or-stop.lab-cross-host-audit.v1';
 const hash = value => createHash('sha256').update(value).digest('hex');
-const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 2 * 1024 * 1024 }).trim();
+const INPUT_LIMIT = 8 * 1024 * 1024;
+function readGitText(cwd, args, label = args.join(' ')) {
+  try { return execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: INPUT_LIMIT, stdio: ['ignore', 'pipe', 'pipe'] }); }
+  catch (error) {
+    if (error.code === 'ENOBUFS' || /maxBuffer|ENOBUFS/.test(error.message)) throw new Error(`Lab audit input exceeds the bounded text contract; split the repair (${label}).`);
+    throw error;
+  }
+}
+const git = (cwd, ...args) => readGitText(cwd, args).trim();
 export function developerHost(explicit, env = process.env) {
   const observed = env.CLAUDECODE ? 'claude' : env.CODEX_THREAD_ID ? 'codex' : undefined;
   if (env.CLAUDECODE && env.CODEX_THREAD_ID) throw new Error('Ambiguous developer host; run from one supported development host.');
@@ -23,11 +31,11 @@ export function auditInput(cwd, base, head) {
     if (!entry) return { path, content: '[deleted; complete prior content is in the diff]' };
     if (!/^\d+ blob /.test(entry)) throw new Error(`Lab audit cannot inspect a non-blob input: ${path}`);
     // An unreadable or oversized existing file must fail, never become a passing placeholder.
-    const content = execFileSync('git', ['show', `${head}:${path}`], { cwd, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+    const content = readGitText(cwd, ['show', `${head}:${path}`], path);
     return { path, content };
   });
   const input = JSON.stringify({ base, head, diff: git(cwd, 'diff', '--no-ext-diff', '--no-textconv', base, head), files });
-  if (Buffer.byteLength(input) > 8 * 1024 * 1024 || files.some(file => file.content.includes('\0'))) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
+  if (Buffer.byteLength(input) > INPUT_LIMIT || files.some(file => file.content.includes('\0'))) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
   return { input, inputDigest: hash(input), paths, files };
 }
 const object = properties => ({ type: 'object', additionalProperties: false, required: Object.keys(properties), properties });
@@ -38,7 +46,9 @@ export function auditSchema() {
     readRefs: { type: 'array', items: str }, findings: { type: 'array', items: object({ severity: str, file: str, problem: str, fix: str }) } });
 }
 export function parseAuditResult(stdout, host, binding) {
-  const events = stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+  let events;
+  try { events = stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line)); }
+  catch { throw new Error('Lab audit transport contains malformed JSON.'); }
   let candidates;
   if (host === 'lab-json') {
     candidates = events;
@@ -51,7 +61,9 @@ export function parseAuditResult(stdout, host, binding) {
     if (events.some(e => e.type === 'turn.failed' || e.type === 'error')) throw new Error('Lab audit Codex turn failed.');
     const messages = events.filter(e => e.type === 'item.completed' && e.item?.type === 'agent_message').map(e => e.item.text);
     candidates = messages.flatMap(text => { try { const p = JSON.parse(text); return p.schemaVersion === LAB_AUDIT_SCHEMA ? [p] : []; } catch { return []; } });
-    if (!messages.length || candidates.length !== 1 || JSON.stringify(JSON.parse(messages.at(-1))) !== JSON.stringify(candidates[0])) throw new Error('Lab audit requires exactly one final Codex proposal without trailing prose.');
+    let tail;
+    try { tail = JSON.parse(messages.at(-1)); } catch { tail = undefined; }
+    if (!messages.length || candidates.length !== 1 || JSON.stringify(tail) !== JSON.stringify(candidates[0])) throw new Error('Lab audit requires exactly one final Codex proposal without trailing prose.');
   }
   const result = candidates[0];
   const keys = Object.keys(auditSchema().properties);

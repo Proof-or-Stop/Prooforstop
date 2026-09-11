@@ -9,7 +9,7 @@ assert.equal(parseAuditResult(event(proposal),'claude',binding).decision,'pass')
 for(const invalid of [{...proposal,head:'stale'},{...proposal,extra:true},{...proposal,findings:[{severity:'low',file:'source.ts',problem:'defect',fix:'repair'}]}])assert.throws(()=>parseAuditResult(event(invalid),'claude',binding));
 assert.throws(()=>parseAuditResult(event(proposal)+'\n'+event(proposal),'claude',binding));
 const codex=p=>JSON.stringify({type:'item.completed',item:{type:'agent_message',text:JSON.stringify(p)}});
-assert.throws(()=>parseAuditResult(codex(proposal)+'\n'+JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'later prose'}}),'codex',binding));
+assert.throws(()=>parseAuditResult(codex(proposal)+'\n'+JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'later prose'}}),'codex',binding),/exactly one final Codex proposal/);
 const process={exitCode:0,replacementSafe:true,closeObserved:true,processCleanup:{reaped:true,residualProcessGroup:false}};
 assert.equal(auditIsFresh({...proposal,process},binding),true);
 assert.equal(auditIsFresh({...proposal,process:{...process,replacementSafe:false}},binding),false);
@@ -34,7 +34,7 @@ try {
   writeFileSync(join(repo,'sample.txt'),'baseline');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
   writeFileSync(join(repo,'sample.txt'),'literal \\u0000 in source');git('add','.');git('commit','-m','literal escape');
   assert.doesNotThrow(()=>auditInput(repo,base,git('rev-parse','HEAD')));
-  const large='x'.repeat(1024*1024+128);
+  const large='x'.repeat(2*1024*1024+128);
   writeFileSync(join(repo,'sample.txt'),large);git('add','.');git('commit','-m','large source control');
   assert.equal(auditInput(repo,base,git('rev-parse','HEAD')).files[0].content,large);
   writeFileSync(join(repo,'sample.txt'),'actual \0 byte');git('add','.');git('commit','-m','binary control');

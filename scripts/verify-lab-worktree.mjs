@@ -96,14 +96,17 @@ try {
   }
   delete process.env.LAB_FIXTURE_AUDIT;
 
-  const bounded = fixture('bounded'); cmd(bounded, ['create','bounded']);
-  const boundedLab = join(bounded,'.worktrees/Lab-bounded');
-  cmd(bounded,['red','bounded','--expect','TARGET regression','--',process.execPath,'check.cjs']);
-  write(boundedLab,'bug.txt','fixed'); write(boundedLab,'binary.bin',Buffer.from([0,1,2])); commit(boundedLab,'fix: binary audit boundary');
-  cmd(bounded,['green','bounded']); const boundedHead=git(bounded,'rev-parse','HEAD');
-  cmd(bounded,finish('bounded'),1,/bounded text/);
-  assert.equal(git(bounded,'rev-parse','HEAD'),boundedHead,'Input refusal must occur before integration');
-  assert.equal(JSON.parse(cmd(bounded,['status','bounded'])).phase,'prepared');
+  for (const [kind, content] of [['binary',Buffer.from([0,1,2])],['oversize','z'.repeat(5*1024*1024)]]) {
+    const name='bounded-'+kind;
+    const bounded=fixture(name);cmd(bounded,['create',name]);
+    const boundedLab=join(bounded,'.worktrees/Lab-'+name);
+    cmd(bounded,['red',name,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
+    write(boundedLab,'bug.txt','fixed');write(boundedLab,'input.bin',content);commit(boundedLab,'fix: audit input boundary');
+    cmd(bounded,['green',name]);const boundedHead=git(bounded,'rev-parse','HEAD');
+    cmd(bounded,finish(name),1,/bounded text contract/);
+    assert.equal(git(bounded,'rev-parse','HEAD'),boundedHead,'Input refusal must occur before integration');
+    assert.equal(JSON.parse(cmd(bounded,['status',name])).phase,'prepared');
+  }
 
   const late = fixture('late'); cmd(late, ['create', 'late']);
   const lateLab = join(late, '.worktrees/Lab-late');
