@@ -38,6 +38,7 @@ import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
   verifyPromptEnvelopeIntegrity,
+  assertReviewerTaskContextAuthoritySafety,
 } from '../core/prompt-envelope.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { canonicalJsonStringify } from '../core/prompt-contracts.js';
@@ -69,6 +70,7 @@ type AgentPromptArgs = {
   role?: string;
   storyId?: string;
   format?: 'text' | 'json';
+  readOnly?: boolean;
   auditExperiment?: boolean;
   experimentalModeOverride?: 'full-envelope';
 };
@@ -79,7 +81,7 @@ function validateAgentPromptArgs(args: unknown): asserts args is AgentPromptArgs
   }
   const record = args as Record<string, unknown>;
   for (const key of Object.keys(record)) {
-    if (!['role', 'storyId', 'format', 'auditExperiment', 'experimentalModeOverride'].includes(key)) {
+    if (!['role', 'storyId', 'format', 'readOnly', 'auditExperiment', 'experimentalModeOverride'].includes(key)) {
       throw new Error(`agent_prompt: unsupported caller-controlled field "${key}"`);
     }
   }
@@ -88,6 +90,12 @@ function validateAgentPromptArgs(args: unknown): asserts args is AgentPromptArgs
   }
   if (record.format !== undefined && !['text', 'json'].includes(record.format as string)) {
     throw new Error('agent_prompt: format must be text or json');
+  }
+  if (record.readOnly !== undefined && typeof record.readOnly !== 'boolean') {
+    throw new Error('agent_prompt: readOnly must be boolean');
+  }
+  if (record.readOnly === true && (record.auditExperiment === true || record.experimentalModeOverride !== undefined)) {
+    throw new Error('agent_prompt: readOnly cannot be combined with auditExperiment or experimentalModeOverride');
   }
   if (record.auditExperiment !== undefined && typeof record.auditExperiment !== 'boolean') {
     throw new Error('agent_prompt: auditExperiment must be boolean');
@@ -148,6 +156,24 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       }
 
       const storyId = args.storyId.trim();
+      if (args.readOnly === true) {
+        const story = ctx.store.readStory(storyId);
+        const taskContext = buildFullTaskContext({
+          story,
+          checklist: ctx.store.readChecklist(storyId),
+          ...captureReviewRunSnapshot(ctx.root, { storyId, storyPhase: story.phase }, ctx.root),
+          scopeContract: ctx.store.readScopeContract(storyId),
+        });
+        assertReviewerTaskContextAuthoritySafety(role, taskContext);
+        // Preserve the canonical REVIEW bootstrap: only review_run_start selects
+        // and binds its role body. A context read mints no envelope or evidence.
+        const prompt = `${renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode)}\n\n## Read-only Task Context\n${canonicalJsonStringify(taskContext)}`;
+        return args.format === 'json' ? canonicalJsonStringify({
+          schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
+          readOnly: true, auditOnly: true, canMintReviewEvidence: false,
+          mode: resolvedRoleBody.mode, prompt, taskContext, envelope: null,
+        }) : prompt;
+      }
       const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
         command: 'agent_prompt',
         cwd: process.cwd(),
