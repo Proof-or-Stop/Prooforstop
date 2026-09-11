@@ -13,6 +13,7 @@ import { StoryStore } from '../core/store.js';
 import { withMkdirLock, captureMkdirLockFence } from '../core/mkdir-lock.js';
 import { appendFindingLedger, findingLedgerSignerFromWorkspace } from '../handlers/finding-ledger.js';
 import { createFindingApplicabilityHandlers } from '../handlers/finding-applicability.js';
+import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 
 let passed = 0;
 function test(name: string, fn: () => void): void {
@@ -50,11 +51,22 @@ test('expired deferral fails closed', () => assert.equal(decide({ finding: findi
 test('mandatory repair requires explicit closure', () => assert.equal(decide({ mandatoryRepair: { state: 'required' }, assessment: { verdict: 'pre_existing_unaffected', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, true));
 test('mandatory repair closure releases independent floor', () => assert.equal(decide({ mandatoryRepair: { state: 'closure_proven' }, assessment: { verdict: 'pre_existing_unaffected', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, false));
 test('not-reproduced witness cannot release high floor', () => assert.equal(decide({ assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, true));
+test('not-reproduced witness cannot release medium after route expiry', () => assert.equal(decide({ finding: finding('medium'), assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: { ...route, receiptState: 'stale' } } }).blocking, true));
 test('fresh signed disproven truth transition releases', () => assert.equal(decide({ assessment: { verdict: 'disproven', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, false));
 test('unknown high verdict fails closed', () => assert.equal(decide({ round: 3, assessment: { verdict: 'unknown', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, true));
 test('observe keeps legacy round decay', () => assert.equal(decide({ round: 3, mode: 'observe' }).blocking, false));
 test('warn keeps gate result and exposes dynamic result', () => { const result = decide({ round: 3, mode: 'warn' }); assert.equal(result.blocking, false); assert.equal(result.dynamicBlocking, true); });
 test('kill switch restores legacy predicate', () => assert.equal(decide({ round: 3, killSwitch: true }).blocking, false));
+test('observe mode avoids dynamic ledger and Git freshness reads', () => {
+  const scratch = mkdtempSync(resolve(tmpdir(), 'dynamic-finding-observe-'));
+  try {
+    writeFileSync(resolve(scratch, 'proof-or-stop.config.json'), JSON.stringify({ dynamicFinding: { mode: 'observe' } }));
+    const decision = readDynamicFindingDecision({ store: new StoryStore(scratch), projectRoot: scratch, storyId: 'B-NO-STORY',
+      finding: { id: 'B-NO-STORY:F-001', desc: 'legacy blocker', category: 'edge', status: 'open', severity: 'high', evidenceState: 'verified' },
+      effectiveBlockingSeverities: ['high'], round: 1 });
+    assert.equal(decision.reason, 'observe_legacy');
+  } finally { rmSync(scratch, { recursive: true, force: true }); }
+});
 test('closed finding never blocks', () => assert.equal(decide({ finding: { ...finding(), status: 'resolved' } }).blocking, false));
 test('suspected finding never blocks', () => assert.equal(decide({ finding: { ...finding(), evidenceState: 'suspected' } }).blocking, false));
 

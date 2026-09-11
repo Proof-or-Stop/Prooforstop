@@ -242,6 +242,9 @@ export function getGuardFailureReason(
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(row => `  - ${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('\n')}\n→ Repair the applicable Finding, or record a signed current applicability assessment and any eligible defer-with-proof disposition`;
         }
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
+        if (intentIntegrityError instanceof Error && intentIntegrityError.message.startsWith('dynamic finding:')) {
+          return `Cannot enter TEST: Dynamic Finding projection unavailable: ${intentIntegrityError.message}`;
+        }
         return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see proof-or-stop reviewer_list)`;
       }
     }

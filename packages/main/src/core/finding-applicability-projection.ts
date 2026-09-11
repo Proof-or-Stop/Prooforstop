@@ -59,6 +59,11 @@ export function readDynamicFindingDecision(args: {
   store: StoryStore; projectRoot: string; storyId: string; finding: Finding;
   effectiveBlockingSeverities: readonly string[]; round: number; requestedMode?: DynamicFindingMode;
 }) {
+  const rollout = resolveDynamicFindingRollout(args.projectRoot, args.requestedMode);
+  if (rollout.killSwitch || rollout.mode === 'observe') {
+    return isDynamicFindingBlocking({ finding: args.finding, effectiveBlockingSeverities: args.effectiveBlockingSeverities,
+      round: args.round, mode: rollout.mode, killSwitch: rollout.killSwitch });
+  }
   const ledger = args.store.readFindingLedger<JsonValue>(args.storyId);
   const trust = currentFindingLedgerTrustFromWorkspace(args.projectRoot);
   const stored = latest<FindingApplicabilityAssessment>(ledger.records, 'finding_applicability_assessment', args.finding.id);
@@ -80,6 +85,6 @@ export function readDynamicFindingDecision(args: {
     ? storedMandatory : storedMandatory ? { ...storedMandatory, state: 'required' as const } : undefined;
   return isDynamicFindingBlocking({
     finding: args.finding, effectiveBlockingSeverities: args.effectiveBlockingSeverities, round: args.round,
-    assessment, deferral, mandatoryRepair, now, ...resolveDynamicFindingRollout(args.projectRoot, args.requestedMode),
+    assessment, deferral, mandatoryRepair, now, ...rollout,
   });
 }

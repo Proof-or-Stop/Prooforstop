@@ -120,7 +120,7 @@
     "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:finding-identity-delivery": "node dist/tasks/finding-identity-lineage-smoke.js --section=delivery",
-    "test:dynamic-finding-applicability": "node dist/tasks/dynamic-finding-applicability-smoke.js",
+    "test:dynamic-finding-applicability": "node dist/tasks/dynamic-finding-applicability-smoke.js && node tests/red/red-dynamic-finding-applicability.mjs",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",

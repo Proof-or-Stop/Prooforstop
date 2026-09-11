@@ -173,8 +173,8 @@ export function isDynamicFindingBlocking(input: DynamicFindingInput): DynamicFin
         dynamicBlocking = true; reason = 'repair_current';
       }
     } else if (assessment!.verdict === 'not_reproduced_under_current_witness') {
-      dynamicBlocking = highRisk || input.mandatoryRepair?.state === 'required';
-      reason = dynamicBlocking ? 'witness_does_not_release_floor' : 'current_witness_advisory';
+      dynamicBlocking = highRisk || input.mandatoryRepair?.state === 'required' || !routeIsFresh(assessment!.acceptedRoute, now);
+      reason = dynamicBlocking ? 'witness_or_route_does_not_release_floor' : 'current_witness_advisory';
     } else {
       dynamicBlocking = highRisk || legacy;
       reason = dynamicBlocking ? 'unknown_fail_closed' : 'unknown_advisory';

@@ -8,7 +8,7 @@ import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/au
 import { reportHealthIssue } from '../core/health.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { isFindingBlocking } from '../core/advisory.js';
+import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { loadConfig } from '../core/config.js';
 import {
   currentGitHead,
@@ -414,7 +414,8 @@ function collectAdmitFacts(
     const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
     const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(ctx.store, storyId, policy);
     openBlockingFindingIds = ctx.store.readFindings(storyId).findings
-      .filter(finding => isFindingBlocking(finding, effectiveBlockingSeverities, roundCount))
+      .filter(finding => readDynamicFindingDecision({ store: ctx.store, projectRoot: ctx.root, storyId, finding,
+        effectiveBlockingSeverities, round: roundCount }).blocking)
       .map(finding => finding.id);
   } catch {
     openBlockingFindingIds = ['<findings-unreadable>'];
