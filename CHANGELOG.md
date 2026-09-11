@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab dynamic-finding-head-continuity - v0.3.320 - 2026-09-11
+
+Integrate the bounded Dynamic Finding head-continuity and collection-readiness repairs on the current main branch. Preserve both independent Claude audits and the recorded native RED/GREEN evidence; no Story is marked DONE by this Lab integration.
+
+The head-only repair permits signed recovery for an otherwise eligible low/medium deferral after new same-command execution and independent review, only with unchanged material/base/dependencies and descendant Git ancestry. It retains raw hash checks, expiry, route authority, historical observations, and fail-closed rejection of unknown or rewritten dependencies.
+
+The collection repair adds read-only per-Story assessment, independent adjudication, complete subject-census, corpus enrollment and matched-performance guidance. It distinguishes unavailable evidence from zero progress and does not reopen historical closed Findings. Current prerequisite failure no longer erases verified historical diagnostic denominators; invalid current prerequisites still categorically refuse enforce, and revoked historical trust still rejects the corpus.
+
+Native corrected RED at 00609e01a0 reported one passing group and two failing groups; GREEN at ae4c68235d reported three passing groups and zero failures. The pinned command includes 87 qualification calculator checks, the prior 13-case head-only recovery and nine-case material regression, and native signed collection/history scenarios. Independent Claude sessions 13fdc724-cddb-4d9f-8980-54953d7a0f17 and 9ebffd61-cfe1-4616-bc61-8cfe178fe1b9 accepted the corresponding frozen repairs without blockers. Non-blocking diagnostic advisories remain recorded, not silently presented as formal routed Finding deferrals.
+
+Latest-origin main f19b38f742 was fast-forwarded into the clean local main and synchronized into Lab before integration. Relevant integration validation is replayed by the official Lab finish workflow. These are engineering correctness results, not measured operational Story acceleration. The 20-Story/200-independent-case/30-day and safety qualification policy remains unchanged; no synthetic observations count as operational samples. Dynamic Finding/Validation enforcement is not enabled and no remote publication is performed.
+
+Maintenance provenance: codex/lab-dynamic-finding-head-continuity, repair e512a00f448840db2be94a287c3d54f1054b0c77.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab amendment-review-flat-output - v0.3.319 - 2026-09-11
 
 Clarify the independent DEV acceptance review response contract after two B-e6d9 managed Codex runs emitted an approving verdict with nested binding fields that the strict parser correctly rejected. The trusted prompt now explicitly requires top-level subject fields, rejects a nested binding object, and renders the existing parser transport JSON Schema directly. Parser acceptance and signing rules are unchanged.
