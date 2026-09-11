@@ -31,13 +31,18 @@ try {
  writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'src',storyDir:'.proof-or-stop/story/actives',validate:{dynamic:{mode:'off'},commands:[{label:'closeout witness',command:process.execPath,args:['witness.mjs'],timeoutMs:suite?120000:10000}]}}));
  const store=new StoryStore(root);
  store.writeStory(storyId,{storyId,name:'closeout-proof',title:'Closeout proof',description:'Disposable Lab fixture, not formal lifecycle evidence.',type:'chore',phase,priority:'medium',createdAt:now,startedAt:now,endedAt:null});
- store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Verify declared witness scope',status:'done',...(omitted?{}:{files:legacy?{modify:[],create:[],test:[]}:{modify:['witness.mjs'],create:[],test:[]}})}]});
+ store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Verify declared witness scope',status:'done',verificationIntent:{happy:[{desc:'Routine scope witness',type:'logic',priority:'should'}],edge:[],adversarial:[]},...(omitted?{}:{files:legacy?{modify:[],create:[],test:[]}:{modify:['witness.mjs'],create:[],test:[]}})}]});
  if(valid||violation||reuseMissing||shadow){const {createScopeContractHandlers}=await import(resolve(repo,'packages/main/dist/handlers/scope-contract.js'));createScopeContractHandlers({root,store,log:()=>{}}).scope_contract_set({storyId,mode:shadow?'shadow':'enforce',allowedModify:['witness.mjs']});}
  if(corrupt)writeFileSync(store.storyFilePath(storyId,'scope-contract.json'),'{corrupt');
  store.appendProcessEvent(storyId,{type:'human_confirmation',storyId,reason:'seed event'});
  git(['add','.']);git(['add',...['story.json','checklist.json','process-events.jsonl','scope-contract.json'].filter(f=>existsSync(join(store.storyDirPath(storyId),f))).map(f=>join(store.storyDirPath(storyId),f))]);git(['commit','-qm','seed immutable Lab fixture']);
  if(valid&&!violation&&!shadow){git(['checkout','-qb','fixture-valid-scope']);writeFileSync(join(root,'witness.mjs'),readFileSync(join(root,'witness.mjs'),'utf8')+'// in-scope positive change\n');git(['add','witness.mjs']);git(['commit','-qm','valid in-scope change']);}
  if(violation){git(['checkout','-qb','fixture-scope']);writeFileSync(join(root,'outside.mjs'),'// out of scope');git(['add','outside.mjs']);git(['commit','-qm','out of scope change']);}
+ const {persistSyntheticAdmittedWindowForTest}=await import(resolve(repo,'packages/main/dist/core/certification-window.js'));
+ const {deriveCertificationDomainInputHashes}=await import(resolve(repo,'packages/main/dist/handlers/certification-window.js'));
+ const causalInputHashes=deriveCertificationDomainInputHashes(root,'HEAD',root);assert(causalInputHashes);
+ persistSyntheticAdmittedWindowForTest({store,storyId,projectRoot:root,causalInputHashes});
+ git(['add',store.storyFilePath(storyId,'certification-window.json')]);git(['commit','-qm','bind fixture certification precondition']);
  acquireOwnerLease(store.storyDirPath(storyId),{command:'validate',cwd:root});
  const env={...process.env,PROOF_OR_STOP_SESSION_ID:getSessionId(),...(process.argv.includes('--codex')?{PROOF_OR_STOP_ACTIVITY_SOURCE:'codex'}:{})};
  if(reuseMissing){const before=JSON.parse(execFileSync(process.execPath,[join(repo,'bin/proof-or-stop.js'),'--root',root,'validate',JSON.stringify({storyId,json:true,noSync:true})],{cwd:root,env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));assert.equal(before.allPass,true);rmSync(store.storyFilePath(storyId,'scope-contract.json'));}

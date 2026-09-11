@@ -1,0 +1,33 @@
+{
+ "status":"Minimal proposal awaiting root approval and overlap/evaluator checks; not applied",
+ "strategy":"Keep current exact assignments. Add only established capability-specific path families to that same domain. No extension-only, source-layer or unmatched fallback. Existing cross-domain exact paths must be checked before enabling any family.",
+ "families": [
+  {"domain":"scope-acceptance","patterns":["packages/main/src/core/story-scope-budget*.ts","packages/main/src/handlers/story-scope-budget*.ts","scripts/verify-story-scope-budget*.mjs","scripts/verify-scope-budget*.mjs","docs/story-scope-budget*.md"],"why":"Actual U06 vertical capability; supports new budget helper, dedicated regression and matching docs"},
+  {"domain":"scope-acceptance","patterns":["packages/main/src/core/acceptance-amendment*.ts","packages/main/src/handlers/acceptance-amendment*.ts","scripts/verify-acceptance-amendment*.mjs"],"why":"Existing named amendment capability, not arbitrary acceptance/test code"},
+  {"domain":"lifecycle-ownership","patterns":["packages/main/src/core/story-owner-lease*.ts","packages/main/src/tasks/story-owner-lease*-smoke.ts"],"why":"Existing Story ownership lease lifecycle"},
+  {"domain":"evidence-storage","patterns":["packages/main/src/core/story-git-bytes*.ts","scripts/verify-story-hash-memo*.mjs"],"why":"Existing immutable Git byte memo capability and its dedicated tests"},
+  {"domain":"validation-certification","patterns":["packages/main/src/core/validation-executor*.ts","packages/main/src/core/validation-execution-lock*.ts"],"why":"Actual validation execution/admission family; do not include every validation-related file"},
+  {"domain":"provider-execution","patterns":["packages/main/src/core/provider-process-admission*.ts","packages/main/src/core/provider-process-registry*.ts"],"why":"Actual machine/project provider admission family"},
+  {"domain":"usage-accounting","patterns":["packages/main/src/core/usage-ledger/**"],"why":"Real dedicated accounting module directory, including nested provider usage adapters"},
+  {"domain":"evidence-storage","patterns":["packages/main/src/core/red-evidence/**","packages/main/src/core/claim-admissibility/**"],"why":"Root-approved dedicated admissible evidence modules; does not match cross-capability tests"}
+ ],
+ "deliberatelyDeferred": [
+  "managed-review* and review-* are too broad: evidence, host execution and reviewer authority already overlap in their names",
+  "test red-w2c* remains exact because actual proof gate integration is intentionally multi-domain",
+  "runtime-fact/process-fact registry files remain explicit shared ownership; no registry-based transitive families",
+  "core/**, handlers/**, tasks/**, tests/** and docs/** are not ownership families",
+  "experiments/** cannot coexist with nested archive patterns without counting both domains under current all-match semantics"
+ ],
+ "requiredChecks": [
+  "For every current exact-assigned path, adding families must leave its domain set unchanged; any new domain is a review blocker, not silently accepted overlap",
+  "Actual evaluateStoryScopeBudget over existing core+handler+test+doc still counts one scope-acceptance domain",
+  "New packages/main/src/core/story-scope-budget-future-helper.ts is mapped within scope-acceptance",
+  "New packages/main/src/handlers/story-scope-budget-future-helper.ts is mapped within scope-acceptance",
+  "New scripts/verify-story-scope-budget-future-helper.mjs is mapped within scope-acceptance",
+  "packages/main/src/core/unrelated-new-module.ts remains unknown and blocking",
+  "packages/main/src/core/story-scope-budget-escape.ts/../../unrelated.ts is malformed subject and blocking",
+  "Provider+review combination retains two domains; exact cross-domain RED cases retain both",
+  "A filename family is trusted declared governance, not proof of code semantics; actual process facts still derive from registry"
+ ],
+ "experimentsRecommendation":"Do not add full experiment module prefixes while archive lies inside them. Current matcher has union semantics, no priority/exclusions. Small safe improvement is to replace exact script lists with capability-rooted executable-extension patterns such as experiments/recovery-runner/**/*.mjs and experiments/multi-model-ablation/**/*.mjs, only after verifying current same-domain coverage; preserve output patterns exclusively in historical-archive. Data corpus/config/docs remain exact unless their own disjoint, explicitly named subtree is reviewed. Never rely on row ordering to give archive precedence."
+}

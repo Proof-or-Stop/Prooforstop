@@ -19,6 +19,7 @@ import {
   verifyAcceptanceCoverageBasis,
 } from '../core/acceptance-coverage-basis.js';
 import {
+  MAX_PROOF_OR_STOP_CONFIG_BYTES,
   detectAcceptanceDiscoverySupport,
   reconcileAcceptanceDiscoveryResults,
   deriveRegisteredProcessFactClosure,
@@ -50,6 +51,7 @@ import type {
 import { signScopeCheck } from '../handlers/scope-check.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 const probeOptions=process.argv.slice(2);
 assert.ok(probeOptions.length<=1&&probeOptions.every(arg=>/^--probe-jobs=[1-4]$/.test(arg)),'INVALID_ACCEPTANCE_PROBE_JOBS');
@@ -145,6 +147,34 @@ function redigestSnapshotSeal(seal: AcceptanceBasisArtifactV1['basis']['snapshot
   seal.sealDigest = `sha256:${digestCanonicalJson(unsigned)}`;
 }
 
+const realRepositoryDiscovery = runAcceptanceDiscoveryAdapters({
+  supported: detectAcceptanceDiscoverySupport(projectRoot),
+  workspaceRoot: projectRoot,
+  storyId: 'B-real-repository-discovery',
+  plannedPathRecords: [],
+  scopeRefs: [
+    'scope:file:packages/main/src/cli/command-catalog.ts',
+    'scope:file:packages/main/src/handlers/proofstory.ts',
+    'scope:file:packages/main/src/registry.ts',
+  ],
+  topologyPathRefs: [
+    'process-fact:acceptance_basis',
+    'process-fact:acceptance_basis_generate',
+    'process-fact:acceptance_topology_check',
+  ],
+});
+const realRepositoryDispatch = realRepositoryDiscovery.find(result => result.method === 'handler_dispatch_inventory')!;
+for (const command of ['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check']) {
+  assert.ok(
+    realRepositoryDispatch.pathRefs.some(path => path.startsWith(`path:process-fact:${command}->`)),
+    `real command catalog and createProofStoryHandlers registration discover ${command}: ${JSON.stringify(realRepositoryDispatch.blindSpots)}`,
+  );
+}
+assert.ok(
+  !reconcileAcceptanceDiscoveryResults(realRepositoryDiscovery).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'),
+  'real process-fact and handler/catalog discovery inventories agree',
+);
+
 const declaration = {
   schemaVersion: 'proofstory.verification_planned_path_declaration.v1' as const,
   id: 'VPP-BASIS',
@@ -178,13 +208,16 @@ const topology: AcceptanceVerificationTopologyV1 = {
 };
 
 function writeCanonicalAcceptanceRegistration(root: string): string[] {
+  // Lab's current registered-source closure is preserved by the derived writer below.
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
+    "  { name: 'branch_status', description: 'infer from the story/* branch' },",
     "  { name: 'acceptance_basis' },",
     "  { name: 'acceptance_basis_generate' },",
     "  { name: 'acceptance_topology_check' },",
     "  { name: 'pre_review_check' },",
     "  { name: 'pre_review_check_read' },",
+    "  { name: 'baseline_status', description: 'NL-*/RED baseline' },",
     '];',
     '',
   ].join('\n'));
@@ -213,6 +246,8 @@ function writeCanonicalAcceptanceRegistration(root: string): string[] {
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
@@ -243,6 +278,18 @@ function writeCanonicalAcceptanceRegistration(root: string): string[] {
   // relevant -- they must be stubbed here too, or they surface as snapshot_missing blind spots.
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
+  // The current registration resolves these shared validation dependencies while
+  // sealing a PLAN-time snapshot.  They are not implementation prerequisites of
+  // this fixture, but the synthetic workspace must contain every source ref the
+  // real registry declares or the control case becomes spuriously partial.
+  for (const path of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+  ]) write(root, path, 'export const fixtureDependency = true;\n');
   // Inventory artifact registry lists these as producer/consumer source refs, so the
   // bounded snapshot closure requires them once that entry is live.
   write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
@@ -532,14 +579,14 @@ try {
   const policyRichConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(policyRichConfig.basis.status, 'complete', 'a policy-rich config above the former 64 KiB ceiling remains discoverable');
   assert.ok(!policyRichConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'an admitted policy-rich config has no bounded-read blind spot');
-  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(128 * 1024) }));
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(MAX_PROOF_OR_STOP_CONFIG_BYTES + 1) }));
   const oversizedConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
   writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
   const aboveCeilingConfig = deriveAcceptanceCoverageBasis(input);
-  assert.equal(aboveCeilingConfig.basis.status, 'partial', '129 KiB config padding remains rejected by the strict config snapshot cap');
-  assert.ok(aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), '129 KiB config padding produces a bounded-read blind spot');
+  assert.equal(aboveCeilingConfig.basis.status, 'complete', '129 KiB config padding is within the current strict config snapshot cap');
+  assert.ok(!aboveCeilingConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'admitted 129 KiB config padding has no bounded-read blind spot');
   writeFileSync(configPath, configControl);
   const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
   try {
@@ -831,6 +878,9 @@ try {
       "const target = './handlers/proofstory.js';",
       'export const loadUnrelated = () => import(target);', '',
     ].join('\n'));
+    for (const name of ['scope-inventory-budget', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-budget-legacy']) {
+      write(repositoryShapeRoot, `packages/main/src/core/${name}.ts`, 'export const fixtureDependency = true;\n');
+    }
     const repositoryShapePath = structuredClone(first.basis.plannedPathRecords[0]);
     repositoryShapePath.producer.expectedFileRef = 'packages/main/src/handlers/proofstory.ts';
     repositoryShapePath.producer.expectedSymbolOrFact = 'acceptanceBasisProducer';
@@ -1489,9 +1539,9 @@ try {
   const overBoundedConfig = JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    policyPadding: 'x'.repeat(128 * 1024),
+    policyPadding: 'x'.repeat(MAX_PROOF_OR_STOP_CONFIG_BYTES),
   });
-  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > 128 * 1024, 'oversize control exceeds the corrected bounded cap');
+  assert.ok(Buffer.byteLength(overBoundedConfig, 'utf8') > MAX_PROOF_OR_STOP_CONFIG_BYTES, 'oversize control exceeds the corrected bounded cap');
   write(packageProfileRoot, 'proof-or-stop.config.json', overBoundedConfig);
   assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'config beyond the corrected bounded cap remains fail-closed');
   write(packageProfileRoot, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
@@ -1861,7 +1911,6 @@ try {
   rmSync(freshnessRoot, { recursive: true, force: true });
 }
 
-const projectRoot = resolve(packageRoot, '../../..');
 for (const mutation of [
   'drop-acceptance-basis-prompt',
   'drop-acceptance-basis-handler',

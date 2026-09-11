@@ -424,7 +424,9 @@ export function enumerateBoundedSourceTree(
 // 64 KiB. A 128 KiB single-file ceiling admits that real authority source while
 // remaining independently bounded well below the 2 MiB lexical-source limit
 // and the 100 MiB aggregate inventory budget.
-const MAX_PROOF_OR_STOP_CONFIG_BYTES = 128 * 1024;
+// The approved root ownership policy is larger than 128 KiB. Keep the
+// config bounded by the existing per-source read ceiling, not an unbounded read.
+export const MAX_PROOF_OR_STOP_CONFIG_BYTES = 2 * 1024 * 1024;
 
 /**
  * Which project-config spelling this snapshot should read (B-cc10 CHK-004).
@@ -1438,7 +1440,40 @@ function catalogCommands(context: SourceReadContext): Set<string> {
   try {
     const read = readSourceSafely(context, 'packages/main/src/cli/command-catalog.ts');
     if (read.text === undefined) return new Set();
-    return new Set([...executableText(read.text).matchAll(/^\s*\{?\s*name:\s*['"]([a-z][a-z0-9_]*)['"]/gm)].map(match => match[1]));
+    const source = ts.createSourceFile(
+      'packages/main/src/cli/command-catalog.ts',
+      read.text,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+    const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
+    if (parseDiagnostics.length > 0) return new Set();
+    const catalogs: ts.ArrayLiteralExpression[] = [];
+    for (const statement of source.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== 'MAIN_TOOLS' || !declaration.initializer) continue;
+        const initializer = unwrapExpression(declaration.initializer);
+        if (ts.isArrayLiteralExpression(initializer)) catalogs.push(initializer);
+      }
+    }
+    if (catalogs.length !== 1) return new Set();
+    const commands = new Set<string>();
+    for (const element of catalogs[0].elements) {
+      const entry = unwrapExpression(element);
+      if (!ts.isObjectLiteralExpression(entry)) return new Set();
+      const names = entry.properties.flatMap(property => {
+        if (!ts.isPropertyAssignment(property)) return [];
+        const name = property.name;
+        const key = ts.isIdentifier(name) || ts.isStringLiteral(name) ? name.text : null;
+        const value = unwrapExpression(property.initializer);
+        return key === 'name' && ts.isStringLiteral(value) ? [value.text] : [];
+      });
+      if (names.length !== 1 || !/^[a-z][a-z0-9_]*$/.test(names[0]) || commands.has(names[0])) return new Set();
+      commands.add(names[0]);
+    }
+    return commands;
   }
   catch { return new Set(); }
 }

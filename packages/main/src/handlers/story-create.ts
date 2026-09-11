@@ -93,10 +93,6 @@ function buildInitialMilestoneLedger(storyId: string, milestones?: unknown): Mil
   });
 }
 
-function isPreLifecycleStoryCreatePhase(phase: StoryPhase): boolean {
-  return phase === 'IDEA' || phase === 'INIT';
-}
-
 // Exported for the language-neutral-gates smoke (B-956f R7 F-008/F-011/F-013):
 // the smoke drives THIS production STORY_INTAKE preflight on a wrapper-root
 // fixture and asserts the snapshot build translates repo-relative paths.
@@ -173,14 +169,6 @@ export function renderReproFirstStoryCreatePreflight(args: {
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {
-    if (!isPreLifecycleStoryCreatePhase(args.phase)) {
-      throw new Error(
-        `reproFirstBypassReason cannot create repro-first-required story ${args.storyId} directly in phase ${args.phase}. ` +
-        `Create it in IDEA/INIT, then satisfy the normal lifecycle gates with a valid story-evidence-binding. ` +
-        `[repro_first_bypass_direct_phase_forbidden]\n` +
-        `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
-      );
-    }
     return [
       '⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]',
       `  reason: ${bypassReason}`,
@@ -1055,14 +1043,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         }
       };
 
-      // Directly specify phase (for onboard use: completed modules marked directly as DONE)
+      if (args.phase && args.phase !== 'IDEA' && args.phase !== 'INIT') {
+        throw new Error(
+          `story_create cannot directly create ${args.phase} stories. ` +
+          'Create the story in IDEA or INIT, then use story_advance through INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE. ' +
+          '[story_create_direct_lifecycle_phase_forbidden]',
+        );
+      }
+
+      // An explicit phase is intake-only. All later phases require story_advance.
       if (args.phase) {
-        if (args.phase === 'INIT_CHECK') {
-          throw new Error(
-            'story_create cannot directly create INIT_CHECK stories. ' +
-            'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
-          );
-        }
         reproFirstHint = renderReproFirstStoryCreatePreflight({
           projectRoot: ctx.root,
           storyId,
@@ -1091,19 +1081,17 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
           createdAt: now,
           startedAt: args.phase !== 'IDEA' ? now : null,
-          endedAt: args.phase === 'DONE' ? now : null,
-          ...(args.phase === 'REVIEW' ? { currentReviewRound: now } : {}),
+          endedAt: null,
           events: [collectContext(args.phase, 'create')],
         };
         store.writeStory(storyId, story);
         if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
         writeBackground();
         writeInitialScopeArtifacts();
-        // Note: direct phase specification path is for onboard etc. scenarios; normally riskHint is unnecessary, but kept consistent
+        // Explicit phase selection is an intake-only compatibility surface.
         if (hasChecklist) {
-          const isDone = args.phase === 'DONE';
           const checklist = {
-            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, isDone ? 'done' : 'pending')),
+            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),
           };
           store.writeChecklist(storyId, checklist);
         }

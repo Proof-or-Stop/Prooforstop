@@ -35,7 +35,7 @@ import type {
   StoryInfo,
   FileRule,
 } from '../core/types.js';
-import { checkScopeContract, renderScopeCheckResult } from '../core/scope-contract.js';
+import { buildScopeContract, checkScopeContract, renderScopeCheckResult } from '../core/scope-contract.js';
 import {
   checkSemanticScope,
   isSemanticContract,
@@ -63,12 +63,21 @@ import {
   computeReviewHashFreshness,
   renderScopeProtectionSummary,
 } from '../core/review-scope-binding.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { collectReviewerEvidenceState, currentScopeContextForStory, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody, promptRoleContract } from '../core/prompt-role-contract-registry.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import {
+  issueBrokeredNativeReviewBinding,
+  nativeReviewFixtureBrokers,
+  withNativeReviewFixtureHostIdentity,
+} from './native-review-fixture.js';
+import { createMainRegistry } from '../registry.js';
 import {
   buildScopeDiffPack,
   parseUnifiedDiff,
@@ -215,6 +224,100 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   const pack = makePack([makeHunk('src/allowed.ts', { anchor: 'globalGuard' })]);
   assert.equal(isSemanticContract(contract), true, 'global protectedAnchors makes contract v2');
   assert.equal(checkSemanticScope(contract, pack).status, 'fail', 'global protected anchor must block');
+}
+
+// ── 3d. B-137a protectedExceptAnchors: unacknowledgeable protection with a
+//        narrow key-scoped exception (the dependency-manifest primitive) ──────
+{
+  const manifestRule = { path: 'package.json', protectedExceptAnchors: ['version'] };
+
+  // (i) A hunk confined to the permitted anchor passes.
+  const versionOnly = makeContract({
+    mode: 'enforce',
+    allowedModify: ['package.json'],
+    fileRules: [manifestRule],
+  });
+  const versionPack = makePack([makeHunk('package.json', { anchor: 'version' })]);
+  assert.equal(
+    checkSemanticScope(versionOnly, versionPack).status,
+    'pass',
+    'a version-only manifest edit must pass the protectedExceptAnchors exception',
+  );
+
+  // (ii) A hunk touching anything else is a HARD protected_anchor violation.
+  const dependencyPack = makePack([makeHunk('package.json', { anchor: 'zod' })]);
+  const dependencyResult = checkSemanticScope(versionOnly, dependencyPack);
+  assert.equal(dependencyResult.status, 'fail', 'a dependency edit must fail');
+  assert.ok(
+    dependencyResult.violations.some((v) => v.rule === 'protected_anchor' && v.anchor === 'zod'),
+    'a dependency edit must be reported as protected_anchor, not a downgradable rule',
+  );
+
+  // (iii) THE DECISIVE PROPERTY. An acknowledgement must NOT downgrade it.
+  //       This is exactly where allowedAnchors failed: semantic-scope-gate
+  //       routes unmatched_anchor through `acknowledged ? warnings : violations`,
+  //       so a self-service scope_contract_acknowledge turned a dependency edit
+  //       into a warning. protected_anchor is pushed unconditionally, so the
+  //       same acknowledgement changes nothing here.
+  const ackedHunk = makeHunk('package.json', { anchor: 'zod' });
+  const ack: ScopeContractAcknowledgement = {
+    actor: 'main-agent',
+    reason: 'Self-service acknowledgement attempting to waive a dependency manifest edit.',
+    hunkDigest: ackedHunk.hunkDigest,
+    timestamp: new Date().toISOString(),
+    paths: ['package.json'],
+  };
+  const ackedContract = makeContract({
+    mode: 'enforce',
+    allowedModify: ['package.json'],
+    fileRules: [manifestRule],
+    acknowledgements: [ack],
+  });
+  const ackedResult = checkSemanticScope(ackedContract, makePack([ackedHunk]));
+  assert.equal(
+    ackedResult.status,
+    'fail',
+    'an acknowledgement must NOT downgrade a protectedExceptAnchors violation',
+  );
+  assert.ok(
+    ackedResult.violations.some((v) => v.rule === 'protected_anchor' && v.acknowledged === false),
+    'the violation must stay unacknowledged even with a matching acknowledgement present',
+  );
+
+  // (iv) Fails CLOSED on a hunk with no parseable declaration anchor: such a
+  //      hunk cannot prove it stayed inside the exception. Without this, an
+  //      unparseable dependency edit would slip through a version-only waiver.
+  const anchorlessResult = checkSemanticScope(versionOnly, makePack([makeHunk('package.json')]));
+  assert.equal(
+    anchorlessResult.status,
+    'fail',
+    'a hunk with no declaration anchor must fail closed, not inherit the exception',
+  );
+
+  // (v) Blocks in shadow mode too, like every other protected_anchor.
+  const shadow = makeContract({
+    mode: 'shadow',
+    allowedModify: ['package.json'],
+    fileRules: [manifestRule],
+  });
+  assert.equal(
+    checkSemanticScope(shadow, dependencyPack).status,
+    'fail',
+    'protectedExceptAnchors must block in shadow mode as well',
+  );
+
+  // (vi) An EMPTY exception list is rejected at contract-build time: it would
+  //      silently mean "protected with no exception", which protectedFiles
+  //      already expresses, so an accidental [] must not read as a waiver.
+  assert.throws(
+    () => buildScopeContract('B-empty-exception', {
+      mode: 'enforce',
+      allowedModify: ['package.json'],
+      fileRules: [{ path: 'package.json', protectedExceptAnchors: [] }],
+    }),
+    /at least one permitted anchor/,
+    'an empty protectedExceptAnchors list must be rejected',
+  );
 }
 
 // ── 4a. Acknowledgement by hunkDigest downgrades a denied anchor to warn ─────
@@ -612,7 +715,14 @@ function writeScopeStory(root: string, opts: { withContract: boolean }): { store
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    // B-137a: register the fixture host brokers so the brokered native
+    // attestation has a uniquely registered issuer. Without this,
+    // issueNativeReviewEvidenceBinding rejects with "issuer is not one uniquely
+    // registered host broker" -- the same real check production relies on, so it
+    // is satisfied rather than bypassed.
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
+  for (const args of [['init', '-b', 'main'], ['config', 'user.email', 'scope@example.invalid'], ['config', 'user.name', 'Scope Fixture'], ['add', '.'], ['commit', '-m', 'scope fixture baseline']]) execFileSync('git', args, { cwd: root, stdio: 'ignore' });
   resetConfigCache();
   const store = new StoryStore(root);
   const storyId = 'B-scopebind';
@@ -637,6 +747,7 @@ function writeScopeStory(root: string, opts: { withContract: boolean }): { store
       id: `CHK-${suffix}`,
       title: `Done item ${suffix}`,
       context: 'Synthetic checklist item.',
+      verificationIntent: { happy: [{ desc: 'Reviewer evidence remains bound to the current semantic scope', type: 'logic' as const, priority: 'must' as const }], edge: [], adversarial: [] },
       status: 'done',
       startTime: now,
       endTime: now,
@@ -695,8 +806,8 @@ function seedScopeRuns(
   const runs: ReviewRun[] = BASELINE_LANES.map((agent, index) => {
     const reviewRunId = `${storyId}:RR-${String(index + 1).padStart(3, '0')}`;
     const startedAt = `2026-05-23T12:1${index}:00.000Z`;
-    const headHash = `head-${index}`;
-    const materialHash = `material-${index}`;
+    const headHash = currentGitHead(root)!;
+    const materialHash = currentMaterialHash(root)!;
     const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: { [agent]: 'full-envelope' },
@@ -719,13 +830,97 @@ function seedScopeRuns(
   return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
 }
 
-function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string, runIds: Map<string, string>): void {
+/**
+ * B-137a: seed reviewer passes WITH execution-authority attestations.
+ *
+ * This fixture predates the review-execution-authority requirement, so it used
+ * to write bare passes carrying neither a managed receipt nor a registered-broker
+ * native invocation attestation. collectReviewerEvidenceState therefore rejected
+ * every one of them with review_execution_authority_missing, and case 13a failed
+ * ("fresh scope binding yields no invalid evidence") -- on main as well as here,
+ * proven by a controlled comparison with all B-137a changes stashed. It went
+ * unnoticed because this suite is absent from lattice.config.json
+ * validate.commands and from the package.json scripts, so nothing gated it.
+ *
+ * The repair mirrors the working pattern in flow-stability-smoke: drive the REAL
+ * dispatch handler under a fixture host identity to create the signed dispatch
+ * binding that issueBrokeredNativeReviewBinding requires, then attach the
+ * brokered native binding to each pass. No production code changes, and the
+ * authority requirement is satisfied genuinely rather than bypassed.
+ */
+function seedScopePasses(
+  root: string,
+  store: StoryStore,
+  storyId: string,
+  reviewRound: string,
+  runIds: Map<string, string>,
+): void {
+  const registry = createMainRegistry({ root, store, scanRoot: join(root, 'packages/main') });
+  const dispatch = registry.get('dispatch');
+  assert.ok(dispatch, 'scope-binding fixture requires the dispatch handler');
+  for (const agent of BASELINE_LANES) {
+    withNativeReviewFixtureHostIdentity({
+      agent,
+      invoke: () => dispatch!({ storyId, agentType: agent }),
+    });
+  }
+  // Bind the preserved scope-test snapshots to the current real dispatch and
+  // actual canonical prompt producer; do not change scopeBinding or hashes.
+  const currentRuns = store.readReviewRuns(storyId).runs;
+  for (const run of currentRuns) {
+    const event = [...store.readProcessEvents(storyId)].reverse().find(row =>
+      row.type === 'dispatch' && row.agentType === run.lane && row.reviewRound === run.reviewRound);
+    assert.ok(event && typeof event.dispatchPrompt === 'string' && typeof event.dispatchBindingDigest === 'string'
+      && typeof event.hostRenderIdentityDigest === 'string', 'real current dispatch must be present');
+    const assembly = assembleFullPromptEnvelope({
+      roleContract: promptRoleContract(run.lane), runtimeContract: BASELINE_RUNTIME_CONTRACT,
+      rolePrompt: resolvePromptRoleBody(run.lane, { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [run.lane]: 'full-envelope' } }).body,
+      taskContext: buildFullTaskContext({ story: store.readStory(storyId), checklist: store.readChecklist(storyId),
+        headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash }),
+      dispatchKind: 'review-run', reviewRunId: run.reviewRunId, reviewRound: run.reviewRound, lane: run.lane,
+      dispatchPrompt: event.dispatchPrompt, hostRenderIdentityDigest: event.hostRenderIdentityDigest,
+      reviewerDispatchBindingDigest: event.dispatchBindingDigest,
+      launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest: event.dispatchBindingDigest, hostRenderHost: event.hostRenderHost as 'codex' | 'claude' },
+      createdAt: run.startedAt,
+    });
+    run.envelopeId = assembly.envelope.envelopeId;
+    run.promptHash = assembly.envelope.assembledPromptDigest;
+    run.assembledPromptRef = store.writeReviewPromptBody(storyId, assembly.prompt, run.promptHash);
+    run._hash = signReviewRun(storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
+      run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash, run.workspaceBinding?.bindingHash,
+      run.storyFilesHash, run.envelopeId);
+    const prior = store.readPromptEnvelopes(storyId);
+    store.writePromptEnvelopes(storyId, { envelopes: [...prior.envelopes.filter(row => row.envelopeId !== run.envelopeId), assembly.envelope] });
+  }
+  store.writeReviewRuns(storyId, { runs: currentRuns });
   const passes = BASELINE_LANES.map((agent, index) => {
     const id = `${storyId}:RP-${String(index + 1).padStart(3, '0')}`;
     const createdAt = `2026-05-23T12:2${index}:00.000Z`;
     const note = `${agent} reviewed the scope-protected diff and found no blocking issue`;
     const reviewRunId = runIds.get(agent)!;
-    return { id, agent, note, createdAt, reviewRound, reviewRunId, _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound, reviewRunId) };
+    const envelopeId = currentRuns.find(run => run.reviewRunId === reviewRunId)!.envelopeId;
+    const nativeEvidenceBinding = issueBrokeredNativeReviewBinding({
+      root, store, storyId, agent, reviewRunId,
+    });
+    // Provenance is DERIVED from the brokered binding, never invented: the
+    // writer session is part of the signed domain, so a fabricated value would
+    // sign a pass that no real invocation produced.
+    const provenance = {
+      writerSessionId: nativeEvidenceBinding.writerSessionId,
+      sessionSource: nativeEvidenceBinding.sessionSource,
+    };
+    return {
+      id, agent, note, createdAt, reviewRound, reviewRunId, envelopeId,
+      nativeEvidenceBinding,
+      writerSessionId: nativeEvidenceBinding.writerSessionId,
+      sessionSource: nativeEvidenceBinding.sessionSource,
+      _hash: signReviewPass(
+        storyId, id, agent, note, createdAt, reviewRound, reviewRunId,
+        undefined, undefined, undefined,
+        provenance,
+        envelopeId, undefined, nativeEvidenceBinding,
+      ),
+    };
   });
   store.writeReviewPasses(storyId, { passes });
 }
@@ -736,7 +931,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
-    seedScopePasses(store, storyId, reviewRound, runIds);
+    seedScopePasses(root, store, storyId, reviewRound, runIds);
     const state = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(state.invalid.length, 0, 'fresh scope binding yields no invalid evidence');
     assert.equal(state.valid.length, BASELINE_LANES.length, 'all baseline reviewer passes are valid with fresh bindings');
@@ -752,7 +947,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: false });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: false });
-    seedScopePasses(store, storyId, reviewRound, runIds);
+    seedScopePasses(root, store, storyId, reviewRound, runIds);
     const state = collectReviewerEvidenceState(store, storyId, root);
     assert.equal(state.invalid.length, 0, 'a story without a scope contract never requires scope bindings');
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null, 'no-scope legacy story passes REVIEW→TEST without bindings');
@@ -767,7 +962,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   try {
     const { store, storyId, reviewRound, contract } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
-    seedScopePasses(store, storyId, reviewRound, runIds);
+    seedScopePasses(root, store, storyId, reviewRound, runIds);
     // Change the scope contract AFTER the reviewer bound to it — materialHash
     // (committed tree) would not catch this; the scope binding must.
     store.writeScopeContract(storyId, { ...contract!, allowedModify: [...contract!.allowedModify, 'packages/main/src/cli-engine.ts'], updatedAt: '2026-05-23T13:00:00.000Z' });
@@ -793,7 +988,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     // Seed runs WITHOUT a scope binding (prose-only reviewer evidence: a run was
     // started and a pass written, but nothing binds it to the inspected scope).
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: false });
-    seedScopePasses(store, storyId, reviewRound, runIds);
+    seedScopePasses(root, store, storyId, reviewRound, runIds);
     const state = collectReviewerEvidenceState(store, storyId, root);
     assert.ok(state.invalid.length > 0, 'scope-protected story rejects evidence whose run has no scope binding');
     assert.ok(
@@ -814,7 +1009,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   try {
     const { store, storyId, reviewRound } = writeScopeStory(root, { withContract: true });
     const runIds = seedScopeRuns(root, store, storyId, reviewRound, { binding: true });
-    seedScopePasses(store, storyId, reviewRound, runIds);
+    seedScopePasses(root, store, storyId, reviewRound, runIds);
 
     // Precondition: a valid contract + fresh bindings passes before corruption.
     assert.equal(
@@ -889,6 +1084,11 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-initplan';
+    execFileSync('git',['init','-b','main'],{cwd:root,stdio:'ignore'});
+    execFileSync('git',['config','user.email','scope@example.invalid'],{cwd:root});
+    execFileSync('git',['config','user.name','Scope Fixture'],{cwd:root});
+    execFileSync('git',['add','.'],{cwd:root});
+    execFileSync('git',['commit','-m','fixture'],{cwd:root,stdio:'ignore'});
     const now = '2026-05-23T12:00:00.000Z';
     const story: StoryInfo = {
       storyId,
@@ -1718,6 +1918,8 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
           endedAt: null,
           events: [],
         });
+        store.writeChecklist(storyId,{items:[]});
+        store.writeStory(storyId,{...store.readStory(storyId),phase:'PLAN'});
         const handlers = createScopeContractHandlers({ store, root } as HandlerContext);
         handlers.scope_contract_set({
           storyId,
@@ -1725,7 +1927,8 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
           allowedModify: ['matrix.ts'],
           fileRules: [{ path: 'matrix.ts', allowedAnchors: ['matrix'] }],
         });
-        const contract = store.readScopeContract(storyId)!;
+        if(storyId==='B-a13f')store.writeStory(storyId,{...store.readStory(storyId),phase:'DEV'});
+ const contract = store.readScopeContract(storyId)!;
         assert.equal(
           contract.pathCanonicalizerVersion,
           pathMode === 'off' ? undefined : SCOPE_PATH_CANONICALIZER_VERSION,
@@ -1810,6 +2013,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
     const store = new StoryStore(root);
     const storyId = 'B-b13f';
+    store.writeChecklist(storyId,{items:[]});
     store.writeStory(storyId, {
       storyId, name: storyId, title: storyId, description: 'persisted rollback', type: 'feature',
       phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(),

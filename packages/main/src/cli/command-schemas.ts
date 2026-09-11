@@ -246,6 +246,12 @@ export const scopeFileRuleSchema = z.object({
   allowedAnchors: z.array(z.string()).optional().describe('Only these anchors may change'),
   deniedAnchors: z.array(z.string()).optional().describe('These anchors must not change'),
   protectedAnchors: z.array(z.string()).optional().describe('Hard-protected anchors'),
+  // B-137a: first line of defense only. validateFileRules() and
+  // buildScopeContract() both re-check this at runtime (min length 1 + ANCHOR_RE)
+  // per the CLAUDE.md "Handler 编码约定", so a caller bypassing Zod cannot install
+  // an empty or path-shaped exception list.
+  protectedExceptAnchors: z.array(z.string()).min(1).optional()
+    .describe('Unacknowledgeable protection for this file EXCEPT hunks confined to these anchors'),
   allowedChangeKinds: z.array(z.enum(['add', 'remove', 'modify', 'rename'])).optional().describe('Allowed change kinds for matching hunks'),
   intentRefs: z.array(z.string()).optional().describe('Verification intent refs this rule protects'),
 });

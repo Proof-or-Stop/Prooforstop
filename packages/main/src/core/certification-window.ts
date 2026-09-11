@@ -10,6 +10,14 @@ import {
   verifyCausalDependencyDecision,
   type CausalDependencyDecision,
 } from './causal-evidence.js';
+import {
+  isCompleteRoutineValidationIdentity,
+  isReusableCommandPass,
+} from './validation-evidence-reuse.js';
+import type {
+  RoutineValidationCommandExecution,
+  RoutineValidationIdentity,
+} from './validation-types.js';
 
 export const CERTIFICATION_WINDOW_STATES = [
   'BLOCKED',
@@ -25,13 +33,16 @@ export type CertificationWindowState = (typeof CERTIFICATION_WINDOW_STATES)[numb
 
 export const CERTIFICATION_WINDOW_SCHEMA = 'proof-or-stop.certification_window.v1';
 export const PRECERT_RECEIPT_SCHEMA = 'proof-or-stop.precert_receipt.v1';
+export const PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA = 'proof-or-stop.precert_cheap_check_receipt.v1';
 export const CERTIFICATION_WINDOW_FILE_SCHEMA = 'proof-or-stop.certification_windows.v1';
 export const CERTIFICATION_WINDOW_FILE = 'certification-window.json';
 
 const WINDOW_DOMAIN = 'proof-or-stop.certification-window.v1';
 const RECEIPT_DOMAIN = 'proof-or-stop.precert-receipt.v1';
+const CHEAP_CHECK_RECEIPT_DOMAIN = 'proof-or-stop.precert-cheap-check-receipt.v1';
 
 export const PRECERT_AUTHORITY = 'pre-cert';
+export const PRECERT_CHEAP_CHECK_AUTHORITY = 'pre-cert-cheap-check';
 export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only';
 
 export const PRE_CERT_INVENTORY_API_ABSENT = 'pre_cert_inventory_api_absent';
@@ -50,6 +61,10 @@ export const PRE_CERT_WINDOW_REQUIRED = 'pre_cert_window_required';
 export const PRE_CERT_WINDOW_INVALIDATED = 'pre_cert_window_invalidated';
 export const PRE_CERT_CAUSAL_FRESHNESS_REQUIRED = 'pre_cert_causal_freshness_required';
 export const PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY = 'pre_cert_material_drift_reattestation_advisory';
+export const PRE_CERT_WINDOW_ALREADY_CONSUMED = 'pre_cert_window_already_consumed';
+export const PRE_CERT_CHEAP_CHECK_REQUIRED = 'pre_cert_cheap_check_required';
+/** TEST consumes this signed PASS; it must never start a second routine suite. */
+export const PRE_CERT_ROUTINE_PASS_REQUIRED = 'pre_cert_routine_pass_required';
 
 export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
 export const PRECERT_TEST_IDENTITY = 'npm test';
@@ -115,10 +130,33 @@ export interface PrecertReceipt {
   _hash: string;
 }
 
+/**
+ * The sole cheap prerequisite for opening PRE_CERT. This deliberately lives in
+ * the existing signed certification-window artifact: it is a process fact,
+ * not canonical TEST validation evidence, and therefore cannot be replaced by
+ * a generic PASS or a REVIEW preflight gate result.
+ */
+export interface PrecertCheapCheckReceipt {
+  schemaVersion: typeof PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA;
+  receiptId: string;
+  storyId: string;
+  authority: typeof PRECERT_CHEAP_CHECK_AUTHORITY;
+  result: 'PASS';
+  routineValidationIdentity: RoutineValidationIdentity;
+  commandExecution: RoutineValidationCommandExecution;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  createdAt: string;
+  _hash: string;
+}
+
+export type CertificationWindowReceipt = PrecertReceipt | PrecertCheapCheckReceipt;
+
 export interface CertificationWindowData {
   schemaVersion: typeof CERTIFICATION_WINDOW_FILE_SCHEMA;
   windows: CertificationWindow[];
-  receipts: PrecertReceipt[];
+  receipts: CertificationWindowReceipt[];
 }
 
 export interface CertificationWindowStorePort {
@@ -128,16 +166,32 @@ export interface CertificationWindowStorePort {
 }
 
 export interface ReviewInventoryEpochAdmitView {
+  schemaVersion?: string;
   epochId?: string;
   storyId?: string;
   reviewRound?: string;
   state?: string;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   receiptId?: string;
   cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+  requiredLanes?: string[];
+  waves?: Array<{
+    lanes?: Array<{
+      lane?: string;
+      terminal?: string;
+      evidenceIds?: string[];
+      coverageDigest?: string;
+    }>;
+    newVerifiedFindingCount?: number;
+    criticDigest?: string;
+    saturated?: boolean;
+  }>;
+  _hash?: string;
 }
 
 export interface InventoryCompletenessReceipt {
+  schemaVersion?: string;
   receiptId?: string;
   epochId?: string;
   storyId?: string;
@@ -145,8 +199,16 @@ export interface InventoryCompletenessReceipt {
   authority?: string;
   authorizesTest?: boolean;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   invalidatedAt?: string;
   cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+  requiredLanes?: string[];
+  waveCount?: number;
+  saturationResult?: string;
+  scopeDigest?: string;
+  findingSetDigest?: string;
+  coverageDigest?: string;
+  _hash?: string;
 }
 
 export interface ReviewInventoryAdmitPair {
@@ -168,6 +230,9 @@ export interface ReviewInventoryAdmitApis {
     admissionWindowId?: string,
   ) => string | null;
   consumeReviewInventoryCompletenessReceiptUnlocked?: ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'];
+  verifyReviewInventoryEpoch: (epoch: unknown) => boolean;
+  verifyReviewInventoryReceipt: (receipt: unknown) => boolean;
+  isInventoryCompletenessOnlyReceipt: (epoch: unknown, receipt: unknown) => boolean;
 }
 
 export type ReviewInventoryProbeResult =
@@ -196,8 +261,19 @@ export function probeFinalizedUnconsumedReviewInventory(
 export interface CertificationWindowAdmitFacts {
   inventoryApisPresent: boolean;
   inventory: ReviewInventoryAdmitPair | null;
+  /** Derived through the B-3f3d verifier/consumer surface; never inferred from authority text alone. */
+  inventorySaturated: boolean;
+  /** Signed `validate --story --focus=fast --json` fact; generic test evidence is never read here. */
+  cheapCheckReceipt: PrecertCheapCheckReceipt | null;
   currentStoryId: string;
   headHash?: string;
+  /**
+   * A narrow handler-derived bridge for runtime-authored REVIEW metadata
+   * commits after the inventory cutoff. It never covers material or
+   * story-files drift, and the consume-lock callback still requires the exact
+   * identity it evaluated.
+   */
+  inventoryHeadMetadataContinuity?: boolean;
   materialHash?: string;
   storyFilesHash?: string;
   expectedMainSha?: string | null;
@@ -278,6 +354,32 @@ export function verifyPrecertReceipt(receipt: PrecertReceipt): boolean {
   return _hash === signPrecertReceipt(unsigned);
 }
 
+export function signPrecertCheapCheckReceipt(
+  receipt: Omit<PrecertCheapCheckReceipt, '_hash'>,
+): string {
+  return certificationWindowDigest({ domain: CHEAP_CHECK_RECEIPT_DOMAIN, ...receipt });
+}
+
+/**
+ * A cheap receipt must prove exactly the focused profile.  In particular, a
+ * syntactically valid identity for a full, channel, concept, lint, or other
+ * focus invocation never becomes PRE_CERT input.
+ */
+export function verifyPrecertCheapCheckReceipt(receipt: PrecertCheapCheckReceipt): boolean {
+  if (!receipt || receipt.schemaVersion !== PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA) return false;
+  if (!receipt._hash || receipt.authority !== PRECERT_CHEAP_CHECK_AUTHORITY || receipt.result !== 'PASS') return false;
+  if (!receipt.storyId || !receipt.receiptId || !receipt.headHash || !receipt.materialHash || !receipt.storyFilesHash) return false;
+  const identity = receipt.routineValidationIdentity;
+  if (!isCompleteRoutineValidationIdentity(identity)
+    || identity.invocation.full !== null
+    || identity.invocation.focus !== 'fast'
+    || identity.commands.length === 0
+    || identity.commands.some(command => !command.focus.includes('fast'))
+    || !isReusableCommandPass(receipt.commandExecution, identity.commands.length)) return false;
+  const { _hash, ...unsigned } = receipt;
+  return _hash === signPrecertCheapCheckReceipt(unsigned);
+}
+
 export function withSignedCertificationWindow(
   window: Omit<CertificationWindow, '_hash'> | CertificationWindow,
 ): CertificationWindow {
@@ -292,6 +394,13 @@ export function withSignedPrecertReceipt(
   return { ...unsigned, _hash: signPrecertReceipt(unsigned) };
 }
 
+export function withSignedPrecertCheapCheckReceipt(
+  receipt: Omit<PrecertCheapCheckReceipt, '_hash'> | PrecertCheapCheckReceipt,
+): PrecertCheapCheckReceipt {
+  const { _hash: _ignored, ...unsigned } = receipt as PrecertCheapCheckReceipt;
+  return { ...unsigned, _hash: signPrecertCheapCheckReceipt(unsigned) };
+}
+
 /**
  * Inventory completeness receipts (B-3f3d) never authorize PRE_CERT.
  * authorizesTest=false / inventory-completeness-only is completeness-only.
@@ -303,6 +412,62 @@ export function inventoryReceiptAuthorizesPrecert(
   if (receipt.authority === INVENTORY_COMPLETENESS_AUTHORITY) return false;
   if (receipt.authorizesTest === false) return false;
   return false;
+}
+
+function sameStringSet(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) return false;
+  return [...left].sort().every((value, index) => value === [...right].sort()[index]);
+}
+
+/**
+ * PRE_CERT consumes B-3f3d's already-signed inventory through its existing
+ * consumer. This is only a fail-closed admission projection: it rejects the
+ * legacy empty completeness receipt and requires the final saturated wave to
+ * carry every required terminal lane and the independent critic binding.
+ */
+export function isSaturatedReviewInventoryForPrecert(
+  apis: ReviewInventoryAdmitApis,
+  pair: ReviewInventoryAdmitPair | null,
+  storyId: string,
+  recoveryWindowId?: string,
+): boolean {
+  const epoch = pair?.epoch;
+  const receipt = pair?.receipt;
+  if (!epoch || !receipt || typeof apis.verifyReviewInventoryEpoch !== 'function'
+    || typeof apis.verifyReviewInventoryReceipt !== 'function'
+    || typeof apis.isInventoryCompletenessOnlyReceipt !== 'function') return false;
+  try {
+    if (!apis.verifyReviewInventoryEpoch(epoch) || !apis.verifyReviewInventoryReceipt(receipt)) return false;
+    if (apis.isInventoryCompletenessOnlyReceipt(epoch, receipt)) return false;
+  } catch {
+    return false;
+  }
+  const consumed = Boolean(epoch.consumedAt || receipt.consumedAt);
+  if (consumed && (!recoveryWindowId || epoch.consumedByCertificationWindowId !== recoveryWindowId
+    || receipt.consumedByCertificationWindowId !== recoveryWindowId
+    || !epoch.consumedAt || epoch.consumedAt !== receipt.consumedAt
+    || !Number.isFinite(Date.parse(epoch.consumedAt)))) return false;
+  const requiredLanes = epoch.requiredLanes;
+  const receiptRequiredLanes = receipt.requiredLanes;
+  const waves = epoch.waves;
+  const finalWave = waves?.at(-1);
+  if (epoch.state !== 'FINALIZED' || epoch.storyId !== storyId || receipt.storyId !== storyId
+    || !epoch.epochId || epoch.receiptId !== receipt.receiptId || receipt.epochId !== epoch.epochId
+    || !epoch.reviewRound || receipt.reviewRound !== epoch.reviewRound
+    || receipt.invalidatedAt
+    || receipt.authority !== INVENTORY_COMPLETENESS_AUTHORITY || receipt.authorizesTest !== false
+    || !Array.isArray(requiredLanes) || requiredLanes.length === 0
+    || !Array.isArray(receiptRequiredLanes) || !sameStringSet(requiredLanes, receiptRequiredLanes)
+    || !Array.isArray(waves) || waves.length === 0 || receipt.waveCount !== waves.length
+    || receipt.saturationResult !== 'ZERO_NEW_VERIFIED_FINDINGS'
+    || !receipt.scopeDigest || !receipt.findingSetDigest || !receipt.coverageDigest
+    || !finalWave || finalWave.saturated !== true || finalWave.newVerifiedFindingCount !== 0
+    || !finalWave.criticDigest || !Array.isArray(finalWave.lanes)
+  ) return false;
+  const terminalLanes = finalWave.lanes.map(lane => lane.lane ?? '');
+  if (!sameStringSet(requiredLanes, terminalLanes)) return false;
+  return finalWave.lanes.every(lane => (lane.terminal === 'pass' || lane.terminal === 'finding')
+    && Array.isArray(lane.evidenceIds) && lane.evidenceIds.length > 0 && Boolean(lane.coverageDigest));
 }
 
 export function windowAuthorizesHeavyCertification(
@@ -341,7 +506,36 @@ export function latestCertificationWindow(data: CertificationWindowData): Certif
 
 export function receiptForWindow(data: CertificationWindowData, window: CertificationWindow | null): PrecertReceipt | null {
   if (!window?.receiptId) return null;
-  return data.receipts.find(row => row.receiptId === window.receiptId) ?? null;
+  const receipt = data.receipts.find(row => row.receiptId === window.receiptId);
+  return receipt?.schemaVersion === PRECERT_RECEIPT_SCHEMA ? receipt : null;
+}
+
+/**
+ * Returns only a current, signed, exact fast receipt.  Deliberately do not
+ * consult test-evidence.json: that generic artifact can describe a different
+ * command set or a reused/full run and is not the PRE_CERT cheap-check fact.
+ */
+export function currentPrecertCheapCheckReceipt(args: {
+  data: CertificationWindowData;
+  storyId: string;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  currentIdentity?: RoutineValidationIdentity;
+}): PrecertCheapCheckReceipt | null {
+  if (!args.headHash || !args.materialHash || !args.storyFilesHash
+    || !isCompleteRoutineValidationIdentity(args.currentIdentity)) return null;
+  for (const receipt of [...args.data.receipts].reverse()) {
+    if (receipt.schemaVersion !== PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA) continue;
+    if (!verifyPrecertCheapCheckReceipt(receipt)) continue;
+    if (receipt.routineValidationIdentity.digest !== args.currentIdentity!.digest
+      || receipt.storyId !== args.storyId
+      || receipt.headHash !== args.headHash
+      || receipt.materialHash !== args.materialHash
+      || receipt.storyFilesHash !== args.storyFilesHash) continue;
+    return receipt;
+  }
+  return null;
 }
 
 export function nextCertificationWindowId(data: CertificationWindowData, storyId: string): string {
@@ -350,6 +544,11 @@ export function nextCertificationWindowId(data: CertificationWindowData, storyId
 
 export function nextPrecertReceiptId(data: CertificationWindowData, storyId: string): string {
   return `${storyId}:PRECERT-${String(data.receipts.length + 1).padStart(3, '0')}`;
+}
+
+export function nextPrecertCheapCheckReceiptId(data: CertificationWindowData, storyId: string): string {
+  const prior = data.receipts.filter(row => row.schemaVersion === PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA).length;
+  return `${storyId}:CHEAP-CHECK-${String(prior + 1).padStart(3, '0')}`;
 }
 
 let reviewInventoryAdmitApisOverride: ReviewInventoryAdmitApis | null | undefined;
@@ -377,11 +576,19 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
     const finalized = required.finalizedUnconsumedReviewInventory;
     const consume = required.consumeReviewInventoryCompletenessReceipt;
     const consumeUnlocked = required.consumeReviewInventoryCompletenessReceiptUnlocked;
-    if (typeof finalized !== 'function' || typeof consume !== 'function' || typeof consumeUnlocked !== 'function') return null;
+    const verifyEpoch = required.verifyReviewInventoryEpoch;
+    const verifyReceipt = required.verifyReviewInventoryReceipt;
+    const isCompletenessOnly = required.isInventoryCompletenessOnlyReceipt;
+    if (typeof consumeUnlocked !== 'function' || typeof finalized !== 'function' || typeof consume !== 'function'
+      || typeof verifyEpoch !== 'function' || typeof verifyReceipt !== 'function'
+      || typeof isCompletenessOnly !== 'function') return null;
     return {
       finalizedUnconsumedReviewInventory: finalized as ReviewInventoryAdmitApis['finalizedUnconsumedReviewInventory'],
       consumeReviewInventoryCompletenessReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
       consumeReviewInventoryCompletenessReceiptUnlocked: consumeUnlocked as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
+      verifyReviewInventoryEpoch: verifyEpoch as ReviewInventoryAdmitApis['verifyReviewInventoryEpoch'],
+      verifyReviewInventoryReceipt: verifyReceipt as ReviewInventoryAdmitApis['verifyReviewInventoryReceipt'],
+      isInventoryCompletenessOnlyReceipt: isCompletenessOnly as ReviewInventoryAdmitApis['isInventoryCompletenessOnlyReceipt'],
     };
   } catch {
     return null;
@@ -390,6 +597,8 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
 
 export function nextCommandForBlocker(storyId: string, blockerCode?: string | null): string {
   switch (blockerCode) {
+    case PRE_CERT_CHEAP_CHECK_REQUIRED:
+      return `proof-or-stop validate --story=${storyId} --focus=fast --json`;
     case PRE_CERT_INVENTORY_NOT_FINALIZED:
     case PRE_CERT_INVENTORY_API_ABSENT:
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
@@ -401,7 +610,7 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
     case PRE_CERT_BLOCKING_FINDINGS_OPEN:
       return `proof-or-stop finding_list --storyId=${storyId}`;
     case PRE_CERT_COVERAGE_MISSING:
-      return `proof-or-stop validate --story=${storyId}`;
+      return `proof-or-stop story_advance --storyId=${storyId} --phase=DEV`;
     case PRE_CERT_DIRTY_TREE:
       return `proof-or-stop done_prepare --storyId=${storyId}`;
     default:
@@ -417,8 +626,11 @@ export function nextCommandForState(
   if (state === 'INVALIDATED') {
     return `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`;
   }
-  if (state === 'ADMITTED' || state === 'RUNNING') {
-    return `proof-or-stop done_required_validate --storyId=${storyId}`;
+  if (state === 'ADMITTED') {
+    return `proof-or-stop validate --story=${storyId} --json`;
+  }
+  if (state === 'RUNNING') {
+    return `proof-or-stop certification_window_status --storyId=${storyId}`;
   }
   if (state === 'FINALIZED') {
     return `proof-or-stop certification_window_status --storyId=${storyId}`;
@@ -464,10 +676,15 @@ function inventoryLineageRefusal(facts: CertificationWindowAdmitFacts): string |
   if (inventoryStoryId && inventoryStoryId !== facts.currentStoryId) {
     return `Inventory receipt belongs to ${inventoryStoryId}, not ${facts.currentStoryId}.`;
   }
+  const receiptHead = receipt.cutoff?.headHash ?? epoch?.cutoff?.headHash;
   const receiptMaterial = receipt.cutoff?.materialHash ?? epoch?.cutoff?.materialHash;
   const receiptStoryFiles = receipt.cutoff?.storyFilesHash ?? epoch?.cutoff?.storyFilesHash;
-  if (!facts.materialHash || !facts.storyFilesHash || !receiptMaterial || !receiptStoryFiles) {
+  if (!facts.headHash || !facts.materialHash || !facts.storyFilesHash
+    || !receiptHead || !receiptMaterial || !receiptStoryFiles) {
     return 'Inventory cutoff or current certification hashes are missing; refuse rather than invent a second freshness hash.';
+  }
+  if (receiptHead !== facts.headHash && !facts.inventoryHeadMetadataContinuity) {
+    return 'Inventory receipt is not on the current headHash lineage.';
   }
   if (receiptStoryFiles !== facts.storyFilesHash) {
     return 'Inventory receipt is not on the current storyFilesHash lineage.';
@@ -514,6 +731,34 @@ export function nonInventoryAdmitRefusal(
           ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
           : 'CausalEvidence decision binding does not match the live certification hashes; stale evidence is refused.'
         : 'CausalEvidence decision is missing or tampered; stale affected-node bypass is refused.',
+    };
+  }
+  const lineageRefusal = inventoryLineageRefusal(facts);
+  if (lineageRefusal) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+      blockerDetail: lineageRefusal,
+    };
+  }
+  if (!facts.inventorySaturated) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+      blockerDetail: 'Review inventory is not a signed B-3f3d saturated FINALIZED receipt with terminal required lanes, critic binding, and a zero-new-finding final wave. Inventory completeness-only receipts never admit PRE_CERT.',
+    };
+  }
+  const cheap = facts.cheapCheckReceipt;
+  if (!cheap
+    || !verifyPrecertCheapCheckReceipt(cheap)
+    || cheap.storyId !== facts.currentStoryId
+    || cheap.headHash !== facts.headHash
+    || cheap.materialHash !== facts.materialHash
+    || cheap.storyFilesHash !== facts.storyFilesHash) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_CHEAP_CHECK_REQUIRED,
+      blockerDetail: 'A current signed complete PASS from proof-or-stop validate --story=<id> --focus=fast --json is required before PRE_CERT can consume review inventory.',
     };
   }
   if (facts.openBlockingFindingIds.length > 0) {
@@ -771,6 +1016,67 @@ export function persistAdmittedCertificationWindow(args: {
   });
 }
 
+/**
+ * Persist the actual cheap focused command outcome before PRE_CERT admission.
+ * This is intentionally not auto-committed: the receipt's headHash must still
+ * equal the subject being admitted. `certification_window_begin` co-commits it
+ * with the ensuing BLOCKED/ADMITTED window after it has consumed the fact.
+ */
+export function persistPrecertCheapCheckReceipt(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  routineValidationIdentity: RoutineValidationIdentity;
+  commandExecution: RoutineValidationCommandExecution;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+}): PrecertCheapCheckReceipt {
+  const unsignedInput: Omit<PrecertCheapCheckReceipt, '_hash' | 'receiptId' | 'createdAt'> = {
+    schemaVersion: PRECERT_CHEAP_CHECK_RECEIPT_SCHEMA,
+    storyId: args.storyId,
+    authority: PRECERT_CHEAP_CHECK_AUTHORITY,
+    result: 'PASS' as const,
+    routineValidationIdentity: args.routineValidationIdentity,
+    commandExecution: args.commandExecution,
+    headHash: args.headHash,
+    materialHash: args.materialHash,
+    storyFilesHash: args.storyFilesHash,
+  };
+  // Validate the semantic shape before it is ever durable. A caller cannot
+  // turn a generic/full/failing result into authority merely by passing it to
+  // this store helper.
+  const candidate = withSignedPrecertCheapCheckReceipt({
+    ...unsignedInput,
+    receiptId: `${args.storyId}:CHEAP-CHECK-CANDIDATE`,
+    createdAt: new Date(0).toISOString(),
+  });
+  if (!verifyPrecertCheapCheckReceipt(candidate)) {
+    throw new Error(`[${PRE_CERT_CHEAP_CHECK_REQUIRED}] PRE_CERT cheap check must be a complete PASS from validate --story=<id> --focus=fast --json`);
+  }
+  return withCertificationWindowLock(args.store, args.storyId, () => {
+    const data = args.store.readCertificationWindows(args.storyId);
+    const existing = currentPrecertCheapCheckReceipt({
+      currentIdentity: args.routineValidationIdentity,
+      data,
+      storyId: args.storyId,
+      headHash: args.headHash,
+      materialHash: args.materialHash,
+      storyFilesHash: args.storyFilesHash,
+    });
+    if (existing
+      && existing.routineValidationIdentity.digest === args.routineValidationIdentity.digest
+      && existing.commandExecution.commandCount === args.commandExecution.commandCount) return existing;
+    const receipt = withSignedPrecertCheapCheckReceipt({
+      ...unsignedInput,
+      receiptId: nextPrecertCheapCheckReceiptId(data, args.storyId),
+      createdAt: new Date().toISOString(),
+    });
+    data.receipts.push(receipt);
+    args.store.writeCertificationWindows(args.storyId, data);
+    return receipt;
+  });
+}
+
 export function loadVerifiedCertificationWindow(
   store: CertificationWindowStorePort,
   storyId: string,
@@ -945,7 +1251,12 @@ export function persistRunningCertificationWindow(args: {
     assertVerifiedCertificationWindow(latest);
     const receipt = receiptForWindow(data, latest);
     if (receipt) assertVerifiedPrecertReceipt(receipt);
-    if (latest.state === 'RUNNING') return { window: latest, receipt };
+    if (latest.state === 'RUNNING') {
+      throw new Error(
+        `[${PRE_CERT_WINDOW_ALREADY_CONSUMED}] CertificationWindow ${latest.windowId} has already authorized one heavy certification execution; `
+        + 'an unchanged retry must reuse a signed current PASS or open a new PRE_CERT window after material changes.',
+      );
+    }
     if (latest.state !== 'ADMITTED') {
       throw new Error(`[${PRE_CERT_WINDOW_REQUIRED}] window ${latest.windowId} is ${latest.state}`);
     }
@@ -1060,7 +1371,7 @@ export function persistSyntheticAdmittedWindowForTest(args: {
   });
 }
 
-export function refuseHeavyCertificationUnlessAdmitted(args: {
+export function requireCurrentHeavyCertificationWindow(args: {
   store: CertificationWindowStorePort;
   storyId: string;
   current: CertificationWindowCurrentIdentity;
@@ -1107,17 +1418,45 @@ export function refuseHeavyCertificationUnlessAdmitted(args: {
       `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,
     );
   }
+  // windowAuthorizesHeavyCertification is a semantic predicate rather than a
+  // TypeScript type guard; make its non-null consequence explicit here.
+  if (!refreshed.window) {
+    throw new Error(`[${PRE_CERT_WINDOW_REQUIRED}] current CertificationWindow disappeared during authorization`);
+  }
+  return { window: refreshed.window, receipt: refreshed.receipt };
+}
+
+/**
+ * Atomically claim the one permitted heavy execution for the current window.
+ * Callers that can reuse a signed PASS must use requireCurrentHeavyCertificationWindow
+ * instead, so reuse cannot consume or re-run the suite.
+ */
+export function refuseHeavyCertificationUnlessAdmitted(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  current: CertificationWindowCurrentIdentity;
+}): { window: CertificationWindow; receipt: PrecertReceipt | null } {
+  requireCurrentHeavyCertificationWindow(args);
   return persistRunningCertificationWindow({ store: args.store, storyId: args.storyId });
 }
 
 export function isOfficialHeavyValidateInvocation(args: {
+  story?: string;
   full?: string | boolean;
+  focus?: string;
   channel?: boolean;
   concept?: boolean;
   lint?: boolean;
 }): boolean {
-  if (args.channel || args.concept || args.lint) return false;
-  return args.full === true || (typeof args.full === 'string' && args.full.length > 0);
+  // A story-scoped routine validate is the suite that makes a transition to
+  // TEST admissible. Keep the isolated CLI gates and focused smokes outside
+  // this classification so they remain available to prepare PRE_CERT.
+  if (!args.story || args.channel || args.concept || args.lint) return false;
+  // `--full` is an explicit request for the heavyweight suite. It remains
+  // official-heavy even when a caller also supplies `--focus`: validate-file
+  // forwarding preserves both flags, so treating focus as a blanket exemption
+  // would create a PRE_CERT bypass.
+  return args.full !== undefined || !args.focus;
 }
 
 /** A validator may move the already-admitted window to RUNNING without changing
@@ -1134,7 +1473,7 @@ export function isCertificationRunningOnlyAdvance(before: CertificationWindowDat
   if (prior.storyId !== storyId || next.storyId !== storyId || prior.state !== 'ADMITTED' || next.state !== 'RUNNING') return false;
   if (!verifyCertificationWindow(prior) || !verifyCertificationWindow(next)) return false;
   const receipt = before.receipts.find(row => row.receiptId === prior.receiptId);
-  if (!receipt || !verifyPrecertReceipt(receipt) || !windowAuthorizesHeavyCertification(prior, receipt)) return false;
+  if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || !verifyPrecertReceipt(receipt) || !windowAuthorizesHeavyCertification(prior, receipt)) return false;
   if (!Number.isFinite(Date.parse(next.updatedAt)) || Date.parse(next.updatedAt) < Date.parse(prior.updatedAt)) return false;
   return isDeepStrictEqual(after, {
     ...before,

@@ -1,0 +1,362 @@
+{
+  "schema": "u18-identity-child-closure.v1",
+  "pins": {
+    "check": "a65818184bb8126006bdabb3f4c98ec27390a848ba04c354de2bbf0caa2d3a2e",
+    "groups": "d189a18f36f4f49daaeac3bb613bc28a2ca1bedf1f5f9b52481a44a1bdf0a45c",
+    "selectedGroup": "46eba01462bd9fba6cff08ae274cb5f31a47a906fdbd5414f32ed225e44448bd",
+    "groupArgs": "557eac316d0cbb5153f56e9467dca46561ede99a4925c67c2cf9896be929cc00",
+    "runIdentityVerifier": "6d16caecdb08bd40ec3cfc5fe013a92dab6c5cd7406941becc59a45cfdafcd16",
+    "createIdentityVerifierClone": "4e0a464942e41cc98125de3be88108fcdb4e3649e2d0401838991895fb009bc3",
+    "createIdentityRedVerifierClone": "ff8590080c602bca764d6f447a3ea26672104b70b9c1d2be9ad9099f47d068fa",
+    "main": "387b7754088b39576de1dbeafc51bd6a339dc428bd721f21f89fe91f83727f2e",
+    "boundaryOnly": "aafd00e7bb95c8b8ea93679d321a74ce496f34f656d0445f76ecddae939701f1",
+    "NEGATIVE_SCHEMA_WITNESSES": "d5a52fa74a229fc488c2b0cd191463ac28c92485f3e88fecd40f58adfe6717fa",
+    "CLOSED_ROLE_RUNTIME_WITNESSES": "4c43ce9144744e6e70dab1e673e110ea50751b6fa323001e69b4e7ac9239d016"
+  },
+  "groups": [
+    "scope",
+    "init",
+    "runtime",
+    "runtime-topology",
+    "release",
+    "inventory",
+    "identity-cutover",
+    "identity-inventory",
+    "identity-cache",
+    "identity-sites",
+    "identity-canonical",
+    "identity-config-boundary",
+    "identity-policy",
+    "identity-policy-boundary",
+    "identity-snapshot",
+    "identity-entrypoint",
+    "reviewer-read",
+    "f050",
+    "round23",
+    "round24",
+    "memory-identity",
+    "artifact-append",
+    "finding-trust"
+  ],
+  "launches": [
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "line": 3934,
+      "callDigest": "2d61bc08d07bb4b870471eae2d5f9542fb71c6a54beec96cab1abe2122660507",
+      "ownerDigest": "96c04287271ac3ddbb620c920c7aa17ad1d4bebec792f63ba87a4f3d85148bf5",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "argv": []
+        }
+      ],
+      "selector": "PASS identity-cutover",
+      "expression": "spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-proof-or-stop-identity-cutover.mjs')], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n  })"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "line": 3992,
+      "callDigest": "7d4910f6fbc0c7b8a4bd985b9a5a7442ff87ee5ec4735df475ba14310860a29e",
+      "ownerDigest": "e0e52051f7d5a9215093df977cfca34cbb440e5778837388020ad84b3a286501",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "argv": [
+            "--boundary-only"
+          ]
+        }
+      ],
+      "selector": "PASS identity-boundary-scan",
+      "expression": "spawnSync(process.execPath, [verifierPath, '--boundary-only'], { cwd: root, encoding: 'utf8' })"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "line": 4006,
+      "callDigest": "1aa8c2426dd7d17daa16ba4048f8f48c51bab5055471d1cab62106e9bad0c5bc",
+      "ownerDigest": "c4acb9add65ce4d4d3ea8a7b301c3a0b546c9a51e8e755021d3a1a858e351775",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "argv": []
+        }
+      ],
+      "selector": "reject duplicated pinned suffix provenance",
+      "expression": "spawnSync(process.execPath, [verifierPath], {\n    cwd: root,\n    encoding: 'utf8',\n  })"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "line": 3960,
+      "callDigest": "ae1db35d8587a2ffa299bcd0c6f87426a62f1f42ff6fc5c6088a1760f8ed712e",
+      "ownerDigest": "14ad188c7639907ecf9571b812139002ef9fb5e3b66320587c730f4a465906ae",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "argv": [
+            "--print-schema-baseline"
+          ]
+        }
+      ],
+      "selector": "JSON baseline count and sha256 equality",
+      "expression": "spawnSync(process.execPath, [identityVerifierFixtureEntrypoint(repoRoot), ...args], { cwd: repoRoot, encoding: 'utf8' })"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "line": 3965,
+      "callDigest": "d75b162626126dce72a5303a275c18f042b0c43c9b07af92cdd641250142df3c",
+      "ownerDigest": "51075ae86fdfe4533fc0185c58cbe5a6c6a8bf954d155219b34daaf54a698448",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "argv": [
+            "--print-schema-baseline"
+          ]
+        }
+      ],
+      "selector": "JSON baseline count and sha256 equality",
+      "expression": "spawnSync(process.execPath, [identityVerifierFixtureEntrypoint(root), ...args], { cwd: repoRoot, encoding: 'utf8' })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7509,
+      "callDigest": "70bd41adf89932be052b88e66038bc9bdb55edfa868ef0731c079d09d75f9845",
+      "ownerDigest": "1440f2284f4c8513dcff903f0969592a041821351e365a7327180ba9992be698",
+      "targets": [
+        {
+          "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+          "argv": [
+            "--group=identity-sites"
+          ]
+        }
+      ],
+      "selector": "GREEN B-49df: identity-sites group pass.",
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7522,
+      "callDigest": "fb6eab6a976b572684eb09ae878d6bfd1dd68bc8fd9c1d7b1d8650122cca8366",
+      "ownerDigest": "ca4b8d3b105cd9588a64f4c191d90f848993df276a4731c9fdc4fd95bbd4e53e",
+      "targets": [
+        {
+          "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+          "argv": [
+            "--group=memory-identity"
+          ]
+        }
+      ],
+      "selector": "GREEN B-49df: memory-identity group pass.",
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=memory-identity'], { cwd: root, encoding: 'utf8', timeout: 60000 })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7529,
+      "callDigest": "4b4f14c1d215fe9e7d9e79bdf227050be4da9b1c81bbb994c9ca0f71b1c31c03",
+      "ownerDigest": "ab4449e2e368540f2a4b4f66b084ab10da3261da6d6ae398e445eb6747277617",
+      "targets": [
+        {
+          "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+          "argv": [
+            "--group=runtime"
+          ]
+        }
+      ],
+      "selector": "GREEN B-49df: runtime group pass.",
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7531,
+      "callDigest": "623f9d518e6c2f3dce74808eaeb8a5aaf4c080e529ba9239371d53e14ab0e7fd",
+      "ownerDigest": "49c09e3d8dafa592dd51adbaee7842b825417993504cb69d58549f0efb7b0594",
+      "targets": [
+        {
+          "file": "packages/main/tests/managed-marker-migration.test.mjs",
+          "argv": []
+        }
+      ],
+      "selector": "managed-marker migration test passed",
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7535,
+      "callDigest": "af0a628fc5e13e0501bcade67ffc798df0f730cd57a366a1cb0fb3236290f81b",
+      "ownerDigest": "87146140da3703129c31baf9e53b5113d5baf075bb96406287de1d24d12ae5e8",
+      "targets": [
+        {
+          "file": "packages/main/dist/tasks/codex-registry-mode-smoke.js",
+          "argv": [],
+          "selector": "✓ codex registry mode smoke passed"
+        },
+        {
+          "file": "packages/main/tests/artifact-schema-migration.test.mjs",
+          "argv": [],
+          "selector": "artifact-schema migration test passed"
+        },
+        {
+          "file": "packages/main/tests/brand-role-migration.test.mjs",
+          "argv": [],
+          "selector": "brand-role migration test passed"
+        },
+        {
+          "file": "packages/main/tests/prompt-role-migration.test.mjs",
+          "argv": [],
+          "selector": "prompt-role migration test passed"
+        },
+        {
+          "file": "packages/main/tests/release-push-approval-migration.test.mjs",
+          "argv": [],
+          "selector": "release-push-approval migration test passed"
+        },
+        {
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "argv": [],
+          "selector": "b90d6-init-dispatch-guidance: ALL PASS"
+        },
+        {
+          "file": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "argv": [],
+          "selector": "legacy role alias sunset contract test passed"
+        }
+      ],
+      "selector": "each literal witness.selector required",
+      "expression": "execFileSync(process.execPath, [resolve(root, witness.command)], { cwd: root, encoding: 'utf8', timeout: 60000 })"
+    },
+    {
+      "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "line": 7550,
+      "callDigest": "113c2740926c7411a5e848da0378b7ff544b5e73ee7566b9a3f7d53dceeeecc0",
+      "ownerDigest": "6015b658053a543234ad95a60c13ff0d242c960131c6d22d05d4b6b19360378b",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-pack-boundary.mjs",
+          "argv": [
+            "--quiet"
+          ]
+        }
+      ],
+      "selector": "real inherited pack exit status",
+      "expression": "execFileSync(process.execPath, [resolve(root, 'scripts/verify-proof-or-stop-pack-boundary.mjs'), '--quiet'], {\n    cwd: root,\n    stdio: 'inherit',\n  })"
+    }
+  ],
+  "nonNodeCalls": {
+    "scripts/verify-proof-or-stop-identity-cutover.mjs": [
+      "56fc0c676ec53a153736e20ee084b792838564d2c93641a15d4e51a8bb951a83",
+      "7c5ef236364e52fee2471f23f769efe02289d4cc615f1726097f66113f6a2705"
+    ]
+  },
+  "review": "Candidate exact byte bindings require source review; this is not an exception manifest.",
+  "narrowing": {
+    "runnerDigest": "2ead45025ad3f928d5195a8224eb56a72403f114bd0e121210a72a4a50e1e2ca",
+    "callDigest": "0eea0b5fb1787362eb31dc4cc40a131ef9bba90f434c9026d3f9691a835d4b41",
+    "expression": "spawn(process.execPath, [fileURLToPath(import.meta.url), `--case-shard=${shardIndex}/${shardCount}`], {\n      cwd: process.cwd(),\n      env: process.env,\n      stdio: ['ignore', 'pipe', 'pipe'],\n    })"
+  },
+  "wrapperDigest": "26d645ef8a02ffd70a7b47af94e9dc1badc748ec05ba8c7376a769b8ccae9999",
+  "extra": {
+    "scripts/verify-proof-or-stop-pack-boundary.mjs": {
+      "sourceDigest": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
+      "nonNodeCalls": [],
+      "launches": []
+    },
+    "scripts/helpers/provider-neutral-fixture.mjs": {
+      "sourceDigest": "945a656ada3b5b0f5fff7c58692436d0dd7ec1c5fd1d357bb86da51dd3b80188",
+      "nonNodeCalls": [
+        "dfd35fe71ac271cb749aa2e0602475c96e180c14b5544227cf61d28b1370eba3",
+        "31430fcb362656418d37e22ffaac7f443d562b01377854a8182b8bef75880cbb"
+      ],
+      "launches": [
+        {
+          "callDigest": "1f90bda8e0bba15d190e0064e8dfe10753ea1afdf8ecb979699633623d9a24d5",
+          "targets": [
+            {
+              "file": "packages/main/dist/tasks/quorum-submit-smoke.js",
+              "argv": [
+                "--jobs=2"
+              ]
+            }
+          ],
+          "expression": "spawnSync(process.execPath, [entry, ...args], { env, stdio: 'inherit' })"
+        },
+        {
+          "callDigest": "4aa93dc5a0f461204bc54db79d6bc39e6e55533892a0dade1848cae99950e562",
+          "targets": [
+            {
+              "file": "scripts/helpers/provider-neutral-fixture.mjs",
+              "argv": [
+                "--bootstrap",
+                "<owned-mkdtemp-root>",
+                "packages/main/dist/tasks/quorum-submit-smoke.js",
+                "--jobs=2"
+              ]
+            }
+          ],
+          "expression": "spawnSync(process.execPath, [self, '--bootstrap', root, entry, ...args], { env, stdio: 'inherit', timeout: 10000 })"
+        },
+        {
+          "callDigest": "736400cc9108d124d15b89db5e73aa118ce869f1e4fe5bd4b3409d70609445ab",
+          "targets": [
+            {
+              "file": "scripts/helpers/provider-neutral-fixture.mjs",
+              "argv": [
+                "--worker",
+                "<owned-mkdtemp-root>",
+                "packages/main/dist/tasks/quorum-submit-smoke.js",
+                "--jobs=2"
+              ]
+            }
+          ],
+          "expression": "spawn(process.execPath, [self, '--worker', root, entry, ...args], { detached: true, env: process.env, stdio: ['ignore', fd, fd] })"
+        },
+        {
+          "callDigest": "c2e6d82feea5dc401305f664e1fcbd80656f365e91ec0bff9dc16425db0c03aa",
+          "targets": [
+            {
+              "file": "packages/main/dist/tasks/quorum-submit-smoke.js",
+              "argv": [
+                "--jobs=2"
+              ]
+            }
+          ],
+          "expression": "spawnSync(process.execPath, [entry, ...args], { env: process.env, stdio: 'inherit', timeout: 1_190_000 })"
+        }
+      ]
+    }
+  },
+  "routes": {
+    "packages/main/tests/managed-marker-migration.test.mjs": {
+      "sourceDigest": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
+      "callDigest": "98672481c513b941c2860b075b622a804f45205fc95ff9a90fb32cea6bf7da3a",
+      "targets": [
+        {
+          "file": "scripts/verify-proof-or-stop-residue.mjs",
+          "argv": [
+            "--self-test"
+          ]
+        }
+      ]
+    },
+    "packages/main/tests/artifact-schema-migration.test.mjs": {
+      "sourceDigest": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
+      "callDigest": "115f6109b40f09a2781e42b2f5d2276ab1a2eb0e982d262170dc29e46a949ce3",
+      "targets": [
+        {
+          "file": "scripts/verify-state-dir-migration.mjs",
+          "argv": []
+        }
+      ]
+    },
+    "packages/main/tests/brand-role-migration.test.mjs": {
+      "sourceDigest": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
+      "callDigest": "fa592939b9e3ded83e08bff95ab272e6f113ad98b61d6cd7ccde456eb6ef07cb",
+      "targets": [
+        {
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "argv": [
+            "lab-help"
+          ]
+        }
+      ]
+    }
+  },
+  "globalLabDigest": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4"
+}

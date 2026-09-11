@@ -1,5 +1,10 @@
+import { ReviewerBatchAdmitArgsSchema } from '../core/reviewer-batch-admit-schema.js';
 import { z } from 'zod';
-import type { ToolDef } from './main-tools.js';
+import { findingSupersessionRequestSchema, canonicalSupersessionRequestSchema, historyQuerySchema, historyRecallSchema, scorecardQuerySchema } from '../core/finding-history.js';
+import { candidateAddSchema, candidateGetSchema, candidateMergeSchema, candidateDisproveSchema, candidatePromoteSchema, identityConfirmSchema, identityQuerySchema } from '../core/finding-identity.js';
+import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema } from '../core/finding-route.js';
+import { progressCaptureSchema, progressPredecessorRequestSchema } from '../core/finding-progress.js';
+import { publicToolCatalog, type ToolDef } from './main-tools.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
 import {
   ContextPackDependencyEdgeContractSchema,
@@ -312,7 +317,9 @@ export const MAIN_TOOLS: ToolDef[] = [
       { message: 'executionBoundary requires at least one allowed/excluded command, tool, or path entry' },
     ).optional().describe('Optional: story_create writes execution-boundary.json synchronously; otherwise run execution_boundary_set during INIT.'),
     prefix: z.string().optional().describe('ID prefix (default: B).'),
-    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('Directly specify phase.'),
+    phase: z.enum(['IDEA','INIT'], {
+      error: () => 'story_create phase must be IDEA or INIT; post-intake lifecycle phases require story_advance. [story_create_direct_lifecycle_phase_forbidden]',
+    }).optional().describe('Optional intake phase. Post-intake lifecycle phases require story_advance.'),
     forceNew: z.boolean().optional().describe('B-0af4: bypass same-name story idempotency and force creation; unfinished same-name stories are reused by default.'),
     background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.'),
     fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.'),
@@ -331,7 +338,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('Actor; INIT reviewer lanes may not directly change story-level scope fields.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change story-level scope fields.'),
   }},
-  { name: 'story_resume', description: 'Human-only ack that clears a convergence-breaker freeze (B-bbaf); refused under autopilot/non-interactive sessions', schema: {
+  { name: 'story_resume', description: 'Append a signed human continuation decision after two complete stagnant review epochs; requires an interactive session and explicit acknowledgement', schema: {
     storyId: z.string().describe('Story ID of the frozen story.'),
     ack: z.boolean().optional().describe('Required: confirms a human is deliberately clearing the freeze.'),
     reason: z.string().optional().describe('Required human explanation (>=10 chars) of why it is safe to continue.'),
@@ -699,6 +706,9 @@ Behavior:
     latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
     json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
   }},
+  { name: 'review_prompt_gc', description: 'Reclaim only orphan prompt bodies under producer locks. Preserve every historical run/envelope reference; refuse corrupt metadata or dangling gate references.', schema: {
+    storyId: z.string().min(1).describe('Story whose prompt storage should be collected.'),
+  }},
   { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
@@ -722,7 +732,7 @@ Behavior:
   { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
     storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
   }},
-  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
+  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false. Commit epoch metadata once; on commit failure retry this command without rerunning reviewers.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
     remediation: z.boolean().optional().describe('Finalize a complete critic-certified wave for repair only, including new findings. This receipt never grants certification or TEST authority.'),
   }},
@@ -730,7 +740,7 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID.'),
     reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
   }},
-  { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
+  { name: 'review_pass_set', description: 'Record a durable signed reviewer pass credential. Inside a frozen epoch, Git metadata is committed together at finalize/cancel.', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
@@ -1183,6 +1193,7 @@ Behavior:
     execute: z.never().optional().describe('Not a flag; init_preflight is read-only. Passing --execute is rejected by CLI validation.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
+  { name: 'reviewer_batch_admit', description: 'Owner-only shared capability admission for an explicit complete reviewer roster in the current signed REVIEW inventory wave. Does not launch a reviewer or issue review evidence.', schema: ReviewerBatchAdmitArgsSchema.shape },
   { name: 'reviewer_batch', description: 'Awaiting-repair suppresses repeat launch plans only for valid blocking observations with unchanged committed material or metadata-only head drift; it proves no repair, applicability or gate readiness. Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking / awaiting-repair) from existing facts, emits the Agent(...) launch instruction (the orchestrator subagent-spawn form, not a dispatch CLI command) for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
@@ -2223,6 +2234,25 @@ Behavior:
     ...BRIEF_OUTPUT_FLAGS,
     ...JSON_OUTPUT_FLAGS,
   }},
+  { name: 'finding_progress_predecessor', description: 'Source-owned signed neutral predecessor reference; does not prove deferral validity or renewal eligibility', schema: progressPredecessorRequestSchema.shape },
+  { name: 'finding_identity_confirm', description: 'Strict signed non-gate finding identity confirm with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: identityConfirmSchema.shape },
+  { name: 'finding_identity_query', description: 'Strict signed non-gate finding identity query with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: identityQuerySchema.shape },
+  { name: 'finding_supersession_add', description: 'Append reviewer-authorized exact historical Finding correction without rewriting observations', schema: findingSupersessionRequestSchema.shape },
+  { name: 'finding_identity_supersede', description: 'Stage and activate an exact signed canonical cause correction; unlinked revisions are never current', schema: canonicalSupersessionRequestSchema.shape },
+  { name: 'finding_history_query', description: 'Read a complete versioned exact history projection with immutable predecessor trails and distinct projection digest', schema: historyQuerySchema.shape },
+  { name: 'finding_identity_scorecard', description: 'Read complete signed-carrier rows and a current digest-bound non-gate scorecard; adjudication counts are not precision/recall', schema: scorecardQuerySchema.shape },
+  { name: 'finding_history_recall', description: 'Recall a verified historical trigger once as a non-gate candidate, never as an assessment', schema: historyRecallSchema.shape },
+  { name: 'finding_route_accept', description: 'Strict signed non-gate finding route accept with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRequestSchema.shape },
+  { name: 'finding_route_reject', description: 'Strict signed non-gate finding route reject with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRequestSchema.shape },
+  { name: 'finding_route_revoke', description: 'Strict signed non-gate finding route revoke with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeRevokeSchema.shape },
+  { name: 'finding_route_verify', description: 'Strict signed non-gate finding route verify with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: routeVerifySchema.shape },
+  { name: 'finding_candidate_route', description: 'Strict signed non-gate finding candidate route with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: candidateRouteRequestSchema.shape },
+  { name: 'finding_progress_capture', description: 'Strict signed non-gate finding progress capture with exact target/source evidence and owner currentness; never changes lifecycle authority', schema: progressCaptureSchema.shape },
+  { name: 'finding_candidate_add', description: 'Append a non-authoritative detector signal and pending candidate with exact source anchors, retry identity, and preregistered reproduction command template/selector; never creates a verified Finding', schema: candidateAddSchema.shape },
+  { name: 'finding_candidate_get', description: 'Inspect verified immutable candidate versions and source lineage; read-only and never gate evidence', schema: candidateGetSchema.shape },
+  { name: 'finding_candidate_merge', description: 'Append evidenced candidate merge versions with exact current hashes while retaining both sources; no semantic-defect confirmation or Finding mutation', schema: candidateMergeSchema.shape },
+  { name: 'finding_candidate_disprove', description: 'Append an evidenced non-gate disproof retaining the original candidate', schema: candidateDisproveSchema.shape },
+  { name: 'finding_candidate_promote', description: 'Eligible current reviewer signs a non-gate semantic reproduction attestation bound to the exact candidate hash, preregistered command/selector, causal receipt, and existing verified Finding; marker-only receipt evidence cannot promote', schema: candidatePromoteSchema.shape },
   { name: 'finding_ledger_query', description: 'Read a complete signed ledger/CAS/idempotency/runtime/migration scorecard projection without exposing protected storage paths', schema: {
     storyId: z.string().describe('Story ID.'),
   }},
@@ -2250,6 +2280,35 @@ Behavior:
     publicKey: z.string().optional().describe('Compatibility assertion only. It cannot select trust; when present it must equal the current registered runtime-evidence key.'),
     keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
     storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
+  }},
+  { name: 'scope_budget_check', description: 'Read semantic scope budget dimensions, unknown mappings and required decomposition before DEV. No approval or state mutation.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), json: z.boolean().optional(),
+  }},
+  { name: 'scope_budget_approve', description: 'Record an interactive operator acknowledgement bound to exact known over-budget scope. Does not replace independent review.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), bindingDigest: z.string().min(1),
+    ack: z.boolean(), confirmationToken: z.string().min(1), reason: z.string().min(20),
+  }},
+  { name: 'acceptance_amendment_propose', description: 'Propose additive DEV acceptance with frozen original scope, intents and topology; no acceptance is changed until independent approval.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1),
+    delta: z.object({ addItems: z.array(z.unknown()), appendIntents: z.array(z.unknown()),
+      scopeDelta: z.object({ modify: z.array(z.string()), create: z.array(z.string()), test: z.array(z.string()) }).strict(), topologyDelta: z.array(z.unknown()),
+    }).strict().describe('Exact additive delta; the domain validator refuses unknown fields, weakening, unbound scope and incomplete topology.'),
+  }},
+  { name: 'acceptance_amendment_review', description: 'Launch or recover one independent DEV intent-reviewer attempt with its worker key pinned before launch.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1), host: z.enum(['codex', 'claude']),
+  }},
+  { name: 'acceptance_amendment_approve', description: 'Consume the independently signed approve verdict and atomically journal additive acceptance application; retries recover interrupted writes.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1),
+  }},
+  { name: 'acceptance_amendment_cancel', description: 'Cancel an unapplied amendment with a reason, retaining its proposal and review history.', schema: {
+    storyId: z.string().min(1), amendmentId: z.string().min(1), reason: z.string().min(5),
+  }},
+  { name: 'acceptance_amendment_show', description: 'Read and verify the signed acceptance amendment journal.', schema: { storyId: z.string().min(1) }},
+  { name: 'review_remediation_close', description: 'Atomically close an inventory-bound repair set using current executed verification evidence; repeat the exact request to recover or replay.', schema: {
+    storyId: z.string().min(1), repairSetId: z.string().min(1), epochId: z.string().min(1), repairCommit: z.string().regex(/^[a-f0-9]{40,64}$/),
+    findings: z.array(z.object({ findingId: z.string().min(1), resolution: z.string().min(1),
+      verification: z.array(z.object({ itemId: z.string().min(1), intentRef: z.string().min(1), evidenceDigest: z.string().min(1) })).min(1),
+    })).min(1),
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2589,16 +2648,12 @@ Behavior:
     })).optional().describe('Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.'),
   }},
 
-  // B-7813 CHK-002: stall_resolution_set — record one structured, signed,
-  // current-review-round-bound resolution that clears the CHK-001 convergence-stall
-  // mint block for exactly the next ordinary review round. action enum + reason
-  // min length are re-validated at the handler runtime AND at the gate
-  // consumption point (isValidCurrentRoundStallResolution), per the Handler
-  // encoding convention.
-  { name: 'stall_resolution_set', description: 'Record a signed, current-round-bound resolution that clears the convergence-stall mint block (CHK-001) for the next ordinary review round', schema: {
+  // Signed compatibility diagnosis; only declare_unreachable changes acceptance
+  // through the existing scope-shrinkage path. It cannot release an epoch stall.
+  { name: 'stall_resolution_set', description: 'Record a signed compatibility diagnosis or checklist withdrawal; does not clear the completed-epoch convergence gate', schema: {
     storyId: z.string().describe('Story ID'),
-    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget (CHK-003) is the PRIVILEGED hard-ceiling override — the ONLY action that clears the mint block once total ordinary review rounds exceed the hard ceiling; an ordinary per-round resolution cannot.'),
-    reason: z.string().min(20, 'reason must be at least 20 characters (why you are consciously clearing the convergence-stall block for this review round).').describe('Why you are consciously clearing the convergence-stall block for this review round (>= 20 chars after trim).'),
+    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget retains compatibility diagnostic meaning; human continuation of a verified epoch stall requires story_resume.'),
+    reason: z.string().min(20, 'reason must be at least 20 characters (why this compatibility diagnosis or withdrawal is justified).').describe('Why this compatibility diagnosis or withdrawal is justified (>= 20 chars after trim).'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx) to withdraw as unreachable; REQUIRED when action=declare_unreachable, ignored otherwise.'),
     approvedBy: z.string().optional().describe('Optional operator identifier recorded on the resolution (and on the B-1909 decision for declare_unreachable).'),
     actor: z.string().optional().describe('Optional actor identifier; used for approvedBy attribution when approvedBy is omitted.'),
@@ -2706,7 +2761,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON with status, violations, warnings'),
   }},
-  { name: 'scope_contract_acknowledge', description: 'Record an explicit out-of-scope change acknowledgement (requires reason ≥ 20 chars)', schema: {
+  { name: 'scope_contract_acknowledge', description: 'Record an acknowledgement for already declared paths (requires reason ≥ 20 chars)', schema: {
     storyId: z.string().describe('Story ID'),
     paths: z.array(z.string()).describe('Out-of-scope paths being acknowledged'),
     reason: z.string().min(20, 'reason must be ≥ 20 characters').describe('Why these out-of-scope paths are necessary (≥ 20 chars)'),
@@ -3262,7 +3317,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
+  { name: 'cross_host_review', description: 'Submit or resume a durable managed Codex run as an independent read-only reviewer over the current materialHash-bound change, then record a structured host-B verdict alongside the caller-authored host-A findings and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
     storyId: z.string().describe('Canonical Story id'),
     policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),
     hostAFindingsFile: z.string().optional().describe('Path to a JSON array of host-A (Claude) Finding objects to diff against host B'),
@@ -3270,11 +3325,14 @@ Behavior:
     hostB: z.string().optional().describe('Host-B id; default codex-host-b'),
     runId: z.string().optional().describe('Local run id; default <storyId>-xhr-r1'),
     timeoutMinutes: z.number().int().positive().optional().describe('Bounded timeout for the Codex review subprocess; default 12'),
+    detach: z.boolean().optional().describe('Submit the durable managed Codex leaf and return its managedRunId after worker claim without consuming a verdict'),
+    managedRunId: z.string().optional().describe('Resume and consume this exact already-submitted managed Codex run; never spawns a replacement'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'host_run', description: 'Launch a canonical reviewer/quorum host (codex/claude/agy) through the B-70e9 usage choke point: builds the B-d8ef canonical launcher argv, streams host stdout, and writes preflight+final LLM usage-ledger rows bound to storyId/agentType/phase/provider (plus reviewRunId->threadId, lane->subagentId). Enforces the per-dispatch hard-budget cap and the host-run concurrency cap before spawn. Usage rows are gateEvidence=false diagnostics. Alias: proof-or-stop host run', schema: {
-    host: z.string().describe('Canonical host: codex, claude, or agy (aliases: claude-code->claude, antigravity->agy)'),
+  { name: 'host_run', description: 'Submit a durable managed Codex or Claude CLI run. Foreground mode attaches to the same durable run; --detach returns after the worker claim. Silence never implies failure. Alias: proof-or-stop host run', schema: {
+    idempotencyKey: z.string().min(1).max(512).optional().describe('Stable logical request key for retry-safe submission; changed inputs are refused. Formal reviews automatically bind host/story/reviewRunId/lane.'),
+    host: z.string().describe('Canonical managed host: codex or claude (alias: claude-code->claude)'),
     agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),
@@ -3283,14 +3341,60 @@ Behavior:
     reviewRunId: z.string().optional().describe('Review run id (e.g. B-70e9:RR-001) recorded as threadId; must start with "<storyId>:" when storyId is given'),
     lane: z.string().optional().describe('Reviewer lane (e.g. proof-or-stop-review-quality) recorded as subagentId'),
     timeoutMs: z.number().int().positive().optional().describe('Host subprocess timeout in milliseconds'),
-    agyPrintTimeout: z.string().optional().describe('agy --print-timeout override (e.g. 30m); must match \\d+[smh]'),
+    deadlineMs: z.number().int().positive().optional().describe('Finite absolute managed-run deadline in milliseconds; defaults to timeoutMs or 30 minutes'),
+    detach: z.boolean().optional().describe('Return after durable worker claim instead of attaching until terminal'),
+    managedReview: z.boolean().optional().describe('Formal cross-provider reviewer mode: derive the exact prompt from reviewRunId/lane, require agentType=lane, and accept only a provider-authored proposal plus successful terminal receipt. Do not pass prompt/promptFile.'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex/Claude/agy semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
+  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. waitMs is capped at 30000 and silence does not change state. Alias: proof-or-stop host run status', schema: {
+    runId: z.string().optional().describe('Managed host run id; exclusive with targets'),
+    targets: z.array(z.object({
+      runId: z.string(),
+      afterGeneration: z.number().int().nonnegative().optional(),
+    })).min(1).max(32).optional().describe('Wait for any changed run; each cursor acknowledges previously delivered terminal state'),
+    afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
+    afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
+    waitMs: z.number().int().nonnegative().max(30000).optional().describe('Bounded long-poll wait, maximum 30000ms'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'host_run_cancel', description: 'Idempotently request cancellation of one durable managed host run. Alias: proof-or-stop host run cancel', schema: {
+    runId: z.string().describe('Managed host run id'),
+    reason: z.string().optional().describe('Operator cancellation reason'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'host_run_worker', visibility: 'internal', description: 'Internal detached worker for a previously submitted managed host run', schema: {
+    runId: z.string().describe('Managed host run id'),
+  }},
+  { name: 'managed_review_proposal_set', description: 'Compatibility-only provider callback for older adapters. It requires paired readManifest/readLog evidence; formal managed reviewers seal the bounded final assistant result instead.', schema: {
+    runId: z.string().optional().describe('Managed run id; normally inherited through LATTICE_MANAGED_HOST_RUN_ID'),
+    storyId: z.string().describe('Story bound by the managed run'),
+    providerAgent: z.string().describe('Provider reviewer identity bound by the managed run'),
+    lane: z.string().describe('Reviewer lane bound by the managed run'),
+    reviewRunId: z.string().describe('Signed review run bound by the managed run'),
+    conclusion: z.enum(['pass', 'findings']).describe('Exactly one pass or findings conclusion'),
+    note: z.string().optional().describe('Pass note; required only for pass'),
+    findings: z.array(z.object({
+      desc: z.string(),
+      severity: z.enum(['critical', 'high', 'medium', 'low']),
+      category: z.enum(['happy', 'edge', 'adversarial', 'missing']),
+      files: z.array(z.string()).optional(),
+      evidenceState: z.enum(['suspected', 'verified']).optional(),
+      uncertaintyReason: z.string().optional(),
+    }).strict()).optional().describe('Findings; required only for findings conclusion'),
+    readManifest: z.unknown().describe('Truthful reviewer read manifest'),
+    readLog: z.unknown().describe('Required mechanical reviewer read-log evidence. Runtime validates its canonical shape and coherence with readManifest.'),
+    readDiagnostics: z.unknown().optional().describe('Mechanical read-manifest diagnostics'),
+  }},
+  { name: 'managed_review_evidence_import', description: 'Import provider-authored evidence only from an exact successful managed terminal receipt. Verdict/note/finding overrides are intentionally unsupported.', schema: {
+    runId: z.string().describe('Managed run id'),
+    receiptId: z.string().describe('Exact receipt id returned by host_run_status after terminal'),
+  }},
+  { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex and Claude semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
     storyId: z.string().describe('Canonical Story id'),
     hosts: z.boolean().optional().describe('Launch semantic proposal hosts; default true. Set false for deterministic local-only routing.'),
-    requestAgy: z.boolean().optional().describe('Request the conditional agy supplemental proposer even when primary hosts agree.'),
     persist: z.boolean().optional().describe('Persist candidate-spec-set.json; default true.'),
     fullScanReason: z.string().optional().describe('Structured reason for a tool-driven broad scan; never serializes corpus bodies.'),
     json: z.boolean().optional().describe('Output the versioned candidate artifact as JSON.'),
@@ -3502,3 +3606,6 @@ Behavior:
   }},
 
 ];
+
+/** Ordinary discovery/catalog consumers use this view; MAIN_TOOLS is the dispatch registry. */
+export const PUBLIC_MAIN_TOOLS: ToolDef[] = publicToolCatalog(MAIN_TOOLS);

@@ -65,6 +65,14 @@ are unaffected. Internal stdout consumers that `JSON.parse` a bare command are
 also preserved in brief mode: `finding_list` keeps `findings[].evidenceState`
 and `attention.suspected`; `story_list` keeps `_bugSummary`.
 
+`story_list --active` includes INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST and
+the legacy TEST_CASE / TEST_CASE_REVIEW phases. DONE, DISCARDED, IDEA and META
+are excluded from this active selection. Explicit `--active` and `--phase` filters
+use the resolved workspace phase before reading row details. They do not inspect
+excluded Stories' checklist, bug, test-evidence or metrics details; use the
+unfiltered listing for the complete dashboard and its full-population totals.
+A filtered listing is not an integrity audit of excluded Stories.
+
 ### Non-silent filtering
 
 When brief mode filters a listing to its actionable subset, it always emits the
@@ -915,6 +923,10 @@ Story-aware dynamic validation is selected with `proof-or-stop validate --story=
 * `shadow`: execute the dynamic Wave-0/selected path and compare it with the complete-plan oracle; the complete result remains authoritative and dynamic receipts are not TEST/DONE authority.
 * `enforce-low-risk`: may grant dynamic TEST authority only for eligible local/docs Stories after the current baseline, closure/runtime trace, receipt, scope, pinned-command, shard, revocation, and periodic-full prerequisites all pass. Otherwise it fails closed to the complete-plan fallback.
 
+Long-running pinned verification commands use the separate `validate.evidenceCommandTimeoutOverrides` array. Each entry binds one positive finite `timeoutMs` to an exact allowlisted `command` executable and complete ordered `args` vector. These entries do not register commands in routine `proof-or-stop validate`; prefix, substring, and near-argv matches keep the 270-second evidence default. A malformed array or duplicate executable+argv identity fails closed to that default. The command-specific ceiling never bypasses the outer CLI deadline or its TERM→KILL→reap cleanup. Within one `verification_evidence_batch_add`, exact cwd+command duplicates share one execution, while every intent still evaluates its own immutable selector and receives its own receipt; any failed selector preserves the all-or-nothing checklist write.
+
+`doctor` also outputs `Runtime scan:`, which is not process gate evidence but a runtime-environment drift check. Runtime facts are defined in `packages/main/src/core/runtime-fact-registry.ts` and protected by `scripts/verify-runtime-fact-contract.mjs`, covering worktree entrypoint authority, the CLI entrypoint, the global `@proof-or-stop/core` realpath, the project-local `node_modules/.bin/proof-or-stop`, the Node/package version, the validate source, and `external-reference-policy`. External projects receive only warn/advisory and are never hard-failed because of the Orchestrate repo's own symlink expectations. `external-reference-policy` scans only `proof-or-stop.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, and `docs/requirements/**/*.md`, excluding story/fixture/build/source-comment noise; it reports only a policy warning and does not assert a connectivity pass.
+
 Without `--story`, a non-`off` mode is a bounded diagnostic preview only: no validation commands are executed, `commandExecutions` is zero, and the result explicitly says to supply `--story`. Dynamic artifacts live under the runtime artifact directory and are not process evidence; a complete plan or an independently configured DONE-required command remains authoritative whenever dynamic evidence is missing, stale, unverified, revoked, or out of scope.
 
 For a command to participate in `shadow` or `enforce-low-risk`, its
@@ -1164,6 +1176,117 @@ The real-task replay scoring table can be generated with the script below, whose
 ```bash
 node scripts/real-story-replay-benchmark.mjs
 ```
+
+## Finding identity, history and non-gate scorecard (Story 2)
+
+`finding_candidate_add/get/merge/disprove/promote` preserve immutable detector
+sources independently of suggested identity. Promotion links an existing verified
+Finding through a current eligible signed REVIEW run and an actually executed,
+candidate-bound reproduction receipt. Candidate creation preregisters the exact
+reproduction executable, argument template, and candidate-independent selector;
+promotion materializes the candidate marker into that template and requires the
+signed receipt to match both the command and selector. The eligible reviewer must
+also supply a semantic reproduction assertion; the CLI persists it as a signed,
+non-gate `CandidateReproductionAttestation` bound to the exact candidate hash,
+preregistered contract and selector, causal receipt hash, verified FindingRef,
+and current review run. Caller-authored PASS text or a marker-bearing execution
+receipt without that attestation cannot authorize promotion.
+`finding_identity_confirm/query` distinguish suggestions from reviewer-confirmed
+identities; an unknown cause is valid. `finding_supersession_add` and
+`finding_identity_supersede` append exact signed correction trails, including
+corrections owned by a current REVIEW Story to historical DONE observations.
+They never rewrite the predecessor. Staged canonical revisions are not current
+until their exact signed link is committed.
+
+Target owners use `finding_route_accept/reject/revoke`; callers can independently
+verify an exact receipt with `finding_route_verify`. A suspected-candidate receipt
+is legal without promotion, a confirmed cause, GREEN, or a baseline set. An initial
+accepted Finding-profile receipt atomically includes all four signed baseline kinds and
+their set. `finding_candidate_route` separately binds the source to the latest
+exact receipt/profile/hash. `finding_progress_predecessor` is a neutral source
+checkpoint port, **not** proof of a valid Story 1 deferral. Real target-authorized
+progress is captured with `finding_progress_capture`; unchanged code may accompany
+genuine test, completed-delivery or status progress. Current consent is a separate
+verification from historical signed bytes.
+
+Use command-specific `--help` for the strict schemas. No command accepts arbitrary
+Finding authority fields, caller baseline facts or caller target-owner facts.
+Queries are available in every phase; source mutations and reviewer commands have
+their independently registered role, phase, owner and cwd restrictions.
+
+```bash
+proof-or-stop finding_history_query '{"storyId":"B-03b7","sourceStoryIds":["B-03b7"],"package":"packages/main"}'
+proof-or-stop finding_identity_scorecard '{"storyId":"B-03b7","sourceStoryIds":["B-03b7"],"mode":"observe"}'
+```
+
+History defaults to current observations; `includeSuperseded:true` explicitly
+requests predecessors. Exact keys include path, package path, symbol, contract,
+canonical identity, source lineage and outcome. The index and filtered query
+projection have separate digests. Missing or corrupt input is incomplete/refused,
+not an apparently complete empty result. Historical receipt invalidity may trigger
+`finding_history_recall` exactly once for the canonical subject and actual changed
+trigger, but never makes that receipt current consent or gate evidence.
+
+The Story 2 scorecard returns all 14 declared record-kind counts (including zeros),
+the exact verified signed semantic records and their ledger receipts, current
+source bindings, a global canonical-catalog dependency digest, and a deterministic
+projection digest. Pin `expectedInputDigest` to reject later source or foreign
+canonical-correction drift. Reads never create a key or signature. The exported
+`verifyIdentityScorecard` compares the complete response to a freshly trusted
+current query, not merely to a caller-supplied self-consistent hash.
+
+Per-detector/version/category promotion fractions are **descriptive adjudication**,
+not precision or recall. They count each current terminal candidate once per
+contributing detector family; an empty denominator reports
+`observed:null,status:"insufficient_evidence"`. Historical signed rows do not
+assert current consent. This is the Story 2 input contract for a future aggregator,
+not Story 1's `finding_rollout_scorecard`, a qualification report or enforce permit.
+The query's `mode` labels read-only report presentation; it is not a global policy
+switch and does not disable separately authorized mutation commands. To run an
+observe-only workflow, invoke only read/benchmark commands. Disabling its output
+means stopping that reader. Persisted warn-style advice remains additive and the
+existing Finding blocker predicate remains authoritative at every point; output
+disable/re-enable never deletes records or silently rebinds stale consent.
+
+### Reproducible disposable delivery and fixed-corpus benchmark
+
+```bash
+npm --prefix packages/main run build
+node packages/main/tests/red/red-b03b7-identity-lineage.mjs --verify-baseline-contract
+node packages/main/tests/red/red-b03b7-identity-lineage.mjs --self-test
+node packages/main/tests/red/red-b03b7-identity-lineage.mjs
+node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery
+node scripts/verify-process-fact-contract.mjs --quiet
+```
+
+The delivery task creates and removes only disposable repositories. It exercises
+real public CLI ingress and separate source/target linked worktrees, then merges
+the fixture's signed source history and removes that worktree before querying it
+through the existing Git-common trust. Fixture phase setup is not a claim that
+the disposable Story passed lifecycle gates. Focused `--section=candidates`,
+`routes`, `history`, `scorecard` and `worktrees` selectors are available; omitted
+section means candidates only. Standing validation explicitly registers delivery
+with a bounded 600000ms timeout because the history campaign previously required
+several minutes. This is a test budget, not latency qualification.
+
+`BENCHMARK` and `DELIVERY_BENCHMARK` lines contain reproducible JSON. Corpus digest
+`9a0f604195d80272811d31e126841426ac0d4f4d59c38265ab6938a044cabb2d`,
+case IDs, labels, assertions and counting rules were frozen before implementation.
+Only the GREEN adapter changed. Labels are evaluated only after production
+primitive outputs exist; they never determine groups or query hits. Baseline rows
+are **Story IDs**, while the measured task expects exact **Finding IDs**. A zero
+baseline exact-ID result is not a claim of zero generic Story-recall accuracy.
+
+The fixed 16-observation replay counts 64 baseline operations versus 51 grouped
+operations: 13 saved, or 20.3125%. Both retain all source-evidence and trigger/
+contract reviews; grouping includes all 13 additional-member identity confirmations.
+Every operation has a unique auditable ID. Synthetic repeated observations are not
+additional historical defects. The F030/F031 correction preserves the old record
+and qualitative observation; old detector counts/dates are not current claims.
+This finite corpus does not establish perfect population recall, historical
+elapsed-time savings, workload latency, a 30-day qualification window or enforce
+eligibility. The joint >=50% grouping-plus-batch criterion remains **pending
+B-e6d9**, with null batch operations; zero invented batch cost cannot satisfy it.
 
 ## Claude Code
 

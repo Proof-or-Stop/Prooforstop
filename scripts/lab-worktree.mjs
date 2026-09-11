@@ -11,7 +11,7 @@ const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote pus
   node scripts/lab-worktree.mjs sync NAME
   node scripts/lab-worktree.mjs status NAME
   node scripts/lab-worktree.mjs reopen NAME --confirm
-  node scripts/lab-worktree.mjs red NAME --expect TEXT -- EXECUTABLE ARG...
+  node scripts/lab-worktree.mjs red NAME --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs carry NAME --story B-xxxx --source PATH --confirm
   node scripts/lab-worktree.mjs baseline NAME --expect TEXT --confirm -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs green NAME
@@ -67,12 +67,12 @@ function dirtySnapshot(cwd) {
 function assertAncestor(cwd, ancestor, child) {
   try { git(cwd, 'merge-base', '--is-ancestor', ancestor, child); } catch { fail(`${ancestor} is not integrated into ${child}.`); }
 }
-function run(cwd, command) {
+function run(cwd, command, timeoutMs = 900000) {
   const start = Date.now();
-  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: 900000, maxBuffer: 32 * 1024 * 1024, shell: false });
+  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 32 * 1024 * 1024, shell: false });
   const output = (r.stdout || '') + (r.stderr || '');
   if (output) process.stdout.write(output);
-  return { command, head: sha(cwd), status: r.status, signal: r.signal, error: r.error?.message, elapsedMs: Date.now() - start, output, at: new Date().toISOString() };
+  return { command, timeoutMs, head: sha(cwd), status: r.status, signal: r.signal, error: r.error?.message, elapsedMs: Date.now() - start, output, at: new Date().toISOString() };
 }
 function runCaptured(cwd, command) {
   const start = Date.now();
@@ -177,10 +177,17 @@ async function main() {
   if (!action || action === '--help') { console.log(help); return; }
   if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
-  let notesPath, expected, command, storyId, sourcePath;
+  let notesPath, expected, command, storyId, sourcePath, timeoutMs = 900000;
   if (action === 'red') {
-    if (rest[0] !== '--expect' || !rest[1]?.trim() || rest[2] !== '--' || !rest[3]) fail('red requires --expect TEXT -- EXECUTABLE ARG...');
-    expected = rest[1]; command = rest.slice(3);
+    if (rest[0] !== '--expect' || !rest[1]?.trim()) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
+    let separator = 2;
+    if (rest[separator] === '--timeout-ms') {
+      const value = rest[separator + 1];
+      if (!/^[1-9]\d*$/.test(value ?? '') || !Number.isSafeInteger(Number(value)) || Number(value) > 3600000) fail('--timeout-ms must be an integer from 1 to 3600000');
+      timeoutMs = Number(value); separator += 2;
+    }
+    if (rest[separator] !== '--' || !rest[separator + 1]) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
+    expected = rest[1]; command = rest.slice(separator + 1);
   } else if (action === 'baseline') {
     if (rest[0] !== '--expect' || !rest[1]?.trim() || rest[2] !== '--confirm' || rest[3] !== '--' || !rest[4]) {
       fail('baseline requires --expect TEXT --confirm -- EXECUTABLE ARG...');
@@ -264,7 +271,7 @@ async function main() {
     if (action === 'red') {
       if (s.phase !== 'active') fail('RED is only accepted for an active Lab.');
       assertAncestor(s.path, sha(mainRoot), 'HEAD');
-      const before = sha(s.path), r = run(s.path, command);
+      const before = sha(s.path), r = run(s.path, command, timeoutMs);
       if (passed(r) || r.status === null || r.signal || r.error || !r.output.includes(expected)) fail('Expected target RED was not observed; no RED recorded.');
       assertClean(s.path, s.override);
       if (sha(s.path) !== before) fail('RED command changed HEAD.');
@@ -471,7 +478,7 @@ async function main() {
       if (s.phase !== 'active' || !s.red) fail('An active Lab with a recorded RED is required.');
       assertAncestor(s.path, s.red.head, 'HEAD');
       if (sha(s.path) === s.red.head) fail('Commit a repair after RED before recording GREEN.');
-      const before = sha(s.path), r = run(s.path, s.red.command);
+      const before = sha(s.path), r = run(s.path, s.red.command, s.red.timeoutMs);
       assertClean(s.path, s.override);
       if (!passed(r) || sha(s.path) !== before) fail('GREEN failed or command changed HEAD.');
       s.green = r; s.history.push({ kind: 'green', ...r }); save(s); console.log('GREEN recorded for current committed HEAD.'); return;
@@ -590,7 +597,7 @@ async function main() {
       save(s);
     };
     const check = (root, kind) => {
-      const before = sha(root), r = run(root, s.red.command);
+      const before = sha(root), r = run(root, s.red.command, s.red.timeoutMs);
       s.history.push({ kind, ...r }); save(s);
       if (root === mainRoot) assertMainStable();
       else assertClean(root, s.override);
@@ -613,7 +620,7 @@ async function main() {
       // Recheck after incorporating main, before writing any release content.
       check(s.path, 'synced-green');
       s.releaseBase = sha(mainRoot);
-      const paths = git(s.path, 'diff', '--name-only', 'main...HEAD').split('\n');
+      const paths = git(s.path, 'diff', '--name-only', '-z', 'main...HEAD').split('\0').filter(Boolean);
       if (paths.some(p => p === 'AGENTS.override.md' || /^\.proof-or-stop\/story\//.test(p))) fail('Lab override or real Story state cannot be released through Lab.');
       s.bump = shouldBuildDoneMainPackageForChangedPaths(paths);
       const currentVersion = versions.readSyncedVersion(mainRoot);

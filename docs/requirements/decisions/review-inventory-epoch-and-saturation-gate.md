@@ -283,7 +283,9 @@ the bidirectional transitive dependency closure of the tracked source inventory.
 A proven narrow repair requires exactly its impacted active lanes; forced lanes
 remain selected. Missing or changed scope/policy/lineage, rename/delete,
 untracked or ignored material, opaque or unresolved dependencies, and an empty
-selection all fail closed to the complete active lane set. The selection changes
+selection all fail closed to the complete active lane set. The v2 selection policy
+includes unresolved bare runtime or bundler aliases: only known Node builtins may
+be ignored without a resolved target. Prior v1 selections must be recomputed. The selection changes
 lane scheduling only: required host and escalation assurance remain unchanged.
 
 `reviewer_list` and REVIEW transition guidance project the same gate-consumed

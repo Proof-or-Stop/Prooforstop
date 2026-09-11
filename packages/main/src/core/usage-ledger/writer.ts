@@ -59,9 +59,9 @@ export const GENESIS_PREVIOUS_HASH = null;
 /**
  * Ledger enable flag (CHK-006). Default ON; set PROOF_OR_STOP_USAGE_LEDGER=0 to disable.
  * When the flag is UNSET the ledger is active by default; the explicit escape
- * hatch ('0'/'false'/'off'/'no'/'') restores the byte-identical legacy
- * default-off behavior (a strict no-op writer + the original spawn args + an
- * inert budget guard).
+ * hatch ('0'/'false'/'off'/'no'/'') disables usage rows and the budget guard
+ * while preserving the original provider argv. Provider-process admission and
+ * its canonical registry I/O remain mandatory independently of this flag.
  *
  * Read every call (not memoized) so tests and operators can toggle it without
  * restarting the process.

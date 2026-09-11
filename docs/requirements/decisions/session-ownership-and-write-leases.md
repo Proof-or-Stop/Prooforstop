@@ -269,9 +269,19 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
   side-effect that requires mutating access.
 - Only `ownershipClass === 'readOnly'` commands (e.g. `session_brief`, `story_get`,
   `checklist_get`, `finding_list`) proceed. All other classes fail closed.
-- This mode does **not** change how normal Proof-or-Stop gate reviewers (`proof-or-stop-review-*`) work.
-  Those reviewers operate without `PROOF_OR_STOP_REVIEWER_READONLY=1` set and must be able to call
-  `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
+- This mode does **not** change how normal Proof-or-Stop gate reviewers (`proof-or-stop-review-*`) work,
+  but their evidence authority depends on the invocation path. A registered host adapter can
+  issue a signed, exact native-review invocation attestation; that broker-attested native
+  reviewer may call `review_pass_set`, `finding_add`, or `delivery_check_set` directly. A
+  delivery-review dispatch records the exact prompt, selected host-render identity, and
+  current HEAD/material/story-files binding; `delivery_check_set` consumes a one-shot
+  descriptor capability for that exact dispatch immediately before persistence. Merely
+  setting `agentId` or `PROOF_OR_STOP_AGENT=proof-or-stop-review-delivery` is not authority. A
+  cross-provider reviewer launched through ManagedHostRun must instead submit its provider-owned
+  proposal and let `managed_review_evidence_import` write the pass/finding only after the completed
+  terminal receipt is sealed and proves `replacementSafe=true`,
+  `processCleanup.reaped=true`, and `processCleanup.residualProcessGroup=false`. Raw provider CLI processes and unregistered adapters are
+  advisory-only and cannot directly author gate evidence.
 
 This section is the current active contract for reviewer read-only mode. Older
 reviewer-role background may describe the same separation concept, but must not
@@ -282,9 +292,9 @@ documented here.
 
 This design does not solve:
 
-- cryptographic identity or unforgeable agent identity
+- general human/agent identity outside the registered host-adapter attestation and managed receipt boundaries
 - cross-clone distributed locking
-- reviewer identity attestation
+- distributed reviewer identity attestation across machines or clones
 - malicious local users editing JSON by hand
 - replacing git as source of truth
 

@@ -1,0 +1,16 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {createRequire}from'node:module';import{fileURLToPath}from'node:url';
+import{identityChildClosure,CANONICAL,VERIFIER}from'./identity-child-closure.mjs';
+const root=fs.realpathSync(process.argv[2]||process.cwd()),here=path.dirname(fileURLToPath(import.meta.url)),ts=createRequire(path.join(root,'package.json'))('typescript'),contract=JSON.parse(fs.readFileSync(path.join(here,'identity-child-contract.json')));
+function examine(file,argv,change=s=>s){const text=change(fs.readFileSync(path.join(root,file),'utf8')),ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true),plan=identityChildClosure({ts,file,text,ast,argv,contract});const children=[];function walk(n){if(plan.shouldSkip(n))return;if(ts.isCallExpression(n)&&['spawnSync','execFileSync'].includes(n.expression.getText(ast))){const row=plan.launchFor(n);if(row)children.push(row);}ts.forEachChild(n,walk);}walk(ast);return {...plan,children};}
+for(const group of ['identity-sites','memory-identity','runtime']){const p=examine(CANONICAL,['--group='+group]);assert.deepEqual(p.errors,[]);assert.equal(p.edges.filter(e=>e.file===VERIFIER).length,0,group+' must not reenter identity-cutover');console.log('PASS selected '+group+' no scanner recursion');}
+const defaultParent=examine(CANONICAL,['--group=identity-cutover']);assert.deepEqual(defaultParent.errors,[]);assert.ok(defaultParent.edges.some(e=>e.file===VERIFIER&&e.argv.length===0));console.log('PASS identity-cutover retains default verifier');
+const full=examine(VERIFIER,[]);assert.deepEqual(full.errors,[]);assert.equal(full.edges.length,12);assert.equal(full.edges.filter(e=>e.file===CANONICAL).length,3);console.log('PASS default 3 canonical groups + marker + 7 negative witnesses + pack');
+const boundary=examine(VERIFIER,['--boundary-only']);assert.deepEqual(boundary.errors,[]);assert.deepEqual(boundary.edges.map(e=>[e.file,e.argv]),[[CANONICAL,['--group=identity-sites']]]);console.log('PASS boundary-only retains identity-sites and omits runtime/pack');
+for(const [name,file,args,from,to]of[
+ ['entry',CANONICAL,['--group=identity-cutover'],"identityVerifierResult ??= spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-proof-or-stop-identity-cutover.mjs')]", "identityVerifierResult ??= spawnSync(process.execPath, [join(repoRoot, 'scripts/other.mjs')]"],
+ ['child group',VERIFIER,[],"'--group=identity-sites'","'--group=identity-cutover'"],
+ ['boundary return',VERIFIER,['--boundary-only'],"console.log('PASS identity-boundary-scan');\n    return;","console.log('PASS identity-boundary-scan');"],
+ ['selector',VERIFIER,[],"identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')","identitySitesCheck.includes('PASS')"],
+ ['witness',VERIFIER,[],"\"command\": \"packages/main/tests/artifact-schema-migration.test.mjs\"","\"command\": \"packages/main/tests/other.test.mjs\""],
+ ['callback gate',CANONICAL,['--group=identity-sites'],"if (selectedGroup !== null && !groups.includes(selectedGroup)) return;","if (false) return;"]]){const p=examine(file,args,s=>{assert.ok(s.includes(from));return s.replace(from,to);});assert.ok(p.errors.length,name);console.log('PASS reject '+name);}
+assert.ok(examine(VERIFIER,['--unreviewed']).errors.length);console.log('PASS reject unknown argv');

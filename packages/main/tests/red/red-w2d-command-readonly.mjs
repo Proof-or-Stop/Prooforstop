@@ -113,7 +113,7 @@
 import { strict as assert } from 'node:assert';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, realpathSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { createRequire, syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 
@@ -138,6 +138,9 @@ for (const fn of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFil
     return real.apply(this, args);
   };
 }
+// A validation preload may already have linked builtin ESM exports. Publish
+// this recorder too so its negative control remains meaningful in that case.
+syncBuiltinESMExports();
 /** The test's own fixture commands go through the recorder too; windows exclude them. */
 const spawnSync = (...args) => childProcess.spawnSync(...args);
 const spawnWindow = () => {
@@ -148,6 +151,7 @@ const spawnWindow = () => {
 const DIST = new URL('../../dist', import.meta.url).pathname;
 /** The repository root, so the validate-pipeline section reads the REAL config. */
 const REPO_ROOT = new URL('../../../../', import.meta.url).pathname.replace(/\/$/, '');
+const canonicalCore = process.argv.includes('--canonical-core');
 
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { createMainRegistry } = await import(`${DIST}/registry.js`);
@@ -419,6 +423,18 @@ try {
     const argv = argvOf(call);
     return `${call.api} ${argv[0]} ${argv[1] ?? ''}`.trim();
   }))].sort();
+  // U17's worktree resolver uses argv-based resolution. Signed-workspace
+  // resolution still has an exact shell-string top-level probe; its cache can
+  // be cold in the private Git mirror, so permit only that literal command.
+  const isSignedWorkspaceRootProbe = (call) => call.api === 'execSync'
+    && call.file === 'git rev-parse --show-toplevel' && call.args.length === 0;
+  assert.equal(isSignedWorkspaceRootProbe({ api: 'execSync', file: 'git rev-parse --show-toplevel', args: [] }), true);
+  for (const suffix of ['; git status', ' && node runner.mjs', ' --git-dir=/tmp/foreign', ' > /tmp/output']) {
+    assert.equal(isSignedWorkspaceRootProbe({ api: 'execSync', file: `git rev-parse --show-toplevel${suffix}`, args: [] }), false);
+  }
+  for (const call of spawns.filter((call) => call.api === 'execSync')) {
+    assert.ok(isSignedWorkspaceRootProbe(call), `unexpected shell-string child: ${call.file}`);
+  }
   // THE EXACT OBSERVED SPAWN SET. Two families, both read-only:
   //   - repository/worktree RESOLUTION (which git dir and toplevel this story's
   //     root maps to), which the handler needs before it can name a committed
@@ -427,11 +443,10 @@ try {
   // Anything else — a runner, a harness, a package manager, a git command that
   // MUTATES — is a regression, and this list is what makes it one.
   assert.deepEqual(
-    shapes,
+    shapes.filter((shape) => shape !== 'execSync git rev-parse'),
     [
       'execFileSync git rev-parse',
       'execFileSync git worktree',
-      'execSync git rev-parse',
       'spawnSync git rev-parse',
       'spawnSync git show',
     ],
@@ -439,10 +454,16 @@ try {
   );
   /** Read-only git subcommands, with the exact read-only sub-form required. */
   const READ_ONLY_GIT = {
-    'rev-parse': (argv) => argv.slice(2).every((a) => /^(?:--verify|--quiet|--show-toplevel|--git-common-dir)$/.test(a) || /\^\{commit\}$/.test(a)),
+    'rev-parse': (argv) => JSON.stringify(argv.slice(2)) === JSON.stringify(['--is-inside-work-tree', '--path-format=absolute', '--git-common-dir']) || argv.slice(2).every((a) => /^(?:--verify|--quiet|--show-toplevel|--git-common-dir)$/.test(a) || /\^\{commit\}$/.test(a)),
     show: (argv) => argv.length === 3 && argv[2].includes(':'),
     worktree: (argv) => argv[2] === 'list',
   };
+  // The optimized root probe is one exact read-only form, not permission for arbitrary flags.
+  assert.equal(READ_ONLY_GIT['rev-parse'](['git', 'rev-parse', '--is-inside-work-tree', '--path-format=absolute', '--git-common-dir']), true);
+  for (const extra of ['--verify', '--output=/tmp/forbidden', '--git-dir=/tmp/foreign']) {
+    assert.equal(READ_ONLY_GIT['rev-parse'](['git', 'rev-parse', '--is-inside-work-tree', '--path-format=absolute', '--git-common-dir', extra]), false,
+      `optimized root probe must reject extra argument ${extra}`);
+  }
   for (const call of spawns) {
     const argv = argvOf(call);
     assert.equal(argv[0], 'git', `every child process must be git; observed ${argv.join(' ')}`);
@@ -495,19 +516,46 @@ try {
   assert.notEqual(smokeCommand.shell, true, 'the entry is argv-shaped, never shell-interpreted');
   assert.ok(typeof smokeCommand.timeoutMs === 'number' && smokeCommand.timeoutMs > 0,
     'the entry declares a positive per-command timeout the pipeline can enforce');
-  const pipelineResult = await runValidationCommand(smokeCommand, REPO_ROOT);
+  let executorCommand = smokeCommand;
+  if (canonicalCore) {
+    const probePath = join(root, 'executor-capture-probe.mjs');
+    writeFileSync(probePath, [
+      "import assert from 'node:assert/strict';",
+      `assert.deepEqual(process.argv.slice(2), ['--canonical-core', 'literal argument with spaces']);`,
+      `assert.equal(process.cwd(), ${JSON.stringify(REPO_ROOT)});`,
+      "console.log('CANONICAL_EXECUTOR_STDOUT');",
+      "console.error('CANONICAL_EXECUTOR_STDERR');",
+    ].join('\n'));
+    assert.equal(smokeCommand.args[0], SMOKE_ENTRY, 'configured executable script remains the first Node argument');
+    executorCommand = { ...smokeCommand,
+      args: [probePath, ...smokeCommand.args.slice(1), 'literal argument with spaces'] };
+  }
+  const pipelineResult = await runValidationCommand(executorCommand, REPO_ROOT);
   assert.equal(pipelineResult.code, 0,
     `${SMOKE_ENTRY} must exit 0 when run through the validate pipeline's own executor; got code=${pipelineResult.code}\n${pipelineResult.output}`);
   assert.notEqual(pipelineResult.timedOut, true, 'the entry completes inside its configured timeout');
-  assert.match(pipelineResult.output, /red-evidence-envelope-smoke: OK/,
-    'the pipeline captured the smoke\'s own success transcript, so the entry really ran');
+  if (canonicalCore) {
+    assert.match(pipelineResult.output, /CANONICAL_EXECUTOR_STDOUT/);
+    assert.match(pipelineResult.output, /CANONICAL_EXECUTOR_STDERR/);
+    const failure = await runValidationCommand({ ...executorCommand,
+      args: [executorCommand.args[0], '--wrong-argument'] }, REPO_ROOT);
+    assert.notEqual(failure.code, 0, 'executor must propagate a real child assertion failure');
+    assert.match(failure.output, /AssertionError/, 'executor retains failing child diagnostics');
+  } else {
+    assert.match(pipelineResult.output, /red-evidence-envelope-smoke: OK/,
+      'the pipeline captured the smoke\'s own success transcript, so the entry really ran');
+  }
 
-  console.log('red-w2d-command-readonly: PASS');
+  console.log(canonicalCore ? 'red-w2d-command-readonly: CANONICAL PASS' : 'red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
   console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .proof-or-stop manifest of file paths and content hashes NET identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)`);
   console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
-  console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
+  if (canonicalCore) {
+    console.log('  canonical validate executor: configured argv/cwd, stdout/stderr capture and child failure propagation verified; envelope scheduled independently');
+  } else {
+    console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
+  }
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

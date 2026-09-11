@@ -1,3 +1,5 @@
+// Exercise physical reads explicitly; persistent main memo legitimately skips warm reads.
+process.env.GIT_REPLACE_REF_BASE = 'refs/lab-v17-no-replacements/';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import cp from 'node:child_process';

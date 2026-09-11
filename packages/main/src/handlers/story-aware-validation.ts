@@ -7,6 +7,7 @@ function projectSigningRoot(projectRoot: string): string {
  if (configured && !resolved) throw new Error('VALIDATION_SIGNING_GIT_ROOT_UNRESOLVED');
  return resolved ?? projectRoot;
 }
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 /**
  * Runtime adapter for story-aware validation.
  *
@@ -18,7 +19,7 @@ function projectSigningRoot(projectRoot: string): string {
  */
 import { execFileSync } from 'node:child_process';
 import { builtinModules } from 'node:module';
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
@@ -62,6 +63,9 @@ import {
   type VerificationIntent,
   verifyCanonicalFullBaseline,
   verifyValidationCommandReceipt,
+  verifyValidationSelectionManifest,
+  verifyValidationClosureCertificate,
+  isReceiptRevoked,
   verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
@@ -110,7 +114,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 2, executor: 'validation-executor' });
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 6, executor: 'validation-executor' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -178,19 +182,19 @@ export function runtimeTraceForResult(result: ValidationCommandResult | undefine
   const normalizeObserved = (value: string): string | undefined => {
     if (!value) return undefined;
     if (/^node:/.test(value) || builtinModules.includes(value)) return undefined;
-    const candidate = sourceAuthorityPath(value);
-    if (candidate && !isAbsolute(candidate)) return candidate;
-    const root = resolve(projectRoot);
-    const absolute = resolve(candidate || value);
-    const rel = relative(root, absolute).replace(/\\/g, '/');
-    if (rel && !rel.startsWith('../') && rel !== '..') return candidate || rel;
-    if (isAbsolute(value)) return `__external__/${value.replace(/^[\\/]+/, '').replace(/\\/g, '/')}`;
-    return `__unresolved__/${value.replace(/\\/g, '/')}`;
+    // Do not realpath the captured read after exit: it may be deleted or retargeted.
+    if (!isAbsolute(value)) return `__unresolved__/${value.replace(/\\/g, '/')}`;
+    const absolute = value;
+    const rel = relative(realpathSync(projectRoot), absolute).replace(/\\/g, '/');
+    if (rel && rel !== '..' && !rel.startsWith('../') && !isAbsolute(rel)) return sourceAuthorityPath(rel) || rel;
+    return `__external__/${absolute.replace(/^[\\/]+/, '').replace(/\\/g, '/')}`;
   };
   const unknownRuntimeInputs = [...boundary.unknownRuntimeInputs];
+  if (boundary.readPathSchema !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion) unknownRuntimeInputs.push('legacy or unsupported physical read trace');
+  if ((boundary.readPaths ?? []).some(value => !isAbsolute(value))) unknownRuntimeInputs.push('nonabsolute physical read observation');
   const normalizedReads = (boundary.readPaths || []).map((value) => ({ value, path: normalizeObserved(value) }));
   for (const row of normalizedReads) {
-    if (!row.path && (isAbsolute(row.value) || row.value.includes('/') || row.value.includes('\\'))) {
+    if ((!row.path || row.path.startsWith('__unresolved__/')) && (isAbsolute(row.value) || row.value.includes('/') || row.value.includes('\\'))) {
       unknownRuntimeInputs.push(`unmapped-runtime-read:${row.value}`);
     }
   }
@@ -356,6 +360,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     }));
   }
   const context: DynamicValidationContext = {
+    projectRoot: args.projectRoot,
     storyId: args.storyId,
     baseHead: args.baseHead,
     head,
@@ -397,6 +402,46 @@ export function prepareStoryAwareValidation(args: PrepareStoryAwareValidationArg
 export interface DynamicValidationArtifacts {
   receipts: ValidationCommandReceipt[];
   revocationLedger: ReceiptRevocationLedger;
+}
+
+/** Consumer-side integrity checks; never executes commands or repairs runtime evidence. */
+export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyId: string, head: string, value: unknown): string[] {
+  try {
+    const manifest = value as ValidationSelectionManifest;
+    if (!verifyValidationSelectionManifest(manifest, { storyId, head })
+      || manifest.mode !== 'enforce-low-risk' || manifest.fullEscalated) return ['dynamic_manifest_invalid'];
+    if (manifest.toolchainDigest !== stableDigest({ node: process.version, platform: process.platform, arch: process.arch }))
+      return ['dynamic_toolchain_changed'];
+    const dir = artifactDir(projectRoot, storyId);
+    // Strict reads are deliberate: the execution cache's empty-ledger recovery
+    // cannot be used to accept an existing PASS after evidence disappears.
+    const ledger = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
+    const receipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
+    if (!verifyRevocationLedger(ledger) || ledger.digest !== manifest.receiptRevocationLedgerDigest)
+      return ['dynamic_revocation_ledger_changed_or_invalid'];
+    if (!Array.isArray(receipts)) return ['dynamic_receipts_invalid'];
+    const baseline = readCanonicalFullBaseline(projectRoot);
+    if (!baseline || baseline.sourceHead !== manifest.baseHead || baseline.epochId !== manifest.canonicalBaselineEpochId
+      || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
+      || baseline.runnerDigest !== DYNAMIC_RUNNER_DIGEST || baseline.toolchainDigest !== manifest.toolchainDigest)
+      return ['dynamic_baseline_invalid'];
+    for (const row of manifest.rows) {
+      const closure = baseline.closureCertificates[row.commandId];
+      if (!closure || !verifyValidationClosureCertificate(closure)
+        || closure.signature !== row.closureCertificateDigest) return ['dynamic_closure_invalid'];
+      const candidates = receipts.filter(receipt => receipt.commandId === row.commandId
+        && (row.disposition === 'reuse' ? receipt.id === row.receiptId : receipt.sourceHead === manifest.head));
+      const accepted = candidates.some(receipt => verifyValidationCommandReceipt(receipt).ok
+        && !isReceiptRevoked(receipt, ledger) && receipt.revocationLedgerDigest === ledger.digest
+        && receipt.inputDigest === row.inputDigest && receipt.closureCertificateDigest === closure.signature
+        && receipt.catalogDigest === manifest.catalogDigest && receipt.inventoryDigest === manifest.inventoryDigest
+        && receipt.runnerDigest === DYNAMIC_RUNNER_DIGEST && receipt.toolchainDigest === manifest.toolchainDigest
+        && receipt.buildProofDigest === manifest.buildProofDigest && receipt.sourceBaseHead === manifest.baseHead
+        && receipt.canonicalBaselineEpochId === manifest.canonicalBaselineEpochId);
+      if (!accepted) return ['dynamic_receipt_missing_invalid_expired_or_revoked'];
+    }
+    return [];
+  } catch { return ['dynamic_evidence_unavailable_or_malformed']; }
 }
 
 export interface DynamicShardArtifact {
@@ -596,11 +641,13 @@ function registeredShardAdapter(projectRoot: string, command: ValidationCommand,
 
 function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntry, domain: string): { cases: ValidationCase[]; path: string; digest: string } | undefined {
   if (!entry.caseRegistryPath) return undefined;
-  const path = isAbsolute(entry.caseRegistryPath) ? resolve(entry.caseRegistryPath) : resolve(projectRoot, entry.caseRegistryPath);
-  const root = resolve(projectRoot);
-  const rel = relative(root, path);
-  if (rel.startsWith('../') || rel === '..') return undefined;
   try {
+    // Resolve before execution so the runtime observation and containment check
+    // name the same physical registry, including /var aliases and symlinks.
+    const path = realpathSync(resolve(projectRoot, entry.caseRegistryPath));
+    const root = realpathSync(projectRoot);
+    const rel = relative(root, path);
+    if (!rel || rel.startsWith('../') || rel === '..' || isAbsolute(rel)) return undefined;
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as unknown;
     if (!Array.isArray(parsed)) return undefined;
     const cases = parsed.filter((row): row is ValidationCase => Boolean(row && typeof row === 'object'
@@ -628,6 +675,7 @@ async function executeShardedEntry(args: {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  beforeLaunch?: () => void;
   buildProofDigest: string;
 }): Promise<{ result: ValidationResult; artifact: DynamicShardArtifact }> {
   const domain = shardDomainForEntry(args.entry)!;
@@ -645,7 +693,7 @@ async function executeShardedEntry(args: {
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
-    deadlineError: args.deadlineError,
+    deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
   const oracleCommand = oracle.commands[0];
@@ -729,7 +777,7 @@ async function executeShardedEntry(args: {
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
-      deadlineError: args.deadlineError,
+      deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
       jobs: 1,
     });
     results.push(result);
@@ -874,8 +922,12 @@ function receiptForResult(args: {
   revocationLedger: ReceiptRevocationLedger;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  const provenance = args.result.sourceProvenance;
+  if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA
+    || !provenance.cleanBefore || !provenance.cleanAfter
+    || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const outputDigest = stableDigest(args.result.output);
-  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start' });
+  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
   const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({
@@ -909,6 +961,7 @@ export interface RunStoryAwareValidationArgs extends PrepareStoryAwareValidation
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  beforeLaunch?: () => void;
   progress?: ValidationProgressReporter;
   prerequisites?: Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites'];
 }
@@ -932,8 +985,8 @@ function deriveGateOwnedPrerequisites(args: {
   projectRoot: string;
   prepared: PreparedStoryAwareValidation;
   baseline?: CanonicalFullBaseline;
-  buildResult: ValidationResult;
-  buildProofDigest: string;
+  buildResult?: ValidationResult;
+  buildProofDigest?: string;
   receipts: ValidationCommandReceipt[];
   shardArtifacts: DynamicShardArtifact[];
 }): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
@@ -975,8 +1028,8 @@ function deriveGateOwnedPrerequisites(args: {
     wholeRepoScannersClassified: catalogOwnershipGatePassed,
     processFactBindingsComplete,
     changedTestPropagationVerified,
-    sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult.allPass,
-    buildAlwaysExecuted: args.buildResult.commands.length === 1 && args.buildResult.allPass,
+    sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult?.allPass === true,
+    buildAlwaysExecuted: args.buildResult?.commands.length === 1 && args.buildResult?.allPass === true,
     // Gate/validation-infra rows remain in the inventory and are selected by
     // impact/full-escalation rules, but their mere presence must not make every
     // unrelated local Story ineligible.  Eligibility is about the rows this
@@ -990,6 +1043,16 @@ function deriveGateOwnedPrerequisites(args: {
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
     catalogOwnershipGatePassed,
   };
+}
+
+/** Read-only rejection preflight. It can require full execution, never grant authority. */
+export function dynamicValidationPreflightFallbackReasons(projectRoot: string, prepared: PreparedStoryAwareValidation): string[] {
+  const prior = readStoryAwareValidationArtifacts(projectRoot, prepared.manifest.storyId);
+  const facts = deriveGateOwnedPrerequisites({ projectRoot, prepared,
+    baseline: readCanonicalFullBaseline(projectRoot), receipts: prior.receipts, shardArtifacts: [] });
+  return Object.entries(facts)
+    .filter(([name, value]) => name !== 'sourceFirstBuildProofActive' && name !== 'buildAlwaysExecuted' && value === false)
+    .map(([name]) => name);
 }
 
 /** Execute the actual Wave-0 + selected path and persist its signed receipts. */
@@ -1007,7 +1070,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
-    deadlineError: args.deadlineError,
+    deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
@@ -1049,7 +1112,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
-        deadlineError: args.deadlineError,
+        deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
       }));
     }
     for (const entry of shardEntries) {
@@ -1057,7 +1120,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       const sharded = await executeShardedEntry({
         entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
-        deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, buildProofDigest,
+        deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });
       selectedResults.push(sharded.result);
       shardArtifacts.push(sharded.artifact);

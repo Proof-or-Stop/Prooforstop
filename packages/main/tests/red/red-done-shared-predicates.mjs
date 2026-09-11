@@ -105,7 +105,7 @@ export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('pack
       pass.reviewRunId, undefined, undefined, undefined, { writerSessionId: pass.writerSessionId }, pass.envelopeId);
     assert.equal(api.verifyReviewRun(run), true, 'fixture has a real valid run signature');
     assert.equal(api.verifyReviewPass(value.storyId, pass), true, 'fixture has a real envelope-bound pass signature');
-    return envelopes => api.latestTrustedPriorPass({}, value.storyId, role, [pass], [run], undefined, undefined, envelopes)?.pass.id ?? null;
+    return envelopes => api.latestTrustedPriorPass({ readReviewPrompt: row => row.assembledPrompt }, value.storyId, role, [pass], [run], undefined, undefined, envelopes)?.pass.id ?? null;
   };
   const projection = [{ id: 'F-001', createdAt: envelope.createdAt, status: 'resolved', severity: 'low', category: 'missing', desc: 'fixture' }];
   const withProjection = rows => ({ findingProjection: rows,
@@ -294,6 +294,7 @@ function productionConsumers(machineSource, oracleSource, state) {
   const exported = {};
   const sandbox = {
     exports: exported, process: { cwd: () => 'ROOT' },
+    acceptanceCompletionBlocker: (inputStore, id, root) => { assert.equal(inputStore, store); assert.equal(id, 'B-probe'); assert.equal(root, 'GIT'); return state.amendment ?? null; },
     readDevMemoryFinishDecision: (root, id) => { calls.push(['finish', root, id]); return root === 'ROOT' && id === 'B-probe' ? state.finish : null; },
     inspectDevMemoryFinishDecision: (root, id) => {
       calls.push(['finish', root, id]);
@@ -338,6 +339,8 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.deepEqual(checkSharedDoneAdapterSources(machineSource, oracleSource), []);
   const cases = [
     ['all-pass', () => {}, null, null],
+    ['amendment pending', f => { f.amendment = 'Acceptance amendment pending: AM-1 APPLYING'; }, 'acceptance-amendment', 'acceptance_amendment_blocked'],
+    ['amendment invalid', f => { f.amendment = 'Acceptance amendment signature invalid'; }, 'acceptance-amendment', 'acceptance_amendment_blocked'],
     ['test missing', f => { f.evidence = null; }, 'test-evidence', 'no test evidence'],
     ['test failed', f => { f.evidence.result = 'FAIL'; }, 'test-evidence', 'test FAIL'],
     ['bug open', f => { f.bugs.bugs = [{ id: 'BUG-1', status: 'open' }]; }, 'bugs-fixed', 'unfixed bug'],

@@ -1,4 +1,3 @@
-import { readObservedGitTree } from './git-tree-observation.js';
 /**
  * Story-aware dynamic validation.
  *
@@ -9,6 +8,10 @@ import { readObservedGitTree } from './git-tree-observation.js';
  * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
+import { authorityRevisionClosure, validationAuthoritySources } from './validation-authority-graph.js';
+import { readStoryGitBytes } from './story-git-bytes.js';
+import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
@@ -23,7 +26,7 @@ import { signValidationArtifact, verifyValidationArtifact } from './validation-a
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
-export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v1' as const;
+export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2' as const;
 export const VALIDATION_SHARD_RECEIPT_SCHEMA = 'proof-or-stop.validation-shard-receipt.v1' as const;
 export const VALIDATION_SELECTION_SCHEMA = 'proof-or-stop.validation-selection.v1' as const;
 export const VALIDATION_CLOSURE_SCHEMA = 'proof-or-stop.validation-closure-certificate.v1' as const;
@@ -135,10 +138,10 @@ function git(args: string[], cwd: string): string {
     stdio: ['pipe', 'pipe', 'pipe'],
   }).toString();
 }
-function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
+function objectIdsFromTree(raw: string, ref: string): Map<string, string> {
   const result = new Map<string, string>();
   try {
-    for (const row of readObservedGitTree(gitCwd, ref).split('\0')) {
+    for (const row of raw.split('\0')) {
       if (!row) continue;
       const tab = row.indexOf('\t');
       if (tab < 0) continue;
@@ -172,11 +175,12 @@ export function resolveStoryChangedFiles(
   if (!base) {
     throw new Error(`story change manifest could not resolve a merge base for ${ref}`);
   }
-  const ids = objectIdsAtRef(gitCwd, ref);
+  const raw = readStoryGitBytes(gitCwd, base, ref);
+  const ids = objectIdsFromTree(raw.tree, ref);
   const out: StoryChangedFile[] = [];
   try {
     // NUL framing preserves Git path names, including Unicode, tabs and newlines.
-    const fields = git(['diff', '--name-status', '-z', '-M', base + '..' + ref], gitCwd).split('\0');
+    const fields = raw.diff.split('\0');
     if (fields.at(-1) === '') fields.pop();
     let cursor = 0;
     const nextPath = (): string => {
@@ -503,7 +507,7 @@ export function verifyCanonicalFullBaseline(baseline: CanonicalFullBaseline, now
     && verifyPayload(withoutSignature(baseline), baseline.signature);
 }
 
-interface GraphData { paths: Set<string>; imports: Map<string, Set<string>>; }
+interface GraphData { paths: Set<string>; imports: Map<string, Set<string>>; authority: ReturnType<typeof authorityRevisionClosure>; }
 const graphTreeCache = new Map<string, Map<string, string>>();
 function parseImports(source: string): string[] {
   const output: string[] = [];
@@ -517,6 +521,7 @@ function parseImports(source: string): string[] {
 }
 function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
   const paths = new Set<string>(); const imports = new Map<string, Set<string>>();
+  let authority = authorityRevisionClosure(undefined);
   try {
     const cacheKey = `${gitCwd}\0${ref}`;
     let tree = graphTreeCache.get(cacheKey);
@@ -538,16 +543,18 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
         let offset = 0;
         for (const row of rows) {
           const headerEnd = batchOutput.indexOf(0x0a, offset);
-          if (headerEnd < 0) break;
+          if (headerEnd < 0) throw new Error('incomplete graph batch header');
           const header = batchOutput.subarray(offset, headerEnd).toString('utf8').split(' ');
           const size = Number(header[2]);
           const bodyStart = headerEnd + 1;
           if (header[1] === 'blob' && Number.isFinite(size) && size >= 0 && bodyStart + size <= batchOutput.length) tree.set(row.path, batchOutput.subarray(bodyStart, bodyStart + size).toString('utf8'));
+          if (!tree.has(row.path)) throw new Error('incomplete graph blob');
           offset = bodyStart + Math.max(0, size) + 1;
         }
       }
       graphTreeCache.set(cacheKey, tree);
     }
+    authority = authorityRevisionClosure(tree);
     const allPaths = [...tree.keys()];
     for (const path of allPaths) paths.add(path);
     for (const path of allPaths) {
@@ -571,7 +578,7 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
       imports.set(path, deps);
     }
   } catch { /* graphUnknown is consumed by fail-closed selection */ }
-  return { paths, imports };
+  return { paths, imports, authority };
 }
 export interface DualRevisionImpactGraph {
   baseHead: string;
@@ -580,10 +587,11 @@ export interface DualRevisionImpactGraph {
   headGraphDigest: string;
   commandsAffectedBy(change: StoryChangedFile): string[];
   graphUnknown: boolean;
+  authorityReasons(change: StoryChangedFile): string[];
 }
 export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: string; head: string; catalog?: ValidationCatalogEntry[] }): DualRevisionImpactGraph {
   const base = buildGraphAtRef(args.gitCwd, args.baseHead); const head = buildGraphAtRef(args.gitCwd, args.head);
-  const digest = (graph: GraphData) => stableDigest({ paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
+  const digest = (graph: GraphData) => stableDigest({ authorityPolicy: 'registered-authority-closure.v1', authorityRoots: validationAuthoritySources(), authorityMembers: uniqueSorted(graph.authority.members), authorityUnknown: graph.authority.unknown, paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
   const roots = new Map((args.catalog || []).map(entry => [entry.id, uniqueSorted([...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])])]));
   const affected = (graph: GraphData, change: StoryChangedFile): string[] => {
     const targets = new Set([normalPath(change.path), ...(change.oldPath ? [normalPath(change.oldPath)] : [])]);
@@ -601,6 +609,10 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
   return {
     baseHead: args.baseHead, head: args.head, baseGraphDigest: digest(base), headGraphDigest: digest(head),
     graphUnknown: base.paths.size === 0 || head.paths.size === 0,
+    authorityReasons: change => uniqueSorted([...base.authority.unknown, ...head.authority.unknown,
+      ...[change.path, change.oldPath].filter((path): path is string => Boolean(path))
+        .filter(path => base.authority.members.has(normalPath(path)) || head.authority.members.has(normalPath(path)))
+        .map(path => 'authority-source-changed:' + path)]),
     commandsAffectedBy: change => uniqueSorted([...affected(base, change), ...affected(head, change)]),
   };
 }
@@ -696,6 +708,7 @@ export interface ValidationSelectionManifest {
 }
 export interface DynamicValidationContext {
   storyId: string; baseHead: string; head: string; inventory: ValidationInventory | ValidationInventoryCommand[];
+  projectRoot?: string;
   catalog: ValidationCatalogEntry[]; changes: StoryChangeManifest;
   closures?: Map<string, ValidationClosureCertificate> | Record<string, ValidationClosureCertificate>;
   receipts?: ValidationCommandReceipt[]; baselineEpochId?: string; revocationLedger?: ReceiptRevocationLedger;
@@ -720,9 +733,43 @@ function singletonUnion(contributions: ValidationSingletonContribution[]): Set<s
   return new Set(contributions.flatMap(row => row.commandIds));
 }
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
-  if (!sourceHead || sourceHead === currentHead) return true;
+  if (!sourceHead) return false;
+  if (sourceHead === currentHead) return true;
   try { execFileSync('git', ['merge-base', '--is-ancestor', sourceHead, currentHead], { cwd: gitCwd, stdio: 'ignore' }); return true; } catch { return false; }
 }
+/** Bind declared values to the same ambient/overlay normalization as execution. */
+function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+  const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
+  const cwd = resolve(projectRoot, entry.cwd || '.');
+  const effective = effectiveValidationCommandEnvironment(process.env, entry.env, cwd);
+  const keys = [...new Set((entry.declaredEnvironmentKeys || Object.keys(entry.env || {})).map(key => process.platform === 'win32' ? key.toUpperCase() : key))].sort();
+  return stableDigest(keys.map(key => Object.prototype.hasOwnProperty.call(effective, key)
+    ? [key, 'present', effective[key]] : [key, 'absent']));
+}
+
+/** A receipt-relative proof independent of the cumulative Story/base diff. */
+function certifiedTreesEqual(gitCwd: string, source: string, current: string, entry: ValidationCatalogEntry, closure: ValidationClosureCertificate): boolean {
+  if (closure.certifiedPaths.length === 0) return false;
+  const projection = (head: string): string[] => {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', '--full-tree', head], {
+      cwd: gitCwd, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const result: string[] = [];
+    for (const row of raw.split('\0')) {
+      if (!row) continue;
+      const tab = row.indexOf('\t');
+      if (tab < 0 || !/^[0-7]{6} (?:blob|commit) [0-9a-f]+$/.test(row.slice(0, tab)) || !row.slice(tab + 1)) throw new Error('malformed committed tree row');
+      const path = row.slice(tab + 1);
+      if (entry.closurePolicy === 'whole-repository' || matchesPath(path, closure.certifiedPaths)) result.push(row);
+    }
+    return result.sort();
+  };
+  try {
+    const before = projection(source), after = projection(current);
+    return before.length === after.length && before.every((row, index) => row === after[index]);
+  } catch { return false; }
+}
+
 function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry: ValidationCatalogEntry, closure: ValidationClosureCertificate, ctx: DynamicValidationContext, inputDigest: string): boolean {
   if (!receipt || receipt.commandId !== entry.id || receipt.inputDigest !== inputDigest) return false;
   if (!verifyValidationCommandReceipt(receipt, ctx.now || Date.now()).ok || isReceiptRevoked(receipt, ctx.revocationLedger)) return false;
@@ -739,9 +786,19 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   }
   if (ctx.gitCwd) {
     try {
+      if (!/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(receipt.sourceHead || '')) return false;
+      // Replacement refs can reinterpret an old signed SHA without changing it.
+      // A custom namespace is unknown authority; force real execution instead.
+      if (Object.prototype.hasOwnProperty.call(process.env, 'GIT_REPLACE_REF_BASE')) return false;
+      if (execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim()) return false;
+      const actualHead = execFileSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
+      if (actualHead !== ctx.head) return false;
+      const sourceHead = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${receipt.sourceHead}^{commit}`], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
+      if (sourceHead !== receipt.sourceHead || !isTrustedAncestor(sourceHead, actualHead, ctx.gitCwd)) return false;
       const status = execFileSync('git', ['status', '--porcelain'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
-      const cleanTreeDigest = stableDigest({ head: ctx.head, storyId: ctx.storyId, status: status ? 'dirty' : 'clean-at-command-start' });
+      const cleanTreeDigest = stableDigest({ head: receipt.sourceHead, storyId: ctx.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
       if (status || receipt.cleanTreeDigest !== cleanTreeDigest) return false;
+      if (!certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)) return false;
     } catch {
       return false;
     }
@@ -753,6 +810,10 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
 const FULL_ESCALATION_TOKENS = ['validation', 'scheduler', 'executor', 'catalog', 'selection', 'receipt', 'graph', 'package.json', 'package-lock', 'proof-or-stop.config', 'lattice.config', 'process-fact', 'runtime-fact', 'lifecycle', 'command-policy', 'build', 'lockfile'];
 export function classifyFullValidationReasons(changes: StoryChangeManifest, catalog: ValidationCatalogEntry[] = []): string[] {
   const reasons = changes.scopeViolations.map(row => 'scope-violation:' + row.kind + ':' + row.path);
+  const authorityRoots = new Set(validationAuthoritySources());
+  for (const change of changes.changedFiles) for (const path of [change.path, change.oldPath]) {
+    if (path && authorityRoots.has(normalPath(path))) reasons.push('authority-source-changed:' + path);
+  }
   for (const row of changes.changedFiles) {
     if (FULL_ESCALATION_TOKENS.some(token => row.path.toLowerCase().includes(token))) reasons.push('validation-runtime-changed:' + row.path);
     if (row.path.startsWith('dist/') || row.path.startsWith('packages/main/dist/')) reasons.push('generated-output-changed:' + row.path);
@@ -797,7 +858,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   for (const entry of ctx.catalog) {
     if (entry.closurePolicy === 'never-reuse') select(entry.id, 'never-reuse-policy', 'never-reuse-policy');
   }
-  const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...unmapped.map(path => 'unmapped-change:' + path)]);
+  const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...ctx.changes.changedFiles.flatMap(change => ctx.graph ? ctx.graph.authorityReasons(change) : ['authority-graph-unavailable']), ...unmapped.map(path => 'unmapped-change:' + path)]);
   // Normative full-only semantics: an impacted full-only command escalates the
   // complete plan. An unimpacted command may avoid that escalation only when
   // its policy permits an exact canonical baseline receipt in this epoch.
@@ -825,6 +886,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const paths = closure ? closure.certifiedPaths : entry.inputRoots;
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
+      environmentDigest: declaredEnvironmentDigest(entry, ctx),
       catalogDigest: stableDigest(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -846,6 +908,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const paths = closure ? closure.certifiedPaths : entry.inputRoots;
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
+      environmentDigest: declaredEnvironmentDigest(entry, ctx),
       catalogDigest: stableDigest(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,

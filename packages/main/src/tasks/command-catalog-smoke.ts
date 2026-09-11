@@ -6,6 +6,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { z } from 'zod';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { buildQuantumClaimCheckCase } from '../core/claim-admissibility/quantum.js';
 import {
@@ -231,6 +232,28 @@ assert.equal(schemaAccepts('validate', 'reuseFreshRoutinePass', 'true'), false);
 assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', true), true, 'done_prepare accepts explicit DONE-required reuse opt-in');
 assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', false), true, 'done_prepare accepts independent DONE-required reuse disable');
 
+// F-245: the compatibility proposal callback must reject an omitted readLog at
+// the public CLI schema boundary. The runtime remains responsible for
+// validating the provider-authored log's full shape.
+assert.equal(schemaAccepts('managed_review_proposal_set', 'readLog', {}), true,
+  'managed_review_proposal_set keeps readLog shape validation at the runtime boundary');
+assert.match(schemaDescription('managed_review_proposal_set', 'readLog'), /required.*read-log.*coherence/i,
+  'managed_review_proposal_set documents readLog as required evidence');
+const managedProposalSchema = z.object(findTool('managed_review_proposal_set').schema);
+const managedProposalWithoutReadLog = {
+  storyId: 'B-schema-smoke',
+  providerAgent: 'lattice-review-quality',
+  lane: 'lattice-review-quality',
+  reviewRunId: 'B-schema-smoke:RR-001',
+  conclusion: 'pass',
+  note: 'Schema boundary rejects a missing managed proposal read log.',
+  readManifest: {},
+};
+assert.equal(managedProposalSchema.safeParse(managedProposalWithoutReadLog).success, false,
+  'managed_review_proposal_set rejects a missing readLog at the CLI schema boundary');
+assert.equal(managedProposalSchema.safeParse({ ...managedProposalWithoutReadLog, readLog: {} }).success, true,
+  'managed_review_proposal_set accepts a supplied readLog for runtime shape validation');
+
 const currentHostText = [
   findTool('host_runtime_list').description,
   findTool('host_runtime_probe').description,
@@ -246,6 +269,19 @@ assert.doesNotMatch(
   currentHostText,
   /current[^\n.]*gemini|gemini[^\n.]*current/,
   'Gemini must not be advertised as a current host',
+);
+
+const managedHostRunHelp = runCli(['host_run', '--help']);
+assert.doesNotMatch(
+  managedHostRunHelp,
+  /\bagy\b|antigravity|agyPrintTimeout/i,
+  'managed host_run must not advertise the retired argv-only agy execution path',
+);
+const candidateSpecRouteHelp = runCli(['candidate_spec_route', '--help']);
+assert.doesNotMatch(
+  candidateSpecRouteHelp,
+  /requestAgy|\bagy\b|antigravity/i,
+  'candidate_spec_route must not advertise an agy proposer that managed execution cannot launch',
 );
 
 const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [

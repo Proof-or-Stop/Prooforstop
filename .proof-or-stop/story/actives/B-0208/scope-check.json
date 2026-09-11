@@ -1,0 +1,69 @@
+{
+  "storyId": "B-0208",
+  "checkedAt": "2026-09-08T06:16:10.681Z",
+  "features": [
+    {
+      "feature": "Record actual executing CLI version in external-project evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-0208/checklist.json"
+    },
+    {
+      "feature": "Missing or malformed target and cwd manifests cannot omit or change tool identity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-0208/checklist.json"
+    },
+    {
+      "feature": "Unrelated and conflicting business manifests cannot replace tool identity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-0208/checklist.json"
+    },
+    {
+      "feature": "Preserve resolver arguments and evidence schemas",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-0208/understanding.json"
+    },
+    {
+      "feature": "Restrict implementation and regression coverage to the four declared files",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-0208/understanding.json"
+    },
+    {
+      "feature": "Leave unrelated diagnostics and unrelated dirty main files unchanged",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit bounded repair excludes unrelated diagnostics and existing dirty main changes",
+      "source": ".proof-or-stop/story/actives/B-0208/background.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-0208/background.md",
+      ".proof-or-stop/story/actives/B-0208/checklist.json",
+      ".proof-or-stop/story/actives/B-0208/understanding.json",
+      "docs/evidence/evidence-platform-architecture.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "63cdae03d074e4cb3f91d11e11eb766b174474edd7d04674db804ed1efde20b4",
+  "openQuestions": []
+}

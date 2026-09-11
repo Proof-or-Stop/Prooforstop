@@ -1,3 +1,5 @@
+// Exercise physical reads explicitly; persistent main memo legitimately skips warm reads.
+process.env.GIT_REPLACE_REF_BASE = 'refs/lab-v17-no-replacements/';
 import assert from 'node:assert/strict';import fs from 'node:fs';import cp from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';import {resolve,join} from 'node:path';import {tmpdir} from 'node:os';
 const runtime=process.env.LAB_RUNTIME_ROOT||process.cwd();
 const {captureEvidenceHashSnapshot:capture,currentStoryFilesHash:story}=await import(resolve(runtime,'packages/main/dist/core/evidence-freshness.js'));

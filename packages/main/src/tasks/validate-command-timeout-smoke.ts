@@ -18,9 +18,9 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: checklist.ts's own source text contains exactly 5 structural references
- *     to resolvePinnedCommandTimeoutMs: one declaration and 4 approved production call sites
- *     (no duplicated matching logic outside it); and a very large configured
+ *   - B-16df F-004: checklist.ts's four evidence writers consume an invocation-bound runner whose timeout comes from the
+ *     shared resolvePinnedCommandTimeoutMs helper and forward it to the executor
+ *     (with negative controls for omitted and constant budgets); and a very large configured
  *     timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS
  *     (not an unbounded-timeout vector). B-16df's companion H-003 assertion — that
  *     validation-executor.ts and verifier.ts are byte-for-byte unmodified from main — is no
@@ -55,14 +55,17 @@ import { join } from 'node:path';
 import ts from 'typescript';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  resolveEvidenceCommandTimeoutMs,
   MAX_NODE_TIMER_DELAY_MS,
   resolveCommandTimeoutMs,
+  runSingleAllowlistedCommand,
   runValidationCommand,
   executeValidationPlan,
-  runSingleAllowlistedCommand,
   parseAllowlistedCommand,
   VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST,
 } from '../core/validation-executor.js';
+import { resetConfigCache } from '../core/config.js';
+
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
 /**
@@ -94,6 +97,144 @@ const base = (over: Partial<ValidationCommand>): ValidationCommand => ({
   ...over,
 });
 
+/** Inspect execution boundaries, not incidental resolver calls used by cache keys. */
+type TimeoutWiringSite = { call: ts.CallExpression; budget: ts.VariableDeclaration; property: ts.PropertyAssignment; controls: ts.PropertyAssignment[] };
+type TimeoutFactorySite = { call: ts.CallExpression; binding: ts.VariableDeclaration; consumption: ts.Node };
+function timeoutWiringFailures(source: string, sites: TimeoutWiringSite[] = [], factories: TimeoutFactorySite[] = []): string[] {
+  const file = ts.createSourceFile('checklist.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const failures: string[] = [];
+  if ((file as ts.SourceFile & { parseDiagnostics: readonly ts.Diagnostic[] }).parseDiagnostics.length) {
+    return ['checklist source must parse without errors'];
+  }
+  const expected = new Set([
+    'verification_evidence_add', 'verification_evidence_batch_add',
+    'verification_run', 'verification_evidence_refresh_stale',
+  ]);
+  const seen = new Set<string>();
+  let declarations = 0;
+  let executorCount = 0;
+  const named = (node: ts.Node | undefined, name: string): boolean =>
+    !!node && ts.isIdentifier(node) && node.text === name;
+  const propertyNamed = (node: ts.PropertyName, name: string): boolean =>
+    (ts.isIdentifier(node) || ts.isStringLiteral(node)) && node.text === name;
+  const nullishParts = (node: ts.Expression): ts.Expression[] =>
+    ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+      ? [...nullishParts(node.left), ...nullishParts(node.right)] : [node];
+  const validResolver = (node: ts.Expression): boolean => ts.isCallExpression(node)
+    && named(node.expression, 'resolvePinnedCommandTimeoutMs')
+    && node.arguments.length === 2 && named(node.arguments[0], 'root') && named(node.arguments[1], 'command');
+  const validTimeoutProperty = (node: ts.ObjectLiteralElementLike): boolean =>
+    ts.isPropertyAssignment(node) && propertyNamed(node.name, 'timeoutMs')
+      && named(node.initializer, 'effectiveTimeoutMs');
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === 'resolvePinnedCommandTimeoutMs') declarations++;
+    if (ts.isCallExpression(node) && named(node.expression, 'createPinnedCommandRunner')) {
+      let ancestor: ts.Node | undefined = node.parent;
+      while (ancestor && !ts.isMethodDeclaration(ancestor)) ancestor = ancestor.parent;
+      const handler = ancestor && ts.isMethodDeclaration(ancestor) ? ancestor : undefined;
+      const name = handler?.name.getText(file) ?? '<unknown>';
+      const binding = ts.isVariableDeclaration(node.parent) ? node.parent : undefined;
+      if (!expected.has(name) || seen.has(name)) failures.push(`unexpected factory boundary: ${name}`);
+      seen.add(name);
+      if (!ts.isStringLiteral(node.arguments[0]) || node.arguments[0].text !== name || !named(node.arguments[1], 'args')
+        || !binding || !ts.isIdentifier(binding.name) || !ts.isVariableDeclarationList(binding.parent)
+        || !(binding.parent.flags & ts.NodeFlags.Const)) failures.push(`${name}: factory must bind actual caller controls immutably`);
+      const uses: ts.Node[] = [];
+      if (handler?.body && binding && ts.isIdentifier(binding.name)) {
+        const local = binding.name.text;
+        const findUse = (child: ts.Node): void => {
+          if (ts.isPropertyAssignment(child) && propertyNamed(child.name, 'runCommand') && named(child.initializer, local)) uses.push(child.initializer);
+          if (ts.isShorthandPropertyAssignment(child) && local === 'runCommand' && child.name.text === local) uses.push(child.name);
+          if (name === 'verification_evidence_refresh_stale' && ts.isCallExpression(child) && named(child.expression, local)) uses.push(child.expression);
+          ts.forEachChild(child, findUse);
+        };
+        findUse(handler.body);
+      }
+      if (uses.length !== 1) failures.push(`${name}: producer must consume its guarded runner exactly once`);
+      if (binding && uses.length === 1) factories.push({ call: node, binding, consumption: uses[0] });
+    }
+    if (ts.isCallExpression(node) && named(node.expression, 'runSingleAllowlistedCommand')) {
+      executorCount++;
+      let ancestor: ts.Node | undefined = node.parent;
+      let scope: ts.ArrowFunction | undefined;
+      let handler: ts.MethodDeclaration | undefined;
+      while (ancestor) {
+        if (!scope && ts.isArrowFunction(ancestor)) scope = ancestor;
+        if (ts.isMethodDeclaration(ancestor)) { handler = ancestor; break; }
+        ancestor = ancestor.parent;
+      }
+      let factoryAncestor: ts.Node | undefined = node.parent;
+      while (factoryAncestor && !(ts.isVariableDeclaration(factoryAncestor) && named(factoryAncestor.name, 'createPinnedCommandRunner'))) factoryAncestor = factoryAncestor.parent;
+      const name = 'createPinnedCommandRunner';
+      if (!factoryAncestor) failures.push('executor must live inside the guarded shared runner factory');
+      if (node.arguments.length !== 3 || !named(node.arguments[0], 'command') || !named(node.arguments[1], 'root')) {
+        failures.push(`${name}: executor command and configuration root must match the resolver`);
+      }
+      const budgets: ts.VariableDeclaration[] = [];
+      let reassigned = false;
+      const collect = (child: ts.Node): void => {
+        if (ts.isVariableDeclaration(child) && named(child.name, 'effectiveTimeoutMs') && child.initializer) {
+          budgets.push(child);
+        }
+        if (child !== scope?.body && (ts.isArrowFunction(child) || ts.isFunctionExpression(child))) return;
+        if (ts.isBinaryExpression(child) && named(child.left, 'effectiveTimeoutMs')
+          && child.operatorToken.kind >= ts.SyntaxKind.FirstAssignment && child.operatorToken.kind <= ts.SyntaxKind.LastAssignment) reassigned = true;
+        if ((ts.isPrefixUnaryExpression(child) || ts.isPostfixUnaryExpression(child)) && named(child.operand, 'effectiveTimeoutMs')
+          && (child.operator === ts.SyntaxKind.PlusPlusToken || child.operator === ts.SyntaxKind.MinusMinusToken)) reassigned = true;
+        ts.forEachChild(child, collect);
+      };
+      if (scope) collect(scope.body);
+      const budget = budgets.length === 1 ? budgets[0] : undefined;
+      if (!budget || !ts.isVariableDeclarationList(budget.parent) || !(budget.parent.flags & ts.NodeFlags.Const) || reassigned) {
+        failures.push(`${name}: resolved timeout must be a single immutable binding`);
+      }
+      const parts = budget?.initializer ? nullishParts(budget.initializer) : [];
+      if (!(parts.length >= 2 && parts.length <= 3 && named(parts[0], 'timeoutMs')
+        && validResolver(parts[1]) && (parts.length === 2 || named(parts[2], 'DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS')))) {
+        failures.push(`${name}: timeout must derive from the caller budget and shared pinned resolver`);
+      }
+      const options = node.arguments[2];
+      const timeoutProperties: ts.PropertyAssignment[] = [];
+      let invalid = false;
+      if (options && ts.isObjectLiteralExpression(options)) {
+        for (const property of options.properties) {
+          if (ts.isPropertyAssignment(property) && propertyNamed(property.name, 'timeoutMs')) {
+            timeoutProperties.push(property);
+            invalid ||= !validTimeoutProperty(property);
+          } else if (ts.isSpreadAssignment(property)) {
+            const value = ts.isParenthesizedExpression(property.expression) ? property.expression.expression : property.expression;
+            const condition = ts.isConditionalExpression(value) ? value.condition : undefined;
+            if (ts.isConditionalExpression(value) && condition && ts.isBinaryExpression(condition)
+              && named(condition.left, 'effectiveTimeoutMs') && condition.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
+              && named(condition.right, 'undefined') && ts.isObjectLiteralExpression(value.whenTrue)
+              && value.whenTrue.properties.length === 1 && validTimeoutProperty(value.whenTrue.properties[0])
+              && ts.isObjectLiteralExpression(value.whenFalse) && value.whenFalse.properties.length === 0) {
+              timeoutProperties.push(value.whenTrue.properties[0] as ts.PropertyAssignment);
+            } else invalid = true;
+          }
+        }
+      }
+      if (invalid || timeoutProperties.length !== 1) failures.push(`${name}: executor must receive the resolved timeout`);
+      const controls: ts.PropertyAssignment[] = [];
+      for (const key of ['abortSignal', 'deadlineAt', 'deadlineError']) {
+        const matches = options && ts.isObjectLiteralExpression(options)
+          ? options.properties.filter((p): p is ts.PropertyAssignment => ts.isPropertyAssignment(p) && propertyNamed(p.name, key)) : [];
+        if (matches.length !== 1 || !ts.isPropertyAccessExpression(matches[0].initializer)
+          || !named(matches[0].initializer.expression, 'controls') || !named(matches[0].initializer.name, key)) {
+          failures.push(`${name}: executor must preserve caller ${key}`);
+        } else controls.push(matches[0]);
+      }
+      if (budget && timeoutProperties.length === 1) sites.push({ call: node, budget, property: timeoutProperties[0], controls });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  if (executorCount !== 1) failures.push('exactly one shared execution boundary is required');
+  if (declarations !== 1) failures.push('the shared pinned timeout resolver must have exactly one declaration');
+  for (const name of expected) if (!seen.has(name)) failures.push(`missing execution boundary: ${name}`);
+  return failures;
+}
+
 void (async () => {
   try {
     // Populated by sections 6 and 9 respectively; declared here (not `const` inline) so
@@ -117,6 +258,86 @@ void (async () => {
     check('injected default used when timeoutMs unset', resolveCommandTimeoutMs(base({}), 999) === 999);
     check('explicit timeoutMs still wins over injected default', resolveCommandTimeoutMs(base({ timeoutMs: 5_000 }), 999) === 5_000);
     check('injected default used when timeoutMs is zero', resolveCommandTimeoutMs(base({ timeoutMs: 0 }), 999) === 999);
+
+    // Evidence-only timeout overrides bind to the parsed executable plus the
+    // complete ordered argv vector. They do not register another routine
+    // validate command and cannot be selected by prefix/near matching.
+    const aggregateIdentity = {
+      executable: 'node',
+      args: ['packages/main/dist/tasks/managed-cross-provider-suite-smoke.js'],
+    };
+    const aggregateOverride = [{
+      command: 'node',
+      args: ['packages/main/dist/tasks/managed-cross-provider-suite-smoke.js'],
+      timeoutMs: 360_000,
+    }];
+    check('evidence exact executable+argv identity selects bounded override',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, aggregateOverride) === 360_000);
+    check('evidence argv near miss stays on the 270s default',
+      resolveEvidenceCommandTimeoutMs({ ...aggregateIdentity, args: [...aggregateIdentity.args, '--near'] }, aggregateOverride)
+        === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    check('evidence executable near miss stays on the 270s default',
+      resolveEvidenceCommandTimeoutMs({ ...aggregateIdentity, executable: 'npx' }, aggregateOverride)
+        === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    for (const invalidTimeoutMs of [0, -1, Number.POSITIVE_INFINITY, 1.5]) {
+      check(`malformed evidence timeout ${String(invalidTimeoutMs)} fails closed to default`,
+        resolveEvidenceCommandTimeoutMs(aggregateIdentity, [{ ...aggregateOverride[0], timeoutMs: invalidTimeoutMs }])
+          === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    }
+    check('conflicting duplicate evidence identities fail closed to default',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, [
+        aggregateOverride[0],
+        { ...aggregateOverride[0], timeoutMs: 300_000 },
+      ]) === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+    check('malformed evidence override collection fails closed to default',
+      resolveEvidenceCommandTimeoutMs(aggregateIdentity, { command: 'node' }) === DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS);
+
+    // The production evidence runner consumes the same exact-identity config,
+    // while its outer structured deadline remains the tighter authority.
+    const evidenceRoot = mkdtempSync(join(tmpdir(), 'lattice-evidence-timeout-'));
+    const fastScript = "process.stdout.write('EVIDENCE_OVERRIDE_OK')";
+    const hangScript = 'setInterval(() => {}, 1000)';
+    writeFileSync(join(evidenceRoot, 'proof-or-stop.config.json'), JSON.stringify({
+      validate: {
+        evidenceCommandTimeoutOverrides: [
+          { command: 'node', args: ['-e', fastScript], timeoutMs: 1_200 },
+          { command: 'node', args: ['-e', hangScript], timeoutMs: 5_000 },
+        ],
+      },
+    }), 'utf8');
+    try {
+      const fastProgress: number[] = [];
+      const fastEvidence = await runSingleAllowlistedCommand(
+        `node -e ${JSON.stringify(fastScript)}`,
+        evidenceRoot,
+        { progress: event => { if (event.type === 'command_start') fastProgress.push(event.timeoutMs); } },
+      );
+      check('production evidence runner consumes exact configured timeout',
+        fastEvidence.code === 0 && fastProgress[0] === 1_200);
+
+      const deadlineProgress: number[] = [];
+      let outerDeadlineWon = false;
+      const deadlineAt = Date.now() + 300;
+      try {
+        await runSingleAllowlistedCommand(
+          `node -e ${JSON.stringify(hangScript)}`,
+          evidenceRoot,
+          {
+            deadlineAt,
+            deadlineError: () => new Error('OUTER_DEADLINE_WON'),
+            progress: event => { if (event.type === 'command_start') deadlineProgress.push(event.timeoutMs); },
+          },
+        );
+      } catch (error) {
+        outerDeadlineWon = error instanceof Error && error.message === 'OUTER_DEADLINE_WON';
+      }
+      check('outer structured deadline remains tighter than evidence override', outerDeadlineWon);
+      check('spawned evidence command receives remaining outer deadline, not 5s override',
+        deadlineProgress.length === 1 && deadlineProgress[0] > 0 && deadlineProgress[0] <= 300);
+    } finally {
+      resetConfigCache();
+      rmSync(evidenceRoot, { recursive: true, force: true });
+    }
 
     // 3. Integration: a hung command is killed by the per-command timer (exit 124,
     //    timedOut) while a fast command in the same plan completes normally.
@@ -412,43 +633,48 @@ void (async () => {
       existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')),
     );
 
-    // 13. B-16df F-004 (H-002): checklist.ts must route every production timeout lookup
-    //     through the ONE shared resolvePinnedCommandTimeoutMs helper — no duplicated
-    //     matching logic living outside it. The merged B-aa5f/B-1482 source has exactly five
-    //     structural references: one declaration plus four production calls. Pin BOTH the
-    //     total and the approved normalized argument shapes: merely raising the total would
-    //     otherwise let an accidental new semantic lookup replace a required existing one.
-    //     B-16df F-007: the scanner tolerates whitespace/reflow and ignores comments while
-    //     remaining deliberately structural rather than relying on one identifier spelling.
+    // 13. The four public evidence writers must pass their resolved budget at the
+    // actual execution boundary. Cache-key planning may also call the resolver;
+    // its call count is not an execution-wiring contract.
     const checklistSource = readFileSync(join(REPO_ROOT, 'packages/main/src/handlers/checklist.ts'), 'utf-8');
-    const checklistAst = ts.createSourceFile('checklist.ts', checklistSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-    const resolverCallArguments: string[] = [];
-    let resolverDeclarationCount = 0;
-    const visitResolverNodes = (node: ts.Node): void => {
-      if (ts.isFunctionDeclaration(node) && node.name?.text === 'resolvePinnedCommandTimeoutMs') {
-        resolverDeclarationCount += 1;
+    const sites: TimeoutWiringSite[] = [];
+    const factories: TimeoutFactorySite[] = [];
+    const wiringFailures = timeoutWiringFailures(checklistSource, sites, factories);
+    check(`all evidence execution boundaries preserve configured timeouts: ${wiringFailures.join('; ')}`, wiringFailures.length === 0);
+    check('an additional non-executing resolver call does not invalidate execution wiring',
+      timeoutWiringFailures(checklistSource + '\nconst extraCacheIdentity = resolvePinnedCommandTimeoutMs(root, command);').length === 0);
+    check('malformed source fails closed', timeoutWiringFailures(checklistSource + '\nfunction {').length > 0);
+    const replaced = (node: ts.Node, replacement: string): string =>
+      checklistSource.slice(0, node.getStart()) + replacement + checklistSource.slice(node.end);
+    check('one shared executor and all four factory consumers are covered', sites.length === 1 && factories.length === 4);
+    for (const [index, site] of factories.entries()) {
+      check(`factory ${index + 1} cannot lose caller watchdog controls`,
+        timeoutWiringFailures(replaced(site.call.arguments[1], '{}')).length > 0);
+      check(`factory ${index + 1} cannot claim another command identity`,
+        timeoutWiringFailures(replaced(site.call.arguments[0], "'unrelated_writer'")).length > 0);
+      check(`factory ${index + 1} must be the actual producer runner`,
+        timeoutWiringFailures(replaced(site.consumption, 'unguardedRunner')).length > 0);
+    }
+    for (const [index, site] of sites.entries()) {
+      for (const control of site.controls) {
+        check(`shared runner cannot drop ${control.name.getText()}`,
+          timeoutWiringFailures(replaced(control.initializer, 'undefined')).length > 0);
       }
-      if (ts.isCallExpression(node)
-        && ts.isIdentifier(node.expression)
-        && node.expression.text === 'resolvePinnedCommandTimeoutMs') {
-        resolverCallArguments.push(node.arguments.map((arg) => arg.getText(checklistAst)).join(', '));
+      check(`negative control catches constant timeout at execution boundary ${index + 1}`,
+        timeoutWiringFailures(replaced(site.property.initializer, '270000')).length > 0);
+      check(`negative control catches omitted timeout at execution boundary ${index + 1}`,
+        timeoutWiringFailures(replaced(site.property.name, 'unrelatedBudget')).length > 0);
+      for (const argument of site.call.arguments.slice(0, 2)) {
+        check(`negative control catches mismatched command or root at execution boundary ${index + 1}`,
+          timeoutWiringFailures(replaced(argument, 'unrelatedIdentity')).length > 0);
       }
-      ts.forEachChild(node, visitResolverNodes);
-    };
-    visitResolverNodes(checklistAst);
-    check(
-      'checklist.ts has exactly 5 structural resolvePinnedCommandTimeoutMs references (one declaration plus the 4 approved production calls; no accidental 6th semantic)',
-      resolverDeclarationCount + resolverCallArguments.length === 5,
-    );
-    check(
-      'resolvePinnedCommandTimeoutMs is declared exactly once (a single shared helper, not duplicated matching logic)',
-      resolverDeclarationCount === 1,
-    );
-    check(
-      'resolvePinnedCommandTimeoutMs production calls retain the 4 approved timeout-binding argument shapes',
-      JSON.stringify(resolverCallArguments)
-        === JSON.stringify(['root, command', 'deps.projectRoot, pinCommand', 'root, pin.command', 'root, command']),
-    );
+      const mutable = replaced(site.budget.parent, site.budget.parent.getText().replace(/^const\b/, 'let'));
+      check(`negative control catches mutable timeout at execution boundary ${index + 1}`,
+        timeoutWiringFailures(mutable).length > 0);
+      const statement = site.budget.parent.parent;
+      check(`negative control catches overwritten timeout at execution boundary ${index + 1}`,
+        timeoutWiringFailures(checklistSource.slice(0, statement.end) + '\neffectiveTimeoutMs = 270000;' + checklistSource.slice(statement.end)).length > 0);
+    }
 
     // 14. B-16df F-004 (A-003): a very large configured timeoutMs must be CLAMPED, not an
     //     unbounded-timeout vector, end-to-end from a project's proof-or-stop.config.json through

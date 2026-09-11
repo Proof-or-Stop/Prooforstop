@@ -98,13 +98,13 @@ function collectDirectlyRegisteredFactories(registrySource) {
   const factories = new Set(
     matchAll(
       registrySource,
-      /registry\.registerBatch(?:Missing)?\(\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx)?\s*\)\s*\)/g,
+      /registry\.registerBatch(?:Missing)?\(\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx(?:\s*,\s*[A-Za-z_$][\w$]*)*)?\s*\)\s*\)/g,
     ).map(match => match[1]),
   );
 
   for (const [, constName, factory] of matchAll(
     registrySource,
-    /const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx)?\s*\)\s*;/g,
+    /const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx(?:\s*,\s*[A-Za-z_$][\w$]*)*)?\s*\)\s*;/g,
   )) {
     if (isConstConsumedByRegistry(registrySource, constName)) factories.add(factory);
   }
@@ -121,6 +121,8 @@ function assert(condition, message) {
 function runSelfTest() {
   const registered = collectDirectlyRegisteredFactories(`
     registry.registerBatch(createDirectHandlers(ctx));
+    registry.registerBatch(createInjectedHandlers(ctx, admittedProducer));
+    createUnregisteredInjectedHandlers(ctx, admittedProducer);
     registry.registerBatchMissing(createDirectMissingHandlers(ctx));
 
     const batchHandlers = createBatchHandlers(ctx);
@@ -136,6 +138,8 @@ function runSelfTest() {
     void orphanHandlers;
   `);
 
+  assert(registered.has('createInjectedHandlers'), 'registered injected factory is recognized');
+  assert(!registered.has('createUnregisteredInjectedHandlers'), 'unregistered injected factory remains rejected');
   assert(registered.has('createDirectHandlers'), 'direct registerBatch factory should be registered');
   assert(registered.has('createDirectMissingHandlers'), 'direct registerBatchMissing factory should be registered');
   assert(registered.has('createBatchHandlers'), 'const consumed by registerBatch should be registered');

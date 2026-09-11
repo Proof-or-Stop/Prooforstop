@@ -1,0 +1,51 @@
+{
+  "kind": "read-only census data-quality observations, not target RED or product GREEN",
+  "listedRows": 38,
+  "resolvedCwdRows": 18,
+  "unresolvedRows": 20,
+  "cwdProbeSucceeded": 12,
+  "cwdProbeRefused": 6,
+  "refusedStoryIds": [
+    "B-2696",
+    "B-77e6",
+    "B-83aa",
+    "B-8d60",
+    "B-af1b",
+    "B-c86f"
+  ],
+  "phaseDisagreements": [
+    {
+      "storyId": "B-03b7",
+      "listedPhase": "DEV",
+      "resolverPhase": "INIT_CHECK",
+      "phaseReturnedAtResolvedCwd": "DEV"
+    },
+    {
+      "storyId": "B-49df",
+      "listedPhase": "DEV",
+      "resolverPhase": "INIT_CHECK",
+      "phaseReturnedAtResolvedCwd": "DEV"
+    },
+    {
+      "storyId": "B-aa5f",
+      "listedPhase": "TEST",
+      "resolverPhase": "INIT_CHECK",
+      "phaseReturnedAtResolvedCwd": "TEST"
+    },
+    {
+      "storyId": "B-de09",
+      "listedPhase": "DEV",
+      "resolverPhase": "INIT_CHECK",
+      "phaseReturnedAtResolvedCwd": "DEV"
+    }
+  ],
+  "source": "authoritative-story-details.json",
+  "sourceSha256": "fc01a6136c5fa693dfb563d0a8f7d453715e5fe28d2b200760cfbb3368439704",
+  "limitations": [
+    "The 38 listed rows are not 38 verified active Stories.",
+    "Unresolved and refused rows remain unknown; none are excluded as inactive.",
+    "Wrapper invocation and cwd do not attest already-running process implementation.",
+    "Reads were sequential snapshots, not a transactional snapshot; private reproduction must separate mirror semantics from concurrent phase changes.",
+    "No duration attribution, causal performance result or full monthly population was obtained."
+  ]
+}

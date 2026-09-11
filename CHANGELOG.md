@@ -1,5 +1,410 @@
 # Changelog
 
+## Lab validated-performance-integration-20260911 - v0.3.311 - 2026-09-10
+
+Integrate the validated delivery-performance Lab repairs with local main 0.3.310. Active Story queries include REVIEW and hydrate only selected records. Private identity verification reuses unchanged baselines, preserves exact Git paths and avoids loading unrelated historical/cache bodies without weakening mutation detection. Explicit implementation sessions bind canonical entries, reject recognizable unapproved legacy entries, and retain checked identity in existing activity records. Failed owner renewal cancels capacity wait before callback execution while retaining caller cancellation.
+
+Plain POSIX Host runner calls retain an owned process-group anchor through descendant output and normal completion. Existing managed onSpawn provider-PID and signed fd3 descriptor paths retain the current-main lifecycle and are explicitly outside this added anchor route. Raw stdout digest and provider exit semantics are preserved. Unverified cleanup fails and requests private anchor self-termination; the Node26 explicit-disconnect hang discovered during integration was repaired and its failed attempts retained.
+
+Verification includes native identical-command lease-loss RED/GREEN, targeted query/snapshot/path/identity/queue/process controls, actual-PID and descriptor compatibility, current host smoke (91 checks), current identity boundary/source and offline clean-install checks, and independent Claude CLI integration review. The full identity-cutover group is verified separately before finish. Five unchanged reviewed lines were rebound to their exact current files; no token, classification, count or rejection policy was widened.
+
+Historical measured improvements remain tied to their original frozen experiment inputs; no new aggregate Story speed percentage, global running-owner/reviewer adoption rate, or guarantee for arbitrary machine load is claimed. Original experiments and evidence remain in their source Lab and integration history. This local release neither advances a Story nor authorizes a remote push.
+
+Implementation-session pinning is cooperative and inherited through NODE_OPTIONS by nested Node invocations. Deliberate foreign/legacy CLI test harnesses must isolate their test child environment explicitly; the integration tests remove NODE_OPTIONS and both implementation pin variables only for those controlled children. A filtered Story query checks only selected records; unselected corrupt records remain visible to the unfiltered integrity query. Lease-loss cancellation stops a queued wait before callback admission and does not cancel an already-running callback.
+
+Maintenance provenance: codex/lab-validated-performance-integration-20260911, repair 18735d48005ef525f68d9bf00b9933f2da6a44ad.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-queue-lease-loss.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## v0.3.310 — Progress Evidence and Final Validation Integration — 2026-09-10
+
+### Release context
+
+This release assigns a new product version to the integration of the complete local `v0.3.309` line and Pan Qi's latest remote final-validation closure. The merge preserves both parent histories: the B-03b7 progress-transition proof remains intact, while the remote identity, harness-registration, bootstrap-mirror, static-edge, and offline package-boundary repairs are included without replaying or replacing either line.
+
+### Problems resolved
+
+- The local `v0.3.309` line proved that failed target evidence, regressive target status, and independently substituted predecessor digests cannot be misclassified as semantic progress.
+- The remote line closed the remaining failures from the 162-command validation run, including identity replay, harness registration, bootstrap mirroring, exact consumer binding, and packed offline dependency isolation.
+- Combining the two lines changed the complete bytes of one reviewed finding-lineage fixture. Its protected token, line, line hash, and unique occurrence were unchanged, but the old whole-source digest correctly failed closed against the merged file.
+- Retaining the `0.3.309` version after adding the remote closure and integration repair would make the combined artifact indistinguishable from its local parent.
+
+### Resolution
+
+- Merged Pan Qi's remote validation closure into the full `v0.3.309` ancestry and retained the newer local package behavior.
+- Advanced the root CLI, Core package, lockfiles, and runtime brand identity to `0.3.310`.
+- Preserved all B-03b7 progress-transition positive controls and one-axis refusal tests.
+- Preserved the remote self-contained offline dependency cache, current-state replay, harness-registration, bootstrap-mirror, identity, and static-edge repairs.
+- Recomputed the exact reviewed fixture inventory and reader binding from the merged source bytes. The protected line content and occurrence count remain unchanged; no compatibility allowance or authority boundary was widened.
+
+### Before and after
+
+- **Before:** the local and remote lines each passed their own focused checks, but the combined source failed the exact reviewed-fixture whole-file digest and still reported the parent version.
+- **After:** the merged artifact is uniquely identified as `v0.3.310`; exact identity evidence describes the combined bytes, both parent histories remain reachable, and the full packed consumer boundary succeeds without relying on the user npm cache.
+
+### Verification evidence
+
+- `npm run build` passed for Core, Utils, Graph, and the full-suite build binding.
+- `npm --prefix packages/lab run build` passed.
+- `B03B7_PROGRESS_TRANSITION_COVERAGE PASS` confirmed all signed-result, status-transition, predecessor-baseline, and projection-digest controls.
+- The process-fact contract passed with the current 539-entry registry.
+- The identity-cutover verifier passed active identity, frozen history, current documentation, persisted schema, canonical identity, and reviewed-fixture checks.
+- The packed clean-install boundary passed for the root CLI, Core, Lab, and Utils packages using exactly four product tarballs and a self-contained offline dependency cache.
+
+## Lab b03b7-progress-transition-coverage - v0.3.309 - 2026-09-10
+
+# B-03b7 progress-transition coverage
+
+This bounded Lab closes finding B-03b7:F-047 without changing production behavior. It adds executable positive controls and one-axis negative checks proving that a signed failed target-test result, a regressive target-status transition, and independently substituted predecessor baseline or projection digests cannot count as semantic progress. Each refusal also proves that the target finding ledger remains unchanged.
+
+RED was recorded by `red-b03b7-progress-transition-coverage.mjs` before the cases existed. GREEN replays the same check after the test additions. The complete `finding-identity-lineage-smoke --section=routes` run reports 57 passing and 0 failed cases.
+
+The Lab was synchronized with local main at Proof-or-Stop 0.3.308 before the final GREEN. The replay exited with status 0 and emitted `B03B7_PROGRESS_TRANSITION_COVERAGE PASS`; `npm run test:process-fact-contract` also passed with the current 539-entry process-fact registry. A bounded read-only Claude CLI audit independently reviewed only the two changed test files and returned `APPROVE`, confirming that all three F-047 transition classes are exercised through the intended production branches. No production source behavior was changed.
+
+Maintenance provenance: codex/lab-b03b7-progress-transition-coverage, repair c72086ee86aedba4c490f3e38579e6ac53fc8b44.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-progress-transition-coverage.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab final-162-closure - v0.3.301 - 2026-09-10
+
+The 162-command final validation exposed six failures across identity replay, harness registration, bootstrap mirroring, and an exact consumer binding. This Lab removes dependencies on unavailable historical Git objects while retaining current replay, recount, safety, and mutation proofs; records the duplicate F031 wrapper as an exact delivery-coverage exclusion; updates the bootstrap mirror and identity/U18 bindings; and makes packed external-consumer checks use a self-contained offline dependency cache instead of the user npm cache. Targeted delivery, replay, runtime, pack-boundary, identity-cutover, bootstrap, registration, and U18 controls pass without opening a browser.
+
+Maintenance provenance: codex/lab-final-162-closure, repair d6ac23ebf035e892f6997552cfbb605f21b22ac5.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b49d4-harness-registration.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab repro-first-plan-integration-0306 - v0.3.308 - 2026-09-10
+
+# Repro-first lifecycle-entry maintenance
+
+Problem: `story_create` could persist a Story directly in post-intake lifecycle phases, including `DONE`, bypassing transition-owned DEV, REVIEW, TEST, and DONE facts.
+
+Fix: restrict the public CLI schema and the internal handler to explicit `IDEA` or `INIT` intake. Refuse `INIT_CHECK`, `PLAN`, `DEV`, `REVIEW`, `TEST`, and `DONE` before persistence with a stable error code. Remove unreachable terminal/review initialization and stale onboarding guidance. Preserve synthetic terminal-state tests through fixture-only setup.
+
+Documentation: import the Claude-approved trusted RED-to-GREEN v37 execution plan, companion RED-evidence decision spec rev14, their matching audit fence, and a separate Lab implementation audit log. No Story metadata or signed Story evidence is carried.
+
+Verification: the Lab runner recorded a target RED showing direct DONE persistence, then replayed the same command as GREEN. Additional checks passed for package build, 37 repro binding cases, scope anti-expansion, six CLI refusal phases, positive IDEA/INIT intake, real-process concurrency, dedup/adversarial paths, and the process-fact contract. Claude CLI 2.1.268 returned final code verdict APPROVE with REQUIRED_CHANGES NONE.
+
+Known baseline: field-regression-cli-smoke has an unrelated pre-existing cluster-finding assertion failure on both untouched local main and the Lab. It is not caused by this change; collateral review-loop assertions remain preserved.
+
+Maintenance provenance: codex/lab-repro-first-plan-integration-0306, repair 08374c89c404ef56ff19460e4da48bade2e3b8b8.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-story-create-direct-done-bypass.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## v0.3.307 — Integrated Validation Closure — 2026-09-10
+
+### Release context
+
+The local `v0.3.306` line already contained every maintenance increment from `v0.3.301` through `v0.3.306` on top of `v0.3.300`. Remote `main` had independently added three commits from the same `v0.3.300` lineage to close the final validation-identity and package-boundary gaps. This release merges those two lines once and assigns a new version to the combined result; it does not replay or duplicate any earlier release.
+
+### Problem before the merge
+
+- The local line contained the sealed-review finalization, scope-budget provenance and legacy migration repairs, managed nested-sandbox repair, inventory-critic managed admission, and live metadata projection.
+- The remote line contained the final validation-identity closure, dependency-aware offline package verification, and its maintenance record.
+- Each line had valid evidence for its own source bytes, but the combined tree changed reviewed source and fixture inventories, executable identity bindings, dependency locks, and static-edge dependency digests. Keeping either branch's old pins would make the merged product fail closed even though the underlying behavior was preserved.
+- The remote package metadata still identified the older release line, so publishing the merge without a new version would make the integrated artifact indistinguishable from either parent.
+
+### Resolution
+
+- Merged the remote validation-closure commits into the complete local `v0.3.306` history while preserving all local `v0.3.301`–`v0.3.306` behavior and changelog records.
+- Advanced the root CLI and Core package identity to `0.3.307`, including lockfile and runtime brand metadata.
+- Preserved the exact `smol-toml` and `ws` dependency closure used by the validation and clean-install boundaries.
+- Recomputed the reviewed source, fixture, and executable-structure bindings from the actual merged bytes. The active review-inventory epoch consumer is now pinned to the built runtime representation used by production checks.
+- Refreshed only the exact dependency digests for existing static-edge exceptions. No exception reason, invocation, command coverage, or authority boundary was widened.
+- Preserved the remote final-validation checks and the local inventory-critic regressions in one buildable, packageable release line.
+
+### Before and after
+
+- **Before:** local and remote `main` each contained work absent from the other; the merged working tree initially reported stale identity and static-edge evidence, and a cold offline package test lacked the newly required dependency cache entries.
+- **After:** `main` contains both parent histories under `v0.3.307`; all reviewed bindings describe the combined bytes, the static-edge inventory reports zero unresolved or nested calls, and all four product tarballs install and verify with networking disabled.
+
+### Verification evidence
+
+- `npm run build` passed for Core, Utils, Graph, and the full-suite build binding.
+- `npm --prefix packages/lab run build` passed.
+- Runtime Story command coverage passed, including active-worktree reviewer reads, foreign-runtime write refusal, matching-runtime writes, and external installed-package consumers.
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`.
+- `INVENTORY_CRITIC_MANAGED_ADMISSION PASS`.
+- The process-fact contract passed with 539 registered entries.
+- The retired-authority vocabulary guard passed with 890 builds, 4 cache hits, 1,436 full analyses, 580 AST candidates, and 34 reachability checks.
+- The validation static-edge verifier passed with `needsReview=0`, `nested=0`, and `unexpandedCommands=0`.
+- The identity-cutover verifier passed all active identity, frozen-history, persisted-schema, consumer-runtime, and package-boundary checks.
+- The packed clean-install boundary passed for `proof-or-stop`, `@proof-or-stop/core`, `@proof-or-stop/lab`, and `@proof-or-stop/utils`, including canonical package, binary, and role identities with no retired-scope or local-file dependencies.
+- `git diff --check` passed before commit.
+
+## Lab inventory-critic-live-metadata-projection - v0.3.306 - 2026-09-10
+
+# Inventory Critic Live Metadata Projection
+
+## Trigger
+
+The purpose-bound managed inventory-completeness critic ran in a detached committed scratch checkout. The required-lane review runs and their terminal Findings were intentionally batched as current signed Story metadata and had not yet been committed, so the critic could not inspect the current inventory and incorrectly reported that evidence as missing.
+
+## RED evidence
+
+The focused RED command asserted that the managed inventory critic must receive the current signed uncommitted inventory metadata in its sealed prompt. It failed because no projection builder existed.
+
+## Repair
+
+The controller now builds a purpose-bound evidence pack from the current canonical Story store for the exact open inventory epoch. It includes only required-lane ReviewRuns after the epoch boundary and before the critic run, plus Findings and passes bound to those runs. The prompt projection exposes signature verification results, is sealed by the managed prompt digest, and explicitly grants no topology, TEST, DONE, or implementation authority.
+
+## GREEN evidence
+
+- `INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS`
+- `node scripts/verify-process-fact-contract.mjs --quiet` passed.
+- `git diff --check` passed.
+
+The process-fact registry and verifier now protect the projection boundary and its focused RED/GREEN regression.
+
+Maintenance provenance: codex/lab-inventory-critic-live-metadata-projection, repair 13d530b0d563411be849ddf44176250793a43efd.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-live-metadata-projection-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab inventory-critic-managed-admission - v0.3.305 - 2026-09-10
+
+Fix managed admission for the inventory-completeness critic.
+
+The review lifecycle required an independent completeness critic after all ordinary reviewer lanes terminated, but the native evidence path required a host-adapter attestation while the managed path admitted only the ordinary required-lane roster. This left a valid purpose-bound critic ReviewRun with no formal execution path and blocked REVIEW remediation.
+
+The repair keeps the ordinary reviewer roster unchanged. Once a valid signed inventory-completeness critic ReviewRun is bound to the same open epoch, review round, head, material hash, and Story-files hash, the critic lane is included exactly once in a distinct managed-admission subject. Topology-purpose runs and stale or mismatched critic runs do not receive this admission.
+
+Verification includes a focused RED/GREEN regression, an integration assertion in the review-inventory handler smoke, and the process-fact contract verifier.
+
+Maintenance provenance: codex/lab-inventory-critic-managed-admission, repair 91fc32b3d45996d9bda620166ca62ba7da2d1ec6.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-managed-admission-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-codex-nested-sandbox - v0.3.304 - 2026-09-10
+
+# Managed Codex Nested Sandbox Repair
+
+## Problem
+
+Formal managed Codex reviewers already execute inside Proof-or-Stop's signed,
+isolated, read-only Darwin lane. The provider launcher additionally requested
+Codex `-s read-only`, causing Codex to install a second macOS seatbelt profile.
+Live B-03b7 review runs reproduced `sandbox_apply: Operation not permitted`;
+reviewers could not read any required artifact and their proposals were rejected
+as malformed.
+
+## Fix
+
+For the `managed_reviewer` Codex launch profile only, request
+`danger-full-access` from the nested provider process. The outer signed lane
+remains the filesystem enforcement boundary. The separate
+`cross_host_review_codex` profile remains `read-only`.
+
+## Verification
+
+- RED: `managed-host-run-process-smoke` expected the managed reviewer launcher
+  to delegate isolation to the outer lane and failed on the old `read-only`
+  argument.
+- GREEN: `managed-host-run-process-smoke` passes with the corrected launcher.
+- Isolation regression: `managed-review-scratch-isolation-smoke` passes and
+  still proves detached scratch registration, immutable binding, cleanup, and
+  preservation of the canonical worktree.
+
+## Measured impact
+
+The failing live reviewers completed zero required file reads. Removing the
+nested seatbelt failure restores read-only evidence collection without adding a
+second repository checkout or weakening the outer managed-review boundary.
+
+Maintenance provenance: codex/lab-managed-codex-nested-sandbox, repair 7a5c5369697a18cb324231d461d7ece5b97f21a5.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-host-run-process-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-scope-budget-legacy-migration - v0.3.303 - 2026-09-10
+
+# B-03b7 scope-budget legacy migration
+
+## Problem
+
+B-03b7 was created and reached REVIEW before the enforced Story scope-budget policy was activated. Its Story metadata lives on its worktree branch, so it was absent when main captured the initial legacy-subject manifest. After the current command-provenance repair, the budget evaluator correctly exposed the omission and blocked REVIEW-to-DEV as unknown scope.
+
+## Fix
+
+The project policy now includes one exact B-03b7 legacy-subject entry bound to the Story's immutable creation timestamp, captured REVIEW phase, and current canonical subject digest. This preserves the historical Story without inventing topology, relaxing global policy, or changing Story implementation scope.
+
+## Verification
+
+The Lab RED demonstrated that the eligible B-03b7 snapshot had no exact manifest binding. GREEN verifies the manifest entry matches the live Story's tool-derived timestamp and subject digest. After local integration, the Story worktree will rerun `scope_budget_check` to prove the production gate returns nonblocking legacy preservation.
+
+## Performance
+
+No performance claim is made. The change is a bounded migration record for one pre-policy Story.
+
+Maintenance provenance: codex/lab-b03b7-scope-budget-legacy-migration, repair 474895bc257e3395d833e6bf20789e49cf72b85a.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-scope-budget-legacy-migration.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab scope-budget-provenance-repair - v0.3.302 - 2026-09-10
+
+# Scope-budget validation provenance repair
+
+## Problem
+
+The enforced Story scope-budget evaluator could not resolve several provisional validation-command IDs retained in `storyScopeBudget.validationGroups` after their commands were wrapped or gained arguments. B-03b7 exposed the first orphan as a blocking `status=unknown` result during REVIEW-to-DEV remediation.
+
+## Fix
+
+Each orphan ID was resolved against Git history to recover its original command identity, then replaced by the unique current provisional ID for that same command. No validation-group member was removed, and no Story-owned implementation was changed.
+
+## Verification
+
+The committed RED guard loads the current validation-command inventory and verifies every scope-budget group ID resolves. It first emitted `SCOPE_BUDGET_PROVENANCE_RED` with the orphan list, then emitted `SCOPE_BUDGET_PROVENANCE_GREEN` after the mappings were refreshed. Lab finish also rebuilds and replays the same check against local main.
+
+## Performance
+
+No performance claim is made. The change restores deterministic scope-budget admission without adding validation commands.
+
+Maintenance provenance: codex/lab-scope-budget-provenance-repair, repair c7d61da275bc0e63174b49a50456826af667b1ad.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-scope-budget-provenance-repair.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab sealed-review-pass-finalization - v0.3.301 - 2026-09-10
+
+# Sealed review pass finalization
+
+## Problem
+
+B-03b7 reached REVIEW with a finalized, unconsumed review inventory receipt, but REVIEW-to-TEST rejected previously valid passes after a metadata-only commit. Prompt-envelope verification recomputed historical incremental-review eligibility against the live HEAD instead of the ReviewRun HEAD, so unchanged review facts appeared stale.
+
+## Fix
+
+Latest local main already contained the focused production repair: historical eligibility and review-basis reconstruction now use the signed `ReviewRun.headHash`, while current material freshness remains an independent live admission check. This Lab retained a focused regression wrapper and did not duplicate or broaden the production change.
+
+## Verification
+
+The Lab first recorded `SEALED_REVIEW_PASS_FINALIZATION_RED` against the affected B-03b7 state. After synchronizing the repaired main, the same Lab check runs the bounded `--asof-run-only` regression and records `SEALED_REVIEW_PASS_FINALIZATION_GREEN`. The regression proves that a metadata-only commit preserves the H1 envelope, while a later material change still fails the live HEAD contract.
+
+## Scope and performance
+
+No B-03b7 implementation file was edited in the Story worktree. An unrelated deterministic lock-reclaim timing failure observed in the full smoke was excluded from this bounded Lab because the focused target passes independently. No performance improvement is claimed.
+
+Maintenance provenance: codex/lab-sealed-review-pass-finalization, repair 11e7b4e9e23228ed896c9ea9e9012d70bbd55fab.
+Verification command (replayed before integration and on main): `["node","--import","tsx","packages/main/tests/red/red-sealed-review-pass-finalization.mjs","/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab final-160-closure - v0.3.298 - 2026-09-10
+
+The exact 160-command final validation completed with 158 passes and two failures.
+This Lab repairs the stale cli-engine structural identity pin and closes the packed
+consumer dependency graph for smol-toml and ws. It also refreshes only the exact
+reviewed identity and U-18 static-edge bindings. The retired vocabulary guard,
+process-fact contract, package boundary, identity boundary, reviewed-context
+mutations, and U-18 static controls all pass after the repair.
+
+Maintenance provenance: codex/lab-final-160-closure, repair a84c5f6091724b4f86da4065b0a155c5aa01b1b2.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Integrated Finding lineage and session-performance maintenance - v0.3.300 - 2026-09-10
+
+This release reconciles the independently integrated Finding identity/historical-lineage maintenance and session-performance maintenance on their complete shared ancestry. The normal merge preserves both histories; no remote work is overwritten and neither branch's validation, resource, identity, or lifecycle registrations are discarded.
+
+The merged candidate retains retired-evidence review-inventory correctness, the signed non-gate Finding candidate/identity/history/route/progress command set, foreign active-worktree canonical discovery, story-aware validation selection and exact reuse, material and implementation identity binding, watchdog and cancellation propagation, provider and fixture isolation, static execution-edge audits, Graph no-browser behavior, managed-run notification controls, and the complete reviewed validation inventory.
+
+The two independent lines both used patch number 0.3.297 before reconciliation. Version 0.3.300 is the first unambiguous combined version and is the only release tag created for this merged candidate.
+
+Verification and exact merged pins are recorded by the integration commit and the corresponding GitHub Release. This engineering integration does not mint Story REVIEW, TEST, DONE, or product-certification evidence.
+
+## Lab b03b7-public-foreign-canonical - v0.3.299 - 2026-09-10
+
+# B-03b7 public foreign canonical coverage
+
+## Problem
+
+Independent test-coverage review recorded B-03b7:F-031 after the 0.3.298 identity-catalog repair. The existing linked-worktree regression proved internal contributor discovery with a temporary placeholder record, but removed that record before the public history and scorecard commands ran. It therefore did not prove that a valid signed canonical identity stored only in another active Story worktree appears in public history projection and in the global catalog dependency digest.
+
+## Change
+
+The linked-worktree fixture now builds a valid reviewer-confirmed CanonicalDefect over a real signed Finding reference, signs its semantic envelope with the shared ledger trust, and atomically appends it only to the foreign active Story worktree. Before that Story is merged, a distinct target worktree calls `finding_history_query` and `finding_identity_scorecard`. The assertions require the canonical ID in the history projection, the exact canonical row in the scorecard, and a stable repeated input digest. The fixture then merges and removes the source worktree and verifies that the same signed history remains readable.
+
+A focused wrapper is retained as a standing regression. It runs the real multi-worktree smoke and requires the public-chain marker rather than accepting internal contributor coverage alone.
+
+## RED and GREEN
+
+RED used `node packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs`. The existing 30 internal multi-worktree checks passed, but the command exited non-zero with `F031_PUBLIC_FOREIGN_CANONICAL_MISSING` because the public signed-canonical chain was absent.
+
+GREEN replayed the exact command after the committed test repair. It reported `PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS`, 30/30 multi-worktree checks passed, and `F031_PUBLIC_FOREIGN_CANONICAL_GREEN PASS`.
+
+## Scope and provenance
+
+This Lab changes only B-03b7 regression coverage and adds no new product authority or lifecycle behavior. It does not import or claim Story REVIEW, TEST, or DONE metadata. The earlier 0.3.298 Lab established the product repair and passed the complete 91/91 identity delivery suite plus the process-fact contract; this Lab closes the independently identified public-boundary coverage gap with the focused affected-path test.
+
+Maintenance provenance: codex/lab-b03b7-public-foreign-canonical, repair 91c8f1f1f50d26c2651c1ab833a873da6855cc4e.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b03b7-f031-public-foreign-canonical.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b03b7-identity-lineage-review-gaps - v0.3.298 - 2026-09-10
+
+# B-03b7 identity and historical-lineage integration
+
+## Problem
+
+The latest local main did not contain the B-03b7 Finding Identity and Historical Lineage commands or implementation. During independent review of the completed candidate, F-028 and its test-coverage duplicate F-029 identified a critical catalog omission: a canonical identity contribution that existed only in another active Story's signed Git worktree was ignored when the main and caller mirrors were empty. The prior F-026 repair correctly removed direct parsing of protected ledger files, but its mirror-only precheck made the foreign active contributor invisible.
+
+## Change
+
+This Lab integrates the bounded non-metadata B-03b7 implementation candidate and adds a regression that creates distinct real linked worktrees, writes a signed canonical-defect probe only in the foreign active Story worktree, and queries it from another worktree. `StoryStore` now supports a repository-relative trusted Story-directory override sourced from existing metadata authority. Identity catalog discovery uses the signed-workspace resolver plus this Store port to inspect the resolved ledger without directly parsing protected storage or loading unrelated runtime configuration. Full workspace context is loaded only after the Store probe proves that the foreign worktree contributes a requested identity record kind.
+
+The Lab integration is engineering provenance, not formal Story DONE evidence. B-03b7 lifecycle metadata, review credentials, findings, receipts, and other `.proof-or-stop` Story artifacts are not imported into main by this release.
+
+## RED and GREEN
+
+The Lab RED replay used the committed multi-worktree smoke and required the marker `F028_FOREIGN_ACTIVE_CATALOG`. Before the repair, 29 controls passed and the single target assertion failed because the foreign signed contributor was absent. The Lab GREEN replay executed the exact same command and reported 30 passing, 0 failed.
+
+## Verification
+
+- `npm --prefix packages/main run build` passed.
+- The exact Lab GREEN command passed with 30/30 multi-worktree candidate checks.
+- `node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery` passed 91/91 candidate, route, progress, scorecard, supersession, historical query, recall, and linked-worktree checks.
+- `node scripts/verify-process-fact-contract.mjs` passed.
+- The frozen benchmark remains a fixture measurement: 64 baseline manual operations versus 51 grouped operations. It is not an elapsed-time or production-workload claim; joint grouping-plus-batch qualification remains assigned to B-e6d9.
+
+## Scope
+
+The repair is limited to B-03b7 identity/history code, its existing CLI/docs/config registration, and the new active-worktree regression. The unrelated low-severity unused-import/local-variable cleanup reported as F-030 remains separately traceable and is not included merely to make the repository cosmetically green.
+
+Maintenance provenance: codex/lab-b03b7-identity-lineage-review-gaps, repair 5eeb957d3b37fd767e782095d844eb7eb2c5aefc.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/finding-identity-lineage-smoke.js","--section=worktrees"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-inventory-retired-evidence-0296 - v0.3.297 - 2026-09-10
+
+# Review inventory retired-evidence repair
+
+Problem: review inventory authentication inspected immutable historical evidence for verification intents that had been replaced. Those retired rows no longer had a current command pin, so `reviewer_list` and `review_inventory_begin` failed with `inventory authenticated command binding mismatch` and blocked the Story lifecycle.
+
+Behavior change: the inventory acceptance-subject projection now includes evidence only for currently declared verification intents. Items with no declared legacy intent retain their existing evidence semantics. Explicitly empty intent sets retire prior rows. Current replacement receipts remain authenticated against their command, selector, signature, artifact, and freshness bindings.
+
+Verification: the managed Lab RED captured the historical failure using `node packages/main/dist/tasks/review-inventory-epoch-smoke.js`. GREEN replayed the exact executable and arguments successfully at the final repair commit. The smoke covers retired-row exclusion, explicit-empty behavior, legacy absent/null compatibility, current replacement signature/command/freshness tampering, artifact tampering, OPEN inventory mutation behavior, reviewer lane/host invariants, and zero critical/high escapes. An independent Claude CLI final static audit returned APPROVE with FINDINGS: NONE.
+
+Performance: this is a correctness repair, not a performance optimization; no performance improvement is claimed.
+
+Maintenance provenance: codex/lab-review-inventory-retired-evidence-0296, repair f6df7239a227d21a5f6064c11fe9e7a6198e2f42.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/review-inventory-epoch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab session-performance-plan - v0.3.297 - 2026-09-10
+
+Integrate the session-performance Lab maintenance work and the validation repairs into local main.
+
+The maintenance includes story-aware validation selection and reuse, scoped cache and material identity work, bounded execution/watchdog handling, provider and fixture isolation, static edge audits, and the reviewed U-01 through U-18 implementation work recorded in the Lab history. Evidence writers propagate heartbeat/cancellation/deadline controls. Invocation-local execution sharing is bound to the actual material snapshot and preserves independent selector checks, V5 execution receipts, publication recovery, and atomic writes. Stable command-policy timeouts are checked separately from watchdog-shortened actual budgets; persisted reuse remains exact. The material-drift counterexample prevents failed-batch output from acquiring authority for new material.
+
+Graph startup honors no-open requests, and automated checks use HTTP or independent headless browsers. Historical managed-run snapshots no longer flood the UI with completion toasts; only new actionable transitions are displayed with bounded notification presentation. Complete fixture scenarios remain enabled, including the quorum and proof-admissibility suites. Timeout execution wiring and exact wrapped resource-barrier identities have positive and negative regression controls.
+
+Before remote integration, the earlier frozen Lab repair db70ba655e passed all 153 then-configured commands through the production executor with jobs=4 in 1402.906 seconds, with unchanged HEAD/config. After merging the newer main history, a frozen 160-command diagnostic run exposed 11 integration failures; the next frozen whole-plan run passed 158 of 160 commands in 2421.389 seconds with unchanged HEAD/config. The two remaining failures were the receipt fixture timing out while competing with other heavy work and identity-cutover observing concurrent repository mutation. Both now share one exact exclusive validation barrier. On the final committed source, the receipt fixture passed through the production executor in 124.146 seconds under its unchanged 180-second command limit.
+
+The formerly serial 36-case narrowing command changed from a 181.289-second timeout to a 67.738-second pass under the same 180-second outer limit. The complete 73-case quorum suite, Graph HTTP/no-browser check, managed-host recovery case, DONE parity, post-DONE snapshot, acceptance-basis suite, verification guard, and tool-executed evidence command all passed focused replay. Graph now binds to loopback by default, and the provider-neutral fixture tolerates only the bounded macOS process-group identity publication window before authenticating the exact process. The complete identity-cutover replay passed every public-operation, zero-write, mixed-identity, omission, and inventory mutation control before finding one stale brand-role fixture that bypassed the now-required native-review broker. That fixture now uses the real broker; its complete focused suite, boundary scan, and exact reviewed-context mutation controls pass. Static execution closure reports zero needs-review, nested, or unexpanded boundaries across 272 observations, and rollout, mode, and selector controls pass. This final evidence is the frozen 158/160 whole-plan run plus exact impact-set replays of both remaining failures; it does not claim a later redundant 160-command replay.
+
+The remote main history is preserved through a normal merge, including its canonical prompt/active-identity and evidence-currentness changes. The external-project CLI-version fix remains sourced from the executing CLI brand constant. This is local maintenance evidence, not formal Story TEST/DONE or signed product-release certification.
+
+Maintenance provenance: codex/lab-session-performance-plan, repair fc33a89782e60d1bb4eaf530e1b7cf606ef6d21d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-boundary-contracts.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab five-item-reuse-closure-20260909 - v0.3.296 - 2026-09-10
 
 # Five-item Lab maintenance closure

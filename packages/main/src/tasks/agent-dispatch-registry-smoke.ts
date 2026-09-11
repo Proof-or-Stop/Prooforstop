@@ -1,3 +1,4 @@
+import { resetSessionIdForTest } from '../core/owner-session.js';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -439,6 +440,12 @@ for (const payloadActor of ['human', 'proof-or-stop-review-quality', 'test-inten
   );
 }
 
+// Explicit fixture host context survives validation sanitization; actor fields stay untouched.
+const previousHostSession = process.env.PROOF_OR_STOP_SESSION_ID;
+const previousHostProvider = process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+process.env.PROOF_OR_STOP_SESSION_ID = `fixture-dispatch-host-${process.pid}`;
+process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+resetSessionIdForTest();
 const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
 try {
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
@@ -839,9 +846,20 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
     /story-only; omit itemId/,
   );
+  assert.ok(!store.readReviewInventoryEpochs(storyId).epochs.some(epoch => epoch.state === 'OPEN'),
+    'this REVIEW dispatch fixture has no OPEN inventory');
   const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'proof-or-stop-review-topology-critic' }).prompt;
-  assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
-    'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
+  assert.match(criticReviewPrompt, /topology_critic_receipt_set[\s\S]*topology_critic_receipt_check/,
+    'REVIEW critic without OPEN inventory retains topology receipt authority');
+  // The canonical full envelope documents both available responsibilities;
+  // the trusted task assignment, not conditional role guidance, selects one.
+  const criticReviewDispatch = store.readProcessEvents(storyId).filter(event =>
+    event.type === 'dispatch' && event.targetKind === 'topology-critic-review').at(-1)!;
+  assert.deepEqual(criticReviewDispatch.reviewerResponsibility, { kind: 'topology-proof' },
+    'REVIEW without an OPEN inventory must bind topology responsibility');
+  assert.match(String(criticReviewDispatch.dispatchPrompt), /topology_critic_receipt_set[\s\S]*topology_critic_receipt_check/);
+  assert.doesNotMatch(String(criticReviewDispatch.dispatchPrompt), /Inventory completeness only|review_inventory_critic_set/i,
+    'REVIEW alone must not select inventory-only responsibility');
 
   const promptPatterns: Record<string, RegExp> = {
     'implementer-dispatch': /git commit --author=.*proof-or-stop-implementer/,
@@ -886,6 +904,11 @@ try {
   }
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
+  if (previousHostSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+  else process.env.PROOF_OR_STOP_SESSION_ID = previousHostSession;
+  if (previousHostProvider === undefined) delete process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER;
+  else process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = previousHostProvider;
+  resetSessionIdForTest();
   rmSync(root, { recursive: true, force: true });
 }
 

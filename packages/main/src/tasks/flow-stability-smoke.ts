@@ -29,6 +29,11 @@ import {
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { EMPTY_STORY_FILES_HASH, checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { persistSyntheticAdmittedWindowForTest as persistSyntheticWindow } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+function persistSyntheticAdmittedWindowForTest(args: Parameters<typeof persistSyntheticWindow>[0]) {
+  return persistSyntheticWindow({ ...args, causalInputHashes: deriveCertificationDomainInputHashes(args.gitCwd ?? args.projectRoot, 'HEAD', args.projectRoot) });
+}
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import {
@@ -92,6 +97,12 @@ import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { createMainRegistry } from '../registry.js';
+import {
+  issueBrokeredNativeReviewBinding,
+  nativeReviewFixtureBrokers,
+  withNativeReviewFixtureHostIdentity,
+} from './native-review-fixture.js';
 import { createReviewRunHandlers } from '../handlers/review-run.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
@@ -110,6 +121,31 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  // Explicit synthetic discovery dependencies required by the current registry;
+  // these are not executed and do not claim production runtime coverage.
+  for (const file of ["bin/bootstrap-runner.js", "packages/main/src/cli-engine.ts", "packages/main/src/core/auto-commit-metadata.ts", "packages/main/src/core/causal-evidence.ts", "packages/main/src/core/execution-implementation.ts", "packages/main/src/core/store.ts", "packages/main/src/core/verification-intent-amendment.ts", "packages/main/src/core/verification-intent-checkpoint.ts", "packages/main/src/handlers/done-required-validation.ts", "packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts", "packages/main/src/tasks/quorum-submit-smoke-fixture.ts", "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts", "packages/main/src/tasks/quorum-submit-smoke-worker.ts", "packages/main/src/tasks/quorum-submit-smoke.ts", "scripts/build-lock-target.mjs"]) {
+    write(root, file, 'export const fixtureDependency = true;\n');
+  }
+  // Current registered source snapshots, not execution evidence for these modules.
+  for (const file of ["packages/graph/src/core/app.ts", "packages/graph/src/shells/web/app.js", "packages/main/src/core/host-execution-readiness.ts", "packages/main/src/core/managed-execution-identity-key.ts", "packages/main/src/core/managed-execution-input-identity.ts", "packages/main/src/core/managed-launch-admission.ts", "packages/main/src/core/managed-run-dashboard.ts", "packages/main/src/core/prompt-contracts.ts", "packages/main/src/core/prompt-envelope.ts", "packages/main/src/core/review-run.ts", "packages/main/src/core/reviewer-batch-admission.ts", "packages/main/src/core/reviewer-batch-producer.ts", "packages/main/src/core/reviewer-batch-subject.ts", "packages/main/src/handlers/graph.ts", "packages/main/src/handlers/reviewer-batch-admit.ts"]) {
+    if (!existsSync(join(root, file))) write(root, file, "export const fixtureDependency = true;\n");
+  }
+
+  // Current registered producer/consumer snapshots must exist even though this
+  // fixture isolates discovery and does not execute those dependency modules.
+  for (const name of ['scope-inventory-budget', 'evidence-freshness', 'material-path-policy', 'review-convergence',
+    'shared-validation-execution', 'story-aware-validation', 'story-owner-lease', 'validation-execution-lock',
+    'acceptance-amendment-journal', 'convergence-progress-gate', 'convergence-progress-journal',
+    'host-run', 'planned-steps-executor', 'proof-or-stop-dispatch', 'provider-process-admission',
+    'provider-process-registry', 'story-scope-budget', 'story-scope-budget-decisions', 'story-scope-decomposition',
+    'managed-host-run', 'managed-review-lane-policy', 'managed-review-lane',
+    'managed-review-provider-state', 'managed-review-readonly', 'story-scope-budget-legacy']) {
+    write(root, `packages/main/src/core/${name}.ts`, 'export const fixtureDependency = true;\n');
+  }
+  for (const path of ['handlers/story-review', 'handlers/cross-host-review', 'providers/supervised-process', 'providers/supervised-process-worker']) {
+    write(root, `packages/main/src/${path}.ts`, 'export const fixtureDependency = true;\n');
+  }
+  write(root, 'packages/main/src/core/managed-review-lane-build.mjs', 'export const fixtureDependency = true;\n');
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
@@ -183,11 +219,41 @@ function localCliPath(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 }
 
+const nativeReviewFixtureContexts = new Map<string, { root: string; store: StoryStore }>();
+
+function registerNativeReviewFixtureContexts(
+  root: string,
+  store: StoryStore,
+  storyId: string,
+  runs: ReviewRun[],
+): void {
+  const registry = createMainRegistry({ root, store, scanRoot: join(root, 'packages/main') });
+  const dispatch = registry.get('dispatch');
+  assert.ok(dispatch, 'flow native review fixture dispatch handler is registered');
+  for (const agent of new Set(runs.map(run => run.agent))) {
+    withNativeReviewFixtureHostIdentity({
+      agent,
+      invoke: () => dispatch({ storyId, agentType: agent }),
+    });
+  }
+  for (const run of runs) {
+    nativeReviewFixtureContexts.set(`${storyId}\0${run.agent}\0${run.reviewRunId}`, { root, store });
+  }
+}
+
+function fixtureNativeBinding(storyId: string, agent: string, reviewRunId: string) {
+  const context = nativeReviewFixtureContexts.get(`${storyId}\0${agent}\0${reviewRunId}`)
+    ?? [...nativeReviewFixtureContexts].find(([key]) => key.startsWith(`${storyId}\0${agent}\0`))?.[1];
+  if (!context || !existsSync(context.root)) return undefined;
+  return issueBrokeredNativeReviewBinding({ ...context, storyId, agent, reviewRunId });
+}
+
 function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string): Finding {
   const id = `${storyId}:F-${idSuffix}`;
   const createdAt = new Date(Date.UTC(2099, 3, 27, 12, 0, Number(idSuffix))).toISOString();
   const desc = `${agent} clean finding`;
   const severity = 'low';
+  const nativeEvidenceBinding = fixtureNativeBinding(storyId, agent, reviewRunId);
   return {
     id,
     desc,
@@ -198,7 +264,28 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
     createdAt,
     reviewRound,
     reviewRunId,
-    _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, reviewRunId),
+    ...(nativeEvidenceBinding ? { nativeEvidenceBinding } : {}),
+    _hash: signFinding(
+      storyId,
+      id,
+      desc,
+      severity,
+      createdAt,
+      reviewRound,
+      reviewRunId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      nativeEvidenceBinding,
+      nativeEvidenceBinding ? {
+        category: 'happy',
+        evidenceState: null,
+        uncertaintyReason: null,
+        files: [],
+      } : undefined,
+    ),
   };
 }
 
@@ -226,9 +313,12 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
   const id = `${storyId}:RP-${idSuffix}`;
   const createdAt = new Date(Date.UTC(2099, 3, 27, 12, 10, Number(idSuffix))).toISOString();
   const note = `${agent} checked the story and found no blocking issue`;
+  const nativeEvidenceBinding = fixtureNativeBinding(storyId, agent, reviewRunId);
+  const provenance = nativeEvidenceBinding ? {
+    writerSessionId: nativeEvidenceBinding.writerSessionId,
+    sessionSource: nativeEvidenceBinding.sessionSource,
+  } : undefined;
   const envelopeId = reviewEnvelopeIds.get(reviewRunId) ?? reviewRunId;
-  const writerSessionId = `session-${agent}`;
-  const sessionSource = 'explicit-env';
   return {
     id,
     agent,
@@ -236,9 +326,12 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
     createdAt,
     reviewRound,
     reviewRunId,
+    ...(nativeEvidenceBinding ? {
+      nativeEvidenceBinding,
+      writerSessionId: nativeEvidenceBinding.writerSessionId,
+      sessionSource: nativeEvidenceBinding.sessionSource,
+    } : {}),
     envelopeId,
-    writerSessionId,
-    sessionSource,
     _hash: signReviewPass(
       storyId,
       id,
@@ -250,8 +343,10 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
       undefined,
       undefined,
       undefined,
-      { writerSessionId, sessionSource },
+      provenance,
       envelopeId,
+      undefined,
+      nativeEvidenceBinding,
     ),
   };
 }
@@ -283,13 +378,13 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
   const reviewRunHandlers = createReviewRunHandlers(context);
   const result = new Map<string, string>();
   for (const agent of agents) {
-    dispatchHandlers.dispatch({ storyId, agentType: agent });
+    withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => dispatchHandlers.dispatch({ storyId, agentType: agent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     const previousCwd = process.cwd();
     process.env.PROOF_OR_STOP_AGENT = agent;
     process.chdir(root);
     try {
-      reviewRunHandlers.review_run_start({ storyId, agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => reviewRunHandlers.review_run_start({ storyId, agent }) });
     } finally {
       process.chdir(previousCwd);
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -300,8 +395,10 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
     assert.equal(run.reviewRound, reviewRound);
     assert.ok(run.envelopeId, `production review run for ${agent} should bind a Prompt Envelope`);
     reviewEnvelopeIds.set(run.reviewRunId, run.envelopeId);
+    nativeReviewFixtureContexts.set(`${storyId}\0${agent}\0${run.reviewRunId}`, { root, store });
     result.set(agent, run.reviewRunId);
   }
+  for (const run of store.readReviewRuns(storyId).runs) { nativeReviewFixtureContexts.set(`${storyId}\0${run.agent}\0${run.reviewRunId}`, { root, store }); }
   return result;
 }
 
@@ -338,8 +435,18 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
   resetConfigCache();
+
+  write(root, 'README.md', 'flow review fixture\n');
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'flow-review@example.invalid']);
+  git(root, ['config', 'user.name', 'Flow Review Fixture']);
+  // B-137a main-merge fix: the fixture writes proof-or-stop.config.json (above),
+  // so staging the retired filename failed with 'did not match any files'.
+  git(root, ['add', 'proof-or-stop.config.json', 'README.md']);
+  git(root, ['commit', '-m', 'fixture']);
 
   const store = new StoryStore(root);
   const storyId = 'B-smoke';
@@ -364,6 +471,9 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
       id: `CHK-${suffix}`,
       title: `Done item ${suffix}`,
       context: 'Synthetic checklist item.',
+      verificationIntent: { happy: [{ desc: 'The reviewer gate reports the required lane and current signed run binding.', type: 'manual' as const }], edge: [], adversarial: [] },
+      // Synthetic prerequisite only: each test below still executes its real lane/run assertions.
+      verificationEvidence: [{ intentRef: `CHK-${suffix}:happy:0`, kind: 'manual_transcript' as const, result: 'pass' as const, note: 'Synthetic acceptance prerequisite for the isolated reviewer gate fixture; this is not a product verification receipt.' }],
       status: 'done',
       startTime: now,
       endTime: now,
@@ -1190,9 +1300,8 @@ function assertPhaseFlowDerivedValuesByteIdentical(): void {
 
 function assertStoryAdvanceTestGateFailClosedContracts(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-  // B-56d3: the TEST gate runner was extracted into handlers/phase-gates.ts.
-  // The fail-closed error wording now lives there; the warn-and-advance regex
-  // negative-check still covers both files so a relapse anywhere is caught.
+  // B-14ae: TEST is a signed-evidence consumer. The phase gate must preserve
+  // the PRE_CERT recovery but cannot retain an execution fallback.
   const source = readFileSync(join(root, 'src', 'handlers', 'story-advance.ts'), 'utf-8');
   const phaseGatesSource = readFileSync(join(root, 'src', 'handlers', 'phase-gates.ts'), 'utf-8');
   assert.match(
@@ -1202,8 +1311,13 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: proof-or-stop validate execution error/,
-    'validate execution errors must be fail-closed before entering TEST',
+    /\[\$\{PRE_CERT_ROUTINE_PASS_REQUIRED\}\] Cannot enter TEST/,
+    'missing or stale REVIEW routine evidence must fail closed before entering TEST',
+  );
+  assert.doesNotMatch(
+    phaseGatesSource,
+    /createVerifierHandlers|verifierHandlers\.validate/,
+    'TEST must not retain a verifier execution fallback',
   );
   for (const src of [source, phaseGatesSource]) {
     assert.doesNotMatch(
@@ -1443,11 +1557,11 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 
     const lane = 'proof-or-stop-review-test-coverage';
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: lane });
+    withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: lane }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     process.env.PROOF_OR_STOP_AGENT = lane;
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent: lane });
+      withNativeReviewFixtureHostIdentity({ agent: lane, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent: lane }) });
     } finally {
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
       else process.env.PROOF_OR_STOP_AGENT = previousAgent;
@@ -1456,6 +1570,7 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.ok(latestTestCoverageRun?.envelopeId, 'latest test-coverage run must bind a Prompt Envelope');
     const latestTestCoverageRunId = latestTestCoverageRun.reviewRunId;
     reviewEnvelopeIds.set(latestTestCoverageRunId, latestTestCoverageRun.envelopeId);
+    nativeReviewFixtureContexts.set(`${storyId}\0${lane}\0${latestTestCoverageRunId}`, { root, store });
 
     store.writeFindings(storyId, {
       findings: [conceptFinding, qualityFinding],
@@ -1562,11 +1677,11 @@ function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): 
     // withhold forgiveness.
     const laneAgent = 'proof-or-stop-review-test-coverage';
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: laneAgent });
+    withNativeReviewFixtureHostIdentity({ agent: laneAgent, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: laneAgent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     process.env.PROOF_OR_STOP_AGENT = laneAgent;
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent: laneAgent });
+      withNativeReviewFixtureHostIdentity({ agent: laneAgent, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent: laneAgent }) });
     } finally {
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
       else process.env.PROOF_OR_STOP_AGENT = previousAgent;
@@ -1711,6 +1826,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
     git(root, ['init']);
@@ -1744,7 +1860,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
     };
     const checklist: ChecklistData = {
-      items: [{ id: 'CHK-001', title: 'item', context: 'ctx', status: 'done', startTime: now, endTime: now }],
+      items: [{ id: 'CHK-001', title: 'item', context: 'ctx', status: 'done', startTime: now, endTime: now, verificationIntent: { happy: [{ desc: 'A fresh pass on an older current-round run remains valid while stale findings remain blocked.', type: 'manual' }], edge: [], adversarial: [] } }],
     };
     const store = new StoryStore(root);
     store.writeStory(storyId, story);
@@ -1758,13 +1874,13 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     const dispatchHandlers = createStoryDispatchHandlers(context);
     const reviewRunHandlers = createReviewRunHandlers(context);
     const startRun = (): ReviewRun => {
-      dispatchHandlers.dispatch({ storyId, agentType: agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => dispatchHandlers.dispatch({ storyId, agentType: agent }) });
       const previousAgent = process.env.PROOF_OR_STOP_AGENT;
       const previousCwd = process.cwd();
       process.env.PROOF_OR_STOP_AGENT = agent;
       process.chdir(root);
       try {
-        reviewRunHandlers.review_run_start({ storyId, agent });
+        withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => reviewRunHandlers.review_run_start({ storyId, agent }) });
       } finally {
         process.chdir(previousCwd);
         if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -1780,6 +1896,7 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
     assert.notEqual(run1.reviewRunId, run2.reviewRunId, 'retry should mint a distinct current ReviewRun');
     reviewEnvelopeIds.set(run1.reviewRunId, run1.envelopeId!);
     reviewEnvelopeIds.set(run2.reviewRunId, run2.envelopeId!);
+    for (const run of [run1,run2]) nativeReviewFixtureContexts.set(`${storyId}\0${run.agent}\0${run.reviewRunId}`, { root, store });
 
     // CORE: a PASS bound to the NON-latest run1 (material+scope fresh) is ACCEPTED.
     // Pre-fix this threw "is not the current latest reviewer run".
@@ -2119,6 +2236,7 @@ function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvi
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+      nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
     }));
     write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
     git(root, ['init']);
@@ -2169,13 +2287,13 @@ function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvi
     });
     resetConfigCache();
     const context = { store, root, scanRoot: join(root, 'packages/main') };
-    createStoryDispatchHandlers(context).dispatch({ storyId, agentType: agent });
+    withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => createStoryDispatchHandlers(context).dispatch({ storyId, agentType: agent }) });
     const previousAgent = process.env.PROOF_OR_STOP_AGENT;
     const previousCwd = process.cwd();
     process.env.PROOF_OR_STOP_AGENT = agent;
     process.chdir(root);
     try {
-      createReviewRunHandlers(context).review_run_start({ storyId, agent });
+      withNativeReviewFixtureHostIdentity({ agent: agent, invoke: () => createReviewRunHandlers(context).review_run_start({ storyId, agent }) });
     } finally {
       process.chdir(previousCwd);
       if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
@@ -2184,10 +2302,21 @@ function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryHashAdvi
     const run = store.readReviewRuns(storyId).runs.at(-1);
     assert.ok(run?.envelopeId, 'production review run should bind the current Prompt Envelope');
     reviewEnvelopeIds.set(run.reviewRunId, run.envelopeId);
+    nativeReviewFixtureContexts.set(`${storyId}\0${agent}\0${run.reviewRunId}`, { root, store });
     store.writeReviewPasses(storyId, {
       passes: [makeReviewPass(storyId, agent, reviewRound, '099', run.reviewRunId)],
     });
     git(root, ['merge', 'main', '--no-edit']);
+    const beforeEnvelopeDrift = runReviewCliGates(storyId, { store, projectRoot: root, registryNames: new Set() });
+    assert.equal(beforeEnvelopeDrift.ok, true, 'unrelated main merge remains admissible before actual envelope drift');
+    assert.equal(beforeEnvelopeDrift.gates.find(gate => gate.name === 'reviewer-evidence')?.status, 'warn', 'unrelated main merge has its material advisory positive control');
+    // Unrelated main material is legitimately advisory; create the actual envelope
+    // corruption this negative control names, without changing its expected rejection.
+    const driftedEnvelopes = store.readPromptEnvelopes(storyId);
+    const driftedEnvelope = driftedEnvelopes.envelopes.find(row => row.envelopeId === run.envelopeId)!;
+    driftedEnvelope.assembledPromptDigest = '0'.repeat(64);
+    store.writePromptEnvelopes(storyId, driftedEnvelopes);
+
 
     const preflight = runReviewCliGates(storyId, {
       store,
@@ -2427,7 +2556,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
   }
 }
 
-async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
+async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(basisOnly = false): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-review-echo-'));
   const oldCwd = process.cwd();
   try {
@@ -2492,6 +2621,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       root,
       scanRoot: join(root, 'packages/main'),
     }).acceptance_basis_generate({ storyId });
+    assert.match(basisOutput, /Acceptance coverage basis: complete/, JSON.stringify(store.readAcceptanceBasis(storyId)));
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.match(
       basisOutput,
@@ -2505,6 +2635,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     );
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
+    if (basisOnly) return;
     const output = await createStoryAdvanceHandlers({
       store,
       root,
@@ -2659,11 +2790,21 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     }).next({ concise: true });
     assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
     assert.match(reviewNext, /All reviewer gates passed/);
-    assert.match(reviewNext, /phase=TEST/);
+    assert.match(reviewNext, /review_inventory_begin/);
+    assert.doesNotMatch(reviewNext, /story_advance .*phase=TEST/);
 
     const testStory = store.readStory(storyId);
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
+    const missingPassNext = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).next({ concise: true });
+    assert.match(missingPassNext, /current signed REVIEW routine PASS is missing/);
+    assert.match(missingPassNext, /phase=DEV to restore PRE_CERT/);
+    assert.doesNotMatch(missingPassNext, /Next: proof-or-stop validate/);
+
     const evidence: TestEvidenceData = {
       command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
@@ -2739,6 +2880,7 @@ function assertReviewNextUsesReviewerGateState(): void {
     assert.match(pendingNext, /test-coverage/);
     assert.doesNotMatch(pendingNext, /channel/);
     assert.doesNotMatch(pendingNext, /All critical\/high findings resolved/);
+    assert.doesNotMatch(pendingNext, /story_advance .*phase=TEST/);
 
     const id = `${storyId}:F-open`;
     const createdAt = '2026-04-27T12:30:00.000Z';
@@ -3152,7 +3294,9 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.detail ?? '', /^fail: blocking=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /passed=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /proof_or_stop_metadata_changes=/);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
+    // The three broker-backed reviewer dispatches above intentionally append
+    // three runtime audit artifacts in addition to this test's activity row.
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=4/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /unexpected_dirty_files=1/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);
@@ -4148,10 +4292,10 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
  *     and transition-orchestrator.ts do NOT import handlers/story-advance.js
  *     (no circular import); story-advance.ts is only the public command shell,
  *     and transition-orchestrator.ts owns the transition sequence.
- *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
- *     TEST when proof-or-stop validate fails (allPass=false) AND when validate output
- *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
- *     blocks TEST when a CLI gate fails.
+ *  2. Fail-closed gate behavior (preMortem #1): runValidateGate consumes only
+ *     a current signed REVIEW PASS and refuses TEST without starting validation
+ *     children when that evidence is absent/stale/non-PASS;
+ *     runReviewToTestPreflightGate still blocks TEST when a CLI gate fails.
  *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
  *     renderRelatedDocsHint produce the exact text the inline originals did.
  */
@@ -4217,15 +4361,12 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     /const verifierHandlers = createVerifierHandlers\(ctx\)/,
     'the proof-or-stop validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
   );
-  // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
-  // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
-  // verifier always returns valid JSON in practice, so the JSON-parse branch is
-  // defensive — its fail-closed shape is pinned statically here, while the
-  // validate-FAIL and preflight-FAIL paths below are exercised behaviorally.
-  assert.match(
+  // TEST is an evidence consumer, never a second validate executor. This
+  // source-level fence complements the behavioral marker assertion below.
+  assert.doesNotMatch(
     phaseGatesSrc,
-    /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;/,
-    'runValidateGate catch must rethrow gate errors before the execution exception throw',
+    /createVerifierHandlers|verifierHandlers\.validate/,
+    'runValidateGate must not retain a verifier execution path in TEST',
   );
   assert.match(
     phaseGatesSrc,
@@ -4244,10 +4385,9 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   );
 
   // --- 2. Fail-closed gate behavior ---
-  // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
-  //     configured validate command by exit code, so a non-zero exit is a real
-  //     validate failure (allPass=false) → first throw "did not pass".
-  const failRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-phase-gates-validate-fail-'));
+  // 2a. runValidateGate: an ADMITTED window without a signed routine PASS
+  //     blocks TEST before the configured child can execute.
+  const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
   try {
     // Official validation now requires the configured workspace to resolve one
     // Git identity before it enters the capacity queue. Seed only that identity
@@ -4263,7 +4403,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
-      validate: { commands: [{ label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] }] },
+      validate: { commands: [{ label: 'must not run from TEST', command: 'node', args: ['-e', `require('node:fs').writeFileSync(${JSON.stringify(join(failRoot, 'unexpected-test-gate-child.marker'))}, 'ran')`] }] },
       workflow: { profile: 'balanced' },
     }));
     resetConfigCache();
@@ -4271,7 +4411,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const now = '2026-05-16T02:00:00.000Z';
     store.writeStory(storyId, {
       storyId, name: 'phase-gate-fail', title: 'Phase gate fail',
-      description: 'validate FAIL must block TEST', type: 'chore', phase: 'TEST',
+      description: 'missing REVIEW routine PASS must block TEST', type: 'chore', phase: 'TEST',
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
@@ -4285,32 +4425,22 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
         endTime: now,
       }],
     });
+    // Bind a test-only signed window: no test evidence is written, so TEST
+    // must reject with the routine-PASS recovery instead of executing the
+    // configured marker command.
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: failRoot });
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: failRoot });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     let rejectionMessage = '';
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      (error: unknown) => {
-        rejectionMessage = error instanceof Error ? error.message : String(error);
-        return /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/.test(rejectionMessage);
-      },
-      'runValidateGate must block TEST when proof-or-stop validate fails',
+      /\[pre_cert_routine_pass_required\] Cannot enter TEST/,
+      'runValidateGate must reject TEST when the signed REVIEW routine PASS is absent',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
-    const causalPreflightRefusal = /Cannot enter TEST: proof-or-stop validate execution error/.test(rejectionMessage)
-      && /writerLease/.test(rejectionMessage)
-      && /causal_preflight_refused/.test(rejectionMessage);
-    if (causalPreflightRefusal) {
-      assert.match(rejectionMessage, /commandExecutions=0/);
-      assert.match(rejectionMessage, /evidenceWrites=0/);
-      assert.equal(store.readTestEvidence(storyId), null, 'causal preflight refusal must not persist test evidence');
-    } else {
-      assert.match(rejectionMessage, /Cannot enter TEST: proof-or-stop validate did not pass/);
-      // An ordinary validation failure still persists a FAIL test-evidence
-      // record (the behavior-preserving side effect annotated in phase-gates.ts).
-      assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
-    }
+    assert.equal(store.readTestEvidence(storyId), null, 'TEST refusal must not create replacement validation evidence');
+    assert.equal(existsSync(join(failRoot, 'unexpected-test-gate-child.marker')), false, 'TEST refusal must not execute configured validation children');
   } finally {
     rmSync(failRoot, { recursive: true, force: true });
     resetConfigCache();
@@ -4392,6 +4522,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     assert.match(nextSteps.REVIEW, /unknown or temporarily unavailable/);
     assert.match(nextSteps.REVIEW, /authoritative failed, cancelled, missing, or dead status/);
     assert.doesNotMatch(nextSteps.REVIEW, /no result for 10 minutes\/600s treat as stalled, restart/i);
+    assert.match(nextSteps.TEST, /routine suite already executed once in REVIEW after PRE_CERT became ADMITTED/);
+    assert.match(nextSteps.TEST, /do not start a second unscoped proof-or-stop validate --story run here/);
 
     // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
     //     line shape must be byte-identical to the inline original.
@@ -4505,9 +4637,11 @@ function assertDoneOracleSameSource(): void {
   );
   assert.match(
     doneOracleSrc,
-    /const finishDecision = donePredicates \? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
+    /const finishDecisionRead = donePredicates \? donePredicateValue<ReturnType<typeof inspectDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
     'DONE preflight finish-decision row must consume the already evaluated shared presence fact',
   );
+  assert.match(doneOracleSrc, /const finishDecision = finishDecisionRead\?\.record;/, 'DONE finish decision must read the shared inspected record');
+  assert.match(doneOracleSrc, /const unsupportedFinishDecision = finishDecisionRead\?\.unsupportedIdentity;/, 'unsupported finish identity must remain fail closed');
   assert.match(doneOracleSrc, /const completedSnapshot = store\.readStory\(storyId\)\.phase === 'DONE' \? options\.completedSnapshot : undefined;/,
     'Historical presentation must not exempt TEST admission');
 
@@ -5295,6 +5429,12 @@ function assertDonePrepareOnePassConvergenceContract(): void {
   }
 }
 
+if (process.argv.includes('--acceptance-basis-fixture')) {
+  await assertStoryAdvanceReviewEchoOmitsRetiredChannel(true);
+  console.log('PASS acceptance basis discovery fixture');
+  process.exit(0);
+}
+
 assertProductionHelperPassesProjectRootToClassifier();
 assertCustomStoryDirDirtyWorktreeClassification();
 assertDonePrepareOnePassConvergenceContract();
@@ -5344,7 +5484,7 @@ await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 
-runAgentLivenessSuiteForPinnedEvidence();
+if (!process.argv.includes('--canonical-core')) runAgentLivenessSuiteForPinnedEvidence();
 // ── B-cdf6:F-052 — the read-both branch must be PROVEN, not just present ────────
 // The quality lane observed that every smoke exercising purgeSafeInitCommit only ever
 // hand-writes the CANONICAL subject, so the tests proved the writer emits the new form
@@ -5376,4 +5516,4 @@ runAgentLivenessSuiteForPinnedEvidence();
   assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
   assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'proofOrStop:', 'deprecated prefix is retained verbatim for compatibility');
 }
-console.log('✓ flow stability smoke passed');
+console.log(process.argv.includes('--canonical-core') ? 'flow-stability-smoke: CANONICAL CORE PASS' : '✓ flow stability smoke passed');

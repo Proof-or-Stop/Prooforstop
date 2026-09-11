@@ -4,6 +4,35 @@ Official `validate` and `done_required_validate` retain independent acceptance,
 freshness, resource, owner and build-proof checks. These changes optimize the
 execution mechanisms; they do not turn Lab records into Story evidence.
 
+## PRE_CERT execution order
+
+In REVIEW, finalize the saturated review inventory, then run
+`proof-or-stop validate --story=B-example --focus=fast --json` to publish a
+signed cheap-check receipt for the resulting HEAD. Run
+`proof-or-stop certification_window_begin --storyId=B-example` after that check.
+Admission reconstructs the same current command identity as execution. Changed
+environment, executable, timeout, policy or entrypoint invalidates the cheap
+receipt even when HEAD is unchanged; unavailable identity fails closed.
+The admitted window permits one routine `proof-or-stop validate --story=B-example --json`
+execution. This includes dynamic execution and explicit full validation, even
+when full is combined with focus. An exact reusable current PASS starts no child
+and consumes no additional execution claim.
+
+The REVIEW-to-TEST gate consumes the signed current routine PASS. Missing, failed,
+stale or tampered evidence blocks TEST before any validation child starts. Return
+to DEV for repair and follow the reported PRE_CERT recovery. A consumed window
+cannot authorize unchanged failed-suite retries. Focused preparation remains
+available. DONE-required validation keeps its own policy, evidence and capacity
+checks and requires a current PRE_CERT window; it does not consume the routine
+suite's execution claim.
+
+Session and transition hints follow this order. When a certification window
+already exists, inspect its status and recovery command before starting another;
+session status alone does not establish that its evidence is current. In REVIEW,
+certification status checks the same signed PASS, coverage and freshness inputs
+as the TEST gate and recommends entering TEST once they pass. A consumed RUNNING
+window alone is not evidence that a validation process is still executing.
+
 ## Identical command results
 
 A structured command in `validate.commands` or `doneRequiredCommands` may opt in
@@ -22,6 +51,12 @@ receipts are refused. A reused result records the original receipt and execution
 time, and is not counted as a new child execution. Dynamic validation retains
 its existing trace-based path; shared execution uses dynamic mode off or an explicit
 validate.sharedExecution option independently of selection mode. No existing command is automatically opted in.
+
+Workspace checks exclude only exact CAS receipt paths whose signatures, Story
+identity and content addresses verify, plus an index whose entries all resolve
+to those verified receipts. Publishing these outputs cannot stale their own
+execution inputs. Unknown files and invalid receipts remain workspace pollution;
+explicit input bytes remain bound even when an input is also a receipt output.
 
 `fullBaselineReusePolicy: forbidden`, `closurePolicy: never-reuse`, gate and
 validation-infrastructure risk classifications, and build-proof consumers or
@@ -92,6 +127,389 @@ characters. See [the hash decision](requirements/decisions/story-files-hash-mate
 for migration boundaries and the independent oracle regression. This correction
 carries no percentage performance claim.
 
+Shared execution signs the complete executor capture, independently of the
+bounded prefix/suffix shown to users. Output beyond the 12,000-character selector
+window produces a partial, non-reusable receipt; an exactly 12,000-character
+complete result remains eligible. The v2 complete-capture execution identity
+prevents earlier display-derived receipts from being consumed after this repair.
+
+### Provider contract scheduling
+
+Canonical validation invokes `provider-process-registry-smoke` with
+`--provider-launch-owner-admission-child` and `managed-host-run-smoke` with
+`--canonical-core`. Those entry variants execute their own contracts only;
+`host-run-usage`, `dispatch-run`, `provider-claude`, managed process cleanup and
+managed caller-death checks are independent configured commands. The original
+standalone invocations retain their complete combined proofs and selectors for
+existing pinned receipts. Canonical variants emit distinct core selectors.
+`verify-flat-provider-validation.mjs` observes real child-process boundaries and
+rejects a canonical entry launching another registered command; it also checks
+that every former nested provider contract remains independently scheduled.
+
+Registration mutation probes use the CHK-007 receipt's `--registration-only`
+entry to exercise its population/config/exclusion rule in private mirrors.
+That entry emits registration evidence only; it does not run or claim the
+historical invariance and silent-prefix receipts. The default CHK-007 command
+retains every original proof obligation and remains registered unchanged.
+
+The legacy review-round stall check recognizes a measured blocker reduction
+within its trailing comparison window. A plateau followed by a decrease, such as
+`[2,2,1]`, no longer blocks DEV to REVIEW. Flat or rising counts retain the stall
+diagnostic. This bounded correction is not a substitute for signed completed-epoch
+progress accounting; activity counts and provider heartbeats do not prove progress.
+
+U-11 now records tool-owned progress observations at explicit review inventory
+begin and independent full-wave finalization. The signed journal binds completed
+epochs, current verifier-derived coverage and pass lanes, and authenticated
+Finding outcomes. Status comparisons do not write observations. Legacy unsigned
+Finding metadata and compatibility dismissal cannot prove repair. A later signed
+cancellation preserves the observed completion history and interrupts consecutive
+stagnation. Zero-wave compatibility receipts do not count as completed reviews.
+Unavailable progress is reported explicitly without undoing a valid inventory
+publication. Both CLI advance/takeover and machine REVIEW mint now consume this same signed
+progress decision. Two complete stagnant epochs request a human decision; raw
+advance, takeover, review-run and round counts remain diagnostics. Live verified
+progress releases a stall. Corrupt new authority is a distinct integrity block.
+Human continuation uses interactive story_resume with acknowledgement and a reason;
+the signed decision resets the comparison boundary and preserves history.
+Compatibility stall_resolution_set records do not release this new gate; their
+checklist withdrawal behavior remains available.
+
+Mechanical coverage gains also require the actual CAS execution receipt, matching
+command and selector pin, output digest and source identities. Missing receipt
+objects and dirty material produce unavailable observations, never a claimed
+coverage gain. Remediation uses the same execution-authority verifier. Legacy
+compatibility coverage remains governed by the existing coverage policy.
+
+### Managed burn and verified progress
+
+Managed workers observe only complete bounded canonical provider stdout usage events.
+Their token lower bound is the largest validated event, including reported cache
+input once; replayed events are not summed. Transcript size, tool text, heartbeat,
+and estimated token counts never authorize a cost stop. The submitter seals
+`PROOF_OR_STOP_MANAGED_BURN_TOKEN_LIMIT` (positive integer; default 100000000) in the
+managed spec. Changing the worker or provider environment cannot change that limit.
+
+When this limit is exceeded, the supervisor checks the same signed completed-epoch
+progress authority used by convergence gates. Only two verified complete stagnant
+epochs authorize `cancelled / burn_without_effective_progress`. Current net progress,
+missing history, projectless execution, or unavailable progress yields an advisory;
+no independent review requirement is waived. Normal TERM/KILL/reap and replacement
+safety still apply. Actual child close fences further burn requests before any
+asynchronous descendant cleanup completes. Explicit startup/total/absolute deadlines remain finite and
+retain their distinct terminal reasons. A burn stop never redispatches a replacement.
+
+### Exact prompt bodies and slim review history
+
+New full-envelope review runs persist `assembledPromptRef` equal to their signed
+`promptHash`. Exact UTF-8 bodies live once per digest under the Story's
+`prompt-bodies/` directory and are published before the run reference. Existing
+objects are checked rather than overwritten. Ordinary `readReviewRuns` reads only
+metadata; review gates, incremental eligibility and managed reviewer launch use
+`readReviewPrompt` to load and hash-check the body. Envelope and canonical assembly
+verification remain required. Missing, corrupt or conflicting references fail
+closed. Legacy inline records remain readable and are not migrated by a read.
+
+The owner can run `review_prompt_gc --storyId=B-xxxx` in DEV, REVIEW or TEST
+to reclaim orphan prompt bodies. Collection shares publication locks, retains
+all historical run/envelope references, and refuses corrupt metadata, missing
+referenced bodies or dangling terminal references before deleting anything.
+It never prunes signed metadata or migrates legacy inline history.
+
+### Epoch metadata commits
+
+Native and managed reviewer results inside an OPEN inventory epoch retain their
+individual signatures and are written before success is reported. Their Git
+commit is deferred until `review_inventory_finalize` or `review_inventory_cancel`.
+Finalization commits only the explicit review artifacts and referenced prompt
+bodies using an isolated index, normal hooks, verified bytes and a HEAD
+compare-and-swap. Unrelated staged files remain untouched. A failed commit leaves
+the signed results intact: retry the original finalize or cancel command without launching reviewers again. Preserve `--remediation` for repair-only receipts and the original reason for cancellation; retries cannot change receipt authority or rewrite cancellation history. Ordinary CLI telemetry alone never triggers another epoch commit.
+Outside an eligible epoch, the existing immediate-commit behavior remains.
+
+Historical incremental eligibility replays every Git/freshness probe at the
+signed run commit. Later material changes do not rewrite that historical choice.
+Current reviewer admission still checks live material and scope independently;
+requested-full envelope verification also retains its explicit live-material
+check. Historical replay is never a substitute for current gate admissibility.
+
+Canonical RED target-binding, envelope, and W2B wiring validation use
+`--canonical-core` to retain their own assertions while independently scheduled
+lifecycle-registry and command-ownership commands cover the ordinary registry
+checks. The W2B private-copy registration-removal probes still run both contracts:
+those executions prove mutation detectability, not repeated baseline validation.
+No-argument invocations retain their complete legacy receipts. Canonical output
+explicitly identifies the narrower execution instead of claiming the full receipt.
+
+Host-run usage canonical validation retains all 85 core checks, its four
+extension checks, and the candidate-overflow boundary. It leaves the already
+registered managed watchdog contract to its own canonical entry. The no-argument
+command still runs both evidence-mapping boundaries and emits its original
+83/85-check compatibility selectors; canonical mode emits only a distinct core
+selector and never represents itself as that full historical receipt.
+
+CHK004 and CHK005 canonical receipts retain their own clean-input controls,
+envelope/quarantine checks, direct-injection totality and historical minimal-guard
+comparison. Their ordinary v1 invariance child runs once as its independent
+canonical command. Distinct required canonical markers cover each retained
+clean-input assertion, so skipping the child cannot manufacture its digest or
+its legacy combined receipt. No-argument receipts retain the original digest
+execution and all pinned markers.
+
+CHK007 canonical mode compares the current invariance pin against the historical
+baseline Git blob and keeps its malformed-input and registration controls; the
+independent invariance command executes the live verdict comparison. CHK009
+canonical mode retains its own same-bytes bypass/validated-boundary differential,
+while the independent artifact command owns the permutation and exhaustive
+quarantine matrix. Both modes emit distinct required evidence for what they
+actually execute. The full no-argument receipts retain their combined proofs.
+
+The two excluded pre-fix attestations (CHK001 and CHK010) remain an explicit
+property-test exception under CHK007: each must observe the live artifact result
+and emit no obsolete failure receipt on the fixed tree. The nesting probe permits
+only those exact parent paths and the single artifact argument. This retains
+CHK007's silence proof, alongside the existing CHK011 same/different-seed proof;
+registration-only probes still never execute these complete receipts.
+
+The readonly command canonical check still resolves the real envelope validation
+entry and checks its command/argv/timeout contract. It exercises the real
+validation executor with a tiny scratch workload that verifies cwd and literal
+arguments, emits stdout/stderr, and fails on a negative-control argument. This
+retains executor observation without rerunning the envelope suite. Its default
+entry preserves the original complete pipeline invocation and receipt.
+
+The U18 static audit of the configured command array retains these
+property executions explicitly:
+
+| Parent | Retained execution | Reason |
+| --- | --- | --- |
+| W2B/W2C wiring contracts | Registry contracts with removed registration | The mutant must fail for the named missing registration. |
+| Proof-admissibility registry smoke | Reviewer/dispatch/managed contracts in private mutated dist | Detect a removed admission guard against its baseline. |
+| B49d4 registration derivation and CHK002 receipt | Real registration guard plus private newcomer/config mutations | Verify that the actual registration authority detects an uncovered receipt. |
+| B2aa7 CHK011 | Three artifact runs | Same seed reproduces; different seed changes the generated proof inputs. |
+| B2aa7 CHK007 via excluded CHK001/010 | Artifact observation in each historical attestation | Prove obsolete pre-fix attestations remain silent on the fixed tree. |
+
+These executions are paired property controls, not independent repeated baseline
+suite obligations. The runtime nesting witness covers the eleven changed
+canonical parents; the static inventory review covers the whole configured array. Neither
+is a claim that the entire production workload has been benchmarked.
+
+Managed execution now starts an independent detached recovery supervisor and
+waits for its readiness before launching the provider worker. It observes worker
+death without status calls, uses the existing process-identity cleanup/fencing
+path, and records a failed `worker_orphaned` terminal after cleanup. It also
+reconciles the sealed absolute deadline independently of the owner model. This
+bounded repair does not yet make every legacy status reader side-effect free.
+
+On Darwin, `ps sess` is not a usable POSIX session ID. Cleanup records that
+observation as unavailable rather than interpreting zero as a mismatching SID.
+It still requires the recorded isolated spawn, PID equal to PGID, a present
+original leader and its exact current start fingerprint before each group
+signal. Other platforms retain the observed SID check; failed process queries,
+missing leaders and identity drift remain no-signal outcomes. Supervisor lock
+contention retries, and an already written terminal still triggers the existing
+post-terminal prompt/scratch cleanup recovery before the supervisor exits.
+
+The supervisor regression set also executes early-exit and readiness-timeout
+faults before worker launch, a real worker SIGKILL immediately after terminal
+publication, and a production mutation that skips terminal cleanup. Recovery
+removes the registered scratch without changing terminal bytes; the mutation
+leaves it behind. The watchdog CLI regression uses a real live provider and its
+actual deadline, so cancellation ordering is never inferred from a future
+injected timestamp compared against a real child-close timestamp.
+
+## Independent liveness coverage
+
+Routine validation registers each of the seven former liveness members exactly
+once. The flow-stability and provider-codex entries use `--canonical-core`,
+which retains their own assertions and emits a distinct marker while omitting
+the combined seven-suite dispatch. Their default entries retain the original
+complete compatibility behavior. Provider F-181 remains a real child CLI
+positive/negative environment-isolation test on a disposable Story. Flow uses
+the existing explicitly allowlisted test fixture namespace for its own nested
+validation; production capacity admission is unchanged.
+
+`node scripts/verify-liveness-validation-union.mjs` checks the fixed historical
+seven-member inventory against configured entries. Add `--trace` to execute
+those actual entries through the production command executor and reject nested
+registered-suite launches. The exact cross-host `--xhr-worker` and
+`--xhr-submitter` self-dispatch modes are fixture roles and remain allowed;
+plain self-invocation is rejected. The inventory check alone proves no runtime flattening;
+the seven-member trace is bounded coverage, not a whole-registry trace.
+
+## Authority changes in dynamic validation
+
+Dynamic runner v6 upgrades changes to registered gate/schema/verification
+authority sources to full validation, including the full task scope inventory
+validator. It also follows their source dependencies in both Git revisions, so
+removing a dependency in HEAD does not erase the baseline authority relationship.
+The graph identity binds authority roots, members, uncertainty and policy version.
+Missing graphs, unavailable source, parse failures and opaque or unresolved
+authority imports force full rather than establish an unaffected result.
+
+This conservative resolver currently treats non-builtin package/alias imports
+in an authority closure as unresolved. Projects with such imports can lose
+incremental eligibility until those resolutions are proven; this change does not
+claim improved speed for those projects. External projects without these
+registered tool-source identities do not have to recreate them. Existing final
+full-validation requirements remain unchanged. The six paired fault witnesses
+under `scripts/lab/u09-paired-fault` measure bounded functional detection and
+command selection, not population noninferiority or external LLM review quality.
+
+## Whole-array nested execution guard
+
+Routine validation now registers `scripts/verify-validation-static-edges.mjs`.
+It inspects every configured entry (153 at adoption), expands the supported npm
+script forms and follows bounded fixture/helper imports. Unsupported expansion,
+source parse errors and unresolved child executable/arguments require review.
+The evaluator recognizes imported child-process APIs and simple aliases, and
+resolves path helpers only when bound to their Node builtin imports.
+
+`scripts/lab/u18-static-edges/exceptions.json` records 185 individually reviewed
+call contexts for private mutants, positive controls, explicit worker modes and
+unreachable suite branches. Each binds its exact config index, call, source and
+all traversed caller/helper/package bytes; the whole command array is also bound.
+New edges, missing dependency keys and changed sources/configuration fail closed.
+Refreshing these pins requires renewed review; the checker never refreshes them.
+This retains the CHK011 three-run seed property and real atomic build/read races.
+
+`node scripts/verify-validation-static-edge-boundaries.mjs` tests the public
+checker against temporary source/config fixtures: hidden aliases, mutable argv,
+package children, malformed source, false builtin identities, removed canonical
+flags, reviewed exceptions and caller/source/config drift. These static checks
+complement the eleven-parent and seven-member runtime witnesses. They are a
+bounded syntax and reviewed-call guard, not a proof of arbitrary JavaScript
+call-graph completeness or production wall-time improvement.
+
+
+### Managed-run owner/UI delivery
+
+`proof-or-stop graph` now includes a Managed runs panel. The existing status
+poll reads retained managed runtime even when Story hashes have not changed;
+it displays stage N/M, recorded queue state, last actual provider output and an
+explicitly historical ETA. Heartbeats do not become provider progress. Terminal
+notifications are rendered once per project, run and validated terminal identity.
+Reloading preserves rendered notifications in browser storage. Hidden pages do
+not acknowledge unseen notifications; returning to the page delivers them.
+Storage-disabled browsers retain deduplication within the current page.
+
+This is delivery to the existing open owner/UI, without model polling or a new
+external messaging channel. A closed browser has no live recipient; retained
+unseen terminals are delivered when the UI reconnects. Network failures are
+visible, and reconnecting resumes observation. Provider completion is an
+operational result, not Story DONE or a newly signed reviewer PASS.
+
+The main package supplies an explicit public field projection through the Graph
+library callback. Runtime artifact bindings are checked using the existing
+managed-run verifier; malformed state, corrupt bindings, symlinks and special
+files produce diagnostics rather than a normal run or success. Provider text,
+credentials, raw errors and worker heartbeats are not included. Observation is
+read-only, with registered directory and total-byte limits; hitting those limits
+explicitly labels the run list partial. Notification identity is a digest of
+validated terminal content, not a claim of an additional terminal signature.
+
+The Lab regression `scripts/verify-managed-run-graph-terminal.mjs` combines a real
+managed worker, the public HTTP and CLI status routes, read-only/fault boundary
+checks, and a real browser using `packages/graph/scripts/verify-managed-runs-browser.mjs`.
+Browser verification needs an installed Playwright runtime; an explicit
+`PROOF_OR_STOP_TEST_PLAYWRIGHT_MODULE` may select that dependency. Missing browser
+dependencies fail verification rather than silently skipping it. These tests
+verify delivery behavior; real-project notification P95 and reduced user queries
+remain operational measurements.
+
+## Known dynamic fallback
+
+Before launching the dynamic plan, the verifier checks the current static
+baseline, catalog, closure, risk, and revocation prerequisites. A known rejection
+uses the ordinary canonical plan once. It does not first run a dynamic copy of
+those commands. Passing this rejection-only preflight grants no authority: the
+actual dynamic execution must still satisfy every existing runtime prerequisite.
+Observe remains selection-only followed by the full oracle; shadow retains both
+runs for comparison. Explicit full and final-phase requirements remain unchanged.
+
+The repository configuration still uses observe mode. This repair removes
+redundant execution in enforce-low-risk fallback; it does not by itself activate
+incremental validation for this repository or make its full-only policies reusable.
+
+## Worktree discovery in validation
+
+`listGitWorktrees` now runs the live Git inventory command directly from the
+supplied Git cwd. It no longer resolves the root through two extra Git processes
+before asking Git for the same repository's worktrees. No cache is introduced:
+worktree addition/removal and HEAD/branch changes remain visible immediately.
+Subdirectory and relative-cwd queries are covered along with main and linked
+worktree queries, and non-Git/missing paths retain their empty-list behavior.
+
+The original expensive quorum target with all preceding checks passed in a
+same-fixture baseline-to-fixed pair: 109.790s / 10,005 Git calls became
+96.116s / 8,656 calls (12.45% elapsed reduction in this pair). Both runs retained
+all original target assertions and six verdicts. See
+`docs/lab-evidence/validation-worktree-list-pair.json`. This is one ordered pair,
+not a whole-suite measurement or a population/P95 claim. The deterministic
+regression is `node scripts/verify-worktree-list-efficiency.mjs --performance-only`;
+it checks one real Git process per lookup and then runs the complete live-state
+and subdirectory cases.
+
+## Dynamic PASS consumption
+
+The REVIEW-to-TEST consumer first authenticates the complete stored PASS record
+with its Story-bound signature, before reading its execution mode. Git-backed
+FAIL records are also authenticated, preserving existing command-PASS reuse after
+a verification-coverage-only failure is repaired; non-Git failure reporting stays
+available. Both canonical
+execution and whole-result reuse sign the final size-bounded record. Dynamic whole-result
+reuse preserves the original manifest and execution HEAD and rechecks the live
+receipts, so an unchanged retry can reuse its PRE_CERT result without launching
+validation children or discarding its dynamic proof. Removing a
+dynamic marker, changing the output, or stripping the signature cannot downgrade
+verification. Older unsigned PASS records require a fresh `validate` run.
+
+The consumer then rechecks dynamic receipt integrity at consumption:
+the signed manifest, its execution HEAD, current baseline/closure bindings,
+current toolchain, each required receipt signature and expiry, and the live signed
+revocation ledger. Missing or malformed runtime records are refused rather than
+recovered as an empty ledger. The normal evidence freshness check first proves
+that automatic metadata commits preserve material and Story-input identity; the
+manifest still binds the actual execution HEAD. No validation child is started
+by this check.
+
+A real dynamic REVIEW execution that runs build and reuses one certified PASS
+can pass the TEST-entry consumer. Revoking that receipt afterward now rejects
+entry, as do missing/tampered/expired receipts and missing/malformed ledgers.
+This does not enable the root repository's observe configuration. The original
+DYN-3 plan additionally requires the complete dependency, scope, ancestry,
+environment and rollout evidence chain before expanding dynamic authority. In
+particular, root full-only policies and unknown graph dependencies remain intact.
+Direct validation invoked in TEST currently retains its canonical-full policy;
+this is distinct from consuming a valid REVIEW dynamic PASS on entry to TEST.
+
+The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. It
+covers real full and dynamic execution, zero-child repeats, TEST entry, signature
+stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
+missing/malformed ledgers, and receipt/epoch revocation. The older
+`validation-evidence-reuse-smoke` still stops before these paths because its
+terminal-hook fixture has a completed checklist item without verification intent;
+the same failure was reproduced against the pre-repair verifier. Its entire
+suite is not claimed green by this repair.
+
+## Repository-root query overhead
+
+The next measured hotspot was 674 `getRepoRoot` calls from signed workspace
+resolution. Each previously spawned two Git queries. The ordinary main/linked
+layout now reads worktree status and the absolute shared Git directory in one
+live query. Nonstandard metadata directories retain the top-level fallback;
+bare/non-Git/internal-directory fallbacks remain intact. Absolute Git output
+also fixes relative common-directory resolution from repository subdirectories.
+No cache is introduced.
+
+With the earlier worktree-list repair active in both rounds, the unchanged quorum
+target and all 21 preceding checks passed: 98.417s / 8,657 Git calls became
+92.451s / 7,982 calls, a 5.966s (6.06%) reduction in this ordered pair. All six
+verdicts and original target assertions remain. Evidence is in
+`docs/lab-evidence/validation-repo-root-pair.json`; this is not a full-suite or
+P95 claim. `node scripts/verify-repo-root-efficiency.mjs` checks the live query
+budget and 15 layout/fallback boundaries, including embedded newlines in paths.
+
 
 ## Explicit implementation transport
 
@@ -104,18 +522,88 @@ mismatched required pins before dispatch. This is opt-in: it does not silently
 upgrade old worktrees or assert that unpinned sessions have uniform provenance.
 It does not authenticate a hostile host or replace signed evidence/freshness.
 
+For an explicitly enrolled local owner/reviewer cohort, capture one approved
+runtime epoch, then launch both hosts through the same transport:
+
+```sh
+node scripts/implementation-session.mjs capture /absolute/path/new-epoch.json
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- proof-or-stop --version
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- claude
+```
+
+The session transport also supplies a content-bound Node preload. It refuses an
+unapproved recognized CLI entry before an older implementation can ignore the
+pin variables. The recognized scope is the canonical Node wrapper filenames and
+`dist/cli.js` inside a Proof-or-Stop core package. A new capture is required after
+this transport change; an existing epoch is never silently repinned. Both
+canonical CLI entries and ordinary Node tools remain available. The guard's own
+directory fixes the entry allowlist, so editing a manifest cannot enroll an old
+unaware CLI. This is cooperative inherited-environment protection, not an OS
+sandbox against environment removal, alternate runtimes, or disguised imports.
+Copied entries with different filenames and packages using retired names are
+outside this recognition boundary; the symlink test proves realpath alias
+handling only.
+Existing foreign desktop sessions are not migrated by starting a Lab session.
+
+Plain host commands use a local pipe-lifetime anchor. Managed launches that
+publish the actual provider PID through `onSpawn` or deliver a signed review
+invocation descriptor retain the current managed provider lifecycle; the anchor
+does not replace their PID identity or fd 3 protocol. The provider runs inside the isolated
+group, while the anchor remains alive until controller cleanup. A
+provider that exits first therefore cannot remove the owned leader while its
+descendants retain those pipes. Timeout/cancellation signals that owned group
+with a matching live fingerprint (or a fresh late observation of the still
+unreaped anchor). Provider exit code, signal and spawn errors use private IPC;
+output remains streamed. This adds one Node process per real POSIX run, so normal
+command overhead is measured separately from timeout recovery.
+On normal provider completion the anchor flushes forwarded stdout/stderr before
+sending its private completion message, and keeps the group leader alive. The
+controller then signals the attested owned group and waits for the anchor's
+actual close before returning the original provider result. This also terminates
+ordinary background descendants that closed their output pipes but still hold
+resources needed by the next invocation. These bounded host jobs do not grant
+implicit permission to keep services running after the host finishes.
+If normal-completion cleanup cannot attest or signal the group, the runner emits
+`HOST_GROUP_CLEANUP_UNVERIFIED` and refuses success. A controller disconnect makes
+the private anchor terminate its own group. This is bounded local POSIX cleanup,
+not durable crash supervision or a guarantee against deliberate group escape.
+Missing identity, injected runner seams, and Windows retain direct-child fallback; that fallback
+does not prove descendant cleanup. A process that deliberately creates another
+group is outside this bounded cleanup guarantee. Failure stays failure; recovery
+latency is measured separately from successful Story delivery time.
+
+Capture records both ordinary and canonical Codex entrypoints with their own
+exact pins and requires identical implementation file inventories. Their entry
+wrapper bytes differ, so their complete entry-specific digests need not be equal.
+Capture refuses to overwrite an existing epoch. Exec validates the bound runtime,
+and refuses older single-entry manifests before launching any host;
+sets a private PATH shim for the selected absolute CLI, and carries the manifest
+and required pin through child environments. The CLI itself rejects missing,
+malformed, conflicting or mismatched manifests before dispatch. Each admitted CLI
+process emits `IMPLEMENTATION_SESSION_WITNESS` on stderr with its actual digest,
+entrypoint, PID and argument digest (no raw argument values). The argument digest
+is a correlation token, not confidentiality: guessable arguments can be tested
+against it. These are unsigned
+runtime diagnostics, not role authority or Story acceptance evidence. Inspect
+actual command witnesses, not just the launcher's admission check. A runtime
+change requires a deliberate new captured epoch; it is never silently re-pinned.
+An already-running host must explicitly adopt this transport. Unenrolled hosts,
+environment-stripping callers and hostile local administrators are not made
+uniform or sandboxed by this opt-in mechanism. Lab adoption does not migrate
+other live Story worktrees or change the global installation.
+
 The candidate also renews an existing same-owner lease through the actual
 `verification_evidence_add` and `verification_evidence_batch_add` execution and
 canonical publication paths. A missing, expired or transferred generation remains
 a refusal, and existing valid receipts retain their zero-command import path.
 These changes use the managed Lab integration contract and its fresh regression evidence.
 
-For explicitly eligible shared commands on a clean workspace, the DONE
-handler commits its own ADMITTED-to-RUNNING certification window
-through the existing immutable lifecycle transaction before execution. This keeps
-admission metadata from disabling exact-input reuse, without trusting pre-existing
-dirty metadata or committing adjacent staged source. Receipt consumers retain
-independent acceptance and build-proof rules; the root command policy is unchanged.
+For explicitly eligible shared commands, DONE-required validation requires a
+clean workspace and checks the current PRE_CERT admission. It preserves the
+routine window's execution allocation and does not commit an ADMITTED-to-RUNNING
+transition. DONE writes only its own validation evidence through the existing
+metadata path. Dirty source and adjacent staged changes remain untrusted; receipt
+consumers retain independent acceptance and build-proof rules.
 
 
 ## Audited acceptance additions during repair
@@ -591,3 +1079,31 @@ Reproduce the bounded contracts with
 The default 141-command identity diagnostic found repeated executable reads but
 only about 14 ms total on this host; no executable memo was added. These local
 measurements do not establish full Story throughput or default lifecycle gains.
+
+### Losing ownership while queued
+
+Official validation passes the lease heartbeat's cancellation signal into capacity
+acquisition and combines it with caller cancellation. A failed renewal removes the
+waiting invocation's own capacity ticket and refuses before entering its callback.
+The default heartbeat interval remains 30 seconds; this is the detection bound, not
+a promise of instantaneous revocation. Already-running child commands retain their
+existing launch and publication checks; this change does not terminate arbitrary
+subprocesses. Missing or expired ownership at entry still refuses immediately.
+
+The incremental Lab regression keeps prior repairs in its baseline and compares
+refusal latency after private lease revocation under identical capacity contention.
+Healthy owners still wait and execute; caller aborts keep their original reason.
+This mechanism result does not measure overall Story delivery time or establish
+that other running hosts have adopted this runtime.
+
+Existing activity records now include `implementation.status`: `verified-at-entry`
+with the checked digest, actual entry path and PID, or `unverified` when no pin
+was required. The CLI reuses its admission result; publishing this field performs
+no additional implementation scan and does not enable read-only logging. This
+runtime observation is unsigned diagnostic data, not continuous code attestation,
+Story role authority or proof that every live host has enrolled. Historical rows
+without this field remain unknown. Collection must distinguish observed session
+labels from actual live host counts.
+Nested capacity reuse also checks cancellation before entering its callback.
+Signal forwarding uses base AbortController methods and removes listeners on
+success, refusal and callback failure, retaining the existing Node runtime floor.

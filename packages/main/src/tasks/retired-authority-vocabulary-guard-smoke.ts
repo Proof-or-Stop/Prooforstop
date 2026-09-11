@@ -400,10 +400,14 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // appear in this file's main...HEAD diff at all, so it did not move the pin.
   // The AST algorithm strips comments, so this note is the ONLY durable record of the
   // human re-approval.
-  // B-aa5f RI-020: repinned after moving the existing owner-lease seed before
-  // both direct verifier handlers. The approved legacy delivery calls and
-  // occurrence counts above remain unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'bcf68b8796e04d0e0416864b171e8609ed4b04575459e12d85d43eaca8ba2946'],
+// Merge audit: fixed loader/provenance and compatibility call shapes retained; see merge pin audit.
+  // B-137a main-merge repin. AUDITED BEFORE repinning: `git diff main` on this
+  // file is ONE line -- createDeliveryCheckHandlers now receives the
+  // `{ authorizeNativeInvocation }` seam this story added. Grepping that diff for
+  // every dynamic-execution construct this guard tracks reports no match, so the
+  // executable dynamic-code structure is unchanged and only the whole-file
+  // structural fingerprint moves.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'ca1a6aa99b2413a4bdfb31fa59c7f327ad55ec837f8107348de68935ee28e22b'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -478,7 +482,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports NO difference, the approved call site is still the same runCli anchor with
   // the same `await import(`file://${initPath}`)` shape at the same line 815, and the
   // initPath producer is unchanged. Loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '46b73ea8a875ee156020a5f02d277c39b7fd043f5e5cceb23c6e9b5b694cfed3'],
+  // v0.3.300 merge audit: the session watchdog/static-import work and the
+  // Finding identity command registrations are both retained. The runCli
+  // initPath producer and non-literal loader relation remain unchanged.
+  //
+  // The exact merged AST fingerprint is independently mirrored in the process
+  // fact verifier and is replaced only after the merged-source audit runs.
+  ['packages/main/src/cli-engine.ts', 'b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -489,7 +499,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // kernel, never an environment/CLI/network payload. This is a WHOLE exact test-file
   // exemption via the existing early return, not a call-site-only exemption. The
   // per-entry executable-drift negative below must invalidate this approval.
-  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', 'b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4'],
+  ['packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts', '887ef97b62f1ed886cfec54a2004ec1f858697fad92c7bd201c1660cf5ffc895'],
   // B-022e re-attestation: only verifier runtime identity tokens changed;
   // the exact-file exemption remains narrow and mutation-sensitive.
   ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
@@ -567,12 +577,11 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
-  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
-  // The change reads address() on the same returned GraphServer and closes that
-  // server if its reported port is invalid; it adds no loader or caller-chosen
-  // module path. Keep the exact-source, drift and producer-provenance controls.
-  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
+// Merge audit: fixed loader/provenance and compatibility call shapes retained; see merge pin audit.
+  // e15e0bbc2f adds only the statically imported readManagedRunDashboard callback
+  // to both createApp options. Runtime module resolution/import targets and
+  // eval/Function surfaces are unchanged; exact mutation-sensitive pin retained.
+  ['packages/main/src/handlers/graph.ts', 'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf'],
   // origin/main merge: same two-parent substitution as the benign-loader map -- origin's
   // sixth slot was packages/main/src/cli.ts, ours was handlers/graph.ts, and the merged
   // tree carries both. cli.ts needs this because `lab.createLabToolDefs` / `lab.register`
@@ -825,8 +834,10 @@ const typeProgramInstrumentation = {
 // prior split was synthetic=419 plus repo=393, total 812.
 // B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
 // Evidence Integrity sources. Retaining both source sets gives a ceiling of 817.
-const DYNAMIC_BINDING_BUILD_CEILING = 817;
-const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
+// Subsequent main work measures 844. B-03b7 adds nine independently scanned
+// identity/history/route modules, so its latest-main integration is exactly 853.
+const DYNAMIC_BINDING_BUILD_CEILING = 853;
+const MAX_DYNAMIC_BINDING_BUILD_CEILING = 860;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
   assert.ok(
@@ -1057,9 +1068,16 @@ function assertTypeProgramInstrumentation(): void {
   const syntheticBindingBuilds = [...typeProgramInstrumentation.dynamicBindingBuildFiles]
     .filter(([file]) => file.includes('dynamic-code-control-'))
     .reduce((total, [, count]) => total + count, 0);
-  const repoBuildSample = [...typeProgramInstrumentation.dynamicBindingBuildFiles.keys()]
-    .filter(file => !file.includes('dynamic-code-control-')).slice(0, 12).join(',');
-  assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= 850, `dynamic binding graph builds must remain bounded at 850, got ${typeProgramInstrumentation.dynamicBindingBuilds} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`);
+  // Fixed mutation corpus remains bounded independently of growing repository inputs.
+  assert.ok(syntheticBindingBuilds <= 419, `synthetic dynamic binding builds exceed the fixed corpus bound: ${syntheticBindingBuilds}`);
+  const warmProgram = sharedProjectProgram();
+  const warmSource = warmProgram.getSourceFile(resolve(repoRoot, 'packages/main/src/cli-engine.ts'))!;
+  const coldOrCached = collectDynamicExecutionBindings(warmSource, warmProgram.getTypeChecker(), warmProgram);
+  const buildsBeforeWarm = typeProgramInstrumentation.dynamicBindingBuilds;
+  const hitsBeforeWarm = typeProgramInstrumentation.dynamicBindingCacheHits;
+  assert.strictEqual(collectDynamicExecutionBindings(warmSource, warmProgram.getTypeChecker(), warmProgram), coldOrCached, 'warm binding graph preserves identity');
+  assert.equal(typeProgramInstrumentation.dynamicBindingBuilds, buildsBeforeWarm, 'warm binding graph does not rebuild');
+  assert.equal(typeProgramInstrumentation.dynamicBindingCacheHits, hitsBeforeWarm + 1, 'warm binding graph uses the cache');
   assert.ok(typeProgramInstrumentation.dynamicAstCandidateScans >= 1, 'decoded AST candidates missed by the raw token hint must reach full analysis');
   assert.ok(typeProgramInstrumentation.dynamicPrefilterSkips >= 1, 'call-free sources must retain the cheap AST skip path');
   assert.equal(typeProgramInstrumentation.dynamicReachabilityAssertions, DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size, 'critical safe provenance reachability count must remain exact');
@@ -1747,7 +1765,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-7abb's bounded reference witnesses and B-49df's active-identity mutation
   // controls are both present. The fixed producer, loader relation, anchor,
   // argument and node:url provenance remain protected.
-  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '03a0f5091afb52ae230d43227b93d8b87b1a0fcef836f7589aa32b817525f0a2'],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '13c83f0643c29adf147ac3e9d4f2d6366ca1f54939db33209463087f69791910'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -1822,12 +1840,11 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // reports no difference); the story flag adds only string validation and URL
   // construction, introduces no import()/require()/eval()/Function(), and does not
   // widen the `--root`-influenceable argument path this approval already accepts.
-  // Lab port-readiness re-approval: the five loader/createRequire/spawn sites
-  // and resolveGraphPackage's full producer body are unchanged from cf21df09.
-  // The change reads address() on the same returned GraphServer and closes that
-  // server if its reported port is invalid; it adds no loader or caller-chosen
-  // module path. Keep the exact-source, drift and producer-provenance controls.
-  ['packages/main/src/handlers/graph.ts', '986652de3f98248d87c8c13e775029e7ba1177caf7e96030df9d2da460b6bab0'],
+// Merge audit: fixed loader/provenance and compatibility call shapes retained; see merge pin audit.
+  // e15e0bbc2f adds only the statically imported readManagedRunDashboard callback
+  // to both createApp options. Runtime module resolution/import targets and
+  // eval/Function surfaces are unchanged; exact mutation-sensitive pin retained.
+  ['packages/main/src/handlers/graph.ts', 'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -2570,6 +2587,7 @@ function functionCallableReference(
   return staticallyCallableKind(expression, checker, bindings);
 }
 
+const dynamicBindingBuildInputs = new WeakMap<ts.Program, WeakSet<ts.SourceFile>>();
 const dynamicBindingsCache = new WeakMap<ts.Program, WeakMap<ts.SourceFile, DynamicExecutionBindings>>();
 const exactSafeMutableWriteCache = new WeakMap<ts.Symbol, boolean>();
 
@@ -2596,6 +2614,11 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     typeProgramInstrumentation.dynamicBindingCacheHits += 1;
     return cached;
   }
+  assert.ok(program, 'dynamic binding cache must have a Program identity');
+  let builtInputs = dynamicBindingBuildInputs.get(program);
+  if (!builtInputs) { builtInputs = new WeakSet(); dynamicBindingBuildInputs.set(program, builtInputs); }
+  assert.ok(!builtInputs.has(source), 'DYNAMIC_BINDING_REBUILT_SAME_INPUT: a Program/SourceFile pair must build once');
+  builtInputs.add(source);
   typeProgramInstrumentation.dynamicBindingBuilds += 1;
   typeProgramInstrumentation.dynamicBindingBuildFiles.set(
     source.fileName,

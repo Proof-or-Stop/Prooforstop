@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-0208",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "proof-or-stop acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/causal-evidence.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:dd31773cae0852c7ad07bcf3cbff1feb3ee28487cbd8076a09a4f5cca85e588e"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/causal-evidence.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:5a16a393232dc8ade97b7819d4216ed316dedb850375405625b76d321b7bce34"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/causal-evidence.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:27a83949348205aee047f565aa653d6f7caef8c15889d31f794c4b3027b998c9"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/causal-evidence.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b8a1dfd162547cf9b5bd7ecd3cdaed84b7df5de088234bc6db8b5cce370f346c"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/causal-evidence.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:9ea655306d0ef3879529cb1196eee11ee24478c6224321d64b275740e3fe297f"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:file:packages/main/src/core/causal-evidence.ts",
+      "scope:file:packages/main/src/core/process-fact-registry.ts",
+      "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+      "scope:file:scripts/verify-process-fact-contract.mjs"
+    ],
+    "sourceInventoryRefs": [],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "proof-or-stop.config.json"
+        }
+      ],
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+    },
+    "binding": {
+      "headHash": "d5c53e2469fb0a100220a87adf6a9f642f7bb3f4",
+      "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
+      "storyFilesHash": "449d1a8d779f8cc0533d6399351475d455faa3ffacc21783f6fb280c4244069f",
+      "scopeCheckDigest": "sha256:e9ef0f01e2a45578d60503879eb6e289d66fcbc1538b64c78bc285111e3a3275",
+      "scopeContractDigest": "sha256:ac04566c2ae00c6c01b6fdfd86168b1ad66bd008a20aceea111e4813afef590f",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "receiptRef": "receipt:coverage-basis:B-0208:plan:16f5c35b904a7931",
+    "basisDigest": "sha256:00f6b5514bf41dc3a4cda8d30bd194614ecde0c9614b01a2068eaca85b8a63bf"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-0208:plan:16f5c35b904a7931",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:fc6efb8f40aa4137710e0ee71d8a2fcea3538e9f7e516c82f2691113b34d657f",
+    "signerPublicKey": "KwFmo5bRLWrhI7wKjbpDmQnv+QelTsY549l9lL1TyaY=",
+    "storyId": "B-0208",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:00f6b5514bf41dc3a4cda8d30bd194614ecde0c9614b01a2068eaca85b8a63bf",
+    "topologyDigest": "sha256:5ece70190db47c33b3ace0b38da9e2f62364be6a39d66684fc82c830f07614d5",
+    "scopeCheckDigest": "sha256:e9ef0f01e2a45578d60503879eb6e289d66fcbc1538b64c78bc285111e3a3275",
+    "scopeContractDigest": "sha256:ac04566c2ae00c6c01b6fdfd86168b1ad66bd008a20aceea111e4813afef590f",
+    "headHash": "d5c53e2469fb0a100220a87adf6a9f642f7bb3f4",
+    "materialHash": "0d3d56a3040868f777bf9dc5561e0c9726159bf122e6d979dcf7d0b4bed39feb",
+    "storyFilesHash": "449d1a8d779f8cc0533d6399351475d455faa3ffacc21783f6fb280c4244069f",
+    "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+    "workspaceIdentityDigest": "sha256:199531f395dbf246905a9fc63187291e0078fa97933454f90a3f1cca4cd27fe0",
+    "signature": "DnoJZHjgbXlka0FVvR4KBOGfCRK0g2wJKGagXPh6REiF5NxAqK/siAusJtRLsf61cmJwVOyZ7coGA3ixgQwVCA=="
+  }
+}

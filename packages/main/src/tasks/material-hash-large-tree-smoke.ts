@@ -51,6 +51,22 @@ function lsTreeByteLength(cwd: string): number {
 }
 
 const base = mkdtempSync(join(tmpdir(), 'material-hash-large-tree-smoke-'));
+const CLEANUP_RETRIES = 5;
+const CLEANUP_RETRY_DELAY_MS = 200;
+
+/**
+ * macOS can briefly retain directory entries after the final git child exits.
+ * Keep cleanup bounded, and let the primary assertion failure remain the
+ * reported cause if fixture removal also encounters that transient state.
+ */
+function cleanupFixture(): void {
+  rmSync(base, {
+    recursive: true,
+    force: true,
+    maxRetries: CLEANUP_RETRIES,
+    retryDelay: CLEANUP_RETRY_DELAY_MS,
+  });
+}
 
 try {
   // ── Build a git repo whose ls-tree -r -z output exceeds 1 MiB ───────────────
@@ -134,8 +150,15 @@ try {
 } catch (err) {
   console.error('material-hash-large-tree smoke FAILED');
   console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
-  rmSync(base, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
-  process.exit(1);
+  process.exitCode = 1;
+} finally {
+  try {
+    cleanupFixture();
+  } catch (cleanupError) {
+    console.error('material-hash-large-tree smoke fixture cleanup FAILED');
+    console.error(cleanupError instanceof Error ? (cleanupError.stack ?? cleanupError.message) : String(cleanupError));
+    // Do not replace a prior assertion failure with an incidental cleanup
+    // failure, but still fail a passing smoke whose fixture leaked.
+    process.exitCode = 1;
+  }
 }
-
-rmSync(base, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });

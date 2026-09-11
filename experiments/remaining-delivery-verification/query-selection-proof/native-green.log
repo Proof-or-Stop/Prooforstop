@@ -1,0 +1,57 @@
+
+> proof-or-stop@0.3.296 lab:worktree
+> node scripts/lab-worktree.mjs green remaining-delivery-verification-20260910
+
+{
+  "scope": "query selection correctness and avoided detail calls; no Story delivery-time claim",
+  "stories": 312,
+  "expectedActive": 9,
+  "observedActive": 9,
+  "activeDetailCalls": 36,
+  "phaseReviewDetailCalls": 8,
+  "controls": [
+    {
+      "name": "active includes REVIEW and excludes terminal phases",
+      "pass": true
+    },
+    {
+      "name": "linked worktree phase is selected before filtering",
+      "pass": true
+    },
+    {
+      "name": "active reads details only for selected Stories",
+      "pass": true
+    },
+    {
+      "name": "selected fields retain withdrawn count and evidence",
+      "pass": true
+    },
+    {
+      "name": "phase filter uses projected phase",
+      "pass": true
+    },
+    {
+      "name": "phase filter skips excluded detail hydration",
+      "pass": true
+    },
+    {
+      "name": "conflicting filters remain refused",
+      "pass": true
+    },
+    {
+      "name": "unfiltered full dashboard keeps every Story and phase",
+      "pass": true
+    },
+    {
+      "name": "brief dashboard retains full totals",
+      "pass": true
+    },
+    {
+      "name": "selected amendment integrity failures propagate",
+      "pass": true
+    }
+  ],
+  "failures": []
+}
+STORY_LIST_SELECTION_GREEN
+GREEN recorded for current committed HEAD.

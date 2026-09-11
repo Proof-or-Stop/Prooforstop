@@ -144,7 +144,9 @@ function readablePathFor(rel) {
 
 /** The file a row executes when it names one directly in its own argv. */
 function sourcePathOf(row) {
-  const target = (row.args ?? []).find((arg) => /\.(mjs|js|cjs)$/.test(arg));
+  const argv = row.args ?? [];
+  const fixtureWrapper = row.command === 'node' && argv[0] === 'scripts/run-validation-fixture-suite.mjs';
+  const target = fixtureWrapper ? argv[1] : argv.find((arg) => /\.(mjs|js|cjs)$/.test(arg));
   return target ? readablePathFor(target) : null;
 }
 
@@ -235,7 +237,11 @@ function rowSourcesOf(row) {
   return {
     kind: direct ? 'argv' : 'no-source',
     npmTarget: null,
-    sources: direct ? [{ rel: direct, text: readRepoFile(direct) }] : [],
+    sources: [
+      ...(row.command === 'node' && row.args?.[0] === 'scripts/run-validation-fixture-suite.mjs'
+        ? [{ rel: row.args[0], text: readRepoFile(row.args[0]) }] : []),
+      ...(direct ? [{ rel: direct, text: readRepoFile(direct) }] : []),
+    ],
     commandText: '',
     maxDepth: 0,
     unresolved: null,
@@ -325,6 +331,17 @@ const CLASSIFICATION = new Map([
   }],
 
   // ── static references ─────────────────────────────────────────────────────
+  ['node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=delivery', {
+    role: 'real-root-admission',
+    reason: 'the delivery campaign resolves the repository-local bin/proof-or-stop.js wrapper and repeatedly spawns it; bootstrap admission is therefore taken against this real worktree even when individual CLI fixtures use a scratch cwd',
+    evidence: /const cliPath = fileURLToPath\(new URL\('\.\.\/\.\.\/\.\.\/\.\.\/bin\/proof-or-stop\.js'/,
+  }],
+  ['node packages/main/tests/red/red-b03b7-identity-lineage.mjs', {
+    role: 'real-root-admission',
+    reason: 'the GREEN replay invokes bin/proof-or-stop.js from its derived real repository root, so the registered command takes real reader admission rather than merely mentioning the wrapper as text',
+    evidence: /run\(process\.execPath, \['bin\/proof-or-stop\.js', 'finding_list'/,
+  }],
+
   ['node scripts/verify-lab-worktree.mjs', {
     role: 'static-reference-only',
     reason: 'writes a fixture wrapper and a fixture ensure-dist into scratch repositories under a mkdtemp root and drives those; the real root is never built and the real wrapper is never spawned',
@@ -335,7 +352,7 @@ const CLASSIFICATION = new Map([
     reason: 'the wrapper path is an entry in the list of paths the guard SCANS as text',
     evidence: /SHIPPED_EXECUTABLE_ENTRYPOINTS/,
   }],
-  ['node packages/main/dist/tasks/verification-run-and-guard-smoke.js', {
+  ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/verification-run-and-guard-smoke.js', {
     role: 'static-reference-only',
     reason: 'the wrapper path appears only as commandString values handed to the guard verdict helper; its real spawns are git, a hook script and an inline snippet',
     evidence: /commandString/,
@@ -375,7 +392,7 @@ const CLASSIFICATION = new Map([
     reason: 'runs packages/main/dist/cli.js directly, which never enters the bootstrap runner; the real wrapper is only a FALLBACK for a missing dist, a state routine validate cannot be in because Wave-0 builds first',
     evidence: /existsSync\(cliPath\) \? cliPath : cliFallback/,
   }],
-  ['node packages/main/dist/tasks/validation-protocol-smoke.js', {
+  ['node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/validation-protocol-smoke.js', {
     role: 'static-reference-only',
     reason: 'spawns a generated wrapper inside a mkdtemp root; that wrapper imports dist/cli-engine.js directly and never enters the bootstrap runner, so no admission is taken',
     evidence: /mkdtempSync\(join\(tmpdir\(\), 'proof-or-stop-wrapper-cjs-'\)\)/,
@@ -454,7 +471,7 @@ for (const named of [
 // The two rows the topology critic checked and EXCLUDED must stay excluded: the
 // set must not be broadened to whatever merely greps.
 for (const excluded of [
-  'node packages/main/dist/tasks/verification-run-and-guard-smoke.js',
+  'node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/verification-run-and-guard-smoke.js',
   'node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js',
 ]) {
   if (!nonMemberKeys.includes(excluded)) fail('false-positive', `${excluded} was checked and excluded by review; it must not be pulled into the admission set`);

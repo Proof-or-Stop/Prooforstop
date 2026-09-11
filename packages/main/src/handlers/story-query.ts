@@ -530,20 +530,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     },
 
     story_list(args?: { phase?: StoryPhase; active?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
-      // B-89c7 CHK-016: active=true is a preset for "non-terminal phases"
-      // (exclude DONE / DISCARDED / IDEA). Mutually exclusive with phase.
+      // active=true selects the active lifecycle phases and legacy test phases;
+      // DONE, DISCARDED, IDEA and META are excluded. Mutually exclusive with phase.
       if (args?.active && args?.phase) {
         throw new Error('story_list: active and phase are mutually exclusive');
       }
-      const ACTIVE_PHASES = new Set<StoryPhase>([
-        'INIT' as StoryPhase,
-        'INIT_CHECK' as StoryPhase,
-        'PLAN' as StoryPhase,
-        'DEV' as StoryPhase,
-        'TEST_CASE' as StoryPhase,
-        'TEST_CASE_REVIEW' as StoryPhase,
-        'TEST' as StoryPhase,
-      ]);
       const ids = store.listStoryIds();
 
       // B-5fa4 CHK-002: zombie + residue detection
@@ -552,8 +543,17 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const zombieIds = new Set(zombies.map(z => z.storyId));
       const residueIds = new Set(residues.map(r => r.storyId));
 
-      const results = ids.map(id => {
-        const { story, sourceStore, mainPhase } = readStoryProjection(id);
+      // Resolve current workspace phases before filtering: the main copy may
+      // still be INIT_CHECK while its linked worktree is already in REVIEW.
+      const projections = ids.map(id => ({ id, ...readStoryProjection(id) }));
+      const selected = args?.phase
+        ? projections.filter(row => row.story.phase === args.phase)
+        : args?.active
+        ? projections.filter(row => NON_TERMINAL_PHASES.has(row.story.phase))
+        : projections;
+      // An explicit selection needs details only for its returned rows. The
+      // unfiltered dashboard still hydrates every row for its global totals.
+      const results = selected.map(({ id, story, sourceStore, mainPhase }) => {
         const cl = (() => {
           try { return sourceStore.readChecklist(id); } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); return { items: [] }; }
         })();
@@ -598,11 +598,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         };
       });
 
-      const filtered = args?.phase
-        ? results.filter(r => r.phase === args.phase)
-        : args?.active
-        ? results.filter(r => ACTIVE_PHASES.has(r.phase as StoryPhase))
-        : results;
+      const filtered = results;
 
       // Dashboard summary (generated when there is no phase/active filter)
       if (!args?.phase && !args?.active) {

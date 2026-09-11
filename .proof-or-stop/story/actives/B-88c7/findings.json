@@ -1,0 +1,287 @@
+{
+  "findings": [
+    {
+      "id": "B-88c7:F-001",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:330 supplies the unconditional promptRoleContract(agentType) when assembling the new Inventory completeness only dispatch. packages/main/src/core/prompt-role-contract-registry.ts:341 still requires topology-critic-receipt for this role, while the new role body explicitly says inventory completion does not issue topology receipts and must return after review_inventory_critic_set. Thus the actual full envelope simultaneously requires and forbids a topology receipt for the exact repaired express workflow, whose topology implementation provenance is absent. This directly contradicts the Story promise of inventory-only instructions and can stop a contract-following critic. Bind the required output contract to the selected responsibility, retaining strict topology requirements for topology dispatch, and assert the full assembled inventory envelope. This is a verified prompt-contract contradiction; no separate runtime requiredOutputIds gate or topology proof bypass is claimed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T07:39:18.246Z",
+      "reviewRound": "2026-09-08T07:37:13.526Z",
+      "reviewRunId": "B-88c7:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e4e8fbbcb7e6c9b623162f98e3e710679c120b9a771070b481117ed76691988d",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
+      "ledgerCommitReceiptId": "lrc_mtsczeqv_1i0u_fbdebf6e333a43d58257d7661d2b5f09",
+      "resolvedAt": "2026-09-08T08:14:43.894Z",
+      "resolvedReason": "Fixed in 68ee4dc044: registered inventory contract selected by signed current OPEN context in both producers; verifier reconstructs registered authenticated semantics. Fresh tool-owned full-envelope and legacy handler smoke plus process contract passed, covering tamper rejection and finalization.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-002",
+      "desc": "handlers/review-run.ts:292 selects responsibility from live OPEN inventory but line 314 reuses prior dispatchPrompt. core/review-run.ts:640 matches that dispatch by lane/round and validates prompt/host digests without epoch/responsibility freshness. Source-traced trigger: inventory dispatch then cancel then delayed review_run_start selects topology contract with Inventory completeness only instructions; cancel/rebegin retains old epoch instructions. This reintroduces conflicting output obligations for ordinary-author work. Require matching dispatch epoch/responsibility at new run creation and redispatch on change, preserving authenticated historical run verification. Verified by precise producer/consumer source tracing, not an end-to-end mutation reproduction.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T08:28:40.170Z",
+      "reviewRound": "2026-09-08T08:14:21.977Z",
+      "reviewRunId": "B-88c7:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ad521f27f5cc01c20b67ef4d22eadc9e965ecc4452d74109f10395fe2dd2517",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-review-selects",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0",
+      "ledgerCommitReceiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191",
+      "resolvedAt": "2026-09-08T09:00:05.765Z",
+      "resolvedReason": "Commit93cab21288 digest-binds typed critic responsibility and current epoch/wave/material/storyFiles; both prompt modes refuse stale dispatch before publication. Exact pre-fix stale-dispatch probe now passes; final CLI tool-owned handler matrix passes including tamper/wave/metadata-only/historical-run cases.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-003",
+      "desc": "handlers/certification-window.ts:151 CERTIFICATION_DOMAIN_PATH_RULES omits canonical role templates. Independently executed current built exports in real B-88c7: packages/main/templates/agents/proof-or-stop-review-topology-critic.md has matches=[] and deriveCertificationDomainInputHashes(cwd,HEAD,cwd) returns undefined. The required scoped template edit therefore aborts causal domain derivation at line 222 and prevents PRE_CERT completion (owner command reported pre_cert_causal_freshness_required). This is a direct acceptance blocker despite the classifier being pre-existing. Add a bounded disjoint rule for the canonical role-template family with hash/change/deletion and unknown-sibling regressions, not a broad templates namespace admission.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T08:28:45.370Z",
+      "reviewRound": "2026-09-08T08:14:21.977Z",
+      "reviewRunId": "B-88c7:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ca4d77d01711e03fae2f49dae91289168eb24127ed820e9373fa5a2c8f4a220",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+      ],
+      "signatureTag": "missing|ts|handlers-certification-window",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5",
+      "ledgerCommitReceiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8",
+      "resolvedAt": "2026-09-08T09:00:08.008Z",
+      "resolvedReason": "Commit93cab21288 narrowly maps canonical agent Markdown templates to manifest-semantic, preserving unknown-neighbor refusal and exact blob/deletion hashing. Actual pre-fix B88 template probe now passes with all six hashes; certification-window smoke and current tool-owned process contract pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-004",
+      "desc": "core/review-run.ts:808 historical verifyReviewRunPromptEnvelope still calls verifyCurrentReviewerDispatchBinding, whose reverse scan at line 643 chooses the latest dispatch for the lane/round. It reconstructs the already-issued envelope with that latest dispatchPrompt at lines 824/833. story-dispatch.ts:518 embeds the exact inventory epoch ID in prompt bytes. Therefore after cancel/rebegin and successful legitimate redispatch in the same round, the old authenticated envelope is rebuilt with the replacement epoch prompt and fails canonical assembly even though its own integrity and source/material are unchanged. Independently confirmed the producer-to-consumer source trace; external native Codex transcript additionally reports an in-memory probe with integrity=true, originalValid=true, replacementDispatchAccepted=true, historicalValid=false (not independently rerun here). This directly violates the scoped historical signed-run verification requirement. Resolve the original authenticated dispatch bound to each historical envelope/run, preserving latest-context epoch/wave/cutoff checks for new run creation; add successful replacement-epoch redispatch coverage. No stale admission or forged authority is claimed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T09:01:44.929Z",
+      "reviewRound": "2026-09-08T08:59:34.347Z",
+      "reviewRunId": "B-88c7:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9d7f1478a442fe7a9ac6190066ef583fbd8fc1a4a7beb46b81f9aa1b98e1326a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|core-review-historical",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsfxfmq_21og_8771d8c032534e4991c52c5efad46069",
+      "ledgerCommitReceiptId": "lrc_mtsfxfmq_21og_8b4060ab593b4aabaf02f472c42086e6",
+      "resolvedAt": "2026-09-08T09:42:11.968Z",
+      "resolvedReason": "Commit 41b0500b7e authenticates exact original dispatch identity in envelopes and verifies historical runs against that identity while retaining live latest-context checks for new runs. The real A/B epoch historical probe now passes both records; full and incremental envelope tests, shared-executor handler matrix and four current tool-owned intent receipts pass. Unreconstructible pre-field legacy ordering fails closed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-005",
+      "desc": "Selected inventory responsibility is missing from incremental eligibility. core/review-incremental-context.ts:1019 compares the prior inventory envelope to promptRoleContract(role), the default topology contract, while handlers/review-run.ts:317 assembles the registered inventory contract. Independently reproduced from immutable 41b0500b7e git artifacts: RR-031 -> RP-027 -> RR-036 have valid run/pass signatures and envelope integrity, identical head/material/story-file hashes and role semantic/render digests, yet RR-036 records FULL_ROLE_CONTRACT_CHANGED and SAFETY_REQUIRES_FULL (21588 full bytes versus a 19666-byte incremental candidate). This Story introduced the distinct inventory contract, so this is current-Story applicable: repeated inventory review unnecessarily expands context and persists an incorrect process diagnostic. Real Codex R3 corroboration: /private/tmp/b88c7-f4-codex-r3.events.log. Thread the selected registered responsibility through eligibility and reconstruct historical eligibility from authenticated semantics, with repeated prior-pass and responsibility-transition regressions. No topology bypass was reproduced. Manifest source entries were inspected through changed hunks and relevant call-chain sections, not full source reads.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T10:01:46.783Z",
+      "reviewRound": "2026-09-08T09:41:56.971Z",
+      "reviewRunId": "B-88c7:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/finish-decisions/B-88c7.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e25319e91fe9154c98aeea9ac8206f86791886fb60b0e3e81e64975c5c61489",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|selected-inventory-responsibility",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsi2mu8_1mkl_1451b4b98ff64c689042dbb247ad59b5",
+      "ledgerCommitReceiptId": "lrc_mtsi2mu8_1mkl_a4b9d04838f547fbab29c1669a4b116c",
+      "resolvedAt": "2026-09-08T10:46:54.300Z",
+      "resolvedReason": "Commit4943d0bd2f propagates selected registered semantics into eligibility, authenticates the optional marker and preserves pre-marker historical calculation. Stable actual pre-fix signed records now omit false FULL_ROLE_CONTRACT_CHANGED and both historical controls pass. Full/incremental/handler regressions and final four tool receipts pass; original dynamic Story probe separately reports approved scope/task drift, not a claimed full GREEN.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-006",
+      "desc": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts:829 still requires review_run_start followed by review_inventory_critic_set merely because line820 changes phase to REVIEW. The fixture never creates an OPEN inventory epoch. Current story-dispatch.ts:977 correctly selects strict topology-only instructions without signed OPEN inventory, so this obsolete assertion fails. Actual required full-suite capture /private/tmp/B88-done-required-full-output.log lines69-90 records flow-stability failure and the exact agent-dispatch-registry assertion at built line594. Independent source inspection confirms no inventory initialization anywhere in this fixture; existing real-handler smoke already covers OPEN inventory and strict topology outside OPEN. This current-Story behavior change left its compatibility test unsynchronized and directly blocks required validation; repair in current Story is required. Replace the obsolete positive inventory expectation with explicit no-epoch setup assertion, positive topology receipt commands and negative inventory-only/critic-set assertions; retain canonical/alias/phase coverage. No production relaxation or test removal is justified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-08T12:37:47.542Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c790d77dc54a35ac98ce170ca5d33cadcc23242987719f7af470cdb3b3090d5",
+      "files": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+      "ledgerCommitReceiptId": "lrc_mtsnn9nb_16ha_be8f51df042b4fd9adee32d00e535cd8",
+      "resolvedAt": "2026-09-08T13:09:37.159Z",
+      "resolvedReason": "Fixed in0ca9a0ab1f: the registry fixture explicitly has no OPEN inventory, requires topology receipt set/check and rejects inventory-only instructions. Existing canonical/alias/phase loop preserved. Focused registry, agent-liveness and flow-stability commands all terminalexit0, logs /private/tmp/B88-agent-dispatch-registry-smoke-green.log, /private/tmp/B88-agent-liveness-suite-smoke-green.log, /private/tmp/B88-flow-stability-smoke-green.log. No production relaxation.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

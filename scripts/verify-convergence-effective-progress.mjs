@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+const source = new URL('../packages/main/dist/core/convergence-effective-progress.js', import.meta.url);
+assert.ok(existsSync(source), 'U11 requires verified effective progress instead of raw run counts');
+const { assessEffectiveProgress } = await import(source);
+const baseline = { completedEpochIds: ['EP-0'], openVerifiedFindings: 5, missingRequired: 3, blockingSignature: 'same-blockers', materialHash: 'same-source', currentPassLanes: ['concept'], phaseAdvanceOrdinal: 2 };
+let state = assessEffectiveProgress(null, baseline).state;
+const observe = snapshot => { const result = assessEffectiveProgress(state, snapshot); state = result.state; return result; };
+const first = { ...baseline, completedEpochIds: ['EP-0', 'EP-1'] };
+assert.equal(observe(first).decision, 'continue');
+assert.equal(state.stagnantEpochIds.length, 1);
+for (let i = 0; i < 30; i++) assert.equal(observe({ ...first, runCount: 1000, metadataCommits: i, heartbeat: i, takeoverCount: 99 }).decision, 'continue');
+assert.equal(state.stagnantEpochIds.length, 1, 'same completed epoch cannot accumulate stagnation');
+assert.equal(observe({ ...first, materialHash: 'churn-without-results' }).decision, 'continue');
+assert.equal(observe({ ...first, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'], materialHash: 'churn-without-results' }).decision, 'request-decision');
+assert.equal(observe({ ...first, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'], openVerifiedFindings: 4 }).decision, 'continue', 'real net repair releases the stale freeze');
+assert.equal(state.stagnantEpochIds.length, 2, 'completed stagnation history is retained even when live repair releases its block');
+for (const [field, value] of [['openVerifiedFindings', 3], ['missingRequired', 2], ['blockingSignature', 'different-blockers'], ['phaseAdvanceOrdinal', 3]]) {
+  const initial = assessEffectiveProgress(null, baseline).state;
+  const stalled = assessEffectiveProgress(initial, first).state;
+  const result = assessEffectiveProgress(stalled, { ...first, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'], [field]: value });
+  assert.equal(result.decision, 'continue', field + ' is effective progress');
+  assert.equal(result.state.stagnantEpochIds.length, 0);
+}
+let passState = assessEffectiveProgress(null, baseline).state;
+assert.ok(assessEffectiveProgress(passState, { ...baseline, currentPassLanes: ['concept', 'quality'] }).progressReasons.includes('current-pass-on-stable-material'));
+assert.deepEqual(assessEffectiveProgress(passState, { ...baseline, materialHash: 'different', currentPassLanes: ['concept', 'quality'] }).progressReasons, [], 'new material alone cannot refresh current PASS progress');
+assert.equal(assessEffectiveProgress(passState, { ...baseline, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'] }).decision, 'continue', 'a gap without intermediate verified snapshots cannot prove two stagnant epochs');
+for (const change of [{ openVerifiedFindings: 4 }, { missingRequired: 2 }, { currentPassLanes: ['concept', 'quality'] }, { phaseAdvanceOrdinal: 3 }, { blockingSignature: 'new-blockers' }]) {
+  let ongoing = assessEffectiveProgress(null, baseline).state;
+  ongoing = assessEffectiveProgress(ongoing, { ...baseline, ...change }).state;
+  ongoing = assessEffectiveProgress(ongoing, { ...first, ...change }).state;
+  assert.equal(ongoing.stagnantEpochIds.length, 0, 'progress during an epoch must survive its completion');
+  const next = assessEffectiveProgress(ongoing, { ...first, ...change, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'] });
+  assert.equal(next.decision, 'continue', 'only the second epoch was stagnant');
+  assert.equal(next.state.stagnantEpochIds.length, 1);
+}
+const beforeFirstEpoch = assessEffectiveProgress(null, { ...baseline, completedEpochIds: [] }).state;
+assert.ok(assessEffectiveProgress(beforeFirstEpoch, { ...baseline, completedEpochIds: ['EP-1'] }).progressReasons.includes('first-completed-epoch'));
+let oscillating = assessEffectiveProgress(assessEffectiveProgress(null, baseline).state, first).state;
+oscillating = assessEffectiveProgress(oscillating, { ...first, openVerifiedFindings: 7 }).state;
+const backToBaseline = assessEffectiveProgress(oscillating, { ...first, openVerifiedFindings: 5 });
+assert.equal(backToBaseline.state.stagnantEpochIds.length, 1, 'within-epoch count inflation then restoration is not a net repair');
+let restoredPass = assessEffectiveProgress(assessEffectiveProgress(null, baseline).state, first).state;
+restoredPass = assessEffectiveProgress(restoredPass, { ...first, currentPassLanes: [] }).state;
+restoredPass = assessEffectiveProgress(restoredPass, first).state;
+assert.equal(assessEffectiveProgress(restoredPass, { ...first, completedEpochIds: ['EP-0', 'EP-1', 'EP-2'] }).decision, 'request-decision', 'restoring a baseline PASS lane does not manufacture new progress');
+let reverted = assessEffectiveProgress(null, baseline).state;
+reverted = assessEffectiveProgress(reverted, { ...baseline, missingRequired: 2 }).state;
+reverted = assessEffectiveProgress(reverted, first).state;
+assert.equal(reverted.stagnantEpochIds.length, 1, 'a reverted coverage gain is not net epoch progress');
+const unchanged = assessEffectiveProgress(passState, { ...baseline, providerFailure: 'auth', runCount: 500 });
+assert.equal(unchanged.decision, 'continue', 'incomplete auth/quota attempts cannot become completed epochs');
+assert.equal(unchanged.state.stagnantEpochIds.length, 0);
+assert.throws(() => assessEffectiveProgress(passState, { ...baseline, completedEpochIds: ['EP-0', 'EP-0'] }), /epoch|duplicate/i);
+assert.throws(() => assessEffectiveProgress(passState, { ...baseline, completedEpochIds: [] }), /epoch|history/i);
+assert.throws(() => assessEffectiveProgress(passState, { ...baseline, missingRequired: NaN }), /snapshot|count/i);
+console.log('PASS U11 effective progress counts only distinct complete stagnant epochs');

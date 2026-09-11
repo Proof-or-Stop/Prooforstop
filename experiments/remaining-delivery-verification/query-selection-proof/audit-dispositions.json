@@ -1,0 +1,32 @@
+{
+  "audit": "claude-query-audit/audit.json",
+  "originalVerdict": "PASS",
+  "scope": "Follow-up to non-blocking documentation and boundary-test findings; executable production logic unchanged",
+  "items": [
+    {
+      "id": "F1",
+      "status": "addressed",
+      "change": "Exact active phase list and explicit META exclusion; META negative control"
+    },
+    {
+      "id": "F2",
+      "status": "addressed",
+      "change": "DONE root with registered residual DEV worktree remains excluded without detail reads"
+    },
+    {
+      "id": "F3",
+      "status": "addressed",
+      "change": "Excluded corrupt checklist does not abort REVIEW query; unfiltered query still propagates integrity failure"
+    },
+    {
+      "id": "F4",
+      "status": "addressed by narrowing claim",
+      "change": "Report three-pair order imbalance (RED first in two pairs) and high-selectivity REVIEW-only case (3/387 rows). The observed 66.2% is not representative of typical query or Story speedup; no new timing performed."
+    },
+    {
+      "id": "F5",
+      "status": "addressed",
+      "change": "Linked REVIEW row also asserts mainPhase INIT_CHECK"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "scope": "three-pair exploratory handler query timing, not Story lead-time or statistical performance PASS",
+  "validInputSnapshot": true,
+  "changedInputs": [],
+  "inputCount": 1418,
+  "runs": [
+    {
+      "case": "review",
+      "pair": 1,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 9051.603292,
+      "processWallSeconds": 9.307996458,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 1,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 2781.661375,
+      "processWallSeconds": 3.035172124999999,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 2,
+      "arm": "green",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 2728.26775,
+      "processWallSeconds": 2.923642124999999,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 2,
+      "arm": "red",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 8219.547167,
+      "processWallSeconds": 8.458392875000001,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 3,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 8022.096374999999,
+      "processWallSeconds": 8.237175874999998,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 3,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 2816.678667,
+      "processWallSeconds": 3.017609333000003,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    }
+  ],
+  "summary": [
+    {
+      "case": "review",
+      "redMedianMs": 8219.547167,
+      "greenMedianMs": 2781.661375,
+      "redRangeMs": [
+        8022.096374999999,
+        9051.603292
+      ],
+      "greenRangeMs": [
+        2728.26775,
+        2816.678667
+      ],
+      "allOutputDigestsEqual": true,
+      "observedReductionPercent": 66.15797295783071
+    }
+  ],
+  "totalWallSeconds": 35.132895292
+}

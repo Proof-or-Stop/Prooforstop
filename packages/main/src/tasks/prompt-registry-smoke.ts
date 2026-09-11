@@ -14,7 +14,9 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { runManagedAssetCheck } from '../core/managed-assets.js';
 import { join } from 'node:path';
 import {
   LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
@@ -42,6 +44,9 @@ import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
+const materializedProject = mkdtempSync(join(tmpdir(), 'prompt-materialization-'));
+process.once('exit', () => rmSync(materializedProject, {recursive:true,force:true}));
+runManagedAssetCheck(materializedProject, {apply:true,profile:'all',assetMode:'full'});
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'proof-or-stop-review-channel.md',
@@ -134,10 +139,10 @@ const approvedReviewFindingTriageNormativeLines = [
 // review instead of allowing a baseline refresh to approve it implicitly.
 const approvedReviewerModularPrefixDigests = {
   'proof-or-stop-review-behavior': 'bace10d2cc39323652e1cf917c8cb9accf5c18764e7d2b19574e0f7f0b7a4f50',
-  'proof-or-stop-review-concept': '2c281adff48c0dd7f020b4c9a2cdeb9179dedffa6cab73764bdccfc286d90fd0',
-  'proof-or-stop-review-docs': '6d71b234530c0f4d85437eff77d4bdc49f467fb4cc554185ada903562ccdc873',
-  'proof-or-stop-review-quality': 'c9ce66df6ba1e86d813c27f4f08f4697c426eeb91fbf82b41630633febf40a05',
-  'proof-or-stop-review-test-coverage': 'a71f47db3186b949aef77dfaefb8e5ef1d56e02c10b8595e6f138ff3a1071569',
+  'proof-or-stop-review-concept': '27067bcfb2c29eeb0e13efa98a718f6da896781b25dd9edc6a78e6597c4a2661',
+  'proof-or-stop-review-docs': '09f8a10bab2031499bca186fc7ba08f5c99068fdc25be3185e84a93e049de4d1',
+  'proof-or-stop-review-quality': '782af79811b1b9bb1feaf967876f0592dbd53a69d0f3278dde37e35d9ea70784',
+  'proof-or-stop-review-test-coverage': '78bef85b4f48ffdb681b6ae0f8bb24799df7b20cae4a5c8031be6f1eec40d521',
 } as const;
 const approvedEmptyReviewerPrefixSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const requiredReviewFindingTriagePhrases = [
@@ -875,11 +880,13 @@ for (const entry of registry.agents) {
       assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
     }
   }
-  const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
+  const claudeMirrorPath = join(materializedProject, '.claude', 'agents', entry.file);
+  assert.ok(existsSync(claudeMirrorPath), `${entry.file} is materialized for Claude`);
   if (existsSync(claudeMirrorPath)) {
     assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host render`);
   }
-  const codexMirrorPath = join(projectRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
+  const codexMirrorPath = join(materializedProject, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
+  assert.ok(existsSync(codexMirrorPath), `${entry.file} is materialized for Codex`);
   if (existsSync(codexMirrorPath)) {
     assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host render`);
   }

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-300b",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git show",
+    "grep",
+    "node packages/main/dist/cli.js validate --lint",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node scripts/verify-proof-or-stop-residue.mjs",
+    "npm --prefix packages/main run build",
+    "npm run test:process-fact-contract",
+    "rg"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/managed-host-run.ts",
+    "packages/main/src/core/managed-review-evidence.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git push",
+    "node packages/main/dist/cli.js story_advance --phase=DONE",
+    "proof-or-stop release_approve_push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives/B-137a",
+    "packages/main/src/core/validation-command-environment.ts"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Prompt-side and archive-reader repair only. No gate decision rule may be relaxed. validation-command-environment.ts is blocked because its frozen key list is a past-evidence surface hashed into effectiveEnvironmentDigest and compared against every stored receipt; B-137a already had to restore it byte-identically after the brand rename touched it. B-137a story artifacts are blocked because this story must not mutate another story's acceptance evidence.",
+  "createdAt": "2026-09-07T15:02:38.171Z",
+  "updatedAt": "2026-09-07T15:02:38.171Z",
+  "_hash": "98fde6d63c4e56c6760d9288dac520cb59d42f31520f9222bfe99db25da69c1b"
+}

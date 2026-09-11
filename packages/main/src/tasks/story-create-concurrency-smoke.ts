@@ -30,7 +30,7 @@
  *  - keyword full overlap on an ACTIVE non-terminal story → hard block;
  *    forceNew:true overrides the block and creates a fresh story.
  *  - partial keyword overlap (ratio < 1) → no block, new story created.
- *  - keyword full overlap against a DONE / DISCARDED story → no block, but a
+ *  - keyword full overlap against a synthetic DONE / DISCARDED story → no block, but a
  *    non-blocking same-domain FYI warn is emitted (B-6812 F-004); a partial
  *    overlap with a terminal story emits no warn (false-positive guard).
  *
@@ -255,6 +255,55 @@ function storyIdOf(output: string): string | undefined {
 }
 
 /**
+ * Black-box CLI coverage for the lifecycle-entry boundary. The schema must
+ * reject every post-intake phase before any Story directory is persisted,
+ * while the two explicit intake phases remain usable.
+ */
+async function runLifecycleEntryScenario(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-lifecycle-entry-'));
+  try {
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
+    writeFile(root, 'proof-or-stop.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2));
+    writeFile(root, 'README.md', 'lifecycle entry smoke\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'init']);
+
+    const storyDirAbs = join(root, '.proof-or-stop/story/actives');
+    for (const phase of ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']) {
+      const blocked = createStorySync(root, {
+        name: `direct-${phase.toLowerCase()}-blocked`,
+        phase,
+      });
+      assert.notEqual(blocked.code, 0, `CLI must reject direct ${phase} creation`);
+      assert.match(blocked.output, /story_create_direct_lifecycle_phase_forbidden/, `CLI ${phase} refusal must expose the stable lifecycle-entry code`);
+      assert.deepEqual(countStoryDirs(storyDirAbs), [], `direct ${phase} refusal must not persist Story artifacts`);
+    }
+
+    for (const phase of ['IDEA', 'INIT']) {
+      const allowed = createStorySync(root, {
+        name: `direct-${phase.toLowerCase()}-allowed`,
+        phase,
+      });
+      assert.equal(allowed.code, 0, `CLI must preserve explicit ${phase} intake\n${allowed.output}`);
+      assert.match(allowed.output, new RegExp(`created \\(${phase}\\)`), `CLI must report explicit ${phase} intake`);
+    }
+    assert.equal(countStoryDirs(storyDirAbs).length, 2, 'only the two allowed intake Stories are persisted');
+
+    console.log('  ✓ lifecycle entry: CLI rejects post-intake phases and preserves IDEA/INIT intake');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
  * B-6812 CHK-002: dedup behavior — normalized-name idempotency + keyword
  * full-overlap block. No concurrency needed here; these are sequential
  * functional regressions on the dedup logic.
@@ -329,13 +378,15 @@ async function runDedupScenario(): Promise<void> {
     // non-blocking same-domain FYI warn IS emitted (B-6812 F-004). plan.md
     // CHK-002 + AGENTS.md promise the warn; silently `continue`-ing produced
     // no output (doc drift) before the F-004 fix.
-    // Create terminal (DONE / DISCARDED) stories via the onboard phase path,
-    // then a new active story with the identical keyword set: terminal stories
-    // never block (the handler skips DONE and DISCARDED identically).
+    // Create a normal Story and then set its fixture state to DONE. Production
+    // story_create must not mint terminal Stories directly.
     const done = createStorySync(root, {
-      name: 'kw-done-base', keywords: ['archived', 'legacy'], phase: 'DONE',
+      name: 'kw-done-base', keywords: ['archived', 'legacy'],
     });
-    assert.equal(done.code, 0, `DONE-phase base create exit\n${done.output}`);
+    assert.equal(done.code, 0, `DONE fixture base create exit\n${done.output}`);
+    const idDone = storyIdOf(done.output);
+    assert.ok(idDone, 'DONE fixture base create returns an id');
+    setFixtureStoryPhase(join(root, '.proof-or-stop/story/actives'), idDone!, 'DONE');
     const againstDone = createStorySync(root, {
       name: 'kw-against-done', keywords: ['archived', 'legacy'],
     });
@@ -428,6 +479,15 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
   const idxPath = join(storyDirAbs, storyId, 'index.json');
   const idx = JSON.parse(readFileSync(idxPath, 'utf8'));
   idx.createdAt = new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
+  writeFileSync(idxPath, JSON.stringify(idx, null, 2));
+}
+
+/** Fixture-only state setup. Production Story creation must never mint this phase. */
+function setFixtureStoryPhase(storyDirAbs: string, storyId: string, phase: 'DONE'): void {
+  const idxPath = join(storyDirAbs, storyId, 'index.json');
+  const idx = JSON.parse(readFileSync(idxPath, 'utf8'));
+  idx.phase = phase;
+  idx.endedAt = phase === 'DONE' ? new Date().toISOString() : null;
   writeFileSync(idxPath, JSON.stringify(idx, null, 2));
 }
 
@@ -559,10 +619,11 @@ async function runStderrChannelScenario(): Promise<void> {
     for (const id of countStoryDirs(storyDirAbs)) {
       backdateStory(storyDirAbs, id, 45);
     }
-    const doneRecent = createStorySplit(root, { name: 'stderr-done-recent', phase: 'DONE' });
-    assert.equal(doneRecent.code, 0, `DONE-recent create exit\n${doneRecent.stdout}\n${doneRecent.stderr}`);
+    const doneRecent = createStorySplit(root, { name: 'stderr-done-recent' });
+    assert.equal(doneRecent.code, 0, `DONE-recent fixture base create exit\n${doneRecent.stdout}\n${doneRecent.stderr}`);
     const idDoneRecent = storyIdOf(doneRecent.stdout);
     assert.ok(idDoneRecent, 'DONE-recent create returns an id');
+    setFixtureStoryPhase(storyDirAbs, idDoneRecent!, 'DONE');
     const afterDone = createStorySplit(root, { name: 'stderr-after-done' });
     assert.equal(afterDone.code, 0, `after-done create exit\n${afterDone.stdout}\n${afterDone.stderr}`);
     assert.doesNotMatch(
@@ -606,6 +667,9 @@ async function runStderrChannelScenario(): Promise<void> {
   // Round set B: NON-default storyDir — proves the lock path is resolved from
   // store.storyDirRel() and not hardcoded.
   await runScenario({ label: 'custom-dir', storyDir: 'custom/stories/here' });
+
+  // Lifecycle entry: post-intake phases are rejected before persistence.
+  await runLifecycleEntryScenario();
 
   // B-6812 CHK-002: dedup regressions (normalized name + keyword block).
   await runDedupScenario();

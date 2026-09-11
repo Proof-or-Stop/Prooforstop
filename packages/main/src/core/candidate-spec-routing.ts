@@ -100,7 +100,11 @@ export interface HostProposalTerm {
 export interface HostKeywordProposal {
   schemaVersion: typeof HOST_PROPOSAL_SCHEMA;
   storyId: string;
-  host: 'codex-cli' | 'claude-cli' | 'agy-cli';
+  // B-137a:F-122 — the retired third-host proposal lane has no remaining
+  // construction site. It stays documented only as a playbook fallback host
+  // (playbook-runtime-memory.ts), which is separate from this two-host
+  // keyword-routing proposal union.
+  host: 'codex-cli' | 'claude-cli';
   proposalId: string;
   promptDigest: string;
   deterministicSeedDigest: string;
@@ -185,6 +189,20 @@ export interface CandidateSpecSetArtifact {
   headHash: string;
   materialHash: string;
   storyFilesHash?: string;
+  /**
+   * Readiness-only diagnostic for the retired agy candidate lane. It is
+   * persisted for operator routing visibility but never produces a host launch.
+   */
+  agyReadinessDiagnostic?: {
+    launcherSupport: string;
+    launcherOk: boolean;
+    executionReady: boolean;
+    reviewReady: boolean;
+    failureKind: string;
+    progressMode: string;
+    diagnostic: string | null;
+    remediation: string | null;
+  };
   artifactDigest: string;
 }
 
@@ -425,7 +443,6 @@ export async function collectHostKeywordProposals(args: {
   seeds: KeywordSeedsArtifact;
   execute: CandidateHostExecutor;
   minimumPrimaryOverlap?: number;
-  requestAgy?: boolean;
 }): Promise<{ attempts: HostProposalAttempt[]; accepted: HostKeywordProposal[]; sanitizedDigest: string; hostDisagreement: boolean }> {
   const sanitized = sanitizeHostPayload(args.payload);
   if (!sanitized.safe) {
@@ -465,8 +482,6 @@ export async function collectHostKeywordProposals(args: {
   const primary = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
   const minimumOverlap = args.minimumPrimaryOverlap ?? 0.2;
   const disagree = primary.length === 2 && proposalOverlap(primary[0], primary[1]) < minimumOverlap;
-  const primaryFailure = primary.length < 2;
-  if (args.requestAgy || disagree || primaryFailure) attempts.push(await run('agy-cli'));
   const accepted = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
   return { attempts, accepted, sanitizedDigest: sanitized.digest, hostDisagreement: disagree };
 }
@@ -510,6 +525,7 @@ export function routeCandidateSpecs(args: {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  agyReadinessDiagnostic?: CandidateSpecSetArtifact['agyReadinessDiagnostic'];
 }): CandidateSpecSetArtifact {
   const candidateBudget = args.candidateBudget ?? DEFAULT_CANDIDATE_BUDGET;
   const queryGroupBudget = args.queryGroupBudget ?? DEFAULT_QUERY_GROUP_BUDGET;
@@ -757,6 +773,7 @@ export function routeCandidateSpecs(args: {
     headHash: args.headHash ?? 'unbound',
     materialHash: args.materialHash ?? 'unbound',
     ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+    ...(args.agyReadinessDiagnostic ? { agyReadinessDiagnostic: args.agyReadinessDiagnostic } : {}),
   };
   return { ...base, artifactDigest: digestCandidateRoutingValue(base) };
 }
@@ -828,6 +845,18 @@ export function verifyCandidateSpecSet(value: unknown): value is CandidateSpecSe
   if (!isRecord(artifact.queryFiltering) || !Number.isFinite(artifact.queryFiltering.maxDocumentFrequencyRatio)
     || artifact.queryFiltering.maxDocumentFrequencyRatio < 0 || artifact.queryFiltering.maxDocumentFrequencyRatio > 1
     || !Array.isArray(artifact.queryFiltering.filteredTerms)) return false;
+  if (artifact.agyReadinessDiagnostic !== undefined) {
+    const diagnostic = artifact.agyReadinessDiagnostic;
+    if (!diagnostic
+      || typeof diagnostic.launcherSupport !== 'string'
+      || typeof diagnostic.launcherOk !== 'boolean'
+      || typeof diagnostic.executionReady !== 'boolean'
+      || typeof diagnostic.reviewReady !== 'boolean'
+      || typeof diagnostic.failureKind !== 'string'
+      || typeof diagnostic.progressMode !== 'string'
+      || (diagnostic.diagnostic !== null && typeof diagnostic.diagnostic !== 'string')
+      || (diagnostic.remediation !== null && typeof diagnostic.remediation !== 'string')) return false;
+  }
   for (const term of artifact.queryFiltering.filteredTerms) {
     if (!term || typeof term.term !== 'string' || !Number.isInteger(term.documentCount) || term.documentCount < 0) return false;
     if (!Number.isFinite(term.documentFrequencyRatio) || term.documentFrequencyRatio < 0 || term.documentFrequencyRatio > 1) return false;
@@ -881,20 +910,31 @@ export function candidateReadBindingDiagnostics(args: {
   manifest: ReviewerReadManifest;
   artifact: CandidateSpecSetArtifact | null;
   mode: 'shadow' | 'warn' | 'enforce';
+  /** Formal managed evidence is strict even while routing rollout is shadow. */
+  strict?: boolean;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
   currentStoryInputDigest?: string;
 }): CandidateReadBindingDiagnostic[] {
   const diagnostics: CandidateReadBindingDiagnostic[] = [];
   const add = (code: string, message: string): void => {
-    diagnostics.push({ code, message, blocking: args.mode === 'enforce' });
+    // Shadow-mode managed evidence still requires an authentic candidate/corpus
+    // artifact binding, but rollout policy keeps candidate-coverage expansion
+    // advisory until candidate routing itself reaches enforce.
+    const strictBindingFailure = args.strict === true
+      && code !== 'missing_candidate_reads'
+      // A prior, mechanically-proven receipt importer changes this bookkeeping
+      // input before the remaining same-round lanes import. Material freshness
+      // and the managed importer-lineage rule still protect the reviewed tree.
+      && code !== 'stale_story_input';
+    diagnostics.push({ code, message, blocking: args.mode === 'enforce' || strictBindingFailure });
   };
   const digest = args.manifest.candidateSpecSetDigest;
   if (args.artifact && args.artifact.mode !== args.mode) {
     add('mode_mismatch', `candidate artifact mode=${args.artifact.mode} does not match configured mode=${args.mode}; rerun candidate_spec_route`);
   }
   if (!digest) {
-    if (args.mode === 'enforce') add('missing_digest', 'candidateSpecSetDigest is required in enforce mode');
+    if (args.mode === 'enforce' || args.strict) add('missing_digest', 'candidateSpecSetDigest is required for formal managed review evidence');
     return diagnostics;
   }
   if (!args.artifact) {
@@ -921,6 +961,7 @@ export function candidateReadBindingErrors(args: {
   manifest: ReviewerReadManifest;
   artifact: CandidateSpecSetArtifact | null;
   mode: 'shadow' | 'warn' | 'enforce';
+  strict?: boolean;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
   currentStoryInputDigest?: string;

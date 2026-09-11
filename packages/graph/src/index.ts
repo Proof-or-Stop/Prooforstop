@@ -11,3 +11,5 @@ export { buildIndex, openIndex, search } from './core/search/fn.js';
 export { resolveStories, contentHash, liveHash, readArtifact } from './core/store/fn.js';
 export * from './core/data.js';
 export * from './core/machine.js';
+
+export type { ManagedRunView, ManagedRunsView } from './core/managed-runs.js';

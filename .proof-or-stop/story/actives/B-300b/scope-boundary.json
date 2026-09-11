@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-300b",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/core/host-run.ts — the emitted final-proposal JSON schema, only where a field description must state an invariant its gate enforces",
+    "packages/main/src/core/managed-host-run.ts — make the receipt-archive reader authenticate archive.binding by reusing the existing evidenceBindingDigest re-digest check that the sibling import-seal reader already performs",
+    "packages/main/src/core/managed-review-evidence.ts — state the five managed-review protocol invariants (readCount semantics, verbatim routing-digest copy, manifest/log list equality, exactly-one submission, repository-relative paths) in the reviewer-facing protocol text",
+    "regression coverage for both items: the process-fact contract test for prompt-and-gate agreement, and a smoke case proving a forged archive.binding is refused"
+  ],
+  "excluded": [
+    "B-137a acceptance artifacts: the signed acceptance-rollout receipt, acceptance basis, and the review-inventory epoch",
+    "re-running the acceptance campaign or authoring topology-critic findingDispositions",
+    "relaxing, widening or removing any gate decision rule — every one of these gates enforces something real and loosening it would admit bad evidence",
+    "the frozen VALIDATION_TRANSPORT_ENV_KEY_LIST and any other past-evidence surface hashed into effectiveEnvironmentDigest",
+    "the remaining lattice-prefixed schema identifiers and signature salts, which are immutable wire identities"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Split from B-137a per the CLAUDE.md Defect triage discipline: framework-wide defects that are not regressions of the current story acceptance scope get recorded with evidence and routed to a named follow-up rather than widening the current story. User instruction was to adopt whichever option best fits repository practice.",
+  "createdAt": "2026-09-07T15:02:19.562Z",
+  "updatedAt": "2026-09-07T15:02:19.562Z",
+  "_hash": "46bac5c10706e3c8451268c0b79eb57faf774396a51b1059b4e5559ca7e3341c"
+}

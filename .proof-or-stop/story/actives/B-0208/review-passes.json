@@ -1,0 +1,1293 @@
+{
+  "passes": [
+    {
+      "id": "B-0208:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed CHK-001 integrated committed diff across all four material files, resolver call compatibility, version source, smoke cleanup and receipt assertions, and process contract assertions. No unused introduced imports, unsafe casts, swallowed errors, or unimplemented new promises found. Resolver preserves its argument and removes project filesystem identity dependence. Read complete background/checklist/smoke and related evidence architecture; reviewed changed regions of large core/registry/contract files. plan.md absent; concrete understanding and checklist supply bounded intent. Current acceptance rollout read reports signed current PASS full-3x2; rollout mechanics are unchanged by this diff.",
+      "createdAt": "2026-09-08T06:28:58.893Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-002",
+      "envelopeId": "98a4beeec5df2211ba07e659d66b162076f11fc6d670dca459ec7cde88e49dac",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "50de482116c1be3f358642da4f5b68f421eb3bf60540bb5a6745fc1313fce87b"
+    },
+    {
+      "id": "B-0208:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed CHK-001 and the complete four-file material diff at bea28cea82, plus resolver call-site and version-source scans. No concept deletion or vocabulary replacement occurs: target-manifest lookup is corrected while the resolver API remains compatible. Shared checklist and verifier consumers now obtain the executing compiled version. Missing-version checks still apply to arbitrary incomplete identities, so they are not stale residue. Smoke coverage exercises absent, malformed, unrelated, conflicting and copied manifests plus signed receipt identity. No promised but undelivered additions or applicable concept blockers found. plan.md is absent; checklist and understanding provide the current scoped requirements. No decision-directory escalation.",
+      "createdAt": "2026-09-08T06:29:08.829Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-001",
+      "envelopeId": "8e04f829722fd3ebfe0bb9e44cfb3128d1b4051932dd8c5db877d94fd2e6c8eb",
+      "writerSessionId": "sess-68cbcb7ea507bcb384bbb5132d4fd9f2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37c8e61dccfc7d6b1abe3f9e29bf9e1cfde14f7f0bc784b578191f212ffb34be"
+    },
+    {
+      "id": "B-0208:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Reviewed all three CHK-001 intents and current tool-owned evidence against committed changed hunks. Independently ran built causal-evidence-smoke successfully. Seven external manifest scenarios cover missing, malformed, conflicting business versions and copied stale tool manifests; signed receipt checks preserve resolved CLI version and complete identity. Total intents 3, must gaps 0, waivers 0. plan.md is absent; current checklist provides the plan. Canonical validate attempt was refused by active owner lease; no validation success claimed and no takeover attempted. No coverage blocker.",
+      "createdAt": "2026-09-08T06:29:32.654Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-003",
+      "envelopeId": "bb98a5d61c54d896f2fbac3cff62041ced83a03498c595797cfb3954d64fd150",
+      "writerSessionId": "sess-63bb7ada0e07e223388fd49ed9065ada",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c4faaa3dc2f7f006b4db640c83be31e7cb3d869ebcd6dbe5307fe985e031e220"
+    },
+    {
+      "id": "B-0208:RP-004",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory completeness review for RI-001: aggregate finding_list is empty. All three required lanes have terminal passes RP-001 through RP-003 on current-round runs with matching material, Story, scope and diff bindings. Read their complete read manifests and notes against background, understanding, checklist and the complete four-file committed material diff. Each lane covers the scoped changed regions; full smoke and requirement reads plus coverage lane execution address every happy, edge and adversarial intent. Large-file partial reads were not interpreted as full reads. No missing lane, uncovered promised surface, or unclassified finding found. This is inventory completeness only.",
+      "createdAt": "2026-09-08T07:09:04.127Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-005",
+      "envelopeId": "815819f7e7c923a998b059ac58c0ae8f4d760aba45d16e37883442a00d5dedc0",
+      "writerSessionId": "sess-3bd42c367e90917c5486821d812175bf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f1931337e252af5e0953661dcdafe3b7af35865c213894f48c6e4afae141c06f"
+    },
+    {
+      "id": "B-0208:RP-005",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory completeness review for RI-001: aggregate finding_list is empty. Required concept, quality and test-coverage lanes have terminal current-round passes with matching material, Story, scope and diff bindings. Read their complete manifests and notes against background, understanding, checklist and all four committed changed-file diffs. Scoped changed-region inspection, full smoke and requirement reads, and coverage-lane execution collectively cover every declared intent. No missing lane, uncovered promised surface or unclassified finding. Inventory responsibility only; changed-file diff reads are partial and are not claimed as full-file reads.",
+      "createdAt": "2026-09-08T07:10:22.756Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-006",
+      "envelopeId": "018cb283460202e961d568ef5ac322165c856cb7132b9c27220126be35c3008f",
+      "writerSessionId": "sess-3bd42c367e90917c5486821d812175bf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "aced7c53de7bf87452b6e54e1d44d905fac2f7a0dc38ebbba9841de2209c7590"
+    },
+    {
+      "id": "B-0208:RP-006",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Integrated main quality review of four-file committed fix at89bcc552. Resolver reuses executing CLI compiled0.3.279 constant, preserves argument compatibility and eliminates all target/cwd manifest reads. Both verifier and checklist consumers use this resolver. External missing/malformed/conflicting/copied manifests are covered; independently executed causal-evidence smoke PASS and current three intent receipts read PASS. No implementation correctness or maintainability defect found. plan.md absent in this express Story; background/checklist and scope define bounded intent. Known AR_REPORT_STALE independently confirmed; this code-lane terminal does not attest rollout freshness or TEST/DONE admission and owner must refresh through legal DEV workflow.",
+      "createdAt": "2026-09-08T14:37:57.860Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-007",
+      "envelopeId": "9e6057830a813e46ef1cf1d83e5225358bd2a015b8cb91a5807808d6db51a145",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2812240f584d039dfa9c67f314cd89d4736faa89299d44957ae85375877e3dd"
+    },
+    {
+      "id": "B-0208:RP-007",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Integrated four-file review after B88 main merge: resolver now returns the executing CLI constant, retains its existing argument for callers, and removes all target/cwd manifest fallback. No incomplete concept replacement or undelivered promise found. All causal producer callsites still consume the resolver; generic tool_version_missing and historical receipt verification remain intentionally unchanged. Independently ran the external-directory probe against rebuilt dist: absent and unrelated 99.88.77 manifests both yielded 0.3.279, matching that build. Current three pinned intent receipts pass on integrated material. Plan file is absent under existing express channel; checklist/background provide bounded intent. acceptance_rollout_check remains AR_REPORT_STALE after integration and requires owner DEV refresh; this lane terminal is not current rollout, TEST or DONE authorization. Source manifest triage entries reflect entire four-file diff and relevant call-chain sections, not full file reads.",
+      "createdAt": "2026-09-08T14:38:21.150Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-008",
+      "envelopeId": "1af44c1af84119c62212672e18acf2a14555ddbefc596fa270a15051e91e82a4",
+      "writerSessionId": "sess-b3d0ead15d1a588b7ad00cb623f75625",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b87b07aad6b78d8435142361b191a6838c82d18e10286be685e6831c5f353d59"
+    },
+    {
+      "id": "B-0208:RP-008",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent integrated coverage review: 3 executable intents, 0 must gaps, 0 waivers. Current tool-owned exit0/selector receipts bind89bcc552/materialfcaa92ef. Four-file diff and targeted source reviewed: compiled CLI constant replaces target/cwd IO while preserving argument contract;7manifest scenarios cover missing, unrelated, conflicting, malformed and copied stale tool manifests across target and cwd; signed receipt asserts same version, complete identity and verified integrity. Independently executed built causal smoke PASS and CLI reports0.3.279. Understanding old0.3.278 is historical; acceptance is actual current CLI equality. plan.md absent confirmed via plan_get, so coverage uses frozen checklist and understanding without claiming plan read. acceptance_rollout_check independently returns blocking AR_REPORT_STALE after main integration; owner must refresh in DEV before closure. This scoped lane terminal does not certify rollout, TEST/DONE or actual host quorum. No additional implementation coverage blocker identified; source files were examined by diff and targeted sections, not full reads.",
+      "createdAt": "2026-09-08T14:39:57.467Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-009",
+      "envelopeId": "9130dabc27ccb291da8518c7da71656a36ea1c959228b5d5a8e7058da015340d",
+      "writerSessionId": "sess-18f6281ee40cbb869a5c02546ab2220f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f52b33fc68483028a672c1b4147bcd9c7187ca917d226ab1c6a61c647c3a995"
+    },
+    {
+      "id": "B-0208:RP-009",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "B-0208 RI-002 independent completeness review inspected current qualityRR007, conceptRR008 and coverageRR009 terminal passes and complete read manifests against the four-file integrated scope. Their checks cover executing CLI constant, preserved call compatibility, external manifest negative matrix and signed receipt identity; current canonical finding_list is empty. Independently checked resolver imports and constant return plus background. Current epoch matches fcaa92ef/dabc01d. acceptance_rollout_check independently FAILS AR_REPORT_STALE after main integration; this receipt grants only inventory completeness so owner can legally refresh evidence in DEV, not rollout freshness or TEST/DONE authority. No additional implementation or completeness finding discovered. Background read fully; current artifacts and source examined through bounded projections/sections.",
+      "createdAt": "2026-09-08T14:41:43.726Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-010",
+      "envelopeId": "34b7460341850e45978f3fdb1f89362ce962cf108e324ab41459806689b88829",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d44edc729b7bfd67a385e9bd7cf4389bb417538604c2acd5214119c063fd891"
+    },
+    {
+      "id": "B-0208:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final RI003 quality review at24950bfd over four scoped files. Resolver binds compiled CLI version0.3.279 independently of target and cwd manifests and keeps call argument compatibility. Since prior independent review only the verified missing refresh consumerGate clause was added, preserving all prior semantics; historical F001 retained and resolved. Independent causal-evidence smoke rerun PASS; current rollout check PASS with current receipt. No remaining actionable quality finding. External missing/malformed/business/copied manifests and signed identity persistence remain covered. No new full-suite, canonical validation or actual native-host quorum completion claimed.",
+      "createdAt": "2026-09-08T14:56:50.644Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-012",
+      "envelopeId": "f1a690aa2ff4f2e2edaa4bedaade303f91753ca9a124d826ac6923501beb8d01",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c59e2712b1c0a582ded90a260b752d19f87a7ee993cc8e506077487b72ebc82"
+    },
+    {
+      "id": "B-0208:RP-011",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-003 final four-file concept review: inspected the retained executing-build resolver and manifest matrix plus final refresh consumerGate clause. All four causal evidence producer/refresh registry descriptions now state the same toolVersion origin; refresh implementation consumes the unchanged resolver. No incomplete concept replacement or undelivered promise remains. Retained argument compatibility, generic missing-identity handling and historical receipt verification are unchanged. Independently reran the external-directory probe against final rebuilt dist: missing and unrelated manifests both return executing CLI 0.3.279. Three pinned receipts bind current final material. acceptance_rollout_check independently returns PASS/current with no diagnostics; this registered fixture rollout is distinct from ongoing native-host reviews and pending canonical validation/full suite/DONE. Source manifest triage reflects entire scoped diff and relevant call-chain sections, not full source reads.",
+      "createdAt": "2026-09-08T14:57:12.878Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-013",
+      "envelopeId": "1bfc144c0856f7cea2b247c6029509b45fe5c81f567dcb02d7ad90ae64dcea4e",
+      "writerSessionId": "sess-b3d0ead15d1a588b7ad00cb623f75625",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0df8cf2a68fb6f081be96493e1372a4c6b420ee813c2851c306e9138d058d8b9"
+    },
+    {
+      "id": "B-0208:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-003 final coverage review:3 executable intents,0 must gaps,0 waivers. Reloaded3 tool-owned exit0/selector-matched receipts at24950bfd/material9ca71625. Previously reviewed resolver and7external manifest/cwd cases unchanged; signed receipt verifies actual compiled CLI identity. Sole additional registry diff supplies the same executing-CLI identity clause to verification_evidence_refresh_stale without altering its existing pin/timeout/provenance requirements; current F001 resolved. Independently verified acceptance_rollout_check now PASS/current at same material/story hashes, so previous stale report is no longer a blocker. Fixture rollout cohort remains distinct from actual native-host reviews. No new coverage finding; full-suite/canonical validation and actual final native review completion are not claimed. Prior truthful full and targeted reads retained for unchanged files; source reviewed by diff/sections. Missing express plan was previously disclosed; current coverage comes from frozen checklist and understanding.",
+      "createdAt": "2026-09-08T14:57:49.311Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-014",
+      "envelopeId": "115702a9c025478294315689b93dd8d2b5e128efd2e8b2ebb46c3c692ca74270",
+      "writerSessionId": "sess-18f6281ee40cbb869a5c02546ab2220f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8084af1ee3146347ea78672c5241b4fae89f72e0de19489fa840393a7ab1e03"
+    },
+    {
+      "id": "B-0208:RP-013",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-003 independent completeness review inspected current three-lane RR-012 through RR-014 terminal passes and full read manifests at material9ca71625/story50088399. Verified preserved F-001 history records original native low omission and owner fixed resolution before epoch began; exact24950bfd diff adds only missing refresh toolVersion clause while retaining other semantics. No open or current-wave raw findings remain. Independently checked acceptance_rollout_check now PASS/current/no diagnostics, removing prior stale report limitation; fixture rollout is still separate from actual native assurance. Coverage and concept independently exercised final external CLI identity, quality causal smoke, and all current pinned receipt claims. No additional completeness family. Finding artifact read fully; epoch/pass projections and source diff inspected selectively. Full suite, canonical validation and final native3x2 remain pending, not authorized by this completeness receipt.",
+      "createdAt": "2026-09-08T14:59:21.359Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-015",
+      "envelopeId": "bec2f7275836b537bef41a3316612ad1c1a8e9fd12991939d6ae46866f480320",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "99e59a40f0e863075dd0427f34ebde3f7a653c1fe6f8af1c7467857492f1c0aa"
+    },
+    {
+      "id": "B-0208:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed for the stated version-identity behavior: the built smoke mechanically covers happy, malformed/missing, and conflicting-business-manifest cases and confirms signed receipt identity. F-002 already owns the distinct missing per-producer contract assertion; no duplicate finding is recorded.",
+      "createdAt": "2026-09-08T15:25:08.494Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-017",
+      "envelopeId": "2c680417fca2255a09e9631dbe59bcf7ecba068a6ff519ff0384491b46df4a9a",
+      "writerSessionId": "sess-e6041b4e253745523747b7bce3302cfc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e03e7a09494cfefe771336da8bb7f09a6b8bda8b444c0112754f22c3109ba44"
+    },
+    {
+      "id": "B-0208:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-004 pre-fix concept review at 24950bfd: the removed target/cwd manifest lookup is fully replaced by the executing-build constant. The full resolver-callsite scan finds only the intended checklist, import, refresh, verifier, smoke, and contract uses; scenario labels retain the old layouts solely as negative coverage, not runtime residue. No deleted concept has a residual reference and no new documentation promise is undelivered. F-002 is already registered by another lane for validate registry semantics; it is distinct from this concept-residue review and is not duplicated here.",
+      "createdAt": "2026-09-08T15:26:25.527Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-018",
+      "envelopeId": "9cf75362dc2c20477aa288dfb5bdb0608486ba77cc22c379da563fbf4e1c34de",
+      "writerSessionId": "sess-3a086337cc563b750e4116c389ce9cb3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a47675ff29c35e8db86482a1e7a0757abfac0601d7cebf70db3489c83960c665"
+    },
+    {
+      "id": "B-0208:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-004 concept review at unchanged source 24950bfd: the removed target/cwd manifest lookup is fully replaced by the executing-build constant. The resolver-callsite and old-layout scans find the legacy layouts only in the new negative smoke matrix; no runtime or documentation residue retains the deleted lookup concept. No added CLI/documentation promise lacks code. F-002 remains an already-open, distinct validate registry-semantic finding and is not duplicated by this concept lane.",
+      "createdAt": "2026-09-08T15:28:47.343Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-020",
+      "envelopeId": "0e94825919fae0feefa9cd9de1f277269d6e713680ef3e203fa84a61b75eca2e",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48c6c61f680406efc5c0a2c387aeb38b35d595d73b50f513d16473ddebd9be14"
+    },
+    {
+      "id": "B-0208:RP-017",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-004 completeness review inspected quality RR016 F002, coverage RR017/RP014 and replacement genuinely independent concept RR020/RP016. Earlier RP015 had owner explicit-env identity, so I required independent replacement and do not rely on it. Current lane read coverage supports no additional family beyond F002. Independently inspected validate consumerGate lacking toolVersion clause and verifier script using global includes only: per-producer omission is verified and requires current scoped repair. F001 remains resolved. No runtime identity failure or topology bypass claimed. Finding artifact fully read; pass projections and source regions selectively inspected. This terminal does not resolve F002 or authorize TEST/DONE.",
+      "createdAt": "2026-09-08T15:29:34.128Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-019",
+      "envelopeId": "1955895929a43b318c26adc0414efa9778eb846d3d96cff8d8e7da83e69691c9",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c531f28a41e014a02a195dfa4204b07ff15268fc06dd25fe614d3bd66c7ae4a4"
+    },
+    {
+      "id": "B-0208:RP-018",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Fresh critic after independent concept RR020/RP016 terminal. Current quality RR016 finding, coverage RR017/RP014 and independent concept RR020/RP016 coverage inspected; owner-token RP015 is not relied upon. Prior RR019 terminal could not bind receipt because it preceded replacement lane terminal; source and aggregate unchanged. Independently verified F002 validate registry omission and global-only verifier assertion, requiring current repair with per-producer checks. No additional family; F001 remains resolved. This pass records completeness discovery only, not F002 resolution or lifecycle approval. Findings fully read in retained context; current lane projections and bounded source sections inspected.",
+      "createdAt": "2026-09-08T15:30:13.190Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-021",
+      "envelopeId": "555b841e26ebe82e5801a363725d4103956be9bdbd0f82aa3b9befdb28c736b3",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cd997793d8a28c28843032d0ab69d4da2907a302f5e996f86850459c505aa9b9"
+    },
+    {
+      "id": "B-0208:RP-019",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI004 wave2 bounded quality saturation at unchanged24950bfd. Rechecked production consumer registry inventory and empty scoped source diff; no distinct additional family beyond verified open F002. F002 remains OPEN and requires current-scope repair of validate semantics and per-producer protection. This discovery terminal does not resolve or dismiss F002 and does not claim lifecycle admission or full-suite PASS.",
+      "createdAt": "2026-09-08T15:31:30.530Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-022",
+      "envelopeId": "580ade44bde96540c72e3a0024765b61eb702bb9543d1fd3c8385efdb5835972",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2678e004211d31aa6d3a92a1f80ecd3f6a087d026afbda45f509e592f72062a9"
+    },
+    {
+      "id": "B-0208:RP-020",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-004 wave-2 concept confirmation: source files remain byte-for-byte unchanged from 24950bfd. Current resolver-callsite and concept-residue scans again show the removed target/cwd manifest lookup only as negative smoke coverage, with no runtime or documentation residue. No distinct finding exists beyond already-open F-002, which is not duplicated.",
+      "createdAt": "2026-09-08T15:31:43.067Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-023",
+      "envelopeId": "971928bb3c4ab044fa3f6905b7f2448f7976c0474524c071ca739a68c818920d",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7cbc459c83284a7dd1825a6bb8fcd7aa252b5114ba2068db281f344668008e4"
+    },
+    {
+      "id": "B-0208:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Second-wave coverage review passed at unchanged source 24950bfd: the built smoke still mechanically covers every authored version-identity intent. F-002 remains the sole distinct coverage defect because it owns the missing per-producer contract assertion for validate; no duplicate finding is recorded.",
+      "createdAt": "2026-09-08T15:32:26.094Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-025",
+      "envelopeId": "dc3b47f757db584d7dae9946f35670acb39605a4fcca972caa5923548a3de080",
+      "writerSessionId": "sess-e6041b4e253745523747b7bce3302cfc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "50cd6b5ee2baaeaa6b149104f31ea1192da503e39b0abe564e01de402084997a"
+    },
+    {
+      "id": "B-0208:RP-022",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-004 wave2 completeness review inspected all fresh independent terminals qualityRR022/RP019, conceptRR023/RP020 and coverageRR025/RP021 with read manifests and host-adapter sessions distinct from owner. Current finding projection retains F002 open and F001 resolved; unchanged source preserves previous independent verification of validate semantic omission and missing per-producer assertion. No additional family or current-wave finding. Prior signed family inherited, not duplicated. Finding full-read context retained; current projections selectively inspected. This terminal records discovery saturation only, not F002 repair or lifecycle admission.",
+      "createdAt": "2026-09-08T15:33:58.892Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-026",
+      "envelopeId": "16a3ec9415afe4ee1c19345087460dcbe3cb5a91298c7a6bee042826e06248ec",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0b84b9316b4684bfd0cf49d6b6c61fd775b74cab52bcc3dce74ac64c0f6ab80a"
+    },
+    {
+      "id": "B-0208:RP-023",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final RI005 quality review of source6c1bfc6bf2, material cutoff0d3d56a. Independently inspected24950bfd-to-current two-file delta: validate consumerGate now includes executing-CLI semantics and AST-derived artifact map checks each of five actual producer entries, failing if any is absent. Original four-file resolver fix remains intact and preserves call compatibility; missing/business/malformed project metadata cannot control CLI identity. Independent process-fact verifier PASS and rollout check PASS/current. Historical F001/F002 retained and resolved; no remaining actionable quality finding. No full-suite or canonical-validation completion inferred.",
+      "createdAt": "2026-09-08T15:42:45.357Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-028",
+      "envelopeId": "82341e4c0569db64eb7580c1f2b57797445e8c3d6275c8d0ebc9437f881eabae",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec54d5d12c4979592b4abb0c74cd09b0f47a4bc88aec0dc47e05b46e9d872c4b"
+    },
+    {
+      "id": "B-0208:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final coverage review passed at material cutoff 0d3d56a: the smoke covers the three authored external-project intents, while the process-fact guard parses registry entries and requires executing-CLI version semantics for all five resolver consumers: verification_evidence_add, verification_evidence_batch_add, verification_evidence_refresh_stale, verification_run, and validate. F-002 is resolved by the reviewed two-file delta; no new finding.",
+      "createdAt": "2026-09-08T15:43:04.887Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-027",
+      "envelopeId": "d13b8837c04c1b1b9ef065194719f369dbcb18d21439d4c2d84b1cced5c8f845",
+      "writerSessionId": "sess-e6041b4e253745523747b7bce3302cfc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0c5867fbe4d661af7f14770e87080d46b8db524a61821d9e8beed128cb2e893"
+    },
+    {
+      "id": "B-0208:RP-025",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final RI-005 independent concept review at material cutoff 0d3d56a/source 6c1bfc6bf2: the two-file F-002 repair completes the same executing-CLI identity concept for validate and changes the contract from one global-string check to per-producer parsed assertions for all five resolver consumers. The original four-file scope retains no target/cwd manifest lookup as runtime behavior; remaining manifest layouts occur only in negative smoke coverage. F-002 is resolved with strong structured evidence, and no distinct concept residue or undelivered promise was found.",
+      "createdAt": "2026-09-08T15:43:09.693Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-029",
+      "envelopeId": "f4dc2c1cc58372dade08da1f64968427aaa4ad8b2bf4beefffc0c08a52a95de5",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "930235dc9e3c3d113f3898e0e4e3fcca2458d0f4ff6a95db80e481d3089404a2"
+    },
+    {
+      "id": "B-0208:RP-026",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Final RI-005 completeness review inspected independent qualityRR028/RP023, coverageRR027/RP024 and conceptRR029/RP025 terminal evidence/read manifests. All cover retained external-project identity behavior and final two-file F002 repair. Independently inspected parsed per-producer assertion replacing global includes; each of five named producer entries must retain executing-CLI semantics. Current findings preserve F001/F002 historical observations with fixed resolutions, no open or new family. Background read fully; pass/finding projections and final code delta inspected selectively. No additional completeness gap. This terminal does not claim full-suite, canonical validation or final native-host completion and grants inventory authority only.",
+      "createdAt": "2026-09-08T15:44:33.927Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-030",
+      "envelopeId": "6d5bc11008a38c4009238501bfbbe441202a6767ca6934bc7cdfcbc9c512a9ad",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d203b118fdf0d782b1690656d04ba70f00bd51dac29c19151fb5553e06b0305b"
+    },
+    {
+      "id": "B-0208:RP-027",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-006 independent concept review after local main integration: rechecked the full four-file Story diff, resolver call sites, process-fact registrations, and built external-project smoke. The resolver returns the executing CLI constant; missing, malformed, unrelated, conflicting, and copied target/CWD manifests are only negative test inputs. All five resolver-consuming producers retain the required semantic registration. The focused built smoke passed, and no concept residue, scope drift, or undelivered promise was found.",
+      "createdAt": "2026-09-08T17:36:47.497Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-034",
+      "envelopeId": "7abd34fe646694f74b209bc43e29e096fb51628963d483d3efa23b13210f42e8",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5c775c70db6c7593415dad56fe3e24d2bd82d3c8b4b770783bf7496d067e3ab"
+    },
+    {
+      "id": "B-0208:RP-028",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent quality review of complete four-file material diff after main integration; refreshed envelope at f89603e has unchanged material87c2813 and story3853766. Resolver returns executing build constant, keeps argument compatibility and removes target/cwd manifest IO. Seven layout probes and signed causal receipt checks cover absent, malformed, conflicting and copied stale manifests. Registry and AST guard cover all five actual producers individually including refresh_stale and validate. No unsafe cast, swallowed error, dead branch or unfinished promise introduced. Independently executed causal smoke and process-fact verifier PASS on CLI0.3.284. Background read fully; checklist read by CLI; plan_get reports absent plan.md for existing express Story. All material sources inspected through full diff and targeted context; architecture doc lines1-65 and155-195 inspected partially, not claimed full. Existing checklist receipt hashes precede integration and remain subject to owner gate freshness checks; no native quorum, full suite, rollout, TEST or DONE certification claimed. Zero new findings.",
+      "createdAt": "2026-09-08T17:38:43.140Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-035",
+      "envelopeId": "56f17c9b579e7eec6b8b0258f3d04fa62b7cb0c481d466926684bb8807c93cc3",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "398a3f3f89046a1c848b2b82402de349a7b435348f89993ab5c8c2d896016846"
+    },
+    {
+      "id": "B-0208:RP-029",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed after local main integration: the built smoke exercises seven target/cwd manifest cases and confirms the executing CLI version plus signed receipt identity. The contract guard requires the executing-CLI version semantic for all five resolver consumers, including validate. No coverage finding.",
+      "createdAt": "2026-09-08T17:54:41.919Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-036",
+      "envelopeId": "e67bc62553e16aae1bfb5af0d067391d5d99bcdbcbf5be24de88d512b83cd412",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "23804d6a5c5e0d1526c53ca9d442daf3623e80860c9098e49faa6ffe17840657"
+    },
+    {
+      "id": "B-0208:RP-030",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-006 inventory-only critic reviewed the OPEN epoch cutoff, required concept/quality/coverage terminal passes and their signed read coverage, exact aggregate findings, current source material, and post-cutoff metadata-only changes. F-001 and F-002 are resolved strong; no verified open finding or unrepresented finding family remains. This is inventory completeness only.",
+      "createdAt": "2026-09-08T18:01:35.640Z",
+      "reviewRound": "2026-09-08T15:40:47.978Z",
+      "reviewRunId": "B-0208:RR-037",
+      "envelopeId": "6453e80e13c79ff17a5b7f272a4c3b5e6ca3fb8f1e7576bc9924dce47f4cdf47",
+      "writerSessionId": "sess-e474529cc8e716dca2889af00fbf8d88",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb70b63665593d0ebd6035acce03f986997e9b76c755b7f37b6b1a44ca37c2f8"
+    },
+    {
+      "id": "B-0208:RP-031",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept deletion or residual version-lookup path remains; external target manifests cannot define executing CLI identity. Scope acknowledgements bound the three merged-main fixture repairs.",
+      "createdAt": "2026-09-08T18:45:29.385Z",
+      "reviewRound": "2026-09-08T18:43:16.328Z",
+      "reviewRunId": "B-0208:RR-038",
+      "envelopeId": "2050b5d7642fe9ef4d3fc1215f1285b02f8ea1c096dc40f6b3df1ae4bdc4fe6e",
+      "writerSessionId": "sess-e9f27081693b5c5dc5fce79b59f9d10a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/scope-check.json",
+          ".proof-or-stop/story/actives/B-0208/scope-contract.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0560e2487a70dde2a78a3713b9ec91a2cdc0bcbe1bf5f90fd7614abf32a68f62"
+    },
+    {
+      "id": "B-0208:RP-032",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: CHK-001 has 3 intents, 0 must gaps, 0 waivers. Built causal-evidence smoke passed and covers seven missing, malformed, conflicting, and copied-manifest target/cwd layouts while asserting the signed receipt uses the compiled CLI version. The process-fact contract passed and requires the same executing-CLI semantic for verification_evidence_add, verification_evidence_batch_add, verification_evidence_refresh_stale, verification_run, and validate. The merged-main fixture stubs are precise snapshot-closure inputs and their targeted checks passed. No coverage finding. The dispatched plan.md path is absent; the current checklist and background provide the available story plan.",
+      "createdAt": "2026-09-08T18:47:12.968Z",
+      "reviewRound": "2026-09-08T18:43:16.328Z",
+      "reviewRunId": "B-0208:RR-041",
+      "envelopeId": "c3929068b00c6e19089c5e67a98e28be3c4983e209df8f38a117559f29c30cfb",
+      "writerSessionId": "sess-b99e56e34414c44f8797c2b6acb38376",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/shared-validation-execution.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc9d4a11601f6092bc9135f29820f2211506c669644cab0cfb63fd452ecd0eb1"
+    },
+    {
+      "id": "B-0208:RP-033",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality review passed. The causal resolver now returns the compiled CLI constant and no target/cwd manifest I/O remains in that function. Its seven-layout smoke restores cwd and removes its temp root in finally, then asserts both the signed causal receipt version and complete identity. All production callers retain the resolver boundary. The process-fact guard checks the resolver AST body and each causal-version producer registration. The merged-main synthetic fixture additions are bounded source-closure stubs; the inventory digest pin matches the current computed 134-entry configuration. Build, causal-evidence smoke, and process-fact contract passed; git diff --check is clean. No correctness or maintainability finding.",
+      "createdAt": "2026-09-08T18:48:00.879Z",
+      "reviewRound": "2026-09-08T18:43:16.328Z",
+      "reviewRunId": "B-0208:RR-042",
+      "envelopeId": "4fed5c6a124afe305cf1baa769bdfcdd18b5eea19e513bbc54b40e5cf3cb45d2",
+      "writerSessionId": "sess-bdd9170717775de35143e98deb6dc70f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/proofstory.json",
+          ".proof-or-stop/story/actives/B-0208/scope-contract.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/core/shared-validation-execution.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "The canonical prompt names plan.md, but no such Story file exists; reviewed the available background, checklist, understanding, ProofStory, and scope contract instead."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "239667170bab417b20ac02ca1e09b2185fcaf36393a35e6ae4ad1eeab1589c39"
+    },
+    {
+      "id": "B-0208:RP-034",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Checked the removed target/cwd manifest-probing fallback across every current causal-version caller. The resolver now has one executing-CLI identity source; no stale concept residue or blocker found.",
+      "createdAt": "2026-09-08T18:50:53.153Z",
+      "reviewRound": "2026-09-08T18:43:16.328Z",
+      "reviewRunId": "B-0208:RR-043",
+      "envelopeId": "fbb4ab9265536df1c91e714afddbbc45ec821146565bea0f01f72a1640a984fe",
+      "writerSessionId": "sess-ec72865760a0cf794c692fba9d4735ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/scope-check.json",
+          ".proof-or-stop/story/actives/B-0208/scope-contract.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9df4a7fbf270a0488227e46884d7e2b29aa5fcc6277eb44bf06ffb0dafcecd0e"
+    },
+    {
+      "id": "B-0208:RP-035",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory completeness review passed: RI-007 has valid current-cutoff terminal passes RP-032, RP-033 and RP-034 for test-coverage, quality and concept. Their signed records cover the causal resolver, seven-layout smoke, producer-registration contract guard, merged-main fixture repairs, and all three CHK-001 intents. The current aggregate Finding list contains only F-001 and F-002, both resolved before this epoch; baselineFindingIds is empty. No required lane, signed terminal/read record, or verified finding disposition is missing. This is inventory completeness only.",
+      "createdAt": "2026-09-08T18:53:10.657Z",
+      "reviewRound": "2026-09-08T18:43:16.328Z",
+      "reviewRunId": "B-0208:RR-044",
+      "envelopeId": "729abdae52cbe0998668d3ba1808e204ce72c9c45a6ffaf69d1ad5568b55f911",
+      "writerSessionId": "sess-6e8b2f05693110c29bfa5b21f9483807",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/findings.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c6aac4046568708ae15678e32363f1ba9d174987ffea789cddfe514129fbebaf"
+    },
+    {
+      "id": "B-0208:RP-036",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the merged diff, executing-CLI version binding, focused regression smoke, and process-fact contract; no correctness or maintainability blocker found.",
+      "createdAt": "2026-09-08T19:31:09.852Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-046",
+      "envelopeId": "b2824441348746ad8e809eca15d5c4e78dd2dfefeeb75906660fbe0ccc0826fd",
+      "writerSessionId": "sess-f2ac64e1b6267caa182e10b2d6bf953f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea604256a58bbaf8e7ec5a61038215b2a1d2de3bb297429d07fbceb1db8cb5fd"
+    },
+    {
+      "id": "B-0208:RP-037",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept deletion or replacement is incomplete. The executing-CLI version boundary is explicit, external-layout smoke coverage is present, and the merged-main fixture repairs preserve their stated synthetic-registry and inventory concepts.",
+      "createdAt": "2026-09-08T19:32:32.137Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-045",
+      "envelopeId": "71c9b10edbce0274fdaf98f7b4ebdce56adda99093199a4b065d3bb6f252b9ac",
+      "writerSessionId": "sess-df0314b854b3799c70d42e5e7efb6df2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/scope-contract.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9149d6aeab24ce3170abaed78fa59902be8e6eb5641b09658d99fa36cd6d9a8"
+    },
+    {
+      "id": "B-0208:RP-038",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent coverage review passed: the external-project version resolution, process fact registration, and merged guard repairs have focused regression coverage.",
+      "createdAt": "2026-09-08T19:35:05.400Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-047",
+      "envelopeId": "0d012407612ecb5e740eaf31a56748c099e0f1422814fe3179caaff189fd6c4c",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2181366b6e05770e824d2669adf299fe6259cd86da9b11e0db1c77ea647f0db"
+    },
+    {
+      "id": "B-0208:RP-039",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory review passed: all required lane records match the frozen cutoff and this wave contains no findings.",
+      "createdAt": "2026-09-08T19:37:29.629Z",
+      "reviewRound": "2026-09-08T19:28:53.410Z",
+      "reviewRunId": "B-0208:RR-048",
+      "envelopeId": "02b4cdb6412b1290751740f2672210bd084ba06b95a0025300653c3c484b2ddf",
+      "writerSessionId": "sess-c0d56cd45b3d2ab6c5ed46a5328f4f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json",
+          ".proof-or-stop/story/actives/B-0208/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-0208/review-passes.json",
+          ".proof-or-stop/story/actives/B-0208/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc823f17144836ca8d89663536f3a839a05d4dd0c9d011736f4fd1a3cb79b214"
+    }
+  ]
+}

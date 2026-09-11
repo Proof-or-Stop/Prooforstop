@@ -1,6 +1,7 @@
 import { assertCanonicalActiveIdentityBoundary } from './runtime-environment-checks.js';
 
 const EXPECTED_ACTIVE_IDENTITIES: Readonly<Record<string, string>> = Object.freeze({
+  'acceptance-amendment-review': ['proof-or-stop', '.acceptance_amendment_review_final.v1'].join(''),
   'candidate-spec-routing': ['proof-or-stop', '.corpus-index.v1'].join(''),
   'certification-window': ['proof-or-stop', '.certification_window.v1'].join(''),
   'review-incremental-context': ['proof-or-stop', '.impact-classification.v1'].join(''),

@@ -1737,7 +1737,7 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
     const calls = callsOf(caller);
     if (!verbose) {
       // F-010: the call lines are printed by default as one compact column; per-read detail stays verbose-only.
-      lines.push(`    ${caller.file.padEnd(width)}  ${calls.padEnd(callWidth)}  ${classificationOf(caller)}`);
+      lines.push(`    ${caller.file}  ${calls}  ${classificationOf(caller)}`);
       continue;
     }
     const detail = caller.remainingReads.length ? `  -- ${describeReads(caller.remainingReads)}` : '';

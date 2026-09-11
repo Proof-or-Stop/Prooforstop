@@ -2,10 +2,15 @@ import { accessSync, constants, existsSync, realpathSync } from 'node:fs';
 import { delimiter, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import { resolveDoneRequiredPolicy } from './done-required-validation.js';
-import { resolveCommandTimeoutMs } from './validation-executor.js';
+import { checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
+import { parseAllowlistedCommand, resolveCommandTimeoutMs, resolveEvidenceCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
 import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from './pre-review-check.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { StoryStore } from './store.js';
+import { buildVerificationCoverage, collectVerificationIntents, isExecutableIntentType } from './verification.js';
 import { readBrandEnv } from './brand-env.js';
+import { findValidateFile, validateFileDefaultTimeoutMs } from './validation-file-entry.js';
 
 export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -91,14 +96,132 @@ function configuredRoutineCommands(root: string): ValidationCommand[] {
     if (typeof entry === 'string') return [{ label: `configured validate command ${index + 1}`, command: entry, args: [], shell: true }];
     if (!entry || typeof entry !== 'object' || typeof (entry as any).command !== 'string') return [];
     const item = entry as any;
+    const rawFocus: unknown[] = Array.isArray(item.focus)
+      ? item.focus
+      : typeof item.focus === 'string' ? [item.focus] : [];
+    const focus = [...new Set(rawFocus
+      .map((value) => String(value).trim())
+      .filter(Boolean))];
     return [{
       label: typeof item.label === 'string' ? item.label : `configured validate command ${index + 1}`,
       command: item.command,
       args: Array.isArray(item.args) ? item.args.map(String) : [],
       ...(item.shell === true ? { shell: true } : {}),
       ...(typeof item.timeoutMs === 'number' ? { timeoutMs: item.timeoutMs } : {}),
+      ...(focus.length > 0 ? { focus } : {}),
     }];
   });
+}
+
+/**
+ * The batch evidence handler runs at most one child per exact command string.
+ * Parse through its shared executable allowlist before deriving an outer budget:
+ * a raw shell program or malformed command remains on the ordinary CLI ceiling
+ * and never gains a longer watchdog merely by appearing in user input.
+ */
+function verificationEvidenceBatchDerivedBudget(root: string, args: Record<string, unknown>): TimeoutBudget | null {
+  if (!Array.isArray(args.evidences)) return null;
+  const distinctCommands = new Map<string, { executable: string; args: string[] }>();
+  for (const evidence of args.evidences) {
+    if (!evidence || typeof evidence !== 'object') continue;
+    const command = (evidence as { command?: unknown }).command;
+    if (typeof command !== 'string' || !command.trim()) continue;
+    try {
+      distinctCommands.set(command.trim(), parseAllowlistedCommand(command));
+    } catch {
+      // The evidence handler will refuse this same input; do not widen the
+      // outer watchdog for a command outside the pinned execution boundary.
+    }
+  }
+  if (distinctCommands.size === 0) return null;
+  const overrides = loadConfig(root).validate?.evidenceCommandTimeoutOverrides;
+  const commandBudgetMs = safeTimeoutSum([...distinctCommands.values()].map((identity) => (
+    resolveEvidenceCommandTimeoutMs(identity, overrides)
+  )));
+  return {
+    timeoutMs: safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]),
+    source: 'derived-command-budget',
+    commandBudgetMs,
+    graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
+  };
+}
+
+/**
+ * Compute the exact raw pinned-command keys that a non-dry-run stale refresh
+ * will attempt. This deliberately mirrors the handler's pre-lock snapshot:
+ * current stale coverage entries only, executable intents with a pin only, and
+ * one execution per raw pin command in the resolved story git workspace.
+ *
+ * It is a read-only best-effort budget probe. Any missing story/git/config state
+ * retains the ordinary CLI watchdog instead of changing refresh semantics.
+ */
+function staleRefreshPinnedCommands(root: string, storyId: string): string[] {
+  const store = new StoryStore(root);
+  const refreshGitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  const headHash = currentGitHead(refreshGitCwd);
+  if (!headHash) return [];
+  const checklist = store.readChecklist(storyId);
+  const coverage = buildVerificationCoverage(
+    checklist,
+    headHash,
+    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(
+      refreshGitCwd,
+      oldHeadHash,
+      evidence?.materialHash,
+      root,
+      evidence?.storyFilesHash,
+    ).fresh,
+    { deferredGateEvidence: 'missing' },
+  );
+  const commands = new Set<string>();
+  for (const entry of coverage.entries) {
+    if (entry.status !== 'stale' || !entry.evidence) continue;
+    const item = checklist.items.find((candidate) => candidate.id === entry.itemId);
+    const resolved = item && collectVerificationIntents(item).find((candidate) => candidate.ref === entry.intentRef);
+    const pin = resolved?.intent.verification;
+    if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type) || typeof pin.command !== 'string') continue;
+    commands.add(pin.command);
+  }
+  return [...commands];
+}
+
+/**
+ * A stale refresh runs its distinct executable pins serially. Derive the outer
+ * watchdog from the exact command set the handler will re-execute, after the
+ * same allowlist parse and per-command timeout resolver used by that handler.
+ */
+function verificationEvidenceRefreshDerivedBudget(root: string, args: Record<string, unknown>): TimeoutBudget | null {
+  if (args.dryRun === true) return null;
+  const storyId = typeof args.storyId === 'string' ? args.storyId.trim() : '';
+  if (!storyId) return null;
+  let commands: string[];
+  try {
+    commands = staleRefreshPinnedCommands(root, storyId);
+  } catch {
+    return null;
+  }
+  const distinctCommands = new Map<string, { executable: string; args: string[] }>();
+  for (const command of commands) {
+    try {
+      // The handler deduplicates by the original pin command (with one resolved
+      // git cwd per refresh), not by a normalized shell representation.
+      distinctCommands.set(command, parseAllowlistedCommand(command));
+    } catch {
+      // Matching the handler, this pin is refused at execution time. It cannot
+      // widen an outer watchdog simply by appearing in stale story metadata.
+    }
+  }
+  if (distinctCommands.size === 0) return null;
+  const overrides = loadConfig(root).validate?.evidenceCommandTimeoutOverrides;
+  const commandBudgetMs = safeTimeoutSum([...distinctCommands.values()].map((identity) => (
+    resolveEvidenceCommandTimeoutMs(identity, overrides)
+  )));
+  return {
+    timeoutMs: safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]),
+    source: 'derived-command-budget',
+    commandBudgetMs,
+    graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
+  };
 }
 
 export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
@@ -285,8 +408,31 @@ export function commandCliMaxBudget(
       graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
     };
   }
+  if (command === 'verification_evidence_batch_add') {
+    const batchDerived = verificationEvidenceBatchDerivedBudget(root, args);
+    if (batchDerived) return batchDerived;
+  }
+  if (command === 'verification_evidence_refresh_stale') {
+    const refreshDerived = verificationEvidenceRefreshDerivedBudget(root, args);
+    if (refreshDerived) return refreshDerived;
+  }
   const derived = doneRequiredDerivedBudget(root);
   if (command === 'done_required_validate') return derived;
+  if (command === 'validate' || (command === 'story_advance' && args.phase === 'TEST')) {
+    const routineCommands = configuredRoutineCommands(root);
+    const focus = command === 'validate' && typeof args.focus === 'string' ? args.focus.trim() : '';
+    const selectedCommands = focus ? routineCommands.filter(candidate => candidate.focus?.includes(focus)) : routineCommands;
+    const validateFile = findValidateFile(root);
+    const commandBudgetMs = validateFile
+      ? resolveCommandTimeoutMs({ label: 'validate file', command: 'node', args: [], timeoutMs: validateFileDefaultTimeoutMs(env) })
+      : safeTimeoutSum(selectedCommands.map(command => resolveCommandTimeoutMs(command)));
+    return {
+      timeoutMs: validateFile || routineCommands.length ? safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]) : 15 * 60_000,
+      source: 'derived-command-budget',
+      commandBudgetMs,
+      graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
+    };
+  }
   if (command !== 'done_prepare') return { timeoutMs: 15 * 60_000, source: 'default' };
 
   const validateEnabled = args.validate !== false;

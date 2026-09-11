@@ -1,0 +1,53 @@
+{
+  "kind": "canonical CLI listing followed by per-row story_resolve; no process adoption/timing claim",
+  "rowsListedNonterminal": 38,
+  "resolutionExitFailures": 0,
+  "resolutionUnresolved": 20,
+  "listedPhaseCounts": {
+    "INIT": 8,
+    "DEV": 3,
+    "INIT_CHECK": 25,
+    "TEST": 2
+  },
+  "resolvedPhaseCounts": {
+    "INIT": 8,
+    "INIT_CHECK": 29,
+    "TEST": 1
+  },
+  "phaseDifferences": [
+    {
+      "storyId": "B-03b7",
+      "listedPhase": "DEV",
+      "resolvedPhase": "INIT_CHECK",
+      "authoritativeCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-03b7",
+      "resolved": true
+    },
+    {
+      "storyId": "B-49df",
+      "listedPhase": "DEV",
+      "resolvedPhase": "INIT_CHECK",
+      "authoritativeCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-49df",
+      "resolved": true
+    },
+    {
+      "storyId": "B-aa5f",
+      "listedPhase": "TEST",
+      "resolvedPhase": "INIT_CHECK",
+      "authoritativeCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-aa5f",
+      "resolved": true
+    },
+    {
+      "storyId": "B-de09",
+      "listedPhase": "DEV",
+      "resolvedPhase": "INIT_CHECK",
+      "authoritativeCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-de09",
+      "resolved": true
+    }
+  ],
+  "limitations": [
+    "Census covers rows returned by story_list, not an independently complete census of all active hosts.",
+    "story_resolve phase authority must itself be checked against returned metadata/worktree semantics before population claims.",
+    "No actual process implementation witness or elapsed-time data has been collected."
+  ],
+  "source": "resolved-story-census.json"
+}

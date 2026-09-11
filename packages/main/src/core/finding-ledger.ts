@@ -302,7 +302,7 @@ const FINDING_LEDGER_CAS_KEYS = [
   "observedChainHeadHash", "predicateDigest",
 ].sort();
 const FINDING_LEDGER_OPERATIONS = new Set<FindingLedgerOperation>([
-  "append_finding", "append_finding_projection", "append_finding_lifecycle_transition",
+  "append_review_remediation", "append_finding", "append_finding_projection", "append_finding_lifecycle_transition",
   "append_legacy_identity_binding", "append_detector_signal",
   "append_candidate_route", "append_candidate", "append_assessment_proposal",
   "append_assessment", "append_mandatory_repair", "append_deferral_expiry_policy",

@@ -498,7 +498,20 @@ async function main(): Promise<void> {
   assert(killFailureObserved, 'non-ESRCH process tree termination failure is surfaced');
   const killCalls: number[] = [];
   const alreadyGone = (() => { try { killProcessTree(123, (pid) => { killCalls.push(pid); const error = new Error('gone') as NodeJS.ErrnoException; error.code = 'ESRCH'; throw error; }); return true; } catch { return false; } })();
-  assert(alreadyGone && killCalls.join(',') === '-123,123', 'POSIX group ESRCH falls back to the live direct child before treating the tree as gone');
+  assert(alreadyGone && killCalls.join(',') === '123', 'a bare PID uses only the narrower direct-child cleanup path');
+  const isolatedIdentity = {
+    pid: 123,
+    pgid: 123,
+    spawnedAt: '2026-08-24T00:00:00.000Z',
+    startFingerprint: 'Mon Aug 24 00:00:00 2026',
+    processGroupIsolated: true,
+  };
+  const verifiedGroupCalls: number[] = [];
+  killProcessTree(123, (pid) => { verifiedGroupCalls.push(pid); }, 'darwin', undefined, isolatedIdentity, () => isolatedIdentity.startFingerprint);
+  assert(verifiedGroupCalls.join(',') === '-123', 'a matching isolated leader and start fingerprint authorize only its own PGID');
+  const mismatchedIdentityCalls: number[] = [];
+  killProcessTree(123, (pid) => { mismatchedIdentityCalls.push(pid); }, 'darwin', undefined, isolatedIdentity, () => 'reused-pid');
+  assert(mismatchedIdentityCalls.length === 0, 'a changed start fingerprint refuses every PID and PGID signal');
   let windowsPid = 0;
   killProcessTree(456, process.kill, 'win32', (pid) => { windowsPid = pid; });
   assert(windowsPid === 456, 'Windows cleanup uses supported taskkill tree strategy');
@@ -593,7 +606,7 @@ async function main(): Promise<void> {
       catch (error) { diagnostic = (error as Error).message; }
       assert(diagnostic.startsWith(`${tempOwnershipLabel}:`) && diagnostic.includes(`vs ${expected}`), 'invalid temp ownership roots fail with dynamic diagnostic detail');
     }
-    const completionHeartbeat = join(root, 'completion-heartbeat');
+  const completionHeartbeat = join(root, 'completion-heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');fs.writeFileSync(${JSON.stringify(completionHeartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(completionHeartbeat)},'x'),20)`) }],{stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(completionHeartbeat)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(completionHeartbeat)}))process.exit(2);\n`);
     const completedWithGrandchild = await runEntry(entry('test:normal-completion-grandchild'), root, process.execPath);
     assertWithDetail(completedWithGrandchild.status === 'PASS', 'normal parent completion remains PASS after descendant cleanup', `${completedWithGrandchild.status}: ${completedWithGrandchild.reason ?? 'no reason'}`);
@@ -740,17 +753,22 @@ async function main(): Promise<void> {
 
   const interruptRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-'));
   const interruptOutputRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-output-'));
+  let interruptChild: ReturnType<typeof spawn> | undefined;
+  // Keep the complete canonical inventory; start a port-free synthetic hanger so
+  // SIGINT is exercised before pending members attempt ancestor-owned ports.
+  const interruptEntries = [...FULL_SUITE_ENTRIES].sort((a, b) =>
+    Number(a.resources.some(claim => claim.class === 'fixed-port')) - Number(b.resources.some(claim => claim.class === 'fixed-port')));
   try {
     const heartbeat = join(interruptRoot, 'heartbeat'); const resultPath = join(interruptOutputRoot, 'result.json');
     mkdirSync(join(interruptRoot, '.proof-or-stop', 'runtime'), { recursive: true });
     createFixtureBuildBinding(interruptRoot);
     writeFileSync(join(interruptRoot, 'hang.js'), `const fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20);\n`);
-    const fixtureScripts = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, 'node hang.js']));
-    fixtureScripts['test:serial-reference'] = FULL_SUITE_ENTRIES.map((item) => `npm run ${item.name}`).join(' && ');
+    const fixtureScripts = Object.fromEntries(interruptEntries.map((item) => [item.name, 'node hang.js']));
+    fixtureScripts['test:serial-reference'] = interruptEntries.map((item) => `npm run ${item.name}`).join(' && ');
     writeFileSync(join(interruptRoot, 'package.json'), JSON.stringify({ scripts: fixtureScripts }));
     execFileSync('git', ['init', '-b', 'main'], { cwd: interruptRoot, stdio: 'ignore' }); execFileSync('git', ['config', 'user.email', 'suite@example.test'], { cwd: interruptRoot }); execFileSync('git', ['config', 'user.name', 'Suite'], { cwd: interruptRoot }); execFileSync('git', ['add', '.'], { cwd: interruptRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: interruptRoot, stdio: 'ignore' });
     const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
-    const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
+    const child = interruptChild = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
     let output = ''; child.stdout?.on('data', (chunk) => { output += chunk; }); child.stderr?.on('data', (chunk) => { output += chunk; });
     const descendantReadyDeadline = Date.now() + 20_000;
     while (!existsSync(heartbeat) && child.exitCode === null && Date.now() < descendantReadyDeadline) {
@@ -771,10 +789,19 @@ async function main(): Promise<void> {
     assertWithDetail(exitCode === 130, 'top-level SIGINT exits 130', `actual=${exitCode}; output=${output}`);
     const receipt = JSON.parse(readFileSync(resultPath, 'utf8')) as { interruptedBy: string; processLaunchCount: number; results: FullSuiteResult[] };
     assert(receipt.interruptedBy === 'SIGINT' && receipt.results.every(({ status }) => status === 'INTERRUPTED'), 'SIGINT receipt marks started and pending members INTERRUPTED');
-    assert(receipt.processLaunchCount === 1 && receipt.results.length === FULL_SUITE_ENTRIES.length, 'pending INTERRUPTED members do not inflate processLaunchCount');
+    assert(receipt.processLaunchCount === 1 && receipt.results.length === interruptEntries.length, 'pending INTERRUPTED members do not inflate processLaunchCount');
     const before = readFileSync(heartbeat, 'utf8').length; await new Promise((done) => setTimeout(done, 100));
     assert(readFileSync(heartbeat, 'utf8').length === before, 'top-level SIGINT leaves no descendant heartbeat');
-  } finally { rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true }); }
+  } finally {
+    if (interruptChild && interruptChild.exitCode === null && interruptChild.signalCode === null) {
+      const child = interruptChild;
+      const closed = new Promise<void>(done => child.once('close', () => done()));
+      child.kill('SIGINT');
+      const timer = setTimeout(() => child.kill('SIGKILL'), 2000);
+      try { await closed; } finally { clearTimeout(timer); }
+    }
+    rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true });
+  }
 
   const staleRoot = mkdtempSync(join(tmpdir(), 'full-suite-stale-binding-'));
   try {

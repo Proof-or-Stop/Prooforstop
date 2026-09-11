@@ -102,6 +102,10 @@ const BASELINE_RECEIPT = join(here, 'red-b2aa7-baseline-receipt.mjs');
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
 const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 
+// Private registration probes consume only the population/config rule. The
+// default pinned receipt still executes every historical proof obligation.
+const registrationOnly = process.argv.includes('--registration-only');
+const canonicalCore = process.argv.includes('--canonical-core');
 const failures = [];
 const fail = (check, why) => failures.push(`${check}: ${why}`);
 const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });
@@ -116,6 +120,7 @@ const OBSERVED_RE = /five-scenario FULL-diagnostic sha256 = ([0-9a-f]{64})/;
 //    baseline commit's blob rather than against the working tree.
 // ════════════════════════════════════════════════════════════════════════════
 
+if (!registrationOnly) {
 // CHK-002 recorded the commit its passing baseline run was taken at. Read it from
 // that receipt so there is ONE source for it in the tree, not two that can drift.
 const BASELINE_COMMIT = /const BASELINE_COMMIT = '([0-9a-f]{40})'/
@@ -135,6 +140,18 @@ if (BASELINE_COMMIT === null) {
   if (baselinePin === null) fail('happy', `no pinned digest found in the harness at ${BASELINE_COMMIT}`);
 }
 
+const flipHex = (hex) => (hex[0] === '0' ? '1' : '0') + hex.slice(1);
+
+if (canonicalCore) {
+  const currentPin = PIN_RE.exec(readFileSync(HARNESS_ABS, 'utf8'))?.[1] ?? null;
+  if (baselinePin === null || currentPin === null || currentPin !== baselinePin) {
+    fail('canonical historical pin', 'current harness must preserve the pin from the historical baseline blob');
+  } else {
+    const changedPin = (currentPin[0] === '0' ? '1' : '0') + currentPin.slice(1);
+    if (changedPin === baselinePin) fail('canonical historical pin', 'perturbed pin must be rejected');
+    console.log('CANONICAL_HISTORICAL_PIN_PRESERVED (baseline blob pin matches current harness; perturbed pin discriminated; live invariance scheduled independently)');
+  }
+} else {
 const invariance = spawnSync(process.execPath, [HARNESS_ABS], { cwd: repoRoot, encoding: 'utf8' });
 const invarianceOut = `${invariance.stdout ?? ''}${invariance.stderr ?? ''}`;
 const observedDigest = OBSERVED_RE.exec(invarianceOut)?.[1] ?? null;
@@ -142,7 +159,6 @@ const harnessOk = invariance.status === 0 && /red-w2c-v1-verdict-invariance: OK/
 
 /** THE COMPARATOR (re-used on a mutated input below so it cannot pass vacuously). */
 const digestMoved = (pinned, seen) => pinned === null || seen === null || pinned !== seen;
-const flipHex = (hex) => (hex[0] === '0' ? '1' : '0') + hex.slice(1);
 
 const comparatorDiscriminates =
   baselinePin !== null && observedDigest !== null
@@ -172,6 +188,8 @@ if (digestUnchanged) {
     + `commit ${BASELINE_COMMIT.slice(0, 10)}, read from that commit's blob rather than from the working tree; `
     + 'the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)',
   );
+}
+
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -362,6 +380,8 @@ if (pinIntact) {
   );
 }
 
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // 4 + 5. registration completeness, and the deliberate exclusion of the two
 //        receipts that are vacuous on the finished tree.
@@ -514,6 +534,7 @@ if (wronglyRegistered.length > 0) {
     + 'print nothing and exit 0, so registering them adds commands that pass forever while asserting nothing.');
 }
 
+if (!registrationOnly) {
 const noisy = [];
 for (const script of REGISTRATION_EXCLUSIONS.keys()) {
   const run = spawnSync(process.execPath, [join(repoRoot, script)], { cwd: repoRoot, encoding: 'utf8' });
@@ -535,6 +556,8 @@ if (wronglyRegistered.length === 0 && noisy.length === 0) {
     + 'on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; '
     + 'they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)',
   );
+}
+
 }
 
 if (failures.length > 0) {

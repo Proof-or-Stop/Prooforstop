@@ -1,0 +1,22 @@
+{
+  "task": "Correct causal evidence tool version resolution in external projects",
+  "outcome": "In an external project the recorded identity.toolVersion equals proof-or-stop --version (currently 0.3.278); an absent manifest no longer yields tool_version_missing and a business version 99.88.77 is never recorded as the tool version.",
+  "facts": [
+    "The resolver reads target and cwd packages/main/package.json without checking package name.",
+    "The CLI exposes a compiled version constant.",
+    "A direct built-module probe reproduced undefined and unrelated business version results."
+  ],
+  "constraints": [
+    "Preserve existing resolver arguments and evidence schemas.",
+    "Keep unrelated dirty main files untouched.",
+    "Restrict implementation to declared files."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/causal-evidence-smoke.ts"
+  ],
+  "timestamp": "2026-09-08T06:13:28.949Z"
+}

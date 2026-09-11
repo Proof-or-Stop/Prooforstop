@@ -1580,7 +1580,7 @@ export function collectDonePrepareConvergenceFacts(
       && run.reviewRound === anchor.reviewRound
       && run.materialHash === anchor.materialHash
       && run.storyFilesHash === anchor.storyFilesHash
-      && verifyReviewRun(run)
+      && verifyReviewRun(run, ctx.store)
     ));
   const runsById = new Map(runs.map((run) => [run.reviewRunId, run]));
   const completedIdentityByRunId = new Map<string, { reviewRunId: string; completedAt: string; passId: string }>();

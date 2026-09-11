@@ -40,7 +40,7 @@ import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/m
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
-import { MAIN_TOOLS } from './cli/command-catalog.js';
+import { MAIN_TOOLS, PUBLIC_MAIN_TOOLS } from './cli/command-catalog.js';
 import type { ToolDef } from './cli/main-tools.js';
 import {
   inferCodexEntrypoint,
@@ -78,9 +78,10 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
-import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, commandCliMaxBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
 import {
+  assertCanonicalActiveIdentityCommandConsumers,
   assertCanonicalActiveIdentityRuntime,
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
@@ -141,7 +142,7 @@ export {
 import { BRAND_ENV_PREFIX, readBrandEnv } from './core/brand-env.js';
 export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
-export { MAIN_TOOLS };
+export { MAIN_TOOLS, PUBLIC_MAIN_TOOLS };
 export type { ToolDef };
 
 /**
@@ -497,6 +498,25 @@ const STRICT_OWNER_META_COMMANDS = new Set([
 ]);
 
 const STRICT_COMMAND_ARG_COMMANDS = new Set([
+  'finding_progress_predecessor',
+  'finding_identity_confirm',
+  'finding_identity_query',
+  'finding_supersession_add',
+  'finding_identity_supersede',
+  'finding_history_query',
+  'finding_identity_scorecard',
+  'finding_history_recall',
+  'finding_route_accept',
+  'finding_route_reject',
+  'finding_route_revoke',
+  'finding_route_verify',
+  'finding_candidate_route',
+  'finding_progress_capture',
+  'finding_candidate_add',
+  'finding_candidate_get',
+  'finding_candidate_merge',
+  'finding_candidate_disprove',
+  'finding_candidate_promote',
   'milestone_status',
   'milestone_closeout',
 ]);
@@ -823,6 +843,18 @@ export async function runCli(opts?: {
     return;
   }
 
+  // Exact command-consumer identity belongs before every write-capable CLI
+  // surface. Keeping this distinct from the broad runtime preflight lets the
+  // consumer contract remain effective even when that preflight is tested in
+  // isolation or deliberately ablated by its negative-control suite.
+  try {
+    assertCanonicalActiveIdentityCommandConsumers({ command: cmd || 'help', projectRoot: root0 });
+  } catch (error: any) {
+    process.stderr.write(`Error: ${error.message}\n`);
+    process.exitCode = 1;
+    return;
+  }
+
   preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
 
   // Detect active story from git branch only after runtime authority passes.
@@ -1107,6 +1139,12 @@ export async function runCli(opts?: {
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
   const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
+  const timeoutBudget = {
+    effectiveMs: effectiveMaxBudget.timeoutMs,
+    derivedMs: effectiveMaxBudget.source === 'explicit-max-env'
+      ? commandCliMaxBudget(root, cmd, parsed).timeoutMs : effectiveMaxBudget.timeoutMs,
+    source: effectiveMaxBudget.source,
+  };
   const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
     ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
     : (5 * 60 * 1000);
@@ -1116,7 +1154,7 @@ export async function runCli(opts?: {
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
-  if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
+  if (cmd === 'done_prepare' || cmd === 'done_required_validate' || cmd === 'validate' || (cmd === 'story_advance' && parsed.phase === 'TEST')) {
     // B-cdf6 delivery review: this diagnostic named the deprecated env var, so a
     // user copying it back would set the pre-rename name. The resolver reads both
     // (brand-env.ts), but new user-visible output must teach the canonical form.
@@ -1135,19 +1173,45 @@ export async function runCli(opts?: {
     } });
   }
   const structuredDoneResult = cmd === 'done_prepare' || cmd === 'done_required_validate';
-  const structuredWatchdog = structuredDoneResult || cmd === 'validate';
+  // B-137a: evidence writers execute pinned provider commands whose wall-clock
+  // budget can legitimately exceed the default watchdog, so they need the same
+  // structured abort channel rather than a hard process.exit(2).
+  const structuredWatchdog = structuredDoneResult
+    || cmd === 'validate'
+    || cmd === 'verification_evidence_add'
+    || cmd === 'verification_evidence_refresh_stale'
+    || cmd === 'verification_evidence_batch_add'
+    || cmd === 'verification_run';
+  const runtimeContinuation = getCommandPolicy(cmd)?.runtimeContinuation === true;
   const watchdogAbort = new AbortController();
   if (structuredWatchdog) {
-    Object.assign(parsed, {
+    const watchdogControl = {
       abortSignal: watchdogAbort.signal,
       deadlineAt: startTime + MAX_TIMEOUT,
       deadlineError: () => watchdogAbort.signal.reason instanceof Error
         ? watchdogAbort.signal.reason
         : new CliWatchdogTimeoutError('max', MAX_TIMEOUT),
-    });
+    };
+    Object.assign(parsed, watchdogControl);
+    // The generic dispatcher normally passes schema-filtered `v.data`, while
+    // Evidence writers' abort/deadline controls are deliberately internal and
+    // absent from their public schemas. Inject them only for these exact
+    // commands; arbitrary commands neither receive this capability nor become
+    // runtimeContinuation.
+    if (
+      (cmd === 'verification_evidence_add'
+        || cmd === 'verification_evidence_refresh_stale'
+        || cmd === 'verification_evidence_batch_add'
+        || cmd === 'verification_run')
+      && v.data
+      && typeof v.data === 'object'
+    ) {
+      Object.assign(v.data as Record<string, unknown>, watchdogControl);
+    }
   }
 
   const watchdog = setInterval(() => {
+    if (runtimeContinuation) return;
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
       const error = new CliWatchdogTimeoutError('max', MAX_TIMEOUT);
@@ -1244,12 +1308,23 @@ export async function runCli(opts?: {
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
+        // Reuse the actual admission result; never infer an implementation from
+        // a version label or rescan mutable files when publishing diagnostics.
+        // This annotates existing runtime records and grants no gate authority.
+        implementation: enforcedImplementationIdentity ? {
+          status: 'verified-at-entry',
+          schema: enforcedImplementationIdentity.schema,
+          digest: enforcedImplementationIdentity.digest,
+          entrypoint: enforcedImplementationIdentity.entrypoint,
+          pid: process.pid,
+        } : { status: 'unverified' },
         tool: entry.command,
         detail: entry.command,
         args: entry.args,
         status: entry.success ? 'ok' : 'fail',
         result: entry.success ? null : undefined,
         error: entry.error || null,
+        timeoutBudget,
         storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory, {
           command: entry.command,
           projectRoot: effectiveRoot,

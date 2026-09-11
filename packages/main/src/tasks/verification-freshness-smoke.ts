@@ -34,6 +34,8 @@ import { resetConfigCache } from '../core/config.js';
 import { acquireOwnerLease, readOwnerLease, releaseOwnerLease, getSessionId } from '../core/story-owner-lease.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -904,6 +906,9 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       };
       store.writeStory(storyId, story);
       store.writeChecklist(storyId, checklist);
+      const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(causalInputHashes, 'recovery fixture must bind real certification inputs');
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
       return { root, storyId, store, cleanup: () => rmSync(root, { recursive: true, force: true }) };
     } catch (e) {
       rmSync(root, { recursive: true, force: true });
@@ -944,6 +949,19 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     } finally {
       fx.cleanup();
     }
+  }
+
+  // Ownership is a prerequisite, not a reason to silently skip validation.
+  {
+    const fx = makeFixture();
+    try {
+      assert.equal(readOwnerLease(fx.store.storyDirPath(fx.storyId)), null);
+      const handlers = createRecoverEvidenceHandlers({ store: fx.store, root: fx.root, scanRoot: join(fx.root, 'packages/main') });
+      const result = await handlers.recover_evidence({ storyId: fx.storyId }) as RecoverResult;
+      assert.equal(readOwnerLease(fx.store.storyDirPath(fx.storyId)), null);
+      assert.equal(result.status, 'fail', 'recovery without ownership cannot claim success');
+      assert.match(result.validateTranscript ?? '', /owner lease lost, expired, or transferred/);
+    } finally { fx.cleanup(); }
   }
 
   // (3) Refuse — material_source_changes blocks recover.
@@ -1192,6 +1210,9 @@ async function assertSimulatedMainMergeRegression(advisoryHint = false): Promise
         return true;
       });
       assert.equal(store.readStory(storyId).phase, 'DEV', 'Missing mechanical proof cannot enter REVIEW');
+      const initialCausalInputs = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(initialCausalInputs);
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: initialCausalInputs });
       realValidation = await withFixtureRecoveryOwner(root, store, storyId, async () =>
         createVerifierHandlers({ store, root, scanRoot: join(root, 'packages/main') })
           .validate({ story: storyId, json: true, noSync: true }));
@@ -1313,6 +1334,11 @@ async function assertSimulatedMainMergeRegression(advisoryHint = false): Promise
     }
     assert.equal(briefBlock, validateBlock,
       'session_brief and validate blocks must be byte-identical');
+
+    // Heavy recovery runs only after ownership and certification admission.
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes);
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
 
     // ── 8. Recovery refuses unexecuted evidence, then accepts a real receipt ──────────────────────────
     // No material dirt: refresh runs, but only required mechanical proof admits.

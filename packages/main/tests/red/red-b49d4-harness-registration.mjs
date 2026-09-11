@@ -69,6 +69,7 @@
  * Run from anywhere:
  *   node packages/main/tests/red/red-b49d4-harness-registration.mjs
  */
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { basename, dirname, join, relative, sep } from 'node:path';
@@ -116,6 +117,27 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-b03b7-scope-budget-legacy-migration.mjs`,
+    'Lab-only migration witness that requires the historical B-03b7 worktree path as argv[2]. The permanent scope-budget '
+    + 'configuration and process-fact validations cover the shipped policy; invoking this pathless wrapper in canonical '
+    + 'validate would terminate as BROKEN before exercising its intended historical subject.'],
+  [`${POPULATION_DIR_REL}/red-scope-budget-provenance-repair.mjs`,
+    'Lab-only focused witness for the completed scope-budget provenance repair. The registered process-fact contract '
+    + 'and scope-budget configuration checks consume the same current validation-command inventory, so retaining this '
+    + 'one-shot repair probe as another canonical command would duplicate standing coverage.'],
+  [`${POPULATION_DIR_REL}/red-sealed-review-pass-finalization.mjs`,
+    'Lab-only wrapper around the permanent review-incremental-context as-of-run acceptance branch. The registered review '
+    + 'validation surface and verify-review-asof-boundary source coverage retain that assertion; replaying this wrapper '
+    + 'would only execute the same focused branch again.'],
+  [`${POPULATION_DIR_REL}/red-story-create-direct-done-bypass.mjs`,
+    'Lab-only reproduction for the completed lifecycle-entry repair. The permanent field-regression CLI smoke, Story '
+    + 'creation concurrency smoke, and process-fact contract now enforce refusal of post-intake phases, so this disposable '
+    + 'direct-handler reproduction is not a separate canonical validation command.'],
+  [`${POPULATION_DIR_REL}/red-b03b7-f031-public-foreign-canonical.mjs`,
+    'The registered finding-identity-lineage-smoke.js --section=delivery executes the same worktrees branch and '
+    + 'PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS assertion as this on-demand wrapper. Its signed foreign canonical row, '
+    + 'history and scorecard checks remain required. The coverage audit below invalidates this exclusion if the exact '
+    + 'delivery registration or reviewed worktrees branch changes; no duplicate validate command is needed.'],
   [`${POPULATION_DIR_REL}/red-B-e40f-lab-convergence.mjs`,
     'Lab-only maintenance harness for the completed B-e40f convergence experiment. It intentionally measures the '
     + 'full 73-case coordinator against built dist and records Lab RED/GREEN evidence; running it inside every canonical '
@@ -231,6 +253,31 @@ const config = JSON.parse(configRaw);
 if (!Array.isArray(config?.validate?.commands) || config.validate.commands.length === 0) {
   console.error('red-b49d4-harness-registration: proof-or-stop.config.json must declare a non-empty validate.commands array');
   process.exit(1);
+}
+
+// This exclusion is conditional on a concrete registered caller and its complete
+// reviewed assertion block, not a filename/marker appearing elsewhere in source.
+const F031_ENTRY = 'packages/main/dist/tasks/finding-identity-lineage-smoke.js';
+const F031_SOURCE = 'packages/main/src/tasks/finding-identity-lineage-smoke.ts';
+const F031_SOURCE_SHA256 = '5f71d7d6b29f76e5a6f667f5982d41eb60a06b2c7ffc18ad3b9321546ffe9ae2';
+function f031DeliveryCovered(candidateConfig, source) {
+  const entries = candidateConfig?.validate?.commands ?? [];
+  if (entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length !== 1) return false;
+  return createHash('sha256').update(source).digest('hex') === F031_SOURCE_SHA256
+    && source.includes("section === 'worktrees' || section === 'delivery'")
+    && source.includes('PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS');
+}
+const f031Source = readFileSync(join(repoRoot, F031_SOURCE), 'utf8');
+if (!f031DeliveryCovered(config, f031Source)) fail('F031_coverage', 'F031 exclusion requires its exact registered delivery command and reviewed worktrees assertion block');
+const withoutDelivery = structuredClone(config);
+withoutDelivery.validate.commands = withoutDelivery.validate.commands.filter(entry => !entryArgv(entry).includes(F031_ENTRY));
+const f031Mutations = [
+  ['removed registration', withoutDelivery, f031Source],
+  ['removed delivery branch', config, f031Source.replace("section === 'worktrees' || section === 'delivery'", "section === 'worktrees'")],
+  ['removed success marker', config, f031Source.replace('PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS', 'REMOVED_F031_MARKER')],
+];
+for (const [name, mutantConfig, mutantSource] of f031Mutations) {
+  if (f031DeliveryCovered(mutantConfig, mutantSource)) fail('F031_coverage_negative', `${name} did not invalidate the exclusion`);
 }
 
 const realTokens = registeredTokens(config);

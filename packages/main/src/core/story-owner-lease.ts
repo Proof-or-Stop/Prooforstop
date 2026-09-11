@@ -896,10 +896,12 @@ export interface OwnerLeaseHeartbeatOptions {
 }
 
 /** Renew an existing generation only. Missing, expired, or transferred leases
- * abort renewal; a heartbeat never acquires or takes over ownership. */
+ * abort renewal; a heartbeat never acquires or takes over ownership. The signal
+ * lets a queued caller stop waiting when renewal fails; callers that already
+ * execute work still retain their own launch/publication fencing. */
 export async function withOwnerLeaseHeartbeat<T>(
   storyDir: string, options: OwnerLeaseWriteOptions & OwnerLeaseHeartbeatOptions,
-  fn: () => Promise<T> | T,
+  fn: (leaseLostSignal: AbortSignal) => Promise<T> | T,
 ): Promise<T> {
   const now = options.now ?? (() => new Date().toISOString());
   const initial = readOwnerLease(storyDir);
@@ -914,6 +916,7 @@ export async function withOwnerLeaseHeartbeat<T>(
     refreshOwnerLeaseUnlocked(storyDir, options);
   });
   beat();
+  const leaseLost = new AbortController();
   let failure: unknown;
   const interval = options.intervalMs ?? VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.ownerLeaseHeartbeatMs;
   if (!Number.isFinite(interval) || interval < 1 || interval >= STALE_LEASE_THRESHOLD_MS / 2) {
@@ -921,11 +924,11 @@ export async function withOwnerLeaseHeartbeat<T>(
   }
   const timer = setInterval(() => {
     if (failure) return;
-    try { beat(); } catch (error) { failure = error; }
+    try { beat(); } catch (error) { failure = error; leaseLost.abort(error); }
   }, interval);
   timer.unref?.();
   try {
-    const result = await fn();
+    const result = await fn(leaseLost.signal);
     if (failure) throw failure;
     beat();
     return result;

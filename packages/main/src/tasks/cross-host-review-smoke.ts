@@ -42,12 +42,14 @@
  */
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, appendFileSync, chmodSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts } from '../core/verdicts.js';
@@ -71,15 +73,31 @@ import {
   PERSISTED_FINDING_TEXT_CAP,
   PERSISTED_FINDING_TITLE_CAP,
   PERSISTED_FINDING_TRUNCATION_MARKER,
+  type CrossHostReviewArgs,
+  type CrossHostReviewManagedSubmission,
   type CrossHostReviewResult,
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
 import { checkDispatchPolicy, createDispatchPolicy, getDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
 import { PROOF_OR_STOP_STATE_DIR, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
+import {
+  cancelManagedHostRun,
+  cleanupManagedCrossHostReviewWorktree,
+  getManagedHostRunStatus,
+  managedHostRunDirectory,
+  readManagedHostRunBinding,
+  runManagedHostRunWorker,
+  type ManagedHostRunWorkerLauncher,
+} from '../core/managed-host-run.js';
+import type { HostRunRunner } from '../core/host-run.js';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
+import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/writer.js';
 
 const STORY_ID = 'B-xhr-smoke';
 const REVIEW_ROUND = '2026-07-03T10:00:00.000Z';
 const COMMIT_ENV = ['-c', 'user.email=xhr-smoke@example.test', '-c', 'user.name=Cross Host Review Smoke'];
+const SELF = fileURLToPath(import.meta.url);
+const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -248,10 +266,63 @@ function verdictJsonStdout(materialHash: string, decision: 'pass' | 'fail' | 'bl
   ].join('\n');
 }
 
-let passed = 0;
+function waitForExit(child: ReturnType<typeof spawn>): Promise<number | null> {
+  return new Promise((resolve, reject) => {
+    child.once('error', reject);
+    child.once('close', code => resolve(code));
+  });
+}
+
+async function xhrWorkerMain(root: string, runId: string, materialHash: string, markerDir: string): Promise<void> {
+  mkdirSync(markerDir, { recursive: true });
+  const runner: HostRunRunner = async plan => {
+    writeFileSync(join(markerDir, `provider-${process.pid}.spawn`), runId, { flag: 'wx', mode: 0o600 });
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const stdout = verdictJsonStdout(materialHash, 'pass', [], 'detached cross-host worker passed once');
+    plan.onChunk?.({ stream: 'stdout', text: stdout });
+    return { stdout, stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+  };
+  await runManagedHostRunWorker({ root, runId }, { runner, env: { ...process.env, PROOF_OR_STOP_USAGE_LEDGER: '0' } });
+}
+
+async function xhrSubmitterMain(root: string, hostAFindingsFile: string, resultPath: string, markerDir: string): Promise<void> {
+  process.chdir(root);
+  resetConfigCache();
+  const store = new StoryStore(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root)!;
+  const launchWorker: ManagedHostRunWorkerLauncher = async request => {
+    const child = spawn(process.execPath, [SELF, '--xhr-worker', request.root, request.runId, materialHash, markerDir], {
+      cwd: request.root,
+      detached: true,
+      stdio: 'ignore',
+    });
+    child.unref();
+    return { pid: child.pid ?? 0 };
+  };
+  const handlers = createCrossHostReviewHandlers({ root, store, scanRoot: join(root, 'packages/main') }, { launchWorker });
+  const submission = await handlers.cross_host_review({
+    storyId: STORY_ID,
+    policy: reviewOnlyPolicy(),
+    hostAFindingsFile,
+    runId: `${STORY_ID}-xhr-real-caller-loss`,
+    detach: true,
+    json: true,
+  }) as CrossHostReviewManagedSubmission;
+  writeFileSync(resultPath, `${JSON.stringify(submission)}\n`, { mode: 0o600 });
+}
+
+let corePassed = 0;
+let extensionPassed = 0;
 function check(name: string, fn: () => void | Promise<void>): Promise<void> {
   return Promise.resolve(fn()).then(() => {
-    passed += 1;
+    corePassed += 1;
+    console.log(`  ✓ ${name}`);
+  });
+}
+
+function extensionCheck(name: string, fn: () => void | Promise<void>): Promise<void> {
+  return Promise.resolve(fn()).then(() => {
+    extensionPassed += 1;
     console.log(`  ✓ ${name}`);
   });
 }
@@ -270,11 +341,420 @@ async function run(): Promise<void> {
 
     // CHK-001:happy:1 — RED→GREEN: the orchestration surface must be registered.
     assert.ok(registry.get('cross_host_review'), 'cross_host_review command must be registered');
+    const publicTool = MAIN_TOOLS.find(tool => tool.name === 'cross_host_review');
+    assert.ok(publicTool?.schema.detach, 'cross_host_review public schema exposes detach');
+    assert.ok(publicTool?.schema.managedRunId, 'cross_host_review public schema exposes managedRunId');
+    assert.equal(publicTool!.schema.detach!.safeParse(true).success, true);
+    assert.equal(publicTool!.schema.managedRunId!.safeParse('managed-run-1').success, true);
+    const productionHandlerSource = readFileSync(fileURLToPath(new URL('../handlers/cross-host-review.js', import.meta.url)), 'utf8');
+    assert.match(productionHandlerSource, /submitManagedHostRun\s*\(/,
+      'cross_host_review production execution submits through ManagedHostRun');
+    assert.match(productionHandlerSource, /getManagedHostRunStatus\s*\(/,
+      'cross_host_review production execution observes the managed terminal');
+    assert.doesNotMatch(productionHandlerSource, /\bspawn(?:Sync)?\s*\(/,
+      'cross_host_review controller owns no direct provider spawn stack');
+    assert.doesNotMatch(productionHandlerSource, /process\.kill\s*\(/,
+      'cross_host_review controller owns no provider signal/kill stack');
     console.log('  ✓ CHK-001:happy:1 cross_host_review is registered');
-    passed += 1;
+    corePassed += 1;
 
     const materialHash = currentMaterialHash(root, 'HEAD', root)!;
     assert.ok(materialHash, 'current material hash exists');
+
+    await extensionCheck('F024 real CLI submit/detach/resume accepts the public schema and consumes one durable run', async () => {
+      createDispatchPolicy(root, reviewOnlyPolicy());
+      writeFileSync(hostAFindingsFile, '[]\n', 'utf8');
+      const fakeBin = join(hostAFindingsDir, 'fake-bin');
+      mkdirSync(fakeBin, { recursive: true });
+      const fakeCodex = join(fakeBin, 'codex');
+      writeFileSync(fakeCodex, [
+        '#!/bin/sh',
+        `printf '%s\\n' '${JSON.stringify({
+          schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA,
+          decision: 'pass',
+          materialHash,
+          findings: [],
+          summary: 'real public CLI detached run passed',
+        })}'`,
+      ].join('\n') + '\n', 'utf8');
+      chmodSync(fakeCodex, 0o755);
+      const cliEnv = {
+        ...process.env,
+        PATH: `${fakeBin}:${process.env.PATH ?? ''}`,
+        PROOF_OR_STOP_SESSION_ID: 'xhr-real-cli-session',
+        PROOF_OR_STOP_USAGE_LEDGER: '0',
+      };
+      const runId = `${STORY_ID}-xhr-real-public-cli`;
+      const detachedText = execFileSync(process.execPath, [CLI, '--root', root, 'cross_host_review', JSON.stringify({
+        storyId: STORY_ID,
+        policy: 'xhr-review-only',
+        hostAFindingsFile,
+        runId,
+        detach: true,
+        json: true,
+      })], { cwd: root, env: cliEnv, encoding: 'utf8', timeout: 20_000 });
+      const detached = JSON.parse(detachedText) as CrossHostReviewManagedSubmission;
+      assert.equal(detached.schemaVersion, 'lattice.cross_host_review_managed_submission.v1');
+      assert.match(detached.managedRunId, /^[A-Za-z0-9][A-Za-z0-9._-]+$/);
+      const resumedText = execFileSync(process.execPath, [CLI, '--root', root, 'cross_host_review', JSON.stringify({
+        storyId: STORY_ID,
+        policy: 'xhr-review-only',
+        hostAFindingsFile,
+        runId,
+        managedRunId: detached.managedRunId,
+        json: true,
+      })], { cwd: root, env: cliEnv, encoding: 'utf8', timeout: 20_000 });
+      const resumed = JSON.parse(resumedText) as CrossHostReviewResult;
+      assert.equal(resumed.managedRunId, detached.managedRunId);
+      assert.equal(resumed.jointDecision.jointDecision, 'pass');
+      assert.equal(
+        store.readProcessEvents(STORY_ID).filter(event =>
+          event.type === 'cross_host_review_managed_submitted'
+          && (event as { managedRunId?: string }).managedRunId === detached.managedRunId).length,
+        1,
+        'real CLI resume never submits a replacement managed run',
+      );
+
+      // F-198: submission creates a provider-owned snapshot before recording its
+      // audit event. If that post-submit event write fails, the controller must
+      // still retain the submitted runId for finally's terminal cleanup guard.
+      let releaseAppendFailureRunner!: () => void;
+      const appendFailureGate = new Promise<void>(resolve => { releaseAppendFailureRunner = resolve; });
+      const appendFailureRunner: HostRunRunner = async plan => {
+        await appendFailureGate;
+        const stdout = verdictJsonStdout(materialHash, 'pass', [], 'provider completed after event-write failure');
+        plan.onChunk?.({ stream: 'stdout', text: stdout });
+        return {
+          stdout,
+          stderr: '',
+          exitCode: 0,
+          timedOut: false,
+          terminalReason: 'completed',
+          replacementSafe: true,
+          residualProcessGroup: false,
+          processCleanup: { termSent: false, killSent: false, reaped: true, residualProcessGroup: false },
+        };
+      };
+      const appendFailureHandlers = createCrossHostReviewHandlers(ctx, { managedRunner: appendFailureRunner });
+      let appendFailureManagedRunId = '';
+      // Keep the test-only health receiver under the canonical RUNTIME dir so it
+      // does not create material worktree drift between the post-submit and
+      // replay assertions.
+      //
+      // B-137a main-merge fix: this wrote to `.lattice/<file>`. A bare file
+      // directly under a state dir is NOT metadata-excluded by the canonical
+      // material policy (only story/ and runtime/ subpaths are), so the sink the
+      // fixture created was itself counted as uncommitted SOURCE and tripped the
+      // cross_host_review dirty-worktree preflight before the injected failure
+      // could surface. `.proof-or-stop/runtime/` is excluded, matching intent.
+      const appendFailureHealthPath = join(root, PROOF_OR_STOP_DIR, 'runtime', 'append-process-event-failure-health.jsonl');
+      const originalHealthPath = process.env.PROOF_OR_STOP_HEALTH_PATH;
+      process.env.PROOF_OR_STOP_HEALTH_PATH = appendFailureHealthPath;
+      const originalAppendProcessEvent = store.appendProcessEvent.bind(store);
+      const mutableStore = store as unknown as {
+        appendProcessEvent: (eventStoryId: string, event: Record<string, unknown>) => unknown;
+      };
+      mutableStore.appendProcessEvent = (eventStoryId, event) => {
+        if (event.type === 'cross_host_review_managed_submitted') {
+          appendFailureManagedRunId = String(event.managedRunId ?? '');
+          throw new Error('injected appendProcessEvent failure after managed submission');
+        }
+        return originalAppendProcessEvent(eventStoryId, event as Parameters<typeof store.appendProcessEvent>[1]);
+      };
+      try {
+        const submission = await appendFailureHandlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-append-failure-keeps-snapshot`,
+          json: true,
+        }) as CrossHostReviewManagedSubmission;
+        assert.equal(submission.managedRunId, appendFailureManagedRunId,
+          'JSON-mode post-submit bookkeeping failure returns the durable managed run identity for safe resume');
+        assert.match(submission.bookkeepingError ?? '', /injected appendProcessEvent failure after managed submission/,
+          'structured submission honestly reports the controller-local bookkeeping failure');
+      } finally {
+        mutableStore.appendProcessEvent = originalAppendProcessEvent as unknown as typeof mutableStore.appendProcessEvent;
+        if (originalHealthPath === undefined) delete process.env.PROOF_OR_STOP_HEALTH_PATH;
+        else process.env.PROOF_OR_STOP_HEALTH_PATH = originalHealthPath;
+      }
+      assert.match(appendFailureManagedRunId, /^[A-Za-z0-9][A-Za-z0-9._-]+$/,
+        'the injected event failure observes the already-submitted managed run id');
+      const appendFailureBinding = readManagedHostRunBinding(root, appendFailureManagedRunId);
+      assert.equal(existsSync(appendFailureBinding.cwd), true,
+        'post-submit event failure retains the snapshot while the managed provider is still active');
+      assert.match(readFileSync(appendFailureHealthPath, 'utf8'), /persist:crossHostReviewManagedSubmissionEvent/,
+        'post-submit bookkeeping failure reaches the durable health channel');
+      releaseAppendFailureRunner();
+      let appendFailureStatus = await getManagedHostRunStatus({ root, runId: appendFailureManagedRunId });
+      const appendFailureDeadline = Date.now() + 10_000;
+      while (!appendFailureStatus.run.terminal && Date.now() < appendFailureDeadline) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        appendFailureStatus = await getManagedHostRunStatus({ root, runId: appendFailureManagedRunId });
+      }
+      assert.equal(appendFailureStatus.run.terminal?.replacementSafe, true,
+        'the independently retained managed run reaches its exact replacement-safe terminal');
+      cleanupManagedCrossHostReviewWorktree(root, appendFailureBinding.cwd);
+
+      // F-237: a replacement-safe terminal is not by itself authority to drop
+      // the snapshot. Keep it until local verdict/event persistence finishes;
+      // otherwise a crash in this hook loses the exact cwd required for replay.
+      let verdictWindowRunId = '';
+      const submittedBeforeVerdictWindow = new Set(store.readProcessEvents(STORY_ID)
+        .filter(event => event.type === 'cross_host_review_managed_submitted')
+        .map(event => String((event as { managedRunId?: string }).managedRunId ?? '')));
+      const verdictWindowHandlers = createCrossHostReviewHandlers(ctx, {
+        codexRunner: () => ({
+          stdout: verdictJsonStdout(materialHash, 'pass', [], 'terminal before verdict persistence'),
+          exitCode: 0,
+          timedOut: false,
+        }),
+        beforeVerdictRecord: () => { throw new Error('injected pre-verdict durability failure'); },
+      });
+      try {
+        await assert.rejects(
+          verdictWindowHandlers.cross_host_review({
+            storyId: STORY_ID,
+            policy: reviewOnlyPolicy(),
+            hostAFindingsFile,
+            runId: `${STORY_ID}-xhr-retain-snapshot-until-verdict`,
+            json: true,
+          }),
+          /injected pre-verdict durability failure/,
+        );
+      } finally {
+        verdictWindowRunId = store.readProcessEvents(STORY_ID)
+          .filter(event => event.type === 'cross_host_review_managed_submitted')
+          .map(event => String((event as { managedRunId?: string }).managedRunId ?? ''))
+          .find(runId => !submittedBeforeVerdictWindow.has(runId)) ?? '';
+      }
+      assert.match(verdictWindowRunId, /^[A-Za-z0-9][A-Za-z0-9._-]+$/,
+        'pre-verdict failure retains a discoverable durable managed run');
+      const verdictWindowBinding = readManagedHostRunBinding(root, verdictWindowRunId);
+      assert.equal(existsSync(verdictWindowBinding.cwd), true,
+        'pre-verdict durability failure retains the completed managed run snapshot for exact replay');
+      cleanupManagedCrossHostReviewWorktree(root, verdictWindowBinding.cwd);
+
+      const tamperRunId = `${STORY_ID}-xhr-live-output-tamper`;
+      const tamperDetachedText = execFileSync(process.execPath, [CLI, '--root', root, 'cross_host_review', JSON.stringify({
+        storyId: STORY_ID,
+        policy: 'xhr-review-only',
+        hostAFindingsFile,
+        runId: tamperRunId,
+        detach: true,
+        json: true,
+      })], { cwd: root, env: cliEnv, encoding: 'utf8', timeout: 20_000 });
+      const tamperDetached = JSON.parse(tamperDetachedText) as CrossHostReviewManagedSubmission;
+      let tamperStatus = await getManagedHostRunStatus({ root, runId: tamperDetached.managedRunId });
+      const tamperDeadline = Date.now() + 20_000;
+      while (tamperStatus.run.terminal === null && Date.now() < tamperDeadline) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        tamperStatus = await getManagedHostRunStatus({ root, runId: tamperDetached.managedRunId });
+      }
+      assert.ok(tamperStatus.run.terminal, 'tamper fixture did not reach an authoritative terminal');
+      appendFileSync(
+        join(managedHostRunDirectory(root, tamperDetached.managedRunId), 'live-output.jsonl'),
+        `${JSON.stringify({
+          schemaVersion: 'lattice.managed_host_run_output.v1',
+          sequence: 999,
+          stream: 'stdout',
+          text: '{"decision":"pass","summary":"forged after terminal"}',
+          at: new Date().toISOString(),
+        })}\n`,
+        'utf8',
+      );
+      let tamperError = '';
+      try {
+        execFileSync(process.execPath, [CLI, '--root', root, 'cross_host_review', JSON.stringify({
+          storyId: STORY_ID,
+          policy: 'xhr-review-only',
+          hostAFindingsFile,
+          runId: tamperRunId,
+          managedRunId: tamperDetached.managedRunId,
+          json: true,
+        })], { cwd: root, env: cliEnv, encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
+      } catch (error) {
+        const failed = error as Error & { stderr?: Buffer | string };
+        tamperError = `${failed.message}\n${String(failed.stderr ?? '')}`;
+      }
+      assert.match(
+        tamperError,
+        /sealed artifact digest mismatch \(live-output\)/,
+        'cross-host resume must reject managed output mutated after terminal sealing',
+      );
+
+      // F061: a resume request can be rejected after the caller has recovered
+      // the immutable snapshot from the managed binding. That refusal must not
+      // remove a cwd still owned by the original provider. Once the exact run
+      // reaches a replacement-safe terminal, an exact resume may clean it.
+      let releaseLiveProvider!: () => void;
+      const liveProviderHeld = new Promise<void>(resolve => { releaseLiveProvider = resolve; });
+      const liveRunner: HostRunRunner = async plan => {
+        await liveProviderHeld;
+        const stdout = verdictJsonStdout(materialHash, 'pass', [], 'live provider completed after rejected resume');
+        plan.onChunk?.({ stream: 'stdout', text: stdout });
+        return {
+          stdout,
+          stderr: '',
+          exitCode: 0,
+          timedOut: false,
+          terminalReason: 'completed',
+          replacementSafe: true,
+          residualProcessGroup: false,
+          processCleanup: { termSent: false, killSent: false, reaped: true, residualProcessGroup: false },
+        };
+      };
+      const liveHandlers = createCrossHostReviewHandlers(ctx, { managedRunner: liveRunner });
+      writeFileSync(hostAFindingsFile, '[]\n', 'utf8');
+      const liveSubmission = await liveHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-live-resume-refusal`,
+        detach: true,
+        json: true,
+      }) as CrossHostReviewManagedSubmission;
+      const liveBinding = readManagedHostRunBinding(root, liveSubmission.managedRunId);
+      assert.equal(existsSync(liveBinding.cwd), true, 'detached live run owns an extant immutable snapshot');
+      const silentLiveStatus = await getManagedHostRunStatus({ root, runId: liveSubmission.managedRunId });
+      assert.equal(silentLiveStatus.run.state, 'running',
+        'a silent held provider remains an active managed run while its unchanged review binding is still valid');
+      assert.equal(silentLiveStatus.run.terminal, null,
+        'silent provider output must not synthesize a codex_review_no_parseable_verdict terminal before the provider exits');
+      writeFileSync(hostAFindingsFile, `${JSON.stringify([{
+        severity: 'MINOR',
+        title: 'changes managed prompt digest',
+        file: 'packages/main/src/index.ts',
+        line: 1,
+        issue: 'resume binding must reject this changed prompt',
+        fix: 'resume with the original prompt only',
+      }])}\n`, 'utf8');
+      await assert.rejects(
+        liveHandlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-live-resume-refusal`,
+          managedRunId: liveSubmission.managedRunId,
+          json: true,
+        }),
+        /binding does not match/,
+      );
+      const snapshotSurvivedRefusal = existsSync(liveBinding.cwd);
+      releaseLiveProvider();
+      let liveStatus = await getManagedHostRunStatus({ root, runId: liveSubmission.managedRunId });
+      const liveDeadline = Date.now() + 10_000;
+      while (!liveStatus.run.terminal && Date.now() < liveDeadline) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        liveStatus = await getManagedHostRunStatus({ root, runId: liveSubmission.managedRunId });
+      }
+      assert.equal(liveStatus.run.terminal?.state, 'completed',
+        'releasing the same silent managed run completes its original binding rather than replacing it');
+      assert.equal(liveStatus.run.terminal?.replacementSafe, true, 'held provider eventually reaches a replacement-safe terminal');
+      if (snapshotSurvivedRefusal) {
+        writeFileSync(hostAFindingsFile, '[]\n', 'utf8');
+        await liveHandlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-live-resume-refusal`,
+          managedRunId: liveSubmission.managedRunId,
+          json: true,
+        });
+        assert.equal(existsSync(liveBinding.cwd), false, 'exact safe-terminal resume cleans the retained snapshot');
+      } else {
+        cleanupManagedCrossHostReviewWorktree(root, liveBinding.cwd);
+      }
+      assert.equal(snapshotSurvivedRefusal, true, 'rejected resume must retain a snapshot still occupied by a live provider');
+
+      const unsafeRunner: HostRunRunner = async plan => {
+        const stdout = verdictJsonStdout(materialHash, 'pass', [], 'terminal has a residual provider group');
+        plan.onChunk?.({ stream: 'stdout', text: stdout });
+        return {
+          stdout,
+          stderr: '',
+          exitCode: 0,
+          timedOut: false,
+          terminalReason: 'completed',
+          replacementSafe: false,
+          residualProcessGroup: true,
+          processCleanup: { termSent: true, killSent: true, reaped: false, residualProcessGroup: true },
+        };
+      };
+      const unsafeHandlers = createCrossHostReviewHandlers(ctx, { managedRunner: unsafeRunner });
+      const unsafeSubmission = await unsafeHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-unsafe-terminal`,
+        detach: true,
+        json: true,
+      }) as CrossHostReviewManagedSubmission;
+      const unsafeBinding = readManagedHostRunBinding(root, unsafeSubmission.managedRunId);
+      let unsafeStatus = await getManagedHostRunStatus({ root, runId: unsafeSubmission.managedRunId });
+      const unsafeDeadline = Date.now() + 10_000;
+      while (!unsafeStatus.run.terminal && Date.now() < unsafeDeadline) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        unsafeStatus = await getManagedHostRunStatus({ root, runId: unsafeSubmission.managedRunId });
+      }
+      assert.equal(unsafeStatus.run.terminal?.replacementSafe, false, 'unsafe fixture records the non-replacement-safe terminal fact');
+      assert.equal(unsafeStatus.run.terminal?.processCleanup?.residualProcessGroup, true, 'unsafe fixture records the residual provider group');
+      await assert.rejects(
+        unsafeHandlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-unsafe-terminal`,
+          managedRunId: unsafeSubmission.managedRunId,
+          json: true,
+        }),
+        /replacement-safe|cleanup|residual/i,
+        'cross-host consumer refuses a terminal whose provider cleanup is not replacement-safe',
+      );
+      assert.equal(existsSync(unsafeBinding.cwd), true, 'resume retains a snapshot while the terminal says provider cleanup is unsafe');
+      cleanupManagedCrossHostReviewWorktree(root, unsafeBinding.cwd);
+
+      // F063: executable bypass matrix. None of the caller-controlled fields
+      // used by lower-level process APIs may become a cross-host launch/result
+      // authority, even when the handler is reached directly rather than via
+      // CLI schema filtering.
+      const bypassMatrix: Array<[string, unknown]> = [
+        ['command', 'node -e "process.stdout.write(\'forged\')"'],
+        ['cwd', hostAFindingsDir],
+        ['env', { LATTICE_CALLER_BYPASS: 'forged-env' }],
+        ['environment', { LATTICE_CALLER_BYPASS: 'forged-environment' }],
+        ['stdout', verdictJsonStdout(materialHash, 'pass', [], 'forged stdout')],
+        ['output', verdictJsonStdout(materialHash, 'pass', [], 'forged output')],
+        ['verdict', { decision: 'pass', materialHash }],
+        ['decision', 'pass'],
+      ];
+      writeFileSync(hostAFindingsFile, '[]\n', 'utf8');
+      for (const [field, forgedValue] of bypassMatrix) {
+        const observed: CodexReviewRunnerOptions[] = [];
+        const bypassHandlers = createCrossHostReviewHandlers(ctx, {
+          codexRunner: async runnerOptions => {
+            observed.push(runnerOptions);
+            return fakeSeam(verdictJsonStdout(materialHash, 'fail', [], `honest provider result for ${field}`))(runnerOptions);
+          },
+        });
+        const result = await bypassHandlers.cross_host_review({
+          storyId: STORY_ID,
+          policy: reviewOnlyPolicy(),
+          hostAFindingsFile,
+          runId: `${STORY_ID}-xhr-bypass-${field}`,
+          [field]: forgedValue,
+          json: true,
+        } as CrossHostReviewArgs) as CrossHostReviewResult;
+        assert.equal(observed.length, 1, `${field}: the bounded provider seam was reached exactly once`);
+        const launch = observed[0]!;
+        assert.notEqual(launch.storyWorktree, hostAFindingsDir, `${field}: caller cwd never replaces the immutable HEAD snapshot`);
+        assert.equal(launch.env?.LATTICE_CALLER_BYPASS, undefined, `${field}: caller env/environment never reaches the provider`);
+        for (const privileged of ['command', 'cwd', 'environment', 'output', 'verdict', 'decision']) {
+          assert.equal(privileged in (launch as unknown as Record<string, unknown>), false, `${field}: runner options contain no caller ${privileged} authority`);
+        }
+        assert.equal(result.hostB.decision, 'fail', `${field}: provider-owned terminal output wins over caller verdict/output fields`);
+      }
+    });
 
     const hostAFinding: Finding = {
       severity: 'MAJOR',
@@ -323,11 +803,106 @@ async function run(): Promise<void> {
       assert.ok(codexEvents.length >= 1, 'a host_verdict process event with provider codex exists');
     });
 
+    await extensionCheck('CHK-001:happy:2 detach + resume consumes the same managed Codex run exactly once', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      const callerResult = join(hostAFindingsDir, 'real-caller-submission.json');
+      const markerDir = join(hostAFindingsDir, 'real-caller-markers');
+      const caller = spawn(process.execPath, [SELF, '--xhr-submitter', root, hostAFindingsFile, callerResult, markerDir], {
+        cwd: root,
+        stdio: 'ignore',
+      });
+      assert.equal(await waitForExit(caller), 0, 'cross_host_review submitter A exits after the durable claim');
+      const submission = JSON.parse(readFileSync(callerResult, 'utf8')) as CrossHostReviewManagedSubmission;
+      assert.equal(submission.schemaVersion, 'lattice.cross_host_review_managed_submission.v1');
+      assert.equal(submission.state, 'running');
+      const observerB = createCrossHostReviewHandlers(ctx);
+      const resumed = await observerB.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-real-caller-loss`,
+        managedRunId: submission.managedRunId,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(resumed.managedRunId, submission.managedRunId);
+      assert.match(resumed.managedReceiptId, /^sha256:[a-f0-9]{64}$/);
+      assert.equal(resumed.jointDecision.jointDecision, 'pass');
+      assert.equal(readdirSync(markerDir).filter(name => name.endsWith('.spawn')).length, 1, 'observer B resumes without a second provider spawn');
+      const storedHostB = JSON.parse(readFileSync(
+        join(root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', STORY_ID, `${resumed.hostB.verdictId}.json`),
+        'utf8',
+      )) as { receiptId?: string; note?: string };
+      assert.equal(storedHostB.receiptId, resumed.managedReceiptId, 'paired host-B verdict provenance must bind the exact managed terminal receipt');
+      assert.match(storedHostB.note ?? '', new RegExp(submission.managedRunId));
+      const submissionEvents = store.readProcessEvents(STORY_ID).filter(event =>
+        event.type === 'cross_host_review_managed_submitted'
+        && (event as { managedRunId?: string }).managedRunId === submission.managedRunId);
+      assert.equal(submissionEvents.length, 1, 'managed run identity is durably discoverable before verdict consumption');
+      assert.equal(listVerdicts(root, 'local', STORY_ID).filter(verdict => verdict.runId === `${STORY_ID}-xhr-real-caller-loss`).length, 2,
+        'observer B consumes exactly one host-A/host-B verdict pair');
+    });
+
+    await check('CHK-005:adversarial:1 cancellation after detach cannot persist a current passing host-B verdict', async () => {
+      writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      let releaseCancelledRunner!: () => void;
+      const cancelledGate = new Promise<void>(resolve => { releaseCancelledRunner = resolve; });
+      const handlers = createCrossHostReviewHandlers(ctx, {
+        managedRunner: async plan => {
+          await cancelledGate;
+          const stdout = verdictJsonStdout(materialHash, 'pass', [], 'late pass must lose to cancellation');
+          plan.onChunk?.({ stream: 'stdout', text: stdout });
+          return { stdout, stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+        },
+      });
+      const runId = `${STORY_ID}-xhr-cancelled-before-verdict`;
+      const submission = await handlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId,
+        detach: true,
+        json: true,
+      }) as CrossHostReviewManagedSubmission;
+      await cancelManagedHostRun({ root, runId: submission.managedRunId, reason: 'operator cancelled cross-host review' });
+      releaseCancelledRunner();
+      let cancelled = await getManagedHostRunStatus({ root, runId: submission.managedRunId });
+      const cancelledDeadline = Date.now() + 2_000;
+      while (cancelled.run.state === 'running' && Date.now() < cancelledDeadline) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        cancelled = await getManagedHostRunStatus({ root, runId: submission.managedRunId });
+      }
+      assert.equal(cancelled.run.state, 'cancelled');
+      assert.equal(listVerdicts(root, 'local', STORY_ID).filter(verdict => verdict.runId === runId).length, 0,
+        'detach plus cancellation persists no host verdict before an explicit resume');
+      const resumed = await handlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId,
+        managedRunId: submission.managedRunId,
+        json: true,
+      }) as CrossHostReviewResult;
+      assert.equal(resumed.managedRunId, submission.managedRunId);
+      assert.equal(resumed.hostB.decision, 'blocked', 'cancelled terminal can only yield a blocked host-B projection');
+      assert.equal(resumed.jointDecision.jointDecision, 'blocked');
+      assert.notEqual(resumed.codexExitCode, 0);
+      await new Promise(resolve => setTimeout(resolve, 20));
+      assert.equal(
+        listVerdicts(root, 'local', STORY_ID).filter(verdict => verdict.runId === runId && verdict.provider === 'codex' && verdict.decision === 'pass').length,
+        0,
+        'late provider success after cancellation cannot supersede the blocked current verdict',
+      );
+    });
+
     // CHK-001:edge:0 — garbage stdout (no JSON at all).
     await check('CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
+      let boundedAttempts = 0;
       const handlers = createCrossHostReviewHandlers(ctx, {
-        codexRunner: fakeSeam('codex: I could not complete the review. No JSON here, just prose.'),
+        codexRunner: () => {
+          boundedAttempts += 1;
+          return { stdout: 'codex: I could not complete the review. No JSON here, just prose.', exitCode: 0, timedOut: false };
+        },
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
@@ -346,6 +921,8 @@ async function run(): Promise<void> {
       const asRecord = result as unknown as Record<string, unknown>;
       assert.equal(asRecord.stdout, undefined, 'no raw stdout field');
       assert.equal(asRecord.rawStdout, undefined, 'no rawStdout field');
+      assert.equal(boundedAttempts, 1,
+        'retryLimit=0 preserves the exact one-attempt cross_host_review boundary after ManagedHostRun migration');
     });
 
     // CHK-001:edge:1 — valid JSON but MISSING the required `decision` field.
@@ -401,8 +978,12 @@ async function run(): Promise<void> {
     await check('CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       const partialStdout = 'codex: partial transcript before SIGKILL; no final verdict object emitted.';
+      // The provider fixture observes a local SIGKILL-style exit. The externally
+      // visible result must instead report the sealed managed `timed_out`
+      // terminal's canonical timeout exit (124), not this provider-local detail.
+      const providerLocalSigkillExitCode = 137;
       const handlers = createCrossHostReviewHandlers(ctx, {
-        codexRunner: fakeSeamWithOutcome(partialStdout, 137, true),
+        codexRunner: fakeSeamWithOutcome(partialStdout, providerLocalSigkillExitCode, true),
       });
       const result = await handlers.cross_host_review({
         storyId: STORY_ID,
@@ -412,12 +993,16 @@ async function run(): Promise<void> {
         json: true,
       }) as CrossHostReviewResult;
       assert.equal(result.hostB.decision, 'blocked', 'no verdict on timeout → blocked');
-      // Abnormal exit (137 + timedOut) fails closed BEFORE the verdict parse, so the
+      // A provider-local abnormal exit (137 + timedOut) fails closed BEFORE the verdict parse, so the
       // reason is codex_review_abnormal_exit — the abnormal-exit guard wins over the
       // no-parseable-verdict path even though this stdout also has no verdict.
       assert.equal(String(result.hostB.reason), CODEX_REVIEW_ABNORMAL_EXIT, 'reason names codex_review_abnormal_exit');
-      assert.equal(result.codexExitCode, 137, 'non-zero exit code is surfaced');
+      assert.equal(result.codexExitCode, 124, 'sealed timed_out terminal canonicalizes the provider-local SIGKILL exit to timeout exit 124');
+      assert.notEqual(result.codexExitCode, providerLocalSigkillExitCode, 'cross-host result does not leak the provider-local SIGKILL exit as its terminal outcome');
+      assert.notEqual(result.codexExitCode, 0, 'sealed timeout exit remains non-zero');
       assert.equal(result.codexTimedOut, true, 'timedOut is surfaced');
+      const timedOutStatus = await getManagedHostRunStatus({ root, runId: result.managedRunId });
+      assert.equal(timedOutStatus.run.state, 'timed_out', 'managed run seals the authoritative timed_out terminal state');
       assert.ok(typeof result.stdoutDigest === 'string' && /^[0-9a-f]{64}$/.test(result.stdoutDigest), 'stdoutDigest present as sha256');
       const serialized = JSON.stringify(result);
       assert.ok(!serialized.includes('partial transcript before SIGKILL'), 'raw stdout is never surfaced on the result');
@@ -433,7 +1018,7 @@ async function run(): Promise<void> {
       const crashedPassHandlers = createCrossHostReviewHandlers(ctx, {
         codexRunner: fakeSeamWithOutcome(
           verdictJsonStdout(materialHash, 'pass', [], 'everything looks fine to me'),
-          137,
+          providerLocalSigkillExitCode,
           true,
         ),
       });
@@ -446,8 +1031,12 @@ async function run(): Promise<void> {
       }) as CrossHostReviewResult;
       assert.equal(crashedPass.hostB.decision, 'blocked', 'a valid pass verdict from a crashed/timed-out process is STILL blocked');
       assert.equal(String(crashedPass.hostB.reason), CODEX_REVIEW_ABNORMAL_EXIT, 'reason is codex_review_abnormal_exit (not the parsed pass)');
-      assert.equal(crashedPass.codexExitCode, 137, 'non-zero exit code surfaced on the abnormal-exit case');
+      assert.equal(crashedPass.codexExitCode, 124, 'sealed timed_out terminal canonicalizes the provider-local SIGKILL exit on the valid-pass abnormal-exit case');
+      assert.notEqual(crashedPass.codexExitCode, providerLocalSigkillExitCode, 'a parsed provider pass cannot restore the provider-local exit over the sealed terminal outcome');
+      assert.notEqual(crashedPass.codexExitCode, 0, 'sealed timeout exit remains non-zero on the valid-pass abnormal-exit case');
       assert.equal(crashedPass.codexTimedOut, true, 'timedOut surfaced on the abnormal-exit case');
+      const crashedPassStatus = await getManagedHostRunStatus({ root, runId: crashedPass.managedRunId });
+      assert.equal(crashedPassStatus.run.state, 'timed_out', 'valid provider output cannot change the managed terminal away from timed_out');
       assert.equal(crashedPass.jointDecision.jointDecision, 'blocked', 'joint decision blocked (host B abnormal-exit)');
       // The abnormal-exit verdict is recorded as a BLOCKED codex verdict, never a pass.
       const abnormalVerdict = listVerdicts(root, 'local', STORY_ID).find(v => v.runId === `${STORY_ID}-xhr-e3-abnormal` && v.provider === 'codex');
@@ -1576,6 +2165,36 @@ async function run(): Promise<void> {
       assert.equal(listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === runId).length, 0, 'no verdict recorded for a collapsed host identity');
     });
 
+    // F-043: the managed worker owns the only provider execution and therefore
+    // the only usage-ledger lifecycle. The wrapper leaf must not independently
+    // record the same prompt/final pair around that managed execution.
+    const ledgerPath = resolveLedgerPath(root);
+    const ledgerBefore = existsSync(ledgerPath) ? verifyLedgerChain(ledgerPath).length : 0;
+    const previousLedgerFlag = process.env.PROOF_OR_STOP_USAGE_LEDGER;
+    process.env.PROOF_OR_STOP_USAGE_LEDGER = '1';
+    try {
+      const ledgerHandlers = createCrossHostReviewHandlers(ctx, {
+        managedRunner: async plan => {
+          const stdout = verdictJsonStdout(materialHash, 'pass', [], 'single managed usage lifecycle');
+          plan.onChunk?.({ stream: 'stdout', text: stdout });
+          return { stdout, stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+        },
+      });
+      await ledgerHandlers.cross_host_review({
+        storyId: STORY_ID,
+        policy: reviewOnlyPolicy(),
+        hostAFindingsFile,
+        runId: `${STORY_ID}-xhr-single-usage-lifecycle`,
+        json: true,
+      });
+    } finally {
+      if (previousLedgerFlag === undefined) delete process.env.PROOF_OR_STOP_USAGE_LEDGER;
+      else process.env.PROOF_OR_STOP_USAGE_LEDGER = previousLedgerFlag;
+    }
+    const ledgerAfter = verifyLedgerChain(ledgerPath).length;
+    assert.equal(ledgerAfter - ledgerBefore, 2,
+      'managed cross-host review records exactly one estimate/final usage pair, never a duplicate leaf pair');
+
     // ── CHK-004 (B-dc2e): host B's PARSED findings must be persisted as structured
     // evidence in the verdict artifact — not merely counted. Before this item only
     // stdoutDigest + findingCount survived; the finding text lived in memory
@@ -1602,7 +2221,7 @@ async function run(): Promise<void> {
     };
 
     // CHK-004:happy:0 — FAIL leaf with TWO findings → title/severity/file/description persisted.
-    await check('CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json', async () => {
+    await extensionCheck('CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([hostAFinding], null, 2), 'utf8');
       const runId = `${STORY_ID}-xhr-chk004-fail`;
       const hostBFindings: Finding[] = [
@@ -1649,7 +2268,7 @@ async function run(): Promise<void> {
     });
 
     // CHK-004:edge:0 — PASS verdict persists an EMPTY array; runaway fields/count are bounded.
-    await check('CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped', async () => {
+    await extensionCheck('CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped', async () => {
       writeFileSync(hostAFindingsFile, JSON.stringify([], null, 2), 'utf8');
       const passRun = `${STORY_ID}-xhr-chk004-pass`;
       const passHandlers = createCrossHostReviewHandlers(ctx, { codexRunner: fakeSeam(verdictJsonStdout(materialHash, 'pass', [], 'clean')) });
@@ -1691,7 +2310,7 @@ async function run(): Promise<void> {
     // invariant holds and the verdictId still digests the capped text) and the
     // persisted finding names the cut fields in `truncatedFields`; an uncut finding,
     // including one exactly AT the cap, carries no marker and an empty list.
-    await check('F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', async () => {
+    await extensionCheck('F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', async () => {
       const truncRun = `${STORY_ID}-xhr-f001-truncation`;
       const cut: Finding = {
         severity: 'MAJOR', title: 't'.repeat(PERSISTED_FINDING_TITLE_CAP + 1), file: 'cut.ts', line: 2,
@@ -1721,17 +2340,40 @@ async function run(): Promise<void> {
     });
 
     // CHK-004:adversarial:0 — the raw-stdout sentinel is absent from EVERY file under the state tree.
-    await check('CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree', async () => {
+    await extensionCheck('CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree', async () => {
       const stateRoot = join(root, PROOF_OR_STOP_STATE_DIR);
       const files = walkFiles(stateRoot);
       assert.ok(files.length > 0, 'state tree has persisted files to sweep');
       assert.ok(files.some(f => f.startsWith(store.storyDirPath(STORY_ID))), 'sweep covers the story directory');
       assert.ok(files.some(f => f.includes('autopilot-verdicts')), 'sweep covers the verdict artifacts');
-      const leaks = files.filter(f => readFileSync(f, 'utf8').includes(SENTINEL));
-      assert.deepEqual(leaks, [], 'no persisted file contains the raw-stdout sentinel');
+      // B-137a: exclude the managed run's OWN output buffers. live-output.jsonl
+      // and result.json's finalAssistantResult are DOCUMENTED to carry raw
+      // provider text (core/managed-host-run.ts:418-424) and are shed by the
+      // retention/trust boundary; they are the durable run's transcript, not a
+      // leak. They only enter this sweep because managed host-runs now live
+      // under the canonical state dir. The property under test is unchanged:
+      // no STORY or VERDICT artifact may contain raw provider stdout, and the
+      // assertions above still prove both are covered by the sweep.
+      const managedRunBuffer = /\/runtime\/host-runs\/[^/]+\/(?:live-output\.jsonl|result\.json)$/;
+      const leaks = files
+        .filter(f => !managedRunBuffer.test(f))
+        .filter(f => readFileSync(f, 'utf8').includes(SENTINEL));
+      assert.deepEqual(leaks, [], 'no persisted story/verdict file contains the raw-stdout sentinel');
+      // Positive control: the sweep must still SEE those buffers, so a future
+      // change that stops writing them cannot make this check vacuously pass.
+      assert.ok(files.some(f => managedRunBuffer.test(f)),
+        'the sweep still reaches the managed run output buffers it deliberately excludes');
     });
 
-    console.log(`\n✓ cross_host_review smoke passed (${passed} checks)`);
+    assert.equal(corePassed, 25, 'immutable cross-host receipt selector must remain bound to the original 25 core checks');
+    assert.equal(extensionPassed, 2 + 4,
+      'F024 managed CLI extension (2) plus the B-dc2e persisted-findings checks (4) keep their own selector, leaving the 25-check core immutable');
+    // Existing verification receipts select the exact 25-check line. Keep that
+    // immutable compatibility selector separate from later extension coverage,
+    // so adding checks cannot silently stale or overstate older evidence.
+    console.log(`\n✓ cross_host_review smoke passed (${corePassed} checks)`);
+    console.log(`✓ cross_host_review F024 managed CLI extension passed (${extensionPassed} checks)`);
+    console.log(`✓ cross_host_review smoke total passed (${corePassed + extensionPassed} checks)`);
   } finally {
     process.chdir(previousCwd);
     rmSync(root, { recursive: true, force: true });
@@ -1740,7 +2382,19 @@ async function run(): Promise<void> {
   }
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[2] === '--xhr-worker') {
+  xhrWorkerMain(process.argv[3] ?? '', process.argv[4] ?? '', process.argv[5] ?? '', process.argv[6] ?? '').catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+} else if (process.argv[2] === '--xhr-submitter') {
+  xhrSubmitterMain(process.argv[3] ?? '', process.argv[4] ?? '', process.argv[5] ?? '', process.argv[6] ?? '').catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+} else {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

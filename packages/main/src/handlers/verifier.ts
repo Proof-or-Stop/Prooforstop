@@ -3,6 +3,11 @@ import { withValidationSigningRoot } from '../core/validation-signing-context.js
 import { runScopeGateAndDiffPack } from './scope-contract.js';
 import { checklistHasFileDeclarations } from './phase-gates.js';
 import { assertCurrentValidationPublicationOwner } from '../core/validation-execution-lock.js';
+import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
+import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
+import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
+export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
  * @task B-9cec
@@ -39,9 +44,9 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction, rollbackValidationPublication } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
-import { CONFIG_FILENAMES } from '../core/brand-paths.js';
+import { findValidateFile, validateFileDefaultTimeoutMs } from '../core/validation-file-entry.js';
+export { findValidateFile } from '../core/validation-file-entry.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
-import { validateResourceClaims, type ResourceClaim } from '../core/keyed-scheduler.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
   VALIDATION_EVIDENCE_BOUND_BYTES,
@@ -57,7 +62,10 @@ import {
 import { declaredValidationCapacity, withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import {
   isOfficialHeavyValidateInvocation,
+  persistPrecertCheapCheckReceipt,
+  PRE_CERT_CHEAP_CHECK_REQUIRED,
   refuseHeavyCertificationUnlessAdmitted,
+  requireCurrentHeavyCertificationWindow,
 } from '../core/certification-window.js';
 import { currentCertificationIdentity } from './certification-window.js';
 
@@ -78,6 +86,7 @@ import {
   buildRoutineValidationIdentity,
   evaluateRoutineValidationReuse,
   isCompleteRoutineValidationIdentity,
+  isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
 } from '../core/validation-evidence-reuse.js';
@@ -86,8 +95,6 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import {
   VALIDATION_COMMAND_SHELL_META_RE,
-  assertDeclaredValidationCommandId,
-  parseLegacyValidationCommandString,
 } from '../core/validation-command-identity.js';
 import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
@@ -105,7 +112,7 @@ import {
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
 import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
-import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
+import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -132,13 +139,6 @@ export interface ValidationSetupScan {
   warnings: string[];
 }
 
-export function findValidateFile(projectRoot: string): string | null {
-  const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
-  for (const f of candidates) {
-    if (existsSync(join(projectRoot, f))) return f;
-  }
-  return null;
-}
 
 /** Read-only projection of the existing transition scope policy, never PASS evidence. */
 export function validationScopePrerequisite(ctx: HandlerContext, storyId: string, gitCwd: string): string | undefined {
@@ -219,53 +219,6 @@ function hasDirectoryEntry(projectRoot: string, dir: string, suffixes: string[])
   }
 }
 
-function commandFromString(label: string, value: string): ValidationCommand | null {
-  const parsed = parseLegacyValidationCommandString(value);
-  if (!parsed) return null;
-  return parsed.shell
-    ? { label, command: parsed.command, args: [], shell: true }
-    : { label, command: parsed.command, args: parsed.args };
-}
-
-/**
- * Parse `validate.commands[].resources` from config into resource claims.
- *
- * Malformed or unrecognised claims THROW here, at declaration time, so a typo'd
- * class fails the whole validate run loudly instead of being dropped and
- * quietly turning into a command with no declared claim. (The fail-closed
- * default in resolveValidationCommandResources would still schedule such a
- * command alone, but a silently ignored declaration is a lie the operator
- * cannot see.)
- */
-function parseConfiguredResourceClaims(value: unknown, owner: string): ResourceClaim[] {
-  if (!Array.isArray(value)) {
-    throw new Error(`${owner}: resources must be an array of resource claims`);
-  }
-  const claims = value.map((raw) => {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
-    }
-    const entry = raw as Record<string, unknown>;
-    if (typeof entry.class !== 'string' || typeof entry.key !== 'string' || typeof entry.access !== 'string') {
-      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
-    }
-    return {
-      class: entry.class as ResourceClaim['class'],
-      key: entry.key,
-      access: entry.access as ResourceClaim['access'],
-      ...(entry.ownership !== undefined ? { ownership: entry.ownership as ResourceClaim['ownership'] } : {}),
-    };
-  });
-  validateResourceClaims(claims, owner);
-  return claims;
-}
-
-function normalizeValidateFocus(value: unknown): string[] | undefined {
-  const raw = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
-  const focus = [...new Set(raw.map((v) => String(v).trim()).filter(Boolean))];
-  return focus.length > 0 ? focus : undefined;
-}
-
 function normalizeFocusArg(value: unknown): string | undefined {
   if (value === undefined) return undefined;
   const focus = String(value).trim();
@@ -280,17 +233,6 @@ function normalizeFocusArg(value: unknown): string | undefined {
 
 function focusedModeNotice(focus: string): string {
   return `FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`;
-}
-
-function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: string): ValidationCommand[] {
-  const selected = commands.filter((cmd) => cmd.focus?.includes(focus));
-  if (selected.length === 0) {
-    throw new Error(
-      `validate --focus=${focus}: no configured validate.commands are tagged with focus "${focus}"; ` +
-      `tag one or more commands with focus: ["${focus}"] or run proof-or-stop validate --json for full validation.`,
-    );
-  }
-  return selected;
 }
 
 function markFocusedResult(result: any, focus: string): any {
@@ -320,75 +262,6 @@ function markFocusedResult(result: any, focus: string): any {
 function maybePrefixFocusedText(output: string, focus: string | undefined): string {
   if (!focus) return output;
   return `${focusedModeNotice(focus)}\n${output}`;
-}
-
-export function configuredValidationCommands(projectRoot: string): ValidationCommand[] {
-  const cfg = loadConfig(projectRoot) as any;
-  const validate = cfg.validate || cfg.validation;
-  const commands: ValidationCommand[] = [];
-  if (!validate || typeof validate !== 'object') return commands;
-  const dynamicDefaults = validate.dynamic?.policyDefaults && typeof validate.dynamic.policyDefaults === 'object'
-    ? validate.dynamic.policyDefaults : {};
-  const applyDynamicDefaults = (command: ValidationCommand): ValidationCommand => ({
-    ...command,
-    ...(command.assurance !== undefined ? {} : typeof dynamicDefaults.assurance === 'string' ? { assurance: dynamicDefaults.assurance } : {}),
-    ...(command.riskTier !== undefined ? {} : typeof dynamicDefaults.riskTier === 'string' ? { riskTier: dynamicDefaults.riskTier } : {}),
-    ...(command.closurePolicy !== undefined ? {} : typeof dynamicDefaults.closurePolicy === 'string' ? { closurePolicy: dynamicDefaults.closurePolicy } : {}),
-    ...(command.fullBaselineReusePolicy !== undefined ? {} : typeof dynamicDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: dynamicDefaults.fullBaselineReusePolicy } : {}),
-    ...(command.cpuWeight !== undefined ? {} : typeof dynamicDefaults.cpuWeight === 'number' ? { cpuWeight: dynamicDefaults.cpuWeight } : {}),
-    ...(command.expectedP50Ms !== undefined ? {} : typeof dynamicDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: dynamicDefaults.expectedP50Ms } : {}),
-  });
-
-  if (typeof validate.command === 'string') {
-    const cmd = commandFromString('configured validate.command', validate.command);
-    if (cmd) commands.push(applyDynamicDefaults(cmd));
-  }
-  if (Array.isArray(validate.commands)) {
-    for (let i = 0; i < validate.commands.length; i++) {
-      const entry = validate.commands[i];
-      if (typeof entry === 'string') {
-        const cmd = commandFromString(`configured validate.commands[${i}]`, entry);
-        if (cmd) commands.push(applyDynamicDefaults(cmd));
-      } else if (entry && typeof entry === 'object' && typeof entry.command === 'string') {
-        const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
-        const focus = normalizeValidateFocus(entry.focus);
-        commands.push({
-          label: typeof entry.label === 'string' ? entry.label : `configured validate.commands[${i}]`,
-          command: entry.command,
-          args,
-          ...(entry.shell === true ? { shell: true } : {}),
-          ...(entry.executionReuse === 'exact-inputs' ? {executionReuse:'exact-inputs' as const} : {}),
-          ...(Array.isArray(entry.executionInputs) ? {executionInputs:entry.executionInputs} : {}),
-          ...(typeof entry.cwd === 'string' ? { cwd: entry.cwd } : {}),
-          ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
-          ...(Array.isArray(entry.declaredEnvironmentKeys) ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys.filter((item: unknown): item is string => typeof item === 'string') } : {}),
-          ...(typeof entry.caseRegistryPath === 'string' ? { caseRegistryPath: entry.caseRegistryPath } : {}),
-          ...(typeof entry.runnerSourcePath === 'string' ? { runnerSourcePath: entry.runnerSourcePath } : {}),
-          ...(typeof entry.assurance === 'string' ? { assurance: entry.assurance } : typeof dynamicDefaults.assurance === 'string' ? { assurance: dynamicDefaults.assurance } : {}),
-          ...(typeof entry.riskTier === 'string' ? { riskTier: entry.riskTier } : typeof dynamicDefaults.riskTier === 'string' ? { riskTier: dynamicDefaults.riskTier } : {}),
-          ...(typeof entry.closurePolicy === 'string' ? { closurePolicy: entry.closurePolicy } : typeof dynamicDefaults.closurePolicy === 'string' ? { closurePolicy: dynamicDefaults.closurePolicy } : {}),
-          ...(typeof entry.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: entry.fullBaselineReusePolicy } : typeof dynamicDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: dynamicDefaults.fullBaselineReusePolicy } : {}),
-          ...(typeof entry.cpuWeight === 'number' ? { cpuWeight: entry.cpuWeight } : typeof dynamicDefaults.cpuWeight === 'number' ? { cpuWeight: dynamicDefaults.cpuWeight } : {}),
-          ...(typeof entry.expectedP50Ms === 'number' ? { expectedP50Ms: entry.expectedP50Ms } : typeof dynamicDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: dynamicDefaults.expectedP50Ms } : {}),
-          ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
-          ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
-          ...(focus ? { focus } : {}),
-          ...(entry.resources !== undefined
-            ? { resources: parseConfiguredResourceClaims(entry.resources, `configured validate.commands[${i}]`) }
-            : {}),
-          // B-a745 CHK-001: an optional declared planner id. Malformed or
-          // reserved-namespace values THROW here, at declaration time, for the
-          // same reason parseConfiguredResourceClaims does: a silently dropped
-          // declaration is a lie the operator cannot see, and a forged `prov-`
-          // id would also corrupt the provisional-migration count.
-          ...(entry.id !== undefined
-            ? { id: assertDeclaredValidationCommandId(entry.id, `configured validate.commands[${i}]`) }
-            : {}),
-        });
-      }
-    }
-  }
-  return commands;
 }
 
 function configuredShellStyleEntries(projectRoot: string): ValidationSetupScan['configuredShellStyleCommands'] {
@@ -862,30 +735,8 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   };
 }
 
-function requiredVerificationIntentDefinitions(checklist: ChecklistData): unknown {
-  return checklist.items.map((item) => ({
-    itemId: item.id,
-    verificationIntent: Object.fromEntries(
-      Object.entries(item.verificationIntent ?? {}).map(([lane, intents]) => [
-        lane,
-        (intents ?? []).filter((intent) => (intent.priority ?? 'must') === 'must').map((intent) => ({
-          desc: intent.desc,
-          type: intent.type,
-          requiredIn: intent.requiredIn,
-          priority: intent.priority ?? 'must',
-        })),
-      ]),
-    ),
-  }));
-}
-
 function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
-  const story = ctx.store.readStory(storyId);
-  const checklist = ctx.store.readChecklist(storyId);
-  let decision = null;
-  try { decision = ctx.store.readDecision(storyId); } catch { /* optional */ }
-  const verificationPolicy = resolveVerificationIntentPolicy(story, checklist, decision);
-  const workflowPolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+  const { checklist, verificationPolicy, workflowPolicy, identityPolicyInputs } = routineIdentityPolicySnapshot(ctx, storyId);
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const head = currentHead(gitCwd);
   const coverage = buildVerificationCoverage(
@@ -903,37 +754,8 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
     verificationPolicy,
     workflowPolicy,
     coverage,
-    identityPolicyInputs: {
-      requiredVerificationIntentDefinitions: requiredVerificationIntentDefinitions(checklist),
-      verificationPolicy,
-      workflowPolicy,
-    },
+    identityPolicyInputs,
   };
-}
-
-/**
- * Raw contents of the config files that define the routine validation source.
- *
- * B-a745 CHK-001 exported it so the identity fixture can prove the second half of
- * the regression guard: declaring a command `id` in project config DOES change
- * `source.inputDigest`, because this snapshot binds the raw file contents.
- */
-export function sourceInputSnapshot(projectRoot: string, sourceKind: RoutineValidationSourceKind): unknown {
-  const names = sourceKind === 'configured'
-    // B-cc10 CHK-004: snapshot BOTH config spellings. The absent one records a
-    // `null` entry, which is exactly the signal this identity snapshot wants —
-    // pinning the deprecated literal alone would make the identity blind to the
-    // canonical file's contents, so editing the canonical config would not
-    // invalidate the routine-validation identity it is supposed to bind.
-    ? [...CONFIG_FILENAMES]
-    : sourceKind === 'fallback'
-      ? ['package.json', 'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle', 'build.gradle.kts', 'settings.gradle', 'settings.gradle.kts', 'pyproject.toml', 'pytest.ini', 'setup.cfg', 'tox.ini']
-      : [];
-  return Object.fromEntries(names.map((name) => {
-    const path = join(projectRoot, name);
-    try { return [name, existsSync(path) ? readFileSync(path, 'utf8') : null]; }
-    catch { return [name, 'unreadable']; }
-  }));
 }
 
 function buildStoryRoutineIdentity(args: {
@@ -973,9 +795,24 @@ function evaluateStoryRoutineReuse(args: {
   gitCwd: string;
   identity: RoutineValidationIdentity;
   coverage: ReturnType<typeof routineVerificationSnapshot>['coverage'];
+  /** Explicitly unavailable for TEST/DONE/full and the no-validator path. */
+  allowDynamicCoverage?: boolean;
 }): RoutineValidationReuseEvaluation {
   let evidence = null;
   try { evidence = args.ctx.store.readTestEvidence(args.storyId); } catch { /* refusal below */ }
+  let dynamicCoverageAdmitted = false;
+  let priorDynamicAuthority = false;
+  if (evidence && verifyTestValidationEvidence(args.storyId, evidence, args.gitCwd)) {
+    try {
+      const output = JSON.parse(evidence.output);
+      if (output?.dynamicValidation?.authority === 'enforce-authority'
+        || String(output?.provider || '').includes('dynamic-authoritative')) {
+        priorDynamicAuthority = true;
+        dynamicCoverageAdmitted = args.allowDynamicCoverage === true
+          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok;
+      }
+    } catch { /* Malformed/invalid evidence cannot substitute dynamic coverage. */ }
+  }
   let headBefore: string | undefined;
   let headAfter: string | undefined;
   let materialHash: string | undefined;
@@ -1002,6 +839,7 @@ function evaluateStoryRoutineReuse(args: {
     gitCwd: args.gitCwd,
     evidence,
     currentIdentity: args.identity,
+    dynamicCoverageAdmitted,
     currentCoverage: args.coverage,
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
@@ -1009,6 +847,32 @@ function evaluateStoryRoutineReuse(args: {
     headBefore,
     headAfter,
   });
+  if (priorDynamicAuthority && args.allowDynamicCoverage !== true) {
+    evaluation.reusable = false;
+    evaluation.refusalReasons.push('dynamic_requires_canonical_full_plan');
+  }
+  if (evaluation.reusable) {
+    if (!evidence || !verifyTestValidationEvidence(args.storyId, evidence, args.gitCwd)) {
+      evaluation.reusable = false;
+      evaluation.refusalReasons.push('validation_evidence_signature_invalid');
+    } else {
+      // Dynamic reuse must retain its execution identity and recheck the live
+      // manifest/receipts/ledger before reusing the aggregate PASS.
+      let priorOutput: any;
+      try { priorOutput = JSON.parse(evidence.output); } catch { /* refuse below */ }
+      if (!priorOutput) {
+        evaluation.reusable = false;
+        evaluation.refusalReasons.push('validation_evidence_output_invalid');
+      } else if (priorOutput.dynamicValidation?.authority === 'enforce-authority'
+        || String(priorOutput.provider || '').includes('dynamic-authoritative')) {
+        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId);
+        if (!admitted.ok) {
+          evaluation.reusable = false;
+          evaluation.refusalReasons.push(...admitted.reasonCodes);
+        }
+      }
+    }
+  }
   if (!evaluation.reusable) {
     const priorIdentityDigest = isCompleteRoutineValidationIdentity(evidence?.routineValidationIdentity)
       ? evidence.routineValidationIdentity.digest
@@ -1034,8 +898,21 @@ function reusedStoryValidationResult(args: {
   resolvedDynamicMode?: DynamicValidationMode;
   dynamicValidation?: Record<string, unknown>;
 }): any {
+  const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
+  let priorOutput: any;
+  try { priorOutput = priorEvidence ? JSON.parse(priorEvidence.output) : null; } catch { /* refuse below */ }
+  const dynamicOrigin = priorOutput?.dynamicValidation?.authority === 'enforce-authority'
+    || String(priorOutput?.provider || '').includes('dynamic-authoritative');
+  if (!priorEvidence || !verifyTestValidationEvidence(args.storyId, priorEvidence, args.gitCwd)
+    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok)) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because authenticated evidence changed before persistence',
+      details: ['canonical-pass-persistence-failed: prior evidence is missing, invalid or revoked'], warnings: [], commands: [],
+    });
+  }
   const result = externalResult({
-    provider: 'proof-or-stop-verifier-reused',
+    provider: dynamicOrigin ? 'proof-or-stop-verifier-dynamic-authoritative' : 'proof-or-stop-verifier-reused',
     status: args.warn ? 'warn' : 'pass',
     summary: `Validation PASS reused (${args.reuse.lineage}); commandExecutions=0`,
     details: [
@@ -1050,6 +927,7 @@ function reusedStoryValidationResult(args: {
   });
   const reused = {
     ...result,
+    ...(dynamicOrigin ? { dynamicValidation: priorOutput.dynamicValidation } : {}),
     disposition: 'reused',
     commandExecutions: 0,
     verificationPolicy: args.snapshot.verificationPolicy,
@@ -1062,7 +940,6 @@ function reusedStoryValidationResult(args: {
       identityDigest: args.identity.digest,
     },
   };
-  const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
   const priorCommandExecution = priorEvidence?.commandExecution;
   if (!priorCommandExecution) {
     return externalResult({
@@ -1075,7 +952,7 @@ function reusedStoryValidationResult(args: {
       commands: [],
     });
   }
-  const headHash = currentHead(args.gitCwd);
+  const headHash = dynamicOrigin ? priorEvidence.headHash : currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyRel = normalizeRelPath(relative(
@@ -1117,7 +994,7 @@ function reusedStoryValidationResult(args: {
   // is rejected with `command_mismatch`, which would silently disable reuse entirely.
   const reusedBound = boundPersistedValidationEvidence({
     result: reused,
-    buildRecord: (output): TestEvidenceData => ({
+    buildRecord: (output): TestEvidenceData => signTestValidationEvidence(args.storyId, {
       command: `proof-or-stop validate --story=${args.storyId} --json`,
       output,
       result: 'PASS',
@@ -1130,9 +1007,9 @@ function reusedStoryValidationResult(args: {
       disposition: 'reused',
       routineValidationIdentity: args.identity,
       resolvedDynamicMode: args.resolvedDynamicMode ?? 'off',
-      reuseAdmission: args.resolvedDynamicMode === 'observe' ? 'observe-opt-in' : 'mode-off',
+      ...(args.resolvedDynamicMode === 'enforce-low-risk' ? {} : { reuseAdmission: args.resolvedDynamicMode === 'observe' ? 'observe-opt-in' as const : 'mode-off' as const }),
       ...(priorEvidence.dynamicRevocationLedgerDigest ? { dynamicRevocationLedgerDigest: priorEvidence.dynamicRevocationLedgerDigest } : {}),
-    }),
+    }, args.gitCwd),
   });
   const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
   if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
@@ -1211,6 +1088,17 @@ function tryReuseRoutinePass(args: {
   rebuild: () => ReturnType<typeof buildStoryRoutineIdentity>;
 }): any | null {
   if (!args.reuse.reusable || args.focus) return null;
+  if (args.dynamicMode === 'enforce-low-risk') {
+    const prior = args.ctx.store.readTestEvidence(args.storyId);
+    let output: any;
+    try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return null; }
+    if (output?.dynamicValidation?.authority !== 'enforce-authority'
+      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok) return null;
+    args.ctx.log?.('routine dynamic validation reused; commandExecutions=0');
+    return reusedStoryValidationResult({
+      ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'enforce-low-risk',
+    });
+  }
   if (args.dynamicMode === 'off') {
     args.ctx.log?.('routine validation reused; commandExecutions=0');
     return reusedStoryValidationResult({
@@ -1418,9 +1306,15 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
-  } = {}) => boundPersistedValidationEvidence({
+  } = {}, authenticate = true) => boundPersistedValidationEvidence({
     result,
-    buildRecord: (output) => evidenceRecord(output, hashes),
+    buildRecord: (output) => {
+      const record = evidenceRecord(output, hashes);
+      // Git-backed FAIL also authenticates successful command coverage, so
+      // filling only a coverage gap can preserve the existing reuse contract.
+      // Only the explicit non-Git FAIL fallback omits authentication.
+      return authenticate ? signTestValidationEvidence(storyId, record, gitCwd) : record;
+    },
   });
 
   let gitCwd: string;
@@ -1465,7 +1359,7 @@ function persistStoryValidationEvidence(
     if (!allPass && /not a git repository/i.test(reason)) {
       try {
         // Same rule on the degraded path: gate and write the SAME computation.
-        const fallbackBound = boundEvidence();
+        const fallbackBound = boundEvidence({}, false);
         if (!fallbackBound.withinBound || fallbackBound.record === null) {
           return persistenceFailure(
             `${reason}; non-git FAIL evidence exceeds the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound `
@@ -1587,9 +1481,170 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
   };
 }
 
-function validateFileDefaultTimeoutMs(): number | undefined {
-  const raw = Number(readBrandEnv('VALIDATE_FILE_TIMEOUT_MS'));
-  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
+
+/**
+ * The TEST-admissible routine suite has one authority boundary regardless of
+ * whether it is invoked directly or through REVIEW -> TEST.  Keep the actual
+ * CertificationWindow check in core, but expose this handler-level adapter so
+ * phase-gates cannot accidentally reuse a cached PASS before checking the
+ * current window.
+ */
+export function assertTestAdmissibleRoutineValidationWindow(ctx: HandlerContext, storyId: string): void {
+  requireCurrentHeavyCertificationWindow({
+    store: ctx.store,
+    storyId,
+    current: currentCertificationIdentity(ctx, storyId),
+  });
+}
+
+/** Claim execution only after reuse has been ruled out. */
+export function claimTestAdmissibleRoutineValidationWindow(ctx: HandlerContext, storyId: string): void {
+  refuseHeavyCertificationUnlessAdmitted({
+    store: ctx.store,
+    storyId,
+    current: currentCertificationIdentity(ctx, storyId),
+  });
+}
+
+function createRoutineValidationLaunchGate(ctx: HandlerContext, storyId: string | undefined, commands: ValidationCommand[], projectRoot: string, officialHeavy: boolean) {
+  const preflight = storyId ? createValidationCausalPreflightGate(ctx, storyId, commands, projectRoot) : undefined;
+  let claimed = false;
+  let refusal: unknown;
+  return {
+    beforeLaunch() {
+      if (refusal) throw refusal;
+      try {
+        preflight?.beforeLaunch();
+        if (officialHeavy && storyId && !claimed) {
+          claimTestAdmissibleRoutineValidationWindow(ctx, storyId);
+          claimed = true;
+        }
+      } catch (error) { refusal = error; throw error; }
+    },
+    rethrowRefusal() { if (refusal) throw refusal; },
+  };
+}
+
+type PrecertCheapCheckInvocation = {
+  full?: string | boolean;
+  focus?: string;
+  story?: string;
+  json?: boolean;
+  channel?: boolean;
+  concept?: boolean;
+  lint?: boolean;
+  noSync?: boolean;
+};
+
+/**
+ * Only the normalized operator command is allowed to mint the cheap PRE_CERT
+ * fact.  StoryId aliases normalize to `story` before this is called; no other
+ * flag combination is equivalent to the explicit fast JSON producer.
+ */
+function isPrecertCheapCheckInvocation(
+  args: PrecertCheapCheckInvocation,
+  normalizedFocus: string | undefined,
+): boolean {
+  return Boolean(
+    args.story
+    && normalizedFocus === 'fast'
+    && args.full === undefined
+    && args.json === true
+    && !args.channel
+    && !args.concept
+    && !args.lint
+    && !args.noSync,
+  );
+}
+
+function precertCheapCheckPersistenceFailure(
+  commandResults: ValidationCommandResult[] | undefined,
+  reason: string,
+): any {
+  return {
+    ...externalResult({
+      provider: 'proof-or-stop-verifier-precert-cheap-check',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Focused validation PASS could not persist the PRE_CERT cheap-check receipt',
+      details: [`[${PRE_CERT_CHEAP_CHECK_REQUIRED}]`, reason],
+      warnings: [],
+      commands: commandResults ?? [],
+    }),
+    disposition: 'executed',
+    commandExecutions: commandResults?.length ?? 0,
+  };
+}
+
+function persistPrecertCheapCheckIfQualified(args: {
+  ctx: HandlerContext;
+  invocation: PrecertCheapCheckInvocation | undefined;
+  storyId: string;
+  focus: string | undefined;
+  result: any;
+  identity?: RoutineValidationIdentity;
+  commandResults?: ValidationCommandResult[];
+  expectedCommandCount?: number;
+  semanticCommandPass?: boolean;
+}): any | null {
+  if (!args.invocation || !isPrecertCheapCheckInvocation(args.invocation, args.focus)) return null;
+  if (!args.identity || !args.commandResults || args.expectedCommandCount === undefined) {
+    return precertCheapCheckPersistenceFailure(args.commandResults, 'focused command identity or execution record is unavailable');
+  }
+  const semanticPass = args.semanticCommandPass
+    ?? (args.result?.status === 'pass' && args.result?.allPass !== false && args.result?.allPassed !== false);
+  const commandExecution = summarizeRoutineCommandExecution(args.commandResults, args.expectedCommandCount, {
+    semanticPass,
+    ...(args.result?.concurrentWorktreePollution && args.result.concurrentWorktreePollution.blocking !== false
+      ? { concurrentPollutionBlocking: true }
+      : {}),
+  });
+  // A failed, partial, optional-failure, or polluted run simply does not mint
+  // authority. Its own result remains the authoritative failure rendering.
+  if (args.result?.status !== 'pass' || !isReusableCommandPass(commandExecution, args.identity.commands.length)) return null;
+  let headHash: string | undefined;
+  let materialHash: string | undefined;
+  let storyFilesHash: string | undefined;
+  try {
+    const gitCwd = resolveGitCwd({
+      store: args.ctx.store,
+      storyId: args.storyId,
+      metadataRoot: args.ctx.root,
+      projectRoot: args.ctx.root,
+    });
+    headHash = currentHead(gitCwd);
+    materialHash = currentMaterialHash(gitCwd, 'HEAD', args.ctx.root);
+    storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', args.ctx.root);
+  } catch (error) {
+    return precertCheapCheckPersistenceFailure(args.commandResults, `unable to bind current git hashes: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!headHash || !materialHash || !storyFilesHash) {
+    return precertCheapCheckPersistenceFailure(args.commandResults, 'current headHash, materialHash, and storyFilesHash are all required');
+  }
+  try {
+    const receipt = persistPrecertCheapCheckReceipt({
+      store: args.ctx.store,
+      storyId: args.storyId,
+      routineValidationIdentity: args.identity,
+      commandExecution,
+      headHash,
+      materialHash,
+      storyFilesHash,
+    });
+    return {
+      ...args.result,
+      precertCheapCheckReceipt: {
+        receiptId: receipt.receiptId,
+        authority: receipt.authority,
+        result: receipt.result,
+        headHash: receipt.headHash,
+        materialHash: receipt.materialHash,
+        storyFilesHash: receipt.storyFilesHash,
+      },
+    };
+  } catch (error) {
+    return precertCheapCheckPersistenceFailure(args.commandResults, error instanceof Error ? error.message : String(error));
+  }
 }
 
 function decorateAndMaybePersistStoryValidation(
@@ -1601,6 +1656,7 @@ function decorateAndMaybePersistStoryValidation(
   commandResults?: ValidationCommandResult[],
   expectedCommandCount?: number,
   semanticCommandPass?: boolean,
+  invocation?: PrecertCheapCheckInvocation,
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
@@ -1625,6 +1681,18 @@ function decorateAndMaybePersistStoryValidation(
     );
     if (persistenceFailure) return persistenceFailure;
   }
+  const cheapCheckResult = persistPrecertCheapCheckIfQualified({
+    ctx,
+    invocation,
+    storyId,
+    focus,
+    result: executed,
+    identity,
+    commandResults,
+    expectedCommandCount,
+    semanticCommandPass,
+  });
+  if (cheapCheckResult) return cheapCheckResult;
   return executed;
 }
 
@@ -1687,12 +1755,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // configured gitRoot is authoritative, however: if it cannot resolve,
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
-      const dynamicMode = resolveDynamicMode(
+      const configuredDynamicMode = resolveDynamicMode(
         args.dynamicMode
         || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
             || projectConfig.validation?.dynamic?.mode
             || projectConfig.validate?.dynamic?.mode,
       );
+      // Selective command groups are an iteration optimization, not final
+      // certification. Explicit full and non-DEV/REVIEW Story invocations use
+      // the complete configured plan, even with reusable dynamic receipts.
+      const validationPhase = args.story ? ctx.store.readStory(args.story).phase : undefined;
+      const requiresCanonicalFullPlan = args.full !== undefined
+        || (validationPhase !== undefined && validationPhase !== 'DEV' && validationPhase !== 'REVIEW');
+      const dynamicMode = requiresCanonicalFullPlan ? 'off' : configuredDynamicMode;
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
@@ -1705,6 +1780,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const handlerGitCwd = args.story
         ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot, config: projectConfig })
         : (resolvedProjectGitRoot ?? projectRoot);
+      if (args.story) {
+        const amendment = acceptanceCompletionBlocker(ctx.store, args.story, handlerGitCwd);
+        if (amendment) throw new Error(amendment);
+      }
       return await withValidationSigningRoot(handlerGitCwd, () => withOfficialValidationExecution({
         commandStages: !args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot),
         root: projectRoot,
@@ -1839,12 +1918,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       if (args.story && isOfficialHeavyValidateInvocation(args)) {
-        refuseHeavyCertificationUnlessAdmitted({
-          store: ctx.store,
-          storyId: args.story,
-          current: currentCertificationIdentity(ctx, args.story),
-        });
+        assertTestAdmissibleRoutineValidationWindow(ctx, args.story);
       }
+      const officialHeavyStoryValidate = Boolean(args.story && isOfficialHeavyValidateInvocation(args));
 
       const validateFile = findValidateFile(projectRoot);
       if (!validateFile) {
@@ -1890,6 +1966,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ctx, storyId: args.story!, gitCwd: handlerGitCwd,
               snapshot: built.snapshot, identity: built.identity, reuse, warn: true,
             });
+            if (officialHeavyStoryValidate && args.story) {
+              claimTestAdmissibleRoutineValidationWindow(ctx, args.story);
+            }
             const base = externalResult({
               provider: 'proof-or-stop-verifier-no-validation-entry',
               status: 'warn',
@@ -1906,7 +1985,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               headSha: currentHead(handlerGitCwd),
             });
             return {
-              ...decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base, built?.identity, [], 0),
+              ...decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base, built?.identity, [], 0, undefined, args),
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
@@ -1929,7 +2008,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             focus,
           }) : null;
           const reuse = built && args.story
-            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
             : null;
           const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
           if (reuse?.reusable && built) {
@@ -1943,6 +2022,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             });
             if (reused) return reused;
           }
+          const launchGate = createRoutineValidationLaunchGate(ctx, args.story, commands, projectRoot, officialHeavyStoryValidate);
           let dynamicPreview: {
             mode: string;
             manifest?: unknown;
@@ -1988,26 +2068,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 encoding: 'utf8',
               }).trim();
               if (args.story) {
-                if (dynamicMode === 'observe') {
-                  // DYN-1 observe is selection-only. The ordinary complete
-                  // plan below is the one authoritative execution; launching
-                  // a selected plan here would duplicate commands and violate
-                  // observe's resource/order equivalence contract.
-                  const dynamic = prepareStoryAwareValidation({
-                    projectRoot,
-                    storyId: args.story,
-                    baseHead,
-                    head: currentHead(handlerGitCwd),
-                    mode: dynamicMode,
-                    commands,
-                    gitCwd: handlerGitCwd,
-                    ...dynamicInputs,
-                  });
+                const dynamic = prepareStoryAwareValidation({
+                  projectRoot,
+                  storyId: args.story,
+                  baseHead,
+                  head: currentHead(handlerGitCwd),
+                  mode: dynamicMode,
+                  commands,
+                  gitCwd: handlerGitCwd,
+                  ...dynamicInputs,
+                });
+                const fallbackReasons = dynamicMode === 'enforce-low-risk'
+                  ? dynamicValidationPreflightFallbackReasons(projectRoot, dynamic) : [];
+                if (dynamicMode === 'observe' || (dynamicMode === 'enforce-low-risk' && (dynamic.manifest.fullEscalated || fallbackReasons.length > 0))) {
+                  // A failed static prerequisite cannot acquire dynamic authority. Execute
+                  // the canonical fallback once, without first launching the selected plan.
                   dynamicPreview = {
                     mode: dynamicMode,
                     manifest: dynamic.manifest,
-                    report: dynamic.report,
-                    authority: 'full-plan-oracle',
+                    report: dynamic.report + (dynamicMode === 'enforce-low-risk' ? '\nCanonical full fallback before dynamic execution: ' + [...dynamic.manifest.escalationReasons, ...fallbackReasons].join(', ') : ''),
+                    authority: dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
                     selectedCommands: dynamic.manifest.totals.executed,
                     reusedCommands: dynamic.manifest.totals.reused,
                     receipts: 0,
@@ -2016,6 +2096,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   ctx.log?.(dynamic.report);
                 } else {
                   const dynamic = await runStoryAwareDynamicValidation({
+                beforeLaunch: launchGate.beforeLaunch,
                     projectRoot,
                     storyId: args.story,
                     baseHead,
@@ -2093,6 +2174,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 ctx.log?.(selectionReport);
               }
             } catch (error) {
+              launchGate.rethrowRefusal();
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
               dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
             }
@@ -2162,9 +2244,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Keep the real verifier path behind the same fail-closed readiness
           // contract as pinned verification evidence. The executor rechecks the
           // snapshot at each scheduler worker's child-launch boundary.
-          const causalPreflightGate = args.story
-            ? createValidationCausalPreflightGate(ctx, args.story, commands, projectRoot)
-            : undefined;
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'proof-or-stop-verifier-configured-commands' : 'proof-or-stop-verifier-fallback-commands',
             commands,
@@ -2175,7 +2254,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             abortSignal: args.abortSignal,
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
-            beforeLaunch: causalPreflightGate?.beforeLaunch,
+            beforeLaunch: launchGate.beforeLaunch,
           });
           const baselineHead = currentHead(handlerGitCwd) || '';
           if (!args.story && base.allPass && !baselineHead.trim()) ctx.log?.('canonical full baseline not produced: no resolvable HEAD');
@@ -2321,6 +2400,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             built?.identity,
             base.commands,
             commands.length,
+            undefined,
+            args,
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
@@ -2331,51 +2412,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         return respond(decorated);
       }
 
-      // Build args for validate.ts
-      const tsArgs: string[] = [validateFile];
-      if (args.full !== undefined) {
-        if (typeof args.full === 'string' && args.full.length > 0) {
-          tsArgs.push(`--full=${args.full}`);
-        } else {
-          tsArgs.push('--full');
-        }
-      }
-      if (focus) {
-        tsArgs.push(`--focus=${focus}`);
-      }
-      if (args.story) {
-        tsArgs.push(`--story=${args.story}`);
-        // Git diff 推断：把全部改动文件传给 validate.ts，让项目自己决定跑哪���测试
-        // B-db56: resolve gitCwd via resolveGitCwd so wrapper-root layouts
-        // (metadataRoot ≠ gitRoot) run git diff in the real repo subdir.
-        const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot });
-        try {
-          const diff = execSync('git diff main...HEAD --name-only', {
-            cwd: gitCwd,
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
-          }).trim();
-          if (diff) {
-            const changedFiles = diff.split('\n')
-              .filter(Boolean)
-              .filter((path) => !isMaterialExcludedPath(path, projectRoot));
-            // validate.ts only consumes material changes. Story metadata and
-            // registered runtime artifacts must not perturb command identity.
-            if (changedFiles.length > 0) tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
-            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个 material 改动文件`);
-          }
-        } catch { /* git diff 失败不阻塞 */ }
-      }
-      if (args.json) {
-        tsArgs.push('--json');
-      }
-
-      const identityCommand: ValidationCommand = {
-        label: validateFile,
-        command: 'npx',
-        args: ['tsx', ...tsArgs],
-        ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
-      };
+      const identityCommand = buildValidateFileCommand(ctx, { ...args, focus }, validateFile);
+      const tsArgs = identityCommand.args.slice(1);
       const runValidateFile = (beforeLaunch?: () => void) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
         return executeValidationPlan({
@@ -2446,7 +2484,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           entrypointPath: join(projectRoot, validateFile),
         }) : null;
         const reuse = built && args.story
-          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
         if (reuse?.reusable && built) {
@@ -2460,6 +2498,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           });
           if (reused) return respond(reused);
         }
+        const launchGate = createRoutineValidationLaunchGate(ctx, args.story, [identityCommand], projectRoot, officialHeavyStoryValidate);
         let dynamicValidation: any;
         if (args.story && dynamicMode !== 'off' && !focus) {
           try {
@@ -2467,24 +2506,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               cwd: handlerGitCwd,
               encoding: 'utf8',
             }).trim();
-            if (dynamicMode === 'observe') {
-              // Observe computes and persists the selection but the
-              // validate-file command below remains the sole oracle run.
-              const dynamic = prepareStoryAwareValidation({
-                projectRoot,
-                storyId: args.story,
-                baseHead,
-                head: currentHead(handlerGitCwd),
-                mode: dynamicMode,
-                commands: [identityCommand],
-                gitCwd: handlerGitCwd,
-                ...dynamicInputs,
-              });
+            const dynamic = prepareStoryAwareValidation({
+              projectRoot,
+              storyId: args.story,
+              baseHead,
+              head: currentHead(handlerGitCwd),
+              mode: dynamicMode,
+              commands: [identityCommand],
+              gitCwd: handlerGitCwd,
+              ...dynamicInputs,
+            });
+            const fallbackReasons = dynamicMode === 'enforce-low-risk'
+              ? dynamicValidationPreflightFallbackReasons(projectRoot, dynamic) : [];
+            if (dynamicMode === 'observe' || (dynamicMode === 'enforce-low-risk' && (dynamic.manifest.fullEscalated || fallbackReasons.length > 0))) {
+              // A failed static prerequisite cannot acquire dynamic authority. Execute
+              // the canonical fallback once, without first launching the selected plan.
               dynamicValidation = {
                 mode: dynamicMode,
                 manifest: dynamic.manifest,
-                report: dynamic.report,
-                authority: 'full-plan-oracle',
+                report: dynamic.report + (dynamicMode === 'enforce-low-risk' ? '\nCanonical full fallback before dynamic execution: ' + [...dynamic.manifest.escalationReasons, ...fallbackReasons].join(', ') : ''),
+                authority: dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
                 selectedCommands: dynamic.manifest.totals.executed,
                 reusedCommands: dynamic.manifest.totals.reused,
                 receipts: 0,
@@ -2492,6 +2533,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               };
             } else {
               const dynamic = await runStoryAwareDynamicValidation({
+                beforeLaunch: launchGate.beforeLaunch,
                 projectRoot,
                 storyId: args.story,
                 baseHead,
@@ -2531,6 +2573,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             }
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
           } catch (error) {
+            launchGate.rethrowRefusal();
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
             dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', report: 'dynamic validation unavailable; validate-file oracle retained' };
           }
@@ -2557,10 +2600,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
           return respond(decorated);
         }
-        const causalPreflightGate = args.story
-          ? createValidationCausalPreflightGate(ctx, args.story, [identityCommand], projectRoot)
-          : undefined;
-        const validation = await runValidateFile(causalPreflightGate?.beforeLaunch);
+        const validation = await runValidateFile(launchGate.beforeLaunch);
         const commandResult = validation.commands[0];
         const { code, output } = commandResult;
         if (dynamicValidation?.manifest) {
@@ -2649,7 +2689,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
           }));
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
           return respond(surfaced);
         }
@@ -2674,6 +2714,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               [commandResult],
               1,
               semanticCommandPass,
+              args,
             );
             return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
@@ -2695,7 +2736,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }), focus ?? '');
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args);
           return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 

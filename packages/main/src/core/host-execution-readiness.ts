@@ -1,9 +1,11 @@
-import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import type { SpawnSyncReturns } from 'node:child_process';
+import { runSupervisedProviderProcess } from '../providers/supervised-process.js';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
-export type CanonicalReviewHost = 'codex' | 'claude' | 'agy';
+export const CANONICAL_REVIEW_HOSTS = ['codex', 'claude', 'agy'] as const;
+export type CanonicalReviewHost = typeof CANONICAL_REVIEW_HOSTS[number];
 
 export type HostExecutionProgressMode =
   | 'jsonl'
@@ -112,7 +114,7 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
   return {
     host,
     command: 'codex',
-    launcher: 'codex exec --json',
+    launcher: 'codex exec --json -',
       launcherArgv: [
         'codex',
         'exec',
@@ -120,7 +122,7 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
         '--skip-git-repo-check',
         '--ephemeral',
         '--ignore-rules',
-        '<prompt>',
+        '-',
       ],
     progressMode: 'jsonl',
     observable: true,
@@ -212,11 +214,9 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
 
 /**
  * B-70e9: materialize a canonical launcher argv for a REAL run (not the bounded
- * readiness probe). Substitutes the `<prompt>` slot (codex, agy: inline prompt
- * text) and the `<prompt-file>` slot (claude: an absolute prompt-file path the
- * caller wrote) 1:1, and — for the agy `--print-timeout` duration slot — replaces
- * the canonical `30s` value with `agyPrintTimeout` when it is a valid `\d+[smh]`
- * duration (otherwise the canonical value is kept). The returned argv INCLUDES the
+ * readiness probe). Substitutes the `<prompt>` slot (agy: inline prompt text)
+ * and the `<prompt-file>` slot (claude: an absolute prompt-file path the
+ * caller wrote) 1:1. The returned argv INCLUDES the
  * leading command token (argv[0]); callers spawn `argv[0]` with `argv.slice(1)`.
  *
  * PURE: builds no temp file and touches no fs. The claude prompt file is the
@@ -225,13 +225,9 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
  */
 export function materializeLauncherArgv(
   spec: HostExecutionLauncherSpec,
-  opts: { prompt?: string; promptFile?: string; agyPrintTimeout?: string },
+  opts: { prompt?: string; promptFile?: string },
 ): string[] {
   const source = spec.launcherArgv;
-  // The duration-slot index is read from the ORIGINAL spec argv so a prompt token
-  // that happens to equal '--print-timeout' can never shift the replacement target
-  // (placeholder substitution is strictly 1:1, so indices are stable).
-  const durationFlagIndex = source.indexOf('--print-timeout');
   const out = source.map(arg => {
     if (arg === '<prompt>') {
       if (typeof opts.prompt !== 'string') {
@@ -247,14 +243,6 @@ export function materializeLauncherArgv(
     }
     return arg;
   });
-  if (
-    durationFlagIndex >= 0 &&
-    durationFlagIndex + 1 < out.length &&
-    typeof opts.agyPrintTimeout === 'string' &&
-    CANONICAL_DURATION_VALUE.test(opts.agyPrintTimeout)
-  ) {
-    out[durationFlagIndex + 1] = opts.agyPrintTimeout;
-  }
   return out;
 }
 
@@ -487,14 +475,20 @@ export function probeHostExecutionReadiness(args: {
   const execution = launcherExecutionPlan(spec);
   const started = Date.now();
   try {
-    const result = spawnSync(args.executablePath, execution.spawnArgv, {
-      cwd: args.cwd,
-      env: args.env,
-      encoding: 'utf8',
-      timeout: args.timeoutMs,
-      maxBuffer: 256 * 1024,
-      input: '',
+    const supervised = runSupervisedProviderProcess(args.executablePath, execution.spawnArgv, {
+      cwd: args.cwd ?? process.cwd(),
+      env: args.env ?? process.env,
+      timeoutMs: args.timeoutMs,
+      stdin: args.host === 'codex' ? boundedReadinessPrompt() : '',
     });
+    // Retain the readiness output ceiling/classification, while the shared
+    // supervisor owns admission and proves provider-group cleanup first.
+    const overflow = Buffer.byteLength(supervised.stdout, 'utf8') > 256 * 1024
+      || Buffer.byteLength(supervised.stderr, 'utf8') > 256 * 1024;
+    const result = { ...supervised, signal: supervised.signal ?? null,
+      ...(overflow ? { status: null,
+        error: Object.assign(new Error('readiness output exceeded bounded buffer'), { code: 'ENOBUFS' }) } : {}),
+    };
     const durationMs = Math.max(0, Date.now() - started);
     const failureKind = classifyHostExecutionFailure(result);
     const timedOut = failureKind === 'timeout';

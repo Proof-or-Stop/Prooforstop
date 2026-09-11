@@ -3,7 +3,8 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { resolve } from 'node:path';
+import { resolve, relative, isAbsolute } from 'node:path';
+import { readFileSync, realpathSync } from 'node:fs';
 import { snapshotValidationExecutionInputs } from './validation-execution-inputs.js';
 import {
   assertCausalExecutionAdmission, CAUSAL_MAX_OUTPUT_CHARS, DEFAULT_CAUSAL_SELECTOR_POLICY, causalCanonical,
@@ -43,8 +44,9 @@ export function sharedValidationReuseAllowed(command: ValidationCommand): boolea
 
 export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
-  run: () => Promise<ValidationCommandResult>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
+  capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
 ): Promise<ValidationCommandResult> {
+  const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
   if (!context) return run();
   const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
@@ -89,16 +91,22 @@ export async function executeSharedValidationCommand(
   try { inputFiles=additionalInputs(); } catch { return executeWithoutReuse('input_unreadable'); }
   // Bind uncommitted source/index changes as well as committed material. Unknown
   // Git state refuses reuse; it does not manufacture a complete identity.
+  const gitRoot = realpathSync(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: normalized.cwd, encoding: 'utf8' }).trim());
+  const workspacePaths = () => [':/', ...(context.receiptStore.causalEvidenceOutputPaths?.(context.storyId) ?? []).flatMap(path => {
+    const name = relative(gitRoot, realpathSync(path));
+    return !name || name === '..' || name.startsWith('../') || isAbsolute(name) ? [] : [`:(top,exclude,literal)${name}`];
+  })];
+  const workspaceStatus = () => execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--', ...workspacePaths()], { cwd: normalized.cwd, encoding: 'utf8' });
   const workspaceState = () => {
-    const status = execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'});
-    const diff = execFileSync('git',['diff','--binary','HEAD'],{cwd:normalized.cwd,encoding:'utf8',maxBuffer:16*1024*1024});
+    const status = workspaceStatus();
+    const diff = execFileSync('git',['diff','--binary','HEAD','--',...workspacePaths()],{cwd:normalized.cwd,encoding:'utf8',maxBuffer:16*1024*1024});
     return createHash('sha256').update(status).update('\0').update(diff).digest('hex');
   };
   let workspace: string;
   try { workspace=workspaceState(); } catch { return executeWithoutReuse('workspace_identity_unavailable'); }
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
-  if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return executeWithoutReuse('workspace_dirty');
+  if (workspaceStatus()) return executeWithoutReuse('workspace_dirty');
   // git status may refresh index stat caches. Freeze raw index facts only after
   // the clean-workspace probe has completed its own legitimate refresh.
   const initial = probe();
@@ -113,7 +121,7 @@ export async function executeSharedValidationCommand(
   const identity = {
     storyId:context.storyId, cwd:normalized.cwd,
     command:{executable:command.command,args:command.args,shell:normalized.shell,env:command.env},
-    bootstrap:{executable:'proof-or-stop',args:['shared-validation-execution-v1']},
+    bootstrap:{executable:'proof-or-stop',args:['shared-validation-execution-v2-complete-capture']},
     inputs:{execution,workspace,inputFiles,implementationDigest,materialHash:initial.gitMaterial?.materialHash,
       policy:{executionReuse:command.executionReuse,closurePolicy:command.closurePolicy ?? null,
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
@@ -131,10 +139,12 @@ export async function executeSharedValidationCommand(
   const causal=await executeCausalEvidence({identity,selector:'',receiptStore:context.receiptStore,preflight,revalidateBeforeRun:unchanged,
     run:async()=>{
       const executionStarted = performance.now();
-      fresh=await run();
+      const captured = await capture();
+      fresh = captured.result;
       executionWallMs = performance.now() - executionStarted;
-      return {code:fresh.code,output:fresh.output,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
-        partial:Boolean(fresh.worktreePollution?.paths.length) || fresh.output.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
+      // Receipt identity belongs to complete execution bytes, never the bounded display.
+      return {code:fresh.code,output:captured.completeOutput,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
+        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
     },
   });
   assertActive();

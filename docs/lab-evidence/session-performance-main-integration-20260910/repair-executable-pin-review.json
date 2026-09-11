@@ -1,0 +1,20 @@
+[
+  {
+    "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "old": "5b4b8dafd2687d6507b8471c7e674855a57eb019285ebe9650fe4a700460b6d3",
+    "actual": "ca1a6aa99b2413a4bdfb31fa59c7f327ad55ec837f8107348de68935ee28e22b",
+    "reviewReason": "Real canonical envelope/CAS and native broker fixture bindings; complete closeout regression retains all negative controls and passed."
+  },
+  {
+    "file": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts",
+    "old": "b5f9f0ce99b52d61701b8cc7658dc74328680b58360cabde414aecad95dd86e4",
+    "actual": "887ef97b62f1ed886cfec54a2004ec1f858697fad92c7bd201c1660cf5ffc895",
+    "reviewReason": "Match physical read paths and current kernel extraction anchor; ordered membership and bounded lookup assertions all passed."
+  },
+  {
+    "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "old": "03a0f5091afb52ae230d43227b93d8b87b1a0fcef836f7589aa32b817525f0a2",
+    "actual": "13c83f0643c29adf147ac3e9d4f2d6366ca1f54939db33209463087f69791910",
+    "reviewReason": "Pass the actual fixture Store into reference-only run verification; signature, CAS digest and canonical identity remain required."
+  }
+]

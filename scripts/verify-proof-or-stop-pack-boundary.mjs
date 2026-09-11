@@ -174,7 +174,7 @@ function validateManifestCohort(manifests) {
   return errors;
 }
 
-function sourceManifests() {
+export function sourceManifests() {
   return Object.fromEntries(PACKAGE_ROWS.map((row) => [
     row.id,
     readJson(join(ROOT, row.directory, 'package.json')),
@@ -211,6 +211,7 @@ function packOne(row, tarballDir) {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, NPM_CONFIG_CACHE: join(dirname(tarballDir), 'npm-cache') },
   });
   const records = JSON.parse(stdout);
   assert(Array.isArray(records) && records.length === 1, `${row.id} npm pack did not return exactly one artifact`);
@@ -647,12 +648,18 @@ function buildOfflineCache(cacheRoot, cacheDir, input, graph) {
       delete stagedManifest.devDependencies;
       delete stagedManifest.bundleDependencies;
       delete stagedManifest.bundledDependencies;
+      // The cache repacks installed dependencies for offline consumer tests; it
+      // does not develop them. A dependency may require a different package
+      // manager through npm's devEngines field (smol-toml requires pnpm), which
+      // must not block this deterministic, script-disabled repack operation.
+      delete stagedManifest.devEngines;
       writeFileSync(join(sourceStage, 'package.json'), `${JSON.stringify(stagedManifest, null, 2)}\n`);
       const stdout = execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', packDir, '.'], {
         cwd: sourceStage,
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
         stdio: ['ignore', 'pipe', 'pipe'],
+        env: { ...process.env, NPM_CONFIG_CACHE: join(stageDir, 'npm-cache') },
       });
       const records = JSON.parse(stdout);
       assert(Array.isArray(records) && records.length === 1, `offline dependency ${manifest.name} did not pack exactly once`);
@@ -725,7 +732,7 @@ function ensureOfflineDependencyCache(manifests, cacheRoot = cacheRootPath()) {
   return ensureOfflineDependencyCacheForGraph(manifests, resolveOfflineDependencyGraph(manifests), cacheRoot);
 }
 
-function prepareOfflineDependencyOverrides(manifests) {
+export function prepareOfflineDependencyOverrides(manifests) {
   const cache = ensureOfflineDependencyCache(manifests);
   return {
     overrides: cache.overrides,
@@ -809,7 +816,7 @@ function verifyUtilsCompatibilityFloor({ tempRoot, packed, offlineDependencies, 
   writeFileSync(join(oldCoreSource, 'index.js'), 'export async function runCli() {}\n');
   const packedOldCore = JSON.parse(execFileSync('npm', [
     'pack', '--json', '--ignore-scripts', '--pack-destination', oldCorePackDir, '.',
-  ], { cwd: oldCoreSource, encoding: 'utf8' }))[0];
+  ], { cwd: oldCoreSource, encoding: 'utf8', env: { ...process.env, NPM_CONFIG_CACHE: join(tempRoot, 'npm-cache') } }))[0];
   const oldCoreTarball = join(oldCorePackDir, packedOldCore.filename);
   const utilsTarball = packed.find(artifact => artifact.row.id === 'utils')?.tarball;
   assert(utilsTarball, 'Utils tarball missing from compatibility-floor probe');
@@ -842,6 +849,7 @@ function verifyUtilsCompatibilityFloor({ tempRoot, packed, offlineDependencies, 
       NPM_CONFIG_AUDIT: 'false',
       NPM_CONFIG_FUND: 'false',
       NPM_CONFIG_UPDATE_NOTIFIER: 'false',
+      NPM_CONFIG_CACHE: join(tempRoot, 'npm-cache'),
       HTTP_PROXY: 'http://127.0.0.1:9/',
       HTTPS_PROXY: 'http://127.0.0.1:9/',
     },
@@ -915,6 +923,7 @@ function runBoundary() {
         NPM_CONFIG_AUDIT: 'false',
         NPM_CONFIG_FUND: 'false',
         NPM_CONFIG_UPDATE_NOTIFIER: 'false',
+        NPM_CONFIG_CACHE: join(tempRoot, 'npm-cache'),
         HTTP_PROXY: 'http://127.0.0.1:9/',
         HTTPS_PROXY: 'http://127.0.0.1:9/',
       },
@@ -981,7 +990,7 @@ function runBoundary() {
       cwd: projectDir,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, NPM_CONFIG_OFFLINE: 'true' },
+      env: { ...process.env, NPM_CONFIG_OFFLINE: 'true', NPM_CONFIG_CACHE: join(tempRoot, 'npm-cache') },
     });
     assert(!tree.includes(`${RETIRED_SCOPE}/`), 'installed dependency tree contains a retired package scope');
 
@@ -1148,7 +1157,7 @@ async function runSelfTest() {
     writeFileSync(join(incompatibleSource, 'index.js'), 'export const rangeProbe = true;\n');
     const packedProbe = JSON.parse(execFileSync('npm', [
       'pack', '--json', '--ignore-scripts', '--pack-destination', incompatiblePackDir, '.',
-    ], { cwd: incompatibleSource, encoding: 'utf8' }))[0];
+    ], { cwd: incompatibleSource, encoding: 'utf8', env: { ...process.env, NPM_CONFIG_CACHE: join(temp, 'npm-cache') } }))[0];
     const packedProbePath = join(incompatiblePackDir, packedProbe.filename);
     writeFileSync(join(incompatibleConsumer, 'package.json'), JSON.stringify({
       name: 'incompatible-file-override-consumer',
@@ -1164,6 +1173,7 @@ async function runSelfTest() {
       env: {
         ...process.env,
         NPM_CONFIG_OFFLINE: 'true',
+        NPM_CONFIG_CACHE: join(temp, 'npm-cache'),
         HTTP_PROXY: 'http://127.0.0.1:9/',
         HTTPS_PROXY: 'http://127.0.0.1:9/',
       },
@@ -1304,12 +1314,13 @@ async function runSelfTest() {
   console.log('PASS pack-boundary self-test: semver/alias/prerelease/nested/optional closure and cache hit, tamper/stale rebuild, concurrent publication verified');
 }
 
+const invokedDirectly = resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url);
 const cacheWorkerArg = process.argv.find((arg) => arg.startsWith('--cache-self-test-worker='));
-if (cacheWorkerArg) {
+if (invokedDirectly && cacheWorkerArg) {
   runCacheWorker(JSON.parse(Buffer.from(cacheWorkerArg.slice('--cache-self-test-worker='.length), 'base64url').toString('utf8')));
-} else if (process.argv.includes('--self-test')) {
+} else if (invokedDirectly && process.argv.includes('--self-test')) {
   await runSelfTest();
-} else {
+} else if (invokedDirectly) {
   const transcript = runBoundary();
   const transcriptArg = process.argv.find((arg) => arg.startsWith('--transcript='));
   if (transcriptArg) {

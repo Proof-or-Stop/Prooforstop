@@ -11,6 +11,7 @@ const distName = existsSync(join(packageRoot, 'dist', 'core', 'agent-role-identi
   ? 'dist'
   : 'dist.staging';
 const distRoot = join(packageRoot, distName);
+const { withBrokeredNativeReviewInvocation, nativeReviewFixtureBrokers } = await import(join(distRoot, 'tasks/native-review-fixture.js'));
 
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
 const schema = await import(join(distRoot, 'core/artifact-schema.js'));
@@ -231,8 +232,9 @@ try {
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
-  writeFileSync(join(reviewRoot, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n');
+  writeFileSync(join(reviewRoot, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n.proof-or-stop/runtime/native-review-invocations/\n.native-review-fixture-*.json\n');
   writeFileSync(join(reviewRoot, 'packages/main/src/index.ts'), 'export const migrationSmoke = true;\n');
   execFileSync('git', ['init', '-q'], { cwd: reviewRoot });
   execFileSync('git', ['config', 'user.email', '26995688+Harmonynet@users.noreply.github.com'], { cwd: reviewRoot });
@@ -298,13 +300,13 @@ try {
     const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
     assert.ok(reviewRunId, `${lane} review_run_start emits a signed run id`);
     reviewRuns.set(lane, reviewRunId);
-    reviewPassSet({
+    withBrokeredNativeReviewInvocation({ root: reviewRoot, store, storyId, agent: lane, reviewRunId, invoke: () => reviewPassSet({
       storyId,
       agent: lane,
       reviewRunId,
       note: `Canonical ${lane} pass`,
       readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
-    });
+    }) });
   }
   const canonicalFinding = {
     storyId, agent: 'proof-or-stop-review-quality',
@@ -313,7 +315,7 @@ try {
     severity: 'low', category: 'edge',
     readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
   };
-  findingAdd(canonicalFinding);
+  withBrokeredNativeReviewInvocation({ root: reviewRoot, store, storyId, agent: canonicalFinding.agent, reviewRunId: canonicalFinding.reviewRunId, invoke: () => findingAdd(canonicalFinding) });
   assert.equal(store.readFindings(storyId).findings.at(-1)?.agent, canonicalFinding.agent);
   function snapshotFiles(dir) {
     return Object.fromEntries(readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).map(entry => [

@@ -1,0 +1,35 @@
+{
+  "count": 160,
+  "commandSetDigest": "4e798199f1a1337c4a567c2977a161eb4d48c6e8582fc6c9a76fbc6c0821ae84",
+  "changedCommand": {
+    "label": "B-aa5f CHK-007: real authenticated inventory observation, reexecution/reuse compatibility, tamper rejection and independent cutoff regression",
+    "command": "node",
+    "args": [
+      "scripts/run-validation-fixture-suite.mjs",
+      "packages/main/dist/tasks/review-inventory-epoch-smoke.js"
+    ],
+    "assurance": "story-selectable",
+    "riskTier": "local",
+    "closurePolicy": "static-and-traced",
+    "fullBaselineReusePolicy": "not-applicable",
+    "cpuWeight": 1,
+    "timeoutMs": 180000,
+    "resources": [
+      {
+        "class": "git-common-dir",
+        "key": ".",
+        "access": "shared"
+      },
+      {
+        "class": "fixed-path",
+        "key": "package.json",
+        "access": "shared"
+      },
+      {
+        "class": "fixed-path",
+        "key": "proof-or-stop.config.json",
+        "access": "shared"
+      }
+    ]
+  }
+}

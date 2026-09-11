@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.296",
+  "version": "0.3.311",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -119,6 +119,7 @@
     "test:identity-state-migrate-atomicity": "node tests/identity-state-migrate-atomicity.test.mjs",
     "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "test:finding-identity-delivery": "node dist/tasks/finding-identity-lineage-smoke.js --section=delivery",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
@@ -146,11 +147,13 @@
     "test:dynamic-validation-test-gate-escalation": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation",
     "test:dynamic-validation-test-gate-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations",
     "test:dynamic-validation-operations": "node ../../scripts/run-dynamic-validation-audit.mjs operations",
-    "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations"
+    "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations",
+    "test:story-create-direct-lifecycle": "node tests/red/red-story-create-direct-done-bypass.mjs"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",
     "proper-lockfile": "^4.1.2",
+    "smol-toml": "1.8.0",
     "typescript": "^5.7.0",
     "ws": "^8.21.1",
     "xstate": "^5.30.0",
