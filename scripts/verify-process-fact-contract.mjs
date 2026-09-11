@@ -10947,9 +10947,10 @@ const projection = projectProcessFactRegistry();
 const p0m = projectComponentProcessFactMapping('P0m');
 let refusal = null;
 try { projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }
-process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), p0m: p0m.length, p0mOnly: p0m.every(entry => entry.componentId === 'P0m'), refusal }));`,
+process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => entry.factId === 'runtime:plan_selected_owner_coverage'), registry: PROCESS_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), p0m: p0m.length, p0mOnly: p0m.every(entry => entry.componentId === 'P0m'), refusal }));`,
   ], { cwd: root, encoding: 'utf8' });
   const sourceResult = JSON.parse(sourceProbe);
+  assert(sourceResult.ownerCoverage?.paths?.includes('packages/main/src/core/plan-touchpoint-coverage.ts'), 'selected owner coverage must be canonically registered');
   assert(sourceResult.registry > 0 && sourceResult.projection === sourceResult.registry,
     'current source process registry component mapping must be total');
   assert(sourceResult.generatedInWhole === false, 'whole process registry projection must omit generatedFrom');
@@ -11153,6 +11154,31 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
 
+// Structural inventory protection; executable behavior and mutation witnesses live in the focused Lab regression.
+for (const [path, tokens] of [
+ ['packages/main/src/core/plan-touchpoint-coverage.ts',['projectProcessFactRegistry','signValidationArtifact','verifyValidationArtifact','validateOwnerDispositions']],
+ ['packages/main/src/handlers/scope-check.ts',['signPlanOwnerCoverage','dispatched-env']],
+ ['packages/main/src/handlers/story-review.ts',['planOwnerCoverageFailure']],
+ ['packages/main/src/core/machine.ts',['planOwnerCoverageFailure']],
+ ['packages/main/src/handlers/story-dispatch.ts',['ownerDispositions']],
+]) for (const token of tokens) assert(read(path).includes(token), 'Missing selected owner contract: '+path+':'+token);
+
+for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy']) {
+  assert(read('packages/main/src/core/plan-touchpoint-coverage.ts').includes('packages/main/src/core/'+file+'.ts'), 'Unbound registry projection input: '+file);
+}
+
+// Structural dependency inventory: newly imported mapping inputs require an explicit binding review.
+for (const [file, expected] of [
+ ['process-fact-registry',['./command-policy.js','./flow-fact-policy.js','./process-fact-levels.js','node:path']],
+ ['command-policy',[]], ['process-fact-levels',[]],
+ // This helper import serves only evaluator functions, not the literal FLOW_FACT_POLICIES projection.
+ ['flow-fact-policy',['./agent-dispatch-registry.js']],
+]) {
+ const source=read('packages/main/src/core/'+file+'.ts');
+ const imports=[...source.matchAll(/^import[\s\S]*?from ['"]([^'"]+)['"]/gm)].map(match=>match[1]).sort();
+ assert(JSON.stringify(imports)===JSON.stringify([...expected].sort()), 'Review changed registry projection import dependencies: '+file);
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11164,3 +11190,4 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+

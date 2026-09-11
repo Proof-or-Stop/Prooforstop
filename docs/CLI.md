@@ -1298,3 +1298,9 @@ The Claude Code side still uses the hooks, settings, and skills under `.claude/`
 - [.proof-or-stop-codex/agents/](/Users/jek/Documents/Work/Orchestrate/.proof-or-stop-codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
 In a full-mode repository, `.proof-or-stop-codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/proof-or-stop-codex.js verify_codex` validates the registry manifest/hash/renderability.
+
+### PLAN selected process-owner coverage
+
+When ProofStory verification topology selects canonical `process-fact:<factId>` references, `scope_check_save` requires the registered scope reviewer and `ownerDispositions`. Each canonical registry path needs exactly one `{path, disposition, reason}` row: `modify` or `test` must match checklist files, while `unchanged` records substantive reviewed sufficiency (reason at least 40 characters). This does not authorize scope expansion or require edits to all consulted files. Repository-keyed evidence binds the selection, declarations, source bytes and relevant local-main source bytes. `story_review` and the direct PLAN-to-DEV guard revalidate it, independently of cached review counts. Invalid, stale, missing or tampered evidence blocks. Stories without selected canonical topology retain legacy behavior; this bounded check does not infer unselected features from prose or certify independent-host execution.
+
+Owner coverage conservatively binds all four registry projection input files (process-fact registry, command policy, process-fact levels, and flow-fact policy); any byte change in these inputs requires fresh review, even when an unrelated registry row changed. Unrelated main commits with identical relevant source bytes remain current.

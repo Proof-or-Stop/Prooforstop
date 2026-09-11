@@ -1552,6 +1552,13 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
     name: entry.name,
+    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' ? {paths: [
+      'packages/main/src/core/finding-applicability.ts',
+      'packages/main/src/core/finding-applicability-projection.ts',
+      'packages/main/src/handlers/transition-orchestrator.ts',
+      'packages/main/src/handlers/finding-material-reattestation.ts',
+      'packages/main/src/core/certification-window.ts',
+    ]} : {}),
     kind: commandFactKind(entry.name, entry.level),
     semantics: commandFactSemantics(entry.name, entry.level),
     level: entry.level,
@@ -1578,6 +1585,9 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
     rationale: entry.rationale,
   };
 });
+
+// Selected canonical owners carry repository-keyed dispositions consumed independently of cached review counts.
+COMMAND_PROCESS_FACTS.push({name:'runtime:plan_selected_owner_coverage',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','signed-artifact','gate-evidence'],paths:['packages/main/src/core/plan-touchpoint-coverage.ts','packages/main/src/handlers/scope-check.ts','packages/main/src/handlers/story-review.ts','packages/main/src/core/machine.ts'],producer:'scope_check_save registered scope reviewer',consumerGate:'story_review and canStartDevGuard',rationale:'Independent canonical process-fact owner enumeration prevents simultaneous declaration omission; keyed local-role coverage binds topology, registry and relevant source bytes, allows substantive unchanged dispositions, and fails closed on invalid or stale records.'});
 
 export const PROCESS_FACT_FLOW_POLICIES = FLOW_FACT_POLICIES.map((policy) => ({
   name: policy.name,
