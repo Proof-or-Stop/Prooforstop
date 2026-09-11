@@ -1,5 +1,38 @@
 # Changelog
 
+## Lab plan-owner-coverage - v0.3.322 - 2026-09-11
+
+# PLAN canonical owner coverage Lab
+
+The bounded system defect was simultaneous omission: understanding touchpoints and checklist files could both omit a canonical selected process-fact implementation owner, and story_review reported no owner blocker. The regression first committed at 689834b044 exercised the real production story_review handler with passing legacy and declared-uncovered controls. A corrected complete native topology fixture also reproduces the unchanged failure using actual historical source at ed03c8cd62 through --baseline; this is historical source execution, not a replacement implementation.
+
+The repair enumerates canonical selected process-fact rows independently of both declarations. A registered scope reviewer supplies one modify/test/unchanged disposition per owner; modify/test must match actual declared paths, and unchanged requires a substantive source-review rationale. The official handler signs a repository-keyed envelope with exact Story identity, role attribution, acceptance semantics, topology, declarations, selected registry projection and source-byte bindings. The story_review and direct PLAN-to-DEV machine guard revalidate it independently of the old public salted review summary. Prompt, CLI schema and process registry/verifier are updated. The original dynamic Finding owner mapping now includes transition-orchestrator and finding-material-reattestation, as well as predicate/projection and certification owners.
+
+Trust and scope limits: the role is locally attributed through the existing dispatcher environment and the existing project signing key, not a new independent-host credential. The selection boundary is explicit canonical process-fact references; this does not infer unselected product requirements from prose. Four registry projection source inputs are conservatively byte-bound, so any registry-input edit requires re-review; unrelated main changes with identical relevant source bytes preserve evidence. Genuine no-topology legacy Stories remain compatible. This repairs PLAN-to-DEV, not all express/reentry doors, and does not mark B-e6d9 CHK006 or the Story done.
+
+Verification includes actual scope_check_save refusal/success; native modify/test/unchanged positives; both omitted owner mapping assertions; malformed planned/unknown canonical refs with no previous coverage; tampered/missing signatures, foreign Story/role, source and acceptance-semantic drift, duplicate/undeclared dispositions; unrelated-main positive, main-only owner drift and independent registry-only main drift. Actual story_advance rejects invalid coverage without persisting DEV and persists DEV after valid coverage. Removing each actual save/review/guard production consumer makes its unchanged rejection assertion fail in an isolated execution. The process contract import inventory is structural protection, not a substitute for these behavioral mutations.
+
+## Measured commands
+
+- record-owner-red: exit 0, 2.926s, 2026-09-11T21:10:44.890644+00:00 to 2026-09-11T21:10:47.817074+00:00; log /tmp/B-e6d9-record-owner-red-1789161044890954000.log
+- owner-corrected-baseline-red: exit 1, 4.986s, 2026-09-11T21:20:56.311306+00:00 to 2026-09-11T21:21:01.297201+00:00; log /tmp/B-e6d9-owner-corrected-baseline-red-1789161656311528000.log
+- owner-native-transition-complete: exit 0, 26.018s, 2026-09-11T21:19:49.482312+00:00 to 2026-09-11T21:20:15.501047+00:00; log /tmp/B-e6d9-owner-native-transition-complete-1789161589482717000.log
+- owner-build-final: exit 0, 14.231s, 2026-09-11T21:20:55.133570+00:00 to 2026-09-11T21:21:09.364897+00:00; log /tmp/B-e6d9-owner-build-final-1789161655133784000.log
+- owner-existing-review-regression: exit 0, 5.381s, 2026-09-11T21:21:39.479118+00:00 to 2026-09-11T21:21:44.860092+00:00; log /tmp/B-e6d9-owner-existing-review-regression-1789161699479425000.log
+- owner-process-contract-aligned: exit 0, 12.121s, 2026-09-11T21:22:45.468974+00:00 to 2026-09-11T21:22:57.589816+00:00; log /tmp/B-e6d9-owner-process-contract-aligned-1789161765469277000.log
+
+## Failures distinguished
+
+Node strip-only source loading rejected a pre-existing TypeScript parameter property; the fixture now uses actual TypeScript transpilation. Missing local @types/ws was repaired with a read-only dependency link, with no shared writable dist or lockfile edits. Initial real-transition fixture omitted topology array fields and memory-ack fields; these were setup failures, corrected from the actual schemas. New implementation narrowing/root-variable errors and structural guard placement failures were corrected and retained in the timing logs. The main entry-preflight baseline already fails on a null checklist item before its controls; duration 1.622s; parent supplied the baseline log /tmp/B-e6d9-lab-entry-preflight-baseline-1789161199739829000.log. This Lab does not repair or claim that baseline as passing. Existing story-review ergonomics and the process fact contract pass.
+
+The parent owns local-main finish/integration and subsequent Story validation. No real Story metadata was changed by this implementer. Timing ledger: /tmp/B-e6d9-plan-owner-lab-timing.jsonl.
+
+Final committed HEAD: 615bd7a5b99f94c71acf3d8af8cc78be4d25dbbd. Official pinned Lab GREEN passed, exit 0, 32.240s, 2026-09-11T21:23:14.376827+00:00 to 2026-09-11T21:23:46.617943+00:00; log /tmp/B-e6d9-owner-official-green-1789161794377457000.log.
+
+Maintenance provenance: codex/lab-plan-owner-coverage, repair 615bd7a5b99f94c71acf3d8af8cc78be4d25dbbd.
+Verification command (replayed before integration and on main): `["node","scripts/verify-plan-owner-coverage.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab explicit-patch-upgrade - v0.3.321 - 2026-09-11
 
 Fix Lab release version selection: finish now accepts --bump patch and honors an explicit upgrade request even when changed paths are outside main runtime build inputs. Separate the Lab version decision from the shared DONE build predicate; executable scripts under scripts/ now trigger an automatic patch release. Any version change still builds and verifies the CLI because the synchronized runtime brand changes. Persist the prepared decision so a retry without flags preserves the upgrade and never increments twice. Refuse a late patch request against a prepared unbumped release instead of silently ignoring it. Pure documentation without an explicit upgrade retains its version.

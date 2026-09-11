@@ -1,3 +1,4 @@
+import { signPlanOwnerCoverage } from '../core/plan-touchpoint-coverage.js';
 /**
  * Scope Check handler — proof-or-stop scope_check_save
  *
@@ -199,11 +200,13 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         drift?: number;
       };
       readManifest: unknown;
+      ownerDispositions?: unknown;
       // B-ed3e CHK-003: 6th channel Open Questions (optional). Not validated when reviewer writes
       // business integrity (only type check); main agent later resolves via scope_question_resolve.
       openQuestions?: OpenQuestion[];
     }): string {
-      resolveAgentMutationAuthority({ command: 'scope_check_save' });
+      const authority = resolveAgentMutationAuthority({ command: 'scope_check_save' });
+      const ownerCoverage = signPlanOwnerCoverage(store, root, args.storyId, args.ownerDispositions, authority.source === 'dispatched-env' ? authority.entry?.canonicalName : undefined);
       // Verify story exists and read currentReviewRound
       let reviewRound = '';
       try {
@@ -243,6 +246,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       });
       const data: ScopeCheckData = {
         storyId: args.storyId,
+        ...(ownerCoverage ? {ownerCoverage} : {}),
         checkedAt: timestamp,
         features: args.features,
         readManifest,

@@ -2821,6 +2821,7 @@ export interface ScopeCheckFeature {
 }
 
 export interface ScopeCheckData {
+  ownerCoverage?: import('./plan-touchpoint-coverage.js').PlanOwnerCoverage;
   storyId: string;
   checkedAt: string;
   features: ScopeCheckFeature[];
