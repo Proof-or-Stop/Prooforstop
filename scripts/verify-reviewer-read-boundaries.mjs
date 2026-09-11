@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -16,6 +16,7 @@ const sid = 'B-read-boundaries';
 const roles = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
 const results = [];
 const invocations = [];
+const comparisons = [];
 const env = { ...process.env, CODEX_THREAD_ID: `read-boundary-owner-${process.pid}` };
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_REVIEWER_READONLY', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST',
   'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN', 'PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST',
@@ -61,9 +62,9 @@ try {
   mkdirSync(join(root, 'src'));
   writeFileSync(join(root, 'src/base.ts'), 'export const value = 1;\n');
   writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
-  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: 'src',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ ...JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8')), scanRoot: '.', rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', outDir: 'dist',
-    testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    testsDir: 'tests', fixturesDir: 'tests/fixtures', promptEnvelope: JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8')).promptEnvelope }));
   git('init', '-b', 'work'); git('config', 'user.email', 'lab@example.test'); git('config', 'user.name', 'Lab regression');
   git('add', '.'); git('commit', '-m', 'seed isolated reviewer read regression'); git('branch', 'main');
   const { StoryStore } = await import(join(repo, 'packages/main/dist/core/store.js'));
@@ -81,6 +82,10 @@ try {
   store.writeChecklist(sid, { items: [{ id: 'CHK-001', title: 'Read scoped context', context: 'Keep task content available to independent readers.',
     status: 'pending', startTime: null, endTime: null }] });
   const ctx = { store, root, scanRoot: root };
+  const initSid = 'B-read-init';
+  store.writeStory(initSid, { ...store.readStory(sid), storyId: initSid, phase: 'INIT', currentReviewRound: undefined });
+  store.writeChecklist(initSid, store.readChecklist(sid));
+  acquireOwnerLease(store.storyDirPath(initSid), { command: 'isolated-init-fixture-setup', cwd: root });
   const owner = acquireOwnerLease(store.storyDirPath(sid), { command: 'isolated-fixture-setup', cwd: root });
   assert.equal(owner.sessionId, getSessionId());
   const handlers = createReviewInventoryHandlers(ctx);
@@ -89,19 +94,29 @@ try {
   const control = invoke('story_get', [`--storyId=${sid}`], { readOnly: true });
   assert.equal(control.exitCode, 0, `SETUP_READ_CONTROL_FAILED: ${control.stderr}`);
 
+  const promptControl = invoke('agent_prompt', [`--role=${roles[0]}`], { readOnly: true });
+  assert.equal(promptControl.exitCode, 0, `SETUP_PROMPT_CONTROL_FAILED: ${promptControl.stderr}`);
+
   check('R1_STORY_PROMPT_READ', () => {
-    const before = snapshot(store.storyDirPath(sid));
     for (const role of roles) {
-      const read = invoke('agent_prompt', [`--storyId=${sid}`, `--role=${role}`, '--readOnly', '--format=json'], { readOnly: true });
+      // Reproduce the historical successful relay: reader refusal, then owner publication.
+      const denied = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${role}`, '--format=json']);
+      assert.notEqual(denied.exitCode, 0); assert.match(denied.stderr, /owner-gated/);
+      const relay = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${role}`, '--format=json'], { reviewer: false });
+      assert.equal(relay.exitCode, 0, `owner publication positive control: ${relay.stderr}`);
+      const before = snapshot(store.storyDirPath(initSid));
+      const read = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${role}`, '--readOnly', '--format=json'], { readOnly: true });
       assert.equal(read.exitCode, 0, `REVIEWER_READ_BOUNDARY_RED: contextual prompt denied: ${read.stderr}`);
       const body = JSON.parse(read.stdout);
       assert.equal(body.readOnly, true); assert.equal(body.canMintReviewEvidence, false); assert.equal(body.envelope, null);
-      assert.match(body.prompt, new RegExp(sid)); assert.match(body.prompt, /Read scoped context/);
-      assert.deepEqual(snapshot(store.storyDirPath(sid)), before, 'prompt reads must preserve all Story bytes and lease');
+      assert.match(body.prompt, new RegExp(initSid)); assert.match(body.prompt, /Read scoped context/);
+      assert.deepEqual(body.taskContext, JSON.parse(relay.stdout).taskContext, 'reader and owner receive equivalent task context');
+      comparisons.push({ role, baseline: { calls: 2, elapsedMs: denied.elapsedMs + relay.elapsedMs }, candidate: { calls: 1, elapsedMs: read.elapsedMs }, contextEqual: true });
+      assert.deepEqual(snapshot(store.storyDirPath(initSid)), before, 'prompt reads must preserve all Story bytes and lease');
     }
-    const write = invoke('agent_prompt', [`--storyId=${sid}`, `--role=${roles[0]}`]);
+    const write = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${roles[0]}`]);
     assert.notEqual(write.exitCode, 0); assert.match(write.stderr, /owner-gated/);
-    assert.throws(() => createAgentPromptHandlers(ctx).agent_prompt({ role: roles[0], storyId: sid, readOnly: true, auditExperiment: true, format: 'json' }), /readOnly.*auditExperiment|auditExperiment.*readOnly/);
+    assert.throws(() => createAgentPromptHandlers(ctx).agent_prompt({ role: roles[0], storyId: initSid, readOnly: true, auditExperiment: true, format: 'json' }), /readOnly.*auditExperiment|auditExperiment.*readOnly/);
   });
 
   check('R2_INVENTORY_STATUS_READ', () => {
@@ -111,6 +126,7 @@ try {
     assert.match(status.stdout, /OPEN/);
     assert.deepEqual(snapshot(store.storyDirPath(sid)), before);
     writeFileSync(join(root, 'src/base.ts'), 'export const value = 2;\n');
+    git('add', 'src/base.ts'); git('commit', '-m', 'change committed material for drift control');
     const drifted = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });
     assert.equal(drifted.exitCode, 0, drifted.stderr); assert.match(drifted.stdout, /INVALIDATED/);
     assert.match(drifted.stdout, /OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION/);
@@ -122,24 +138,48 @@ try {
     assert.throws(() => assertOpenInventoryFresh(ctx, sid), /OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION/);
     assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1).state, 'INVALIDATED');
     assert.ok(verifyReviewInventoryEpoch(store.readReviewInventoryEpochs(sid).epochs.at(-1)));
+    handlers.review_inventory_begin({ storyId: sid });
+    writeFileSync(join(root, 'src/base.ts'), 'export const value = 3;\n');
+    git('add', 'src/base.ts'); git('commit', '-m', 'second committed drift for owner refresh control');
+    enforceStoryOwnerLeaseGate('review_inventory_status', { storyId: sid, refresh: true }, store,
+      { storyId: sid, phase: 'REVIEW' }, root, undefined, {});
+    assert.match(handlers.review_inventory_status({ storyId: sid, refresh: true }), /INVALIDATED/);
+    assert.ok(verifyReviewInventoryEpoch(store.readReviewInventoryEpochs(sid).epochs.at(-1)), 'owner refresh signs actual invalidation');
+    const authentic = store.readReviewInventoryEpochs(sid);
+    const corrupt = structuredClone(authentic); corrupt.epochs.at(-1)._hash = 'corrupt-signature';
+    store.writeReviewInventoryEpochs(sid, corrupt);
+    const corruptBefore = snapshot(store.storyDirPath(sid));
+    const corruptRead = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });
+    assert.notEqual(corruptRead.exitCode, 0); assert.match(corruptRead.stderr, /signature|invalid/i);
+    assert.deepEqual(snapshot(store.storyDirPath(sid)), corruptBefore);
+    store.writeReviewInventoryEpochs(sid, authentic);
+
   });
 
   check('R3_DISPATCH_READER_RECOVERY', () => {
-    const before = snapshot(store.storyDirPath(sid));
-    const refusal = invoke('dispatch', [`--storyId=${sid}`, `--agentType=${roles[0]}`]);
+    const before = snapshot(store.storyDirPath(initSid));
+    const refusal = invoke('dispatch', [`--storyId=${initSid}`, `--agentType=${roles[0]}`]);
     assert.notEqual(refusal.exitCode, 0); assert.match(refusal.stderr, /owner-gated/);
     const prefix = 'Read-only prompt: ';
     const line = refusal.stderr.split('\n').find(line => line.includes(prefix));
     assert.ok(line, 'REVIEWER_READ_BOUNDARY_RED: dispatch refusal lacks executable read-only recovery');
     const command = line.slice(line.indexOf(prefix) + prefix.length).trim();
-    assert.equal(command, `proof-or-stop agent_prompt --role=${roles[0]} --storyId=${sid} --readOnly`);
+    assert.equal(command, `proof-or-stop agent_prompt --role=${roles[0]} --storyId=${initSid} --readOnly`);
     const retry = invoke('agent_prompt', command.split(' ').slice(2), { readOnly: true });
-    assert.equal(retry.exitCode, 0, retry.stderr); assert.match(retry.stdout, new RegExp(sid));
-    assert.deepEqual(snapshot(store.storyDirPath(sid)), before, 'recovery requires no owner relay or dispatch write');
+    assert.equal(retry.exitCode, 0, retry.stderr); assert.match(retry.stdout, new RegExp(initSid));
+    assert.deepEqual(snapshot(store.storyDirPath(initSid)), before, 'recovery requires no owner relay or dispatch write');
+    const scoped = invoke('dispatch', [`--storyId=${initSid}`, '--agentType=proof-or-stop-implementer', '--itemId=CHK-001']);
+    assert.notEqual(scoped.exitCode, 0); assert.doesNotMatch(scoped.stderr, /Read-only prompt:/,
+      'do not erase item/purpose bindings by suggesting a generic Story prompt');
+
   });
 
   check('R4_CHECK_READONLY_ADMISSION', () => {
     const before = snapshot(store.storyDirPath(sid));
+    const assetPaths = ['.gitignore', 'AGENTS.md', 'CLAUDE.md', '.proof-or-stop/Proof-or-Stop.md', '.proof-or-stop/managed-assets.json'];
+    const assets = () => assetPaths.map(rel => [rel, existsSync(join(root, rel)) ? createHash('sha256').update(readFileSync(join(root, rel))).digest('hex') : null]);
+    const assetsBefore = assets();
+
     const control = invoke('check', ['--json'], { reviewer: false });
     assert.equal(control.exitCode, 0, control.stderr);
     const read = invoke('check', ['--json'], { readOnly: true });
@@ -150,9 +190,14 @@ try {
       const write = invoke('check', ['--json', flag], { readOnly: true });
       assert.notEqual(write.exitCode, 0); assert.match(write.stderr, /REVIEWER_READONLY=1/);
     }
+    for (const value of ['false', 1]) {
+      const malformed = invoke('check', [JSON.stringify({ json: true, apply: value })], { readOnly: true });
+      assert.notEqual(malformed.exitCode, 0, 'malformed write flags must fail closed');
+    }
+    assert.deepEqual(assets(), assetsBefore, 'default check and rejected writes preserve managed assets');
     assert.deepEqual(snapshot(store.storyDirPath(sid)), before);
   });
-  console.log(JSON.stringify({ rootIsTemporary: true, implementation: gitVersion(), results, invocations }, null, 2));
+  console.log(JSON.stringify({ rootIsTemporary: true, implementation: gitVersion(), results, comparisons, invocations }, null, 2));
   if (results.some(row => !row.pass)) {
     console.error('REVIEWER_READ_BOUNDARY_RED: ' + results.filter(row => !row.pass).map(row => row.id).join(', '));
     process.exitCode = 1;
