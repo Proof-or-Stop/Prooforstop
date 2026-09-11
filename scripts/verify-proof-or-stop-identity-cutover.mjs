@@ -3151,7 +3151,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/certification-window-smoke.ts",
-    "sha256": "f93fd0c3c73f7408c4189dc47f7c15cfd51bd5172be2582b6d7f0edae595e091"
+    "sha256": "57024f94b7b429b377f4678bed092e7d97551deaad093546c356b26e8265f5d5"
   },
   {
     "path": "packages/main/src/tasks/command-ownership-contract.ts",
