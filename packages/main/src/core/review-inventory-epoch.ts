@@ -969,6 +969,33 @@ export function persistFinalizedReviewInventoryUnlocked(args: {
     return { epoch, receipt, reused: false };
 }
 
+/** Guidance shares the persisted authority; it grants no transition capability. */
+export function reviewInventoryFinalizedNextCommand(epoch: ReviewInventoryEpoch, receipt?: ReviewInventoryReceipt): string {
+  if (epoch.state !== 'FINALIZED' || !verifyReviewInventoryEpoch(epoch)
+    || !receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
+    || receipt.receiptId !== epoch.receiptId || receipt.epochId !== epoch.epochId
+    || receipt.storyId !== epoch.storyId || receipt.reviewRound !== epoch.reviewRound
+    || receipt.scopeDigest !== epoch.scopeDigest
+    || reviewInventoryDigest(receipt.cutoff) !== reviewInventoryDigest(epoch.cutoff)
+    || reviewInventoryDigest(receipt.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)
+    || Boolean(receipt.consumedAt) !== Boolean(epoch.consumedAt)) {
+    throw new Error('REVIEW_INVENTORY_RECEIPT_INVALID: cannot recommend an action from an invalid or mismatched finalized receipt');
+  }
+  if (epoch.consumedAt) {
+    // Legacy saturated receipts can be consumed by either remediation or
+    // PRE_CERT. The receipt does not record which consumer won; do not infer it.
+    return 'proof-or-stop session_brief';
+  }
+  if (receipt.authority === 'review-remediation-only') {
+    return `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
+  }
+  // Zero NEW families does not mean no findings: an older multi-wave inventory
+  // may still carry unresolved work. Let the existing finding policy decide it.
+  return epoch.waves.some(wave => wave.verifiedFindingFamilies.length > 0)
+    ? `proof-or-stop finding_list --storyId=${epoch.storyId}`
+    : `proof-or-stop validate --story=${epoch.storyId} --focus=fast --json`;
+}
+
 export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, receipt: ReviewInventoryReceipt): string {
   return [
     `State: ${epoch.state}`,
@@ -979,5 +1006,6 @@ export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, rece
     `storyFilesHash: ${epoch.cutoff.storyFilesHash ?? ''}`,
     `Authority: ${receipt.authority}`,
     `authorizesTest: ${receipt.authorizesTest}`,
+    `Next: ${reviewInventoryFinalizedNextCommand(epoch, receipt)}`,
   ].join('\n');
 }
