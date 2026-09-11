@@ -46,6 +46,8 @@ const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
   await import('./verify-lab-audit-contract.mjs');
   await import('./verify-lab-fixture-sources.mjs');
+  await import('./verify-lab-lock-scope.mjs');
+  assert.notEqual(process.exitCode,1,'Lab lock-scope assertions must pass');
   // Fault injection is confined to disposable signed fixture records.
   const alterFixtureRecord=(repo,name,mutate)=>{const path=join(repo,'.git/lab-maintenance',name+'.json');const r=JSON.parse(readFileSync(path));mutate(r.payload);r.hmac=createHmac('sha256',readFileSync(join(repo,'.git/lab-maintenance/local.key'))).update(JSON.stringify(r.payload)).digest('hex');writeFileSync(path,JSON.stringify(r));};
   const legacy=fixture('legacy-identity');
@@ -137,9 +139,21 @@ try {
     cmd(bounded,['red',name,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
     write(boundedLab,'bug.txt','fixed');write(boundedLab,'input.bin',content);commit(boundedLab,'fix: audit input boundary');
     cmd(bounded,['green',name]);const boundedHead=git(bounded,'rev-parse','HEAD');
-    cmd(bounded,finish(name),1,/bounded text contract/);
+    cmd(bounded,finish(name),1,kind==='binary'?/binary content \(input.bin\)/:/exceeds the bounded text contract/);
     assert.equal(git(bounded,'rev-parse','HEAD'),boundedHead,'Input refusal must occur before integration');
     assert.equal(JSON.parse(cmd(bounded,['status',name])).phase,'prepared');
+  }
+
+  for (const direction of ['file-to-directory','directory-to-file']) {
+    const repo=fixture(direction);
+    write(repo,direction==='file-to-directory'?'shape':'shape/leaf.txt','old shape');commit(repo,'test: initial path shape');
+    cmd(repo,['create',direction]);const work=join(repo,'.worktrees/Lab-'+direction);
+    cmd(repo,['red',direction,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
+    rmSync(join(work,'shape'),{recursive:true});write(work,direction==='file-to-directory'?'shape/leaf.txt':'shape','new shape');
+    write(work,'bug.txt','fixed');commit(work,'fix: path shape witness');cmd(repo,['green',direction]);
+    const mainHead=git(repo,'rev-parse','HEAD');
+    cmd(repo,finish(direction),1,/conflicting snapshot paths/);
+    assert.equal(git(repo,'rev-parse','HEAD'),mainHead);
   }
 
   const late = fixture('late'); cmd(late, ['create', 'late']);

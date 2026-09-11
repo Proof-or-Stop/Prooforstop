@@ -38,6 +38,14 @@ export function auditInput(cwd, base, head) {
   const key = /^[a-f0-9]{40,64}$/.test(base) && /^[a-f0-9]{40,64}$/.test(head) ? JSON.stringify([cwd, base, head]) : undefined;
   if (key && inputCache.has(key)) return inputCache.get(key);
   const paths = readGitText(cwd, ['diff', '--name-only', '-z', base, head]).split('\0').filter(Boolean);
+  const pathSet = new Set(paths);
+  for (const path of paths) {
+    const parts = path.split('/');
+    for (let i = 1; i < parts.length; i++) {
+      const prefix = parts.slice(0, i).join('/');
+      if (pathSet.has(prefix)) throw new Error(`Lab audit input violates the bounded text contract: conflicting snapshot paths (${prefix}, ${path}); file/directory replacement is unsupported.`);
+    }
+  }
   const files = paths.map(path => {
     const entry = git(cwd, '--literal-pathspecs', 'ls-tree', head, '--', path);
     if (!entry) return { path, content: '[deleted; complete prior content is in the diff]' };
@@ -47,7 +55,9 @@ export function auditInput(cwd, base, head) {
     return { path, content };
   });
   const input = JSON.stringify({ base, head, diff: readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', base, head]), files });
-  if (Buffer.byteLength(input) > INPUT_LIMIT || files.some(file => file.content.includes('\0'))) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
+  const binary = files.find(file => file.content.includes('\0'));
+  if (binary) throw new Error(`Lab audit input violates the bounded text contract: binary content (${binary.path}); provide a text-only repair.`);
+  if (Buffer.byteLength(input) > INPUT_LIMIT) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
   const result = Object.freeze({ input, inputDigest: hash(input), paths: Object.freeze(paths), files: Object.freeze(files.map(Object.freeze)) });
   if (key) inputCache.set(key, result);
   return result;

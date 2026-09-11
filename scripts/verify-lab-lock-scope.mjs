@@ -67,6 +67,7 @@ function fixture(name) {
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
   for (const rel of ['package-lock.json','packages/main/package-lock.json']) write(repo,rel,JSON.stringify({name:'proof-or-stop',version:'1.0.0',lockfileVersion:3,packages:{'':{name:'proof-or-stop',version:'1.0.0'}}}));
+  for (const rel of ['packages/lab/package-lock.json','packages/utils/package-lock.json']) write(repo,rel,JSON.stringify({lockfileVersion:3,packages:{'../main':{name:'@proof-or-stop/core',version:'1.0.0'}}}));
   const brand='packages/main/src/core/proof-or-stop-brand.ts';
   write(repo,brand,readFileSync(join(repo,brand),'utf8').replace(/(PROOF_OR_STOP_CLI_VERSION\s*=\s*)'[^']+'/ , "$1'1.0.0'"));
   write(repo, 'bug.txt', 'broken');

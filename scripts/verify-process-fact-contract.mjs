@@ -10064,6 +10064,7 @@ const inventory = [
   {
     name: 'Explicit Lab maintenance integration boundary',
     files: [
+      { relPath: 'scripts/verify-lab-lock-scope.mjs', patterns: ['main changed while the audit ran', 'LAB_FIXTURE_AUDIT_HOLD'] },
       { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs'] },
       { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
       { relPath: 'scripts/lab-worktree.mjs', patterns: ['ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },

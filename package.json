@@ -9,6 +9,7 @@
   "scripts": {
     "preflight:entry": "node scripts/entry-preflight.mjs",
     "lab:worktree": "node scripts/lab-worktree.mjs",
+    "test:lab-lock-scope": "node scripts/verify-lab-lock-scope.mjs",
     "test:lab-audit-contract": "node scripts/verify-lab-audit-contract.mjs",
     "test:lab-fixture-sources": "node scripts/verify-lab-fixture-sources.mjs",
     "test:lab-worktree": "node scripts/verify-lab-worktree.mjs",
