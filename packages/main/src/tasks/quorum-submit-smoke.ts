@@ -2,6 +2,7 @@
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { existsSync, realpathSync } from 'node:fs';
 import {
   assertQuorumSmokeTraceSinksExternal,
   createQuorumSmokeRegistry,
@@ -147,7 +148,8 @@ export async function runQuorumSmokeMain({
   return result;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && existsSync(resolve(process.argv[1]))
+  && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   await runQuorumSmokeMain({
     argv: process.argv.slice(2),
     registrations: createQuorumSmokeRegistry(PURE_QUORUM_SMOKE_CASES, INTEGRATION_QUORUM_SMOKE_CASES, PRUNE_QUORUM_SMOKE_CASES),
