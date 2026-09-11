@@ -177,7 +177,106 @@ function assertPlanRemoveCannotBypassFreeze(): void {
   }
 }
 
+function assertRepositoryWideMustNeedsAValidBasis(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const checklist = store.readChecklist(storyId);
+    checklist.items[0].verificationIntent = {
+      happy: [{ desc: 'go test ./... must pass', type: 'cli', priority: 'must' } as any],
+      edge: [{ desc: 'Focused boundary behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
+      adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
+    };
+    store.writeChecklist(storyId, checklist);
+
+    const review = createStoryReviewHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const invalid = review.story_review({ storyId }) as any;
+    assert.ok(invalid.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must' && issue.severity === 'blocker'));
+
+    checklist.items[0].verificationIntent!.happy![0] = {
+      desc: 'Run the complete repository suite and admit only failures already present in the captured baseline',
+      type: 'cli',
+      priority: 'should',
+      scope: 'repository',
+      expectation: 'no_new_regressions',
+      requirementSource: 'story',
+    } as any;
+    store.writeChecklist(storyId, checklist);
+    const differential = review.story_review({ storyId }) as any;
+    assert.ok(differential.issues.some((issue: any) => issue.type === 'repository_wide_baseline_missing'));
+    (checklist.items[0].verificationIntent!.happy![0] as any).baselineRef = 'baseline run at pre-change HEAD:abc123';
+    store.writeChecklist(storyId, checklist);
+    const groundedDifferential = review.story_review({ storyId }) as any;
+    assert.equal(groundedDifferential.issues.some((issue: any) => issue.type === 'repository_wide_baseline_missing'), false);
+    assert.equal(groundedDifferential.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+
+    checklist.items[0].verificationIntent!.happy![0] = {
+      desc: 'Run the official repository-wide verifier required by the task',
+      type: 'cli',
+      priority: 'must',
+      scope: 'repository',
+      expectation: 'absolute_pass',
+      requirementSource: 'external_verifier',
+    } as any;
+    store.writeChecklist(storyId, checklist);
+    const external = review.story_review({ storyId }) as any;
+    assert.ok(external.issues.some((issue: any) => issue.type === 'repository_wide_requirement_missing'));
+    (checklist.items[0].verificationIntent!.happy![0] as any).requirementRef = 'DeepSWE official verifier contract';
+    store.writeChecklist(storyId, checklist);
+    const groundedExternal = review.story_review({ storyId }) as any;
+    assert.equal(groundedExternal.issues.some((issue: any) => issue.type === 'repository_wide_requirement_missing'), false);
+    assert.equal(external.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+
+    for (const command of ['pytest tests/test_story.py', 'cargo test test_story_case', 'npm test -- story.spec.ts']) {
+      checklist.items[0].verificationIntent!.happy![0] = {
+        desc: command,
+        type: 'cli',
+        priority: 'must',
+        scope: 'focused',
+        expectation: 'absolute_pass',
+        requirementSource: 'story',
+      } as any;
+      store.writeChecklist(storyId, checklist);
+      const focused = review.story_review({ storyId }) as any;
+      assert.equal(focused.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false, `${command} must remain focused`);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertVerificationIntentRoleCannotOmitPlanningMetadata(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    assert.throws(() => handlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      agent: 'proof-or-stop-verification-intent',
+      verificationIntent: {
+        happy: [{ desc: 'go test ./... must pass', type: 'cli', priority: 'must' }],
+        edge: [{ desc: 'Focused edge behavior passes', type: 'logic', priority: 'must' }],
+        adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must' }],
+      },
+    } as any), /verification_intent_metadata_required/);
+    handlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      agent: 'proof-or-stop-verification-intent',
+      verificationIntent: {
+        happy: [{ desc: 'Focused happy behavior passes', type: 'cli', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [{ desc: 'Focused edge behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      },
+    } as any);
+    assert.equal(store.readChecklist(storyId).items[0].verificationIntent?.happy?.[0].scope, 'focused');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertTouchpointAndExcludedInfoAreQuiet();
+assertRepositoryWideMustNeedsAValidBasis();
+assertVerificationIntentRoleCannotOmitPlanningMetadata();
 assertMissingScopeCheckGuidanceIsActionable();
 assertPlanAddNeedsAuditReason();
 assertPlanRemoveCannotBypassFreeze();

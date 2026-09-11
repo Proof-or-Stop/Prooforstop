@@ -154,6 +154,11 @@ export interface FullTaskVerificationIntent {
   type: 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
   requiredIn?: 'light' | 'balanced' | 'strict';
   priority?: 'must' | 'should' | 'nice';
+  scope?: 'focused' | 'repository';
+  expectation?: 'absolute_pass' | 'no_new_regressions';
+  requirementSource?: 'story' | 'external_verifier' | 'repository_health';
+  baselineRef?: string;
+  requirementRef?: string;
 }
 
 export interface FullTaskScopeContext {
@@ -908,7 +913,7 @@ export function validateFullTaskContext(value: unknown): asserts value is FullTa
       for (const [intentIndex, rawIntent] of intents.entries()) {
         const label = `FullTaskContext.checklist[${index}].verificationIntent.${lane}[${intentIndex}]`;
         const intent = asRecord(rawIntent, label);
-        requireExactKeys(intent, ['id', 'desc', 'type'], ['requiredIn', 'priority'], label);
+        requireExactKeys(intent, ['id', 'desc', 'type'], ['requiredIn', 'priority', 'scope', 'expectation', 'requirementSource', 'baselineRef', 'requirementRef'], label);
         requireBoundedText(intent.id, `${label}.id`);
         requireBoundedText(intent.desc, `${label}.desc`);
         if (!['logic', 'cli', 'browser', 'manual', 'docs'].includes(intent.type as string)) {
@@ -920,6 +925,17 @@ export function validateFullTaskContext(value: unknown): asserts value is FullTa
         if (intent.priority !== undefined && !['must', 'should', 'nice'].includes(intent.priority as string)) {
           throw new PromptContractValidationError(`${label}.priority is invalid`);
         }
+        if (intent.scope !== undefined && !['focused', 'repository'].includes(intent.scope as string)) {
+          throw new PromptContractValidationError(`${label}.scope is invalid`);
+        }
+        if (intent.expectation !== undefined && !['absolute_pass', 'no_new_regressions'].includes(intent.expectation as string)) {
+          throw new PromptContractValidationError(`${label}.expectation is invalid`);
+        }
+        if (intent.requirementSource !== undefined && !['story', 'external_verifier', 'repository_health'].includes(intent.requirementSource as string)) {
+          throw new PromptContractValidationError(`${label}.requirementSource is invalid`);
+        }
+        if (intent.baselineRef !== undefined) requireBoundedText(intent.baselineRef, `${label}.baselineRef`);
+        if (intent.requirementRef !== undefined) requireBoundedText(intent.requirementRef, `${label}.requirementRef`);
         if (intentIds.has(intent.id as string)) {
           throw new PromptContractValidationError(`FullTaskContext.checklist[${index}] contains duplicate verification intent id ${intent.id}`);
         }

@@ -289,6 +289,9 @@ export type VerificationLane = 'happy' | 'edge' | 'adversarial';
 export type VerificationIntentType = 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
 export type VerificationRequiredIn = 'light' | 'balanced' | 'strict';
 export type VerificationPriority = 'must' | 'should' | 'nice';
+export type VerificationScope = 'focused' | 'repository';
+export type VerificationExpectation = 'absolute_pass' | 'no_new_regressions';
+export type VerificationRequirementSource = 'story' | 'external_verifier' | 'repository_health';
 export type VerificationEvidenceKind = 'logic_test' | 'integration_test' | 'browser_test' | 'manual_transcript' | 'docs_check' | 'waiver';
 export const VERIFICATION_EVIDENCE_VERDICTS = ['success', 'blocked_classified', 'audit_only', 'waived'] as const;
 export type VerificationEvidenceVerdict = typeof VERIFICATION_EVIDENCE_VERDICTS[number];
@@ -368,6 +371,13 @@ export interface VerificationIntentItem {
   type: VerificationIntentType;
   requiredIn?: VerificationRequiredIn;
   priority?: VerificationPriority;
+  /** Scope and pass semantics authored in PLAN. Legacy intents may omit them. */
+  scope?: VerificationScope;
+  expectation?: VerificationExpectation;
+  requirementSource?: VerificationRequirementSource;
+  /** Auditable PLAN pointers; they are context, not executable evidence receipts. */
+  baselineRef?: string;
+  requirementRef?: string;
   /** PLAN-only, verification-intent-owned declarations for paths DEV will add. */
   plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
   /**

@@ -1,5 +1,13 @@
 # Changelog
 
+## Lab plan-baseline-aware-validation-intent - v0.3.315 - 2026-09-11
+
+PLAN verification intent now distinguishes focused acceptance from repository-wide health checks. Repository-wide failures may only become mandatory when an external verifier explicitly requires them; baseline failures otherwise use no-new-regressions review evidence.
+
+Maintenance provenance: codex/lab-plan-baseline-aware-validation-intent, repair 3fea30baf57e3ce66ac766f50977eeddfac23149.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/testintent-handoff-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab repro-first-p0m-mapping - v0.3.314 - 2026-09-11
 
 Implemented the P0m registry component-mapping foundation required by the approved repro-first enforcement plan.

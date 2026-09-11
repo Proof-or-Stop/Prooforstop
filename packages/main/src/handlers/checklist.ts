@@ -2860,6 +2860,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             `checklist_update refused: verification-intent roles may write only verificationIntent and may not set ${disallowed.join(', ') || 'non-verification fields'}. [agent_dispatch_mutation_scope_denied]`,
           );
         }
+        for (const lane of VERIFICATION_LANES) {
+          for (const [index, intent] of (args.verificationIntent[lane] ?? []).entries()) {
+            if (!intent.scope || !intent.expectation || !intent.requirementSource) {
+              throw new Error(
+                `checklist_update refused: verification-intent roles must classify ${args.itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`,
+              );
+            }
+          }
+        }
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
