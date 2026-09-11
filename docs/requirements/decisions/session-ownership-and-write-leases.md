@@ -33,6 +33,14 @@ normalized on read. The id is a local process-coordination id, never a
 cryptographic identity; ppid is only the degraded last-resort fallback because
 each tool call can spawn a fresh parent process under some hosts.
 
+For Git repositories, the adapter's project identity is the primary worktree
+root resolved through Git's shared worktree inventory. A linked Story worktree
+therefore keeps the same logical owner identity as the primary checkout. The
+checkout path remains an operation-location check; it is not an owner identity
+dimension. Host task and agent/role identity remain isolation dimensions, so a
+different session still cannot take an active lease without the existing
+takeover policy.
+
 The doctor stale story-owner-lease check (step 5) and the multi-session
 convergence/regression smoke (step 6) were both delivered by B-c55d (CHK-005);
 B-9089 extends them with the host-neutral owner-session contract.
