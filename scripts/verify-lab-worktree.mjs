@@ -41,6 +41,18 @@ function fixture(name) {
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
+  const unaudited = fixture('unaudited'); cmd(unaudited, ['create', 'unaudited']);
+  const unauditedLab = join(unaudited, '.worktrees/Lab-unaudited');
+  cmd(unaudited, ['red', 'unaudited', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(unauditedLab, 'bug.txt', 'fixed'); commit(unauditedLab, 'fix: needs independent audit');
+  cmd(unaudited, ['green', 'unaudited']);
+  const unauditedHead = git(unaudited, 'rev-parse', 'HEAD');
+  process.env.LAB_FIXTURE_AUDIT = 'reject';
+  assert.doesNotThrow(() => cmd(unaudited, finish('unaudited'), 1, /audit/i),
+    'LAB_CROSS_HOST_AUDIT_REQUIRED: rejected audit must prevent integration');
+  delete process.env.LAB_FIXTURE_AUDIT;
+  assert.equal(git(unaudited, 'rev-parse', 'HEAD'), unauditedHead);
+
   // Explicit patch requests must work even when only a non-build input changes.
   const explicit = fixture('explicit'); cmd(explicit, ['create', 'explicit']);
   const explicitLab = join(explicit, '.worktrees/Lab-explicit');
