@@ -10968,7 +10968,7 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
     ['packages/main/src/core/finding-rollout-qualification.ts', 'conflicting_performance_source:', '!QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric)', 'executed-merged-prerequisites-and-unique-performance-sources-v1'],
     ['packages/main/src/handlers/finding-qualification-events.ts', 'performanceSource: { ...source, attemptId: row.attemptId }', 'conflicting cohort timing'],
     ['packages/main/src/handlers/finding-runtime-pair.ts', 'readHistoricalFindingRuntimeEvidence(ctx', 'readCurrentFindingRuntimeEvidence(ctx', 'base.receipt.executionCommandDigest !== head.receipt.executionCommandDigest', 'b[key] > a[key]'],
-    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest'],
+    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest', "record.driftKind === 'head_only'", 'old.baseHash === current.baseHash', "['merge-base', '--is-ancestor', prior, current]", 'current.baseHash !== record.currentBinding.baseHash'],
     ['packages/main/src/handlers/finding-deferral-recall.ts', "rollout.mode === 'observe'", 'findingHistoryRecallObservation(ctx', 'observed.triggerDigest'],
   ];
   for (const [path, ...required] of guards) {
@@ -11147,4 +11147,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-

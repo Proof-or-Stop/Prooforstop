@@ -102,7 +102,9 @@ export function readDynamicFindingDecision(args: {
       verifiedIdentityCarrier(ledger, args.storyId, record.recordId, trust!);
       const context = currentApplicabilityContext(args.store, args.projectRoot, args.storyId, assessment.runtimeReceiptIds);
       let state = verifyAssessmentFreshness(assessment, context, now);
-      if (state === 're_attestation_required' && assessment.proposalRef) {
+      if ((state === 're_attestation_required' || state === 'mismatched') && assessment.proposalRef) {
+        // A mismatch alone never releases a floor. This reader requires a
+        // signed recovery, complete unchanged bindings, new executions and PASS.
         const restored = readMaterialDriftReattestation({ store: args.store, root: args.projectRoot, scanRoot: args.projectRoot }, args.storyId, assessment.proposalRef.recordId);
         if (restored?.assessment.assessmentId === assessment.assessmentId) state = 'fresh';
       }

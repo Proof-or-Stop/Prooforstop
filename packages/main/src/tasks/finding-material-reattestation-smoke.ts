@@ -55,6 +55,7 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   git('init', '-b', 'main'); git('config', 'user.name', 'Isolated Reattestation Test'); git('config', 'user.email', 'reattest@example.invalid');
   git('add', '.'); git('commit', '-m', 'fixture baseline'); git('worktree', 'add', '-b', `story/${targetId}`, targetRoot);
   git('checkout', '-b', `story/${storyId}`); process.chdir(root); resetConfigCache();
+  if (headContinuity) git('commit', '--allow-empty', '-m', 'establish exact assessment proof head');
   const store = new StoryStore(root); const targetStore = new StoryStore(targetRoot);
   const ctx = { root, store, scanRoot: join(root, 'packages/main') };
   const targetCtx = { root: targetRoot, store: targetStore, scanRoot: join(targetRoot, 'packages/main') };
@@ -127,6 +128,19 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   const fresh = runtime.finding_runtime_evidence_run({ ...runtimeArgs, idempotencyKey: 'fresh' });
   const input = { storyId, assessmentId: assessment.assessment.assessmentId!, runtimeReceiptIds: [fresh.runtimeReceiptId], idempotencyKey: 'retest' };
   const reviewRunId = seedCurrentReviewFixture(root, store, storyId, [reviewer]).get(reviewer)!;
+  if (headContinuity) {
+    const base = git('rev-parse', 'main');
+    git('branch', '-f', 'main', 'HEAD');
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /not an isolated current material drift/);
+    git('branch', '-f', 'main', base); pass('head-only recovery rejects changed base');
+    const currentHead = git('rev-parse', 'HEAD');
+    const siblingHead = git('commit-tree', 'HEAD^{tree}', '-p', base, '-m', 'controlled non-descendant proof');
+    git('update-ref', `refs/heads/story/${storyId}`, siblingHead, currentHead);
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /immutable head ancestry required/);
+    git('update-ref', `refs/heads/story/${storyId}`, currentHead, siblingHead); pass('head-only recovery rejects non-descendant history');
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, { ...input, runtimeReceiptIds: [old.runtimeReceiptId] }) }), /runtime-evidence/);
+    pass('head-only recovery requires genuinely new execution');
+  }
   let marker = '';
   try { withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }); }
   catch (error) {
@@ -140,7 +154,17 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   const result = withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => handlers.finding_material_reattest(input) });
   assert.equal(result.replayed, false); assert.equal(readMaterialDriftReattestation(ctx, storyId, proposed.proposalRef.recordId)?.materialDriftState, 'unrelated_re_attested');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('fresh runtime plus independent signed dependencies restores valid deferral');
-  if (headContinuity) console.log('HEAD_CONTINUITY restored=true oldAssessmentPreserved=true freshExecutionRequired=true independentReviewRequired=true');
+  if (headContinuity) {
+    assert.equal(result.record.driftKind, 'head_only');
+    assert.equal(result.record.expiresAt, assessment.assessment.integrity.expiresAt);
+    assert.deepEqual(store.readFindingLedger(storyId).records.find(row => row.recordType === 'finding_applicability_assessment')!.payload, assessment.assessment);
+    console.log('HEAD_CONTINUITY restored=true oldAssessmentPreserved=true freshExecutionRequired=true independentReviewRequired=true');
+    const base = git('rev-parse', 'main');
+    git('branch', '-f', 'main', 'HEAD');
+    assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, true);
+    git('branch', '-f', 'main', base);
+    assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('head-only reader rechecks base before releasing');
+  }
   assert.equal(withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => handlers.finding_material_reattest(input) }).replayed, true); pass('replay does not append');
   assert.throws(() => withNativeReviewFixtureHostIdentity({ agent, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /self-adjudicate/); pass('observer cannot self-adjudicate');
   git('add', '-f', `.proof-or-stop/story/actives/${storyId}`); git('commit', '-m', 'persist fixture process evidence only');
