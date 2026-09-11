@@ -14,7 +14,7 @@ for(const host of ['claude','codex']) {
   const instructions=projection.hostBody.slice(0,split);
   // Pin the reviewed instructions as well as the parser's structural contract.
   assert.equal(createHash('sha256').update(instructions).digest('hex'),
-    '3f3c61bba91c3e5ce9c5954d7860de76c857d9d3cc04d6fad331e7b0a7cc07b5',
+    '18ce35a76857371a4d5d1a8ddc84df8a46acc1cf719a4452d28db8b56d18dfbc',
     'AMENDMENT_PROJECTION_INSTRUCTION_DIGEST_MISMATCH');
   const schemaMatch=instructions.match(/Final response JSON Schema:\n(\{[^\n]+\})/);
   assert.ok(schemaMatch,'Trusted instructions must expose the final response schema');
