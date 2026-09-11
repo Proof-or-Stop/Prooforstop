@@ -275,7 +275,6 @@ async function main() {
     ['gap_log', 'always'],
     ['doctor', 'whenRepair'],
     ['certification_window_status', 'whenRefresh'],
-    ['review_inventory_status', 'whenRefresh'],
     ['reviewer_list', 'whenForceReviewer'],
     ['agent_prompt', 'whenStoryPromptEnvelope'],
     ['evaluate', 'whenEvaluatorPromptEnvelope'],

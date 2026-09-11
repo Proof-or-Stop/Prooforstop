@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,12 +17,24 @@ const roles = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewe
 const results = [];
 const invocations = [];
 const comparisons = [];
-const env = { ...process.env, CODEX_THREAD_ID: `read-boundary-owner-${process.pid}` };
+let identities;
+const fixtureHost = process.env.CLAUDE_CODE_SESSION_ID || process.env.CLAUDE_SESSION_ID ? 'claude-code' : 'codex';
+const nativeSessionKey = fixtureHost === 'claude-code' ? 'CLAUDE_CODE_SESSION_ID' : 'CODEX_THREAD_ID';
+const env = { ...process.env };
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_REVIEWER_READONLY', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST',
   'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN', 'PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST',
   'PROOF_OR_STOP_SESSION_ID', 'PROOF_OR_STOP_OWNER_SESSION_ID', 'PROOF_OR_STOP_HOST_SESSION_TOKEN', 'PROOF_OR_STOP_AGENT']) delete env[key];
+// Native host identity outranks CODEX_THREAD_ID in Claude; isolate every
+// supported session input before selecting this fixture's actual host adapter.
+for (const key of Object.keys(env)) {
+  if (/^PROOF_OR_STOP_(?:OWNER_SESSION_ADAPTER_|ACTIVITY_|SESSION_ID$|AGENT$)/.test(key)
+    || ['CLAUDE_CODE_SESSION_ID', 'CLAUDE_SESSION_ID', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID', 'OPENAI_SESSION_ID',
+      'TERM_SESSION_ID', 'ANTIGRAVITY_SESSION_ID', 'AGY_SESSION_ID'].includes(key)) delete env[key];
+}
+
+env[nativeSessionKey] = `read-boundary-owner-${process.pid}`;
 const invoke = (command, args, { reviewer = true, readOnly = false } = {}) => {
-  const childEnv = { ...env, CODEX_THREAD_ID: reviewer ? `read-boundary-reviewer-${process.pid}` : env.CODEX_THREAD_ID };
+  const childEnv = { ...env, [nativeSessionKey]: reviewer ? `read-boundary-reviewer-${process.pid}` : env[nativeSessionKey] };
   if (readOnly) childEnv.PROOF_OR_STOP_REVIEWER_READONLY = '1';
   const started = performance.now();
   const result = spawnSync(process.execPath, [join(repo, 'bin/proof-or-stop.js'), command, ...args], {
@@ -68,7 +80,7 @@ try {
   git('init', '-b', 'work'); git('config', 'user.email', 'lab@example.test'); git('config', 'user.name', 'Lab regression');
   git('add', '.'); git('commit', '-m', 'seed isolated reviewer read regression'); git('branch', 'main');
   const { StoryStore } = await import(join(repo, 'packages/main/dist/core/store.js'));
-  const { acquireOwnerLease, getSessionId } = await import(join(repo, 'packages/main/dist/core/story-owner-lease.js'));
+  const { acquireOwnerLease, getSessionId, resolveSessionIdentity } = await import(join(repo, 'packages/main/dist/core/story-owner-lease.js'));
   const { createReviewInventoryHandlers, assertOpenInventoryFresh } = await import(join(repo, 'packages/main/dist/handlers/review-inventory.js'));
   const { createAgentPromptHandlers } = await import(join(repo, 'packages/main/dist/handlers/agent-prompt.js'));
   const { enforceStoryOwnerLeaseGate } = await import(join(repo, 'packages/main/dist/cli/ownership-gate.js'));
@@ -88,6 +100,19 @@ try {
   acquireOwnerLease(store.storyDirPath(initSid), { command: 'isolated-init-fixture-setup', cwd: root });
   const owner = acquireOwnerLease(store.storyDirPath(sid), { command: 'isolated-fixture-setup', cwd: root });
   assert.equal(owner.sessionId, getSessionId());
+  const inputs = { hostname: hostname(), root: realpathSync(root), ppid: process.ppid };
+  identities = {
+    owner: resolveSessionIdentity(env, inputs),
+    reviewer: resolveSessionIdentity({ ...env, [nativeSessionKey]: `read-boundary-reviewer-${process.pid}` }, inputs),
+  };
+  assert.equal(identities.owner.hostProvider, fixtureHost);
+  assert.equal(identities.reviewer.hostProvider, fixtureHost);
+  assert.equal(identities.owner.sessionSource, 'host-adapter');
+  assert.equal(identities.reviewer.sessionSource, 'host-adapter');
+  assert.equal(identities.owner.sessionId, owner.sessionId);
+  assert.notEqual(identities.owner.sessionId, identities.reviewer.sessionId,
+    'SETUP_IDENTITIES_MUST_DIFFER: host environment must not collapse fixture participants');
+
   const handlers = createReviewInventoryHandlers(ctx);
   handlers.review_inventory_begin({ storyId: sid });
   assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1).state, 'OPEN', 'valid OPEN control required');
@@ -102,6 +127,7 @@ try {
       // Reproduce the historical successful relay: reader refusal, then owner publication.
       const denied = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${role}`, '--format=json']);
       assert.notEqual(denied.exitCode, 0); assert.match(denied.stderr, /owner-gated/);
+      assert.ok(denied.stderr.includes(identities.reviewer.sessionId), 'actual child uses independently resolved reviewer identity');
       const relay = invoke('agent_prompt', [`--storyId=${initSid}`, `--role=${role}`, '--format=json'], { reviewer: false });
       assert.equal(relay.exitCode, 0, `owner publication positive control: ${relay.stderr}`);
       const before = snapshot(store.storyDirPath(initSid));
@@ -197,7 +223,7 @@ try {
     assert.deepEqual(assets(), assetsBefore, 'default check and rejected writes preserve managed assets');
     assert.deepEqual(snapshot(store.storyDirPath(sid)), before);
   });
-  console.log(JSON.stringify({ rootIsTemporary: true, implementation: gitVersion(), results, comparisons, invocations }, null, 2));
+  console.log(JSON.stringify({ rootIsTemporary: true, implementation: gitVersion(), fixtureHost, identities, results, comparisons, invocations }, null, 2));
   if (results.some(row => !row.pass)) {
     console.error('REVIEWER_READ_BOUNDARY_RED: ' + results.filter(row => !row.pass).map(row => row.id).join(', '));
     process.exitCode = 1;

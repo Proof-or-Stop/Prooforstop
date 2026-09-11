@@ -713,9 +713,8 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
   }},
-  { name: 'review_inventory_status', description: 'Read current inventory progress and drift without changing evidence; only --refresh persists invalidation and requires the owner', schema: {
+  { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
-    refresh: z.boolean().optional().describe('Owner-only: persist detected invalidation under the inventory mutation lock.'),
   }},
   { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
@@ -1412,8 +1411,7 @@ Behavior:
   }},
   { name: 'agent_prompt', description: 'Print the canonical package-registry host render: a body-free review_run_start bootstrap for migrated reviewers, or the role body for ordinary roles', schema: {
     role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. proof-or-stop-implementer, proof-or-stop-review-concept (the template basename without .md)'),
-    storyId: z.string().min(1).optional().describe('Optional Story ID. With --readOnly, inspect current context without writes. Otherwise the owner prepares and records dispatch context.'),
-    readOnly: z.boolean().optional().describe('Read Story context without acquiring its owner lease, recording dispatch, or creating a Prompt Envelope. Independent readers should use this flag.'),
+    storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
     format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output equals the canonical registry host render.'),
   }},
   { name: 'prompt_measurement_report', description: 'Report deterministic local prompt bytes, lines, estimated tokens, repetition, and three-layer input availability for all 16 package prompt roles (read-only L0)', schema: {
@@ -2721,7 +2719,7 @@ Behavior:
 
   // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases;
   // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — proof-or-stop dispatch is now the only entry).
-  { name: 'dispatch', description: 'Owner prepares and records a registered subagent dispatch; independent Story prompt readers use agent_prompt --role=ROLE --storyId=ID --readOnly. Scoped or purpose-bound dispatch still requires the owner', schema: {
+  { name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),

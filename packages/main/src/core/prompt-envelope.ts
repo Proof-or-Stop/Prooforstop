@@ -1404,7 +1404,7 @@ function crossSourceControlledAuthority(
  * sentence. It runs before envelope digests are minted, so recomputing every
  * content address cannot bless an authority injection.
  */
-export function assertReviewerTaskContextAuthoritySafety(
+function assertReviewerTaskContextAuthoritySafety(
   roleId: string,
   taskContext: FullTaskContext,
 ): void {

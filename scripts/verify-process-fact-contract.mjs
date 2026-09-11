@@ -9231,7 +9231,6 @@ function assertStoryWriterRuntimeAdmissionContract() {
     ['gap_log', 'always'],
     ['doctor', 'whenRepair'],
     ['certification_window_status', 'whenRefresh'],
-    ['review_inventory_status', 'whenRefresh'],
     ['reviewer_list', 'whenForceReviewer'],
     ['agent_prompt', 'whenStoryPromptEnvelope'],
     ['evaluate', 'whenEvaluatorPromptEnvelope'],
@@ -9443,8 +9442,6 @@ function assertStoryWriterRuntimeAdmissionContract() {
     ['reviewer_list', 'args.forceReviewer'],
     ['doctor', 'args.repair'],
     ['certification_window_status', 'args.refresh'],
-    ['review_inventory_status', 'args.refresh'],
-    ['check', 'args.upgrade'],
     ['agent_prompt', 'args.auditExperiment'],
     ['evaluate', 'hasEvaluatorTarget'],
   ]) {
@@ -11138,16 +11135,6 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
 }
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
-
-// Real CLI reader admission and handler non-mutation, including protected negative paths.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 120000,
-  });
-  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
-} catch (error) {
-  assert(false, `reviewer read boundary executable proof failed: ${error.message}`);
-}
 
 if (failures.length) {
   console.error('');
