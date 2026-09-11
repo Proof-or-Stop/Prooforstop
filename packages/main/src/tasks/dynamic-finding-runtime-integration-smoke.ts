@@ -21,6 +21,7 @@ import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
 import { findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
 import { collectQualificationSubjectAdjudications } from '../handlers/finding-qualification-adjudication.js';
 import { collectQualificationPrerequisites, verifyQualificationPrerequisites } from '../handlers/finding-qualification-prerequisites.js';
+import { currentMaterialHash } from '../core/evidence-freshness.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const collectionAudit = process.argv.includes('--collection-proof');
@@ -237,7 +238,10 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
       console.log('COLLECTION_PROOF exact adjudication clears only its action; census and timing remain missing PASS');
     }
     if (historyAudit) {
-      write('unrelated-material.txt', 'Current merged-state proof must be refreshed, not erase signed historical diagnostics.\n');
+      const priorMaterial = currentMaterialHash(root);
+      write('defect.mjs', 'export const broken = true; // A new material version still needs fresh admission proof.\n');
+      git('add', 'defect.mjs'); git('commit', '-m', 'fixture changes tracked prerequisite material');
+      assert.notEqual(currentMaterialHash(root), priorMaterial, 'fixture must actually change the material hash');
       const stale = handlers.finding_rollout_scorecard({ storyId }).qualification;
       assert.equal(handlers.finding_qualification_query({ storyId }).rows.length, 1);
       console.log(`QUALIFICATION_HISTORY before=1 after=${stale.rows.find(row => row.metric === 'scorecard_completeness')!.denominator}`);
