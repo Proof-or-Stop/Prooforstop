@@ -137,6 +137,23 @@ export function readDynamicFindingProjection(ctx: HandlerContext, storyId: strin
 }
 
 export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
+  const findingTriage = (input: FindingTriageArgs) => {
+    text(input.storyId, 'storyId');
+    const findings = ctx.store.readFindings(input.storyId).findings.filter(row => !input.findingIds || input.findingIds.includes(row.id));
+    const story = ctx.store.readStory(input.storyId);
+    const round = Math.max(1, story.events?.filter(row => row.phase === 'REVIEW' && row.action === 'advance').length ?? 0);
+    const blocking = ['critical', 'high', 'medium'];
+    const rows: DynamicFindingBatchRow[] = findings.map(finding => {
+      const decision = readDynamicFindingProjection(ctx, input.storyId, finding, blocking, round, input.mode);
+      const ledger = ctx.store.readFindingLedger<JsonValue>(input.storyId);
+      const assessment = findPayload<FindingApplicabilityAssessment>(ledger.records, 'finding_applicability_assessment', value => value.findingId === finding.id)?.payload;
+      return { findingId: finding.id, severity: finding.severity, assessmentVerdict: assessment?.verdict ?? null,
+        dispositionPlan: assessment?.dispositionPlan ?? null, gateImpact: assessment?.gateImpact ?? 'unknown', decision };
+    });
+    return { storyId: input.storyId, mode: resolveMode(ctx, input.mode), manifestDigest: applicabilityDigest(rows), rows,
+      scorecard: dynamicFindingScorecard(rows, findings.length * 2, findings.length === 0 ? 0 : 1 + rows.filter(row => row.decision.blocking).length),
+      gateEvidence: true, authority: 'dynamic_finding_applicability' };
+  };
   return {
     finding_applicability_batch(input: FindingApplicabilityBatchArgs) {
       text(input.storyId, 'storyId'); text(input.idempotencyKey, 'idempotencyKey');
@@ -348,20 +365,9 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
         return { mandatoryRepair: closure, ledgerReceipt: receipt, gateEvidence: true, authority: 'dynamic_finding_applicability' };
       });
     },
-    finding_triage(input: FindingTriageArgs) {
-      text(input.storyId, 'storyId');
-      const findings = ctx.store.readFindings(input.storyId).findings.filter(row => !input.findingIds || input.findingIds.includes(row.id));
-      const story = ctx.store.readStory(input.storyId);
-      const round = Math.max(1, story.events?.filter(row => row.phase === 'REVIEW' && row.action === 'advance').length ?? 0);
-      const blocking = ['critical', 'high', 'medium'];
-      const rows: DynamicFindingBatchRow[] = findings.map(finding => ({ findingId: finding.id,
-        decision: readDynamicFindingProjection(ctx, input.storyId, finding, blocking, round, input.mode) }));
-      return { storyId: input.storyId, mode: resolveMode(ctx, input.mode), manifestDigest: applicabilityDigest(rows), rows,
-        scorecard: dynamicFindingScorecard(rows, findings.length * 2, findings.length === 0 ? 0 : 1 + rows.filter(row => row.decision.blocking).length),
-        gateEvidence: true, authority: 'dynamic_finding_applicability' };
-    },
+    finding_triage: findingTriage,
     finding_rollout_scorecard(input: FindingTriageArgs) {
-      const result = this.finding_triage(input);
+      const result = findingTriage(input);
       return { storyId: result.storyId, mode: result.mode, manifestDigest: result.manifestDigest, scorecard: result.scorecard,
         rows: result.rows.map(row => ({ findingId: row.findingId, legacyBlocking: row.decision.legacyBlocking,
           dynamicBlocking: row.decision.dynamicBlocking, reason: row.decision.reason })) };

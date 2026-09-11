@@ -244,7 +244,14 @@ export function verifyApplicabilityAssessment(assessment: FindingApplicabilityAs
   return verifyDynamicFindingRecord(assessment as FindingApplicabilityAssessment & Record<string, unknown>, publicKey);
 }
 
-export interface DynamicFindingBatchRow { findingId: string; decision: DynamicFindingDecision; }
+export interface DynamicFindingBatchRow {
+  findingId: string;
+  severity: string;
+  assessmentVerdict: ApplicabilityVerdict | null;
+  dispositionPlan: DispositionPlan | null;
+  gateImpact: 'blocks' | 'does_not_block' | 'unknown';
+  decision: DynamicFindingDecision;
+}
 export interface DynamicFindingScorecard {
   total: number; legacyBlocking: number; dynamicBlocking: number; changed: number;
   operationReductionPercent: number; missedHighCritical: number; falseDeferrals: number;
@@ -252,10 +259,16 @@ export interface DynamicFindingScorecard {
 export function dynamicFindingScorecard(rows: DynamicFindingBatchRow[], baselineOperations = rows.length * 2, dynamicOperations = rows.length): DynamicFindingScorecard {
   const legacyBlockingCount = rows.filter(row => row.decision.legacyBlocking).length;
   const dynamicBlockingCount = rows.filter(row => row.decision.dynamicBlocking).length;
+  const applicableVerdicts = new Set<ApplicabilityVerdict>(['introduced', 'worsened', 'applicable']);
   return {
     total: rows.length, legacyBlocking: legacyBlockingCount, dynamicBlocking: dynamicBlockingCount,
     changed: rows.filter(row => row.decision.legacyBlocking !== row.decision.dynamicBlocking).length,
     operationReductionPercent: baselineOperations === 0 ? 0 : Number((((baselineOperations - dynamicOperations) / baselineOperations) * 100).toFixed(2)),
-    missedHighCritical: 0, falseDeferrals: 0,
+    missedHighCritical: rows.filter(row => ['critical', 'high'].includes(row.severity)
+      && row.assessmentVerdict !== null && applicableVerdicts.has(row.assessmentVerdict)
+      && !row.decision.dynamicBlocking).length,
+    falseDeferrals: rows.filter(row => row.dispositionPlan === 'defer_with_proof'
+      && (row.assessmentVerdict !== 'applicable' || !['low', 'medium'].includes(row.severity)
+        || row.gateImpact !== 'does_not_block' || row.decision.dynamicBlocking)).length,
   };
 }

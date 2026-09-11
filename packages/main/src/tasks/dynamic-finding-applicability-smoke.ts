@@ -87,8 +87,16 @@ test('freshness rejects head drift', () => assert.equal(verifyAssessmentFreshnes
 test('freshness rejects unsigned record', () => assert.equal(verifyAssessmentFreshness(unsigned, { storyId: 'B-CURRENT', scopeDigest: 'scope', baseHash: 'base', headHash: 'head', acceptanceDigest: 'acceptance', runtimeReceiptDigest: 'runtime' }, now), 'unsigned'));
 
 test('scorecard reproduces preregistered 58.33 percent reduction', () => {
-  const rows = Array.from({ length: 6 }, (_, index) => ({ findingId: `F-${index}`, decision: decide() }));
+  const rows = Array.from({ length: 6 }, (_, index) => ({ findingId: `F-${index}`, severity: 'high', assessmentVerdict: 'applicable' as const,
+    dispositionPlan: 'repair_current' as const, gateImpact: 'blocks' as const, decision: decide() }));
   assert.deepEqual(dynamicFindingScorecard(rows, 12, 5), { total: 6, legacyBlocking: 6, dynamicBlocking: 6, changed: 0, operationReductionPercent: 58.33, missedHighCritical: 0, falseDeferrals: 0 });
+});
+test('scorecard derives safety misses from rows instead of assuming zero', () => {
+  const unsafeDecision = { ...decide(), dynamicBlocking: false };
+  const rows = [{ findingId: 'F-unsafe', severity: 'high', assessmentVerdict: 'applicable' as const,
+    dispositionPlan: 'defer_with_proof' as const, gateImpact: 'blocks' as const, decision: unsafeDecision }];
+  assert.equal(dynamicFindingScorecard(rows).missedHighCritical, 1);
+  assert.equal(dynamicFindingScorecard(rows).falseDeferrals, 1);
 });
 
 test('handler atomically persists, replays and projects one signed assessment', () => {
@@ -140,6 +148,11 @@ test('handler atomically persists, replays and projects one signed assessment', 
     const refreshed = handlers.finding_applicability_assess({ ...request, idempotencyKey: 'assessment-2' });
     assert.ok('reattestation' in refreshed);
     assert.equal(handlers.finding_triage({ storyId }).rows[0]?.decision.reason, 'mandatory_repair_floor');
+    const flattened = Object.fromEntries(Object.entries(handlers)) as { finding_rollout_scorecard: typeof handlers.finding_rollout_scorecard };
+    const rollout = flattened.finding_rollout_scorecard({ storyId }) as ReturnType<typeof handlers.finding_rollout_scorecard>;
+    assert.equal(rollout.scorecard.missedHighCritical, 0);
+    assert.equal(rollout.scorecard.falseDeferrals, 0);
+    assert.equal(rollout.rows.length, 2);
   } finally { rmSync(scratch, { recursive: true, force: true }); }
 });
 
