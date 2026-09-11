@@ -245,6 +245,46 @@ function receiptOwnerStillValid(old: RouteReceipt, current: TargetSnapshot): voi
     || old.target.id !== current.id || old.target.scopeDigest !== current.scopeDigest || identityHash(old.target.owner) !== identityHash(current.owner)
     || old.policyDigest !== current.policyDigest) throw new Error('progress: predecessor consent/owner/scope/policy invalid');
 }
+/** Public read-only Story 2 query for the exact acceptance/baseline/progress tuple.
+ * The consumer supplies its own prior record; a neutral predecessor is not proof
+ * that the record is a deferral. This function does not make a gate decision. */
+export function readFindingRouteProgressProof(ctx: HandlerContext, ref: IdentityLedgerRef, priorSource?: IdentityLedgerRef) {
+  const target = identityStoryContext(ctx, ref.storyId);
+  const row = exactReceipt(target, ref); const receipt = row.envelope.payload;
+  const current = targetRouteSnapshot(target, ref.storyId, receipt.target.responsibility.workItemRef);
+  assertReceiptCurrent(receipt, current);
+  if (receipt.evidenceAuthority.profile !== 'finding_route' || receipt.decision !== 'accepted' || !receipt.canonicalDefect) throw new Error('progress: accepted Finding route required');
+  const canonical = canonicalForRoute(ctx, receipt.canonicalDefect);
+  let initial = receipt; const visited = new Set<string>();
+  while (initial.predecessor) {
+    if (visited.has(initial.routeReceiptId)) throw new Error('progress: cyclic receipt lineage');
+    visited.add(initial.routeReceiptId);
+    initial = exactReceipt(target, initial.predecessor, false).envelope.payload;
+    if (initial.target.id !== receipt.target.id || identityHash(initial.subject) !== identityHash(receipt.subject)
+      || identityHash(initial.canonicalDefect) !== identityHash(receipt.canonicalDefect)) throw new Error('progress: initial subject changed');
+  }
+  const baseline = baselineSetForReceipt(target, initial);
+  let progress: ProgressBinding | undefined;
+  if (priorSource) {
+    if (!receipt.progress || !receipt.predecessor) throw new Error('progress: renewal requires new target acceptance and typed progress');
+    progress = exactSemanticRef(target, receipt.progress, 'progress_evidence').envelope.payload as ProgressBinding;
+    const source = identityStoryContext(ctx, priorSource.storyId);
+    const predecessor = exactSemanticRef(source, progress.previousDeferralRef, 'progress_predecessor').envelope.payload as ProgressPredecessor;
+    if (identityHash(predecessor.sourceRecord) !== identityHash(priorSource)
+      || progress.canonicalDefectId !== canonical.canonicalDefectId
+      || predecessor.baselineSetRef.recordId !== baseline.record.recordId
+      || predecessor.baselineSetRef.recordHash !== exactLedgerRecordHash(baseline.record)
+      || identityHash(progress.targetSnapshot) !== identityHash(current)) throw new Error('progress: exact prior deferral/baseline/current-target mismatch');
+    const before = baseline.envelope.payload.baselines.find(entry => (entry.payload as ProgressBaseline).kind === progress!.kind)?.payload as ProgressBaseline | undefined;
+    if (!before) throw new Error('progress: same-kind initial baseline missing');
+    assertProgressTransition(before, progress);
+    const projection = currentProjection(target, receipt, progress.kind, canonical.canonicalDefectId,
+      progress.projection.kind === 'target_test_result' ? progress.projection.executionKey : undefined);
+    if (identityHash(projection) !== identityHash(progress.projection)) throw new Error('progress: target projection changed after capture');
+  } else if (receipt.predecessor) throw new Error('progress: renewed route cannot reset deferral lineage');
+  return { receipt, receiptRecord: row.record, baseline: baseline.envelope.payload, baselineRecord: baseline.record, progress, canonicalDefect: canonical,
+    authority: 'non_authoritative' as const, gateEvidence: false as const };
+}
 export function createFindingRouteHandlers(ctx: HandlerContext) {
   function acceptOrReject(input: unknown, decision: 'accepted' | 'rejected') {
     const args = parseIdentityInput(routeRequestSchema, input);

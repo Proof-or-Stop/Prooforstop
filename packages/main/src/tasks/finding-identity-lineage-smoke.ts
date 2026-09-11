@@ -42,6 +42,8 @@ import { buildHistoryIndex, queryHistoryIndex, canonicalCurrent, validateHistory
   verifyIdentityScorecard, scorecardDigest, SCORECARD_KINDS, detectorAdjudicationMeasurements } from '../core/finding-history.js';
 import { getGuardFailureReason as getLifecycleGuardFailureReason } from '../core/machine.js';
 import { nativeReviewFixtureBrokers, withBrokeredNativeReviewInvocation } from './native-review-fixture.js';
+import { buildVerifiedDeferral, deferralPolicyForWrite, verifyDeferralProjection } from '../handlers/finding-deferral-proof.js';
+import type { FindingApplicabilityAssessment } from '../core/finding-applicability.js';
 
 const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=')[1] ?? 'candidates';
 const smokeStarted = performance.now();
@@ -1040,6 +1042,60 @@ try {
       assert.deepEqual(routes.finding_route_accept(renewalRequest).rows, renewed.rows);
       assert.equal(routes.finding_route_verify({ storyId: renewalId, receipt: refOf(row) }).valid, true);
       assert.throws(() => routes.finding_route_verify({ storyId: renewalId, receipt }), /superseded/);
+    });
+    test('Dynamic Finding renewal consumes exact prior disposition and actual typed target movement', () => {
+      // Adapter fixture only: final semantic/runtime admission is covered by the
+      // separate runtime integration suite. This test consumes real Story 2 ports.
+      const destination = 'B-DFEC-RENEWAL'; switchSession(targetSession);
+      store.writeStory(destination, { ...store.readStory(targetId), storyId: destination, name: destination });
+      store.writeChecklist(destination, store.readChecklist(targetId));
+      acquireOwnerLease(store.storyDirPath(destination), { command: 'isolated renewal target', cwd: scratch });
+      const request = { ...findingAccept, storyId: destination, idempotencyKey: 'dfec-initial' };
+      const initial = routes.finding_route_accept(request);
+      const accepted = initial.rows.find(row => row.envelope.kind === 'route_receipt')!;
+      const baseline = refOf(initial.rows.find(row => row.envelope.kind === 'progress_baseline_set')!);
+      const payload = accepted.envelope.payload as RouteReceipt;
+      const makeAssessment = (row: typeof accepted): FindingApplicabilityAssessment => ({ assessmentId: `dfec-${row.record.recordId}`, findingId: finding.id,
+        verdict: 'applicable', integrity: { state: 'fresh', expiresAt: request.expiresAt }, dispositionPlan: 'defer_with_proof', proofStrength: 'strong',
+        proposalRef, gateImpact: 'does_not_block', acceptedRoute: { state: 'accepted', receiptState: 'fresh', ownerStoryId: destination,
+          receiptId: (row.envelope.payload as RouteReceipt).routeReceiptId, receiptRecordId: row.record.recordId, receiptRecordHash: exactLedgerRecordHash(row.record), expiresAt: request.expiresAt } });
+      const persist = (records: Array<{ recordType: string; payload: JsonValue; uniqueBindingKey: string }>, key: string) => {
+        switchSession(sourceSession);
+        return withMkdirLock(proposalLock, () => { const fence = captureMkdirLockFence(proposalLock); return appendFindingLedger({ storyId, store,
+          operation: 'append_deferral', idempotencyKey: key, records, writerSessionId: sourceSession, writerLeaseId: sourceSession,
+          writerFenceToken: fence.writerFenceToken, fence, signer }); }, { requireHolderToken: true });
+      };
+      switchSession(sourceSession); const at = new Date();
+      const policy = deferralPolicyForWrite(ctx, store.readFindingLedger<JsonValue>(storyId).records, at).policy;
+      const firstAssessment = makeAssessment(accepted);
+      const disposition = buildVerifiedDeferral(ctx, { storyId, findingId: finding.id, severity: 'low', dispositionId: 'dfec-deferral-initial',
+        assessment: firstAssessment, now: at, policy });
+      const commit = persist([{ recordType: 'deferral_expiry_policy', payload: policy as JsonValue, uniqueBindingKey: `dfec-policy:${policy.policyDigest}` },
+        { recordType: 'finding_deferral_disposition', payload: disposition as unknown as JsonValue, uniqueBindingKey: 'dfec-initial-disposition' }], 'dfec-disposition');
+      const priorRecord = store.readFindingLedger<JsonValue>(storyId).records.find(row => commit.recordIds.includes(row.recordId) && row.recordType === 'finding_deferral_disposition')!;
+      assert.equal(verifyDeferralProjection(ctx, storyId, 'low', firstAssessment, priorRecord).state, 'valid');
+      assert.throws(() => buildVerifiedDeferral(ctx, { storyId, findingId: finding.id, severity: 'low', dispositionId: 'no-progress',
+        assessment: firstAssessment, now: new Date(), policy, previous: { record: priorRecord, payload: disposition } }), /new target acceptance/);
+      const predecessor = routes.finding_progress_predecessor({ storyId, idempotencyKey: 'dfec-prior', sourceRecord: { storyId,
+        recordId: priorRecord.recordId, recordHash: exactLedgerRecordHash(priorRecord) }, routeReceiptRef: refOf(accepted), baselineSetRef: baseline });
+      switchSession(targetSession); const before = store.readChecklist(destination);
+      store.writeChecklist(destination, { ...before, items: before.items.map(item => ({ ...item, status: 'in_progress' })) });
+      const progress = routes.finding_progress_capture({ storyId: destination, idempotencyKey: 'dfec-progress', receipt: refOf(accepted), kind: 'target_status_transition',
+        predecessor: baseline, previousDeferralRef: refOf(predecessor.rows[0]!) });
+      const renewed = routes.finding_route_accept({ ...request, idempotencyKey: 'dfec-renewal', predecessor: refOf(accepted), progress: refOf(progress.rows[0]!) });
+      const currentAssessment = makeAssessment(renewed.rows[0]!); switchSession(sourceSession);
+      const next = buildVerifiedDeferral(ctx, { storyId, findingId: finding.id, severity: 'low', dispositionId: 'dfec-deferral-renewed', assessment: currentAssessment,
+        now: new Date(), policy, previous: { record: priorRecord, payload: disposition } });
+      assert.equal(next.renewalCount, 1); assert.equal(next.firstDeferredAt, disposition.firstDeferredAt);
+      assert.equal(next.initialProgressBaselineSetHash, disposition.initialProgressBaselineSetHash); assert.ok(next.progressEvidenceBindingDigest);
+      const committed = persist([{ recordType: 'finding_deferral_disposition', payload: next as unknown as JsonValue, uniqueBindingKey: 'dfec-renewed-disposition' }], 'dfec-renewed');
+      const nextRecord = store.readFindingLedger<JsonValue>(storyId).records.find(row => committed.recordIds.includes(row.recordId))!;
+      assert.equal(verifyDeferralProjection(ctx, storyId, 'low', currentAssessment, nextRecord).renewalCount, 1);
+      assert.throws(() => verifyDeferralProjection(ctx, storyId, 'medium', currentAssessment, nextRecord), /EXHAUSTED/);
+      assert.throws(() => verifyDeferralProjection(ctx, storyId, 'low', currentAssessment, nextRecord, new Date(Date.parse(next.expiresAt) + 1)), /invalid/);
+      assert.throws(() => buildVerifiedDeferral(ctx, { storyId, findingId: finding.id, severity: 'low', dispositionId: 'reset-clock', assessment: currentAssessment,
+        now: new Date(), policy }), /reset deferral lineage/);
+      switchSession(targetSession);
     });
     switchSession(sourceSession);
     const neutral = routes.finding_progress_predecessor({ storyId, idempotencyKey: 'neutral-source-checkpoint',

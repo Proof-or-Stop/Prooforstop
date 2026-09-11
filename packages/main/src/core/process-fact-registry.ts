@@ -394,12 +394,14 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
-  semanticVerifier: 'core/finding-applicability.verifyDynamicFindingRecord + exact ledger/CAS carrier and route verification',
-  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish'],
+  semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks',
+  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
   killSwitch: 'legacy predicate fallback',
+  qualification: '22 metric rows; only public-query-derived measurements qualify, reported statistics remain diagnostic; incomplete source collectors refuse enforce before the 20 Stories / 200 cases / 30 observed days and merged prerequisites',
+  validation: 'signed findingConstraintDigest; additive required commands and affected paths; reassessment escalates to full; recheck before launch and before persistence; never scope authority',
 } as const;
 
 export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
@@ -520,6 +522,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_mandatory_repair_close: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
   finding_triage: ['schema-contract', 'signed-artifact', 'freshness-policy', 'blocker-state', 'gate-evidence'],
   finding_rollout_scorecard: ['schema-contract', 'freshness-policy'],
+  finding_qualification_record: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
+  finding_qualification_query: ['schema-contract', 'signed-artifact'],
+  finding_assessment_propose: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   host_run: ['execution-evidence', 'schema-contract'],
   // Aggregate cursors affect observation only; terminal signatures and the
   // immutable Story ownership subject retain their existing consumer rules.

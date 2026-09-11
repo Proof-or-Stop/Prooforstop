@@ -169,6 +169,8 @@ export interface ProofOrStopConfig {
     mode?: 'observe' | 'warn' | 'enforce';
     /** Emergency compatibility fallback. When true, every gate consumes the legacy predicate. */
     killSwitch?: boolean;
+    /** Explicit read-only corpus. No caller can opt in by submitting summary numbers. */
+    qualificationStoryIds?: string[];
   };
   /** Explicit managed-review-only readonly build adapter; absent retains legacy behavior. */
   managedReviewIsolation?: ManagedReviewIsolationConfig;
@@ -402,7 +404,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_identity_query', 'finding_route_verify',
     'finding_history_query',
     'finding_identity_scorecard',
-    'finding_triage', 'finding_rollout_scorecard',
+    'finding_triage', 'finding_rollout_scorecard', 'finding_qualification_query',
     'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
@@ -597,6 +599,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
+    'finding_assessment_propose', 'finding_qualification_record',
+    'finding_runtime_evidence_run', 'finding_runtime_evidence_verify',
     'finding_applicability_assess', 'finding_applicability_batch', 'finding_deferral_record', 'finding_mandatory_repair_close',
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'finding_progress_predecessor', 'finding_history_recall',
@@ -638,6 +642,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   TEST: [
+    'finding_runtime_evidence_run', 'finding_runtime_evidence_verify',
     'finding_applicability_assess', 'finding_applicability_batch', 'finding_deferral_record', 'finding_mandatory_repair_close',
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'finding_progress_predecessor', 'finding_history_recall',

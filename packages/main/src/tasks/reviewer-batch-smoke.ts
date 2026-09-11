@@ -44,6 +44,11 @@ import { createMainRegistry } from '../registry.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { signReviewRun } from '../core/review-run.js';
+import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
+import { promptRoleContract, resolvePromptRoleBody, reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
+import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { ReviewerBatchReport } from '../handlers/reviewer-batch.js';
 import type {
@@ -134,16 +139,29 @@ function checklist(): ChecklistData {
   };
 }
 
-function signedPass(id: string, agent: string, createdAt: string, reviewRunId: string): ReviewPass {
+function signedPass(id: string, agent: string, createdAt: string, reviewRunId: string, envelopeId: string): ReviewPass {
   const note = `no blocker from ${agent}`;
-  const pass: ReviewPass = { id, agent, note, createdAt, reviewRunId };
+  const provenance = { writerSessionId: 'reviewer-batch-isolated-fixture', sessionSource: 'explicit' };
+  const pass: ReviewPass = { id, agent, note, createdAt, reviewRunId, envelopeId, ...provenance };
   // reviewRound left empty (currentReviewRound unset); signature domain includes reviewRunId.
-  pass._hash = signReviewPass(STORY_ID, id, agent, note, createdAt, '', reviewRunId);
+  pass._hash = signReviewPass(STORY_ID, id, agent, note, createdAt, '', reviewRunId, undefined, undefined, undefined, provenance, envelopeId);
   return pass;
 }
 
-function runFor(reviewRunId: string, agent: string, headHash: string): ReviewRun {
-  return {
+function runFor(store: StoryStore, reviewRunId: string, agent: string, headHash: string): ReviewRun {
+  const host = reviewerHostRenderIdentity(process.cwd(), agent, 'codex', 'full-envelope');
+  const dispatchPrompt = `Inspect ${STORY_ID} as ${agent}.`;
+  const dispatchBindingDigest = reviewerDispatchBindingDigest({ storyId: STORY_ID, lane: agent, reviewRound: ts(1),
+    dispatchPromptDigest: reviewerDispatchPromptDigest(dispatchPrompt), hostRenderIdentityDigest: host.identityDigest });
+  const envelope = assembleFullPromptEnvelope({ roleContract: promptRoleContract(agent), runtimeContract: BASELINE_RUNTIME_CONTRACT,
+    rolePrompt: resolvePromptRoleBody(agent, { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [agent]: 'full-envelope' } }).body,
+    taskContext: { schemaVersion: 'proof-or-stop.full-task-context.v1', storyId: STORY_ID, title: 'Reviewer batch fixture',
+      description: 'Exercise current and stale prior-head lane classification with real envelope signatures.', phase: 'REVIEW', priority: 'high',
+      checklist: [], headHash, materialHash: 'b'.repeat(64), storyFilesHash: 'c'.repeat(64) },
+    dispatchKind: 'review-run', reviewRunId, reviewRound: ts(1), lane: agent, dispatchPrompt,
+    hostRenderIdentityDigest: host.identityDigest, reviewerDispatchBindingDigest: dispatchBindingDigest,
+    launcherSpec: { reviewedIntentRefs: [], dispatchBindingDigest, hostRenderHost: 'codex' }, createdAt: ts(2) });
+  const run: ReviewRun = {
     reviewRunId,
     storyId: STORY_ID,
     agent,
@@ -151,9 +169,14 @@ function runFor(reviewRunId: string, agent: string, headHash: string): ReviewRun
     reviewRound: ts(1),
     startedAt: ts(2),
     headHash,
-    materialHash: 'unused-by-incremental-context',
-    promptHash: '',
+    materialHash: 'b'.repeat(64), storyFilesHash: 'c'.repeat(64),
+    promptHash: envelope.envelope.assembledPromptDigest, envelopeId: envelope.envelope.envelopeId, assembledPrompt: envelope.prompt,
   };
+  run._hash = signReviewRun(STORY_ID, reviewRunId, agent, agent, run.reviewRound, run.startedAt, headHash,
+    run.materialHash, run.promptHash, undefined, undefined, run.storyFilesHash, run.envelopeId);
+  store.writePromptEnvelopes(STORY_ID, { envelopes: [...store.readPromptEnvelopes(STORY_ID).envelopes, envelope.envelope] });
+  store.writeReviewPromptBody(STORY_ID, envelope.prompt, run.promptHash);
+  return run;
 }
 
 function signedBlockingFinding(id: string, agent: string, createdAt: string): Finding {
@@ -212,13 +235,13 @@ function createFixture(): {
   // quality: prior pass bound to baseSha → src/quality.ts changed since → scope-changed.
   // test-coverage: no pass → no-receipt.
   // behavior: critical open finding → blocking (no pass needed; blocking wins).
-  const conceptRun = runFor('RR-concept', 'proof-or-stop-review-concept', headSha);
-  const qualityRun = runFor('RR-quality', 'proof-or-stop-review-quality', baseSha);
+  const conceptRun = runFor(store, 'RR-concept', 'proof-or-stop-review-concept', headSha);
+  const qualityRun = runFor(store, 'RR-quality', 'proof-or-stop-review-quality', baseSha);
   store.writeReviewRuns(STORY_ID, { runs: [conceptRun, qualityRun] });
   store.writeReviewPasses(STORY_ID, {
     passes: [
-      signedPass('RP-concept', 'proof-or-stop-review-concept', ts(3), 'RR-concept'),
-      signedPass('RP-quality', 'proof-or-stop-review-quality', ts(4), 'RR-quality'),
+      signedPass('RP-concept', 'proof-or-stop-review-concept', ts(3), 'RR-concept', conceptRun.envelopeId!),
+      signedPass('RP-quality', 'proof-or-stop-review-quality', ts(4), 'RR-quality', qualityRun.envelopeId!),
     ],
   });
   store.writeFindings(STORY_ID, {
@@ -243,7 +266,7 @@ function snapshotDir(root: string, dir: string): Record<string, string> {
 }
 
 function laneByName(report: ReviewerBatchReport, lane: string) {
-  const found = report.lanes.find((entry) => entry.lane === lane);
+  const found = report.lanes.find((entry) => entry.lane === `proof-or-stop-review-${lane}`);
   assert.ok(found, `report has lane ${lane}`);
   return found!;
 }
@@ -322,7 +345,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
 
     // The four active lanes (concept/quality/test-coverage baseline + behavior via riskSignal).
     const laneNames = report.lanes.map((entry) => entry.lane).sort();
-    assert.deepEqual(laneNames, ['behavior', 'concept', 'quality', 'test-coverage'], 'four active lanes resolved');
+    assert.deepEqual(laneNames, ['behavior', 'concept', 'quality', 'test-coverage'].map(lane => `proof-or-stop-review-${lane}`), 'four canonical active lanes resolved');
 
     // (b) per-lane classification.
     const concept = laneByName(report, 'concept');
@@ -380,8 +403,9 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /quality \[scope-changed\]/);
     assert.match(text, /test-coverage \[no-receipt\]/);
     assert.match(text, /behavior \[blocking\]/);
-    assert.match(text, /authorityDone: false/);
-    assert.match(text, /productionDone: false/);
+    assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
+    assert.match(text, /assuranceLevel: local/);
+    assert.match(text, /evidenceScope: review-readiness/);
 
     // (a) + (e) read-only: no metadata / git mutation; no authority/evidence artifacts
     //     beyond the FIXTURE-seeded ones, and the seeded review-runs/passes/findings

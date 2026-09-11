@@ -1,4 +1,5 @@
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { readFindingValidationConstraints } from '../core/finding-validation.js';
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
@@ -138,6 +139,7 @@ export interface ValidationSetupScan {
 
 /** Resolve Story-owned selection inputs instead of allowing an empty authority context. */
 function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
+  findingConstraints: import('../core/finding-validation.js').FindingValidationConstraints;
   scopeContract?: { allowedPaths?: string[]; plannedFiles?: string[]; protectedFiles?: string[]; explicitExcludes?: string[]; digest?: string };
   verificationIntents?: Array<{ id: string; validationCommand?: string }>;
   affectedProcessFacts?: string[];
@@ -171,6 +173,7 @@ function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
   });
   const affectedCapabilities: string[] = (story.affectedCapabilities || []).filter((value): value is string => typeof value === 'string' && value.length > 0);
   return {
+    findingConstraints: readFindingValidationConstraints(ctx.store, ctx.root, storyId),
     scopeContract: scope ? {
       allowedPaths: [...(scope.allowedModify || []), ...(scope.allowedCreate || []), ...(scope.allowedTest || [])],
       plannedFiles,

@@ -65,9 +65,15 @@ function compatibilityDecision(row) {
   return advisory.isFindingBlocking(row.finding, ['critical', 'high', 'medium'], row.round);
 }
 function dynamicDecision(row) {
+  // This historical corpus tests the pure predicate, not evidence admission.
+  // Current runtime/route integration suites independently test the verifier.
+  const assessment = { ...row.assessment,
+    protectedSurfaceEvaluation: dynamic.FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['synthetic-intent'] })),
+    evidenceVerification: { state: 'verified', proposalDigest: 'synthetic-proposal', evidenceDigest: 'synthetic-evidence', evaluationScope: 'target_story',
+      introducedByCurrentStory: row.assessment.verdict === 'introduced', acceptanceImpact: row.assessment.gateImpact ?? 'unknown', requiredCommands: [], affectedPaths: [] } };
   return dynamic.isDynamicFindingBlocking({
     finding: row.finding, effectiveBlockingSeverities: ['critical', 'high', 'medium'], round: row.round,
-    assessment: row.assessment, deferral: row.deferral, now: new Date('2029-01-01T00:00:00.000Z'), mode: 'enforce', killSwitch: false,
+    assessment, deferral: row.deferral, now: new Date('2029-01-01T00:00:00.000Z'), mode: 'enforce', killSwitch: false,
   }).blocking;
 }
 
@@ -93,7 +99,7 @@ const operationReductionPercent = Number((((baselineOperations - dynamicOperatio
 assert.equal(baselineOperations, 12);
 assert.equal(dynamicOperations, 5);
 assert.equal(operationReductionPercent, 58.33);
-console.log(`DF-SCORECARD ${JSON.stringify({ corpusSize: 6, baselineOperations, dynamicOperations, operationReductionPercent, missedHighCritical: 0, falseDeferrals: 0 })}`);
+console.log(`DF-SCORECARD ${JSON.stringify({ authority: 'synthetic_arithmetic_only', observedTimeSaving: null, corpusSize: 6, baselineOperations, dynamicOperations, operationReductionPercent, missedHighCritical: null, falseDeferrals: null })}`);
 
 if (failures > 0) {
   console.error(`DYNAMIC_FINDING_APPLICABILITY FAIL ${failures}/${cases.length}`);

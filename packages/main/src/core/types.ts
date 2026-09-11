@@ -85,6 +85,8 @@ export type AgentDispatchMutationCommand =
   | 'topology_critic_receipt_set'
   | 'review_run_start'
   | 'finding_add'
+  | 'finding_assessment_propose'
+  | 'finding_qualification_record'
   | 'review_pass_set'
   | 'review_inventory_critic_set'
   | 'managed_review_proposal_set'
