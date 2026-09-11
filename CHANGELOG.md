@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab native-critic-dispatch-purpose - v0.3.328 - 2026-09-11
+
+Native completeness-critic evidence retains its signed dispatch purpose during read-side revalidation. Previously a genuine inventory-completeness broker attestation was looked up in the topology dispatch namespace and rejected. The minimal change forwards ReviewRun.reviewPurpose and inventoryBinding to the existing dispatch verifier; existing signatures, native execution identity, freshness and replay checks remain active.
+
+The committed regression constructs genuine required reviewer lanes and an inventory-completeness critic through official native dispatch/run/pass handlers, then calls collectReviewerEvidenceState on the actual proof. It recorded target RED before repair and GREEN afterward with the same command. Wrong-purpose, substituted-inventory and tampered signed-pass rejection controls remain passing. The process-fact contract verifier also passes. This Lab does not claim full REVIEW-to-TEST lifecycle completion or formal Story acceptance; it repairs the demonstrated read-side rejection.
+
+Commands: node scripts/verify-native-critic-dispatch-purpose.mjs; node scripts/verify-process-fact-contract.mjs. No remote publication.
+
+Maintenance provenance: codex/lab-native-critic-dispatch-purpose, repair 504b9bd54995d82683d3a62fcc8270b179d60e8a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab convergence-certification-consumption - v0.3.327 - 2026-09-11
+
+Repair completed convergence history after legitimate certification consumption. Exclude the later signed consumedByCertificationWindowId lifecycle output from both epoch and receipt completion projections, retaining signature checks and all remaining completion claims. Certification independently enforces consumption authority; no new gate authority is granted.
+
+The regression exercises real required-lane and completeness-critic inventory finalization, fast validation, actual certification admission, signed convergence history and shared progress gate, routine validation, and the actual TEST transition. It preserves invalid-signature and signed material/receipt mutation refusal controls. Exact-test historical RED against unchanged original main projection took 25.021 seconds; GREEN took 30.970 seconds. Builds and the process-fact contract verifier passed. Owner reviewed the minimal repair without blockers.
+
+The TEST transition now reaches a separate pre-existing completeness-critic dispatch attestation refusal, explicitly reported by the bounded regression. This Lab proves completed-history repair, not TEST lifecycle success or Story DONE. The separate critic defect remains under independent repair.
+
+Maintenance provenance: codex/lab-convergence-certification-consumption, repair 283e69112524fc7e810975aaef2ea530130ac352.
+Verification command (replayed before integration and on main): `["node","scripts/verify-convergence-certification-consumption.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab recall-dependency-direction - v0.3.326 - 2026-09-11
 
 Repair the pre-existing reverse dependency from Story2 historical recall to Story1 applicability. Move the unchanged signed L4 invalidation observer to the existing Story1 recall owner and inject an internal typed provider from the registry. Preserve exact signed reference and owner checks, locked revalidation, explicit/automatic deduplication, and non-authoritative gateEvidence=false candidates; unavailable providers fail closed and request JSON cannot supply one.

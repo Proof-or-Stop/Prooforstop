@@ -11059,6 +11059,7 @@ nodeAssert.ok(read(processFactRegistryPath).includes('schedulerWaitMs is diagnos
   for (const token of ['verifyValidationArtifact', 'signValidationArtifact', 'finalizedLiveAggregateError', 'readFindingLedger', 'buildVerificationCoverage', 'collectReviewerEvidenceState', 'revokedCompletedEpochIds', 'assessEffectiveProgress', 'hasMechanicalExecutionAuthority', 'captureEvidenceHashSnapshot']) {
     assert(progress.includes(token), `U11 progress authority missing ${token}`);
   }
+  for (const token of ['consumedByCertificationWindowId: _epochWindow', 'consumedByCertificationWindowId: _receiptWindow']) assert(progress.includes(token), `U11 legitimate certification consumption must preserve completion claims: ${token}`);
   assert(read('packages/main/src/handlers/review-inventory.ts').includes('captureConvergenceProgress(ctx, args.storyId, finalized.epochId)'), 'U11 actual inventory finalization must record verified progress');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('artifact:convergence-progress.json'), 'U11 signed progress artifact must be registered');
   assert(read('packages/main/src/handlers/finding.ts').includes('reviewPurpose: run.reviewPurpose, inventoryBinding: run.inventoryBinding'), 'native direct terminal authority must retain the signed review purpose');
@@ -11209,3 +11210,12 @@ console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
 
+
+// Native terminal evidence must verify the signed inventory purpose at read time.
+{
+  const review = read('packages/main/src/core/review-run.ts');
+  const nativeRead = review.slice(review.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)"));
+  const dispatch = nativeRead.slice(0, nativeRead.indexOf('const writerSessionId'));
+  assert(dispatch.includes('reviewPurpose: run.reviewPurpose') && dispatch.includes('inventoryBinding: run.inventoryBinding'), 'native read-side dispatch verification must retain signed purpose and inventory subject');
+  assert(read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding'), 'native read-side purpose binding must be registered');
+}
