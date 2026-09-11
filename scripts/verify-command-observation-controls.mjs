@@ -54,11 +54,11 @@ try {
       assert.notEqual(observeValidationExecutionLock(root,storyId),'self-reentry','disk generation mismatch must reject reentry');
     } finally {writeFileSync(file,original);}
   });
-  const path=validationExecutionLockPath(root,storyId);mkdirSync(path);
-  assert.equal(observeValidationExecutionLock(root,storyId),'unknown','missing metadata is not an owned or free lock');
   const store=new StoryStore(root);
   store.writeStory(storyId,{storyId,name:'lock-observation',title:'Lock observation',description:'Isolated unknown lock control',type:'chore',phase:'DEV',priority:'medium',createdAt:new Date().toISOString(),events:[]});
   store.writeChecklist(storyId,{items:[]});
+  const path=validationExecutionLockPath(root,storyId);mkdirSync(path);
+  assert.equal(observeValidationExecutionLock(root,storyId),'unknown','missing metadata is not an owned or free lock');
   const assertUnknownVisible=()=>{
     const row=projectRuntimeClosure(store,root,{storyId}).stories.find(row=>row.storyId===storyId);
     assert.equal(row.locks.validationLock,'unknown');
@@ -73,6 +73,12 @@ try {
   assert.equal(readFileSync(join(path,'holder.json'),'utf8'),'broken','observation never repairs metadata');
   rmSync(path,{recursive:true});
   assert.equal(observeValidationExecutionLock(root,storyId),'free');
+  for(const optIn of [false,true]) {
+    const writer=commandObservationEffects('storyScopedMutating',optIn,true);
+    assert.equal(writer.recordActivity,false,'DRY_RUN_WRITER_TELEMETRY_COMPATIBILITY');
+    assert.equal(writer.runHooks,true);assert.equal(writer.recordStoryEvent,true);
+    assert.equal(commandObservationEffects('readOnly',optIn,true).recordActivity,optIn);
+  }
   console.log(JSON.stringify({parameterCases:cases.length,telemetryModes:2,controls:['unclassified-no-effects','free','live-self','same-pid-foreign-context','released-context-successor','holder-generation-mismatch','missing-holder','corrupt-holder-unchanged','unknown-visible-and-blocked']},null,2));
   console.log('COMMAND_OBSERVATION_CONTROLS_GREEN');
 } finally {rmSync(root,{recursive:true,force:true});}
