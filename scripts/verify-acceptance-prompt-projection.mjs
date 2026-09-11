@@ -1,8 +1,8 @@
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { projectPromptAsset } from '../packages/main/src/core/prompt-registry.ts';
-import { acceptanceReviewJsonSchema } from '../packages/main/src/core/acceptance-amendment-review.ts';
+const { projectPromptAsset } = await import('../packages/main/src/core/prompt-registry.ts');
+const { acceptanceReviewJsonSchema } = await import('../packages/main/src/core/acceptance-amendment-review.ts');
 
 const subject={storyId:'B-projection',binding:{amendmentId:'AM-1',amendmentDigest:'a'.repeat(64),
   baseDigest:'b'.repeat(64),submitterSessionId:'owner'},originalAcceptance:{text:'Claude @agent(Bash)\nproof-or-stop'},
