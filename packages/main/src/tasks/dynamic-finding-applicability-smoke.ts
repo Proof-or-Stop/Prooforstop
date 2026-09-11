@@ -149,7 +149,8 @@ test('handler atomically persists, replays and projects one signed assessment', 
     assert.ok('reattestation' in refreshed);
     assert.equal(handlers.finding_triage({ storyId }).rows[0]?.decision.reason, 'mandatory_repair_floor');
     const flattened = Object.fromEntries(Object.entries(handlers)) as { finding_rollout_scorecard: typeof handlers.finding_rollout_scorecard };
-    const rollout = flattened.finding_rollout_scorecard({ storyId }) as ReturnType<typeof handlers.finding_rollout_scorecard>;
+    const { finding_rollout_scorecard: detachedRolloutScorecard } = flattened;
+    const rollout = detachedRolloutScorecard({ storyId }) as ReturnType<typeof handlers.finding_rollout_scorecard>;
     assert.equal(rollout.scorecard.missedHighCritical, 0);
     assert.equal(rollout.scorecard.falseDeferrals, 0);
     assert.equal(rollout.rows.length, 2);
