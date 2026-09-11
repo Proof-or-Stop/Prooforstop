@@ -244,6 +244,17 @@ function assertVerificationIntentRoleCannotOmitPlanningMetadata(): void {
         adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must' }],
       },
     } as any), /verification_intent_metadata_required/);
+    handlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      agent: 'proof-or-stop-verification-intent',
+      verificationIntent: {
+        happy: [{ desc: 'Focused happy behavior passes', type: 'cli', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [{ desc: 'Focused edge behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      },
+    } as any);
+    assert.equal(store.readChecklist(storyId).items[0].verificationIntent?.happy?.[0].scope, 'focused');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
