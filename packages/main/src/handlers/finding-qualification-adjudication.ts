@@ -43,17 +43,38 @@ export function collectQualificationSubjectAdjudications(ctx: HandlerContext, in
     if (exactLedgerRecordHash(record) !== input.ref.recordHash) throw new Error('qualification: adjudicated subject substituted');
     const raw = record.payload as Record<string, unknown>;
     const payload = (raw.payload && typeof raw.payload === 'object' ? raw.payload : raw) as Record<string, unknown>;
-    let observer = payload.assessedBy;
-    if (typeof payload.findingId === 'string') observer = source.store.readFindings(input.ref.storyId).findings.find(row => row.id === payload.findingId)?.agent;
+    const authors = new Set<string>();
+    const addAuthor = (value: unknown) => { if (typeof value === 'string' && value.trim()) authors.add(value); };
+    addAuthor(payload.assessedBy);
+    if (typeof payload.findingId === 'string') addAuthor(source.store.readFindings(input.ref.storyId).findings.find(row => row.id === payload.findingId)?.agent);
+    // Observation authorship must not overwrite decision authorship. Imported
+    // or historical decisions may have a different proposer from the Finding.
+    let assessment = payload;
+    if (['finding_deferral_disposition', 'mandatory_repair'].includes(record.recordType)) {
+      const matches = source.store.readFindingLedger<JsonValue>(input.ref.storyId).records.filter(row => row.recordType === 'finding_applicability_assessment'
+        && (row.payload as Record<string, unknown>).assessmentId === payload.assessmentId
+        && (row.payload as Record<string, unknown>).findingId === payload.findingId);
+      if (matches.length !== 1) throw new Error('qualification: exact decision-author assessment required');
+      assessment = verifiedIdentityCarrier(source.store.readFindingLedger<JsonValue>(input.ref.storyId), input.ref.storyId, matches[0]!.recordId, identityTrust(source)).record.payload as Record<string, unknown>;
+    }
+    if (['finding_applicability_assessment', 'finding_deferral_disposition', 'mandatory_repair'].includes(record.recordType)) {
+      const ref = assessment.proposalRef as { storyId: string; recordId: string; recordHash: string } | undefined;
+      if (!ref) throw new Error('qualification: exact decision-author proposal required');
+      const origin = historicalStoryContext(ctx, ref.storyId);
+      const proposal = verifiedIdentityCarrier(origin.store.readFindingLedger<JsonValue>(ref.storyId), ref.storyId, ref.recordId, identityTrust(origin)).record;
+      if (proposal.recordType !== 'assessment_proposal' || exactLedgerRecordHash(proposal) !== ref.recordHash
+        || typeof (proposal.payload as Record<string, unknown>).assessedBy !== 'string') throw new Error('qualification: decision-author proposal substituted or incomplete');
+      addAuthor((proposal.payload as Record<string, unknown>).assessedBy);
+    }
     const routeSource = payload.source as { storyId?: string; recordId?: string } | undefined;
     if (routeSource?.storyId && routeSource.recordId) {
       const origin = historicalStoryContext(ctx, routeSource.storyId);
       const proposal = verifiedIdentityCarrier(origin.store.readFindingLedger<JsonValue>(routeSource.storyId), routeSource.storyId, routeSource.recordId, identityTrust(origin)).record.payload as Record<string, unknown>;
-      observer = proposal.assessedBy;
+      addAuthor(proposal.assessedBy);
     }
-    if (!adjudicator || observer === adjudicator) throw new Error('qualification: subject observer cannot self-adjudicate');
+    if (!adjudicator || authors.has(adjudicator)) throw new Error('qualification: subject observer or decision author cannot self-adjudicate');
     const observed = qualificationSubjectProjection(record.recordType, record.payload as Record<string, unknown>);
     if (applicabilityDigest(Object.keys(observed).sort()) !== applicabilityDigest(Object.keys(input.expected).sort())) throw new Error('qualification: independent gold omits a subject dimension');
-    return { ...input, observed, correct: applicabilityDigest(observed) === applicabilityDigest(input.expected) };
+    return { ...input, observed, decisionAuthors: [...authors].sort(), correct: applicabilityDigest(observed) === applicabilityDigest(input.expected) };
   });
 }

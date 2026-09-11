@@ -28,6 +28,7 @@ export const FINDING_QUALIFICATION_METRICS = [
 ] as const;
 export type FindingQualificationMetric = typeof FINDING_QUALIFICATION_METRICS[number][0];
 export const FINDING_QUALIFICATION_POLICY = Object.freeze({ version: 'dynamic-finding-qualification-v1',
+  adjudication: 'per-subject-source-and-decision-author-distinct-v1',
   minStories: 20, minCases: 200, minDays: 30, confidence: 0.95, method: 'one-sided-binomial-zero-event',
   latency: Object.freeze({ p50Seconds: 2, p95Seconds: 5, minCorpusSize: 2273, maxTimeoutRate: 0.01 }),
   simpleStory: Object.freeze({ maxFindings: 5, maxRegression: 0.1 }),
