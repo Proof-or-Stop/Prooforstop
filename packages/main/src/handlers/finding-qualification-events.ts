@@ -8,7 +8,7 @@ import { findingWitnessCommandText } from './finding-applicability-proof.js';
 import { applicabilityDigest } from '../core/finding-applicability.js';
 import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { readCanonicalCatalog } from './finding-identity-store.js';
-import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY, type FindingQualificationMetric, type QualificationMeasurement } from '../core/finding-rollout-qualification.js';
+import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY, type FindingQualificationMetric, type QualificationMeasurement, type QualificationPerformanceSource } from '../core/finding-rollout-qualification.js';
 
 export interface QualificationExperimentRef { metric: FindingQualificationMetric; scenarioId: string; runtimeReceiptId: string; }
 export interface QualificationGold { applicable: boolean; eligibleDeferral: boolean; ownerStoryId: string | null;
@@ -52,6 +52,7 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
   if (registered.some(pin => !seen.has(pin.selector!))) throw new Error('qualification: preregistered experiment omitted');
   const supportingQueries: unknown[] = [];
   let performanceMetadata: { simpleStoryRegression: number | null; timeoutRate: number | null; latencyCorpusSize: number;
+    source: QualificationPerformanceSource;
     timingSeconds: { classifier: number; triage: number; repair: number; convergence: number } } | undefined;
   const add = (metric: FindingQualificationMetric, numerator: number, denominator: number, evidence: unknown, synthetic: boolean, latencySeconds?: number) => {
     measurements.push({ metric, caseId: args.caseId, storyId: args.storyId, severity: args.severity, observedAt: args.observedAt,
@@ -96,10 +97,13 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
     const before = findingQualificationWorkflowQuery(ctx, args.matchedCohort.baselineStoryId);
     const after = findingQualificationWorkflowQuery(ctx, args.matchedCohort.candidateStoryId);
     if (before.phase !== 'DONE' || after.phase !== 'DONE' || before.storyClass !== after.storyClass) throw new Error('qualification: comparable completed cohorts required');
+    const source: QualificationPerformanceSource = { baselineStoryId: before.storyId, candidateStoryId: after.storyId,
+      baselineDigest: before.queryDigest, candidateDigest: after.queryDigest };
+    const performanceStart = measurements.length;
     supportingQueries.push({ before, after });
     const completed = after.timing.filter(row => row.durationMs !== null);
     const timeoutRate = after.timing.length ? after.timing.filter(row => row.timedOut).length / after.timing.length : null;
-    performanceMetadata = { simpleStoryRegression: before.findingCount <= FINDING_QUALIFICATION_POLICY.simpleStory.maxFindings && before.reviewElapsedMs > 0
+    performanceMetadata = { source, simpleStoryRegression: before.findingCount <= FINDING_QUALIFICATION_POLICY.simpleStory.maxFindings && before.reviewElapsedMs > 0
       ? Math.max(0, after.reviewElapsedMs / before.reviewElapsedMs - 1) : null,
       timeoutRate, latencyCorpusSize: after.timing.length ? Math.min(...after.timing.map(row => row.candidateCount)) : 0,
       timingSeconds: { classifier: completed.reduce((sum, row) => sum + row.durationMs!, 0) / 1000,
@@ -111,11 +115,13 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
         (before.reviewElapsedMs - after.reviewElapsedMs) / before.reviewElapsedMs);
       add('review_convergence_reduction', Math.max(0, reduction), 1, { before, after }, false);
     }
+    for (const row of measurements.slice(performanceStart)) row.performanceSource = source;
     for (const row of after.timing) {
       if (row.candidateCount < FINDING_QUALIFICATION_POLICY.latency.minCorpusSize || row.durationMs === null || !Number.isFinite(row.durationMs) || row.durationMs < 0) continue;
       measurements.push({ metric: 'triage_latency', caseId: `${args.caseId}:${row.attemptId}`, storyId: after.storyId, severity: args.severity,
         observedAt: row.createdAt, numerator: 1, denominator: 1, latencySeconds: row.durationMs / 1000,
         latencyPopulationSize: row.candidateCount,
+        performanceSource: { ...source, attemptId: row.attemptId },
         evidenceDigests: [after.queryDigest], independentlyAdjudicated: true, synthetic: false });
       measurements.at(-1)!.rollbackEvent = row.outcome !== 'signed';
     }
@@ -123,6 +129,23 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
   const coveredMetrics = [...new Set(measurements.map(row => row.metric))].sort();
   const missingSourceMetrics = FINDING_QUALIFICATION_METRICS.filter(row => !coveredMetrics.includes(row[0]) && row[0] !== 'candidate_conversion').map(row => row[0]);
   return { measurements, sources, supportingQueries, coveredMetrics, missingSourceMetrics, performanceMetadata: performanceMetadata ?? null };
+}
+
+/** Repeated references to a completed cohort do not multiply elapsed time. */
+export function sumQualificationCohortTiming(rows: Array<ReturnType<typeof collectFindingQualificationEvents>['performanceMetadata']>) {
+  const timing = { classifier: 0, triage: 0, repair: 0, convergence: 0 };
+  const seen = new Map<string, string>();
+  for (const row of rows) {
+    if (!row?.source) throw new Error('qualification: timing source missing');
+    const key = row.source.candidateStoryId; const digest = applicabilityDigest(row);
+    if (seen.has(key)) {
+      if (seen.get(key) !== digest) throw new Error('qualification: conflicting cohort timing');
+      continue;
+    }
+    seen.set(key, digest);
+    for (const key of Object.keys(timing) as Array<keyof typeof timing>) timing[key] += row.timingSeconds[key];
+  }
+  return timing;
 }
 
 /** Public server-derived workflow projection. The ledger query verifies every

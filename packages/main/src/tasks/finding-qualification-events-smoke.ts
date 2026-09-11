@@ -6,8 +6,10 @@ import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createFindingLedgerHandlers } from '../handlers/finding-ledger.js';
-import { collectFindingQualificationEvents, findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
+import { collectFindingQualificationEvents, findingQualificationWorkflowQuery, sumQualificationCohortTiming } from '../handlers/finding-qualification-events.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
+import { buildFindingQualificationScorecard, FINDING_QUALIFICATION_POLICY, type FindingQualificationCorpus } from '../core/finding-rollout-qualification.js';
+import { applicabilityDigest } from '../core/finding-applicability.js';
 
 const root = mkdtempSync(join(tmpdir(), 'finding-collector-')); const oldCwd = process.cwd();
 const write = (path: string, text: string) => writeFileSync(join(root, path), text);
@@ -61,6 +63,35 @@ assert.equal(d.blocking,process.argv[2]!=='negative-control');`);
   assert.equal(matched.measurements.find(row => row.metric === 'review_convergence_reduction')?.numerator, 0.5);
   assert.equal(matched.performanceMetadata?.timingSeconds.repair, 0);
   assert.equal(matched.performanceMetadata?.timeoutRate, null); assert.equal(matched.performanceMetadata?.latencyCorpusSize, 0);
+  if (process.argv.includes('--cohort-proof')) {
+    const repeated = collectFindingQualificationEvents(ctx, { ...input, caseId: 'second-finding-case',
+      matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } });
+    const now = new Date();
+    const corpus: FindingQualificationCorpus = { policyDigest: applicabilityDigest(FINDING_QUALIFICATION_POLICY), featureState: 'warn',
+      window: { start: new Date(t).toISOString(), end: now.toISOString() }, repositoryHeads: ['fixture'], storyClasses: ['feature'], detectorVersions: ['fixture'],
+      retryPolicy: 'No retries', exclusions: [], latencyHardware: 'Fixture', timingSeconds: { classifier: 0, triage: 0, repair: 0, convergence: 0 },
+      prerequisites: {}, measurements: [...matched.measurements, ...repeated.measurements], simpleStoryRegression: 0, timeoutRate: 0,
+      latencyCorpusSize: 0, candidateBaselineExplained: true };
+    const report = buildFindingQualificationScorecard(corpus, now);
+    const row = report.rows.find(row => row.metric === 'review_convergence_reduction')!;
+    assert.equal(row.denominator, 1, 'one completed cohort must not become two observations through two Finding case IDs');
+    assert.equal(report.qualification.caseCount, 0, 'cohort timing is not an independent Finding observation');
+    assert.equal(report.qualification.storyCount, 0); assert.equal(report.qualification.observedDays, 0);
+    assert.deepEqual(sumQualificationCohortTiming([matched.performanceMetadata, repeated.performanceMetadata]), matched.performanceMetadata!.timingSeconds);
+    const conflicting = structuredClone(repeated.measurements.find(row => row.metric === 'review_convergence_reduction')!);
+    conflicting.numerator = 1;
+    assert.ok(buildFindingQualificationScorecard({ ...corpus, measurements: [...matched.measurements, conflicting] }, now).refusalReasons.some(row => row.startsWith('conflicting_performance_source')));
+    assert.throws(() => sumQualificationCohortTiming([matched.performanceMetadata, { ...matched.performanceMetadata!,
+      timingSeconds: { ...matched.performanceMetadata!.timingSeconds, repair: 100 } }]), /conflicting cohort/);
+    const latency = { ...conflicting, metric: 'triage_latency' as const, numerator: 1, denominator: 1, latencySeconds: 1,
+      latencyPopulationSize: 2273, performanceSource: { ...conflicting.performanceSource!, attemptId: 'actual-attempt-1' } };
+    const latencyReport = buildFindingQualificationScorecard({ ...corpus, measurements: [latency, { ...latency, caseId: 'another-case' }] }, now);
+    assert.equal(latencyReport.rows.find(row => row.metric === 'triage_latency')!.denominator, 1);
+    const differentAttempt = { ...latency, caseId: 'another-attempt', performanceSource: { ...latency.performanceSource, attemptId: 'actual-attempt-2' } };
+    assert.equal(buildFindingQualificationScorecard({ ...corpus, measurements: [latency, differentAttempt] }, now).rows.find(row => row.metric === 'triage_latency')!.denominator, 2);
+    console.log('QUALIFICATION_COHORT PASS one cohort one measurement');
+    console.log(`COHORT_STATS references=2 denominator=${row.denominator} independentFindingCases=${report.qualification.caseCount} convergenceSeconds=${sumQualificationCohortTiming([matched.performanceMetadata, repeated.performanceMetadata]).convergence}`);
+  }
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: baselineId } }), /distinct/);
   store.writeStory(candidateId, { ...store.readStory(candidateId), phase: 'REVIEW' });
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } }), /completed/);

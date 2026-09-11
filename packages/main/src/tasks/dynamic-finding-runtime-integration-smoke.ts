@@ -20,11 +20,14 @@ import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY } from '../
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
 import { findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
 import { collectQualificationSubjectAdjudications } from '../handlers/finding-qualification-adjudication.js';
+import { collectQualificationPrerequisites, verifyQualificationPrerequisites } from '../handlers/finding-qualification-prerequisites.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
+const prerequisiteAudit = process.argv.includes('--prerequisite-proof');
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dfec-runtime-'));
 const beforeCwd = process.cwd();
+const oldPrerequisiteRefs = process.env.FINDING_PREREQUISITE_REFS;
 const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
 const write = (path: string, value: string) => writeFileSync(resolve(root, path), value);
 let assertions = 0;
@@ -51,12 +54,18 @@ evaluationScope:'target_story',verdict:'applicable',reproduced:broken,baseReprod
 gateImpact:'blocks',affectedPaths:['defect.mjs'],checkedIntentRefs:['CHK-001:happy:0','CHK-001:edge:0'],
 protectedSurfaceEvaluation:${JSON.stringify(FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['CHK-001:happy:0'] })))} }));
 process.exitCode=broken?1:0;`);
-  write('qualification.mjs', `import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
+  write('prerequisite.mjs', `import assert from 'node:assert/strict';
+import {isDynamicFindingBlocking} from ${JSON.stringify(new URL('../core/finding-applicability.js', import.meta.url).href)};
+const decision=isDynamicFindingBlocking({finding:{status:'open',evidenceState:'verified',severity:'high'},mode:'enforce',round:3,effectiveBlockingSeverities:['critical','high']});
+console.log('FINDING_PREREQUISITE '+process.argv[2]+' '+process.argv[3]);
+assert.equal(decision.blocking,process.argv[4]!=='negative');`);
+  write('qualification.mjs', `import {execFileSync} from 'node:child_process';
+import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
 import {exactLedgerRecordHash} from ${JSON.stringify(new URL('../handlers/finding-ledger.js', import.meta.url).href)};
 const entry=new StoryStore(process.cwd()).readFindingLedger(${JSON.stringify(storyId)}).records.filter(row=>row.recordType==='finding_applicability_assessment').at(-1);const source=entry.payload;
 console.log('FINDING_QUALIFICATION '+JSON.stringify({schemaVersion:${JSON.stringify(FINDING_QUALIFICATION_POLICY.version)},assessmentId:source.assessmentId,
 population:'adversarial',storyClass:'isolated-fixture',detectorVersion:'fixture-v1',retryPolicy:'No retries',exclusions:[],
-timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:[],simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
+timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:${prerequisiteAudit ? "JSON.parse(process.env.FINDING_PREREQUISITE_REFS??'null')??[{name:'dependency_mutation_suite',mergedCommit:execFileSync('git',['rev-parse','main'],{encoding:'utf8'}).trim()}]" : '[]'},simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
 subjectAdjudications:[{ref:{storyId:${JSON.stringify(storyId)},recordId:entry.recordId,recordHash:exactLedgerRecordHash(entry)},
 expected:{kind:'finding_applicability_assessment',findingId:${JSON.stringify(findingId)},verdict:'applicable',dispositionPlan:'repair_current',gateImpact:'blocks'},
 rationale:'The independent fixture oracle requires repair because the controlled broken export reproduces and blocks its accepted result.'}],
@@ -144,6 +153,51 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     command: 'review_pass_set', payload: { storyId, agent: independent, reviewRunId: independentRun,
       readManifest: { filesReadFully: ['qualification.mjs', 'witness.mjs'], filesTriagedByName: [], scanEscalationReason: null },
       note: `Independent isolated qualification measurement audit.\n${marker}` } });
+  if (prerequisiteAudit) {
+    const before = store.readFindingLedger(storyId).committedLedgerDigest;
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record(qualifierArgs) }),
+      /qualification: prerequisite/, 'unrelated ancestor without a capability receipt must refuse');
+    assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, before);
+    console.log('QUALIFICATION_PREREQUISITE PASS ancestry alone is not proof');
+    // Add reviewed fixture pins before the new independent review. This is
+    // disposable fixture setup, not a mutation of a real Story's frozen intent.
+    const head = git('rev-parse', 'HEAD'); const name = 'dependency_mutation_suite';
+    const checklist = store.readChecklist(storyId);
+    checklist.items[0]!.verificationIntent!.adversarial = ['positive', 'negative'].map(scenario => ({
+      desc: 'Execute the real fail-closed property and its negative control.', type: 'cli',
+      verification: { command: `${process.execPath} prerequisite.mjs ${name} ${head} ${scenario}`,
+        selector: `FINDING_PREREQUISITE ${name} ${head}` } }));
+    store.writeChecklist(storyId, checklist);
+    const runPrerequisite = (scenario: string) => runtimeHandlers.finding_runtime_evidence_run({ ...runtimeArgs,
+      idempotencyKey: `prerequisite-${scenario}`, executionCommand: { executable: process.execPath, args: ['prerequisite.mjs', name, head, scenario], cwd: '.' } });
+    const proof = runPrerequisite('positive'); const failed = runPrerequisite('negative');
+    assert.equal(proof.receipt.exitCode, 0); assert.equal(failed.receipt.exitCode, 1);
+    const ref = { name, mergedCommit: head, runtimeReceiptId: proof.runtimeReceiptId };
+    const collected = collectQualificationPrerequisites(ctx, storyId, [ref], measured.runtimeReceiptId);
+    verifyQualificationPrerequisites(ctx, storyId, collected);
+    assert.throws(() => collectQualificationPrerequisites(ctx, storyId, [ref, ref], measured.runtimeReceiptId), /duplicated/);
+    assert.throws(() => collectQualificationPrerequisites(ctx, storyId, [ref], proof.runtimeReceiptId), /invalid/);
+    assert.throws(() => collectQualificationPrerequisites(ctx, storyId, [{ ...ref, name: 'targeted_adversarial_suite' }], measured.runtimeReceiptId), /selector/);
+    assert.throws(() => collectQualificationPrerequisites(ctx, storyId, [{ ...ref, runtimeReceiptId: failed.runtimeReceiptId }], measured.runtimeReceiptId), /execution/);
+    assert.throws(() => verifyQualificationPrerequisites(ctx, storyId, { [name]: { ...collected[name]!, proof: { ...collected[name]!.proof, runtimeReceiptHash: 'f'.repeat(64) } } }), /substituted/);
+    console.log('QUALIFICATION_PREREQUISITE PASS 6 receipt and negative-control checks');
+    process.env.FINDING_PREREQUISITE_REFS = JSON.stringify([ref]);
+    const report = runtimeHandlers.finding_runtime_evidence_run({ ...runtimeArgs, idempotencyKey: 'qualification-with-proof',
+      executionCommand: { executable: process.execPath, args: ['qualification.mjs'], cwd: '.' }, environmentAllowlist: ['FINDING_PREREQUISITE_REFS'] });
+    const auditedRun = seedCurrentReviewFixture(root, store, storyId, [independent]).get(independent)!;
+    await runBrokeredNativeReviewCli({ root, store, storyId, agent: independent, reviewRunId: auditedRun,
+      command: 'review_pass_set', payload: { storyId, agent: independent, reviewRunId: auditedRun,
+        readManifest: { filesReadFully: ['qualification.mjs', 'prerequisite.mjs'], filesTriagedByName: [], scanEscalationReason: null },
+        note: `Independent review of the prerequisite assertion, negative control and exact receipt reference.\nfinding-qualification:${qualifierArgs.assessmentId}:${report.runtimeReceiptId}:${report.receipt.receiptHash}` } });
+    withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record({ ...qualifierArgs,
+      runtimeReceiptId: report.runtimeReceiptId, reviewRunId: auditedRun, idempotencyKey: 'qualified-with-proof' }) });
+    const qualifiedRows = handlers.finding_qualification_query({ storyId }).rows;
+    assert.equal(qualifiedRows.length, 1); assert.equal(qualifiedRows[0]!.payload.prerequisites[name]!.proof.runtimeReceiptId, proof.runtimeReceiptId);
+    console.log('QUALIFICATION_PREREQUISITE PASS official signed write and historical query retain executed proof');
+    setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
+    assert.throws(() => handlers.finding_qualification_query({ storyId }), /revoked_signing_key/);
+    console.log('QUALIFICATION_PREREQUISITE PASS revoked runtime trust refuses historical qualification');
+  } else {
   const qualified = withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record(qualifierArgs) });
   assert.ok(qualified); assert.equal(handlers.finding_qualification_query({ storyId }).rows.length, 1);
   const measuredCase = handlers.finding_qualification_query({ storyId }).rows[0]!.payload;
@@ -195,4 +249,8 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   assert.notEqual(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
   pass('runtime key revocation reopens closure; metadata reuse never waives runtime trust');
   console.log(`DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS ${assertions}`);
-} finally { process.chdir(beforeCwd); rmSync(root, { recursive: true, force: true }); }
+  }
+} finally {
+  if (oldPrerequisiteRefs === undefined) delete process.env.FINDING_PREREQUISITE_REFS; else process.env.FINDING_PREREQUISITE_REFS = oldPrerequisiteRefs;
+  process.chdir(beforeCwd); rmSync(root, { recursive: true, force: true });
+}

@@ -29,6 +29,7 @@ export const FINDING_QUALIFICATION_METRICS = [
 export type FindingQualificationMetric = typeof FINDING_QUALIFICATION_METRICS[number][0];
 export const FINDING_QUALIFICATION_POLICY = Object.freeze({ version: 'dynamic-finding-qualification-v1',
   adjudication: 'per-subject-source-and-decision-author-distinct-v1',
+  provenance: 'executed-merged-prerequisites-and-unique-performance-sources-v1',
   minStories: 20, minCases: 200, minDays: 30, confidence: 0.95, method: 'one-sided-binomial-zero-event',
   latency: Object.freeze({ p50Seconds: 2, p95Seconds: 5, minCorpusSize: 2273, maxTimeoutRate: 0.01 }),
   simpleStory: Object.freeze({ maxFindings: 5, maxRegression: 0.1 }),
@@ -49,7 +50,13 @@ export interface QualificationMeasurement {
   latencySeconds?: number;
   latencyPopulationSize?: number;
   rollbackEvent?: boolean;
+  performanceSource?: QualificationPerformanceSource;
 }
+export interface QualificationPerformanceSource {
+  baselineStoryId: string; candidateStoryId: string;
+  baselineDigest: string; candidateDigest: string; attemptId?: string;
+}
+export const QUALIFICATION_PERFORMANCE_METRICS = ['workflow_operation_reduction', 'review_convergence_reduction', 'triage_latency'];
 export interface FindingQualificationCorpus {
   policyDigest: string; featureState: 'observe' | 'warn';
   window: { start: string; end: string };
@@ -94,7 +101,27 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
     refusalReasons.push('qualification_metadata_incomplete');
   }
   const seen = new Set<string>();
+  const performanceSeen = new Map<string, string>();
   const valid = measurements.filter(row => {
+    if (QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric) && !row.synthetic) {
+      const source = row.performanceSource;
+      if (!source?.baselineStoryId || !source.candidateStoryId || source.baselineStoryId === source.candidateStoryId
+        || !digestList([source.baselineDigest, source.candidateDigest]) || row.metric === 'triage_latency' && !source.attemptId) {
+        refusalReasons.push('performance_source_missing'); return false;
+      }
+      // An actual candidate cohort (or attempt) is independent of the Finding
+      // case that references it. A different baseline cannot recount it either.
+      const key = `${row.metric}:${source.candidateStoryId}:${row.metric === 'triage_latency' ? source.attemptId : ''}`;
+      const fingerprint = applicabilityDigest({ source, numerator: row.numerator, denominator: row.denominator,
+        latencySeconds: row.latencySeconds ?? null, latencyPopulationSize: row.latencyPopulationSize ?? null,
+        rollbackEvent: row.rollbackEvent ?? false, evidenceDigests: row.evidenceDigests,
+        independentlyAdjudicated: row.independentlyAdjudicated });
+      if (performanceSeen.has(key)) {
+        if (performanceSeen.get(key) !== fingerprint) refusalReasons.push(`conflicting_performance_source:${key}`);
+        return false;
+      }
+      performanceSeen.set(key, fingerprint);
+    }
     const key = `${row.metric}:${row.caseId}`; const duplicate = seen.has(key); seen.add(key);
     const time = Date.parse(row.observedAt);
     const ok = !duplicate && FINDING_QUALIFICATION_METRICS.some(spec => spec[0] === row.metric)
@@ -106,7 +133,7 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
     if (!ok) refusalReasons.push(`invalid_or_duplicate_measurement:${key}`);
     return ok;
   });
-  const operational = valid.filter(row => row.synthetic === false);
+  const operational = valid.filter(row => row.synthetic === false && !QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric));
   const storyCount = new Set(operational.map(row => row.storyId)).size;
   const caseCount = new Set(operational.map(row => `${row.storyId}:${row.observationId ?? row.caseId}`)).size;
   const observedTimes = operational.map(row => Date.parse(row.observedAt));
