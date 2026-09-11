@@ -53,6 +53,8 @@ import {
   type ValidationTier,
   type ValidationTierPlanResult,
   type ValidationWideningReason,
+  type ValidationImpactIndex,
+  type ValidationCommandExclusionProof,
 } from '../core/validation-tier-planner.js';
 import {
   configuredValidationCommands,
@@ -63,6 +65,7 @@ import type { RoutineValidationSourceKind, ValidationCommand } from '../core/val
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 import { resolveStoryWorkspace } from '../core/story-workspace.js';
+import { loadConfig } from '../core/config.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
 
@@ -236,7 +239,12 @@ export interface ValidationPlanReport {
     basis: string;
   };
   commandSetDigest: string;
+  /** Collector input digest; stable meaning on compatibility and indexed paths. */
   selectionDigest: string;
+  /** Present only when the canonical impact-index selector made the decision. */
+  selectorDecisionDigest: string | null;
+  /** Positive omission evidence from the selector; never a PASS artifact. */
+  exclusionProofs: ValidationCommandExclusionProof[];
   /**
    * B-a745 F-022. The freshness binding the plan was made under. `bound` carries
    * all three digests; `unbound` means the collector could not establish them,
@@ -342,12 +350,21 @@ export function buildValidationPlanReport(args: {
     const selected = new Set(result.selectedUnitIds);
     const atomic = result.executionMode === 'atomic';
     for (const unit of result.universe) {
+      const selectorReasons = result.inclusionReasonsByCommand?.[unit.id] ?? [];
+      const proof = result.exclusionProofs?.find((entry) => entry.commandId === unit.id);
+      const unitReasons = selectorReasons.length > 0
+        ? selectorReasons
+        : proof
+          ? [`omitted:${proof.reason}`]
+          : includedBecause.length > 0
+            ? [...includedBecause]
+            : escalationReasons.map((reason) => reason.code);
       units.push({
         id: unit.id,
         kind: unit.kind,
         label: unitLabels.get(unit.id) ?? unit.label,
         selected: selected.has(unit.id),
-        inclusionReasons: includedBecause.length > 0 ? [...includedBecause] : escalationReasons.map((r) => r.code),
+        inclusionReasons: unitReasons.length > 0 ? unitReasons : ['repository-full:compatibility'],
         pinnedBy: input.pinnedCommands
           .filter((pin) => pin.commandId === unit.id)
           .map((pin) => ({ itemId: pin.itemId, intentRef: pin.intentRef, pinResolution: pin.pinResolution })),
@@ -403,6 +420,8 @@ export function buildValidationPlanReport(args: {
     },
     commandSetDigest: input.executionInventory.commandSetDigest,
     selectionDigest: input.selectionDigest,
+    selectorDecisionDigest: result.status === 'plan' ? result.selectorDecisionDigest ?? null : null,
+    exclusionProofs: result.status === 'plan' ? [...(result.exclusionProofs ?? [])] : [],
     freshnessBinding: freshnessBindingFor(input),
     inventoryWarnings: [...input.executionInventory.warnings],
     artifact: {
@@ -506,6 +525,54 @@ export function assertValidationPlanStatusInvariant(report: ValidationPlanReport
   }
   if (report.status !== 'plan' && (report.counts.selected !== 0 || report.units.length !== 0)) {
     throw new Error(`validation_plan: a ${report.status} result selects nothing at all and lists no unit`);
+  }
+  if (report.status === 'plan') {
+    const unexplained = report.units.filter(
+      (unit) => !Array.isArray(unit.inclusionReasons) || unit.inclusionReasons.length === 0,
+    );
+    if (unexplained.length > 0) {
+      throw new Error(
+        `validation_plan: every planned unit must explain its inclusion or omission; missing for ` +
+        unexplained.map((unit) => unit.id).join(', '),
+      );
+    }
+    const selectedUnits = report.units.filter((unit) => unit.selected);
+    if (report.units.length !== report.counts.total || selectedUnits.length !== report.counts.selected) {
+      throw new Error(
+        'validation_plan: report counts must equal the rendered unit inventory and its selected flags',
+      );
+    }
+    const expectedReduction = report.counts.selected < report.counts.total;
+    if (report.reductionApplied !== expectedReduction) {
+      throw new Error(
+        `validation_plan: reductionApplied must equal selected < total; got ${report.reductionApplied} for ` +
+        `${report.counts.selected} of ${report.counts.total}`,
+      );
+    }
+    const omittedIds = new Set(report.units.filter((unit) => !unit.selected).map((unit) => unit.id));
+    const proofCounts = new Map<string, number>();
+    for (const proof of report.exclusionProofs) {
+      proofCounts.set(proof.commandId, (proofCounts.get(proof.commandId) ?? 0) + 1);
+      if (!omittedIds.has(proof.commandId)) {
+        throw new Error(
+          `validation_plan: exclusion proof for ${proof.commandId} does not identify an omitted unit`,
+        );
+      }
+    }
+    for (const unit of report.units) {
+      const omissionReasons = unit.inclusionReasons.filter((reason) => reason.startsWith('omitted:'));
+      if (!unit.selected && (proofCounts.get(unit.id) !== 1 || omissionReasons.length !== unit.inclusionReasons.length)) {
+        throw new Error(
+          `validation_plan: omitted unit ${unit.id} must carry exactly one positive exclusion proof and only ` +
+          'omission-shaped reasons',
+        );
+      }
+      if (unit.selected && (proofCounts.has(unit.id) || omissionReasons.length > 0)) {
+        throw new Error(
+          `validation_plan: selected unit ${unit.id} may not carry an exclusion proof or omission-shaped reason`,
+        );
+      }
+    }
   }
   // B-a745 F-022: the binding is part of what "status: plan" asserts. A plan
   // either binds freshness (all three digests present) or SAYS it could not
@@ -641,6 +708,23 @@ function renderValidationPlanTextLines(report: ValidationPlanReport, explain: bo
   }
   lines.push('');
 
+  lines.push(`exclusion proofs (${report.exclusionProofs.length}):`);
+  if (report.exclusionProofs.length === 0) {
+    lines.push('  (none)');
+  } else if (!explain) {
+    lines.push('  available; rerun with --explain to inspect every snapshot-bound proof');
+  } else {
+    for (const proof of report.exclusionProofs) {
+      lines.push(`  ${proof.commandId}: ${proof.reason}`);
+      lines.push(
+        `    requested=${proof.requestedTier}, declared=${proof.declaredSelection}, ` +
+        `index=${proof.indexVersion}/${proof.indexDigest}, snapshot=${proof.snapshotDigest}`,
+      );
+      lines.push(`    command inputs: ${proof.commandInputPatterns.join(', ') || '(none)'}`);
+    }
+  }
+  lines.push('');
+
   lines.push(`unclassified inputs (${report.unclassifiedInputs.length}):`);
   if (report.unclassifiedInputs.length === 0) {
     lines.push('  (none)');
@@ -671,6 +755,7 @@ function renderValidationPlanTextLines(report: ValidationPlanReport, explain: bo
   for (const warning of report.inventoryWarnings) lines.push(`  ${warning}`);
   lines.push(`commandSetDigest: ${report.commandSetDigest}`);
   lines.push(`selectionDigest: ${report.selectionDigest}`);
+  if (report.selectorDecisionDigest) lines.push(`selectorDecisionDigest: ${report.selectorDecisionDigest}`);
   return lines.join('\n');
 }
 
@@ -738,7 +823,14 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         durationHistory: { artifacts },
       });
 
-      const result = resolveValidationTierPlan({ input, requestedTier: request.requestedTier });
+      const projectConfig = loadConfig(projectRoot);
+      const validationConfig = projectConfig.validate ?? projectConfig.validation;
+      const impactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
+      const result = resolveValidationTierPlan({
+        input,
+        requestedTier: request.requestedTier,
+        ...(impactIndex ? { impactIndex } : {}),
+      });
 
       // Display labels, resolved through the SAME canonical inventory builder the
       // ids came from, so a label can never be attached to the wrong unit. A label

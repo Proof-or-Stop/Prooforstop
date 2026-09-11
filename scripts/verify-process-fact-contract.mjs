@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import nodeAssert from 'node:assert/strict';
 import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
 
 const root = process.cwd();
@@ -575,6 +576,13 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/repro-evidence-binding-gate',
     line: '- runtime:repro_first_story_intake_preflight [L4] owner=core/repro-evidence-binding-gate gate=story_create STORY_INTAKE preflight and storyMachine.canEnterPlan/canStartDev/canSkipPlan gates',
+  },
+  {
+    name: 'runtime:story_create_phase_admission_gate',
+    level: 'L4',
+    owner: 'handlers/story-create',
+    line: '- runtime:story_create_phase_admission_gate [L4] owner=handlers/story-create gate=story_create pre-persistence lifecycle admission gate',
+    rationaleTokens: ['IDEA/INIT', 'PLAN/DEV/REVIEW/TEST/DONE', 'before persistence', 'story_advance'],
   },
   {
     name: 'runtime:review_escalation_done_gate',
@@ -1940,6 +1948,20 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewText.includes('exactKindsAndSources')
       && preReviewText.includes('preReviewExecutableProvenanceIsCurrent')
       && preReviewText.includes('criticReceiptDigestForPreReviewSemanticComparison')
+      && preReviewText.includes('evaluateRegisteredCommandEvidence')
+      && preReviewText.includes("verificationProfile === 'go-command'")
+      && acceptanceDiscoveryText.includes("return 'go-command'")
+      && read('packages/main/src/core/validation-executor.ts').includes("'go',")
+      && read('packages/main/src/cli/runtime-root.ts').includes('projectControllerAssetsIntoStoryWorktree')
+      && read('packages/main/src/cli-engine.ts').includes('enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore')
+      && processRegistryText.includes('runtime:external_story_worktree_bootstrap_authority_gate')
+      && processRegistryText.includes('runtime:go_command_acceptance_gate')
+      && processRegistryText.includes("'packages/main/src/handlers/checklist.ts'")
+      && processLevelText.includes('runtime:external_story_worktree_bootstrap_authority_gate')
+      && processLevelText.includes('runtime:go_command_acceptance_gate')
+      && read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md').includes('A pure Go workspace uses the')
+      && read('packages/main/package.json').includes('test:external-worktree-go-pre-review')
+      && read('proof-or-stop.config.json').includes('external-worktree-go-pre-review-v1')
       && preReviewText.includes("return mode === 'enforce' ? currentDigest : signedDigest")
       && read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts').includes('--critic-digest-renewal-contract-only')
       && processRegistryText.includes('Non-enforcing semantic readback retains the signed artifact critic-receipt digest')
@@ -2422,7 +2444,12 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5',
+  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
+  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
+  // withValidationSigningRoot arrow preserves the runCli function anchor and
+  // exact initPath producer/import argument. Both coupled pins move together;
+  // this whole-file binding does not assert a separate loader provenance graph.
+    '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -6382,9 +6409,10 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(validationExecutorText.includes(token), `validation timer overflow contract missing ${token}`);
   }
   const verifierText = read('packages/main/src/handlers/verifier.ts');
+  assert(verifierText.includes('const respond = (result: any)') && verifierText.includes('onValidationOutcome') && verifierText.includes('reportOutcome(code === 0 && coverage.missingRequired === 0)'), 'validation must report typed outcomes before rendering, including coverage-only failure');
   assert(verifierText.includes('deadlineError: args.deadlineError'), 'routine verifier must preserve the named CLI deadline source');
   const cliEngineText = read('packages/main/src/cli-engine.ts');
-  for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', "process.exitCode = structuredDoneFailure ? 1 : 0"]) {
+  for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', 'topLevelValidationFailed', 'onValidationOutcome', "process.exitCode = commandSucceeded ? 0 : 1"]) {
     assert(cliEngineText.includes(token), `DONE-required structured CLI watchdog contract missing ${token}`);
   }
   const refreshHandlerWatchdogText = read('packages/main/src/handlers/checklist.ts');
@@ -8981,7 +9009,7 @@ function assertParentRoadmapTotalityRuntime() {
   );
   const postRemediationLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:post_remediation_review_selection_gate');
   assert(postRemediationLevel?.level === 'L4', 'post-remediation review selection must remain L4');
-  for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'including bare runtime aliases; only proven builtins are exempt', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute']) {
+  for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute', 'All open findings require the full active set', 'cannot themselves be narrowed', 'semantic roster basis', 'including bare runtime aliases; only proven builtins are exempt']) {
     assert(postRemediationLevel?.rationale.includes(token), `post-remediation selection rationale missing trust boundary: ${token}`);
   }
   assert(postRemediationLevel?.gateConsumer.includes('storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate'), 'post-remediation selection must identify its REVIEW-to-TEST consumer');
@@ -8995,6 +9023,14 @@ function assertParentRoadmapTotalityRuntime() {
   }
   assert(read('packages/main/src/core/machine.ts').includes('computeFinalReviewRoster'), 'REVIEW gate must consume the canonical final-review roster');
   assert(read('packages/main/src/handlers/reviewer-list.ts').includes('renderFinalReviewRoster'), 'operator status must project the canonical final-review roster');
+  for (const token of ['OPEN_FINDINGS_REQUIRE_FULL_SET', 'SOURCE_ROSTER_INCOMPLETE', 'openFindingDigest']) {
+    assert(postRemediationSource.includes(token), `post-remediation selection missing finding/source-roster guard: ${token}`);
+  }
+  for (const file of ['handlers/reviewer-batch.ts', 'core/lifecycle-readiness.ts', 'handlers/review-inventory.ts', 'handlers/quorum-submit.ts', 'core/reviewer-status.ts']) {
+    const source = read(`packages/main/src/${file}`);
+    assert(source.includes('computeFinalReviewRoster') || source.includes('projectFinalReviewRoster') || source.includes('readinessReport.reviewRoster'), `review roster consumer is disconnected: ${file}`);
+  }
+  assert(read('packages/main/src/core/review-inventory-epoch.ts').includes('finalReviewRosterBasis(current)'), 'inventory consumption must revalidate narrowed roster semantics');
   assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
   assert(
     registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
@@ -9120,9 +9156,20 @@ function assertStoryAwareDynamicValidationRuntime() {
 
   assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
   assert(signingText.includes('ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:'), 'dynamic validation provenance must retain its Ed25519 signature prefix');
-  assert(signingText.includes('git-common-dir') && signingText.includes("flag: 'wx'"), 'dynamic validation provenance key must remain Git-common-metadata-rooted and creation-race-safe');
+  assert(signingText.includes('git-common-dir') && signingText.includes("openSync(temporary, 'wx', 0o600)") && signingText.includes('linkSync(temporary, path)'), 'dynamic validation provenance key must retain Git-common metadata and atomic no-replace publication');
+  assert(read('scripts/probe-validation-key-race-v6.mjs').includes('ALL_COLD_VALIDATION_SIGNERS_MUST_SUCCEED'), 'atomic key initialization requires a real concurrent signer witness');
   assert(validationText.includes('signValidationArtifact(value)') && validationText.includes('verifyValidationArtifact(value, signature)'), 'dynamic validation artifacts must delegate signing and verification to the trusted signer');
   assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
+
+  const tierPlannerText = read('packages/main/src/core/validation-tier-planner.ts');
+  const tierPlanHandlerText = read('packages/main/src/handlers/validation-plan.ts');
+  const validationPlanLevel = levels.find((entry) => entry.name === 'validation_plan');
+  assert(validationPlanLevel?.level === 'L0', 'Story-relevance tier planning must remain non-authoritative L0 observation');
+  for (const token of ['selectValidationTiers', 'command_exclusion_unproven', 'snapshotDigest', 'finalAuthority: false']) {
+    assert(tierPlannerText.includes(token), `Story-relevance tier selector must retain fail-closed token ${token}`);
+  }
+  assert(tierPlanHandlerText.includes('dynamic?.impactIndex'), 'validation_plan must read the configured versioned impact index');
+  assert(tierPlanHandlerText.includes('selectorDecisionDigest'), 'validation_plan must expose the snapshot-bound selector decision digest');
 }
 
 function assertPromptMeasurementObservationBoundary() {
@@ -9578,6 +9625,21 @@ function assertProcessFactCommandInventory() {
     }
   }
   assertReviewExecutionAuthorityContract(registry, levelRegistry);
+  const storyCreateText = read('packages/main/src/handlers/story-create.ts');
+  for (const token of [
+    "args.phase !== 'IDEA' && args.phase !== 'INIT'",
+    'story_create_direct_lifecycle_phase_forbidden',
+    'story_advance through INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE',
+  ]) {
+    assert(
+      storyCreateText.includes(token),
+      `packages/main/src/handlers/story-create.ts: story_create lifecycle admission gate missing ${JSON.stringify(token)}`,
+    );
+  }
+  assert(
+    read('packages/main/src/cli/command-catalog.ts').includes('Post-intake lifecycle phases require story_advance'),
+    'packages/main/src/cli/command-catalog.ts: story_create phase help must disclose lifecycle admission policy',
+  );
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
   assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);
@@ -9639,13 +9701,13 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
       name: 'finding_runtime_evidence_run', level: 'L2', category: 'finding-ledger-persistence',
       owner: /core\/finding-ledger \+ handlers\/finding-ledger\.appendRuntimeReceipt/,
       semantics: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
-      phases: ['DEV'], ownershipClass: 'storyScopedMutating',
+      phases: ['DEV', 'REVIEW', 'TEST'], ownershipClass: 'storyScopedMutating',
     },
     {
       name: 'finding_runtime_evidence_verify', level: 'L3', category: 'runtime-evidence-verification',
       owner: /core\/runtime-evidence-receipt \+ handlers\/finding-ledger\.verify/,
       semantics: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
-      phases: ['DEV'], ownershipClass: 'readOnly',
+      phases: ['DEV', 'REVIEW', 'TEST'], ownershipClass: 'readOnly',
     },
   ];
   for (const contract of expected) {
@@ -10800,6 +10862,50 @@ for (const boundary of ['objects/sha256/', 'refs/by-id/', 'ledger/observed.jsonl
 assert(read('packages/main/src/core/story-git-bytes.ts').includes("'--name-status', '-z'") && read('packages/main/src/core/story-aware-validation.ts').includes("raw.diff.split('\\0')"), 'Story diff must preserve NUL-framed Git filenames');
 assert(read('packages/main/src/tasks/story-files-hash-batch-smoke.ts').includes('verify-hash-accuracy.mjs'), 'Independent hash oracle must run in the existing validation inventory');
 
+
+const immutablePublicationSource = read('packages/main/src/core/done-prepare-generated-metadata.ts');
+for (const token of ['isRegularMetadataPath', 'lateIndexDrift', 'finalDrift', 'foreignIndex', 'restoreErrors.push']) assert(immutablePublicationSource.includes(token), `Publication recovery protection missing: ${token}`);
+assert(read('packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts').includes('scripts/verify-closeout-late-drift-v3.mjs'), 'Full closeout must run the external drift controls');
+const doneAdmissionSource = read('packages/main/src/handlers/done-required-validation.ts').split('export function createDoneRequiredValidationHandlers')[1];
+assert(doneAdmissionSource.indexOf('}, async () => {') < doneAdmissionSource.indexOf('requireCurrentHeavyCertificationWindow({'), 'Mutating certification admission must execute inside official validation ownership');
+assert(doneAdmissionSource.includes('donePolicyConfigIdentity(ctx.root) !== policyConfigIdentity'), 'Queued policy drift must not be hidden by process-cached configuration');
+assert(read('packages/main/src/tasks/validate-execution-lock-smoke.ts').includes('UNADMITTED_DONE_REQUIRED_GREEN') && read('packages/main/src/tasks/validate-execution-lock-smoke.ts').includes('QUEUED_POLICY_DRIFT_GREEN'), 'Admission requires zero-execution and queued physical-policy drift controls');
+const certificationAdvanceSource = read('packages/main/src/core/certification-window.ts');
+for (const token of ["prior.state !== 'ADMITTED'", "next.state !== 'RUNNING'", 'verifyCertificationWindow(prior)', 'verifyCertificationWindow(next)', 'verifyPrecertReceipt(receipt)', 'windowAuthorizesHeavyCertification(prior, receipt)', 'isDeepStrictEqual(after,']) {
+  assert(certificationAdvanceSource.includes(token), `Bounded certification closeout authority check missing: ${token}`);
+}
+assert(read('packages/main/src/handlers/done-prepare.ts').includes('isCertificationRunningOnlyAdvance(JSON.parse(before.output), JSON.parse(after.output), storyId)'), 'Closeout must verify certification content deltas rather than trust a filename');
+assert(read('packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts').includes('scripts/verify-closeout-certification-order.mjs'), 'Existing full closeout regression must run the certification delta controls');
+
+const publicationVerifier = read('packages/main/src/handlers/verifier.ts');
+assert(publicationVerifier.includes('VALIDATION_PUBLICATION_NOT_READY') && publicationVerifier.indexOf('VALIDATION_PUBLICATION_NOT_READY') < publicationVerifier.indexOf('if (!args.noSync)'), 'Publication readiness must precede invocation-owned cluster synchronization');
+assert(publicationVerifier.includes('assertCurrentValidationPublicationOwner(ctx.root, storyId)') && publicationVerifier.includes('assertCurrentValidationPublicationOwner(args.ctx.root, args.storyId)'), 'Both executed and reused publication require current ownership');
+assert(publicationVerifier.includes('VALIDATION_TERMINAL_RECEIPT_MISSING'), 'Canonical publication requires an explicit terminal receipt');
+assert(publicationVerifier.includes('terminal.start !== before.length'), 'Terminal append must bind captured baseline bytes');
+assert(read('packages/main/src/core/auto-commit-metadata.ts').includes('verifiedHashes: args.expectedHashes'), 'Validation publication must consume intended hashes rather than reread-authorize outputs');
+assert(read('packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts').includes('scripts/probe-validation-publication-integrity.mjs'), 'Registered closeout regression must execute publication integrity controls');
+
+assert(read('packages/main/src/core/done-prepare-generated-metadata.ts').includes('foreign index entries preserved'), 'Index recovery must preserve unowned entries');
+assert(read('packages/main/src/handlers/done-prepare.ts').includes('expectedHashes: expectedCloseoutOutputs'), 'Outer closeout rollback must bind intended outputs');
+assert(read('packages/main/src/handlers/done-prepare.ts').includes('rollback.rollbackConflicts'), 'Selective rollback conflicts must be surfaced without treating every refusal as rollback failure');
+assert(read('packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts').includes('DONE_PREPARE_OUTER_FOREIGN_INDEX_GREEN'), 'Actual outer closeout branch must prove foreign preservation');
+
+assert(read('packages/main/src/handlers/proofstory.ts').includes('withScopeShrinkageTransaction'), 'Withdrawal must use checkpoint-aware compensation');
+assert(read('packages/main/src/handlers/certification-window.ts').includes('isValidationMetadataBusy(error)'), 'Certification persistence contention must propagate');
+assert(read('packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts').includes('probe-scope-checkpoint-interrupted.mjs'), 'Checkpoint interruption must be registered');
+
+for (const probe of ['probe-scope-checkpoint-compensation.mjs', 'probe-scope-transaction-boundaries.mjs', 'probe-closeout-busy-propagation.mjs']) assert(read('packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts').includes(probe), 'Missing scope control: ' + probe);
+
+for (const token of ['runScopeGateAndDiffPack', 'VALIDATION_SCOPE_NOT_READY', '[missing_scope_contract]', '[scope_contract_unreadable]']) assert(read('packages/main/src/handlers/verifier.ts').includes(token), 'Missing scope preflight contract: '+token);
+assert(read('packages/main/src/tasks/verification-freshness-smoke.ts').includes('probe-validation-scope-readiness.mjs'), 'Freshness smoke must exercise real scope preflight');
+
+assert(read('packages/main/src/handlers/done-prepare.ts').includes('const reviewPrerequisite'), 'Closeout must diagnose review before execution');
+assert(read('packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts').includes('UPSTREAM_REVIEW_MUST_REFUSE_BEFORE_COMMANDS'), 'Actual closeout command count must be protected');
+
+for (const token of ['expectedPendingWindowId', 'nonInventoryAdmitRefusal', 'persistAdmittingCertificationWindow']) assert(read('packages/main/src/core/certification-window.ts').includes(token), 'Missing admission contract: '+token);
+assert(read('packages/main/src/core/review-inventory-epoch.ts').includes('consumeReviewInventoryCompletenessReceiptUnlocked'), 'Admission must avoid nested inventory mutex');
+assert(read('packages/main/src/tasks/certification-window-smoke.ts').includes('certification-admission-recovery.mjs'), 'Recovery protocol controls must remain registered');
+
 // Owner/UI delivery observes the authoritative runtime through a public adapter.
 assert(read('packages/main/src/handlers/graph.ts').includes('readManagedRunDashboard(probe.root!)'), 'Graph must wire real managed runtime observations');
 assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunStatus(st)'), 'Graph status polling must render managed changes independently');
@@ -10807,6 +10913,11 @@ assert(read('packages/graph/src/shells/web/app.js').includes('renderManagedRunSt
 
 assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicValidationPreflightFallbackReasons(projectRoot, dynamic)'), 'dynamic rejection preflight must guard real validation launch');
 assert(read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('storedDynamicReceiptIntegrityReasons'), 'TEST admissibility must recheck stored dynamic receipt integrity');
+// Repeat-launch guidance never changes lifecycle blocker evidence.
+const repeatLaunchSource = read('packages/main/src/handlers/reviewer-batch.ts');
+for (const token of ['blockingObservationAwaitsRepair', 'CURRENT_MATERIAL', 'KNOWN_METADATA_ONLY_HEAD_DRIFT', 'classifyEvidenceFreshness']) {
+  nodeAssert.ok(repeatLaunchSource.includes(token), 'Missing bounded repeat-launch contract: ' + token);
+}
 
 // P0m: the source parser above remains authoritative for declared semantics,
 // while the compiled projection proves the complete runtime registry is
@@ -10840,6 +10951,62 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
   assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
     'process registry missing mapping must use the typed unavailable diagnostic');
 }
+// Dynamic Finding proof and rollout contracts: prompt guidance plus mechanical
+// entry/read/CAS guards. Each source guard has a deliberate bypass mutation.
+{
+  const guards = [
+    ['packages/main/src/core/finding-applicability-projection.ts', 'rollout.killSwitch || (!args.diagnostic', 'verifiedIdentityCarrier(ledger', 'readMaterialBoundRepairRuntimeEvidence({'],
+    ['packages/main/src/handlers/finding-ledger.ts', 'receipt.sourceMaterialHash !== material', "['merge-base', '--is-ancestor', receipt.headHash, currentHead]", 'closureReuse ? receipt.headHash : currentHead'],
+    ['packages/main/src/core/finding-validation.ts', "rollout.mode !== 'enforce'", 'scopeExpansionAuthorized: false'],
+    ['packages/main/src/handlers/finding.ts', "hasObligation && rollout.mode === 'enforce' && !rollout.killSwitch"],
+    ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
+    ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
+    ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)'],
+    ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
+    ['packages/main/src/handlers/finding-qualification-prerequisites.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'runtime.receipt.headHash !== ref.mergedCommit', 'pin.command === command && pin.selector === selector', 'readHistoricalFindingRuntimeEvidence(ctx', 'runtime.receipt.receiptHash !== proof.runtimeReceiptHash'],
+    ['packages/main/src/core/finding-rollout-qualification.ts', 'conflicting_performance_source:', '!QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric)', 'executed-merged-prerequisites-and-unique-performance-sources-v1'],
+    ['packages/main/src/handlers/finding-qualification-events.ts', 'performanceSource: { ...source, attemptId: row.attemptId }', 'conflicting cohort timing'],
+    ['packages/main/src/handlers/finding-runtime-pair.ts', 'readHistoricalFindingRuntimeEvidence(ctx', 'readCurrentFindingRuntimeEvidence(ctx', 'base.receipt.executionCommandDigest !== head.receipt.executionCommandDigest', 'b[key] > a[key]'],
+    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest'],
+    ['packages/main/src/handlers/finding-deferral-recall.ts', "rollout.mode === 'observe'", 'findingHistoryRecallObservation(ctx', 'observed.triggerDigest'],
+  ];
+  for (const [path, ...required] of guards) {
+    const source = read(path);
+    const check = value => required.every(token => value.includes(token));
+    assert(check(source), `${path}: dynamic Finding evidence contract missing`);
+    for (const token of required) assert(!check(source.replaceAll(token, 'REMOVED_DFEC_GUARD')),
+      `${path}: dynamic Finding guard mutation escaped: ${token}`);
+  }
+  const policy = read(processFactRegistryPath);
+  for (const token of ['PROCESS_FACT_DYNAMIC_FINDING_POLICY', 'reported statistics remain diagnostic', 'findingConstraintDigest']) {
+    assert(policy.includes(token), `dynamic Finding process registry must describe ${token}`);
+  }
+  for (const token of ['finding_assessment_propose', 'finding_runtime_evidence_run', 'signed PASS', 'killSwitch=true']) {
+    assert(read('packages/main/src/core/prompt-registry.ts').includes(token), `dynamic Finding prompt contract must describe ${token}`);
+  }
+}
+// Historical comparison-base binding is machine-owned; caller input is not authority.
+{
+  const context = readFileSync(join(root, 'packages/main/src/core/review-incremental-context.ts'), 'utf8');
+  const producer = readFileSync(join(root, 'packages/main/src/handlers/review-run.ts'), 'utf8');
+  const consumer = readFileSync(join(root, 'packages/main/src/core/review-run.ts'), 'utf8');
+  const envelope = readFileSync(join(root, 'packages/main/src/core/prompt-envelope.ts'), 'utf8');
+  const contracts = readFileSync(join(root, 'packages/main/src/core/prompt-contracts.ts'), 'utf8');
+  assert(producer.includes('resolveFullStoryBaseHead(store, signedWorkspaceRoot, args.storyId)'), 'Review-run producer must resolve its own full-story comparison base');
+  assert(!producer.includes('args.fullStoryBaseHead'), 'Caller-supplied full-story base cannot become evidence');
+  assert(context.includes("['rev-parse', '--verify', `${ref}^{commit}`]"), 'Full-story base must resolve to an existing commit, not merely a revision-shaped string');
+  assert(context.includes('FULL_STORY_BASE_UNAVAILABLE:'), 'Unavailable signed comparison bases must have a distinct refusal');
+  assert(context.includes('changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)')
+    && context.includes('fixtureCaseClosure(gitCwd, fullStoryBaseRef, storyId, path, currentStoryIntentRefs, asOfRef)')
+    && context.includes('changedFileStatusesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)'), 'Every full-diff probe must use the same bound base');
+  assert(context.includes('...(fullStoryBaseHead !== undefined ? { fullStoryBaseHead } : {})'), 'Legacy eligibility digests must omit the new base key entirely');
+  assert(envelope.includes('...(input.fullStoryBaseHead !== undefined ? { fullStoryBaseHead: input.fullStoryBaseHead } : {})'), 'Optional comparison base must enter the authenticated envelope bytes');
+  assert(consumer.includes('fullStoryBaseHead: envelope.fullStoryBaseHead'), 'Historical verifier must consume the signed comparison base');
+  assert(contracts.includes('validateFullStoryBaseHead(record.fullStoryBaseHead)'), 'Prompt contract must validate the base object-id syntax');
+  assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -10847,11 +11014,17 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('');
-console.log('Process fact contract verified');
-console.log('execution_assertion_reuse_contract=PASS');
-console.log('Process-fact contract verification passed');
 
+assert(read(processFactRegistryPath).includes('runtime:headless_baseline_production'), 'Headless baseline boundary must be registered');
+assert(read('packages/main/src/tasks/story-aware-validation-production-smoke.ts').includes('HEADLESS_BASELINE_REFUSED'), 'Producer must test no-HEAD refusal without baseline writes');
+
+nodeAssert.ok(readFileSync(join(root, 'packages/main/src/core/validation-artifact-signing.ts'), 'utf8').includes('gitCwd = resolveValidationSigningRoot()'));
+nodeAssert.ok(readFileSync(join(root, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8').includes('withValidationSigningRoot(projectSigningRoot(projectRoot)'));
+
+nodeAssert.ok(readFileSync(join(root,'packages/main/src/handlers/verifier.ts'),'utf8').includes("reuseEconomics: 'measured'"));
+nodeAssert.ok(readFileSync(join(root,'packages/main/src/handlers/done-required-validation.ts'),'utf8').includes("reuseEconomics:'measured'"));
+
+nodeAssert.ok(read(processFactRegistryPath).includes('schedulerWaitMs is diagnostic'));
 // U11 tool-owned progress must stay bound to real inventory and evidence verifiers.
 {
   const progress = read('packages/main/src/core/convergence-progress-journal.ts');
@@ -10949,3 +11122,29 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
   for (const token of ['executeCausalEvidence', 'execFileSync(command.executable', 'CANONICAL_INDEX_WRITER_MUST_BE_RECOGNIZED', 'controller.propose', 'recordConvergenceProgress', 'signValidationArtifact(c,root)', 'acceptanceAmendmentBlocker', 'readConvergenceProgress'])
     assert(regression.includes(token), `Canonical journal real producer regression missing ${token}`);
 }
+
+// Finalized inventory advice must share persisted authority across all surfaces.
+{
+  const core = read('packages/main/src/core/review-inventory-epoch.ts');
+  const handler = read('packages/main/src/handlers/review-inventory.ts');
+  assert(core.includes('export function reviewInventoryFinalizedNextCommand'), 'inventory advice must have one receipt-bound selector');
+  assert(core.includes('verifyReviewInventoryReceipt(receipt)') && core.includes('REVIEW_INVENTORY_RECEIPT_INVALID'), 'inventory advice must refuse invalid authority');
+  assert(handler.includes('reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)'), 'duplicate begin must retain finalized receipt guidance');
+  assert(handler.includes('reviewInventoryFinalizedNextCommand(epoch, projection.receipt)'), 'status must use the same finalized authority');
+  assert(handler.includes('Authority: ${receipt.authority}'), 'first finalize must print actual authority');
+}
+execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
+execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
+
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+
+console.log('');
+console.log('Process fact contract verified');
+console.log('execution_assertion_reuse_contract=PASS');
+console.log('Process-fact contract verification passed');
+

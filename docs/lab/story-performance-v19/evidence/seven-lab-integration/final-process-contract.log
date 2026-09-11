@@ -1,0 +1,719 @@
+Process Fact Contract
+Prompt guides; CLI/handler/gate decides
+
+Scope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.
+Out of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.
+
+GREEN shared DONE predicates: 23 production-consumer fixture cases
+GREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence
+GREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row
+GREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected
+GREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict
+GREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure
+F027 legacy absent fields: {"rawIntegrity":false,"rawPrior":null,"snapshotIntegrity":false,"snapshotPrior":null}
+F027 current absent fields: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 absent projection: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 absent reasons: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 empty arrays: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 populated arrays: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation
+Shared DONE predicate parity passed
+DONE/preflight predicate inventory parity passed
+
+Process Fact Registry
+- entries: 554 (412 CLI, 68 runtime, 10 reviewer lanes, 60 artifacts)
+- levels: L0=179, L1=47, L2=90, L3=16, L4=222
+- kinds: artifact=29, command=307, execution-status=11, finding=3, flow-policy=8, gate-evidence=80, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=68, signed-artifact=31, validation-status=2
+- flow fact policies:
+flow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate
+flow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: repository-wide-verification-intent -> artifact review.json -> gate story_review PLAN verification-intent quality gate and REVIEW test-coverage audit
+flow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+- registry entries:
+- acceptance_amendment_approve [L4/gate-evidence] producer=handlers/acceptance-amendment gate=acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates
+- acceptance_amendment_cancel [L4/gate-evidence] producer=handlers/acceptance-amendment gate=acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates
+- acceptance_amendment_propose [L4/gate-evidence] producer=handlers/acceptance-amendment gate=acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates
+- acceptance_amendment_review [L4/gate-evidence] producer=handlers/acceptance-amendment gate=acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates
+- acceptance_amendment_show [L0/command] producer=handlers/acceptance-amendment
+- acceptance_basis [L0/command] producer=handlers/proofstory
+- acceptance_basis_generate [L4/signed-artifact] producer=handlers/proofstory gate=acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate artifact=acceptance-basis.json:signed
+- acceptance_matrix [L0/command] producer=handlers/proofstory
+- acceptance_rollout_check [L4/gate-evidence] producer=core/acceptance-rollout + handlers/proofstory gate=transition-orchestrator DEV to REVIEW rollout gate
+- acceptance_rollout_report [L4/signed-artifact] producer=core/acceptance-rollout + handlers/proofstory gate=acceptance_rollout_check and transition-orchestrator DEV to REVIEW rollout gate artifact=acceptance-rollout-report.json:signed
+- acceptance_rollout_report_read [L4/gate-evidence] producer=core/acceptance-rollout + handlers/proofstory gate=transition-orchestrator DEV to REVIEW rollout gate
+- acceptance_topology_check [L4/gate-evidence] producer=handlers/proofstory gate=transition-orchestrator PLAN to DEV structural gate
+- admissibility_waterline [L0/command] producer=handlers/lifecycle-control
+- agent_prompt [L1/command] producer=handlers/agent-prompt artifact=prompt-envelopes.json
+- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json
+- artifact_release_list [L0/command] producer=handlers/artifact-release
+- artifact_release_status [L0/command] producer=handlers/artifact-release
+- artifact:.proof-or-stop/capability-releases.jsonl [L1/artifact] producer=core/capability-release buildCapabilityReleaseRecord and appendCapabilityReleaseRecord gate=Post-DONE identity audit and read-only capability lineage inspection; never gate evidence artifact=.proof-or-stop/capability-releases.jsonl
+- artifact:acceptance-amendment-review-receipt [L3/signed-artifact] producer=core/managed-host-run acceptance_amendment_reviewer worker gate=readManagedAcceptanceReviewReceipt exact independently pinned worker-key intake only; proposal.schemaVersion must equal ACCEPTANCE_REVIEW_FINAL_SCHEMA (proof-or-stop.acceptance_amendment_review_final.v1), including signed compatibility containers artifact=acceptance-amendment-review-receipt:signed
+- artifact:acceptance-amendments.json [L4/signed-artifact] producer=core/acceptance-amendment-journal gate=acceptanceCompletionBlocker checklist done and REVIEW TEST DONE gates artifact=acceptance-amendments.json:signed
+- artifact:acceptance-basis.json [L4/signed-artifact] producer=handlers/proofstory.acceptance_basis_generate gate=acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate artifact=acceptance-basis.json:signed
+- artifact:acceptance-rollout-report.json [L4/signed-artifact] producer=handlers/proofstory.acceptance_rollout_report gate=acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate artifact=acceptance-rollout-report.json:signed
+- artifact:candidate-spec-set.json [L4/signed-artifact] producer=handlers/candidate-spec-routing gate=scope_check_save, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate artifact=candidate-spec-set.json:signed
+- artifact:certification-window.json [L4/signed-artifact] producer=handlers/certification-window gate=done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance artifact=certification-window.json:signed
+- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json
+- artifact:closeout-write-receipts.jsonl [L4/artifact] producer=core/auto-commit-metadata gate=review-run metadata-only retention classifier (artifact gate validation remains independent) artifact=closeout-write-receipts.jsonl
+- artifact:convergence-progress.json [L4/signed-artifact] producer=review_inventory_begin/review_inventory_finalize via core/convergence-progress-journal gate=assessConvergenceProgressGate shared by CLI advance/takeover and machine REVIEW mint; story_resume signed human decision; managed burn supervisor stop only with validated live usage over its sealed limit artifact=convergence-progress.json:signed
+- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json
+- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json
+- artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed
+- artifact:done-required-evidence.json [L4/artifact] producer=handlers/done-required-validation gate=story_advance DONE done-required-validation gate artifact=done-required-evidence.json
+- artifact:draft-check.json [L3/signed-artifact] producer=handlers/draft-check gate=story_create fromDraft preflight artifact=draft-check.json:signed
+- artifact:eval-evidence.json [L4/artifact] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json
+- artifact:evidence/delivery-context-pack.json [L3/artifact] producer=handlers/delivery-context-pack artifact=evidence/delivery-context-pack.json
+- artifact:execution-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed
+- artifact:finding-ledger-lifecycle-transition [L4/signed-artifact] producer=handlers/finding.appendFindingLifecycleTransition + handlers/finding-ledger.bindLegacyFindingLedgerReceipts gate=StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate artifact=finding-ledger.json:signed
+- artifact:finding-ledger-projection [L4/signed-artifact] producer=handlers/finding-ledger.createAuthoritativeFindingMutation gate=StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate artifact=finding-ledger.json:signed
+- artifact:finding-ledger.json [L2/signed-artifact] producer=handlers/finding + handlers/finding-ledger artifact=finding-ledger.json:signed
+- artifact:findings.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed
+- artifact:index.json [L4/artifact] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json
+- artifact:init-check.json [L4/signed-artifact] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed
+- artifact:intent-collision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=intent-collision.json
+- artifact:managed-review-evidence-binding [L4/signed-artifact] producer=handlers/managed-review-evidence + core/managed-review-evidence gate=storyMachine.canPassReview REVIEW to TEST gate through collectReviewerEvidenceState shared revalidation artifact=managed-review-evidence-binding:signed
+- artifact:managed-review-evidence-proposal [L3/artifact] producer=handlers/managed-review-evidence + core/managed-host-run gate=managed_review_evidence_import successful-terminal intake only artifact=managed-review-evidence-proposal
+- artifact:milestone-closeout.json [L4/artifact] producer=handlers/milestone-status gate=DONE-phase milestone_status and milestone_closeout snapshot-first read path (snapshot-only; never re-blocks DONE) artifact=milestone-closeout.json
+- artifact:milestone-ledger.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=milestone-ledger.json
+- artifact:original-intent-snapshot.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=original-intent-snapshot.json
+- artifact:parent-ledger-rollup.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DONE intent-equivalence gate artifact=parent-ledger-rollup.json
+- artifact:pre-review-check.json [L4/signed-artifact] producer=handlers/proofstory.pre_review_check gate=pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate artifact=pre-review-check.json:signed
+- artifact:process-events.jsonl [L4/artifact] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl
+- artifact:prompt-bodies [L1/artifact] producer=review_run_start via StoryStore.writeReviewPromptBody gate=verifyReviewRunPromptEnvelope and managed reviewer launch hydrate exact signed promptHash references artifact=prompt-bodies
+- artifact:prompt-envelopes.json [L1/artifact] producer=handlers/agent-prompt + handlers/review-run gate=story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json
+- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=proofstory.json
+- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=red-evidence.json
+- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate and certification_window_begin artifact=review-inventory-epochs.json:signed
+- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl
+- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed
+- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed
+- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed
+- artifact:scope-budget-decisions.json [L4/signed-artifact] producer=handlers/story-scope-budget.scope_budget_approve gate=machine DEV guards and acceptance amendment application artifact=scope-budget-decisions.json:signed
+- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed
+- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json
+- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed
+- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed
+- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=scope-shrinkage-decision.json
+- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json
+- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention artifact=spike.json
+- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding
+- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json
+- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json
+- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed
+- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed
+- audit [L2/command] producer=handlers/audit
+- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_doctor [L0/command] producer=handlers/autopilot
+- autopilot_execute [L2/command] producer=handlers/autopilot
+- autopilot_policy_check [L0/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_policy_create [L1/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_policy_get [L0/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_resume [L1/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_review [L0/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_review_status [L0/command] producer=handlers/verdict
+- autopilot_review_submit [L4/host-verdict] producer=handlers/verdict gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate artifact=process-events.jsonl
+- autopilot_run [L1/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_status [L0/command] producer=handlers/proof-or-stop-autopilot
+- autopilot_watch [L0/command] producer=handlers/proof-or-stop-autopilot
+- aux_doc_list [L0/command] producer=handlers/aux-doc-list
+- background_append [L1/command] producer=handlers/background
+- background_get [L0/command] producer=handlers/background
+- background_set [L1/command] producer=handlers/background
+- baseline_run [L2/command] producer=handlers/baseline
+- baseline_suite [L2/command] producer=handlers/baseline
+- baseline_suite_report [L0/command] producer=handlers/baseline-suite
+- bug_analyze [L0/command] producer=handlers/bug
+- bug_list [L0/command] producer=handlers/bug
+- bug_report [L2/command] producer=handlers/bug
+- bug_update [L2/command] producer=handlers/bug
+- candidate_spec_rollout_check [L0/command] producer=handlers/candidate-spec-routing
+- candidate_spec_route [L4/gate-evidence] producer=handlers/candidate-spec-routing gate=scope_check_save, reviewer evidence candidate-routing freshness checks, and review inventory candidate-universe freshness gate artifact=candidate-spec-set.json:signed
+- capability_claim_evaluate [L0/command] producer=handlers/proof-or-stop-baseline
+- capability_claim_formal_evaluate [L3/command] producer=handlers/proof-or-stop-baseline
+- capability_list [L0/command] producer=handlers/capability-list
+- capability_probe [L0/command] producer=handlers/capability-list
+- capability_release_backfill [L2/command] producer=handlers/capability-release-backfill
+- capability_release_list [L0/command] producer=handlers/capability-release
+- capability_release_status [L0/command] producer=handlers/capability-release
+- capsule_handoff [L2/command] producer=handlers/capsule
+- capsule_run_add [L2/command] producer=handlers/capsule
+- capsule_show [L0/command] producer=handlers/capsule
+- capsule_update [L2/command] producer=handlers/capsule
+- certification_window_begin [L4/gate-evidence] producer=handlers/certification-window gate=done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin artifact=certification-window.json:signed
+- certification_window_cancel [L4/gate-evidence] producer=handlers/certification-window gate=done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin artifact=certification-window.json:signed
+- certification_window_status [L4/gate-evidence] producer=handlers/certification-window gate=done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin artifact=certification-window.json:signed
+- check [L2/command] producer=handlers/check
+- checklist_add [L2/command] producer=handlers/checklist
+- checklist_get [L0/command] producer=handlers/checklist
+- checklist_remove [L2/command] producer=handlers/checklist
+- checklist_update [L4/gate-evidence] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and review inventory acceptance-subject freshness gate artifact=checklist.json
+- codex_doctor [L0/command] producer=handlers/codex-adapter
+- conduit_explain [L0/command] producer=handlers/proof-or-stop-cli
+- conduit_status [L0/command] producer=handlers/proof-or-stop-cli
+- convergence_check [L0/command] producer=handlers/convergence
+- cross_host_review [L4/gate-evidence] producer=handlers/cross-host-review gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate
+- dashboard [L0/command] producer=handlers/dashboard
+- decision_doc_preview [L0/command] producer=handlers/decision-doc-promotion
+- decision_doc_proposal [L4/gate-evidence] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json
+- decision_doc_quorum_check [L0/command] producer=handlers/decision-doc-quorum
+- decision_doc_save [L4/gate-evidence] producer=handlers/decision-doc-promotion gate=existing decision-doc quorum DONE gate through changed docs/requirements/decisions/*.md artifact=process-events.jsonl
+- decision_get [L0/command] producer=handlers/decision
+- decision_set [L1/command] producer=handlers/decision
+- delivery_check_set [L4/gate-evidence] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed
+- delivery_context_pack [L0/command] producer=handlers/delivery-context-pack artifact=evidence/delivery-context-pack.json
+- delivery_waiver_add [L4/gate-evidence] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed
+- dev_memory_capture [L1/command] producer=core/dev-memory
+- dev_memory_finish [L1/command] producer=core/dev-memory
+- dev_memory_finish_decision [L4/gate-evidence] producer=handlers/playbook-runtime-memory gate=storyMachine.canFinishGuard TEST to DONE gate
+- dev_memory_list [L0/command] producer=core/dev-memory
+- dev_memory_preflight [L0/command] producer=core/dev-memory
+- dev_memory_preflight_ack [L4/gate-evidence] producer=handlers/dev-memory gate=storyMachine canStartDevGuard/canSkipPlanGuard/canReenterDevGuard DEV-entry gates
+- dev_memory_search [L0/command] producer=core/dev-memory
+- dev_memory_start [L0/command] producer=core/dev-memory
+- dev_start [L1/command] producer=handlers/worktree
+- dispatch [L1/command] producer=handlers/story-dispatch
+- dispatch_auto [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_cancel [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_collect [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_list [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_merge_plan [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_plan [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_policy_check [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_policy_create [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_policy_get [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_prepare [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_reassign [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_receipt_create [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_resume [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_review [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_run [L1/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_status [L0/command] producer=handlers/proof-or-stop-dispatch
+- dispatch_watch [L0/command] producer=handlers/proof-or-stop-dispatch
+- doctor [L2/command] producer=handlers/doctor
+- done_closure [L0/command] producer=handlers/done-closure
+- done_intent_equivalence_check [L0/command] producer=handlers/proofstory
+- done_prepare [L2/command] producer=handlers/done-prepare
+- done_recover [L2/command] producer=handlers/done-recover
+- done_required_validate [L4/validation-status] producer=handlers/done-required-validation gate=story_advance DONE done-required-validation gate artifact=done-required-evidence.json
+- draft_check_set [L3/command] producer=handlers/draft-check artifact=draft-check.json:signed
+- draft_issue_resolve [L3/command] producer=handlers/draft-check artifact=draft-check.json:signed
+- evaluate [L0/command] producer=handlers/evaluate
+- evaluate_save [L4/gate-evidence] producer=handlers/evaluate gate=story_advance DONE evaluator evidence gate artifact=eval-evidence.json
+- evidence_inspect [L0/command] producer=handlers/proof-or-stop-evidence
+- evidence_manifest [L0/command] producer=handlers/proof-or-stop-evidence
+- evidence_plan [L0/command] producer=handlers/evidence-plan
+- evidence_refresh [L0/command] producer=handlers/evidence-refresh
+- execution_boundary_set [L4/gate-evidence] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=execution-boundary.json:signed
+- final_response_check [L0/command] producer=handlers/playbook-runtime-memory
+- finding_add [L4/finding] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate and review inventory live-aggregate seal artifact=findings.json:signed
+- finding_applicability_assess [L4/gate-evidence] producer=handlers/finding-applicability gate=shared Dynamic Finding REVIEW, TEST and DONE blocker predicate
+- finding_applicability_batch [L4/gate-evidence] producer=handlers/finding-applicability gate=shared Dynamic Finding REVIEW, TEST and DONE blocker predicate
+- finding_assessment_propose [L2/command] producer=handlers/finding-proposal
+- finding_candidate_add [L2/command] producer=handlers/finding-identity
+- finding_candidate_disprove [L2/command] producer=handlers/finding-identity
+- finding_candidate_get [L0/command] producer=handlers/finding-identity
+- finding_candidate_merge [L2/command] producer=handlers/finding-identity
+- finding_candidate_promote [L2/command] producer=handlers/finding-identity
+- finding_candidate_route [L2/command] producer=handlers/finding-route
+- finding_cluster [L2/command] producer=handlers/finding
+- finding_deferral_record [L4/gate-evidence] producer=handlers/finding-applicability gate=shared Dynamic Finding REVIEW, TEST and DONE blocker predicate
+- finding_dismiss [L4/finding] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed
+- finding_history_query [L0/command] producer=handlers/finding-history
+- finding_history_recall [L2/command] producer=handlers/finding-history
+- finding_identity_confirm [L2/command] producer=handlers/finding-identity
+- finding_identity_query [L0/command] producer=handlers/finding-identity
+- finding_identity_scorecard [L0/command] producer=handlers/finding-history
+- finding_identity_supersede [L2/command] producer=handlers/finding-history
+- finding_ledger_query [L0/command] producer=handlers/finding-ledger.queryFindingLedger
+- finding_list [L0/command] producer=handlers/finding
+- finding_mandatory_repair_close [L4/gate-evidence] producer=handlers/finding-applicability gate=shared Dynamic Finding REVIEW, TEST and DONE blocker predicate
+- finding_material_reattest [L4/gate-evidence] producer=handlers/finding-material-reattestation gate=shared Dynamic Finding projection and exact source route verification
+- finding_progress_capture [L2/command] producer=handlers/finding-route
+- finding_progress_predecessor [L2/command] producer=handlers/finding-route
+- finding_qualification_query [L0/command] producer=handlers/finding-qualification
+- finding_qualification_record [L2/command] producer=handlers/finding-qualification
+- finding_resolve [L4/finding] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed
+- finding_rollout_scorecard [L0/command] producer=handlers/finding-applicability
+- finding_route_accept [L2/command] producer=handlers/finding-route
+- finding_route_reject [L2/command] producer=handlers/finding-route
+- finding_route_revoke [L2/command] producer=handlers/finding-route
+- finding_route_verify [L0/command] producer=handlers/finding-route
+- finding_runtime_evidence_run [L2/command] producer=core/finding-ledger + handlers/finding-ledger.appendRuntimeReceipt
+- finding_runtime_evidence_verify [L3/command] producer=core/runtime-evidence-receipt + handlers/finding-ledger.verify
+- finding_supersession_add [L2/command] producer=handlers/finding-history
+- finding_triage [L4/gate-evidence] producer=handlers/finding-applicability gate=shared Dynamic Finding REVIEW, TEST and DONE blocker predicate
+- fixture_batch_add [L2/command] producer=handlers/fixture
+- fixture_get [L0/command] producer=handlers/fixture
+- fixture_update [L2/command] producer=handlers/fixture
+- flow-policy:express-verification-policy [L4/flow-policy] producer=core/flow-fact-policy gate=validate verification coverage and story_review PLAN fast-path advisory gate
+- flow-policy:finding [L4/flow-policy] producer=core/flow-fact-policy gate=storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed
+- flow-policy:pass-only-normalization [L4/flow-policy] producer=core/flow-fact-policy gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- flow-policy:repository-wide-verification-intent [L4/flow-policy] producer=core/flow-fact-policy gate=story_review PLAN verification-intent quality gate and REVIEW test-coverage audit artifact=review.json:signed
+- flow-policy:review-pass [L4/flow-policy] producer=core/flow-fact-policy gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- flow-policy:review-pass-supersession [L4/flow-policy] producer=core/flow-fact-policy gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- flow-policy:review-round-iso-string [L4/flow-policy] producer=core/flow-fact-policy gate=review signatures and storyMachine.canPassReview REVIEW to TEST gate artifact=findings.json:signed
+- flow-policy:review-run-boundary [L4/flow-policy] producer=core/flow-fact-policy gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed
+- frozen_claim_drift_check [L0/command] producer=handlers/frozen-claim-drift-check
+- gap_analyze [L0/command] producer=handlers/gap
+- gap_log [L2/command] producer=handlers/gap-log
+- global_control_status [L0/command] producer=handlers/lifecycle-control
+- graph [L0/command] producer=handlers/graph
+- grill_close [L1/command] producer=handlers/grill
+- grill_get [L0/command] producer=handlers/grill
+- grill_record [L1/command] producer=handlers/grill
+- grill_start [L1/command] producer=handlers/grill
+- guard_session_check [L4/gate-evidence] producer=handlers/guard-session gate=story_advance REVIEW/TEST/DONE guard session gate
+- guard_session_start [L4/gate-evidence] producer=handlers/guard-session gate=story_advance REVIEW/TEST/DONE guard session gate
+- guard_session_status [L0/command] producer=handlers/guard-session
+- handoff_accept [L0/command] producer=handlers/proof-or-stop-handoff
+- handoff_create [L0/command] producer=handlers/proof-or-stop-handoff
+- handoff_inspect [L0/command] producer=handlers/proof-or-stop-handoff
+- handoff_receipt_submit [L0/command] producer=handlers/proof-or-stop-handoff
+- handoff_resume [L0/command] producer=handlers/proof-or-stop-handoff
+- handoff_worktree_create [L0/command] producer=handlers/proof-or-stop-handoff
+- host_dispatch [L0/command] producer=handlers/proof-or-stop-handoff
+- host_install [L0/command] producer=handlers/proof-or-stop-cli
+- host_list [L0/command] producer=handlers/proof-or-stop-cli
+- host_probe [L0/command] producer=handlers/proof-or-stop-cli
+- host_run [L1/execution-status] producer=handlers/host-run
+- host_run_cancel [L2/execution-status] producer=handlers/host-run + core/managed-host-run
+- host_run_status [L0/execution-status] producer=handlers/host-run + core/managed-host-run
+- host_run_worker [L2/execution-status] producer=handlers/host-run + core/managed-host-run
+- host_runtime_list [L0/command] producer=handlers/proof-or-stop-dispatch
+- host_runtime_probe [L0/command] producer=handlers/proof-or-stop-dispatch
+- host_status [L0/command] producer=handlers/proof-or-stop-cli
+- identity_state_migrate [L2/command] producer=handlers/identity-state-migrate
+- init_check_repair [L4/gate-evidence] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed
+- init_check_set [L4/gate-evidence] producer=handlers/init-check gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed
+- init_preflight [L0/command] producer=handlers/init-preflight
+- intent_collision_get [L0/command] producer=handlers/proofstory
+- intent_collision_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=intent-collision.json
+- intent_coverage_check [L0/command] producer=handlers/proofstory
+- learning_effectiveness [L0/command] producer=handlers/learning-effectiveness
+- learning_scan [L2/command] producer=handlers/learning-scan
+- learning_validate [L0/command] producer=handlers/learning-validate
+- lifecycle_check [L0/command] producer=handlers/lifecycle-check
+- lifecycle_orchestrate [L0/command] producer=handlers/lifecycle-orchestrate
+- light_review [L1/command] producer=handlers/light-review
+- live_smoke_transcript [L0/command] producer=handlers/live-smoke-transcript
+- managed_review_evidence_import [L4/gate-evidence] producer=handlers/managed-review-evidence + core/managed-review-evidence gate=storyMachine.canPassReview REVIEW to TEST gate through collectReviewerEvidenceState shared revalidation artifact=managed-review-evidence-binding:signed
+- managed_review_proposal_set [L3/artifact] producer=handlers/managed-review-evidence + core/managed-host-run artifact=managed-review-evidence-proposal
+- memory_benchmark_compare [L0/command] producer=handlers/memory-benchmark
+- memory_benchmark_real_data [L0/command] producer=handlers/memory-benchmark
+- memory_benchmark_run [L0/command] producer=handlers/memory-benchmark
+- memory_playbook_baseline_generate [L2/command] producer=handlers/playbook-runtime-memory
+- memory_playbook_baseline_verify [L0/command] producer=handlers/playbook-runtime-memory
+- milestone_closeout [L0/command] producer=handlers/milestone-status
+- milestone_ledger_add [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=milestone-ledger.json
+- milestone_ledger_get [L0/command] producer=handlers/proofstory
+- milestone_ledger_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=milestone-ledger.json
+- milestone_status [L0/command] producer=handlers/milestone-status
+- next [L0/command] producer=handlers/session
+- observability_snapshot [L0/command] producer=handlers/observability-snapshot
+- original_intent_snapshot_get [L0/command] producer=handlers/proofstory
+- original_intent_snapshot_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=original-intent-snapshot.json
+- overflow_auto [L1/command] producer=handlers/proof-or-stop-dispatch
+- parallel_dispatch [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_merge_queue [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_plan [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_report [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_status [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_wave_create [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parallel_wave_inspect [L0/command] producer=handlers/proof-or-stop-parallel-wave
+- parent_ledger_rollup_get [L0/command] producer=handlers/proofstory
+- parent_ledger_rollup_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DONE intent-equivalence gate artifact=parent-ledger-rollup.json
+- parent_roadmap_evaluate [L0/command] producer=handlers/parent-roadmap
+- parent_roadmap_status [L0/command] producer=handlers/parent-roadmap
+- pinn_benchmark_run [L0/command] producer=handlers/pinn-claim-admissibility
+- pinn_claim_check [L0/command] producer=handlers/pinn-claim-admissibility
+- pinn_report_render [L0/command] producer=handlers/pinn-claim-admissibility
+- plan_get [L0/command] producer=handlers/plan
+- plan_set [L1/command] producer=handlers/plan
+- plan_skeleton [L0/command] producer=handlers/plan-skeleton
+- planner_answer [L2/command] producer=handlers/planner
+- planner_create_job [L2/command] producer=handlers/planner
+- planner_create_story [L2/command] producer=handlers/planner
+- planner_decision_submit [L2/command] producer=handlers/planner
+- planner_draft [L1/command] producer=handlers/planner
+- planner_resume [L2/command] producer=handlers/planner
+- planner_review [L1/command] producer=handlers/planner
+- planner_run [L2/command] producer=handlers/planner
+- planner_source_manifest [L0/command] producer=handlers/planner
+- planner_status [L0/command] producer=handlers/planner
+- playbook_activate [L2/command] producer=handlers/playbook
+- playbook_approve [L2/command] producer=handlers/playbook
+- playbook_auto_promotion_apply [L2/command] producer=handlers/playbook
+- playbook_candidate_batch_approve [L2/command] producer=handlers/playbook
+- playbook_candidate_ingest [L2/command] producer=handlers/playbook
+- playbook_diff [L0/command] producer=handlers/playbook
+- playbook_outcome_record [L2/command] producer=handlers/playbook
+- playbook_promotion_observe [L0/command] producer=handlers/playbook
+- playbook_promotion_status [L0/command] producer=handlers/playbook
+- playbook_promotion_sweep [L2/command] producer=handlers/playbook
+- playbook_promotion_timer [L2/command] producer=handlers/playbook
+- playbook_propose [L2/command] producer=handlers/playbook
+- playbook_reject [L2/command] producer=handlers/playbook
+- playbook_runtime_consumption_verify [L0/command] producer=handlers/playbook
+- playbook_runtime_health [L0/command] producer=handlers/playbook-runtime-memory
+- playbook_seed_backfill [L2/command] producer=handlers/playbook
+- playbook_seed_observe [L0/command] producer=handlers/playbook
+- playbook_seed_propose_batch [L2/command] producer=handlers/playbook
+- playbook_trial_run [L2/command] producer=handlers/playbook
+- pre_review_check [L4/signed-artifact] producer=handlers/proofstory gate=transition-orchestrator DEV to REVIEW executable gate artifact=pre-review-check.json:signed
+- pre_review_check_read [L4/gate-evidence] producer=handlers/proofstory gate=transition-orchestrator DEV to REVIEW executable gate
+- prewrite_guard_check [L0/command] producer=handlers/prewrite-guard
+- prompt_measurement_report [L0/command] producer=handlers/prompt-measurement
+- proof_or_stop_config_doctor [L0/command] producer=handlers/proof-or-stop-cli
+- proof_or_stop_config_repair [L2/command] producer=handlers/proof-or-stop-cli
+- proofstory_contract_get [L0/command] producer=handlers/proofstory
+- proofstory_contract_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json
+- proofstory_gate_check [L0/command] producer=handlers/proofstory
+- proofstory_review_completeness_check [L0/command] producer=handlers/proofstory
+- quantum_claim_benchmark [L0/command] producer=handlers/quantum-claim-admissibility
+- quantum_claim_check [L0/command] producer=handlers/quantum-claim-admissibility
+- quantum_claim_report [L0/command] producer=handlers/quantum-claim-admissibility
+- queue_exception_set [L2/command] producer=handlers/lifecycle-control
+- queue_governance_status [L0/command] producer=handlers/lifecycle-control
+- quorum_prune [L2/command] producer=handlers/quorum-prune
+- quorum_submit [L4/host-verdict] producer=handlers/quorum-submit gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate artifact=process-events.jsonl
+- recall [L0/command] producer=handlers/recall
+- recover_evidence [L4/gate-evidence] producer=handlers/recover-evidence gate=validate verification freshness gate artifact=checklist.json
+- red_evidence_binding_set [L3/command] producer=handlers/red-evidence
+- red_evidence_create [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json
+- red_evidence_envelope_check [L0/command] producer=handlers/red-evidence
+- red_evidence_get [L0/command] producer=handlers/proofstory
+- red_evidence_quarantine [L3/command] producer=handlers/red-evidence
+- red_evidence_recover [L3/command] producer=handlers/red-evidence
+- red_green_relation_create [L2/command] producer=handlers/repro-intake
+- red_green_relation_evaluate [L2/command] producer=handlers/repro-intake
+- regression_matrix_review_set [L2/command] producer=handlers/repro-intake
+- release_approve_push [L2/command] producer=handlers/release
+- repro_probe [L2/command] producer=handlers/repro-intake
+- repro_probe_get [L0/command] producer=handlers/repro-intake
+- repro_review_set [L2/command] producer=handlers/repro-intake
+- review_escalation_fallback_set [L4/gate-evidence] producer=handlers/review-escalation gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate artifact=process-events.jsonl
+- review_escalation_policy_set [L4/gate-evidence] producer=handlers/review-escalation gate=storyMachine.canFinish DONE review escalation gate artifact=process-events.jsonl
+- review_escalation_status [L0/command] producer=handlers/review-escalation
+- review_host_availability_probe [L4/host-availability-probe] producer=handlers/review-escalation gate=storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate artifact=process-events.jsonl
+- review_incremental_context [L0/command] producer=handlers/review-incremental-context
+- review_inventory_begin [L4/gate-evidence] producer=handlers/review-inventory gate=storyMachine.canReenterDev REVIEW to DEV gate artifact=review-inventory-epochs.json:signed
+- review_inventory_cancel [L4/gate-evidence] producer=handlers/review-inventory gate=storyMachine.canReenterDev REVIEW to DEV gate artifact=review-inventory-epochs.json:signed
+- review_inventory_critic_set [L4/gate-evidence] producer=handlers/review-inventory gate=review_inventory_finalize saturation gate artifact=review-inventory-epochs.json:signed
+- review_inventory_finalize [L4/gate-evidence] producer=handlers/review-inventory gate=storyMachine.canReenterDev REVIEW to DEV gate and certification_window_begin artifact=review-inventory-epochs.json:signed
+- review_inventory_status [L4/gate-evidence] producer=handlers/review-inventory gate=storyMachine.canReenterDev REVIEW to DEV gate artifact=review-inventory-epochs.json:signed
+- review_inventory_wave_advance [L4/gate-evidence] producer=handlers/review-inventory gate=review_inventory_finalize saturation gate and reviewer evidence admission artifact=review-inventory-epochs.json:signed
+- review_loop_close [L4/gate-evidence] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl
+- review_loop_iteration_add [L4/gate-evidence] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl
+- review_loop_policy_show [L0/command] producer=handlers/review-loop
+- review_loop_start [L4/gate-evidence] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl
+- review_loop_status [L0/command] producer=handlers/review-loop
+- review_pass_set [L4/review-pass] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate and review inventory temporal-integrity seal artifact=review-passes.json:signed
+- review_prompt_gc [L1/command] producer=core/prompt-body-gc + handlers/review-inventory
+- review_remediation_close [L4/gate-evidence] producer=handlers/review-remediation gate=storyMachine.canPassReview REVIEW to TEST gate
+- review_run_list [L0/command] producer=handlers/review-run
+- review_run_start [L4/review-run] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate and review inventory wave/terminal sequence boundary artifact=review-runs.json:signed
+- reviewer_batch [L0/command] producer=handlers/reviewer-batch
+- reviewer_batch_admit [L4/gate-evidence] producer=handlers/reviewer-batch-admit gate=Configured managed reviewer submit before scratch/build and worker before provider launch
+- reviewer_list [L0/command] producer=handlers/reviewer-list
+- reviewer-lane:proof-or-stop-product-reviewer [L4/reviewer-lane] producer=proof-or-stop-product-reviewer gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed
+- reviewer-lane:proof-or-stop-review-behavior [L4/reviewer-lane] producer=proof-or-stop-review-behavior gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- reviewer-lane:proof-or-stop-review-concept [L4/reviewer-lane] producer=proof-or-stop-review-concept gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- reviewer-lane:proof-or-stop-review-delivery [L4/reviewer-lane] producer=proof-or-stop-review-delivery gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed
+- reviewer-lane:proof-or-stop-review-docs [L4/reviewer-lane] producer=proof-or-stop-review-docs gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- reviewer-lane:proof-or-stop-review-quality [L4/reviewer-lane] producer=proof-or-stop-review-quality gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- reviewer-lane:proof-or-stop-review-scope-plan [L4/reviewer-lane] producer=proof-or-stop-review-scope-plan gate=story_review scope-check gate artifact=scope-check.json:signed
+- reviewer-lane:proof-or-stop-review-story-init [L4/reviewer-lane] producer=proof-or-stop-review-story-init gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=init-check.json:signed
+- reviewer-lane:proof-or-stop-review-test-coverage [L4/reviewer-lane] producer=proof-or-stop-review-test-coverage gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed
+- reviewer-lane:proof-or-stop-review-topology-critic [L4/reviewer-lane] producer=proof-or-stop-review-topology-critic gate=topology_critic_receipt_check CLI verification and review_inventory_finalize saturation gate artifact=review-inventory-epochs.json:signed
+- rollout_check [L0/command] producer=handlers/rollout-check
+- runtime_closure_status [L0/command] producer=handlers/lifecycle-control
+- runtime:acceptance_rollout_dev_review_gate [L4/runtime-behavior] producer=core/acceptance-rollout + handlers/proofstory + handlers/transition-orchestrator gate=transition-orchestrator DEV to REVIEW rollout gate
+- runtime:acceptance_topology_plan_dev_gate [L4/runtime-behavior] producer=core/acceptance-topology + handlers/proofstory + handlers/transition-orchestrator gate=transition-orchestrator PLAN to DEV structural gate
+- runtime:agent_dispatch_role_authority_gate [L4/runtime-behavior] producer=core/agent-dispatch-registry gate=dispatch prompt admission and role-gated checklist/reviewer evidence mutation consumers
+- runtime:ast_semantic_anchor_gate [L4/runtime-behavior] producer=core/scope-diff-pack gate=semantic scope REVIEW, TEST, and DONE gates
+- runtime:canonical_scope_path_gate [L4/runtime-behavior] producer=core/scope-path-classifier gate=scope contract write/check, prewrite, REVIEW, TEST, and DONE scope gates
+- runtime:causal_dependency_preflight_metrics_gate [L4/runtime-behavior] producer=core/causal-evidence + core/evidence-freshness gate=specialized verification freshness consumer, CertificationWindow, validation preflight, and closeout metrics
+- runtime:causal_execution_key_gate [L4/runtime-behavior] producer=core/causal-evidence gate=verification_evidence_add / verification_evidence_batch_add execution and verification coverage freshness gates
+- runtime:causal_receipt_import_gate [L4/runtime-behavior] producer=core/causal-evidence + core/store gate=verification evidence canonical import and verification coverage/freshness gates
+- runtime:closeout_artifact_trust_boundary [L4/runtime-behavior] producer=core/closeout-trust gate=REVIEW scope freshness and TEST/DONE metadata-only retention gates
+- runtime:closeout_human_confirmation [L4/runtime-behavior] producer=handlers/story story_resume gate=done_prepare convergence acceptance
+- runtime:closeout_phase_transition [L4/runtime-behavior] producer=handlers/transition-orchestrator gate=done_prepare convergence acceptance, with refuse-only upstream scope/review diagnosis and unchanged final DONE oracle
+- runtime:closeout_reviewer_reattestation_boundary [L4/runtime-behavior] producer=handlers/review-run review_run_start + handlers/finding review_pass_set gate=done_prepare convergence acceptance
+- runtime:closeout_validation_terminal [L4/runtime-behavior] producer=handlers/verifier gate=done_prepare convergence acceptance
+- runtime:composite_scope_digest_review_gate [L4/runtime-behavior] producer=core/closeout-trust gate=storyMachine.canPassReview REVIEW to TEST gate and done_prepare validation-reuse gate
+- runtime:declared_artifact_committed_check [L4/runtime-behavior] producer=handlers/story-advance gate=story_advance DONE declared artifact committed gate
+- runtime:delivery_promise_outcome_done_gate [L4/runtime-behavior] producer=core/delivery-promise-outcome gate=delivery_check_set and storyMachine.canFinish DONE gate
+- runtime:done_finish_decision_presence [L4/runtime-behavior] producer=core/machine evaluateDonePredicates via core/playbook-runtime-memory inspectDevMemoryFinishDecision gate=storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight
+- runtime:done_phase_agnostic_reviewer_verdict [L4/runtime-behavior] producer=core/machine evaluateDonePredicates via evaluateReviewVerdict gate=storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight
+- runtime:done_required_validation_done_gate [L4/runtime-behavior] producer=core/done-required-validation gate=storyMachine.canFinish DONE done-required-validation gate
+- runtime:done_shared_predicate_projection [L4/runtime-behavior] producer=core/machine evaluateDonePredicates ordered lazy outcomes gate=storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight
+- runtime:dynamic_finding_applicability_gate [L4/runtime-behavior] producer=core/finding-applicability + core/finding-applicability-projection gate=storyMachine REVIEW to TEST, guard diagnostics, reviewer batch/status, lifecycle readiness, certification window and DONE review-verdict gate
+- runtime:entry_preflight_diagnostics [L0/runtime-behavior] producer=scripts/entry-preflight
+- runtime:evidence_environment_gate_projection [L4/runtime-behavior] producer=core/evidence/environment-contract + core/done-required-validation gate=evaluateDoneRequiredEvidence DONE_REQUIRED lifecycle gate through validateDoneRequiredEvidenceEnvironmentProjection
+- runtime:external_story_worktree_bootstrap_authority_gate [L4/runtime-behavior] producer=cli-engine + cli/runtime-root gate=CLI Story-scoped mutation admission and Story metadata auto-commit
+- runtime:finding_evidence_state_review_gate [L4/runtime-behavior] producer=core/advisory gate=storyMachine.canPassReview REVIEW to TEST gate
+- runtime:finding_ledger_lifecycle_transition_gate [L4/runtime-behavior] producer=handlers/finding + handlers/finding-ledger + core/store gate=storyMachine.canPassReview REVIEW to TEST gate
+- runtime:finding_ledger_projection_gate [L4/runtime-behavior] producer=handlers/finding-ledger + core/store gate=storyMachine.canPassReview REVIEW to TEST gate
+- runtime:go_command_acceptance_gate [L4/runtime-behavior] producer=core/acceptance-discovery-adapters + core/acceptance-topology + core/pre-review-check + core/verification-execution-evidence gate=acceptance_topology_check PLAN gate, pre_review_check, and transition-orchestrator DEV to REVIEW executable gate
+- runtime:incremental_review_eligibility_gate [L4/runtime-behavior] producer=core/impact-classification-policy + core/review-incremental-context gate=review_run_start trusted Prompt Envelope assembly and verifyReviewRunPromptEnvelope REVIEW/quorum/DONE/done_prepare admission chain through collectReviewerEvidenceState
+- runtime:legacy_role_alias_sunset_contract [L1/runtime-behavior] producer=core/legacy-role-alias-sunset
+- runtime:live_smoke_transcript_done_gate [L4/runtime-behavior] producer=core/live-smoke-transcript-evidence gate=delivery_check_set and storyMachine.canFinish DONE gate
+- runtime:managed_duration_estimate [L0/runtime-behavior] producer=core/managed-run-duration-estimate
+- runtime:memory_runtime_preflight_non_authoritative [L1/runtime-behavior] producer=core/playbook-runtime-memory
+- runtime:parent_roadmap_totality_claim_consumer [L4/runtime-behavior] producer=core/parent-roadmap-totality gate=parent-roadmap summary/DONE/handoff wording consumers
+- runtime:phase_tools_malformed_policy_ceiling [L1/runtime-behavior] producer=core/config
+- runtime:post_remediation_review_selection_gate [L4/runtime-behavior] producer=core/review-incremental-context + handlers/reviewer-list + core/machine gate=storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate and reviewer_list/transition-effects operator projection, lifecycle-readiness/reviewer_batch, review-inventory begin/invalidation/consume, reviewer-status, and quorum_submit required passes
+- runtime:precert_fast_contracts [L0/runtime-behavior] producer=scripts/run-precert-fast
+- runtime:precert_routine_single_execution [L4/runtime-behavior] producer=handlers/verifier + core/certification-window gate=handlers/verifier createRoutineValidationLaunchGate / handlers/story-aware-validation beforeLaunch / handlers/phase-gates runValidateGate / handlers/done-required-validation
+- runtime:prompt_envelope_review_gate [L4/runtime-behavior] producer=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate and quorum_submit reviewer-pass admission boundary; review assurance floor consumes resulting host-verdict rounds
+- runtime:prompt_role_body_rollout_gate [L4/runtime-behavior] producer=core/prompt-role-contract-registry gate=review_run_start assembly, verifyCurrentReviewerDispatchBinding, verifyReviewRunPromptEnvelope, REVIEW gate, and quorum_submit admission
+- runtime:prompt_role_evidence_eligibility_gate [L4/runtime-behavior] producer=core/prompt-role-contract-registry gate=review_run_start, reviewer-list, storyMachine.canPassReview REVIEW to TEST gate, and quorum_submit reviewer-pass admission boundary
+- runtime:proof_admissibility_gate_diagnostic [L4/runtime-behavior] producer=core/proof-admissibility gate=configured proof-admissibility high-risk consumers: DONE_REQUIRED, REVIEW review assurance/quorum, HANDOFF proof refs, AUTHORITY_GATE_DECISION; diagnostic waterline remains read-only
+- runtime:repro_first_story_intake_preflight [L4/runtime-behavior] producer=core/repro-evidence-binding-gate gate=story_create STORY_INTAKE preflight and storyMachine.canEnterPlan/canStartDev/canSkipPlan gates
+- runtime:review_assurance_floor_done_gate [L4/runtime-behavior] producer=core/review-assurance-floor gate=storyMachine.canFinish DONE review assurance floor gate
+- runtime:review_escalation_done_gate [L4/runtime-behavior] producer=core/review-escalation gate=storyMachine.canFinish DONE review escalation gate
+- runtime:review_execution_authority_gate [L4/runtime-behavior] producer=core/native-review-attestation + core/native-review-evidence + core/managed-review-evidence + core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate through collectReviewerEvidenceState shared revalidation
+- runtime:review_inventory_temporal_integrity_gate [L4/runtime-behavior] producer=core/review-inventory-epoch + core/mkdir-lock + handlers/review-inventory/finding/scope-contract gate=review_inventory critic/wave/finalize/consume and reviewer finding/pass admission
+- runtime:review_run_atomic_persistence_gate [L4/runtime-behavior] producer=core/mkdir-lock + handlers/review-run + handlers/agent-prompt gate=review_run_start durable Prompt Envelope/ReviewRun persistence consumed by storyMachine.canPassReview REVIEW to TEST, review inventory sequence boundaries, and quorum_submit admission
+- runtime:review_run_story_files_hash_gate [L4/runtime-behavior] producer=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate
+- runtime:review_run_workspace_binding_gate [L4/runtime-behavior] producer=core/review-run gate=storyMachine.canPassReview REVIEW to TEST gate
+- runtime:routine_validation_evidence_authentication [L4/runtime-behavior] producer=core/validation-artifact-signing gate=routine validation aggregate reuse and TEST/DONE stored PASS admission
+- runtime:routine_validation_fresh_pass_reuse_gate [L4/runtime-behavior] producer=core/validation-evidence-reuse gate=proof-or-stop validate TEST evidence producer and story_advance TEST/DONE validation consumers
+- runtime:shared_gap_log_metadata_gate [L4/runtime-behavior] producer=core/lifecycle-registry gate=scope contract shared-metadata classifier and done_prepare clean-tree gate
+- runtime:story_aware_dynamic_authority_gate [L4/runtime-behavior] producer=handlers/story-aware-validation gate=validate TEST evidence and storyMachine TEST/DONE validation consumers
+- runtime:story_aware_dynamic_closure_receipt [L4/runtime-behavior] producer=core/story-aware-validation gate=dynamic selection reuse and enforce-low-risk authority gate
+- runtime:story_aware_dynamic_selection_manifest [L4/runtime-behavior] producer=core/story-aware-validation gate=validate dynamic authority and story-aware validation artifact consumer
+- runtime:story_aware_dynamic_shard_aggregate [L4/runtime-behavior] producer=handlers/story-aware-validation gate=dynamic authority shard evidence prerequisite
+- runtime:story_create_phase_admission_gate [L4/runtime-behavior] producer=handlers/story-create gate=story_create pre-persistence lifecycle admission gate
+- runtime:story_dependency_plan_dev_gate [L4/runtime-behavior] producer=handlers/transition-orchestrator gate=runStoryTransition PLAN to DEV admission before phase mutation
+- runtime:story_files_hash_freshness_gate [L4/runtime-behavior] producer=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate
+- runtime:story_scope_budget [L4/runtime-behavior] producer=core/story-scope-budget gate=machine DEV guards and acceptance amendment application
+- runtime:test_auto_recursive_skip [L2/runtime-behavior] producer=handlers/test-auto
+- runtime:topology_critic_authority_verification [L2/runtime-behavior] producer=core/topology-critic-receipt + handlers/proofstory
+- runtime:trusted_closeout_artifact_validation [L4/runtime-behavior] producer=core/closeout-trust gate=ProofStory lifecycle gates, REVIEW scope freshness, and TEST/DONE closeout consumers
+- runtime:validate_fallback_discovery [L1/runtime-behavior] producer=handlers/verifier
+- runtime:validate_side_effect_guard [L2/runtime-behavior] producer=core/validation-executor
+- runtime:verification_execution_assertion_reuse_gate [L4/runtime-behavior] producer=core/proof-admissibility + core/verification + core/verification-execution-evidence gate=storyMachine, lifecycle-readiness, phase-gates, verifier, done_prepare, and certification-window verification coverage
+- runtime:verification_execution_key_producer_lock [L4/runtime-behavior] producer=core/verification-execution-evidence + handlers/checklist gate=verification evidence execution, reuse publication, and lifecycle coverage admission
+- scope_boundary_set [L4/gate-evidence] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed
+- scope_budget_approve [L4/gate-evidence] producer=handlers/story-scope-budget gate=machine DEV guards and acceptance amendment application artifact=scope-budget-decisions.json:signed
+- scope_budget_check [L0/command] producer=handlers/story-scope-budget
+- scope_check_save [L4/gate-evidence] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed
+- scope_contract_acknowledge [L4/gate-evidence] producer=handlers/scope-contract gate=story_advance REVIEW/TEST/DONE scope gate, storyMachine parallel-decomposition DEV-entry gate, and review inventory scope freshness gate
+- scope_contract_check [L4/gate-evidence] producer=handlers/scope-contract gate=story_advance REVIEW/TEST/DONE scope gate
+- scope_contract_init_from_plan [L4/gate-evidence] producer=handlers/scope-contract gate=story_advance REVIEW/TEST/DONE scope gate and storyMachine parallel-decomposition DEV-entry gate (canStartDevGuard/canSkipPlanGuard/canReenterDevGuard)
+- scope_contract_set [L4/gate-evidence] producer=handlers/scope-contract gate=story_advance REVIEW/TEST/DONE scope gate and storyMachine parallel-decomposition DEV-entry gate (canStartDevGuard/canSkipPlanGuard/canReenterDevGuard)
+- scope_contract_show [L0/command] producer=handlers/scope-contract
+- scope_diff_pack [L0/command] producer=handlers/scope-contract
+- scope_extension_decide [L4/gate-evidence] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed
+- scope_extension_proposal [L4/gate-evidence] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed
+- scope_freeze_check [L4/gate-evidence] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed
+- scope_question_resolve [L4/gate-evidence] producer=handlers/scope-question-resolve gate=story_review open question gate artifact=scope-check.json:signed
+- scope_shrinkage_decision_get [L0/command] producer=handlers/proofstory
+- scope_shrinkage_decision_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json
+- serve [L1/command] producer=handlers/serve
+- session_brief [L0/command] producer=handlers/session
+- signature_backfill [L2/command] producer=handlers/signature-backfill
+- signature_registry_list [L0/command] producer=handlers/signature-registry
+- signature_registry_set [L2/command] producer=handlers/signature-registry
+- slice_plan_get [L0/command] producer=handlers/proofstory
+- slice_plan_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json
+- source_lineage_audit [L0/command] producer=handlers/playbook
+- spike_discard [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json
+- spike_get [L0/command] producer=handlers/proofstory
+- spike_promote [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json
+- spike_record [L2/command] producer=handlers/repro-intake
+- spike_result [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json
+- spike_result_set [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json
+- spike_review_set [L2/command] producer=handlers/repro-intake
+- spike_start [L4/gate-evidence] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json
+- stall_resolution_set [L4/gate-evidence] producer=handlers/stall-adjudication gate=declare_unreachable checklist withdrawal; compatibility decisions do not release the progress gate
+- status [L0/command] producer=handlers/status
+- story_advance [L4/gate-evidence] producer=handlers/story-advance gate=storyMachine phase guards and story_advance preflight gates artifact=index.json
+- story_create [L1/command] producer=handlers/story-create
+- story_create_from_repro [L4/gate-evidence] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding
+- story_discard [L2/command] producer=handlers/story-discard artifact=scope-discard-digest.json
+- story_draft [L1/command] producer=handlers/story-draft
+- story_draft_discard [L2/command] producer=handlers/story-draft
+- story_draft_list [L0/command] producer=handlers/story-draft
+- story_export [L0/command] producer=handlers/story-export
+- story_get [L0/command] producer=handlers/story-query
+- story_list [L0/command] producer=handlers/story-query
+- story_reconcile [L2/command] producer=handlers/story-reconcile
+- story_resolve [L0/command] producer=handlers/story-resolve
+- story_resume [L4/gate-evidence] producer=handlers/story gate=Shared convergence progress gate at CLI advance and machine REVIEW mint
+- story_review [L4/gate-evidence] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed
+- story_review_dismiss [L2/command] producer=handlers/story-review
+- story_update [L2/command] producer=handlers/story
+- summary_get [L0/command] producer=handlers/summary
+- summary_set [L4/gate-evidence] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json
+- task_coverage [L1/command] producer=handlers/task-coverage
+- test_add [L4/execution-status] producer=handlers/test gate=storyMachine.canFinish DONE gate artifact=test-evidence.json
+- test_auto [L2/command] producer=handlers/test-auto
+- test_fixture [L2/command] producer=handlers/test-fixture
+- test_list [L0/command] producer=handlers/test
+- test_story [L4/execution-status] producer=handlers/test-story gate=storyMachine.canFinish DONE gate artifact=test-evidence.json
+- testintent_handoff [L1/command] producer=handlers/testintent-handoff
+- topology_critic_receipt_check [L0/command] producer=handlers/proofstory + core/topology-critic-receipt
+- topology_critic_receipt_set [L3/command] producer=handlers/proofstory + core/topology-critic-receipt artifact=topology-critic-receipt.json:signed
+- topology_exclusion_approval_set [L3/command] producer=handlers/proofstory + core/topology-critic-receipt artifact=topology-exclusion-approvals.json:signed
+- truth_analyze [L0/command] producer=handlers/truth
+- truth_extract [L2/command] producer=handlers/truth
+- truth_nav [L2/command] producer=handlers/truth
+- truth_scan [L0/command] producer=handlers/truth
+- truth_to_story [L0/command] producer=handlers/truth
+- understanding_get [L0/command] producer=handlers/understanding
+- understanding_set [L1/command] producer=handlers/understanding
+- usage_sweep [L0/command] producer=handlers/usage-sweep
+- validate [L4/validation-status] producer=handlers/verifier gate=story_advance TEST and DONE validation gate artifact=test-evidence.json
+- validation_plan [L0/command] producer=handlers/validation-plan
+- verification_context_pack_create [L1/command] producer=handlers/verification-context-pack
+- verification_context_pack_expand [L1/command] producer=handlers/verification-context-pack
+- verification_evidence_add [L4/execution-status] producer=handlers/checklist + core/verification-execution-evidence gate=storyMachine.checklistAllDone, validate verification coverage, and review inventory acceptance-subject freshness gate artifact=checklist.json
+- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist + core/verification-execution-evidence gate=storyMachine.checklistAllDone, validate verification coverage, and review inventory acceptance-subject freshness gate artifact=checklist.json
+- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist + core/verification-execution-evidence gate=validate verification freshness, lifecycle coverage, and review inventory acceptance-subject freshness gates artifact=checklist.json
+- verification_intent_append [L2/command] producer=handlers/checklist artifact=checklist.json
+- verification_intent_recover [L2/command] producer=handlers/checklist artifact=checklist.json
+- verification_intent_repair [L2/command] producer=handlers/checklist
+- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard
+- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match
+- verification_run [L4/execution-status] producer=handlers/checklist + core/verification-execution-evidence gate=storyMachine.checklistAllDone, validate verification coverage, and review inventory acceptance-subject freshness gate artifact=checklist.json
+- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl
+- workflow_explain [L0/command] producer=core/config
+- workflow_set [L1/command] producer=core/config
+- workflow_show [L0/command] producer=core/config
+Prompt drift scan: 36 reviewer prompt files checked
+
+Process Fact Inventory
+- Complete selector output remains receipt-bound
+  packages/main/src/core/causal-evidence.ts
+  packages/main/src/core/store.ts
+  docs/validation-performance.md
+- DONE checks current admission and commits only its own evidence
+  packages/main/src/handlers/done-required-validation.ts
+  packages/main/src/core/auto-commit-metadata.ts
+- Exact quorum assertion inventory and current main partitioning
+  packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts
+  packages/main/src/tasks/quorum-submit-smoke.ts
+  packages/main/tests/red/red-B-e40f-lab-convergence.mjs
+  docs/validation-performance.md
+- Governed acceptance revision and durable recovery
+  packages/main/src/handlers/checklist.ts
+  packages/main/src/core/verification-intent-amendment.ts
+  packages/main/src/core/verification-intent-checkpoint.ts
+  packages/main/src/core/store.ts
+  packages/main/src/core/canonical-story.ts
+  docs/validation-performance.md
+- Pinned implementation and original batch publication
+  packages/main/src/handlers/checklist.ts
+  packages/main/src/core/causal-evidence.ts
+  packages/main/src/core/store.ts
+  packages/main/src/cli-engine.ts
+  packages/main/src/handlers/checklist.ts
+  docs/validation-performance.md
+- Production validation sharing and bounded repair authority
+  scripts/verify-routine-precert-entry.mjs
+  packages/main/src/core/store.ts
+  scripts/verify-shared-receipt-publication.mjs
+  scripts/verify-flat-provider-validation.mjs
+  scripts/verify-validation-static-edges.mjs
+  scripts/verify-validation-static-edge-boundaries.mjs
+  scripts/verify-liveness-validation-union.mjs
+  scripts/verify-convergence-net-progress.mjs
+  scripts/verify-shared-output-boundary.mjs
+  packages/main/src/handlers/verifier.ts
+  packages/main/src/core/causal-evidence.ts
+  packages/main/src/tasks/validate-execution-lock-smoke.ts
+  packages/main/src/core/shared-validation-execution.ts
+  packages/main/src/core/review-inventory-epoch.ts
+  packages/main/src/handlers/transition-effects.ts
+  docs/validation-performance.md
+- Explicit Lab maintenance integration boundary
+  packages/main/src/core/process-fact-registry.ts
+  scripts/lab-worktree.mjs
+  scripts/verify-lab-story-carry-forward.mjs
+  docs/lab-maintenance.md
+- phase advance
+  packages/main/src/handlers/story-advance.ts
+  packages/main/src/handlers/transition-orchestrator.ts
+  packages/main/src/handlers/phase-gates.ts
+  packages/main/src/handlers/verifier.ts
+  packages/main/src/core/machine.ts
+- review_run_start
+  packages/main/src/core/owner-session-adapters.ts
+  packages/main/src/handlers/story-dispatch.ts
+  packages/main/src/handlers/review-run.ts
+  packages/main/src/cli/command-catalog.ts
+- finding_add
+  packages/main/src/handlers/finding.ts
+  packages/main/src/cli-engine.ts
+- flow fact policy
+  packages/main/src/core/flow-fact-policy.ts
+  packages/main/src/core/process-fact-registry.ts
+- finding evidenceState gate dimension
+  packages/main/src/core/advisory.ts
+  packages/main/src/core/machine.ts
+  packages/main/src/core/types.ts
+- gap_log
+  packages/main/src/handlers/gap-log.ts
+  packages/main/src/core/audit-meta-store.ts
+  packages/main/src/registry.ts
+- review_pass_set
+  packages/main/src/handlers/finding.ts
+  packages/main/src/cli-engine.ts
+  packages/main/src/core/review-pass-provenance.ts
+  packages/main/src/core/finding-verify.ts
+- verification evidence
+  packages/main/src/handlers/checklist.ts
+  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts
+  packages/main/src/core/verification.ts
+  packages/main/src/core/machine.ts
+- init check
+  packages/main/src/handlers/init-check.ts
+  packages/main/src/core/init-check-gate.ts
+  packages/main/src/core/machine.ts
+- scope anti-expansion
+  packages/main/src/core/machine.ts
+  packages/main/src/handlers/story-create.ts
+  packages/main/src/cli/command-catalog.ts
+  packages/main/src/handlers/checklist.ts
+  packages/main/src/handlers/story-query.ts
+  packages/main/src/handlers/scope-anti-expansion.ts
+  packages/main/src/core/scope-anti-expansion.ts
+  packages/main/src/cli-engine.ts
+  packages/main/src/core/command-policy.ts
+  packages/main/src/handlers/worktree.ts
+  packages/main/src/core/process-fact-registry.ts
+  packages/main/src/core/lifecycle-registry.ts
+- scope check
+  packages/main/src/handlers/scope-check.ts
+  packages/main/src/handlers/story-review.ts
+- delivery check
+  packages/main/src/handlers/delivery-check.ts
+  packages/main/src/core/machine.ts
+- REVIEW/TEST/DONE gates
+  packages/main/src/handlers/story-advance.ts
+  packages/main/src/handlers/phase-gates.ts
+  packages/main/src/handlers/verifier.ts
+  packages/main/src/handlers/review-preflight.ts
+  packages/main/src/core/machine.ts
+- lifecycle registry
+  packages/main/src/core/lifecycle-registry.ts
+  packages/main/src/core/phase-flow.ts
+  packages/main/src/handlers/context.ts
+  packages/main/src/tasks/flow-stability-smoke.ts
+- CLI schema
+  packages/main/src/cli/command-catalog.ts
+  packages/main/src/core/config.ts
+CONSUMED_SATURATION_GREEN ordinary-refusal owned-recovery foreign-partial-tampered-refusal
+CERTIFICATION_MUTATOR_PIN_GREEN begin-cancel reject-before-store restored-control
+
+Process fact contract verified
+execution_assertion_reuse_contract=PASS
+Process-fact contract verification passed

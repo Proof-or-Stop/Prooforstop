@@ -1,0 +1,21 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: real doctor exits cleanly: [0.0s] running doctor...
+[11.3s] doctor done
+
+
+1 !== 0
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/story-owner-lease-smoke.js:647:16
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

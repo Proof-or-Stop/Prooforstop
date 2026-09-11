@@ -13,6 +13,8 @@ import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, sy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildReviewGateRows, buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
+import { classifyLaneState } from '../handlers/reviewer-batch.js';
 import { StoryStore } from '../core/store.js';
 import { currentImplementationBusinessCommit, deriveRoleProvenance } from '../core/topology-critic-receipt.js';
 import { resetConfigCache } from '../core/config.js';
@@ -40,7 +42,7 @@ import {
   verifyCurrentPostRemediationReviewSelection,
   verifyPostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
-import { computeFinalReviewRoster, renderFinalReviewRoster, type ActiveReviewer } from '../handlers/reviewer-list.js';
+import { computeFinalReviewRoster, projectFinalReviewRoster, renderFinalReviewRoster, type ActiveReviewer } from '../handlers/reviewer-list.js';
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import { getSessionId } from '../core/owner-session.js';
@@ -469,7 +471,39 @@ async function inventoryPurposeRecovery(): Promise<void> {
       assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), epochStartHead, 'failed commit never advances HEAD');
       rmSync(rejectionHook);
     }
-    assert.match(cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner')), /FINALIZED/);
+    const finalizedOutput = cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner'));
+    assert.match(finalizedOutput, /FINALIZED/);
+    if (process.argv.includes('--next-action-fixture')) {
+      const before = fixture.store.readReviewInventoryEpochs(storyId);
+      const receipt = before.receipts.at(-1)!;
+      const expectedNext = finalizeArgs.remediation
+        ? `proof-or-stop story_advance --storyId=${storyId} --phase=DEV`
+        : `proof-or-stop validate --story=${storyId} --focus=fast --json`;
+      const checks: { name: string; pass: boolean; observed: string[] }[] = [];
+      const checkNext = (name: string, output: string): void => {
+        const observed = output.split('\n').filter(line => line.startsWith('Next:'));
+        checks.push({ name, pass: observed.length === 1 && observed[0] === `Next: ${expectedNext}`, observed });
+      };
+      checkNext('first finalize follows receipt authority', finalizedOutput);
+      checks.push({ name: 'first finalize reports actual authority',
+        pass: finalizedOutput.includes(`Authority: ${receipt.authority}`),
+        observed: finalizedOutput.split('\n').filter(line => line.startsWith('Authority:')) });
+      checkNext('status follows receipt authority', cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner')));
+      let refusedBegin = '';
+      try { cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner')); }
+      catch (error) { refusedBegin = String(error); }
+      // execFileSync embeds the command and stderr; preserve just the CLI hint.
+      const next = refusedBegin.match(/Next: (proof-or-stop [^\n]+)/)?.[0] ?? '';
+      checkNext('pending begin preserves completed review', next);
+      checkNext('idempotent finalize follows receipt authority', cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner')));
+      assert.deepEqual(fixture.store.readReviewInventoryEpochs(storyId), before, 'hint queries and retries preserve the signed receipt and every completed reviewer');
+      assert.equal(receipt.authorizesTest, false, 'guidance never authorizes TEST');
+      assert.throws(() => cli(fixture.root, 'review_inventory_finalize', { storyId, remediation: !finalizeArgs.remediation }, env('main', 'b29bc-owner')), /REPLAY_AUTHORITY/);
+      console.log(`INVENTORY_NEXT_ACTION_RESULT ${JSON.stringify({ authority: receipt.authority, checks, preservedReceipt: true, authorizesTest: false })}`);
+      assert.equal(checks.filter(row => !row.pass).length, 0, 'INVENTORY_NEXT_ACTION_AUTHORITY_MISMATCH');
+      console.log('PASS inventory next action uses the persisted authority on every CLI surface');
+      return;
+    }
     if (process.argv.includes('--metadata-batch-fixture')) {
       assert.equal(git(fixture.root, ['rev-list', '--count', `${epochStartHead}..HEAD`]), '1', 'one completed epoch creates one metadata commit');
       assert.throws(() => cli(fixture.root, 'review_inventory_finalize', { storyId, remediation: !finalizeArgs.remediation }, env('main', 'b29bc-owner')), /REPLAY_AUTHORITY/, 'replay cannot change the original receipt authority');
@@ -651,7 +685,7 @@ if (process.argv.includes('--discovery-only')) {
   await criticDiscoveryRecovery();
   process.exit(0);
 }
-if (!process.argv.includes('--lifecycle-only')) {
+if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--roster-only')) {
   await inventoryPurposeRecovery();
   if (process.argv.includes('--progress-capture-fixture')) {
     console.log('PASS U11 real inventory finalization captures verified progress');
@@ -1056,6 +1090,7 @@ assert.throws(
 
 const postRemediationStory = reloaded.readStory(storyId);
 postRemediationStory.currentReviewRound = '2020-01-02T00:00:00.000Z';
+postRemediationStory.phase = 'REVIEW'; // Disposable next-round fixture; finding_resolve still runs through the real CLI.
 reloaded.writeStory(storyId, postRemediationStory);
 writeFileSync(join(first.root, 'packages/main/tests/isolated.test.ts'), 'export const isolatedTest = 2;\n');
 git(first.root, ['add', 'packages/main/tests/isolated.test.ts']);
@@ -1064,11 +1099,16 @@ const activeReviewers: ActiveReviewer[] = [
   { name: 'concept', lane: 'proof-or-stop-review-concept', legacyAliases: [], reason: 'baseline' },
   { name: 'quality', lane: 'proof-or-stop-review-quality', legacyAliases: [], reason: 'baseline' },
   { name: 'test-coverage', lane: 'proof-or-stop-review-test-coverage', legacyAliases: [], reason: 'baseline' },
-  { name: 'behavior', lane: 'proof-or-stop-review-behavior', legacyAliases: [], reason: 'riskSignal: gate' },
-  { name: 'docs', lane: 'proof-or-stop-review-docs', legacyAliases: [], reason: 'touchpoints .md' },
 ];
 const narrowClosure = computeCanonicalDependencyClosure(first.root, ['packages/main/tests/isolated.test.ts']);
 assert.equal(narrowClosure.complete, true, JSON.stringify(narrowClosure));
+const unresolvedSelection = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
+console.log('UNRESOLVED_ROSTER_LEDGER=' + JSON.stringify({ findingStatus: reloaded.readFindings(storyId).findings.find(row => row.id === realFindingId)?.status, selection: unresolvedSelection.selection, selected: unresolvedSelection.selectedLanes }));
+if (process.env.LAB_ROSTER_CASE !== 'closed') {
+  assert.equal(unresolvedSelection.selection, 'full-set', 'UNRESOLVED_FINDING_MUST_PREVENT_ROSTER_NARROWING');
+}
+cli(first.root, 'finding_resolve', { storyId, findingId: realFindingId, resolution: 'Disposable inventory test terminal is closed to exercise post-remediation roster consumer consistency; this is fixture state, not a product repair claim.' });
+assert.equal(reloaded.readFindings(storyId).findings.find(row => row.id === realFindingId)?.status, 'resolved');
 const narrowSelection = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
 assert.equal(narrowSelection.selection, 'dependency-closure', JSON.stringify(narrowSelection));
 assert.deepEqual(narrowSelection.selectedLanes, [
@@ -1088,8 +1128,121 @@ for (const forged of [
 ]) {
   assert.equal(verifyPostRemediationReviewSelection(forged), false, 'unsigned, cross-boundary, or forged lineage cannot narrow final review');
 }
+// Safety probes overlay reads only; no real or disposable Finding records are rewritten.
+const rosterProbeFinding = reloaded.readFindings(storyId).findings.find(row => row.id === realFindingId)!;
+for (const severity of ['critical', 'high', 'medium', 'low'] as const) {
+  for (const evidenceState of ['verified', 'suspected', 'disproven'] as const) {
+    const probe = Object.create(reloaded) as StoryStore;
+    probe.readFindings = () => ({ ...reloaded.readFindings(storyId), findings: [{ ...rosterProbeFinding, status: 'open', severity, evidenceState }] });
+    const selection = postRemediationReviewSelection(probe, first.root, storyId, activeReviewers);
+    assert.equal(selection.selection, 'full-set', `open ${severity}/${evidenceState} cannot drop a review concern`);
+    assert.equal(verifyCurrentPostRemediationReviewSelection(probe, first.root, storyId, narrowSelection), false, 'finding drift invalidates selection even without caller roster');
+  }
+}
+const ratchetData = structuredClone(reloaded.readReviewInventoryEpochs(storyId));
+const ratchetReceipt = ratchetData.receipts.find(row => row.receiptId === narrowSelection.sourceReceiptId)!;
+const ratchetEpoch = ratchetData.epochs.find(row => row.epochId === ratchetReceipt.epochId)!;
+ratchetReceipt.requiredLanes = [...narrowSelection.selectedLanes];
+ratchetEpoch.requiredLanes = [...narrowSelection.selectedLanes];
+const { _hash: ignoredReceiptHash, ...unsignedRatchetReceipt } = ratchetReceipt;
+ratchetReceipt._hash = signReviewInventoryReceipt(unsignedRatchetReceipt);
+const { _hash: ignoredEpochHash, ...unsignedRatchetEpoch } = ratchetEpoch;
+ratchetEpoch._hash = signReviewInventoryEpoch(unsignedRatchetEpoch);
+const ratchetProbe = Object.create(reloaded) as StoryStore;
+ratchetProbe.readReviewInventoryEpochs = () => ratchetData;
+assert.equal(postRemediationReviewSelection(ratchetProbe, first.root, storyId, activeReviewers).reason, 'SOURCE_ROSTER_INCOMPLETE', 'a narrowed consumed inventory cannot license another narrowing');
+const expandedActive: ActiveReviewer[] = [...activeReviewers, { name: 'docs', lane: 'proof-or-stop-review-docs', legacyAliases: [], reason: 'new active docs concern' }];
+assert.equal(postRemediationReviewSelection(reloaded, first.root, storyId, expandedActive).selection, 'full-set', 'new active concern must have a complete source inventory');
+const basisRatchet = structuredClone(reloaded.readReviewInventoryEpochs(storyId));
+for (const record of [...basisRatchet.epochs, ...basisRatchet.receipts]) {
+  record.rosterBasis = 'probe: previously narrowed, even though lane coverage is now full';
+  const { _hash, ...unsigned } = record;
+  record._hash = 'state' in record ? signReviewInventoryEpoch(unsigned as Omit<typeof ratchetEpoch, '_hash'>) : signReviewInventoryReceipt(unsigned as Omit<typeof ratchetReceipt, '_hash'>);
+}
+const basisProbe = Object.create(reloaded) as StoryStore;
+basisProbe.readReviewInventoryEpochs = () => basisRatchet;
+assert.equal(postRemediationReviewSelection(basisProbe, first.root, storyId, activeReviewers).reason, 'SOURCE_ROSTER_INCOMPLETE');
+const unavailableProbe = Object.create(reloaded) as StoryStore;
+unavailableProbe.readReviewInventoryEpochs = () => { throw new Error('injected inventory read failure'); };
+const unavailableRoster = projectFinalReviewRoster(unavailableProbe, first.root, storyId, activeReviewers);
+assert.equal(unavailableRoster.requiredReviewers.length, activeReviewers.length);
+assert.match(unavailableRoster.error ?? '', /injected inventory/);
+const unavailableReadiness = buildStoryReadinessReport({ store: unavailableProbe, root: first.root, storyId, target: 'TEST' });
+assert(unavailableReadiness.readiness.some(row => row.id === 'review.roster' && row.blocking));
+for (const invalid of [[], ['proof-or-stop-review-invented']]) {
+  const invalidRows = buildReviewGateRows(reloaded, storyId, first.root, invalid);
+  assert(invalidRows.some(row => row.code === 'invalid_required_review_roster' && row.blocking));
+  assert(!invalidRows.some(row => row.reason.includes('all 0 active')));
+}
+assert.equal(classifyLaneState(false, false, [rosterProbeFinding], true, false), 'awaiting-repair', 'blocker precedence is retained even with a contradictory excluded-lane input');
+console.log('ROSTER_SAFETY_CONTROLS=20 passed');
 const roster = computeFinalReviewRoster(reloaded, first.root, storyId, activeReviewers);
 assert.deepEqual(roster.requiredReviewers.map(row => row.name), ['quality', 'test-coverage']);
+const rosterStartedAt = performance.now();
+const batchClosed = JSON.parse(cli(first.root, 'reviewer_batch', { storyId, json: true }));
+const launchedClosed = batchClosed.lanes.filter((row: { launchInstruction: string | null }) => row.launchInstruction).map((row: { lane: string }) => row.lane.replace(/^proof-or-stop-review-/, ''));
+let quorumMissing = '';
+try { cli(first.root, 'quorum_submit', { storyId, hostA: 'fixture-a', hostB: 'fixture-b' }); }
+catch (error) { quorumMissing = error instanceof Error ? error.message : String(error); }
+const repeatRoundFixture = reloaded.readStory(storyId);
+repeatRoundFixture.phase = 'REVIEW';
+reloaded.writeStory(storyId, repeatRoundFixture);
+cli(first.root, 'review_inventory_begin', { storyId });
+const nextEpochFixture = reloaded.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+const inventoryRequired = nextEpochFixture.requiredLanes.map(lane => lane.replace(/^proof-or-stop-review-/, ''));
+cli(first.root, 'review_inventory_cancel', { storyId, reason: 'Disposable roster contract measurement complete; preserve the prior consumed epoch for drift controls.' });
+console.log('CLOSED_ROSTER_CONSUMERS=' + JSON.stringify({selected:roster.requiredReviewers.map(row=>row.name),launched:launchedClosed,inventory:inventoryRequired,quorumMissing,seconds:(performance.now()-rosterStartedAt)/1000}));
+assert.deepEqual(launchedClosed,['quality','test-coverage'],'CLOSED_REPAIR_MUST_NOT_REDISPATCH_UNAFFECTED_LANE');
+assert.deepEqual(inventoryRequired,['quality','test-coverage'],'INVENTORY_MUST_USE_CURRENT_SIGNED_ROSTER');
+assert(!quorumMissing.includes('missing current pass lane(s): proof-or-stop-review-concept'), 'QUORUM_MUST_NOT_REQUIRE_EXCLUDED_CONCEPT');
+assert(quorumMissing.includes('proof-or-stop-review-quality') && quorumMissing.includes('proof-or-stop-review-test-coverage'), 'Required missing passes must still refuse quorum');
+assert(!batchClosed.readinessReport.readiness.some((row: { id:string })=>row.id==='review.required_lane.concept'),'READINESS_MUST_MATCH_SIGNED_ROSTER');
+assert.equal(batchClosed.gate.ready,false,'A narrow launch plan does not grant TEST');
+assert.equal(batchClosed.lanes.find((row: {lane:string}) => row.lane === 'proof-or-stop-review-concept').state, 'outside-remediation-impact');
+assert.deepEqual(batchClosed.reviewRound, reloaded.readStory(storyId).currentReviewRound);
+assert.deepEqual(batchClosed.readinessReport.reviewRoster.activeLanes, batchClosed.lanes.map((row: {lane:string}) => row.lane), 'canonical lane identity agrees between batch and readiness');
+// Exercise narrowed inventory publication and consumption with actual CLI lane terminals.
+const inventoryBeforeNarrowLifecycle = structuredClone(reloaded.readReviewInventoryEpochs(storyId));
+cli(first.root, 'review_inventory_begin', { storyId });
+const narrowEpoch = reloaded.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+assert.ok(narrowEpoch.rosterBasis);
+git(first.root, ['commit', '--allow-empty', '-m', 'metadata-only narrow inventory checkpoint']);
+cli(first.root, 'review_inventory_status', { storyId });
+assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs.at(-1)!.state, 'OPEN', 'metadata-only HEAD tick preserves narrowed inventory');
+// Exercise actual current-round pass consumption; identical hosts must still fail afterward.
+for (const lane of narrowSelection.selectedLanes) {
+  const laneEnv = { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: `v15-current-${lane}` };
+  cli(first.root, 'dispatch', { storyId, agentType: lane }, laneEnv);
+  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
+  const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+  assert.ok(reviewRunId, started);
+  cli(first.root, 'review_pass_set', { storyId, agent: lane, reviewRunId,
+    note: 'Disposable roster test exercises current required-lane pass consumption; not real product review.', readManifest, readEvents }, laneEnv);
+}
+assert.throws(() => cli(first.root, 'quorum_submit', { storyId, hostA: 'same-fixture-host', hostB: 'same-fixture-host' }), /must be independent/, 'two current selected passes reach the unchanged host-independence gate');
+console.log('NARROW_QUORUM_PASS_CONSUMPTION=2 current passes accepted; identical hosts refused');
+const narrowCritic = 'proof-or-stop-review-topology-critic';
+const narrowCriticEnv = { PROOF_OR_STOP_AGENT: narrowCritic, PROOF_OR_STOP_SESSION_ID: 'v15-narrow-critic' };
+const narrowPurpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: narrowEpoch.epochId };
+cli(first.root, 'dispatch', { storyId, agentType: narrowCritic, ...narrowPurpose }, narrowCriticEnv);
+const narrowCriticStart = cli(first.root, 'review_run_start', { storyId, agent: narrowCritic, ...narrowPurpose }, narrowCriticEnv);
+const narrowCriticRunId = narrowCriticStart.match(/Review run (\S+) started/)?.[1];
+assert.ok(narrowCriticRunId, narrowCriticStart);
+cli(first.root, 'review_pass_set', { storyId, agent: narrowCritic, reviewRunId: narrowCriticRunId,
+ note: 'Disposable critic verifies narrowed inventory terminal coverage, not independent-host product assurance.', readManifest, readEvents }, narrowCriticEnv);
+cli(first.root, 'review_inventory_critic_set', { storyId, epochId: narrowEpoch.epochId, reviewRunId: narrowCriticRunId, agent: narrowCritic, findingDispositions: [] }, narrowCriticEnv);
+assert.match(cli(first.root, 'review_inventory_finalize', { storyId }), /State: FINALIZED/);
+const narrowPair = finalizedUnconsumedReviewInventory(reloaded, storyId)!;
+assert.equal(narrowPair.receipt.rosterBasis, narrowEpoch.rosterBasis);
+const reopenedProbe = Object.create(reloaded) as StoryStore;
+reopenedProbe.readFindings = () => ({ ...reloaded.readFindings(storyId), findings: [{ ...rosterProbeFinding, status: 'open' }] });
+assert.throws(() => consumeReviewInventoryReceipt(reopenedProbe, storyId, reloaded.readStory(storyId).currentReviewRound!, narrowEpoch.cutoff), /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED/);
+assert.equal(consumeReviewInventoryReceipt(reloaded, storyId, reloaded.readStory(storyId).currentReviewRound!, narrowEpoch.cutoff), narrowPair.receipt.receiptId);
+assert.equal(postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers).selection, 'full-set', 'consumed narrow inventory does not license further narrowing');
+console.log('NARROW_INVENTORY_LIFECYCLE=2 lane terminals + critic; finalize and core consume succeed; reopened finding refuses consume; metadata-only HEAD stays OPEN');
+// Restore only the disposable inventory baseline for independent dependency-drift probes below.
+reloaded.writeReviewInventoryEpochs(storyId, inventoryBeforeNarrowLifecycle);
+
 const rosterStatus = renderFinalReviewRoster(roster, storyId);
 assert.match(rosterStatus, /^Final-review lanes: proof-or-stop-review-quality, proof-or-stop-review-test-coverage$/m);
 assert.match(rosterStatus, /^Selection: dependency-closure \(PROVEN_CANONICAL_DEPENDENCY_CLOSURE: 1 changed file\(s\) close over 1 tracked dependency file\(s\)\)$/m);
@@ -1164,6 +1317,12 @@ const expandedScopeSelection = postRemediationReviewSelection(reloaded, first.ro
 assert.equal(expandedScopeSelection.selection, 'full-set');
 assert.equal(expandedScopeSelection.reason, 'SCOPE_OR_POLICY_CHANGED');
 assert.deepEqual(expandedScopeSelection.selectedLanes, narrowSelection.activeLanes, 'scope expansion restores every active lane');
+
+if (process.argv.includes('--roster-only')) {
+  for (const fixtureRoot of isolatedFixtureRoots) rmSync(fixtureRoot, { recursive: true, force: true });
+  console.log('review roster targeted lifecycle: PASS');
+  process.exit(0);
+}
 
 const provenance = [
   ['8e9f72fc5424f499cb396ad92bc13558d88fb712', 'B-cdf6:RR-043'],

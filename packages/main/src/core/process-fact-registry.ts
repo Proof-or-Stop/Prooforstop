@@ -394,12 +394,18 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
-  semanticVerifier: 'core/finding-applicability.verifyDynamicFindingRecord + exact ledger/CAS carrier and route verification',
-  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish'],
+  semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
+  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
   killSwitch: 'legacy predicate fallback',
+  qualification: '22 metric rows; public queries and independently reviewed preregistered mutation executions supply counts; reported statistics remain diagnostic; exact per-subject independent gold, not an existence list, adjudicates the full census with a grader distinct from both source observer and bound decision proposer; high/critical misses veto aggregate averages and synthetic successes never dilute operational denominators; monotonic frozen-population start/end records measure proposal latency with per-observation population proof, unmatched starts refuse via timeout rate; full proposal/route/deferral/repair subject census and merged prerequisites required before the real 20 Stories / 200 cases / 30 observed days',
+  historicalRuntime: 'finding_runtime_evidence_run sourceRef executes an exact ancestor in a detached temporary worktree; both ordered receipts, selectors, witness schemas and pair digest bind non-regression proof',
+  qualificationProvenance: 'merged prerequisites require exact-current successful execution receipts with independently reviewed FINDING_PREREQUISITE command/selector bindings; historical readers recheck receipt trust; performance source IDs deduplicate completed candidate cohorts and latency attempts, conflicting references refuse, elapsed time counts once and performance rows never inflate independent Finding cases or observed days',
+  materialReattestation: 'finding_material_reattest signs unchanged source, process-policy, canonical and target-route dependencies plus exact fresh same-command runtime re-executions after current independent PASS; readers rederive all inputs',
+  recallProducer: 'story_advance owner boundary reconciles non-authoritative history recalls in warn/enforce only; explicit and automatic triggers share observed-state keys; failures report without bypassing gates or blocking DEV rework',
+  validation: 'signed findingConstraintDigest; additive required commands and affected paths; reassessment escalates to full; recheck before launch and before persistence; never scope authority',
 } as const;
 
 export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
@@ -480,6 +486,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
+  reviewer_batch: ['schema-contract', 'freshness-policy', 'reviewer-lane'],
   agent_prompt: ['artifact', 'prompt-envelope', 'schema-contract'],
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
@@ -520,6 +527,10 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_mandatory_repair_close: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
   finding_triage: ['schema-contract', 'signed-artifact', 'freshness-policy', 'blocker-state', 'gate-evidence'],
   finding_rollout_scorecard: ['schema-contract', 'freshness-policy'],
+  finding_qualification_record: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
+  finding_qualification_query: ['schema-contract', 'signed-artifact'],
+  finding_material_reattest: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
+  finding_assessment_propose: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   host_run: ['execution-evidence', 'schema-contract'],
   // Aggregate cursors affect observation only; terminal signatures and the
   // immutable Story ownership subject retain their existing consumer rules.
@@ -634,6 +645,8 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   // splitting; it grants neither dependency approval nor source-wide authority.
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence'],
+  // Shared by final gate, readiness/batch, inventory and quorum. Open findings and
+  // incomplete source rosters fail closed; narrowed inventory rechecks its semantic basis.
   // v2 closure policy rejects unresolved bare aliases; old signed selections expire.
   'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
@@ -643,6 +656,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   'runtime:causal_dependency_preflight_metrics_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  'runtime:story_create_phase_admission_gate': ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:verification_execution_assertion_reuse_gate': ['runtime-behavior', 'schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
@@ -679,7 +693,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow and signPrecertReceipt/verifyPrecertReceipt and signPrecertCheapCheckReceipt/verifyPrecertCheapCheckReceipt; inventory-completeness-only receipts never authorize PRE_CERT',
     producerCommand: 'certification_window_begin/certification_window_status/certification_window_cancel/validate',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
+    consumerGate: 'Durable ADMITTING is not heavy authority; recovery checks frozen identity and signed consumption owner. done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
   },
   certification_window_status: {
     name: 'certification-window.json',
@@ -687,7 +701,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow',
     producerCommand: 'certification_window_status --refresh=true (default status is read-only)',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
   },
   certification_window_cancel: {
     name: 'certification-window.json',
@@ -695,7 +709,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow with CANCELLED state',
     producerCommand: 'certification_window_cancel',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
   },
   review_inventory_begin: {
     name: 'review-inventory-epochs.json',
@@ -835,21 +849,21 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'original-intent-snapshot.json',
     signed: false,
     producerCommand: 'original_intent_snapshot_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   milestone_ledger_set: {
     name: 'milestone-ledger.json',
     path: 'milestone-ledger.json',
     signed: false,
     producerCommand: 'milestone_ledger_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   milestone_ledger_add: {
     name: 'milestone-ledger.json',
     path: 'milestone-ledger.json',
     signed: false,
     producerCommand: 'milestone_ledger_add',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   // Deliberate key/producerCommand deviation: milestone_closeout_capture is NOT an
   // invocable CLI command. The snapshot is written by the story_advance DONE-time
@@ -891,7 +905,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'proofstory.json',
     signed: false,
     producerCommand: 'proofstory_contract_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   acceptance_basis_generate: {
     name: 'acceptance-basis.json',
@@ -932,56 +946,56 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'intent-collision.json',
     signed: false,
     producerCommand: 'intent_collision_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   scope_shrinkage_decision_set: {
     name: 'scope-shrinkage-decision.json',
     path: 'scope-shrinkage-decision.json',
     signed: false,
     producerCommand: 'scope_shrinkage_decision_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   red_evidence_create: {
     name: 'red-evidence.json',
     path: 'red-evidence.json',
     signed: false,
     producerCommand: 'red_evidence_create',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   spike_start: {
     name: 'spike.json',
     path: 'spike.json',
     signed: false,
     producerCommand: 'spike_start',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   spike_result_set: {
     name: 'spike.json',
     path: 'spike.json',
     signed: false,
     producerCommand: 'spike_result_set',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   spike_result: {
     name: 'spike.json',
     path: 'spike.json',
     signed: false,
     producerCommand: 'spike_result',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   spike_discard: {
     name: 'spike.json',
     path: 'spike.json',
     signed: false,
     producerCommand: 'spike_discard',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   spike_promote: {
     name: 'spike.json',
     path: 'spike.json',
     signed: false,
     producerCommand: 'spike_promote',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
   },
   review_run_start: {
     name: 'review-runs.json',
@@ -1207,7 +1221,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     signature: 'Mixed legacy container: routine validate requires Story-bound Ed25519 validationArtifactSignature authenticates the complete Git-backed record before execution-mode selection; non-Git FAIL is diagnostic only',
     producerCommand: 'validate',
-    consumerGate: 'story_advance TEST and DONE validation gate; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
+    consumerGate: 'story_advance TEST and DONE validation gate; top-level validate conveys its typed verdict independently of JSON/text rendering to CLI exit, activity and terminal facts; nested validation does not inherit the outcome sink; routine REVIEW/TEST/DONE producers reject missing declared scope or failing current scope before execution and reuse; canonical publication requires clean pre-entry paths, current execution ownership and intended-byte hashes; foreign bytes are preserved on refusal; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   done_required_validate: {
     name: 'done-required-evidence.json',
@@ -1483,6 +1497,31 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/verification.ts',
     ],
   },
+  'runtime:external_story_worktree_bootstrap_authority_gate': {
+    producerSourceRefs: [
+      'packages/main/src/cli-engine.ts',
+      'packages/main/src/cli/runtime-root.ts',
+      'packages/main/src/cli/ownership-gate.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/auto-commit-metadata.ts',
+      'packages/main/src/handlers/context.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:go_command_acceptance_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/acceptance-discovery-adapters.ts',
+      'packages/main/src/core/pre-review-check.ts',
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/core/validation-executor.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/acceptance-topology.ts',
+      'packages/main/src/handlers/proofstory.ts',
+      'packages/main/src/handlers/transition-orchestrator.ts',
+    ],
+  },
 };
 
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
@@ -1679,7 +1718,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.original_intent_snapshot_set,
     rationale: 'Original intent snapshot freezes sourceText/keyRequirementIds into an immutable requestHash for progressive intent diagnostics and opt-in enforcement.',
   },
@@ -1705,7 +1744,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
-    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires every exact current-topology assertion ID, kind, and canonical sourceRef with no missing/extra/duplicate rows; records are assembled by ID rather than positional kind queues, so permutations or swaps cannot reattribute executed outcomes. It also requires distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. Both live loading and signed-artifact readback compare proof provenance against the current tracked runner and built target; the fixed runner performs a fresh build before emission. Stale runner/target bytes, stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation. Non-enforcing semantic readback retains the signed artifact critic-receipt digest so legal reviewer receipt renewal alone is not mislabeled as tampering; enforce mode remains bound to the current critic receipt while signature and basis/story/closure drift checks stay fail-closed.',
+    rationale: 'Verifier-owned signed pre-review artifact binds the selected verification profile, recomputed current-worktree basis, strict cutoff, and topology/scope/story/closure hashes. TypeScript and mixed workspaces retain artifact-kind/runtime-aware planned-to-actual reconciliation plus gzip-carried canonical positive, mutation, control, transcript, provenance, and independent critic proof. Pure Go workspaces use the separate go-command profile: every executable must intent needs its immutable command/selector pin and current tool-owned signed receipt, and at least one authenticated execution must be argv-structured go test. Missing, failed, stale, cutoff-invalid, mismatched, unsigned, or non-Go-only evidence fails closed; unsupported languages receive no Go authority. Non-enforcing semantic readback retains the signed artifact critic-receipt digest so legal reviewer receipt renewal alone is not mislabeled as tampering; this critic rule applies to the TypeScript profile.',
   },
   {
     name: 'artifact:acceptance-rollout-report.json',
@@ -1749,7 +1788,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.milestone_ledger_set,
     rationale: 'Milestone ledger makes multi-deliverable intent countable; candidate rows guide diagnostics and confirmed rows can be gate-consumed.',
   },
@@ -1791,7 +1830,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'core/auto-commit-metadata',
     consumerGate: 'review-run metadata-only retention classifier (artifact gate validation remains independent)',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
-    rationale: 'Append-only integrity-chained cooperative local-runtime lineage. It may classify a registered nonmaterial closeout write as a review-retention descendant only when material, story-owned files, scope, review round, and HEAD evaluation remain unchanged. writerCommand is a registered writer label, not same-UID authentication; this lineage does not approve an artifact, and artifact gate validation remains independent.',
+    rationale: 'Append-only integrity-chained cooperative local-runtime lineage. It may classify a registered nonmaterial closeout write as a review-retention descendant only when material, story-owned files, scope, review round, and HEAD evaluation remain unchanged. writerCommand is a registered writer label, not same-UID authentication; this lineage does not approve an artifact, and artifact gate validation remains independent. Immutable publication rechecks scoped worktree and index bytes before CAS and after hooks, rejects nonregular paths, preserves foreign HEAD/index changes, and attempts owned HEAD rollback independently of index recovery failure. Refresh-failure cleanup preserves foreign or unreadable index entries; outer auto-closeout rolls back only intended worktree output bytes and leaves index recovery to the publication primitive.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',
@@ -1808,7 +1847,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.proofstory_contract_set,
     rationale: 'ProofStory contract stores hardening level, trigger reasons, acceptance bindings, and diagnostic gaps for diagnostics and opt-in enforcement.',
   },
@@ -1818,7 +1857,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.intent_collision_set,
     rationale: 'Intent collision records accepted interpretation decisions; pass confirms candidate ledger rows for gate consumption.',
   },
@@ -1828,7 +1867,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_shrinkage_decision_set,
     rationale: 'Scope shrinkage decisions explicitly preserve audit trail when DONE delivery no longer covers a required milestone.',
   },
@@ -1838,7 +1877,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.red_evidence_create,
     rationale: 'Red evidence records pre-fix failures bound to baseline head/material and a green relation target; it remains distinct from green verificationEvidence.',
   },
@@ -1848,7 +1887,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory',
-    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+    consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates; withdrawal transaction preserves signed checkpoint history and propagates publication contention',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.spike_start,
     rationale: 'Spike evidence records investigation state and disposable code policy; it never satisfies red or verification evidence unless separately promoted by explicit commands.',
   },
@@ -1870,7 +1909,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility. New conditional review envelopes additionally bind optional fullStoryBaseHead from the producer-resolved main commit. First-pass and bounded-overflow replay use that immutable base with the signed run head; declared unavailable bases refuse, while absent legacy fields preserve the previous digest. Live material, scope, native identity and Finding checks remain independent.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1900,7 +1939,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory remediation/completeness gate and certification_window_begin',
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
-    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts either prove bounded zero-new verified-finding saturation or explicitly grant review-remediation-only authority after a complete critic-certified wave; remediation-only receipts cannot enter certification. Both are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT. Each native or managed epoch result is independently durable before its Git commit is deferred; finalize/cancel batch exact review artifacts and referenced prompt bodies through an isolated verified index and HEAD CAS. A failed commit preserves signed results, and exact retries preserve receipt authority and cancellation facts without redispatch or telemetry-only commits.',
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts either prove bounded zero-new verified-finding saturation or explicitly grant review-remediation-only authority after a complete critic-certified wave; remediation-only receipts cannot enter certification. Both are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority. Inventory-completeness receipts bind current head/material/storyFiles hashes; authorizesTest stays false and completeness is not PRE_CERT. Each native or managed epoch result is independently durable before its Git commit is deferred; finalize/cancel batch exact review artifacts and referenced prompt bodies through an isolated verified index and HEAD CAS. A failed commit preserves signed results, and exact retries preserve receipt authority and cancellation facts without redispatch or telemetry-only commits. Finalized next-action guidance uses the same signed receipt: remediation routes to DEV, finding-free completeness routes to fast PRE_CERT preparation, retained findings route to finding inspection, and consumed receipts route to session status without inferring the prior consumer. Invalid or mismatched authority cannot project a next action; guidance never consumes a receipt or grants transition authority.',
   },
   {
     name: 'artifact:findings.json',
@@ -2048,7 +2087,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/certification-window',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
     rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Exact canonical artifact-releases.jsonl and capability-releases.jsonl paths are review-subject causal inputs bound to actual Git blobs/tombstones, with integration/test dependency invalidation; release provenance is never gate evidence and unknown paths fail closed. Inventory completeness receipts never authorize certification.',
   },
@@ -2240,7 +2279,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     semantics: ['runtime-behavior', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/transition-orchestrator',
-    consumerGate: 'done_prepare convergence acceptance',
+    consumerGate: 'done_prepare convergence acceptance, with refuse-only upstream scope/review diagnosis and unchanged final DONE oracle',
     rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived. The gated PLAN->INIT reopen records three further durable audit semantics on the same append-only, appended-only-on-success event: transitionType: "reopen" marks the backward reopen so it is distinguishable from a forward transition, reason carries the operator reason already validated at the REOPEN remap (non-blank, at least REOPEN_REASON_MIN characters) so a validated reason is never dropped, and reopenAuditId carries the recovery idempotency key. All three are strictly additive and are set ONLY on a REOPEN; every ordinary transition must omit them and keep its exact prior event shape. RECOVERY SEMANTICS (B-70a6 F-004): the phase write and this event append are two separate fs operations, so a crash between them once left a committed reopen with NO audit record — unrecoverable, because REOPEN only fires FROM PLAN and the story had already left the only phase that could retry it. The reopen therefore writes a pendingReopenAudit recovery record (auditId, verbatim reason, fromPhase, at, materialHash, storyFilesHash, reviewRound) onto the story index in the SAME atomic writeStory rename that persists phase=INIT, so the reason is durable the instant the reopen commits; reconcilePendingReopenAudit then emits any missing event at the next ORCHESTRATED transition and clears the record, narrowed further by the OUT-OF-BAND PHASE MUTATIONS and CONCURRENCY RESIDUAL paragraphs below and never on an arbitrary read-only command. Recovery is idempotent by exact reopenAuditId identity, never by reason text: a missing event is appended exactly once, an already-audited record is cleared without appending, and the clear happens only after the event is durable. The record can only exist because the phase write it rode committed, so an aborted or refused reopen leaves neither record nor event and nothing can later fabricate a transition that did not happen. The record and reopenAuditId are audit-only recovery bookkeeping, not gate evidence: no gate consumes them, and the convergence counters above stay derived from the typed from/to phases. OUT-OF-BAND PHASE MUTATIONS (B-70a6 F-005): runStoryTransitionInner is NOT the only writer of story.phase, so the F-004 reconciliation at its entry does not by itself make the invariant framework-wide. Two production sites mutate story.phase directly through store.writeStory: story_discard (handlers/worktree.ts) and the story_reconcile zombie repair (handlers/story-query.ts). Both write a TERMINAL phase (DISCARDED / DONE) that has no outgoing machine edge, and story_discard additionally force-deletes the worktree and branch, so an unaudited reopen there was lost PERMANENTLY rather than deferred to the next transition. Both sites must therefore call reconcileReopenAuditBeforeOutOfBandPhaseChange BEFORE their destructive steps and before their phase write. That rescue reads the record from the DOOMED copy when necessary, because cli/runtime-root.ts redirects story_discard to the MAIN root while the reopen is cwd-gated into the worktree, so the handler store cannot see the record; it then appends the event to the SURVIVING store through the same reconcilePendingReopenAudit, keeping ONE append site and the same exact-auditId idempotency. The rescue never blocks the operation: discarding or reconciling a story stays legitimate, and every failure is surfaced as a warning instead of thrown, including a doomed copy that exists but cannot be read (corrupt index.json, permission error); the single deliberate silence is a doomed copy that holds no story metadata at all, which is a no-op rather than a failure. Declared residuals: the record on the DOOMED copy is deliberately not cleared, because writing into a worktree that is about to be status-checked could turn it dirty and refuse a non-force discard, so a destructive step that fails can later yield a DUPLICATE event sharing one auditId, never a lost one; and story_discard --purge removes the story metadata directory holding the log this event is appended to, so a rescued event does not survive a purge, an explicit erase of every process event this story holds rather than a silent audit loss. Stated to the precision that is actually verified: the git rollback purge performs may restore an OLDER committed copy of that directory, so metadata files can remain on disk after a purge, but that copy predates the rescue and never carries the rescued event. CONCURRENCY RESIDUAL (B-70a6 F-013): the out-of-band rescue is a one-time scan that does not hold the per-story transition lock, so it serializes against nothing. A PLAN->INIT reopen that commits its recovery record AFTER that scan has already run can still have that record destroyed by the same story_discard, and the reopen then dies against the removed worktree, so neither the record nor the event survives. The guarantee is therefore SEQUENTIAL and is claimed only at that strength: a reopen whose record is already on disk when the terminal operation starts is recovered, by the next orchestrated transition or by these two sites, while a reopen racing the terminal operation is not covered; a separate lock-independent case is story_discard --force on a story whose worktree is already gone, where the record only ever lived in that worktree and no mutex could have saved it. It is named rather than locked, and B-70a6 F-014 corrected the reason recorded for that. The earlier text argued that the transition-cas persist claim, a fail-fast 15s claim built for a millisecond fully synchronous section, could not be stretched across the git work story_discard performs. That argument was misdirected: the persist claim was never the candidate primitive. The only candidate is acquireStoryTransitionLock, whose 120s stale threshold is documented as generously exceeding any legitimate long transition, and story_discard is itself fully synchronous, so the millisecond-section objection never applied to it. The accurate reasons are three. First, acquireStoryTransitionLock is documented as a best-effort advisory contention reducer that is not the correctness guarantee and is disabled outright by PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so taking it could narrow this window but never close it and the claim would still be SEQUENTIAL, which makes this a defence-in-depth question and not a correctness one. Second, story_discard is the recovery command an operator reaches for when a story is already wedged, and that lock exposes no fail-fast option: an acquire polls its 180s deadline and then throws, and a leaked lock whose recorded pid has been recycled by an unrelated live process is classified active and never stale-reclaimed at any age, so the recovery command would hang behind a lock file; the one shape without that hazard, a non-blocking try-acquire that proceeds unlocked on failure, was considered and declined because it covers only a reopen that has not yet taken the lock while leaving a mutex that reads as a serialization it does not provide. Third, and specific to story_reconcile rather than to story_discard, that repair already runs inside the main write lock, so acquiring the transition lock there would invert the established transitionLock to mainWriteLock order and let a repair block the main write lock while a DONE holding the transition lock fail-fasts on it; story_discard is not in that position, because its main write lock calls all come after the rescue and after the destruction. Hardening that race is a follow-up story and is not claimed here.',
   },
   {
@@ -2268,7 +2307,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/verifier',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
+    rationale: 'Command schedulerWaitMs is diagnostic intra-plan resource-conflict waiting only, excluding worker slots and cross-process capacity; it grants no gate or reuse authority. Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
   },
 ] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
@@ -2304,12 +2343,19 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   consumerGate: 'CLI dispatch when an explicit implementation transport pin is required; automatic checklist execution and canonical import implementation binding',
   rationale: 'An opt-in host transport pin compares actual implementation, bin bootstrap helpers, the build-lock helper and dependency bytes plus Node before dispatch; package version equality is not an implementation proof. Missing required pins and mismatches refuse. Unpinned invocations retain compatibility and are not claimed pinned. Checklist receipts automatically bind actual implementation bytes; same-version drift executes anew, mutation during a command cannot publish a receipt, and canonical import rechecks the current implementation.',
 }, {
+  name: 'runtime:headless_baseline_production', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'workspace-binding'],
+  level: 'L4', producer: 'handlers/story-aware-validation',
+  producerSourceRefs: ['packages/main/src/handlers/story-aware-validation.ts', 'packages/main/src/handlers/verifier.ts'],
+  consumerGate: 'Canonical full baseline production; ordinary unscoped validation retains actual command outcome',
+  rationale: 'Target-aware producers and consumers bind the same async-local signing root, including concurrent invocations; explicit signing roots retain precedence. No resolvable HEAD means no reusable Git epoch: skip baseline production before signing and log the reason. Command failure remains failure; Story authority and existing committed baseline checks remain unchanged.',
+}, {
   name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
   level: 'L4', producer: 'core/shared-validation-execution',
-  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/handlers/verifier.ts', 'packages/main/src/core/causal-evidence.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts', 'packages/main/src/handlers/checklist.ts', 'packages/main/src/handlers/done-required-validation.ts', 'packages/main/src/core/auto-commit-metadata.ts'],
+  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-inputs.ts', 'packages/main/src/handlers/verifier.ts', 'packages/main/src/core/causal-evidence.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts', 'packages/main/src/handlers/checklist.ts', 'packages/main/src/handlers/done-required-validation.ts', 'packages/main/src/core/auto-commit-metadata.ts'],
   consumerGate: 'Default Story routine validate and explicit full validate require PRE_CERT, including full combined with focus; focused preparation and isolated CLI gates remain available. validate and done_required_validate retain their independent acceptance and build-proof predicates; exact verified CAS output paths are excluded from workspace input comparison, while invalid receipts, unknown files and explicit input bytes remain checked',
-  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Complete executor capture supplies the receipt digest; output exceeding the bounded selector window is partial and never reusable. The v2 capture identity refuses prior display-derived receipts. Forbidden reuse and build proof always execute. Canonical provider and liveness core variants schedule every former nested member independently, including the fixed seven-member liveness union. The registered whole-command-array static guard rejects unresolved nested launches and stale reviewed exceptions bound to command configuration, exact call source and traversed caller/helper/package dependencies; paired property controls remain explicit exceptions. Provider F-181 retains a real sanitized child CLI mutation and an unsanitized negative control; standalone pinned invocations retain their combined proof and selector. Declared nonconflicting resources share a machine admission barrier, including explicitly classified empty full-suite footprints. Missing or empty validation claims acquire globally exclusive same-user machine capacity; cancellation and deadline refusal launch no child. Ancestor conflicts fail closed rather than waiting on their own caller. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. DONE-required validates current PRE_CERT admission without consuming or committing the routine execution allocation; explicitly shared commands require a clean workspace, and only DONE-specific evidence belongs to its metadata writer. Dirty source and adjacent staged changes remain untrusted. Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable, loaded implementation digest and policy identity. The actual loaded tool package supplies the tool version; target-project package versions cannot substitute for it. The explicit validate.sharedExecution option enables execution sharing independently of dynamic selection mode, while per-command exclusions still apply. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. Single and batch checklist evidence commands renew the existing owner generation through actual command execution and canonical publication, preserving zero-command receipt import recovery. Only a signed pending-publication capability binds the exact pre-write checklist, owner generation, request and current physical execution identity to an unpublished V5 bundle and causal receipt. Canonical publication retires that capability; a later ordinary request still executes a new observation. Signature, subject, output and current implementation checks precede recovery; recovery never relaxes selector or freshness checks.',
+  rationale: 'Measured cost hints are execution-only; declared directory inputs bind fresh complete trees; consumer-local executionDecision never grants authority. Certification begin and cancel verify both registered active-identity boundaries before store access; an exit-zero semantic non-PASS remains fail through coverage decoration. Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Complete executor capture supplies the receipt digest; output exceeding the bounded selector window is partial and never reusable. The v2 capture identity refuses prior display-derived receipts. Forbidden reuse and build proof always execute. Canonical provider and liveness core variants schedule every former nested member independently, including the fixed seven-member liveness union. The registered whole-command-array static guard rejects unresolved nested launches and stale reviewed exceptions bound to command configuration, exact call source and traversed caller/helper/package dependencies; paired property controls remain explicit exceptions. Provider F-181 retains a real sanitized child CLI mutation and an unsanitized negative control; standalone pinned invocations retain their combined proof and selector. Declared nonconflicting resources share a machine admission barrier, including explicitly classified empty full-suite footprints. Missing or empty validation claims acquire globally exclusive same-user machine capacity; cancellation and deadline refusal launch no child. Ancestor conflicts fail closed rather than waiting on their own caller. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. DONE-required validates current PRE_CERT admission without consuming or committing the routine execution allocation; explicitly shared commands require a clean workspace, and only DONE-specific evidence belongs to its metadata writer. Dirty source and adjacent staged changes remain untrusted. Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable, loaded implementation digest and policy identity. The actual loaded tool package supplies the tool version; target-project package versions cannot substitute for it. The explicit validate.sharedExecution option enables execution sharing independently of dynamic selection mode, while per-command exclusions still apply. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. Single and batch checklist evidence commands renew the existing owner generation through actual command execution and canonical publication, preserving zero-command receipt import recovery. Only a signed pending-publication capability binds the exact pre-write checklist, owner generation, request and current physical execution identity to an unpublished V5 bundle and causal receipt. Canonical publication retires that capability; a later ordinary request still executes a new observation. Signature, subject, output and current implementation checks precede recovery; recovery never relaxes selector or freshness checks.',
 }] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{

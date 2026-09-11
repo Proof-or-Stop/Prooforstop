@@ -44,7 +44,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
@@ -870,14 +870,30 @@ try {
       recentActivity.some(event => event.session === expectedCliIdentity.sessionId),
       'activity event persists the same opaque canonical host-adapter id used by session_brief',
     );
-    const doctor = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'doctor', '--format=json'], {
-      cwd: projectRoot,
-      env: cliEnv,
-      encoding: 'utf8',
-      timeout: 60_000,
-    });
-    assert.equal(doctor.status, 0, `real doctor exits cleanly: ${doctor.stderr}`);
-    const doctorOutput = `${doctor.stdout}\n${doctor.stderr}`;
+    // Repository-wide diagnostic JSON can exceed spawnSync's 1 MiB pipe buffer.
+    // Capture complete output to disposable files without changing doctor behavior.
+    const doctorStdoutPath = join(root, 'doctor-cli.stdout');
+    const doctorStderrPath = join(root, 'doctor-cli.stderr');
+    const doctorStdoutFd = openSync(doctorStdoutPath, 'w');
+    const doctorStderrFd = openSync(doctorStderrPath, 'w');
+    let doctor: ReturnType<typeof spawnSync>;
+    try {
+      doctor = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'doctor', '--format=json'], {
+        cwd: projectRoot,
+        env: cliEnv,
+        stdio: ['ignore', doctorStdoutFd, doctorStderrFd],
+        timeout: 60_000,
+      });
+    } finally {
+      closeSync(doctorStdoutFd);
+      closeSync(doctorStderrFd);
+    }
+    const doctorStdout = readFileSync(doctorStdoutPath, 'utf8');
+    const doctorStderr = readFileSync(doctorStderrPath, 'utf8');
+    assert.equal(doctor.error, undefined, `real doctor starts and completes: ${doctor.error?.message}`);
+    assert.equal(doctor.status, 0, `real doctor exits cleanly: ${doctorStderr}`);
+    assert.doesNotThrow(() => JSON.parse(doctorStdout), 'real doctor emits complete JSON');
+    const doctorOutput = `${doctorStdout}\n${doctorStderr}`;
     assert.ok(doctorOutput.includes('"sessionSource": "host-adapter"'), 'real doctor JSON reports host-adapter source');
     assert.ok(doctorOutput.includes('"hostProvider": "codex"'), 'real doctor JSON reports Codex provider');
     assert.equal(doctorOutput.includes(cliSentinel), false, 'real doctor output redacts CODEX_THREAD_ID');

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
 import { derivePlannedCoveragePaths, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
+import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { StoryStore } from '../core/store.js';
 import { evaluateAcceptanceTopologyForContext } from '../handlers/proofstory.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -194,12 +195,30 @@ function writeDiscoveryRegistration(root: string): void {
     'export const machine = "acceptance basis lifecycle consumer";\n');
   write(root, 'packages/main/src/core/review-inventory-epoch.ts',
     'export const reviewInventoryEpoch = "acceptance basis review inventory binding";\n');
+  for (const source of [
+    'scope-inventory-budget',
+    'story-scope-budget',
+    'story-scope-budget-decisions',
+    'story-scope-budget-legacy',
+  ]) {
+    write(root, `packages/main/src/core/${source}.ts`,
+      `export const ${source.replaceAll('-', '_')} = "acceptance basis source inventory";\n`);
+  }
   write(root, 'packages/main/src/handlers/review-inventory.ts',
     'export const reviewInventory = "acceptance basis review inventory handler";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
     'export const acceptanceRolloutCohortRunner = true;\n');
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs',
     'export const preReviewLiveProof = "acceptance_basis acceptance_topology_check";\n');
+
+  // This fixture asserts a complete signed source snapshot. Keep it closed
+  // over every registered process-fact implementation without duplicating the
+  // production registry's evolving source list here.
+  for (const entry of PROCESS_FACT_REGISTRY) {
+    for (const path of [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]) {
+      if (!existsSync(join(root, path))) write(root, path, 'export const fixtureDependency = true;\n');
+    }
+  }
 }
 
 function parseJsonOutput(output: string): any {

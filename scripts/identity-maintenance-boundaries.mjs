@@ -56,5 +56,5 @@ export const MAINTENANCE_SCHEMA_PROVENANCE_ROWS=Object.freeze([Object.freeze({
 })]);
 export const MAINTENANCE_SCHEMA_WITNESSES=Object.freeze([Object.freeze({
   path:'packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs',
-  sha256:'5488f34acd76985665991869d4af6b4ea85c783d02f00c9251138679d352dca0',
+  sha256:'1022aad78dd436672ed3af53517fdcbc1371b30106a8900ded27cfc38fceeb6e',
 })]);

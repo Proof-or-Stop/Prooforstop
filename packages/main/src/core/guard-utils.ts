@@ -17,7 +17,7 @@ import { isReviewerAgent } from './review-run.js';
 import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import type { Finding } from './types.js';
 import { createActor } from 'xstate';
 import { createHash } from 'crypto';
@@ -212,7 +212,8 @@ export function getGuardFailureReason(
             // F-021: fall back to scanning git diff when touchpoints is empty, to avoid losing the docs reviewer for stories that only modify .md.
             const touchpoints = understanding?.touchpoints
               ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
-            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+            const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+            const optIn = computeFinalReviewRoster(store, projectRoot ?? store.projectRoot, storyId, active).requiredReviewers;
             const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
               (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
             ));

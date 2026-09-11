@@ -49,6 +49,8 @@ import { readBrandEnv } from './brand-env.js';
  * is fabricated.
  */
 export interface MkdirLockHolderInfo {
+  /** Coordination class; command is display text only. */
+  lockClass?: 'validation' | 'metadata-write';
   /** PID of the process that acquired the lock. */
   pid: number;
   /** Hostname of the machine that acquired the lock. */
@@ -189,6 +191,7 @@ function readHolderFile(filePath: string): MkdirLockHolderInfo | null {
       pid,
       hostname,
       command,
+      ...((obj.lockClass === 'validation' || obj.lockClass === 'metadata-write') ? { lockClass: obj.lockClass } : {}),
       acquiredAt,
       ...(lockId ? { lockId } : {}),
       ...(processStartTimeMs !== undefined ? { processStartTimeMs } : {}),
@@ -231,7 +234,7 @@ const DEFAULT_DEADLINE_MS = 30000;
 const DEFAULT_STALE_MS = 10000;
 const DEFAULT_POLL_MS = 50;
 
-function observedProcessStartTimeMs(pid: number): number | undefined {
+export function observedProcessStartTimeMs(pid: number): number | undefined {
   try {
     const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
       encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 1_000,

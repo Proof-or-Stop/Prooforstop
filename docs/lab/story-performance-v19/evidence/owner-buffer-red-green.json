@@ -1,0 +1,14 @@
+{
+  "before": {
+    "ownerSmokeExit": 1,
+    "cause": "spawnSync default pipe buffer exhausted (ENOBUFS)",
+    "observedDoctorJsonBytes": 5496927,
+    "standaloneDoctorExit": 0
+  },
+  "repair": "Capture doctor stdout and stderr to disposable files; retain zero exit, complete JSON, source/provider and raw token redaction assertions.",
+  "green": {
+    "ownerSmokeExit": 0,
+    "marker": "story-owner-lease smoke passed",
+    "log": "owner-green.log"
+  }
+}

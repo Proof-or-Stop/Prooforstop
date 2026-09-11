@@ -1,4 +1,10 @@
+import { withGitTreeObservation } from '../core/git-tree-observation.js';
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
+import { runScopeGateAndDiffPack } from './scope-contract.js';
+import { checklistHasFileDeclarations } from './phase-gates.js';
+import { assertCurrentValidationPublicationOwner } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { readFindingValidationConstraints } from '../core/finding-validation.js';
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
@@ -37,7 +43,7 @@ import { join, dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
+import { commitValidationReuseMetadataTransaction, rollbackValidationPublication } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import { findValidateFile, validateFileDefaultTimeoutMs } from '../core/validation-file-entry.js';
 export { findValidateFile } from '../core/validation-file-entry.js';
@@ -71,7 +77,7 @@ import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
-import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -87,7 +93,6 @@ import {
 } from '../core/validation-evidence-reuse.js';
 import {
   captureDonePrepareGeneratedMetadataTransaction,
-  rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import {
   VALIDATION_COMMAND_SHELL_META_RE,
@@ -136,8 +141,26 @@ export interface ValidationSetupScan {
 }
 
 
+/** Read-only projection of the existing transition scope policy, never PASS evidence. */
+export function validationScopePrerequisite(ctx: HandlerContext, storyId: string, gitCwd: string): string | undefined {
+  if (!['REVIEW', 'TEST', 'DONE'].includes(ctx.store.readStory(storyId).phase)) return undefined;
+  let gate: ReturnType<typeof runScopeGateAndDiffPack>;
+  try { gate = runScopeGateAndDiffPack(storyId, ctx.store, ctx.root, gitCwd); }
+  catch (error) { return `[scope_contract_unreadable] ${String(error)}`; }
+  if (!gate.result) {
+    let checklist: ChecklistData | null = null;
+    try { checklist = ctx.store.readChecklist(storyId); }
+    catch (error) { rethrowIntentAmendmentIntegrityError(error); /* Match legacy transition behavior. */ }
+    return checklistHasFileDeclarations(checklist)
+      ? '[missing_scope_contract] Prepare the declared scope contract before routine validation'
+      : undefined;
+  }
+  return gate.result.status === 'fail' ? `[scope_contract_failed] ${gate.result.summary}` : undefined;
+}
+
 /** Resolve Story-owned selection inputs instead of allowing an empty authority context. */
 function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
+  findingConstraints: import('../core/finding-validation.js').FindingValidationConstraints;
   scopeContract?: { allowedPaths?: string[]; plannedFiles?: string[]; protectedFiles?: string[]; explicitExcludes?: string[]; digest?: string };
   verificationIntents?: Array<{ id: string; validationCommand?: string }>;
   affectedProcessFacts?: string[];
@@ -171,6 +194,7 @@ function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
   });
   const affectedCapabilities: string[] = (story.affectedCapabilities || []).filter((value): value is string => typeof value === 'string' && value.length > 0);
   return {
+    findingConstraints: readFindingValidationConstraints(ctx.store, ctx.root, storyId),
     scopeContract: scope ? {
       allowedPaths: [...(scope.allowedModify || []), ...(scope.allowedCreate || []), ...(scope.allowedTest || [])],
       plannedFiles,
@@ -497,8 +521,13 @@ export function probeValidationCausalPreflightFacts(
   const expectedWorktree = canonicalVerifierProbePath(input.cwd) ?? input.cwd;
   const actualWorktree = probeVerifierWorktree(input.cwd);
   const headHash = currentHead(input.cwd);
-  const materialHash = currentMaterialHash(input.cwd, 'HEAD', ctx.root);
-  const storyFilesHash = currentStoryFilesHash(input.cwd, 'HEAD', ctx.root);
+  const { materialHash, storyFilesHash } = withGitTreeObservation(() => {
+    const ref = isCanonicalGitHeadHash(headHash) ? headHash as string : 'HEAD';
+    return {
+      materialHash: currentMaterialHash(input.cwd, ref, ctx.root),
+      storyFilesHash: currentStoryFilesHash(input.cwd, ref, ctx.root),
+    };
+  });
   const gitMaterialAvailable = Boolean(headHash && materialHash && storyFilesHash);
   const gitIndex = probeVerifierIndex(input.cwd);
   const storyDir = ctx.store.storyDirPath(storyId);
@@ -959,7 +988,6 @@ function reusedStoryValidationResult(args: {
     gitCwd: args.gitCwd,
     paths: managedPaths,
   });
-  recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
   // B-3434 F-014: the reuse path wrote JSON.stringify(reused) with no bound at all, so a reused
   // result from a large command set produced the same oversized file the executed path was fixed
   // for. Same boundary, same enforcement: bound the serialised record, not the inner string.
@@ -1008,7 +1036,20 @@ function reusedStoryValidationResult(args: {
       commands: [],
     });
   }
-  args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
+  const expectedHashes = publicationOutputHashes(transaction, storyRel, reusedBound.record);
+  try {
+    assertCurrentValidationPublicationOwner(args.ctx.root, args.storyId);
+    args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
+    const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
+    if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
+    const terminalHashes = publicationOutputHashes(transaction, storyRel, reusedBound.record, terminal);
+    expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
+  } catch (error) {
+    const rolledBack = rollbackValidationPublication({ gitCwd: args.gitCwd, transaction, expectedHashes }, String(error));
+    return externalResult({ provider: 'proof-or-stop-verifier-reuse-persistence', status: 'fail',
+      failureKind: 'infra_failure', summary: 'Validation reuse publication refused',
+      details: ['canonical-pass-persistence-failed', rolledBack.reason ?? String(error)], commands: [] });
+  }
   const commitResult = commitValidationReuseMetadataTransaction({
     projectRoot: args.ctx.root,
     gitCwd: args.gitCwd,
@@ -1017,6 +1058,7 @@ function reusedStoryValidationResult(args: {
     reason: 'validate',
     transaction,
     closeoutArtifactPaths: ['test-evidence.json'],
+    expectedHashes,
   });
   if (!commitResult.ok) {
     return externalResult({
@@ -1117,16 +1159,34 @@ function tryReuseRoutinePass(args: {
   }
 }
 
+function publicationOutputHashes(
+  transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>,
+  storyRel: string,
+  record: TestEvidenceData,
+  terminal?: ReturnType<HandlerContext['store']['appendProcessEvent']>,
+): Map<string, string> {
+  const hash = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
+  const baseline = new Map(transaction.states.map(state => [state.path, state.worktreeContent ?? Buffer.alloc(0)]));
+  const eventsPath = `${storyRel}/process-events.jsonl`;
+  const before = baseline.get(eventsPath) ?? Buffer.alloc(0);
+  if (terminal && terminal.start !== before.length) throw new Error('canonical terminal append did not match captured baseline');
+  return new Map([
+    [`${storyRel}/test-evidence.json`, hash(JSON.stringify(record, null, 2) + '\n')],
+    [eventsPath, hash(terminal ? Buffer.concat([before, terminal.eventBytes]) : before)],
+    [`${storyRel}/closeout-write-receipts.jsonl`, hash(baseline.get(`${storyRel}/closeout-write-receipts.jsonl`) ?? Buffer.alloc(0))],
+  ]);
+}
+
 function recordValidationTerminal(
   ctx: HandlerContext,
   storyId: string,
   gitCwd: string,
   result: any,
   identity?: RoutineValidationIdentity,
-): void {
+) {
   let story;
   try { story = ctx.store.readStory(storyId); } catch { return; }
-  ctx.store.appendProcessEvent(storyId, {
+  return ctx.store.appendProcessEvent(storyId, {
     type: 'validation_terminal',
     storyId,
     attemptId: story.currentReviewRound ?? '',
@@ -1333,19 +1393,18 @@ function persistStoryValidationEvidence(
     );
   }
 
+  const expectedHashes = publicationOutputHashes(transaction, storyRel, persistedBound.record);
   try {
+    assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writeTestEvidence(storyId, persistedBound.record);
-    recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
+    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
+    if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
+    const terminalHashes = publicationOutputHashes(transaction, storyRel, persistedBound.record, terminal);
+    expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
   } catch (error: any) {
-    const rollback = rollbackDonePrepareGeneratedMetadataTransaction({
-      root: gitCwd,
-      gitCwd,
-      transaction,
-    });
     const reason = String(error?.stderr || error?.stdout || error?.message || error).trim();
-    return persistenceFailure(
-      rollback.ok ? reason : `${reason}; rollback failed: ${rollback.errors.join(' | ')}`,
-    );
+    const rollback = rollbackValidationPublication({ gitCwd, transaction, expectedHashes }, reason);
+    return persistenceFailure(rollback.reason || reason);
   }
   const commitResult = commitValidationReuseMetadataTransaction({
     projectRoot: ctx.root,
@@ -1355,6 +1414,7 @@ function persistStoryValidationEvidence(
     reason: 'validate',
     transaction,
     closeoutArtifactPaths: ['test-evidence.json'],
+    expectedHashes,
   });
   if (!commitResult.ok) {
     return persistenceFailure(commitResult.reason || 'metadata writer did not create a commit');
@@ -1664,7 +1724,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       abortSignal?: AbortSignal;
       deadlineAt?: number;
       deadlineError?: () => Error;
+      /** Internal top-level CLI outcome sink; never part of the public schema. */
+      onValidationOutcome?: (passed: boolean) => void;
     }) {
+      const reportOutcome = (passed: boolean): void => {
+        if (typeof args.onValidationOutcome === 'function') args.onValidationOutcome(passed);
+      };
+      // Preserve the public representation; communicate the verdict before it
+      // is rendered away. Nested handler calls do not receive this CLI sink.
+      const respond = (result: any): string => {
+        reportOutcome(result?.allPass !== false && result?.allPassed !== false
+          && result?.status !== 'fail' && result?.status !== 'blocked'
+          && !['failed', 'timed_out', 'blocked'].includes(result?.result));
+        return args.json ? JSON.stringify(result) : renderExternalResult(result);
+      };
       // B-a30e: normalize storyId alias — must happen before any story usage
       if (args.storyId !== undefined) {
         const sid = args.storyId.trim();
@@ -1714,7 +1787,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const amendment = acceptanceCompletionBlocker(ctx.store, args.story, handlerGitCwd);
         if (amendment) throw new Error(amendment);
       }
-      return await withOfficialValidationExecution({
+      return await withValidationSigningRoot(handlerGitCwd, () => withOfficialValidationExecution({
+        commandStages: !args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot),
         root: projectRoot,
         storyId: args.story,
         workspaceRoot: handlerGitCwd,
@@ -1723,7 +1797,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
         sharedExecution: args.story && (dynamicMode === 'off' || projectConfig?.validate?.sharedExecution === true) ? {
-          storyId: args.story, receiptStore: ctx.store,
+          storyId: args.story, receiptStore: ctx.store, reuseEconomics: 'measured',
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,
         ownerLeaseDir: args.story ? ctx.store.storyDirPath(args.story) : undefined,
@@ -1734,6 +1808,47 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }, async () => {
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
+        // Read-only scope refusal precedes dirty publication and cluster sync.
+        // When both fail, report the upstream scope requirement first.
+        if (!focus && !args.channel && !args.concept && !args.lint) {
+          const prerequisite = validationScopePrerequisite(ctx, args.story, handlerGitCwd);
+          if (prerequisite) {
+            const result = { ...externalResult({
+              provider: 'proof-or-stop-verifier-scope-preflight', status: 'fail',
+              failureKind: 'infra_failure', summary: 'Validation scope prerequisites are not ready',
+              details: ['VALIDATION_SCOPE_NOT_READY', prerequisite, 'commandExecutions=0',
+                `Next: proof-or-stop scope_contract_init_from_plan --storyId=${args.story}; inspect scope_contract_check or use scope_contract_set to repair the contract`],
+            }), commandExecutions: 0 };
+            return respond(result);
+          }
+        }
+        // Refuse pre-existing publication conflicts before this invocation mutates
+        // metadata or spends a command. Final publication checks remain required.
+        if (!focus && !args.channel && !args.concept && !args.lint) {
+          try {
+            const storyRel = normalizeRelPath(relative(
+              realpathSync(handlerGitCwd), realpathSync(ctx.store.storyDirPath(args.story)),
+            ));
+            const paths = ['test-evidence.json', 'process-events.jsonl', 'closeout-write-receipts.jsonl']
+              .map(name => `${storyRel}/${name}`);
+            const dirty = execFileSync('git', ['--no-optional-locks', 'status', '--porcelain', '--', ...paths], {
+              cwd: handlerGitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+            }).trim();
+            if (dirty) throw new Error(`canonical metadata was already dirty: ${dirty}`);
+          } catch (error: any) {
+            const reason = String(error?.stderr || error?.stdout || error?.message || error).trim();
+            // Preserve the existing non-git FAIL-evidence fallback downstream.
+            if (!/not a git repository/i.test(reason)) {
+              const result = { ...externalResult({
+                provider: 'proof-or-stop-verifier-publication-preflight', status: 'fail',
+                failureKind: 'infra_failure', summary: 'Validation publication is not ready',
+                details: ['VALIDATION_PUBLICATION_NOT_READY', reason,
+                  'Resolve pending test-evidence.json, process-events.jsonl or closeout-write-receipts.jsonl changes before retrying validate'],
+              }), commandExecutions: 0 };
+              return respond(result);
+            }
+          }
+        }
         if (!args.noSync) {
           const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log, authoritativeMutation);
           if (synced.resolved > 0) {
@@ -1784,7 +1899,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const results = await Promise.all(tasks.map((t) => t()));
         const allOk = results.every((r) => r.ok);
         if (args.json) {
-          return JSON.stringify({
+          return respond({
             provider: 'proof-or-stop-verifier-gates',
             status: allOk ? 'pass' : 'fail',
             allPass: allOk,
@@ -1801,6 +1916,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const failedNames = results.filter((r) => !r.ok).map((r) => r.name).join(', ');
           throw new Error(`CLI gate(s) failed: ${failedNames}`);
         }
+        reportOutcome(allOk);
         return sections;
       }
 
@@ -1877,8 +1993,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             };
           };
           const decorated = buildNoValidatorResult();
-          if (args.json) return JSON.stringify(decorated);
-          return renderExternalResult(decorated);
+          return respond(decorated);
         }
 
         const commands = configuredCommands.length > 0
@@ -2124,7 +2239,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               authoritative.commandExecutions,
               authoritative.allPass,
             );
-            return args.json ? JSON.stringify(decorated) : renderExternalResult(decorated);
+            return respond(decorated);
           }
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
@@ -2144,11 +2259,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineError: args.deadlineError,
             beforeLaunch: launchGate.beforeLaunch,
           });
+          const baselineHead = currentHead(handlerGitCwd) || '';
+          if (!args.story && base.allPass && !baselineHead.trim()) ctx.log?.('canonical full baseline not produced: no resolvable HEAD');
           const canonicalBaseline = args.story
             ? undefined
             : persistCanonicalFullBaseline({
               projectRoot,
-              sourceHead: currentHead(handlerGitCwd) || '',
+              sourceHead: baselineHead,
               result: base,
               commands,
             });
@@ -2295,8 +2412,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
-        if (args.json) return JSON.stringify(decorated);
-        return renderExternalResult(decorated);
+        return respond(decorated);
       }
 
       const identityCommand = buildValidateFileCommand(ctx, { ...args, focus }, validateFile);
@@ -2356,7 +2472,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 verdictEquivalent: undefined,
               },
             };
-            return args.json ? JSON.stringify(result) : renderExternalResult(result);
+            return respond(result);
           } catch (error) {
             ctx.log?.('dynamic validation preview unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
           }
@@ -2383,7 +2499,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               full: args.full, focus, entrypointPath: join(projectRoot, validateFile),
             }),
           });
-          if (reused) return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
+          if (reused) return respond(reused);
         }
         const launchGate = createRoutineValidationLaunchGate(ctx, args.story, [identityCommand], projectRoot, officialHeavyStoryValidate);
         let dynamicValidation: any;
@@ -2485,7 +2601,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             authoritative.commandExecutions,
             authoritative.allPass,
           );
-          return args.json ? JSON.stringify(decorated) : renderExternalResult(decorated);
+          return respond(decorated);
         }
         const validation = await runValidateFile(launchGate.beforeLaunch);
         const commandResult = validation.commands[0];
@@ -2578,8 +2694,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
           const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
-          if (args.json) return JSON.stringify(surfaced);
-          return renderExternalResult(surfaced);
+          return respond(surfaced);
         }
 
         if (args.json) {
@@ -2592,7 +2707,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
               && parsed?.allPass !== false
               && parsed?.allPassed !== false;
-            const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
+            // Coverage decoration must not turn an exit-zero semantic non-PASS into PASS.
+            const semanticResult = semanticCommandPass ? parsed : { ...parsed, status: 'fail', allPass: false };
+            const focusedParsed = focus ? markFocusedResult(semanticResult, focus) : semanticResult;
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,
@@ -2604,7 +2721,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               semanticCommandPass,
               args,
             );
-            return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
+            return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
           // If validate.ts doesn't support --json yet, wrap the output
           let headSha: string | undefined;
@@ -2625,7 +2742,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }), focus ?? '');
           const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args);
-          return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
+          return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 
         if (args.story) {
@@ -2646,15 +2763,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
+            reportOutcome(code === 0 && coverage.missingRequired === 0);
             return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }
+        reportOutcome(code === 0);
         return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
       return await runValidateFileAndRender();
-      });
+      }));
     },
 
     /**

@@ -52,6 +52,7 @@ import {
   FULL_TASK_CONTEXT_LIMITS,
   domainSeparatedDigest,
   validateIncrementalReviewBasis,
+  validateFullStoryBaseHead,
   type IncrementalReviewBasis,
   type PromptEnvelope,
   type PromptFindingProjection,
@@ -93,7 +94,9 @@ export type PostRemediationSelectionReason =
   | 'UNSUPPORTED_RENAME_OR_DELETE'
   | 'POLICY_IMPACT_REQUIRES_FULL_SET'
   | 'DEPENDENCY_CLOSURE_INCOMPLETE'
-  | 'EMPTY_IMPACT_SELECTION';
+  | 'EMPTY_IMPACT_SELECTION'
+  | 'OPEN_FINDINGS_REQUIRE_FULL_SET'
+  | 'SOURCE_ROSTER_INCOMPLETE';
 
 export interface PostRemediationReviewSelection {
   schemaVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
@@ -113,6 +116,7 @@ export interface PostRemediationReviewSelection {
   changedFiles: string[];
   closureFiles: string[];
   scopeDigest: string;
+  openFindingDigest: string;
   requiredHostAssurance: 'unchanged';
   policyVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
   _hash: string;
@@ -276,7 +280,8 @@ export function verifyCurrentPostRemediationReviewSelection(
     && currentGitHead(gitCwd) === selection.headHash
     && currentMaterialHash(gitCwd, 'HEAD', projectRoot) === selection.materialHash
     && currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) === selection.storyFilesHash
-    && scopeDigest === selection.scopeDigest;
+    && scopeDigest === selection.scopeDigest
+    && openReviewFindingDigest(store, storyId) === selection.openFindingDigest;
   if (!bindingMatches) return false;
   return !active || postRemediationReviewSelection(store, projectRoot, storyId, active)._hash === selection._hash;
 }
@@ -303,6 +308,11 @@ function impactedLanes(
   }).map(reviewer => canonicalAgentRoleId(`proof-or-stop-review-${reviewer.name}`));
 }
 
+export function openReviewFindingDigest(store: StoryStore, storyId: string): string {
+  return reviewInventoryDigest(store.readFindings(storyId).findings
+    .filter(row => row.status === 'open').map(row => ({ ...row })).sort((a, b) => a.id.localeCompare(b.id)));
+}
+
 export function postRemediationReviewSelection(
   store: StoryStore,
   projectRoot: string,
@@ -318,6 +328,7 @@ export function postRemediationReviewSelection(
   const activeLanes = active.map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`));
   const checklist = store.readChecklist(storyId);
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+  const openFindingDigest = openReviewFindingDigest(store, storyId);
   const data = store.readReviewInventoryEpochs(storyId);
   const receipt = [...data.receipts].reverse().find(row => Boolean(row.consumedAt));
   const fallback = (
@@ -344,13 +355,17 @@ export function postRemediationReviewSelection(
       changedFiles: [...new Set(changedFiles)].sort(),
       closureFiles: [...new Set(closureFiles)].sort(),
       scopeDigest,
+      openFindingDigest,
       requiredHostAssurance: 'unchanged',
       policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
     });
+  if (store.readFindings(storyId).findings.some(row => row.status === 'open')) return fallback('OPEN_FINDINGS_REQUIRE_FULL_SET');
   if (!receipt) return fallback('NO_CONSUMED_INVENTORY_RECEIPT');
   const epoch = data.epochs.find(row => row.epochId === receipt.epochId);
   if (!verifyReviewInventoryReceipt(receipt) || !epoch || !verifyReviewInventoryEpoch(epoch)
     || epoch.receiptId !== receipt.receiptId || !epoch.consumedAt) return fallback('RECEIPT_OR_EPOCH_INVALID');
+  if (activeLanes.some(lane => !receipt.requiredLanes.includes(lane) || !epoch.requiredLanes.includes(lane))
+    || receipt.rosterBasis || epoch.rosterBasis) return fallback('SOURCE_ROSTER_INCOMPLETE');
   if (!story.currentReviewRound || story.currentReviewRound === receipt.reviewRound) {
     return fallback('CURRENT_REVIEW_ROUND_MISSING_OR_UNCHANGED');
   }
@@ -439,6 +454,7 @@ export function postRemediationReviewSelection(
     changedFiles: [...changedFiles].sort(),
     closureFiles: closure.files,
     scopeDigest,
+    openFindingDigest,
     requiredHostAssurance: 'unchanged',
     policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
   });
@@ -740,6 +756,21 @@ export function fixtureCaseClosure(
  *   no review basis, and the explicit FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS
  *   reason code.
  */
+function resolveFullStoryCommitObject(gitCwd: string, ref: string): string | undefined {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000,
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+export function resolveFullStoryBaseHead(store: StoryStore, projectRoot: string, storyId: string): string | undefined {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  return resolveFullStoryCommitObject(gitCwd, 'main');
+}
+
 export function reviewIncrementalContext(
   store: StoryStore,
   projectRoot: string,
@@ -763,10 +794,20 @@ export function reviewIncrementalContext(
      * receipt-bound envelope's eligibilityDigest / reviewBasisDigest.
      */
     asOfRef?: string;
+    /** Explicit run-start base; omission preserves legacy digest and diff behavior. */
+    fullStoryBaseHead?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const asOfRef = options.asOfRef?.trim() || 'HEAD';
+  const fullStoryBaseHead = options.fullStoryBaseHead;
+  if (fullStoryBaseHead !== undefined) {
+    validateFullStoryBaseHead(fullStoryBaseHead);
+    if (resolveFullStoryCommitObject(gitCwd, fullStoryBaseHead) !== fullStoryBaseHead) {
+      throw new Error(`FULL_STORY_BASE_UNAVAILABLE: signed comparison base ${fullStoryBaseHead} does not resolve to a commit`);
+    }
+  }
+  const fullStoryBaseRef = fullStoryBaseHead ?? 'main';
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -947,6 +988,7 @@ export function reviewIncrementalContext(
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
       : null;
     const semantic = {
+      ...(fullStoryBaseHead !== undefined ? { fullStoryBaseHead } : {}),
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
       role,
       contextMode,
@@ -995,7 +1037,7 @@ export function reviewIncrementalContext(
     reasonCodes: string[],
     resolvedPriorForAudit: TrustedPriorPass | null = null,
   ): ReviewIncrementalContext => {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', asOfRef), projectRoot);
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -1003,9 +1045,9 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs, asOfRef),
+          && fixtureCaseClosure(gitCwd, fullStoryBaseRef, storyId, path, currentStoryIntentRefs, asOfRef),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', asOfRef),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef),
     });
     return finalize({
       prior: resolvedPriorForAudit,

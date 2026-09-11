@@ -2513,8 +2513,9 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
 // Exact non-protocol classifications are obligations, never file exemptions.
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "canonical": "proof-or-stop.config.json", "occurrences": 1, "contextSha256": "d76aa4750daa0a3bd2e672550d9704eb42847abd42415fae9a20f8fe301b6eb1", "kind": "registry-source-path", "reason": "Exact P0m source inventory path; not a parser, protocol producer, or compatibility reader.", "proof": "node packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"},
   {"sourcePath":"proof-or-stop.config.json","canonical":"proof-or-stop-experience-layer-v1.1-zh.md","occurrences":1,"contextSha256":"a0430b5c5f5727862f4f3c486638fdda0d0dd464c26f80a09fafe6c6acded30c","kind":"scope-governance-document-path","reason":"Exact responsibility-domain source path names the existing experience-layer design document; not an executable protocol identity or compatibility reader.","proof":"node scripts/verify-root-scope-budget-policy.mjs"},
-  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "c2838cff883a5e69713276550c3bea48153a8c102dcc9f625171b49c96740cd7", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
+  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "1e3cf33861d44a2b554472098e53779355359f7759f8e67ea2e084c4cb311ba8", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
   {
     sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     canonical: 'proof-or-stop-finish-decision-boundary-',
@@ -2699,10 +2700,10 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/capability-release.ts","proof-or-stop.capability-release-backfill.v1",4,"1b41811713727dfb2af98e6739a994f11cb5e9aa0005b2529f5caa983dae708a"],
   ["packages/main/src/core/capability-release.ts","proof-or-stop.product-capability-release.v1",7,"4a7ed917cdf9b57c1101e776f9a3228650297e7a878954cfe18ade07d50800c8"],
   ["packages/main/src/core/certification-window.ts","proof-or-stop.certification-window.v1",2,"55390816fce64f457e03a28e01a3b0a9a7ae6020fc5d16f28f08bb0cb7ab51e5"],
-  ["packages/main/src/core/certification-window.ts","proof-or-stop.certification_window.v1",4,"952857f21de6b8db9e341382558cac92ca91cb025ab92a7164a03193d3c55342"],
-  ["packages/main/src/core/certification-window.ts","proof-or-stop.certification_windows.v1",2,"beb677cf7c33738e8a7ede5846d9d874231e96d04f1a9304380096ec6ceb50d7"],
+  ["packages/main/src/core/certification-window.ts", "proof-or-stop.certification_window.v1", 5, "4e3139e2337d0f6fd7518c48ecd2ebc5bad077118a915e608099766a43f6d11d"],
+  ["packages/main/src/core/certification-window.ts", "proof-or-stop.certification_windows.v1", 3, "fdb90d7505a3ede59b8fccfef0220a83cbb1175eb9cb8bf4f40dfec885a9759b"],
   ["packages/main/src/core/certification-window.ts","proof-or-stop.precert-receipt.v1",2,"5894229aca4940c6bf82bb9a623db9b3e3cce063b13743f4f1d82fb1140d3c14"],
-  ["packages/main/src/core/certification-window.ts","proof-or-stop.precert_receipt.v1",4,"15cdd9ee65594fd85525a6514e8caa5959f3100be1be4ebd5fda7d2914214c94"],
+  ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert_receipt.v1", 5, "5fa2528afd4219d840401427aa3e8755bfe57648312ae19270127d7f5fea8c4f"],
   ["packages/main/src/core/config.ts","proof-or-stop.prompt-envelope-rollout.v1",1,"dc2889324578f66914eba65d50ebc1839180e25e7ea22367b584b18df28a32c0"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.evidence-freshness-classifier.v1",1,"f1d951fdc4ce3c3d1fcb8ffb355d4ecb69695755185adb135729d922de162fc9"],
   ["packages/main/src/core/evidence-freshness.ts","proof-or-stop.evidence_hash_snapshot.v1",1,"8ce5a7590a66f586e072d6739063d445915757c2241c7db3fe2dcee938632c9c"],
@@ -2869,7 +2870,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json","proof-or-stop.config.json",13,"06fc6b4edcc3a2089d865ff5a544a413ef65f7b7cbc8c9628a06b4b680c712e5"],
+  ["proof-or-stop.config.json", "proof-or-stop.config.json", 13, "6673b9408c13aaa802df2bda44f961685b09eb98d4703f36553f80137fc29f32"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2953,7 +2954,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 384, "contextSha256": "9b9969be49d5d005708420fe3965c9520ef6612fea273981b8517a87598dccba"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 393, "contextSha256": "3bfe702a55627bbdf65cf1b6568e9d84e5428f0d540f765557ed08b21255d593"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -2973,21 +2974,13 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 77,
     "contextSha256": "da05592fe9ce8137db1b38e50343b62c3b6ebfc5ebf4bf20ccc56bafcf0e5ca7"
   },
-  {
-    "sourcePath": "packages/main/src/core/certification-window.ts",
-    "occurrences": 57,
-    "contextSha256": "0e172ac5e8cf8969986c70b0a4b81c3365d523458eae7616152a53522f0c11b7"
-  },
+  {"sourcePath": "packages/main/src/core/certification-window.ts", "occurrences": 65, "contextSha256": "b9c6c0fe1ae6c6868cd307a530afe9ed9f493901a9d88d330de5f519295590b9"},
   {
     "sourcePath": "packages/main/src/core/config.ts",
     "occurrences": 67,
     "contextSha256": "cb73ec333d6f047b5dbf022a20641177a05de86bf2c5d691a372f0e820361581"
   },
-  {
-    "sourcePath": "packages/main/src/core/evidence-freshness.ts",
-    "occurrences": 170,
-    "contextSha256": "450375d5621ffc5b24c4f8962fde212ce3c59d9f98ddad161d43dcd3c0d39eda"
-  },
+  {"sourcePath": "packages/main/src/core/evidence-freshness.ts", "occurrences": 174, "contextSha256": "335ef9f1df85f17b63a0cc3160d6c2f4b616443086b5f8db3d2f48efab1d6a39"},
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
     "occurrences": 0,
@@ -3043,11 +3036,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 377,
     "contextSha256": "3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"
   },
-  {
-    "sourcePath": "packages/main/src/core/process-fact-registry.ts",
-    "occurrences": 11,
-    "contextSha256": "939ba7d06193520531783df317f665785af27378207731f56fe8d55b326d9f80"
-  },
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 21, "contextSha256": "35c1318f2c126e116817bc3b0f44a925fbaac780ce9798a88e1ddddaa9f3fb30"},
   {
     "sourcePath": "packages/main/src/core/prompt-budget.ts",
     "occurrences": 4,
@@ -3078,21 +3067,9 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 137,
     "contextSha256": "fd828982bd0633d28b94af5f8ca03b09e6f6035be4e44495b2ded6a229fc15c1"
   },
-  {
-    "sourcePath": "packages/main/src/core/review-incremental-context.ts",
-    "occurrences": 310,
-    "contextSha256": "71e232b1bcb3a2c2b68aa246bd6571d18b2b6ded46da07cafdb44af9d66cd5a4"
-  },
-  {
-    "sourcePath": "packages/main/src/core/review-inventory-epoch.ts",
-    "occurrences": 58,
-    "contextSha256": "63045c02af27c3806b827807dc06da94714ae4c5057936fa27152acb18539e8c"
-  },
-  {
-    "sourcePath": "packages/main/src/core/review-run.ts",
-    "occurrences": 283,
-    "contextSha256": "9c1f19a7660cdf96ff2757d42cc3f12f430f42170afc32570920d48ed4f91e3f"
-  },
+  {"sourcePath": "packages/main/src/core/review-incremental-context.ts", "occurrences": 319, "contextSha256": "9b927d4281078f740c35c5998b03478484b328c5862c8f2d03fcefb3596dd497"},
+  {"sourcePath": "packages/main/src/core/review-inventory-epoch.ts", "occurrences": 63, "contextSha256": "0c751e0c5d92604e461b1fd5d0df82538f3313cc4b3840c818a3a06157972aa7"},
+  {"sourcePath": "packages/main/src/core/review-run.ts", "occurrences": 283, "contextSha256": "6c8bc759963a8e0d464760faa2089ecb6595dab69014f4e5353f9fbafb4dcc0d"},
   {
     "sourcePath": "packages/main/src/core/source-lineage-audit.ts",
     "occurrences": 131,
@@ -3113,11 +3090,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 95,
     "contextSha256": "03a898d8331a0fdec5728ab334e998d9e62dfd09162a37e290787328a04459d1"
   },
-  {
-    "sourcePath": "packages/main/src/handlers/checklist.ts",
-    "occurrences": 802,
-    "contextSha256": "0550c33ba62ae1ccbeb9bb7f85b22d26fa90cc56b70a48d81eb3f1d6f81caf3d"
-  },
+  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 803, "contextSha256": "180413cf1a13bdf5cc50b5fba0ff089ff63d845e602020dc7e11b5c8e51dc443"},
   {
     "sourcePath": "packages/main/src/handlers/done-effects.ts",
     "occurrences": 257,
@@ -3133,11 +3106,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 297,
     "contextSha256": "40a0d7eb4476cc7d20ed1b91a0e1be4e6c5cb70d0422b70dcacd5ccca7c17477"
   },
-  {
-    "sourcePath": "packages/main/src/handlers/review-run.ts",
-    "occurrences": 225,
-    "contextSha256": "19dcf196ec9ddccdeffd286f1713dd7bd1533dd05c808011a7e2f292db8413b4"
-  },
+  {"sourcePath": "packages/main/src/handlers/review-run.ts", "occurrences": 229, "contextSha256": "ddb5b84e1b53ddb52a24853e950747b783edc3b9082bf3917c30d592095bee30"},
   {
     "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
     "occurrences": 316,
@@ -3148,11 +3117,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 49,
     "contextSha256": "ccd4fe3e8ae44b0b260c36ee4ed2c71d095e98d904df2d200655aa1360d91fea"
   },
-  {
-    "sourcePath": "packages/main/src/cli-init.ts",
-    "occurrences": 514,
-    "contextSha256": "4518f3f1d4954341a816bbb3ee6bd0dcfba54ce178852fc8e2caba53f8a01c18"
-  },
+  {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
     "occurrences": 457,
@@ -3257,6 +3222,8 @@ await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered
       assert.throws(() => assertDerivedIdentitySiteTotality(derived, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, omitted), /unclassified owned executable identity sites/, row.canonical);
       const drifted = derived.map(entry => entry === row ? { ...entry, occurrences: entry.occurrences + 1 } : entry);
       assert.throws(() => assertDerivedIdentitySiteTotality(drifted, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS), /classification count drift/, row.canonical);
+      const contextDrifted = derived.map(entry => entry === row ? { ...entry, contextSha256: '0'.repeat(64) } : entry);
+      assert.throws(() => assertDerivedIdentitySiteTotality(contextDrifted, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS), /classification context drift/, row.canonical);
     }
   }
   const path = 'packages/main/src/core/candidate-spec-routing.ts';

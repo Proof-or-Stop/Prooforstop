@@ -1,0 +1,50 @@
+[
+  {
+    "command": [
+      "node",
+      "packages/main/tests/certification-mutator-identity.mjs"
+    ],
+    "code": 0,
+    "seconds": 1.846308292
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/validation-evidence-reuse-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 81.813760917
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 10.369364750000003
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-git-tree-observation.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.5462738749999971
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-stage-entry-count.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.8690565419999956
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-signing-root.mjs"
+    ],
+    "code": 0,
+    "seconds": 2.1344019160000016
+  }
+]

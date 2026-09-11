@@ -1,3 +1,5 @@
+import { withScopeShrinkageTransaction } from '../core/scope-shrinkage-transaction.js';
+import { isValidationMetadataBusy } from '../core/validation-execution-lock.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -82,6 +84,7 @@ import {
   type AcceptanceRolloutVerification,
 } from '../core/acceptance-rollout.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { resolveAcceptanceVerificationProfile } from '../core/acceptance-discovery-adapters.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -226,6 +229,7 @@ export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: st
   const criticReceipt = ctx.store.readTopologyCriticReceipt(storyId);
   const cutoffAt = new Date().toISOString();
   const contract = ctx.store.readProofStoryContract(storyId);
+  const verificationProfile = resolveAcceptanceVerificationProfile(current.workspace.signedWorkspaceRoot);
   const executableProof = loadVerifiedPreReviewExecutableProof({
     gitCwd: current.workspace.signedWorkspaceRoot,
     metadataRoot: current.workspace.metadataRoot,
@@ -249,6 +253,7 @@ export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: st
     topologyDigest: current.derivation.topologyDigest,
     topologyDiagnosticCodes,
     criticVerification,
+    verificationProfile,
     ...(criticReceipt ? { criticReceiptDigest: `sha256:${digestCanonicalJson(criticReceipt)}` } : {}),
   };
 }
@@ -1142,7 +1147,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
 
       return withReviewInventoryMutationLock(store, args.storyId, () => withMkdirLock(
         store.runtimeLockDirPath(args.storyId, 'checklist', 'checklist'),
-        () => {
+        () => withScopeShrinkageTransaction(ctx.root, store, args.storyId, (tx) => {
           // Build (and shape-validate) the decision. buildScopeShrinkageDecision
           // enforces confirmed⇒userConfirmed and confirmed⇒non-empty removal set,
           // and stamps a stable decisionId.
@@ -1197,7 +1202,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           }
 
           // APPLY (validation passed): write all artifacts under the same lock.
-          store.writeScopeShrinkageDecision(args.storyId, decision);
+          tx.write('scope-shrinkage-decision.json', decision, () => store.writeScopeShrinkageDecision(args.storyId, decision));
 
           if (checklist && withdrawnChecklistItemRefs.length > 0) {
             const now = new Date().toISOString();
@@ -1208,7 +1213,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
               item.decisionRef = decisionId;
               if (!item.endTime) item.endTime = now;
             }
-            store.writeChecklist(args.storyId, checklist);
+            tx.write('checklist.json', checklist, () => store.writeChecklist(args.storyId, checklist));
           }
 
           if (withdrawnAcceptanceBindingRefs.length > 0 && contract) {
@@ -1227,11 +1232,11 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
               bindingDispositions: dispositions,
               updatedAt: new Date().toISOString(),
             };
-            store.writeProofStoryContract(args.storyId, updatedContract);
+            tx.write('proofstory.json', updatedContract, () => store.writeProofStoryContract(args.storyId, updatedContract));
           }
 
           if (hasWithdrawals) {
-            try { autoCommitStoryMetadata(ctx.root, args.storyId, 'scope_shrinkage_decision_set'); } catch { /* best-effort */ }
+            try { autoCommitStoryMetadata(ctx.root, args.storyId, 'scope_shrinkage_decision_set'); } catch (error) { if (isValidationMetadataBusy(error)) throw error; /* Other persistence hints remain best-effort. */ }
           }
 
           if (args.json) return stringify(decision);
@@ -1243,7 +1248,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
             `Withdrawn checklist items: ${withdrawnChecklistItemRefs.join(', ') || 'none'}`,
             `Withdrawn acceptance bindings: ${withdrawnAcceptanceBindingRefs.join(', ') || 'none'}`,
           ].join('\n');
-        },
+        }),
         { label: 'checklist metadata' },
       ));
     },

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -15,7 +16,7 @@ import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import {
-  buildReviewerRunBootstrapBody,
+  isActiveModularReviewerRoleId,
   extractTemplateFrontmatter,
   MODULAR_ROLE_BODY_MARKER,
   readPromptRegistry,
@@ -64,8 +65,10 @@ function assertTopologyCriticHostBootstrap(
 ): void {
   assert.equal(actual, expected, `${host} topology critic bootstrap matches the canonical host render`);
   assert.equal(extractTemplateFrontmatter(actual, file).name, TOPOLOGY_CRITIC_ROLE, `${host} bootstrap preserves the topology critic role`);
-  assert.ok(actual.includes(buildReviewerRunBootstrapBody(TOPOLOGY_CRITIC_ROLE)), `${host} bootstrap delegates to the canonical review_run_start body`);
-  assert.equal(actual.includes(MODULAR_ROLE_BODY_MARKER), false, `${host} bootstrap does not embed the modular role body`);
+  assert.equal(isActiveModularReviewerRoleId(TOPOLOGY_CRITIC_ROLE), false, 'topology critic is not an active REVIEW bootstrap lane');
+  assert.ok(actual.includes('topology_critic_receipt_set'), `${host} topology critic delegates to its receipt producer`);
+  assert.equal(actual.includes(MODULAR_ROLE_BODY_MARKER), true, `${host} topology critic retains its modular role body`);
+  assert.equal(actual.includes('review_run_start'), false, `${host} topology critic does not use the REVIEW bootstrap producer`);
 }
 const liveHappy = smokeArgs[0] === '--live-happy';
 
@@ -135,17 +138,26 @@ function asSession<T>(agent: string, sessionTask: string, fn: () => T): T {
   }
 }
 
+const fixtureRoots = new Set<string>();
 function cli(root: string, command: string, args: Record<string, unknown>, agent?: string, sessionTask?: string): string {
-  return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
+  assert.ok(fixtureRoots.has(root), 'topology CLI ownership stays inside its disposable fixture');
+  const task = sessionTask ?? 'topology-main';
+  const actor = agent ?? 'main';
+  try { return execFileSync(process.execPath, [proofOrStopBin, '--root', root, command, JSON.stringify(args)], {
     cwd: root,
     env: {
       ...process.env,
       ...(agent ? { PROOF_OR_STOP_AGENT: agent } : {}),
-      ...(sessionTask ? adapterSessionEnv(sessionTask, agent ?? 'main') : {}),
+      ...adapterSessionEnv(task, actor),
     },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
+  } finally {
+    const storyDir = new StoryStore(root).storyDirPath(storyId);
+    const lease = readOwnerLease(storyDir);
+    if (lease?.sessionId === adapterSessionId(root, task, actor)) releaseOwnerLease(storyDir);
+  }
 }
 
 function resign<T extends { signature: string }>(value: T, privateKey: string): T {
@@ -203,6 +215,43 @@ function scopeCheck(root: string): ScopeCheckData {
 }
 
 function writeDiscoveryRegistration(root: string): void {
+  // Registered closure sources are snapshot inputs even outside this fixture's
+  // two-file topology. These registry producer/consumer refs are presence-only
+  // snapshot inputs, not behavior stubs; parsed discovery sources below are purpose-built.
+  for (const file of [
+    'bin/bootstrap-runner.js',
+    'packages/main/src/cli-engine.ts',
+    'packages/main/src/core/auto-commit-metadata.ts',
+    'packages/main/src/core/causal-evidence.ts',
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/execution-implementation.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/proof-admissibility.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/store.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+    'packages/main/src/core/verification-execution-evidence.ts',
+    'packages/main/src/core/verification-intent-amendment.ts',
+    'packages/main/src/core/verification-intent-checkpoint.ts',
+    'packages/main/src/core/verification.ts',
+    'packages/main/src/handlers/certification-window.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/handlers/done-prepare.ts',
+    'packages/main/src/handlers/done-required-validation.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/verifier.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-fixture.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts',
+    'packages/main/src/tasks/quorum-submit-smoke-worker.ts',
+    'packages/main/src/tasks/quorum-submit-smoke.ts',
+    'scripts/build-lock-target.mjs',
+  ]) write(root, file, 'export const registeredClosureFixture = true;\n');
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS=[',
     "  {name:'acceptance_basis'},",
@@ -245,6 +294,7 @@ function writeDiscoveryRegistration(root: string): void {
 }
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
+fixtureRoots.add(root);
 const originalCwd = process.cwd();
 
 /**
@@ -297,7 +347,9 @@ smokeSuite: try {
   git(root, ['config', 'user.email', 'scope@noreply.local']);
   cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_EXCLUSION_APPROVER_ROLE }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, SCOPE_SESSION_TASK);
   const planBasisOutput = cli(root, 'acceptance_basis_generate', { storyId, json: true });
-  assert.equal(JSON.parse(planBasisOutput).artifact.basis.status, 'complete', planBasisOutput);
+  const planBasis = JSON.parse(planBasisOutput).artifact.basis;
+  assert.deepEqual(planBasis.blindSpots, [], `fixture snapshot/discovery gaps: ${JSON.stringify(planBasis.blindSpots)}`);
+  assert.equal(planBasis.status, 'complete', planBasisOutput);
   assert.equal(store.readTopologyCriticReceipt(storyId), null, 'Wave 2A receipt is absent before the normal PLAN to DEV transition');
   cli(root, 'dev_memory_preflight_ack', { storyId });
   const planToDevTranscript = cli(root, 'story_advance', { storyId, phase: 'DEV' });
@@ -371,20 +423,22 @@ smokeSuite: try {
     expectedClaudeBootstrap === expectedCodexBootstrap,
     'host bootstrap equality follows the canonical host renderers and does not require artificial byte differences',
   );
-  assert.notEqual(claudeBootstrap, canonicalPrompt, 'host bootstrap remains distinct from the package canonical full template');
+  assert.equal(claudeBootstrap, canonicalPrompt, 'topology critic host keeps the canonical full template');
 
-  const delegationBody = buildReviewerRunBootstrapBody(TOPOLOGY_CRITIC_ROLE);
+  const mutations: Array<[string, RegExp]> = [
+    [claudeBootstrap.replaceAll('topology_critic_receipt_set', 'removed_receipt_producer'), /delegates to its receipt producer/],
+    [claudeBootstrap.replace(`name: ${TOPOLOGY_CRITIC_ROLE}`, 'name: wrong-role'), /preserves the topology critic role/],
+    [claudeBootstrap.replace(MODULAR_ROLE_BODY_MARKER, ''), /retains its modular role body/],
+    [`${claudeBootstrap}\nreview_run_start\n`, /does not use the REVIEW bootstrap producer/],
+  ];
+  for (const [mutated, expectedFailure] of mutations) {
+    assert.notEqual(mutated, claudeBootstrap, 'negative must actually mutate the prompt');
+    // Keep the byte comparison equal so each semantic assertion has its own witness.
+    assert.throws(() => assertTopologyCriticHostBootstrap(mutated, mutated, claudePromptPath, 'Claude'), expectedFailure);
+  }
   assert.throws(
-    () => assertTopologyCriticHostBootstrap(claudeBootstrap.replace(delegationBody, ''), expectedClaudeBootstrap, claudePromptPath, 'Claude'),
-    'missing review_run_start delegation bites the host bootstrap contract',
-  );
-  assert.throws(
-    () => assertTopologyCriticHostBootstrap(claudeBootstrap.replace('review_run_start', 'review_run_begin'), expectedClaudeBootstrap, claudePromptPath, 'Claude'),
-    'malformed review_run_start delegation bites the host bootstrap contract',
-  );
-  assert.throws(
-    () => assertTopologyCriticHostBootstrap(`${claudeBootstrap}${canonicalPrompt}`, expectedClaudeBootstrap, claudePromptPath, 'Claude'),
-    'injecting the full modular role body bites the body-free host bootstrap contract',
+    () => assertTopologyCriticHostBootstrap(`${claudeBootstrap}\nwrong body`, expectedClaudeBootstrap, claudePromptPath, 'Claude'),
+    /matches the canonical host render/,
   );
 
   const topLevelFields = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'] as const satisfies readonly (keyof TopologyCriticReceiptV1)[];

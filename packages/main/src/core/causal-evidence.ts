@@ -1028,6 +1028,12 @@ function preflightChecksForFacts(facts: CausalPreflightFacts): Record<string, { 
   return checks;
 }
 
+/** Fresh execution admission without minting or consuming a reuse credential. */
+export function assertCausalExecutionAdmission(facts: CausalPreflightFacts): void {
+  const failed = Object.entries(preflightChecksForFacts(facts)).filter(([,check]) => check.status === 'fail');
+  if (failed.length) throw new Error('causal execution preflight refused: ' + failed.map(([name,check]) => name + ':' + check.reason).join(', '));
+}
+
 function signedPreflightReport(
   facts: CausalPreflightFacts,
   ready: boolean,

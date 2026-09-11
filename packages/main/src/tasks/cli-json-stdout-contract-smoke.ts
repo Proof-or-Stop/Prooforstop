@@ -59,6 +59,7 @@ function runCli(args: string[], env: EnvOverride = {}): string {
     env: { ...process.env, ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: 8 * 1024 * 1024,
   });
 }
 
@@ -175,5 +176,7 @@ function assertNoHumanHint(stdout: string, label: string): void {
     'JSON stdout must end with "}" (single document, no trailing text)',
   );
 }
+
+execFileSync(process.execPath, [join(repoRoot, 'packages/main/tests/validation-cli-exit.mjs')], { cwd: repoRoot, stdio: 'inherit', timeout: 120_000 });
 
 console.log('✓ cli json stdout contract smoke passed');

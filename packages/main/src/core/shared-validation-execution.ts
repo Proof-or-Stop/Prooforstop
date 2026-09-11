@@ -1,11 +1,13 @@
+import {readValidationReuseCost,saveValidationReuseCost} from './validation-reuse-costs.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { resolve, relative, isAbsolute } from 'node:path';
 import { readFileSync, realpathSync } from 'node:fs';
+import { snapshotValidationExecutionInputs } from './validation-execution-inputs.js';
 import {
-  CAUSAL_MAX_OUTPUT_CHARS, DEFAULT_CAUSAL_SELECTOR_POLICY, causalCanonical,
+  assertCausalExecutionAdmission, CAUSAL_MAX_OUTPUT_CHARS, DEFAULT_CAUSAL_SELECTOR_POLICY, causalCanonical,
   effectiveCausalEnvironment, executeCausalEvidence, preflightCausalEvidence,
   resolveCausalToolVersion, type CausalEvidenceReceiptStore, type CausalPreflightFacts,
 } from './causal-evidence.js';
@@ -13,24 +15,31 @@ import { normalizeRoutineValidationCommand } from './validation-evidence-reuse.j
 import type { ValidationCommand, ValidationCommandResult } from './validation-types.js';
 
 export interface SharedValidationExecutionContext {
+  /** An execution-only hint: never authorizes receipt reuse or suppresses a gate. */
+  reuseEconomics?: 'measured';
   storyId: string;
   receiptStore: CausalEvidenceReceiptStore;
   probe: (input: { command: string; cwd: string; timeoutMs: number }) => CausalPreflightFacts;
 }
+const uneconomicCommands = new WeakMap<SharedValidationExecutionContext, Map<string, number>>();
 const contexts = new AsyncLocalStorage<SharedValidationExecutionContext>();
 export function withSharedValidationExecutions<T>(context: SharedValidationExecutionContext | undefined, fn: () => T): T {
   return context ? contexts.run(context, fn) : fn();
 }
 
-/** Explicit reuse is subordinate to existing never-reuse and build policies. */
-export function sharedValidationReuseAllowed(command: ValidationCommand): boolean {
+/** Diagnostic reasons never expand the existing reuse permission predicate. */
+export function sharedValidationReusePolicy(command: ValidationCommand): { eligible: boolean; reason: string } {
   const proof = command as ValidationCommand & { requiresBuildProof?: unknown; providesBuildProof?: unknown; proof?: unknown };
-  return command.executionReuse === 'exact-inputs'
-    && Array.isArray(command.executionInputs) && command.executionInputs.every(path => typeof path === 'string' && path.trim().length > 0)
-    && command.fullBaselineReusePolicy !== 'forbidden'
-    && command.closurePolicy !== 'never-reuse'
-    && command.riskTier !== 'gate' && command.riskTier !== 'validation-infra'
-    && !proof.requiresBuildProof && !proof.providesBuildProof && !proof.proof;
+  if (proof.requiresBuildProof || proof.providesBuildProof || proof.proof) return { eligible: false, reason: 'build_proof_required' };
+  if (command.fullBaselineReusePolicy === 'forbidden') return { eligible: false, reason: 'policy_forbidden' };
+  if (command.closurePolicy === 'never-reuse') return { eligible: false, reason: 'policy_never_reuse' };
+  if (command.riskTier === 'gate' || command.riskTier === 'validation-infra') return { eligible: false, reason: 'policy_risk_tier' };
+  if (command.executionReuse !== 'exact-inputs') return { eligible: false, reason: 'not_opted_in' };
+  if (!Array.isArray(command.executionInputs) || !command.executionInputs.every(path => typeof path === 'string' && path.trim().length > 0)) return { eligible: false, reason: 'inputs_undeclared' };
+  return { eligible: true, reason: 'eligible' };
+}
+export function sharedValidationReuseAllowed(command: ValidationCommand): boolean {
+  return sharedValidationReusePolicy(command).eligible;
 }
 
 export async function executeSharedValidationCommand(
@@ -39,22 +48,47 @@ export async function executeSharedValidationCommand(
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
-  if (!context || !sharedValidationReuseAllowed(command)) return run();
+  const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
+    ...await run(), executionDecision: { disposition: 'executed', reason },
+  });
+  const policy = sharedValidationReusePolicy(command);
+  if (!policy.eligible) return executeWithoutReuse(policy.reason);
+  if (!context) return executeWithoutReuse('shared_context_unavailable');
   assertActive();
+  const started = performance.now();
+  const economicsKey = context.reuseEconomics === 'measured' ? causalCanonical({
+    projectRoot: resolve(projectRoot), command, timeoutMs,
+  }) : undefined;
+  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
+  const observedCost = economicsKey ? (uneconomicCommands.get(context)?.get(economicsKey) ?? readValidationReuseCost(projectRoot,economicsKey)) : undefined;
+  if (observedCost !== undefined) {
+    // This branch runs the real command. It consumes no cached PASS and grants
+    // no authority; ordinary caller gates and execution locks remain in force.
+    const admission = () => assertCausalExecutionAdmission(context.probe({
+      command: causalCanonical({command:command.command,args:command.args,shell:normalized.shell}), cwd:normalized.cwd, timeoutMs,
+    }));
+    admission();
+    const result = await executeWithoutReuse('reuse_cost_exceeds_execution');
+    admission();
+    assertActive();
+    if (result.code !== 0 || performance.now() - started >= observedCost) {
+      uneconomicCommands.get(context)?.delete(economicsKey!);
+      saveValidationReuseCost(projectRoot,economicsKey!,undefined);
+    }
+    return result;
+  }
+  let executionWallMs = 0;
   // Automatic producer/consumer binding: a caller cannot opt out of the
   // implementation digest while opting into reuse. Version strings alone do
   // not describe the code that actually executes this protocol.
   const implementationDigest = executionImplementationIdentity().digest;
-  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
-  if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return run();
+
+  if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return executeWithoutReuse('executable_identity_unavailable');
   const input = { command: causalCanonical({command:command.command,args:command.args,shell:normalized.shell}), cwd:normalized.cwd, timeoutMs };
   const probe = () => context.probe(input);
-  const additionalInputs = () => command.executionInputs!.map(path => {
-    const actual = realpathSync(resolve(normalized.cwd,path));
-    return {path:actual,digest:createHash('sha256').update(readFileSync(actual)).digest('hex')};
-  });
+  const additionalInputs = () => snapshotValidationExecutionInputs(normalized.cwd, command.executionInputs!);
   let inputFiles: ReturnType<typeof additionalInputs>;
-  try { inputFiles=additionalInputs(); } catch { return run(); }
+  try { inputFiles=additionalInputs(); } catch { return executeWithoutReuse('input_unreadable'); }
   // Bind uncommitted source/index changes as well as committed material. Unknown
   // Git state refuses reuse; it does not manufacture a complete identity.
   const gitRoot = realpathSync(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: normalized.cwd, encoding: 'utf8' }).trim());
@@ -69,15 +103,20 @@ export async function executeSharedValidationCommand(
     return createHash('sha256').update(status).update('\0').update(diff).digest('hex');
   };
   let workspace: string;
-  try { workspace=workspaceState(); } catch { return run(); }
+  try { workspace=workspaceState(); } catch { return executeWithoutReuse('workspace_identity_unavailable'); }
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
-  if (workspaceStatus()) return run();
+  if (workspaceStatus()) return executeWithoutReuse('workspace_dirty');
   // git status may refresh index stat caches. Freeze raw index facts only after
   // the clean-workspace probe has completed its own legitimate refresh.
   const initial = probe();
-  const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles)
-    && executionImplementationIdentity().digest === implementationDigest;
+  const unchanged = () => {
+    try {
+      return causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace
+        && causalCanonical(additionalInputs()) === causalCanonical(inputFiles)
+        && executionImplementationIdentity().digest === implementationDigest;
+    } catch { return false; }
+  };
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
   const identity = {
     storyId:context.storyId, cwd:normalized.cwd,
@@ -99,8 +138,10 @@ export async function executeSharedValidationCommand(
   let fresh: ValidationCommandResult | undefined;
   const causal=await executeCausalEvidence({identity,selector:'',receiptStore:context.receiptStore,preflight,revalidateBeforeRun:unchanged,
     run:async()=>{
+      const executionStarted = performance.now();
       const captured = await capture();
       fresh = captured.result;
+      executionWallMs = performance.now() - executionStarted;
       // Receipt identity belongs to complete execution bytes, never the bounded display.
       return {code:fresh.code,output:captured.completeOutput,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
         partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
@@ -108,11 +149,21 @@ export async function executeSharedValidationCommand(
   });
   assertActive();
   if (!unchanged()) throw new Error('shared validation inputs changed before publication');
+  if (economicsKey && fresh?.code === 0 && causal.receipt.reusable) {
+    const overhead = performance.now() - started - executionWallMs;
+    if (overhead > executionWallMs * 2) {
+      let observations = uneconomicCommands.get(context);
+      if (!observations) { observations = new Map(); uneconomicCommands.set(context, observations); }
+      if (observations.size >= 128) observations.delete(observations.keys().next().value!);
+      observations.set(economicsKey, overhead);
+      saveValidationReuseCost(projectRoot,economicsKey,overhead);
+    }
+  }
   const executionReceipt={executionKey:causal.key.key,receiptHash:causal.receipt.receiptHash,
-    disposition:causal.disposition,executedAt:causal.receipt.executedAt};
-  if (fresh) return {...fresh,executionReceipt};
+    disposition:(fresh ? 'executed' : 'reused') as 'executed' | 'reused',executedAt:causal.receipt.executedAt};
+  if (fresh) return {...fresh,executionReceipt,executionDecision:{disposition:'executed',reason:causal.receipt.reusable ? 'no_matching_receipt' : fresh.code !== 0 ? 'execution_failed' : 'result_not_reusable'}};
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');
   return {label:command.label,command:command.command,args:[...command.args],shell:normalized.shell,
     cwd:resolve(normalized.cwd),code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
-    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt};
+    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'}};
 }

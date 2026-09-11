@@ -17,6 +17,8 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *                          as review_incremental_context (prior verdict, bound
  *                          headHash, scopeChanged, changed-files-since-last-pass).
  *       · no-receipt     — no current-round pass at all (launch / first run).
+ *       · awaiting-repair — a valid blocking observation with exact committed material
+ *                          or metadata-only drift; guidance only, never a gate PASS.
  *       · blocking       — a blocking verified finding is open for/affecting the
  *                          lane (round-decayed via isFindingBlocking).
  *   - The orchestrator launch INSTRUCTION for each lane that needs a (re-)run, in
@@ -62,6 +64,9 @@ import { readDynamicFindingDecision } from '../core/finding-applicability-projec
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import type { Finding } from '../core/types.js';
+import type { StoryStore } from '../core/store.js';
+import { checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 interface ReviewerBatchArgs {
   storyId: string;
@@ -80,7 +85,7 @@ interface ReviewerBatchArgs {
 }
 
 /** Per-lane state, classified from existing facts only (never from a launch). */
-type ReviewerLaneState = 'current-pass' | 'scope-changed' | 'no-receipt' | 'blocking';
+type ReviewerLaneState = 'current-pass' | 'scope-changed' | 'no-receipt' | 'blocking' | 'awaiting-repair' | 'outside-remediation-impact';
 
 interface ReviewerLanePlan {
   /** Reviewer short name, e.g. concept / quality / behavior. */
@@ -101,10 +106,12 @@ interface ReviewerLanePlan {
   /**
    * The orchestrator launch INSTRUCTION to spawn this lane's reviewer subagent,
    * in the canonical Agent(...) form, present iff the lane needs a (re-)run
-   * (scope-changed / no-receipt / blocking). null for current-pass. This is an
+   * (scope-changed / no-receipt / blocking). null for current-pass or awaiting-repair. This is an
    * instruction for the orchestrator, NOT a runnable `dispatch` CLI command.
    */
   launchInstruction: string | null;
+  /** Why this plan requests a new observation or waits for the owner. */
+  actionReason: string;
   /** Blocking verified findings open for/affecting this lane (ids). */
   blockingFindings: string[];
 }
@@ -206,20 +213,52 @@ function blockingFindingsForLane(
   return blockingFindings.filter((finding) => findingAgentMatchesReviewer(finding.agent, lane));
 }
 
+/** Launch guidance only: a valid blocker must still block the lifecycle gate.
+ * A prior PASS is not required for a first observed defect to await repair.
+ * Validity alone is insufficient: unrelated main material drift also needs review.
+ */
+export function blockingObservationAwaitsRepair(
+  store: StoryStore, root: string, storyId: string,
+  findings: Finding[], validRecords: ReviewerEvidenceRecord[],
+): boolean {
+  if (findings.length === 0) return false;
+  const runs = store.readReviewRuns(storyId).runs;
+  return findings.every(finding => {
+    const record = validRecords.find(row => row.kind === 'finding' && row.id === finding.id);
+    if (!record?.reviewRunId) return false;
+    const run = runs.find(row => row.reviewRunId === record.reviewRunId);
+    if (!run) return false;
+    try {
+      const signedRoot = run.workspaceBinding?.signedWorkspaceRoot
+        ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+      const freshness = checkEvidenceFreshnessForGit(signedRoot, run.headHash, run.materialHash,
+        run.workspaceBinding?.metadataRoot ?? root, run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash);
+      const classification = classifyEvidenceFreshness(freshness, run.headHash);
+      return classification === 'CURRENT_MATERIAL' || classification === 'KNOWN_METADATA_ONLY_HEAD_DRIFT';
+    } catch { return false; }
+  });
+}
+
 /**
  * Classify a single active lane from existing facts only. Precedence:
- *   1. blocking      — a blocking verified finding is open for the lane.
+ *   1. awaiting-repair — current blocking observation with exact material or metadata-only head drift.
+ *      blocking      — blocking evidence still requires a new/changed-input observation.
  *   2. no-receipt    — no valid current-round pass/finding for the lane.
  *   3. scope-changed — has a current-round receipt but scope changed since its
  *                      last pass (review_incremental_context.scopeChanged).
  *   4. current-pass  — has a current-round receipt and nothing changed since.
  */
-function classifyLaneState(
+export function classifyLaneState(
   hasCurrentEvidence: boolean,
   scopeChanged: boolean,
   laneBlockingFindings: Finding[],
+  awaitsRepair: boolean,
+  required: boolean,
 ): ReviewerLaneState {
-  if (laneBlockingFindings.length > 0) return 'blocking';
+  if (laneBlockingFindings.length > 0) {
+    return awaitsRepair ? 'awaiting-repair' : 'blocking';
+  }
+  if (!required) return 'outside-remediation-impact';
   if (!hasCurrentEvidence) return 'no-receipt';
   if (scopeChanged) return 'scope-changed';
   return 'current-pass';
@@ -252,7 +291,8 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
       if (lane.blockingFindings.length > 0) {
         lines.push(`      blockingFindings: ${lane.blockingFindings.join(', ')}`);
       }
-      lines.push(`      launch: ${lane.launchInstruction ?? '(no re-run needed)'}`);
+      lines.push(`      action: ${lane.actionReason}`);
+      lines.push(`      launch: ${lane.launchInstruction ?? (lane.state === 'awaiting-repair' ? '(await owner repair; TEST remains blocked)' : '(no re-run needed)')}`);
     }
   }
 
@@ -327,8 +367,15 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
       const incremental = reviewIncrementalContext(ctx.store, ctx.root, storyId, canonicalLane);
       const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, canonicalLane);
       const laneBlocking = blockingFindingsForLane(blockingFindings, canonicalLane);
-      const state = classifyLaneState(hasCurrentEvidence, incremental.scopeChanged, laneBlocking);
-      const needsRun = state !== 'current-pass';
+      const state = classifyLaneState(hasCurrentEvidence, incremental.scopeChanged, laneBlocking,
+        blockingObservationAwaitsRepair(ctx.store, ctx.root, storyId, laneBlocking, evidenceState.valid),
+        !readinessReport.reviewRoster || readinessReport.reviewRoster.requiredLanes.includes(canonicalLane));
+      const needsRun = state !== 'current-pass' && state !== 'awaiting-repair' && state !== 'outside-remediation-impact';
+      const actionReason = state === 'outside-remediation-impact'
+        ? 'Current verified remediation selection excludes this lane; this is not a new PASS and does not grant TEST.'
+        : state === 'awaiting-repair'
+        ? 'Current verified blocker on unchanged committed review inputs: retain the finding, complete the current review wave, then use owner remediation before another observation; TEST remains blocked. Uncommitted repairs do not refresh this plan.'
+        : needsRun ? 'A current observation is required for missing or changed review inputs.' : 'The current observation remains valid.';
       return {
         lane: canonicalLane,
         reason: reviewer.reason,
@@ -339,6 +386,7 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
         launchInstruction: needsRun
           ? laneLaunchInstruction(storyId, reviewer.name, reviewer.reason)
           : null,
+        actionReason,
         blockingFindings: laneBlocking.map((finding) => finding.id),
       };
     });

@@ -1,0 +1,40 @@
+validation-tier-planner-smoke: running CHK-001 stable command identity cases
+  ok  25 cases passed
+
+validation-tier-planner-smoke: running CHK-002 legacy pin resolver cases
+  ok  13 cases passed
+
+validation-tier-planner-smoke: running CHK-003 Story input collector cases
+  ok  18 cases passed
+
+validation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases
+  ok  26 cases passed
+
+validation-tier-planner-smoke: running CHK-005 validation_plan CLI cases
+  ok  20 cases passed
+
+validation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases
+  ok  13 cases passed
+
+validation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards
+  ok  a RED fixture commit precedes the implementing commit for every item this suite declares
+  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes
+  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007
+  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail
+  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing
+  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified
+  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query
+  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)
+  ok  priorRedIds raises when the git call fails instead of returning an empty set
+[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason
+  ok  main..HEAD passes the RED-before-GREEN helper
+  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed
+  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner
+  ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label
+  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed
+default stdout projection: 2507 chars (bound 11000)
+  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars
+
+validation-tier-planner-smoke: PASS
+
+[exited with code 0]

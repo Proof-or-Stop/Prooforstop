@@ -1,6 +1,6 @@
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
@@ -234,7 +234,21 @@ function sha256(content: string | Buffer): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+/** Do not follow a foreign symlink while verifying or restoring metadata. */
+export function isRegularMetadataPath(root: string, relPath: string): boolean {
+  if (isAbsolute(relPath) || relPath.split('/').some(part => part === '..')) return false;
+  const parts = relPath.split('/');
+  try {
+    for (let i = 1; i <= parts.length; i++) {
+      const entry = lstatSync(join(root, ...parts.slice(0, i)));
+      if (entry.isSymbolicLink() || (i < parts.length ? !entry.isDirectory() : !entry.isFile())) return false;
+    }
+    return true;
+  } catch { return false; }
+}
+
 function hashFile(root: string, relPath: string): string | null {
+  if (!isRegularMetadataPath(root, relPath)) return null;
   const abs = join(root, relPath);
   if (!existsSync(abs)) return null;
   const stat = statSync(abs);
@@ -472,6 +486,15 @@ function restoreIndexEntries(gitCwd: string, path: string, entries: DonePrepareG
     input,
     stdio: ['pipe', 'pipe', 'pipe'],
     maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
+  });
+}
+
+/** One index write after an owned-entry check; this is not an index CAS. */
+function restoreOwnedIndexEntries(gitCwd: string, path: string, entries: DonePrepareGeneratedMetadataIndexEntry[], ownedObject: string): void {
+  const input = `0 ${'0'.repeat(ownedObject.length)}\t${path}\0` + entries
+    .map(entry => `${entry.mode} ${entry.object} ${entry.stage}\t${entry.path}\0`).join('');
+  childProcess.execFileSync('git', ['update-index', '-z', '--index-info'], {
+    cwd: gitCwd, input, stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   });
 }
 
@@ -926,6 +949,7 @@ export function commitImmutableMetadataTree(args: {
   if (!oldHeadResult.ok || !oldTreeResult.ok || !targetRefResult.ok) {
     return { ok: false, files: paths, reason: 'cannot capture the current branch HEAD/tree for isolated metadata commit' };
   }
+  const realIndexAtEntry = indexEntriesForPaths(args.gitCwd, paths);
   const oldHead = oldHeadResult.output;
   const oldTree = oldTreeResult.output;
   const targetRef = targetRefResult.output;
@@ -1033,8 +1057,16 @@ export function commitImmutableMetadataTree(args: {
       ...(signingKey ? { key: signingKey } : {}),
       ...(signingFormat ? { format: signingFormat } : {}),
     });
+    const ownedIndex = isolatedGit(args.gitCwd, temporaryIndexFile, ['ls-files', '--stage', '-z', '--', ...paths])
+      .split('\0').filter(Boolean).map(parseLsFilesStageRecord).filter(Boolean);
     const commitSha = isolatedGit(args.gitCwd, temporaryIndexFile, commitTreeArgs).trim();
     args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
+    const lateDrift = paths.filter(path => hashFile(args.root, path) !== args.verifiedHashes.get(path));
+    const lateIndexDrift = JSON.stringify(indexEntriesForPaths(args.gitCwd, paths)) !== JSON.stringify(realIndexAtEntry);
+    if (lateDrift.length || lateIndexDrift) return {
+      ok: false, files: paths,
+      reason: `publication refused before HEAD CAS; foreign worktree/index preserved: ${lateDrift.join(', ') || 'staged metadata changed'}`,
+    };
     const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
     if (!cas.ok) {
       return {
@@ -1047,18 +1079,52 @@ export function commitImmutableMetadataTree(args: {
     try {
       updateRealIndexFromTree(args.gitCwd, tree, paths);
     } catch (err: any) {
-      for (const path of paths) {
-        restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter((entry) => entry.path === path));
-      }
+      // HEAD recovery must not be skipped when index cleanup also fails.
       const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
+      const restoreErrors: string[] = [];
+      for (const path of paths) {
+        try {
+          const baselineEntries = realIndexBefore.filter(entry => entry.path === path);
+          const currentEntries = indexEntriesForPaths(args.gitCwd, [path]);
+          if (JSON.stringify(currentEntries) === JSON.stringify(baselineEntries)) continue;
+          const intendedEntries = ownedIndex.filter(entry => entry?.path === path);
+          if (JSON.stringify(currentEntries) !== JSON.stringify(intendedEntries)) {
+            restoreErrors.push(`${path}: foreign index entries preserved`);
+            continue;
+          }
+          restoreOwnedIndexEntries(args.gitCwd, path, baselineEntries, currentEntries[0].object);
+        }
+        catch (restoreError) { restoreErrors.push(`${path}: ${describeContentReadFailure(restoreError)}`); }
+      }
       return {
         ok: false,
         files: paths,
         reason: `real index refresh after isolated commit failed: ${describeContentReadFailure(err)}`
+          + (restoreErrors.length ? `; real index restore failed: ${restoreErrors.join('; ')}` : '')
           + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
       };
     }
     runCommitHook(args.gitCwd, temporaryIndexFile, 'post-commit');
+    const finalDrift = paths.filter(path => hashFile(args.root, path) !== args.verifiedHashes.get(path));
+    const finalHead = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD']);
+
+    const finalIndex = indexEntriesForPaths(args.gitCwd, paths);
+    const foreignIndex = JSON.stringify(finalIndex) !== JSON.stringify(ownedIndex);
+    if (finalDrift.length || !finalHead.ok || finalHead.output !== commitSha || foreignIndex) {
+      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
+      const errors: string[] = [];
+      if (rollbackRef.ok && !foreignIndex) {
+        for (const path of paths) {
+          try { restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter(entry => entry.path === path)); }
+          catch (error) { errors.push(String(error)); }
+        }
+      }
+      return { ok: false, files: paths, reason: 'publication refused after commit; foreign worktree/index preserved; '
+        + (rollbackRef.ok ? 'own HEAD rolled back' : 'foreign HEAD preserved; rollback CAS refused')
+        + (finalDrift.length ? `; changed paths: ${finalDrift.join(', ')}` : '')
+        + (foreignIndex ? '; foreign staged metadata retained' : '')
+        + (errors.length ? `; index recovery errors: ${errors.join('; ')}` : '') };
+    }
     return { ok: true, commitSha, files: paths };
   } catch (err: any) {
     return {

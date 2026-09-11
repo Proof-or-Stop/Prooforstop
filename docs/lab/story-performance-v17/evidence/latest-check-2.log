@@ -1,0 +1,59 @@
+captureEvidenceHashSnapshot: reusable=true, materialDirty=false
+DONE currentBinding reused: materialHash=7c857283736f66ae8a881b1861e82382a94cb38fb6ef3d170aacba539772cbcb storyFilesHash=f0b247817c20e44856d6c4a67c658e6e776cd6a7eb0c02792f230697156183d9
+stale supplied snapshot rejected after dirty material drift
+lifecycle DONE/session/lifecycle call sites thread evidenceHashSnapshot
+✓ refresh_stale preserves attestation/actorTrust/factProvenance
+↻ Written and persistence confirmed: CHK-001 current status=pending. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.
+FRESHNESS_REAL_RECEIPT_GREEN {"storyId":"B-recover","mechanical":true,"exitCode":0,"covered":1}
+FRESHNESS_MISSING_PLAN_REJECTED
+FRESHNESS_REAL_MAIN_MERGE_CONFIRMED
+FRESHNESS_REQUIRED_GATE_RED_CONFIRMED
+FRESHNESS_REAL_RECEIPT_GREEN {"storyId":"B-a2f1mm","mechanical":true,"exitCode":0,"covered":1}
+FRESHNESS_PLAN_AND_RECEIPT_ADMISSION_GREEN
+FRESHNESS_MISSING_PLAN_REJECTED
+FRESHNESS_REAL_MAIN_MERGE_CONFIRMED
+FRESHNESS_REAL_RECEIPT_GREEN {"storyId":"B-a2f1mm","mechanical":true,"exitCode":0,"covered":1}
+{
+  "status": 1,
+  "starts": 0,
+  "stdout": "{\"provider\":\"proof-or-stop-verifier-scope-preflight\",\"status\":\"fail\",\"allPass\":false,\"failureKind\":\"infra_failure\",\"summary\":\"Validation scope prerequisites are not ready\",\"details\":[\"VALIDATION_SCOPE_NOT_READY\",\"[missing_scope_contract] Prepare the declared scope contract before routine validation\",\"commandExecutions=0\",\"Next: proof-or-stop scope_contract_init_from_plan --storyId=B-closeout-proof; inspect scope_contract_check or use scope_contract_set to repair the contract\"],\"warnings\":[],\"timestamp\":\"2026-09-11T01:02:18.410Z\",\"commands\":[],\"commandExecutions\":0}\n",
+  "stderr": "[0.0s] validate timeout budget: maxMs=40000 source=derived-command-budget\n[0.0s] running validate...\n[0.1s] validate completed with structured failure\n",
+  "events": [],
+  "valid": false
+}
+VALIDATION_EXIT_GREEN
+{
+  "status": 0,
+  "starts": 1,
+  "stdout": "{\"provider\":\"proof-or-stop-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ closeout witness: /opt/homebrew/Cellar/node/26.8.1/bin/node scripts/witness.mjs\",\"  CLOSEOUT_WITNESS_PASS\",\"validate scheduler: jobs=4 commands=1 declared=0 exclusiveByDefault=1\",\"Verification intent coverage: 0/1 covered (0 required missing)\",\"  ✗ CHK-001:happy:0 [happy/should/logic] missing — Routine scope witness\"],\"warnings\":[],\"timestamp\":\"2026-09-11T01:02:21.447Z\",\"headSha\":\"469d03ac67391b5ce2c8ff21be2e6ed047e2c421\",\"commands\":[{\"sourceProvenance\":{\"schemaVersion\":\"validation-source-provenance.v1\",\"gitCwd\":\"/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-closeout-K6svbt\",\"headBefore\":\"469d03ac67391b5ce2c8ff21be2e6ed047e2c421\",\"headAfter\":\"469d03ac67391b5ce2c8ff21be2e6ed047e2c421\",\"cleanBefore\":false,\"cleanAfter\":false},\"label\":\"closeout witness\",\"command\":\"/opt/homebrew/Cellar/node/26.8.1/bin/node\",\"args\":[\"scripts/witness.mjs\"],\"code\":0,\"output\":\"CLOSEOUT_WITNESS_PASS\\n\",\"timeoutMs\":10000,\"effectiveTimeoutMs\":9998,\"durationMs\":1073,\"runtimeTrace\":{\"command\":\"/opt/homebrew/Cellar/node/26.8.1/bin/node\",\"argv\":[\"scripts/witness.mjs\"],\"cwd\":\"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/pos-closeout-K6svbt\",\"environmentKeys\":[],\"startedAt\":\"2026-09-11T01:02:20.352Z\",\"endedAt\":\"2026-09-11T01:02:21.425Z\",\"exitCode\":0,\"events\":[\"spawn-request\",\"spawn\",\"close\",\"finish\"],\"unknownRuntimeInputs\":[\"runtime tracer unavailable for command\"]},\"executionDecision\":{\"disposition\":\"executed\",\"reason\":\"not_opted_in\"},\"schedulerWaitMs\":0}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":1,\"reason\":\"verificationIntent entries present (1)\"},\"verificationCoverage\":{\"total\":1,\"required\":0,\"covered\":0,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Routine scope witness\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"}]},\"disposition\":\"executed\",\"commandExecutions\":1,\"reuse\":{\"reusable\":false,\"lineage\":\"rejected\",\"existingEvidenceBasis\":\"missing\",\"refusalReasons\":[\"evidence-missing\"],\"identityDigest\":\"94b3e6f9a07181f75a6b13d8b6258e3ebe5b74b1d9955dbf931f44c98a5a92c7\"}}\n",
+  "stderr": "[0.0s] validate timeout budget: maxMs=40000 source=derived-command-budget\n[0.0s] running validate...\n[0.6s] routine validation reuse refused: refusalReasons=evidence-missing priorIdentityDigest=missing-or-malformed currentIdentityDigest=94b3e6f9a07181f75a6b13d8b6258e3ebe5b74b1d9955dbf931f44c98a5a92c7\n[0.7s] running 1 configured validate.command(s)\n[0.9s] validate progress: command 1/1 started closeout witness: /opt/homebrew/Cellar/node/26.8.1/bin/node scripts/witness.mjs timeoutMs=10000\n[2.0s] validate progress: command 1/1 ended closeout witness: code=0 elapsedMs=1073\n[2.7s] ran: /opt/homebrew/Cellar/node/26.8.1/bin/node scripts/witness.mjs\n[2.7s] validate done\n",
+  "events": [],
+  "valid": true
+}
+VALIDATION_EXIT_GREEN
+{
+  "status": 1,
+  "starts": 0,
+  "stdout": "✗ Validation scope prerequisites are not ready\n  VALIDATION_SCOPE_NOT_READY\n  [missing_scope_contract] Prepare the declared scope contract before routine validation\n  commandExecutions=0\n  Next: proof-or-stop scope_contract_init_from_plan --storyId=B-closeout-proof; inspect scope_contract_check or use scope_contract_set to repair the contract\n",
+  "stderr": "[0.0s] validate timeout budget: maxMs=40000 source=derived-command-budget\n[0.0s] running validate...\n[0.2s] validate completed with structured failure\n",
+  "events": [
+    {
+      "type": "codex_cli",
+      "source": "codex",
+      "session": "sess-a986dce7bbb05ea5a217a54223907fde",
+      "sessionSource": "explicit-env",
+      "hostProvider": "codex",
+      "role": "main",
+      "storyId": "B-closeout-proof",
+      "phase": "TEST",
+      "command": "validate",
+      "entrypoint": "global-fallback",
+      "result": "fail",
+      "errorSummary": "structured terminal failure",
+      "timestamp": "2026-09-11T01:02:23.375Z"
+    }
+  ],
+  "valid": false
+}
+VALIDATION_EXIT_GREEN
+✓ verification freshness smoke passed

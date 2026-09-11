@@ -89,7 +89,7 @@ const caseSourcePaths = [
 const configPath = join(repoRoot, "proof-or-stop.config.json");
 const dynRegistryPath = join(sourceTasks, "story-aware-validation-domain-cases.json");
 const ORIGINAL_SMOKE_COMMIT = "3eec15009ba93740b5dd74c0563bf1b3ca098b32";
-const BOUNDED_SHELL_SOURCE_DIGEST = "9d678f7838bff9c3978def08f375f467faf544c441a3e163b3f22a43e6958441";
+const BOUNDED_SHELL_SOURCE_DIGEST = "583509e6565ee7c736cc959152c91f66c9cb89bb0a5714c32548ff1c3e8e1d97";
 const harnessRelativePath = relative(repoRoot, fileURLToPath(import.meta.url)).split(sep).join("/");
 const EXACT_HEAD_ISOLATION_SELECTORS = new Set([
   "selector-contract",
@@ -1329,6 +1329,8 @@ async function proveFixtureAndEnvironmentSourceClosure(worker) {
   );
   for (const overrides of [
     { GIT_DIR: "/tmp/b-e40f-hostile-git-dir" },
+    { GIT_COMMON_DIR: "/tmp/b-e40f-hostile-common-dir" },
+    { GIT_WORK_TREE: "/tmp/b-e40f-hostile-work-tree" },
     { GIT_CONFIG_GLOBAL: "/tmp/b-e40f-hostile-git-config" },
     { HOME: "/tmp/b-e40f-hostile-home" },
     { PROOF_OR_STOP_HEALTH_PATH: "/tmp/b-e40f-hostile-health" },
@@ -1344,6 +1346,7 @@ async function proveFixtureAndEnvironmentSourceClosure(worker) {
     contract(rejected, "finite child environment accepted undeclared/host-routing overrides: " + json(overrides));
   }
   const sanitizedRouting = environmentModule.validationChildEnvironment({}, {
+    GIT_DIR: "/tmp/hostile-dir", GIT_COMMON_DIR: "/tmp/hostile-common", GIT_WORK_TREE: "/tmp/hostile-work",
     PATH: "/b-e40f/bin",
     HOME: "/tmp/b-e40f-hostile-home",
     GIT_CONFIG_GLOBAL: "/tmp/b-e40f-hostile-git-config",
@@ -1358,6 +1361,7 @@ async function proveFixtureAndEnvironmentSourceClosure(worker) {
   });
   contract(
     sanitizedRouting.PATH === "/b-e40f/bin"
+      && sanitizedRouting.GIT_DIR === undefined && sanitizedRouting.GIT_COMMON_DIR === undefined && sanitizedRouting.GIT_WORK_TREE === undefined
       && sanitizedRouting.PROOF_OR_STOP_EXPERIMENT_ARM === "control"
       && sanitizedRouting.PROOF_OR_STOP_EXPERIMENT_ID === "b-e40f-causal"
       && sanitizedRouting.PWD === "/b-e40f/project"
@@ -2389,6 +2393,7 @@ async function proveTracedEnvironmentClosureAndDynTemp(worker) {
       .validate.commands.find((command) => (
         command.args?.includes("packages/main/dist/tasks/quorum-submit-smoke.js")
       ));
+    console.log("DYN_OBSERVED_ENVIRONMENT_KEYS " + json(businessEnvironmentKeys([...dynEnvironmentKeys]).sort()));
     const dynUndeclared = businessEnvironmentKeys([...dynEnvironmentKeys])
       .filter((key) => !configuredQuorum.declaredEnvironmentKeys.includes(key))
       .sort();
@@ -2606,6 +2611,7 @@ async function proveAmbientGitRoutingIsolation() {
         cwd: runtimeRoot,
         env: {
           GIT_DIR: join(victim, ".git"),
+          GIT_COMMON_DIR: join(victim, ".git"),
           GIT_WORK_TREE: victim,
           GIT_INDEX_FILE: indexPath,
           GIT_OBJECT_DIRECTORY: join(victim, ".git", "objects"),
@@ -3514,10 +3520,13 @@ function assertCoordinatorExecutionWiring(entryFile, registryCall) {
   );
   const resolveBinding = namedImportBinding(entryFile, "node:path", "resolve", "quorum smoke entrypoint");
   const fileUrlBinding = namedImportBinding(entryFile, "node:url", "fileURLToPath", "quorum smoke entrypoint");
-  const resolvedArgv = resolveBinding.localName + "(process.argv[1])";
-  const currentModule = fileUrlBinding.localName + "(import.meta.url)";
+  const realpathBinding = namedImportBinding(entryFile, "node:fs", "realpathSync", "quorum smoke entrypoint");
+  const existsBinding = namedImportBinding(entryFile, "node:fs", "existsSync", "quorum smoke entrypoint");
+  const resolvedArgv = realpathBinding.localName + "(" + resolveBinding.localName + "(process.argv[1]))";
+  const currentModule = realpathBinding.localName + "(" + fileUrlBinding.localName + "(import.meta.url))";
   const directModuleGuard = (node) => node.getText(entryFile).replace(/\s+/g, "")
-    === "process.argv[1]&&" + resolvedArgv + "===" + currentModule;
+    === "process.argv[1]&&" + existsBinding.localName + "(" + resolveBinding.localName + "(process.argv[1]))&&"
+      + resolvedArgv + "===" + currentModule;
   const launchAwait = mainCall.parent;
   const launchStatement = launchAwait?.parent;
   const launchBlock = launchStatement?.parent;
@@ -3709,7 +3718,7 @@ function assertInvalidSelection(execution, label, errorPattern) {
 
 function parseExecutableCases(output) {
   const line = output.split(/\r?\n/).find((candidate) => candidate.startsWith("QUORUM_SMOKE_CASES_JSON "));
-  contract(Boolean(line), "--list-cases=json did not emit QUORUM_SMOKE_CASES_JSON");
+  contract(Boolean(line), "--list-cases=json did not emit QUORUM_SMOKE_CASES_JSON; output=" + json(output));
   try {
     const rows = JSON.parse(line.slice("QUORUM_SMOKE_CASES_JSON ".length));
     contract(Array.isArray(rows), "--list-cases=json payload must be an array");

@@ -1381,6 +1381,9 @@ async function registrationGuardCases() {
     fs.copyFileSync(join(here, GUARD_NAME), join(redDir, GUARD_NAME));
     fs.mkdirSync(join(root, 'packages', 'main', 'src', 'tasks'), { recursive: true });
     fs.copyFileSync(join(repoRoot, F031_SOURCE_REL), join(root, F031_SOURCE_REL));
+    // Package-script registration is an executable decision input of the real
+    // guard. Preserve it in both the positive control and removal mutant.
+    fs.copyFileSync(join(repoRoot, 'packages/main/package.json'), join(root, 'packages/main/package.json'));
     write(join(root, 'proof-or-stop.config.json'),
       JSON.stringify({ ...committedConfig, validate: { ...committedConfig.validate, commands } }, null, 2) + '\n');
     return { root, guard: join(redDir, GUARD_NAME) };

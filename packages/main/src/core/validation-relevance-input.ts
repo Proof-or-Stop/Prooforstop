@@ -180,6 +180,20 @@ export function missingEvidenceHashDigests(snapshot: unknown): EvidenceHashDiges
   });
 }
 
+/**
+ * Return the snapshot's material overlay only when its runtime shape is safe to
+ * consume. This field participates in dynamic validation selection just as the
+ * three digests participate in freshness, so an older or schema-bypassing
+ * snapshot that omits it must be classified unavailable rather than treated as
+ * an empty worktree.
+ */
+export function evidenceMaterialDirtyFiles(snapshot: unknown): string[] | null {
+  const record = snapshot && typeof snapshot === 'object' ? (snapshot as Record<string, unknown>) : {};
+  const value = record.materialDirtyFiles;
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) return null;
+  return [...value];
+}
+
 export type StoryRelevanceHashes =
   | {
       status: 'available';
@@ -756,17 +770,22 @@ export function collectStoryRelevanceInput(args: StoryRelevanceInputArgs): Story
     // is classified exactly like a thrown one: bounded summary in the prose,
     // the missing names on the structured result, and an escalation.
     const missingDigests = missingEvidenceHashDigests(head);
-    if (missingDigests.length === 0) {
+    const materialDirtyFiles = evidenceMaterialDirtyFiles(head);
+    if (missingDigests.length === 0 && materialDirtyFiles !== null) {
       hashes = { status: 'available', head };
     } else {
       const summary = boundedFailureSummary(
-        `the snapshot at ${headRef} carries no ${missingDigests.join(', ')} digest`,
-        'the snapshot is missing a digest',
+        missingDigests.length > 0
+          ? `the snapshot at ${headRef} carries no ${missingDigests.join(', ')} digest`
+          : `the snapshot at ${headRef} carries no valid materialDirtyFiles list`,
+        'the snapshot is missing a required selection binding',
       );
       hashes = {
         status: 'hash_snapshot_unavailable',
         summary,
-        error: `incomplete evidence hash snapshot: missing ${missingDigests.join(', ')} (the reader returned without throwing)`,
+        error: missingDigests.length > 0
+          ? `incomplete evidence hash snapshot: missing ${missingDigests.join(', ')} (the reader returned without throwing)`
+          : 'incomplete evidence hash snapshot: materialDirtyFiles is missing or malformed (the reader returned without throwing)',
         missingDigests,
       };
       escalations.push({

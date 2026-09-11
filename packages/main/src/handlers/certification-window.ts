@@ -1,3 +1,8 @@
+import { isDeepStrictEqual } from 'node:util';
+import { withValidationMetadataWrite } from '../core/validation-execution-lock.js';
+import { withReviewInventoryMutationLock, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { persistAdmittingCertificationWindow, nonInventoryAdmitRefusal, type CertificationWindow } from '../core/certification-window.js';
+import { isValidationMetadataBusy } from '../core/validation-execution-lock.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { currentPrecertFastIdentity } from './validation-identity.js';
@@ -7,7 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
 import { existsSync, realpathSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, dirname, basename, relative } from 'node:path';
 import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { loadConfig } from '../core/config.js';
 import {
@@ -78,10 +83,11 @@ import {
 import { REVIEW_INVENTORY_EPOCHS_SCHEMA } from '../core/review-inventory-epoch.js';
 import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 
-function persistHint(root: string, storyId: string, command: string): string {
+function persistHint(root: string, storyId: string, command: string, state: string): string {
   try {
     return autoCommitStoryMetadata(root, storyId, command);
   } catch (error) {
+    if (isValidationMetadataBusy(error)) throw new Error(`${String(error)}; certification window state ${state} is already recorded; inspect certification_window_status and retry the original ${command} request`);
     const reported = error instanceof Error ? error : { message: String(error) };
     reportHealthIssue(`persist:certification-window:${command}`, reported, { storyId, root });
     return '';
@@ -381,6 +387,7 @@ function collectAdmitFacts(
   ctx: HandlerContext,
   storyId: string,
   apis: NonNullable<ReturnType<typeof loadReviewInventoryAdmitApis>>,
+  recovery?: { pair: ReviewInventoryAdmitPair; windowId: string },
 ): CertificationWindowAdmitFacts {
   const gitCwd = resolveGitCwd({
     store: ctx.store,
@@ -431,7 +438,7 @@ function collectAdmitFacts(
   } catch {
     dirtyNonRuntimePaths = ['<dirty-classifier-unreadable>'];
   }
-  const inventory = readInventoryPair(apis, ctx.store, storyId);
+  const inventory = recovery?.pair ?? readInventoryPair(apis, ctx.store, storyId);
   const inventoryHeadMetadataContinuity = hasVerifiedInventoryMetadataHeadContinuity({
     gitCwd,
     storyMetadataPath: ctx.store.storyDirPath(storyId),
@@ -457,7 +464,7 @@ function collectAdmitFacts(
   return {
     inventoryApisPresent: true,
     inventory,
-    inventorySaturated: isSaturatedReviewInventoryForPrecert(apis, inventory, storyId),
+    inventorySaturated: isSaturatedReviewInventoryForPrecert(apis, inventory, storyId, recovery?.windowId),
     cheapCheckReceipt,
     currentStoryId: storyId,
     headHash,
@@ -522,13 +529,74 @@ function inventoryBinding(pair: ReviewInventoryAdmitPair | null, consumedReceipt
   };
 }
 
+function recoverPendingAdmission(ctx: HandlerContext, storyId: string, expected: CertificationWindow | null): string | null {
+  const loaded = loadVerifiedCertificationWindow(ctx.store, storyId);
+  const pending = loaded.window;
+  if (expected?.state === 'ADMITTING' && pending && (pending.state === 'ADMITTED' || pending.state === 'RUNNING')
+    && pending.windowId === expected.windowId && isDeepStrictEqual(pending.frozen, expected.frozen)
+    && isDeepStrictEqual(pending.inventory, expected.inventory) && pending.createdAt === expected.createdAt
+    && windowAuthorizesHeavyCertification(pending, loaded.receipt)) {
+    const refreshed = refreshCertificationWindowLineage({ store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId) });
+    if (refreshed.window?.windowId === expected.windowId && windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt))
+      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
+    throw new Error('PRE_CERT_ADMISSION_PENDING: concurrently completed attempt is no longer fresh');
+  }
+  if (expected?.state === 'ADMITTING' && (pending?.state !== 'ADMITTING' || pending.windowId !== expected.windowId || pending._hash !== expected._hash)) throw new Error('PRE_CERT_ADMISSION_PENDING: pending attempt changed while waiting');
+  if (pending?.state !== 'ADMITTING') return null;
+  if (expected?.state !== 'ADMITTING') throw new Error('PRE_CERT_ADMISSION_PENDING: new pending attempt appeared while waiting; retry');
+
+    const frozen = pending.frozen;
+    const current = currentCertificationIdentity(ctx, storyId);
+    if (!frozen || current.verifierIdentity !== frozen.verifierIdentity || current.testIdentity !== frozen.testIdentity || current.headHash !== frozen.headHash || current.materialHash !== frozen.materialHash || current.storyFilesHash !== frozen.storyFilesHash || !isDeepStrictEqual(current.causalInputHashes, frozen.causalInputHashes)) throw new Error('PRE_CERT_ADMISSION_PENDING: frozen inputs changed; no authority restored; cancel the pending window with certification_window_cancel, then begin a fresh inventory epoch');
+    const data = ctx.store.readReviewInventoryEpochs(storyId);
+    const epoch = data.epochs.at(-1);
+    const receipt = data.receipts.find(row => row.receiptId === pending.inventory?.receiptId);
+    if (!epoch || !receipt || !verifyReviewInventoryEpoch(epoch) || !verifyReviewInventoryReceipt(receipt)
+      || epoch.epochId !== pending.inventory?.epochId || epoch.receiptId !== receipt.receiptId || receipt.epochId !== epoch.epochId
+      || epoch.storyId !== storyId || receipt.storyId !== storyId || epoch.state !== 'FINALIZED' || receipt.invalidatedAt
+      || receipt.authority !== 'inventory-completeness-only' || receipt.authorizesTest !== false
+      || !Number.isFinite(Date.parse(pending.createdAt)) || !Number.isFinite(Date.parse(receipt.issuedAt))
+      || Date.parse(pending.createdAt) < Date.parse(receipt.issuedAt)
+      || (receipt.consumedAt !== undefined && (!Number.isFinite(Date.parse(receipt.consumedAt)) || Date.parse(receipt.consumedAt) < Date.parse(pending.createdAt)))
+      || epoch.cutoff.materialHash !== frozen.materialHash || receipt.cutoff.materialHash !== frozen.materialHash
+      || (epoch.cutoff.storyFilesHash ?? '') !== frozen.storyFilesHash || (receipt.cutoff.storyFilesHash ?? '') !== frozen.storyFilesHash)
+      throw new Error('PRE_CERT_ADMISSION_PENDING: inventory binding invalid; consumed authority was not reset');
+    const apis = loadReviewInventoryAdmitApis();
+    if (!apis?.consumeReviewInventoryCompletenessReceiptUnlocked) throw new Error('PRE_CERT_ADMISSION_PENDING: inventory API unavailable');
+    const facts = collectAdmitFacts(ctx, storyId, apis, { pair: { epoch, receipt }, windowId: pending.windowId });
+    const canonicalPath = (path: string): string => join(realpathSync(dirname(path)), basename(path));
+    const own = new Set(['certification-window.json', 'review-inventory-epochs.json'].map(name => canonicalPath(ctx.store.storyFilePath(storyId, name))));
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    // Exact frozen causal equality above is stricter than a selective causal
+    // decision. Reuse the normal non-inventory prerequisites as well.
+    const prerequisite = nonInventoryAdmitRefusal({ ...facts,
+      dirtyNonRuntimePaths: facts.dirtyNonRuntimePaths.filter(path => { try { return !own.has(canonicalPath(join(gitCwd, path))); } catch { return true; } }),
+    });
+    if (facts.expectedMainSha !== frozen.expectedMainSha || !prerequisite.admit) throw new Error(`PRE_CERT_ADMISSION_PENDING: current admission prerequisites changed: ${prerequisite.blockerDetail ?? 'expected main changed'}`);
+    if (Boolean(epoch.consumedAt) !== Boolean(receipt.consumedAt)) throw new Error('PRE_CERT_ADMISSION_PENDING: partial inventory consumption');
+    if (receipt.consumedAt) {
+      if (epoch.consumedByCertificationWindowId !== pending.windowId || receipt.consumedByCertificationWindowId !== pending.windowId || epoch.consumedAt !== receipt.consumedAt) throw new Error('PRE_CERT_ADMISSION_PENDING: consumption belongs to another attempt');
+    } else {
+      apis.consumeReviewInventoryCompletenessReceiptUnlocked(ctx.store, storyId, epoch.reviewRound, { materialHash: frozen.materialHash, storyFilesHash: frozen.storyFilesHash }, undefined, pending.windowId);
+    }
+    const admitted = persistAdmittedCertificationWindow({ store: ctx.store, storyId, frozen, inventory: pending.inventory!, expectedPendingWindowId: pending.windowId });
+    return render(projectCertificationWindowStatus(storyId, admitted.window, admitted.receipt), persistHint(ctx.root, storyId, 'certification_window_begin', admitted.window.state));
+}
+
 export function createCertificationWindowHandlers(ctx: HandlerContext) {
   return {
     certification_window_begin(args: { storyId: string }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_begin: storyId is required');
       const amendment = acceptanceCompletionBlocker(ctx.store, storyId, ctx.root);
       if (amendment) throw new Error(amendment);
+      const expectedPending = loadVerifiedCertificationWindow(ctx.store, storyId).window;
+      return withReviewInventoryMutationLock(ctx.store, storyId, () => withValidationMetadataWrite(ctx.store.projectRoot, storyId, () => {
+      const recovered = recoverPendingAdmission(ctx, storyId, expectedPending);
+      if (recovered !== null) return recovered;
+
 
       const existing = refreshCertificationWindowLineage({
         store: ctx.store,
@@ -540,14 +608,14 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
       }
 
       const apis = loadReviewInventoryAdmitApis();
-      if (!apis) {
+      if (!apis?.consumeReviewInventoryCompletenessReceiptUnlocked) {
         const window = persistBlockedCertificationWindow({
           store: ctx.store,
           storyId,
           blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
           blockerDetail: `[pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
         });
-        const hint = persistHint(ctx.root, storyId, 'certification_window_begin');
+        const hint = persistHint(ctx.root, storyId, 'certification_window_begin', window.state);
         refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint));
       }
 
@@ -561,13 +629,19 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           blockerDetail: decision.blockerDetail ?? 'PRE_CERT admit refused.',
           inventory: inventoryBinding(facts.inventory),
         });
-        const hint = persistHint(ctx.root, storyId, 'certification_window_begin');
+        const hint = persistHint(ctx.root, storyId, 'certification_window_begin', window.state);
         refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint));
       }
 
+      const frozen = {
+        headHash: facts.headHash ?? '', materialHash: facts.materialHash ?? '', storyFilesHash: facts.storyFilesHash ?? '',
+        causalInputHashes: facts.causalInputHashes, expectedMainSha: facts.expectedMainSha ?? '',
+        verifierIdentity: PRECERT_VERIFIER_IDENTITY, testIdentity: PRECERT_TEST_IDENTITY,
+      };
+      const pending = persistAdmittingCertificationWindow({ store: ctx.store, storyId, frozen, inventory: inventoryBinding(facts.inventory) });
       let consumedReceiptId = facts.inventory?.receipt?.receiptId;
       try {
-        const consumed = apis.consumeReviewInventoryCompletenessReceipt(
+        const consumed = apis.consumeReviewInventoryCompletenessReceiptUnlocked(
           ctx.store,
           storyId,
           facts.inventory?.epoch?.reviewRound ?? facts.inventory?.receipt?.reviewRound ?? '',
@@ -590,22 +664,14 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
                 'REVIEW_INVENTORY_PRE_CERT_BLOCKED: current inventory is not a signed B-3f3d saturated FINALIZED receipt',
               );
             }
-          },
+          }, pending.windowId,
         );
         if (!consumed) {
           throw new Error('consumeReviewInventoryCompletenessReceipt returned no receipt id');
         }
         consumedReceiptId = consumed;
       } catch (error) {
-        const window = persistBlockedCertificationWindow({
-          store: ctx.store,
-          storyId,
-          blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
-          blockerDetail: `Inventory consume failed: ${error instanceof Error ? error.message : String(error)}`,
-          inventory: inventoryBinding(facts.inventory),
-        });
-        const hint = persistHint(ctx.root, storyId, 'certification_window_begin');
-        refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint));
+        throw new Error(`PRE_CERT_ADMISSION_PENDING: consumption outcome retained for recovery; ${String(error)}`);
       }
 
       const admitted = persistAdmittedCertificationWindow({
@@ -621,9 +687,11 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           testIdentity: PRECERT_TEST_IDENTITY,
         },
         inventory: inventoryBinding(facts.inventory, consumedReceiptId),
+        expectedPendingWindowId: pending.windowId,
       });
-      const hint = persistHint(ctx.root, storyId, 'certification_window_begin');
+      const hint = persistHint(ctx.root, storyId, 'certification_window_begin', admitted.window.state);
       return render(projectCertificationWindowStatus(storyId, admitted.window, admitted.receipt), hint);
+      }));
     },
 
     certification_window_status(args: { storyId: string; refresh?: boolean }): string {
@@ -662,15 +730,19 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_cancel: storyId is required');
+      return withReviewInventoryMutationLock(ctx.store, storyId, () => withValidationMetadataWrite(ctx.store.projectRoot, storyId, () => {
       const window = persistCancelledCertificationWindow({
         store: ctx.store,
         storyId,
         reason: args.reason,
       });
-      const hint = persistHint(ctx.root, storyId, 'certification_window_cancel');
+      const hint = persistHint(ctx.root, storyId, 'certification_window_cancel', window.state);
       return render(projectCertificationWindowStatus(storyId, window, null), hint);
+      }));
     },
   };
 }

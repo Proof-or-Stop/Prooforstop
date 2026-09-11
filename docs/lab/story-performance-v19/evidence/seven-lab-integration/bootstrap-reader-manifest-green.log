@@ -1,0 +1,63 @@
+WITNESS CHK-001 happy-1 <- controls():final + races(final) — a legitimate concurrent rebuild under the production build mutex leaves both builder and reader at exit 0 with the CLI success marker and no recovery or missing-module output
+WITNESS CHK-001 edge-1 <- writerWinsAfterReadinessCase — writer wins the production mutex after readiness and before import; both exits 0, no overlap, locks released, single NEW:NEW generation
+WITNESS CHK-001 adversarial-1 <- races(final) — three forced readiness-to-import promotions with distinct OLD/NEW generation markers, each confirming the interleaving was reached, with no mixed generation, transient ERR_MODULE_NOT_FOUND, recovery output or nonzero exit
+WITNESS CHK-002 happy-1 <- judgeMatrix over races()/controls() — 3/3 baseline RED, 0/3 final RED, 3/3 controls per variant and zero builder failures
+WITNESS CHK-002 happy-2 <- archive validation — 119 distinct relative paths recomputed to their recorded SHA256, including the historical candidate source and the three reports, all treated as historical context rather than current final-code evidence
+WITNESS CHK-002 edge-1 <- races() — every trial reached the reader-at-import barrier before the genuine promotion step, and the reported repository dependency path exists
+WITNESS CHK-002 edge-2 <- registrationGuardCases — the committed config registers the harness and the real total-population guard exits 0 with it registered rather than excluded
+WITNESS CHK-002 adversarial-1 <- judgeMatrix over the mechanically protection-removed mutant — 3/3 RED on the same fixtures, controls and forced schedule, with zero builder failures
+WITNESS CHK-002 adversarial-2 <- judgeMatrix injections — the same acceptance rule rejects incomplete trials, an unreached window, a builder failure, a failed control, baseline/mutant not RED, final not GREEN, and an off-target reader failure
+WITNESS CHK-003 happy-1 <- controls:final-stable — uncontended CLI success plus a subsequent builder acquiring the same production mutex
+WITNESS CHK-003 happy-2 <- controls:final-builder-first — the reader waits out a held production mutex, then succeeds within the production retry bound
+WITNESS CHK-003 edge-1 <- controls:final-missing (main entry) + compatibilityCases:missing-utils-only (utils entry) — both required boundaries fail promptly with the exact missing path
+WITNESS CHK-003 edge-2 <- compatibilityCases:error-release — a failure after admission is preserved inside the bootstrap diagnostic and the finally-release lets an independent builder acquire the same target
+WITNESS CHK-003 edge-3 <- compatibilityCases:in-lock-recheck — a spaced, platform-native repository path serialises reader and holder through the same directory-based per-repository target and allows reacquisition after release
+WITNESS CHK-003 adversarial-1 <- compatibilityCases:fresh-checkout + dist-present-deps-absent + helper-module-absent — module init succeeds with neither dist nor node_modules and touches no third-party package, and the two branches that do reach the dynamic helper (absent dependency, absent helper module) each fail through the handled, actionable bootstrap diagnostic rather than an unhandled module crash
+WITNESS CHK-003 adversarial-2 <- compatibilityCases:bounded-contention — the reader exhausts an accelerated retry ceiling without stealing the live holder or entering the protected import, exits nonzero preserving the lock error, and a fresh acquisition then succeeds
+WITNESS CHK-003 adversarial-3 <- compatibilityCases:in-lock-recheck — a genuine dist disappearance after the initial observation fails closed with recovery, runs no CLI command, and releases the mutex for the next builder
+WITNESS CHK-004 happy-2 <- policyAcceptanceCases:control — the committed row judged through the real inventory/catalog path yields the required raw tuple and the effective six-field tuple, with the derived catalog policySource kept distinct
+WITNESS CHK-004 edge-1 <- registrationGuardCases — the real registration guard executed against the committed configuration exits 0 with the harness registered exactly once
+WITNESS CHK-004 edge-2 <- selectionAndScheduleCases:configured — the configured row loaded through inventory/catalog compilation consumes cpuWeight=1 in production capacity accounting and is scheduled for the timeout-derived 300000ms
+WITNESS CHK-004 edge-3 <- selectionAndScheduleCases:configured/unimpacted/relaxed — full-only plus forbidden forces complete-plan execution with zero reuse for a material change, while the same command with a relaxed tuple and the same receipt is reused
+WITNESS CHK-004 edge-4 <- selectionAndScheduleCases:multi-wave — the real selection path yields four execute rows across two waves with ties resolved by inventory index and a reuse row it excludes, whose cpuWeight=4 would otherwise exceed the fixture capacity
+WITNESS CHK-004 adversarial-1 <- registrationGuardCases — the same guard on an isolated removed-registration config exits nonzero and names the unregistered, unexcluded target
+WITNESS CHK-004 adversarial-2 <- policyAcceptanceCases — deleted policySource and each single classification-field mutation, as isolated on-disk configs, exit nonzero naming exactly that field; a defaults-only registration is rejected too
+WITNESS CHK-004 adversarial-3 <- policyAcceptanceCases — cpuWeight=2 and an incorrect explicit expectedP50Ms are independently rejected by name while the timeout-derived control passes
+WITNESS CHK-004 adversarial-4 <- scheduleOrderingCases — the duration-order and reverse-index tie mutants run through the same acceptance checker as the passing control and each exits nonzero naming the first out-of-order pair
+PASS B-bcae CHK-001 happy-1
+PASS B-bcae CHK-001 edge-1
+PASS B-bcae CHK-001 adversarial-1
+PASS B-bcae CHK-002 happy-1
+PASS B-bcae CHK-002 happy-2
+PASS B-bcae CHK-002 edge-1
+PASS B-bcae CHK-002 edge-2
+PASS B-bcae CHK-002 adversarial-1
+PASS B-bcae CHK-002 adversarial-2
+PASS B-bcae CHK-003 happy-1
+PASS B-bcae CHK-003 happy-2
+PASS B-bcae CHK-003 edge-1
+PASS B-bcae CHK-003 edge-2
+PASS B-bcae CHK-003 edge-3
+PASS B-bcae CHK-003 adversarial-1
+PASS B-bcae CHK-003 adversarial-2
+PASS B-bcae CHK-003 adversarial-3
+PASS B-bcae CHK-004 happy-2
+PASS B-bcae CHK-004 edge-1
+PASS B-bcae CHK-004 edge-2
+PASS B-bcae CHK-004 edge-3
+PASS B-bcae CHK-004 edge-4
+PASS B-bcae CHK-004 adversarial-1
+PASS B-bcae CHK-004 adversarial-2
+PASS B-bcae CHK-004 adversarial-3
+PASS B-bcae CHK-004 adversarial-4
+DEFERRED B-bcae CHK-004 happy-1 not-witnessed-locally: a canonical full validation run is observable only by that run, never by this registered child harness
+COMPLETION_WINDOW final=GREEN(reader-exit=0) recheck-removed=RED(reader-exit=1) builder-failures=0
+WRITER_WINS_AFTER_READINESS reader-exit=0 builder-exit=0 overlap=none generation=NEW:NEW
+POST_ADMISSION_RESOLUTION final=lab:held/brand-env:held outside-admission=0 lab-moved-out-mutant=lab:released/brand-env:released outside-admission=2
+REGISTRATION_GUARD real=0 mirror-control=0 removed-row=1
+SCHEDULE_ORDER_MUTANTS duration-order-mutant:exit=1:tie-high|slow tie-index-mutant:exit=1:tie-high|tie-low
+ARCHIVE_CONTEXT files=119 object=e9681e2487b23d4325dfa580eec2898392c4079388701ae8b106cd4c51462d90 manifest=9ad4b0a8456794b20eaf830c0884fc399c4a5a9d77934722636fce412668475f historical-only-candidate=48ecc575e21e1ad8af1970497466c76f30a9a0921ff777cda75abb3e78ba5545
+MATRIX baseline=RED(3/3) final=GREEN(0/3) mutant=RED(3/3) controls=3/3-each builder-failures=0
+DEPENDENCY_PATH /Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/node_modules
+REAL_DIST_ADMISSION target=/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-dist-import-lock-7cd73e8eb4e7db98cfd02a7fdaef65a246fa7ae1ff07fc2be79a9bb0b6e84fe5 promotion-window-retries=0 scheduling-duration-expression="entry.expectedP50Ms || Math.max(1, Math.min(300_000, entry.timeoutMs || 1_000))"
+PASS red-bcae-bootstrap-reader-lock

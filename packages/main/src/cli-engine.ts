@@ -1,3 +1,4 @@
+import { withValidationSigningRoot } from './core/validation-signing-context.js';
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
 import { assertRuntimePackageVersion } from './core/runtime-package-version.js';
 /**
@@ -61,6 +62,7 @@ import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate
 import { enforceStoryRuntimeAdmission } from './cli/story-runtime-admission.js';
 import {
   resolveMainRootFromWorktreeRoot,
+  projectControllerAssetsIntoStoryWorktree,
   resolveRoot,
   resolveRootForCommand,
 } from './cli/runtime-root.js';
@@ -80,6 +82,8 @@ import {
 } from './cli/lifecycle-dispatch.js';
 import { CliWatchdogTimeoutError, commandCliMaxBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
+import { resolveAgentMutationAuthority } from './core/agent-dispatch-registry.js';
+import type { AgentDispatchMutationCommand } from './core/types.js';
 import {
   assertCanonicalActiveIdentityCommandConsumers,
   assertCanonicalActiveIdentityRuntime,
@@ -814,6 +818,7 @@ export async function runCli(opts?: {
   // not trust the stale runtime's command catalog or schema. The sole exemption
   // remains explicit global-fallback session_brief.
   const root0 = resolveRootForCommand(cmd, rootOverride);
+  return withValidationSigningRoot(root0, async () => {
   const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
     ? loadConfig(root0)
     : undefined;
@@ -864,7 +869,7 @@ export async function runCli(opts?: {
   preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
 
   // Detect active story from git branch only after runtime authority passes.
-  const activeStory = detectActiveStory(root0);
+  let activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
@@ -993,8 +998,46 @@ export async function runCli(opts?: {
     else parsed.brief = true;
   }
 
+  // External harnesses may create the Story in the controller checkout after
+  // creating its linked worktree. Once command identity, schema and owner
+  // authority are known, project those bounded bootstrap assets into the exact
+  // registered Story worktree. That tree becomes the sole writer from here on.
+  let root = root0;
+  const bootstrapMainRoot = resolveMainRootFromWorktreeRoot(process.cwd());
+  const controllerRoot = bootstrapMainRoot !== null && realpathSync(root0) === realpathSync(process.cwd())
+    ? bootstrapMainRoot
+    : root0;
+  const controllerStore = new StoryStore(controllerRoot);
+  const controllerConfig = controllerRoot === root0 && runtimeOwnershipConfig ? runtimeOwnershipConfig : loadConfig(controllerRoot);
+  const bootstrapStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: controllerRoot });
+  const bootstrapOwnership = resolveEffectiveOwnershipClass(
+    cmd, parsed, bootstrapStoryId, externalAdmission.ownershipClasses, { config: controllerConfig },
+  );
+  const localStoryAlreadyProjected = Boolean(bootstrapStoryId
+    && hasProjectConfigFile(process.cwd())
+    && existsSync(new StoryStore(process.cwd()).storyDirPath(bootstrapStoryId)));
+  if (localStoryAlreadyProjected) {
+    root = process.cwd();
+    activeStory = detectActiveStory(root);
+  } else if (bootstrapStoryId
+    && (bootstrapOwnership === 'storyScopedMutating' || bootstrapOwnership === 'dangerousMutating')
+    && bootstrapMainRoot !== null && realpathSync(bootstrapMainRoot) === realpathSync(controllerRoot)) {
+    // Every non-writing admission check precedes projection. Handler-level
+    // authority remains in force and is repeated after local context creation.
+    enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses, controllerConfig);
+    enforceRetiredRootGuard(cmd, parsed, controllerConfig, activeStory, controllerRoot, externalAdmission.ownershipClasses);
+    enforceStoryRuntimeAdmission({ command: cmd, commandArgs: argv.slice(1), projectRoot: controllerRoot, effectiveOwnership: bootstrapOwnership, invokedEntrypoint: process.argv[1] ?? null, env: process.env });
+    resolveAgentMutationAuthority({ command: cmd as AgentDispatchMutationCommand });
+    enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore, activeStory, controllerRoot, externalAdmission.ownershipClasses, controllerConfig, { readOnlyAdmission: true });
+    projectControllerAssetsIntoStoryWorktree({ controllerRoot, worktreeRoot: process.cwd(), storyId: bootstrapStoryId });
+    root = process.cwd();
+    activeStory = detectActiveStory(root);
+  }
+  if (root !== root0 && activeStory && !isCommandAllowed(cmd, activeStory.phase, loadConfig(root).phaseTools)) {
+    throw new Error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
+  }
+
   // Execute
-  const root = root0;
   // Durable main-root fallback for post-command activity logging.
   // story_advance --phase=DONE removes the current story worktree mid-command.
   // Once removed, root/.git is gone, so resolveMainRootFromWorktreeRoot() can no
@@ -1010,7 +1053,7 @@ export async function runCli(opts?: {
     process.stderr.write(`[${elapsed}s] ${msg}\n`);
   };
 
-  const config0 = runtimeOwnershipConfig ?? loadConfig(root);
+  const config0 = root === root0 && runtimeOwnershipConfig ? runtimeOwnershipConfig : loadConfig(root);
   const scanRoot = join(root, config0.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);
@@ -1172,6 +1215,12 @@ export async function runCli(opts?: {
   // validators so its watchdog can unwind the exact waiter ticket instead of
   // hard-exiting with process.exit(2). Keep DONE result classification separate:
   // validate already has its own canonical PASS/FAIL exit contract below.
+  let topLevelValidationFailed = false;
+  if (cmd === 'validate') {
+    Object.assign(parsed, { onValidationOutcome: (passed: boolean) => {
+      if (passed === false) topLevelValidationFailed = true;
+    } });
+  }
   const structuredDoneResult = cmd === 'done_prepare' || cmd === 'done_required_validate';
   // B-137a: evidence writers execute pinned provider commands whose wall-clock
   // budget can legitimately exceed the default watchdog, so they need the same
@@ -1246,6 +1295,7 @@ export async function runCli(opts?: {
   }
 
   function isCanonicalCommandFailure(result: unknown): boolean {
+    if (cmd === 'validate' && topLevelValidationFailed) return true;
     if (cmd !== 'validate' && !(cmd === 'story_advance' && parsed.phase === 'TEST')) return false;
     let value: any = result;
     if (typeof result === 'string') {
@@ -1586,8 +1636,9 @@ export async function runCli(opts?: {
       if (result && typeof (result as any).then === 'function') result = await result;
       const structuredDoneFailure = isStructuredDoneFailure(result);
       const canonicalCommandFailure = isCanonicalCommandFailure(result);
+      const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
       clearInterval(watchdog);
-      log(`${cmd} ${structuredDoneFailure ? 'completed with structured failure' : 'done'}`);
+      log(`${cmd} ${commandSucceeded ? 'done' : 'completed with structured failure'}`);
       // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
       // gate, so reset that story's repeated-gate-failure counter. Scoped to
       // story_advance specifically (codex host-B #3): resetting on ANY successful
@@ -1595,7 +1646,7 @@ export async function runCli(opts?: {
       // story_advance, run any trivial no-op mutation to reset, repeat forever. A
       // successful advance is the ONLY event that means the same gate is no longer
       // failing, so it is the only legitimate reset. Best-effort.
-      if (cmd === 'story_advance') {
+      if (cmd === 'story_advance' && commandSucceeded) {
         try {
           const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
           if (sid && isCanonicalStoryId(sid)) {
@@ -1604,7 +1655,6 @@ export async function runCli(opts?: {
           }
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
-      const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
       if (shouldWriteEffectiveActivityLog || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: commandSucceeded, ...(!commandSucceeded ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
@@ -1672,7 +1722,7 @@ export async function runCli(opts?: {
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
       process.stdout.write(`${output}\n`);
-      process.exitCode = structuredDoneFailure ? 1 : 0;
+      process.exitCode = commandSucceeded ? 0 : 1;
       return;
     } catch (e: any) {
       clearInterval(watchdog);
@@ -1796,4 +1846,5 @@ export async function runCli(opts?: {
       ? parsed
       : (v.data as Record<string, unknown>),
   ));
+  });
 }

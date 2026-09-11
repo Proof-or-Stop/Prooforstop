@@ -1,0 +1,25 @@
+PASS retired-authority-loader-provenance
+PASS e40f-quorum-inventory
+PASS proofstory-acceptance-basis
+PASS review-inventory-critic-aggregate
+FAIL identity-inventory-pins status=1 signal=null error=null
+007:happy:0 active producer registry config and current baselines are proof-or-stop only: retired protocol identity witness integrity drift: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts
++ actual - expected
+
++ '1bfa826135ec243b05ffe1eb8194297f051d38e2a8e275571e7e507d3f6dd76a'
+- '0c797a7d1de07175f3e41f6e33d794897ba4ece6c2c1b496252bc279ebde820d'
+
+FAIL CHK-007:adversarial:2 producer consumer config and baseline inventory omissions are mutation-detected: retired protocol identity witness integrity drift: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts
++ actual - expected
+
++ '1bfa826135ec243b05ffe1eb8194297f051d38e2a8e275571e7e507d3f6dd76a'
+- '0c797a7d1de07175f3e41f6e33d794897ba4ece6c2c1b496252bc279ebde820d'
+
+
+RED B-49df: 2 focused contract(s) failing.
+
+PASS identity-site-pins
+PASS b49d4-derived-guard-execution
+PASS identity-current-implementation-prerequisite
+PASS public-prompt-fixture-builds-utils
+BASELINE_CONVERGENCE_FAIL count=1

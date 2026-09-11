@@ -27,6 +27,8 @@ import {
   readLifecycleMetadataOutputHashes,
 } from '../core/auto-commit-metadata.js';
 import { rawArtifactDigest } from '../core/closeout-trust.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { signTestValidationEvidence } from '../core/validation-artifact-signing.js';
 
 function git(cwd: string, args: string[]): string {
@@ -325,9 +327,13 @@ function assertPostCommandHookMutationFailsTerminalCloseout(): void {
       title: 'terminal hook',
       context: 'No required intents keeps current coverage complete.',
       status: 'done',
+      verificationIntent: { happy: [{ desc: 'Exercise routine execution and publication behavior', type: 'logic', priority: 'should' }], edge: [], adversarial: [] },
       startTime: now,
       endTime: now,
     }] });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'Fixture certification binds actual inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
     git(root, ['add', '.proof-or-stop']);
     git(root, ['commit', '-m', 'seed story metadata']);
 
@@ -421,9 +427,13 @@ function assertPhaseHookMutationFailsTransitionCloseout(): void {
       title: 'phase hook',
       context: 'No required intents keeps current coverage complete.',
       status: 'done',
+      verificationIntent: { happy: [{ desc: 'Exercise routine execution and publication behavior', type: 'logic', priority: 'should' }], edge: [], adversarial: [] },
       startTime: now,
       endTime: now,
     }] });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'Fixture certification binds actual inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
     git(root, ['add', '.proof-or-stop']);
     git(root, ['commit', '-m', 'seed story metadata']);
     const runCli = (args: string[]) => spawnSync(process.execPath, [cliPath(), ...args], {
@@ -515,9 +525,13 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       title: 'transition reuse RED',
       context: 'No required intents keeps current coverage complete.',
       status: 'done',
+      verificationIntent: { happy: [{ desc: 'Exercise routine execution and publication behavior', type: 'logic', priority: 'should' }], edge: [], adversarial: [] },
       startTime: now,
       endTime: now,
     }] });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'Fixture certification binds actual inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
     git(root, ['add', '.proof-or-stop']);
     git(root, ['commit', '-m', 'seed story metadata']);
 
@@ -624,7 +638,7 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     const humanBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
     const humanAuditBefore = validateFailureAuditCount();
     const rejected = runCli(['validate', `--story=${storyId}`, '--json']);
-    assert.equal(rejected.status, 0, `${rejected.stdout}\n${rejected.stderr}`);
+    assert.equal(rejected.status, 1, `${rejected.stdout}\n${rejected.stderr}`);
     assert.match(`${rejected.stdout}\n${rejected.stderr}`, /"status":"fail"/);
     assert.match(`${rejected.stdout}\n${rejected.stderr}`, /canonical metadata was already dirty/);
     assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), humanBytes,
@@ -650,7 +664,7 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     const forgedBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
     const forgedAuditBefore = validateFailureAuditCount();
     const forged = runCli(['validate', `--story=${storyId}`, '--json']);
-    assert.equal(forged.status, 0, `${forged.stdout}\n${forged.stderr}`);
+    assert.equal(forged.status, 1, `${forged.stdout}\n${forged.stderr}`);
     assert.match(`${forged.stdout}\n${forged.stderr}`, /canonical metadata was already dirty/);
     assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), forgedBytes,
       'a canonical-looking codex_cli row is untrusted unless this CLI invocation itself appended it');
@@ -753,6 +767,7 @@ function assertHandlerExecutedThenReused(
       title: 'handler reuse',
       context: 'No required intents keeps current coverage complete for the smoke.',
       status: 'done',
+      verificationIntent: { happy: [{ desc: 'Exercise routine execution and publication behavior', type: 'logic', priority: 'should' }], edge: [], adversarial: [] },
       startTime: now,
       endTime: now,
       ...(structuredFailureAudit ? {
@@ -775,6 +790,9 @@ function assertHandlerExecutedThenReused(
         result: 'pass',
       });
     }
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    assert.ok(causalInputHashes, 'Fixture certification binds actual inputs');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
     git(root, ['add', '.proof-or-stop']);
     git(root, ['commit', '-m', 'seed story metadata']);
 
@@ -795,7 +813,7 @@ function assertHandlerExecutedThenReused(
       ...(structuredFailureAudit ? { PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex' } : {}),
     });
     const first = run();
-    assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
+    assert.equal(first.status, semanticPass ? 0 : 1, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
     if (sourceKind === 'configured' || sourceKind === 'fallback') {
       assert.match(
@@ -830,10 +848,18 @@ function assertHandlerExecutedThenReused(
     const evidencePath = join(root, '.proof-or-stop/story/actives', storyId, 'test-evidence.json');
     const evidenceBefore = readFileSync(evidencePath, 'utf8');
     const parsedEvidence = JSON.parse(evidenceBefore) as TestEvidenceData;
+    const renewFixtureAdmission = () => {
+      const freshInputs = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(freshInputs, 'Disposable fixture must classify current inputs');
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: freshInputs });
+      git(root, ['add', store.storyFilePath(storyId, 'certification-window.json')]);
+      git(root, ['commit', '-m', 'prepare explicit synthetic admission for next test execution']);
+    };
     if (!semanticPass) {
+      renewFixtureAdmission();
       assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'non-PASS semantic JSON must record commandExecution FAIL');
       const secondFailure = run();
-      assert.equal(secondFailure.status, 0, `${secondFailure.stdout}\n${secondFailure.stderr}`);
+      assert.equal(secondFailure.status, 1, `${secondFailure.stdout}\n${secondFailure.stderr}`);
       assert.match(`${secondFailure.stdout}\n${secondFailure.stderr}`, /"disposition":"executed"/);
       const expectedRefusalReasons = structuredFailureAudit
         ? 'current-verification-coverage-incomplete,prior-command-execution-not-pass'
@@ -922,7 +948,7 @@ function assertHandlerExecutedThenReused(
     }
 
     const second = runWith(wrapperTransport);
-    assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
+    assert.equal(second.status, rejectPersistence || rejectReceipt || concurrentHead || hookAddsUnrelated ? 1 : 0, `${second.stdout}\n${second.stderr}`);
     if (rejectPersistence || rejectReceipt || concurrentHead || hookAddsUnrelated) {
       assert.match(`${second.stdout}\n${second.stderr}`, /"status":"fail"/);
       assert.match(`${second.stdout}\n${second.stderr}`, /canonical-pass-persistence-failed/);
@@ -1018,6 +1044,8 @@ function assertHandlerExecutedThenReused(
       JSON.stringify({ ...reusedEvidence, command: `${reusedEvidence.command} --stale` }, null, 2),
       'utf8',
     );
+    assert.ok(assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('validation_evidence_signature_invalid'), 'Unsigned command tamper must fail signature verification first');
+    writeFileSync(evidencePath, JSON.stringify(signTestValidationEvidence(storyId, { ...reusedEvidence, command: `${reusedEvidence.command} --stale` }, root), null, 2), 'utf8');
     assert.ok(
       assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('command_mismatch'),
       'mutation bite: a wrong persisted command must be reported as command_mismatch by the same gate call',
@@ -1035,6 +1063,12 @@ function assertHandlerExecutedThenReused(
     );
 
     if (sourceKind === 'configured' && commandCount === 1) {
+      const exhaustedEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
+      assert.equal(exhaustedEnvironmentChange.status, 1);
+      assert.match(exhaustedEnvironmentChange.stderr, /pre_cert_window_already_consumed/);
+      assert.match(exhaustedEnvironmentChange.stderr, /validation-identity-changed/);
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'Changed environment cannot reuse old PASS or bypass consumed admission');
+      renewFixtureAdmission();
       const semanticEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
       assert.equal(semanticEnvironmentChange.status, 0, `${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`);
       assert.match(`${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`, /"disposition":"executed"/);

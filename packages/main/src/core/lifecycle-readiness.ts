@@ -14,7 +14,7 @@ import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { evaluateReviewerQuorum, type ReviewerEvidenceEntry } from './reviewer-quorum.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, projectFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import type { StoryStore } from './store.js';
 import type { Finding, StoryPhase, VerificationEvidence } from './types.js';
@@ -54,6 +54,7 @@ export interface StoryReadinessNextAction {
 }
 
 export interface StoryReadinessReport {
+  reviewRoster?: { activeLanes: string[]; requiredLanes: string[]; reason: string; error?: string };
   storyId: string;
   target: LifecycleReadinessTarget;
   phase: StoryPhase;
@@ -353,7 +354,7 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
   return rows;
 }
 
-function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: string): StoryReadinessRow[] {
+export function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: string, requiredLanes?: string[]): StoryReadinessRow[] {
   const rows: StoryReadinessRow[] = [];
   const story = store.readStory(storyId);
   const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
@@ -434,6 +435,12 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
     }));
   }
 
+  const fullReviewers = activeReviewersForStory(store, storyId, projectRoot);
+  const fullLanes = fullReviewers.map(reviewer => reviewerLane(reviewer.name));
+  const suppliedLanes = requiredLanes ?? fullLanes;
+  const invalidRoster = suppliedLanes.length === 0 || suppliedLanes.some(lane => !fullLanes.includes(lane));
+  if (invalidRoster) rows.push(row({ id: 'review.roster.invalid', status: 'blocked', source: 'review', sourceRef: 'computeFinalReviewRoster', owner: 'host', category: 'missing', code: 'invalid_required_review_roster', reason: 'Required review roster is empty or contains an inactive lane; full roster remains required.', blocking: true }));
+  const effectiveLanes = invalidRoster ? fullLanes : suppliedLanes;
   const { severities, roundCount } = currentBlockingSeverities(store, storyId, projectRoot);
   if (policy.review.requireReviewerFinding) {
     const currentRoundReviewerEvidence = evidenceState.valid.map((record) => ({
@@ -441,7 +448,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       kind: record.kind,
       signatureValid: record.signatureValid,
     }));
-    const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
+    const activeReviewers = fullReviewers.filter(row => effectiveLanes.includes(reviewerLane(row.name)));
       const missing = activeReviewers.filter((reviewer) => !currentRoundReviewerEvidence.some(
         (evidence) => findingAgentMatchesReviewer(evidence.agent, reviewer.name),
       ));
@@ -849,10 +856,18 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
   const testEvidence = store.readTestEvidence(storyId);
   const deliveryCheck = store.readDeliveryCheck(storyId);
 
+  let reviewRoster: StoryReadinessReport['reviewRoster'];
+  if (target === 'REVIEW' || target === 'TEST' || target === 'DONE') {
+    const active = activeReviewersForStory(store, storyId, root);
+    const activeLanes = active.map(row => reviewerLane(row.name));
+    const roster = projectFinalReviewRoster(store, root, storyId, active);
+    reviewRoster = { activeLanes, requiredLanes: roster.requiredReviewers.map(row => reviewerLane(row.name)), reason: roster.selection?.reason ?? 'ROSTER_SELECTION_UNAVAILABLE', ...(roster.error ? { error: roster.error } : {}) };
+  }
   const readiness: StoryReadinessRow[] = [
     buildPhaseRow(storyId, story.phase, target),
     ...buildHashRows(headHash, materialHash, storyFilesHash),
   ];
+  if (reviewRoster?.error) readiness.push(row({ id: 'review.roster', status: 'blocked', source: 'review', sourceRef: 'computeFinalReviewRoster', owner: 'host', category: 'missing', code: 'review_roster_unavailable', reason: reviewRoster.error, blocking: true }));
   if (target === 'REVIEW' || target === 'TEST') {
     readiness.push(...buildMainSyncReadinessRows(storyId, gitCwd));
   }
@@ -860,7 +875,7 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
     readiness.push(...buildReviewTargetRows(store, storyId, root));
   }
   if (target === 'TEST' || target === 'DONE') {
-    readiness.push(...buildReviewGateRows(store, storyId, root));
+    readiness.push(...buildReviewGateRows(store, storyId, root, reviewRoster?.requiredLanes));
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
       readiness.push(row({
@@ -909,6 +924,7 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
     storyId,
     target,
     phase: story.phase,
+    reviewRoster,
     headHash,
     materialHash,
     storyFilesHash,

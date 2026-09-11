@@ -1,0 +1,19 @@
+PASS inventory consumer binding: canonical accepted, behavioral change rejected, wrong protocol rejected, exact restoration accepted
+B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved
+B29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS
+B29BC_INVENTORY_PURPOSE PASS
+B29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS
+B29BC_PURPOSE_FULL_ENVELOPE PASS
+INVENTORY_NEXT_ACTION_RESULT {"authority":"inventory-completeness-only","checks":[{"name":"first finalize follows receipt authority","pass":true,"observed":["Next: proof-or-stop validate --story=B-inventory-handler --focus=fast --json"]},{"name":"first finalize reports actual authority","pass":true,"observed":["Authority: inventory-completeness-only; authorizes TEST: false"]},{"name":"status follows receipt authority","pass":true,"observed":["Next: proof-or-stop validate --story=B-inventory-handler --focus=fast --json"]},{"name":"pending begin preserves completed review","pass":true,"observed":["Next: proof-or-stop validate --story=B-inventory-handler --focus=fast --json"]},{"name":"idempotent finalize follows receipt authority","pass":true,"observed":["Next: proof-or-stop validate --story=B-inventory-handler --focus=fast --json"]}],"preservedReceipt":true,"authorizesTest":false}
+PASS inventory next action uses the persisted authority on every CLI surface
+PASS U11 real inventory finalization captures verified progress
+B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved
+B29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS
+B29BC_INVENTORY_PURPOSE PASS
+B29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS
+B29BC_PURPOSE_FULL_ENVELOPE PASS
+INVENTORY_NEXT_ACTION_RESULT {"authority":"review-remediation-only","checks":[{"name":"first finalize follows receipt authority","pass":true,"observed":["Next: proof-or-stop story_advance --storyId=B-inventory-handler --phase=DEV"]},{"name":"first finalize reports actual authority","pass":true,"observed":["Authority: review-remediation-only; authorizes TEST: false"]},{"name":"status follows receipt authority","pass":true,"observed":["Next: proof-or-stop story_advance --storyId=B-inventory-handler --phase=DEV"]},{"name":"pending begin preserves completed review","pass":true,"observed":["Next: proof-or-stop story_advance --storyId=B-inventory-handler --phase=DEV"]},{"name":"idempotent finalize follows receipt authority","pass":true,"observed":["Next: proof-or-stop story_advance --storyId=B-inventory-handler --phase=DEV"]}],"preservedReceipt":true,"authorizesTest":false}
+PASS inventory next action uses the persisted authority on every CLI surface
+PASS U11 real inventory finalization captures verified progress
+INVENTORY_NEXT_ACTION_RUNS [{"remediation":false,"exitCode":0,"signal":null,"elapsedMs":72261.286208},{"remediation":true,"exitCode":0,"signal":null,"elapsedMs":73998.95087500001}]
+PASS inventory next action: both real CLI authority branches

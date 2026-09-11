@@ -1377,6 +1377,8 @@ export const QUORUM_SMOKE_CASES = [
         output: `bound to RED commit ${HISTORICAL_RED_COMMIT}`,
         timestamp: '2026-06-22T10:31:00.000Z',
       });
+      // Isolate dirty-publication refusal from the earlier scope preflight.
+      fixture.registry.get('scope_contract_init_from_plan')!({ storyId: STORY_ID });
       git(fixture.root, ['add', '.proof-or-stop/story']);
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed TEST failure baseline']);
       // Establish the current test-only admission prerequisite before introducing
@@ -1411,16 +1413,15 @@ export const QUORUM_SMOKE_CASES = [
         disposition?: unknown;
         commandExecutions?: unknown;
       };
+      assert.equal(result.status, 1, 'typed validation refusal must exit nonzero');
       assert.equal(payload.status, 'fail');
       assert.equal(payload.allPass, false);
       assert.equal(payload.failureKind, 'infra_failure');
-      assert.equal(payload.disposition, 'executed');
-      assert.equal(payload.commandExecutions, 1);
-      assert.match(
-        result.stdout,
-        /bounded quorum CLI validation probe PASS/,
-        'the intended dirty-baseline refusal must follow a real successful validation command',
-      );
+      assert.equal(payload.disposition, undefined);
+      assert.equal(payload.commandExecutions, 0);
+      assert.match(result.stdout, /VALIDATION_PUBLICATION_NOT_READY/);
+      assert.doesNotMatch(result.stdout, /bounded quorum CLI validation probe PASS/,
+        'dirty-baseline refusal must not execute the validation command');
       assert.match(`${result.stdout}\n${result.stderr}`, /canonical metadata was already dirty|pre-existing|infra_failure/);
       assert.equal(fixture.store.readTestEvidence(STORY_ID)?.result, 'FAIL');
       assert.deepEqual(

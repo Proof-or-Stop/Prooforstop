@@ -264,7 +264,6 @@ function writeCanonicalAcceptanceRegistration(root: string): string[] {
     'packages/main/src/core/story-aware-validation.ts',
     'packages/main/src/core/story-owner-lease.ts',
     'packages/main/src/core/validation-execution-lock.ts',
-    'packages/main/src/core/verification.ts',
     'packages/main/src/core/lifecycle-readiness.ts',
     'packages/main/src/handlers/checklist.ts',
     'packages/main/src/handlers/phase-gates.ts',
