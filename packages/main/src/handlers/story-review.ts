@@ -413,6 +413,51 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // Normal/high-risk stories must define happy/edge/adversarial intent per checklist item.
       // Express/fast paths can skip explicit PLAN intent; their validation remains evidence/finding based.
       const requireFullVerificationIntent = isHighRisk || channel === 'normal' || policy.profile === 'strict';
+      // Authored acceptance is reviewed even on a fast/express path. Those paths may
+      // omit intent, but they may not freeze a self-added repository health check as
+      // an absolute must. This is a quality rule over existing intent, independent
+      // of the lane-completeness policy below.
+      for (const item of cl.items) {
+        for (const lane of VERIFICATION_LANES) {
+          const entries = item.verificationIntent?.[lane] || [];
+          for (const [index, intent] of entries.entries()) {
+            if (intent.scope === 'repository'
+              && (intent.priority ?? 'must') === 'must'
+              && intent.expectation !== 'no_new_regressions'
+              && intent.requirementSource !== 'external_verifier') {
+              issues.push({
+                type: 'repository_wide_absolute_must',
+                severity: 'blocker',
+                itemId: item.id,
+                message: `${item.id}:${lane}:${index} makes repository-wide absolute success a must without an external verifier requirement. Run or inspect the repository-wide baseline before freezing acceptance; use expectation=no_new_regressions for a Story-owned differential gate, or priority=should with requirementSource=repository_health for a diagnostic health run.`,
+              });
+            }
+            if (intent.scope === 'repository'
+              && (intent.priority ?? 'must') === 'must'
+              && intent.expectation === 'no_new_regressions'
+              && !intent.baselineRef?.trim()) {
+              issues.push({
+                type: 'repository_wide_baseline_missing',
+                severity: 'blocker',
+                itemId: item.id,
+                message: `${item.id}:${lane}:${index} uses repository-wide no_new_regressions acceptance without baselineRef. Record the inspected pre-change run or baseline artifact before freezing the comparison.`,
+              });
+            }
+            if (intent.scope === 'repository'
+              && (intent.priority ?? 'must') === 'must'
+              && intent.expectation === 'absolute_pass'
+              && intent.requirementSource === 'external_verifier'
+              && !intent.requirementRef?.trim()) {
+              issues.push({
+                type: 'repository_wide_requirement_missing',
+                severity: 'blocker',
+                itemId: item.id,
+                message: `${item.id}:${lane}:${index} claims an external repository-wide absolute-pass requirement without requirementRef. Point to the user, task, or official verifier contract that requires it.`,
+              });
+            }
+          }
+        }
+      }
       if (requireFullVerificationIntent) {
         for (const item of cl.items) {
           const intents = item.verificationIntent;
@@ -784,7 +829,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const checklistSection = `\n---\nChecklist:\n${cl.items.map(i => {
             const vi = collectVerificationIntents(i);
             const intentLines = vi.length > 0
-              ? `\n  verificationIntent:\n${vi.map(v => `    - ${v.ref} [${v.lane}/${v.intent.priority || 'must'}/${v.intent.type}] ${v.intent.desc}`).join('\n')}`
+              ? `\n  verificationIntent:\n${vi.map(v => `    - ${v.ref} [${v.lane}/${v.intent.priority || 'must'}/${v.intent.type}/${v.intent.scope || 'legacy-scope'}/${v.intent.expectation || 'legacy-expectation'}/${v.intent.requirementSource || 'legacy-source'}] ${v.intent.desc}${v.intent.baselineRef ? ` baselineRef=${v.intent.baselineRef}` : ''}${v.intent.requirementRef ? ` requirementRef=${v.intent.requirementRef}` : ''}`).join('\n')}`
               : '';
             return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}${intentLines}`;
           }).join('\n')}`;

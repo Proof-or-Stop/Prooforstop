@@ -58,6 +58,24 @@ assert.equal(checklistUpdate.verificationIntent.happy[0].type, 'cli');
 assert.equal(checklistUpdate.verificationIntent.edge[0].type, 'browser');
 assert.equal(checklistUpdate.verificationIntent.adversarial[0].type, 'browser');
 
+const baselineAware = parseTool('checklist_update', {
+  storyId: 'B-smoke',
+  itemId: 'CHK-001',
+  verificationIntent: {
+    happy: [{
+      desc: 'Repository suite has no failures absent from baseline',
+      type: 'cli',
+      priority: 'must',
+      scope: 'repository',
+      expectation: 'no_new_regressions',
+      requirementSource: 'story',
+    }],
+  },
+});
+assert.equal(baselineAware.verificationIntent.happy[0].scope, 'repository');
+assert.equal(baselineAware.verificationIntent.happy[0].expectation, 'no_new_regressions');
+assert.equal(baselineAware.verificationIntent.happy[0].requirementSource, 'story');
+
 for (const current of ['logic', 'cli', 'browser', 'manual', 'docs']) {
   const parsed = parseTool('checklist_update', {
     storyId: 'B-smoke',

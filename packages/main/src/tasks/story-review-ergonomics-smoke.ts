@@ -202,6 +202,11 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
     } as any;
     store.writeChecklist(storyId, checklist);
     const differential = review.story_review({ storyId }) as any;
+    assert.ok(differential.issues.some((issue: any) => issue.type === 'repository_wide_baseline_missing'));
+    (checklist.items[0].verificationIntent!.happy![0] as any).baselineRef = 'baseline run at pre-change HEAD:abc123';
+    store.writeChecklist(storyId, checklist);
+    const groundedDifferential = review.story_review({ storyId }) as any;
+    assert.equal(groundedDifferential.issues.some((issue: any) => issue.type === 'repository_wide_baseline_missing'), false);
     assert.equal(differential.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
 
     checklist.items[0].verificationIntent!.happy![0] = {
@@ -214,6 +219,11 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
     } as any;
     store.writeChecklist(storyId, checklist);
     const external = review.story_review({ storyId }) as any;
+    assert.ok(external.issues.some((issue: any) => issue.type === 'repository_wide_requirement_missing'));
+    (checklist.items[0].verificationIntent!.happy![0] as any).requirementRef = 'DeepSWE official verifier contract';
+    store.writeChecklist(storyId, checklist);
+    const groundedExternal = review.story_review({ storyId }) as any;
+    assert.equal(groundedExternal.issues.some((issue: any) => issue.type === 'repository_wide_requirement_missing'), false);
     assert.equal(external.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
